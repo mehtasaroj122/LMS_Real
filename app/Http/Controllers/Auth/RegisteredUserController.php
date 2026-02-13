@@ -55,23 +55,16 @@ class RegisteredUserController extends Controller
         ]);
 
         // Send OTP via email
-        // MAIL SYSTEM DISABLED - To re-enable:
-        // 1. Uncomment the code below
-        // 2. Set MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD in .env
-        // 3. Uncomment the try-catch block
-        
-        // try {
-        //     Mail::send('emails.otp-email', ['otp' => $otp, 'name' => $request->name], function ($message) use ($request) {
-        //         $message->to($request->email)
-        //             ->subject('Email Verification - Library Management System');
-        //     });
-        // } catch (\Exception $e) {
-        //     \Log::error('Failed to send OTP email: ' . $e->getMessage());
-        //     return redirect()->route('register')
-        //         ->withErrors(['email' => 'Failed to send OTP. Please try again.']);
-        // }
-        
-        \Log::info('OTP would have been sent to: ' . $request->email . ' (Mail disabled)');
+        try {
+            Mail::send('emails.otp-email', ['otp' => $otp, 'name' => $request->name], function ($message) use ($request) {
+                $message->to($request->email)
+                    ->subject('Email Verification - Library Management System');
+            });
+        } catch (\Exception $e) {
+            \Log::error('Failed to send OTP email: ' . $e->getMessage());
+            return redirect()->route('register')
+                ->withErrors(['email' => 'Failed to send OTP. Please try again.']);
+        }
 
         // Redirect to OTP verification page
         return redirect()->route('verify.otp.page', ['email' => $request->email])

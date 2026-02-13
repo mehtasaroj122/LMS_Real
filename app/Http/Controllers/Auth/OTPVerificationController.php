@@ -166,28 +166,18 @@ class OTPVerificationController extends Controller
         session(['registration_data' => $regData]);
 
         // Send OTP via email
-        // MAIL SYSTEM DISABLED - To re-enable:
-        // 1. Uncomment the code below
-        // 2. Set MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD in .env
-        // 3. Uncomment the try-catch block
-        
-        // try {
-        //     Mail::send('emails.otp-email', ['otp' => $newOTP, 'name' => $regData['name']], function ($message) use ($request) {
-        //         $message->to($request->email)
-        //             ->subject('New OTP - Library Management System');
-        //     });
-        // }
-        
-        \Log::info('OTP would have been sent to: ' . $request->email . ' (Mail disabled)');
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'OTP has been resent to your email (Mail disabled - check logs)'
-        ]);
-        
-        // Catch block (commented out):
-        // if (false) {
-        //     \Log::error('Failed to send OTP email: ');
+        try {
+            Mail::send('emails.otp-email', ['otp' => $newOTP, 'name' => $regData['name']], function ($message) use ($request) {
+                $message->to($request->email)
+                    ->subject('New OTP - Library Management System');
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP has been resent to your email'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send OTP email: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to send OTP. Please try again'

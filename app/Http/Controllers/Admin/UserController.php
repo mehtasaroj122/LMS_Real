@@ -403,20 +403,15 @@ class UserController extends Controller
         ]);
 
         // Send email with temporary password
-        // MAIL SYSTEM DISABLED - To re-enable:
-        // 1. Uncomment the code below
-        // 2. Set MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD in .env
-        // try {
-        //     Mail::to($user->email)->queue(new PasswordResetEmail(
-        //         $user->name,
-        //         $user->email,
-        //         $tempPassword
-        //     ));
-        // } catch (\Exception $e) {
-        //     \Log::error('Failed to send password reset email: ' . $e->getMessage());
-        // }
-        
-        \Log::info('Password reset email would have been sent to: ' . $user->email . ' (Mail disabled)');
+        try {
+            Mail::to($user->email)->queue(new PasswordResetEmail(
+                $user->name,
+                $user->email,
+                $tempPassword
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+        }
 
         // Log the activity
         ActivityLogger::logActivity(
@@ -438,24 +433,39 @@ class UserController extends Controller
      */
     public function destroy(Request $request, User $user)
     {
-        $userName = $user->name;
-        $userRole = $user->role;
+        \Log::info('=== DELETE USER START === User ID: ' . $user->id . ', Name: ' . $user->name);
+        
+        try {
+            $userName = $user->name;
+            $userRole = $user->role;
+            $userId = $user->id;
 
-        $user->delete();
+            \Log::info('About to delete user: ' . $userName . ' (ID: ' . $userId . ', Role: ' . $userRole . ')');
 
-        // Log the activity
-        ActivityLogger::logActivity(
-            'user_deleted',
-            "Deleted User: {$userName} (" . ucfirst($userRole) . ")",
-            'user',
-            'user',
-            $user->id
-        );
+            // Clean up issued_books where this user is the issuer (issued_by)
+            // This handles the foreign key constraint issue
+            DB::table('issued_books')->where('issued_by', $userId)->update(['issued_by' => null]);
+            
+            \Log::info('Cleared issued_books.issued_by references');
 
-        return response()->json([
-            'success' => true,
-            'message' => 'User deleted successfully'
-        ]);
+            // Now delete the user (will cascade delete student/staff records through foreign keys)
+            $result = $user->delete();
+            
+            \Log::info('User.delete() returned: ' . ($result ? 'true' : 'false'));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User deleted successfully'
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('=== DELETE ERROR === ' . $e->getMessage() . ' | ' . $e->getFile() . ':' . $e->getLine());
+            \Log::error('Exception class: ' . get_class($e));
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
