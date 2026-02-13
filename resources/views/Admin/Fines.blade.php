@@ -752,128 +752,6 @@
                 min-width: 100%;
             }
 
-            /* Table Styles - Matching UserManagement */
-            .table-container {
-                border-radius: 8px;
-                overflow: hidden;
-                border: 1px solid;
-                margin-top: 12px;
-            }
-
-            body.light-theme .table-container {
-                background-color: #ffffff;
-                border-color: #e5e7eb;
-            }
-
-            body.dark-theme .table-container {
-                background-color: #1e293b;
-                border-color: #334155;
-            }
-
-            .table-wrapper {
-                overflow-x: hidden;
-            }
-
-            .table {
-                width: 100%;
-                border-collapse: collapse;
-                min-width: 1110px;
-            }
-
-            .table th {
-                padding: 6px 8px;
-                text-align: left;
-                font-weight: 600;
-                font-size: 11px;
-                border-bottom: 1px solid;
-                white-space: nowrap;
-            }
-
-            body.light-theme .table th {
-                background-color: #f8fafc;
-                border-color: #e2e8f0;
-                color: #475569;
-            }
-
-            body.dark-theme .table th {
-                background-color: #1e293b;
-                border-color: #334155;
-                color: #cbd5e1;
-            }
-
-            .table td {
-                padding: 6px 8px;
-                border-bottom: 1px solid;
-                vertical-align: middle;
-                font-size: 13px;
-            }
-
-            body.light-theme .table td {
-                border-color: #e2e8f0;
-                color: #0f172a;
-            }
-
-            body.dark-theme .table td {
-                border-color: #334155;
-                color: #f1f5f9;
-            }
-
-            /* Status Badge */
-            .status-badge {
-                padding: 2px 8px;
-                border-radius: 3px;
-                font-size: 11px;
-                font-weight: 500;
-                display: inline-block;
-            }
-
-            .status-badge {
-                background-color: #fef3c7;
-                color: #92400e;
-            }
-
-            /* Action Buttons */
-            .action-btn {
-                padding: 4px 8px;
-                margin-right: 4px;
-                border: none;
-                border-radius: 3px;
-                cursor: pointer;
-                font-size: 11px;
-                font-weight: 500;
-                color: white;
-                transition: opacity 0.2s;
-            }
-
-            .action-btn:hover {
-                opacity: 0.8;
-            }
-
-            .action-btn-paid {
-                background: #2563eb;
-            }
-
-            .action-btn-waive {
-                background: #10b981;
-            }
-
-            .action-btn-email {
-                background: #6b7280;
-            }
-
-            /* Utility Classes */
-            .text-center {
-                text-align: center;
-            }
-
-            .text-secondary {
-                color: #64748b;
-            }
-
-            body.dark-theme .text-secondary {
-                color: #94a3b8;
-            }
-
             .fines-table {
                 display: block;
                 overflow-x: auto;
@@ -884,12 +762,7 @@
                 padding: 0.5rem 0.75rem;
             }
 
-            /* Utility Classes */
-            .mt-4 {
-                margin-top: 1rem;
-            }
-
-            /* Responsive Design */
+            .page-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.5rem;
@@ -952,7 +825,7 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="stat-number" id="totalFines">₹{{ number_format($stats['total'] ?? 0, 2) }}</div>
+                    <div class="stat-number" id="totalFines">₹0</div>
                     <div class="stat-label">All issued fines</div>
                 </div>
 
@@ -973,7 +846,7 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="stat-number" id="collectedFines">₹{{ number_format($stats['collected'] ?? 0, 2) }}</div>
+                    <div class="stat-number" id="collectedFines">₹0</div>
                     <div class="stat-label">Total collected amount</div>
                 </div>
 
@@ -991,7 +864,7 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="stat-number" id="pendingFines">₹{{ number_format($stats['pending'] ?? 0, 2) }}</div>
+                    <div class="stat-number" id="pendingFines">₹0</div>
                     <div class="stat-label">To be collected</div>
                 </div>
 
@@ -1007,65 +880,86 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="stat-number" id="waivedFines">₹{{ number_format($stats['waived'] ?? 0, 2) }}</div>
+                    <div class="stat-number" id="waivedFines">₹0</div>
                     <div class="stat-label">Waived amount</div>
                 </div>
             </div>
 
-            <!-- Fines Table -->
-            <div class="table-container">
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Student ID</th>
-                                <th>Student Name</th>
-                                <th>Book Title</th>
-                                <th>Due Date</th>
-                                <th>Days Overdue</th>
-                                <th>Fine Amount</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="finesTableBody">
-                            @forelse($finesTableData as $fine)
-                                <tr>
-                                    <td>{{ $fine['student_id'] }}</td>
-                                    <td>{{ $fine['student_name'] }}</td>
-                                    <td>{{ $fine['book_title'] }}</td>
-                                    <td>{{ $fine['due_date'] }}</td>
-                                    <td>{{ $fine['days_overdue'] }}</td>
-                                    <td>{{ $fine['fine_amount'] }}</td>
-                                    <td>
-                                        <span class="status-badge">
-                                            {{ $fine['status'] }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if(strtolower($fine['status']) === 'pending')
-                                            <button onclick="markFinePaid({{ json_encode($fine) }})" class="action-btn action-btn-paid">Paid</button>
-                                            <button onclick="openWaiveModal({{ json_encode($fine) }})" class="action-btn action-btn-waive">Waive</button>
-                                        @endif
-                                        <button onclick="sendFineEmail({{ json_encode($fine) }})" class="action-btn action-btn-email">Email</button>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-secondary">No fines found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+            <!-- Search and Filters - After search instead of tabs -->
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <div class="search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <input type="text" class="search-input" id="searchInput"
+                        placeholder="Search by student name, book title, or reason...">
+                </div>
+
+                <div class="filters-container">
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="paid">Paid</option>
+                        <option value="waived">Waived</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Pagination -->
-            @if($fines && $fines->hasPages())
-                <div id="paginationContainer" class="mt-4">
-                    {{ $fines->links() }}
+            <!-- Fines Table Container -->
+            <div class="fines-table-container">
+                <table class="fines-table">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>Book Title</th>
+                            <th>Due Date</th>
+                            <th>Days Overdue</th>
+                            <th>Fine Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="finesTableBody">
+                        <!-- Data will be loaded here by JavaScript -->
+                        <tr>
+                            <td colspan="8" class="text-center">
+                                <div class="flex justify-center py-8">
+                                    <div class="loading-spinner"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-state-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+                            <path d="M9 9h6"></path>
+                            <path d="M9 13h6"></path>
+                        </svg>
+                    </div>
+                    <h3 style="margin-bottom: 0.25rem; font-size: 1rem; font-weight: 600;">No fines found</h3>
+                    <p class="text-secondary">Try adjusting your search or filters</p>
                 </div>
-            @endif
+            </div>
+
+            <!-- Table Footer -->
+            <div id="paginationContainer" class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="recordCount">0</span> records out of <span id="totalCount">0</span>
+                </div>
+                <div id="paginationButtons" class="pagination-buttons">
+                    <!-- Pagination will be generated here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1149,22 +1043,10 @@
 
             init() {
                 console.log('[Fines] Initializing fines manager...');
-                
-                // Initialize state with pagination info from URL
-                const urlParams = new URLSearchParams(window.location.search);
-                this.state.search = urlParams.get('search') || '';
-                this.state.filter = urlParams.get('status') || 'all';
-                this.state.currentPage = parseInt(urlParams.get('page') || '1');
-
-                // Setup event listeners and broadcast channel
                 this.setupEventListeners();
                 this.setupBroadcastChannel();
-                
-                console.log('[Fines] Page initialized with:', {
-                    search: this.state.search,
-                    filter: this.state.filter,
-                    page: this.state.currentPage
-                });
+                console.log('[Fines] Calling loadFines from init...');
+                this.loadFines();
             },
 
             setupBroadcastChannel() {
@@ -1229,72 +1111,149 @@
             },
 
             setupEventListeners() {
-                // Setup search from AdminDataTable component
-                const searchInput = document.querySelector('[data-table-search]');
+                // Search input with debounce
+                const searchInput = document.getElementById('searchInput');
                 if (searchInput) {
                     let debounceTimer;
-                    searchInput.addEventListener('keyup', (e) => {
+                    searchInput.addEventListener('input', (e) => {
                         clearTimeout(debounceTimer);
                         this.state.search = e.target.value;
                         this.state.currentPage = 1;
-                        // Note: AdminDataTable has built-in client-side search
-                        // For server-side filtering, implement custom logic here
+                        debounceTimer = setTimeout(() => this.loadFines(), 300);
                     });
                 }
 
-                // Setup status filter from AdminDataTable component
-                const filterBtns = document.querySelectorAll('[data-filter]');
-                filterBtns.forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const filterValue = e.currentTarget.getAttribute('data-filter');
-                        this.state.filter = filterValue;
+                // Status filter
+                const statusFilter = document.getElementById('statusFilter');
+                if (statusFilter) {
+                    statusFilter.addEventListener('change', (e) => {
+                        this.state.filter = e.target.value;
                         this.state.currentPage = 1;
-                        // Update active state
-                        filterBtns.forEach(b => b.classList.remove('active'));
-                        e.currentTarget.classList.add('active');
-                        // For server-side filtering, call: this.loadFines();
+                        this.loadFines();
                     });
-                });
+                }
             },
 
             setFilter(status) {
                 // This is kept for backward compatibility if needed
                 this.state.filter = status;
                 this.state.currentPage = 1;
-                // this.loadFines(); // Uncomment if using server-side filtering
+                this.loadFines();
             },
 
             loadFines() {
-                // Build query parameters for filtering/searching
-                const params = new URLSearchParams();
-                
-                if (this.state.search) {
-                    params.append('search', this.state.search);
-                }
-                if (this.state.filter && this.state.filter !== '') {
-                    params.append('status', this.state.filter);
-                }
-                if (this.state.currentPage > 1) {
-                    params.append('page', this.state.currentPage);
-                }
-
-                // Reload page with new parameters to display updated data
-                const queryString = params.toString();
-                const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
-                
-                console.log('[Fines] Reloading with filters:', {
+                const params = new URLSearchParams({
                     search: this.state.search,
                     status: this.state.filter,
-                    page: this.state.currentPage
+                    page: this.state.currentPage,
+                    per_page: this.state.perPage
                 });
-                
-                window.location.href = newUrl;
+
+                const tbody = document.getElementById('finesTableBody');
+                const emptyState = document.getElementById('emptyState');
+
+                if (tbody) {
+                    tbody.innerHTML =
+                        '<tr><td colspan="8" class="text-center"><div class="flex justify-center py-8"><div class="loading-spinner"></div></div></td></tr>';
+                    if (emptyState) emptyState.style.display = 'none';
+                }
+
+                const apiUrl = `{{ route('admin.fines.data') }}?${params}`;
+                console.log('[Fines] Loading fines from URL:', apiUrl);
+
+                fetch(apiUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content')
+                        }
+                    })
+                    .then(response => {
+                        console.log('[Fines] Response status:', response.status);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('[Fines] Data received:', data);
+                        if (data.success) {
+                            this.state.fines = data.fines || [];
+                            this.state.stats = data.stats || {};
+                            this.state.pagination = data.pagination || {};
+                            this.renderTable();
+                            this.updateStats();
+                            this.renderPagination();
+                        } else {
+                            this.showError(data.message || 'Error loading fines');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('[Fines] Error loading fines:', error);
+                        this.showError('Error loading fines: ' + error.message);
+                    });
             },
 
             renderTable() {
-                // AdminDataTable component handles rendering
-                // This function is kept for reference but no longer used
-                console.log('[Fines] Table data updated. AdminDataTable component will handle rendering.');
+                const tbody = document.getElementById('finesTableBody');
+                const emptyState = document.getElementById('emptyState');
+
+                if (!tbody) return;
+
+                if (this.state.fines.length === 0) {
+                    tbody.innerHTML = '';
+                    if (emptyState) emptyState.style.display = 'block';
+                    return;
+                }
+
+                if (emptyState) emptyState.style.display = 'none';
+
+                tbody.innerHTML = this.state.fines.map(fine => `
+            <tr data-fine-id="${fine.id}">
+                <td>${fine.studentId}</td>
+                <td>${fine.studentName}</td>
+                <td>${fine.bookTitle}</td>
+                <td class="text-secondary">${fine.dueDate}</td>
+                <td class="text-secondary">${fine.daysOverdue}</td>
+                <td>
+                    <span class="fine-amount ${fine.status.toLowerCase()}">
+                        ₹${parseFloat(fine.fineAmount).toFixed(2)}
+                    </span>
+                </td>
+                <td>
+                    <span class="status-badge ${this.getStatusClass(fine.status)}">
+                        ${this.getStatusIcon(fine.status)}
+                        ${fine.status}
+                    </span>
+                </td>
+                <td>
+                    <div class="flex items-center gap-2">
+                        <div class="action-buttons">
+                            ${fine.status.toLowerCase() === 'pending' ? `
+                                            <button class="action-btn btn-paid" onclick="finesManager.markAsPaid(${fine.id})">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                                                </svg>
+                                                Paid
+                                            </button>
+                                            <button class="action-btn btn-waive" onclick="finesManager.openWaiveModal(${fine.id})">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                                                </svg>
+                                                Waive
+                                            </button>
+                                        ` : ''}
+                        </div>
+                        <button class="btn-email" onclick="finesManager.sendEmailNotification(${fine.id})" title="Send Email">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
             },
 
             getStatusClass(status) {
@@ -1306,9 +1265,21 @@
 
             getStatusIcon(status) {
                 const statusLower = status.toLowerCase();
-                if (statusLower === 'paid') return '<i class="fas fa-check-circle"></i>';
-                if (statusLower === 'waived') return '<i class="fas fa-ban"></i>';
-                return '<i class="fas fa-hourglass-half"></i>';
+                if (statusLower === 'paid') {
+                    return `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>`;
+                }
+                if (statusLower === 'waived') {
+                    return `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>`;
+                }
+                return `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>`;
             },
 
             updateStats() {
@@ -1320,9 +1291,78 @@
             },
 
             renderPagination() {
-                // AdminPagination component handles rendering
-                // After loadFines completes, pagination will be auto-updated via Laravel paginator
-                console.log('[Fines] Pagination updated. AdminPagination component will handle rendering.');
+                const pagination = this.state.pagination;
+                const paginationButtons = document.getElementById('paginationButtons');
+                if (!paginationButtons) return;
+
+                paginationButtons.innerHTML = '';
+
+                // Previous button
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'pagination-btn';
+                prevBtn.disabled = pagination.current_page === 1;
+                prevBtn.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+                prevBtn.onclick = () => this.goToPage(pagination.current_page - 1);
+                paginationButtons.appendChild(prevBtn);
+
+                // Page numbers
+                const startPage = Math.max(1, pagination.current_page - 2);
+                const endPage = Math.min(pagination.last_page, pagination.current_page + 2);
+
+                if (startPage > 1) {
+                    const btn = document.createElement('button');
+                    btn.className = 'pagination-btn';
+                    btn.textContent = '1';
+                    btn.onclick = () => this.goToPage(1);
+                    paginationButtons.appendChild(btn);
+
+                    if (startPage > 2) {
+                        const dots = document.createElement('span');
+                        dots.className = 'pagination-ellipsis';
+                        dots.textContent = '...';
+                        paginationButtons.appendChild(dots);
+                    }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = i === pagination.current_page ? 'pagination-btn active' : 'pagination-btn';
+                    btn.textContent = i;
+                    btn.onclick = () => this.goToPage(i);
+                    paginationButtons.appendChild(btn);
+                }
+
+                if (endPage < pagination.last_page) {
+                    if (endPage < pagination.last_page - 1) {
+                        const dots = document.createElement('span');
+                        dots.className = 'pagination-ellipsis';
+                        dots.textContent = '...';
+                        paginationButtons.appendChild(dots);
+                    }
+
+                    const btn = document.createElement('button');
+                    btn.className = 'pagination-btn';
+                    btn.textContent = pagination.last_page;
+                    btn.onclick = () => this.goToPage(pagination.last_page);
+                    paginationButtons.appendChild(btn);
+                }
+
+                // Next button
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'pagination-btn';
+                nextBtn.disabled = pagination.current_page === pagination.last_page;
+                nextBtn.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+                nextBtn.onclick = () => this.goToPage(pagination.current_page + 1);
+                paginationButtons.appendChild(nextBtn);
+
+                // Update record count
+                const startRecord = (pagination.current_page - 1) * this.state.perPage + 1;
+                const endRecord = Math.min(pagination.current_page * this.state.perPage, pagination.total);
+
+                document.getElementById('recordCount').textContent = `${startRecord}-${endRecord}`;
+                document.getElementById('totalCount').textContent = pagination.total || 0;
             },
 
             goToPage(page) {
@@ -1505,47 +1545,6 @@
                 alert('Error: ' + message);
             }
         };
-
-        // Action handlers for AdminDataTable component
-        function markFinePaid(rowData) {
-            if (confirm(`Mark fine for ${rowData.student_name} as paid?`)) {
-                const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                
-                fetch(`/admin/fines/${rowData.id}/mark-paid`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrf,
-                    },
-                    body: JSON.stringify({ status: 'paid' })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        finesManager.showSuccess('Fine marked as paid successfully');
-                        finesManager.notifyFineUpdate(rowData.id, 'paid');
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        finesManager.showError(data.message || 'Error marking fine as paid');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    finesManager.showError('Error: ' + error.message);
-                });
-            }
-        }
-
-        function openWaiveModal(rowData) {
-            finesManager.state.currentFineId = rowData.id;
-            finesManager.openWaiveModal();
-        }
-
-        function sendFineEmail(rowData) {
-            if (confirm(`Send email notification to ${rowData.student_name}?`)) {
-                finesManager.sendEmailNotification(rowData.id);
-            }
-        }
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
