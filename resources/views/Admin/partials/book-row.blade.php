@@ -8,8 +8,19 @@
 <tr data-book-id="{{ $book->id }}" data-category="{{ $book->category_id ?? '' }}" data-condition="{{ $book->condition }}">
     <td>{{ $book->isbn }}</td>
     <td>
-        <strong>{{ $book->title }}</strong>
-        <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">{{ $book->publisher ?? 'Unknown Publisher' }}</div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            @if ($book->cover_image)
+                <img src="{{ str_starts_with($book->cover_image, 'http') ? $book->cover_image : asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}" style="width: 40px; height: 50px; border-radius: 4px; object-fit: cover; border: 1px solid #e5e7eb;">
+            @else
+                <div style="width: 40px; height: 50px; min-width: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; border-radius: 4px; color: #ffffff; font-weight: 700; font-size: 20px; flex-shrink: 0;">
+                    {{ strtoupper(substr($book->title, 0, 1)) }}
+                </div>
+            @endif
+            <div>
+                <strong>{{ $book->title }}</strong>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">{{ $book->publisher ?? 'Unknown Publisher' }}</div>
+            </div>
+        </div>
     </td>
     <td>{{ $book->author }}</td>
     <td>{{ $book->category?->name ?? 'N/A' }}</td>

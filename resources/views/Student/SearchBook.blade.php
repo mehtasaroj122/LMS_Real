@@ -519,6 +519,15 @@
         <div class="books-grid" id="booksContainer">
             @forelse($books as $book)
                 <div class="book-card">
+                    <div class="book-cover">
+                        @if ($book->cover_image)
+                            <img src="{{ str_starts_with($book->cover_image, 'http') ? $book->cover_image : asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 4px;">
+                        @else
+                            <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; border-radius: 4px; color: #ffffff; font-size: 72px; font-weight: 700;">
+                                {{ strtoupper(substr($book->title, 0, 1)) }}
+                            </div>
+                        @endif
+                    </div>
                     <div class="book-header">
                         <div>
                             <h3 class="book-title">{{ $book->title }}</h3>

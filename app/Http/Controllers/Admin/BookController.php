@@ -84,8 +84,24 @@ class BookController extends Controller
                         . '>';
             $tableRows .= '<td>' . htmlspecialchars($book->isbn) . '</td>';
             $tableRows .= '<td>';
+            $tableRows .= '<div style="display: flex; align-items: center; gap: 12px;">';
+            
+            // Add cover image
+            if ($book->cover_image) {
+                $imageUrl = str_starts_with($book->cover_image, 'http') ? $book->cover_image : asset('storage/' . $book->cover_image);
+                $tableRows .= '<img src="' . htmlspecialchars($imageUrl) . '" alt="' . htmlspecialchars($book->title) . '" style="width: 40px; height: 50px; border-radius: 4px; object-fit: cover; border: 1px solid #e5e7eb;">';
+            } else {
+                $firstLetter = strtoupper(substr($book->title, 0, 1));
+                $tableRows .= '<div style="width: 40px; height: 50px; min-width: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; border-radius: 4px; color: #ffffff; font-weight: 700; font-size: 20px; flex-shrink: 0;">';
+                $tableRows .= $firstLetter;
+                $tableRows .= '</div>';
+            }
+            
+            $tableRows .= '<div>';
             $tableRows .= '<strong style="font-size: 13px;">' . htmlspecialchars($book->title) . '</strong>';
             $tableRows .= '<div style="font-size: 10px; color: #9ca3af; margin-top: 1px;">' . htmlspecialchars($book->publisher ?? 'Unknown') . '</div>';
+            $tableRows .= '</div>';
+            $tableRows .= '</div>';
             $tableRows .= '</td>';
             $tableRows .= '<td>' . htmlspecialchars($book->author) . '</td>';
             $tableRows .= '<td>' . htmlspecialchars($book->category->name ?? 'N/A') . '</td>';
