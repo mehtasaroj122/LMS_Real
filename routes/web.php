@@ -33,6 +33,7 @@ use App\Http\Controllers\student\ProfileController as StudentProfileController;
 use App\Http\Controllers\student\MyRequestsController;
 use App\Http\Controllers\student\MyFinesController;
 use App\Http\Controllers\student\MyBooksController;
+use App\Http\Controllers\student\NotificationController as StudentNotificationController;
 use App\Http\Controllers\PasswordChangeController;
 
 
