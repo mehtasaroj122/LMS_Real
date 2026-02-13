@@ -1,15 +1,11 @@
-{{--
+<!--
     Status Badge Component
     
     Props:
     - $status: string - Status value (active, inactive, pending, warning)
     - $label: string - Custom label (optional)
     - $icon: string - Font Awesome icon (optional)
-    
-    Usage:
-    <x-admin-status-badge status="active" />
-    <x-admin-status-badge status="inactive" label="Disabled" icon="fa-lock" />
---}}
+-->
 
 @props([
     'status' => 'pending',

@@ -17,10 +17,122 @@ class FineController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('access-admin');
-        return view('Admin.Fines');
+        
+        // Get search, status, and pagination parameters
+        $search = $request->get('search', '');
+        $status = $request->get('status', 'all');
+        $page = $request->get('page', 1);
+        $perPage = 10;
+
+        // Build query
+        $query = \App\Models\Fine::with(['student.user', 'issuedBook.book'])
+            ->whereHas('student.user', function($q) {
+                $q->where('role', 'student');
+            })
+            ->orderBy('created_at', 'desc');
+
+        // Search filter
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('student.user', function($sq) use ($search) {
+                    $sq->where('name', 'like', "%$search%")
+                       ->orWhere('email', 'like', "%$search%");
+                })
+                ->orWhereHas('issuedBook.book', function($sq) use ($search) {
+                    $sq->where('title', 'like', "%$search%");
+                })
+                ->orWhere('remarks', 'like', "%$search%")
+                ->orWhere('amount', 'like', "%$search%")
+                ->orWhere('status', 'like', "%$search%");
+            });
+        }
+
+        // Status filter
+        if ($status !== 'all') {
+            if (strtolower($status) === 'overdue') {
+                $query->whereHas('issuedBook', function($q) {
+                    $q->where('due_date', '<', now())->whereNull('return_date');
+                });
+            } else {
+                $query->where('status', strtolower($status));
+            }
+        }
+
+        // Paginate results
+        $fines = $query->paginate($perPage, ['*'], 'page', $page);
+
+        // Transform fines data for the AdminDataTable component
+        $finesTableData = $fines->getCollection()->map(function($fine) {
+            $dueDate = $fine->issuedBook && $fine->issuedBook->due_date
+                ? $fine->issuedBook->due_date->format('M d, Y')
+                : 'N/A';
+            
+            // Map camelCase keys to snake_case for component
+            return [
+                'id' => $fine->id,
+                'student_id' => $fine->student ? $fine->student->roll_no : 'N/A',
+                'student_name' => $fine->student && $fine->student->user
+                    ? $fine->student->user->name
+                    : 'Unknown',
+                'book_title' => $fine->issuedBook && $fine->issuedBook->book
+                    ? $fine->issuedBook->book->title
+                    : 'Unknown',
+                'due_date' => $dueDate,
+                'days_overdue' => (int)$fine->days_late,
+                'fine_amount' => '₹' . number_format((float)$fine->amount, 2),
+                'status' => ucfirst($fine->status),
+                'created_at' => $fine->created_at->format('M d, Y'),
+                'remarks' => $fine->remarks ?? ''
+            ];
+        })->toArray();
+
+        // Calculate statistics (for all matching records, not just current page)
+        $statsQuery = \App\Models\Fine::whereHas('student.user', function($q) {
+            $q->where('role', 'student');
+        });
+        
+        if (!empty($search)) {
+            $statsQuery->where(function($q) use ($search) {
+                $q->whereHas('student.user', function($sq) use ($search) {
+                    $sq->where('name', 'like', "%$search%")
+                       ->orWhere('email', 'like', "%$search%");
+                })
+                ->orWhereHas('issuedBook.book', function($sq) use ($search) {
+                    $sq->where('title', 'like', "%$search%");
+                })
+                ->orWhere('remarks', 'like', "%$search%")
+                ->orWhere('amount', 'like', "%$search%")
+                ->orWhere('status', 'like', "%$search%");
+            });
+        }
+        
+        if ($status !== 'all') {
+            if (strtolower($status) === 'overdue') {
+                $statsQuery->whereHas('issuedBook', function($q) {
+                    $q->where('due_date', '<', now())->whereNull('return_date');
+                });
+            } else {
+                $statsQuery->where('status', strtolower($status));
+            }
+        }
+        
+        $allFines = $statsQuery->get();
+        
+        return view('Admin.Fines', [
+            'finesTableData' => $finesTableData,
+            'fines' => $fines,
+            'stats' => [
+                'total' => $allFines->sum('amount'),
+                'collected' => $allFines->where('status', 'paid')->sum('amount'),
+                'pending' => $allFines->filter(function($fine) {
+                    return strtolower($fine->status) === 'pending';
+                })->sum('amount'),
+                'waived' => $allFines->where('status', 'waived')->sum('amount'),
+            ]
+        ]);
     }
 
     /**

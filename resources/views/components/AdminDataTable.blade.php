@@ -1,4 +1,4 @@
-{{--
+<!--
     Reusable Admin Data Table Component
     
     Props:
@@ -14,17 +14,7 @@
     - $emptyMessage: string - Message when no data
     - $rowClass: string - Custom class for rows
     - $responsive: boolean - Make responsive
-    
-    Usage Example:
-    <x-admin-data-table 
-        :title="'User Management'"
-        :subtitle="'All users in the system'"
-        :columns="$columns"
-        :data="$users"
-        :actions="$actions"
-        :searchable="true"
-    />
---}}
+-->
 
 @props([
     'title' => 'Data Table',

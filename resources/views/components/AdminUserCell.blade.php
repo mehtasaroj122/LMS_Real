@@ -1,9 +1,6 @@
-{{--
+<!--
     User Cell Component - Displays user with avatar
-    
-    Usage:
-    <x-admin-user-cell :user="$user" />
---}}
+-->
 
 @props(['user', 'showEmail' => true])
 

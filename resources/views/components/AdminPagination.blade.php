@@ -1,4 +1,4 @@
-{{--
+<!--
     Admin Pagination Component
     
     Props:
@@ -7,10 +7,7 @@
     - $compact: boolean - Compact mode (smaller buttons)
     - $customClass: string - Custom CSS class
     - $onPageChange: string - JavaScript callback (optional)
-    
-    Usage:
-    <x-admin-pagination :paginator="$users" :showInfo="true" />
---}}
+-->
 
 @props([
     'paginator' => null,

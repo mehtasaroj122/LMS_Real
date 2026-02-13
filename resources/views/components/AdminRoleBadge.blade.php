@@ -1,15 +1,11 @@
-{{--
+<!--
     Role Badge Component
     
     Props:
     - $role: string - Role value (admin, staff, student, user)
     - $label: string - Custom label (optional)
     - $icon: string - Font Awesome icon (optional)
-    
-    Usage:
-    <x-admin-role-badge role="admin" />
-    <x-admin-role-badge role="student" label="CS Student" icon="fa-graduation-cap" />
---}}
+-->
 
 @props([
     'role' => 'user',
