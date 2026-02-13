@@ -1,0 +1,902 @@
+[
+    {
+        "student_id": 2,
+        "book_id": 1,
+        "request_date": "2026-02-12 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 3,
+        "book_id": 2,
+        "request_date": "2026-02-11 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 4,
+        "book_id": 3,
+        "request_date": "2026-02-10 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 5,
+        "book_id": 4,
+        "request_date": "2026-02-09 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 6,
+        "book_id": 5,
+        "request_date": "2026-02-08 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 7,
+        "book_id": 6,
+        "request_date": "2026-02-07 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 8,
+        "book_id": 7,
+        "request_date": "2026-02-06 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 9,
+        "book_id": 8,
+        "request_date": "2026-02-05 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 10,
+        "book_id": 9,
+        "request_date": "2026-02-04 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 11,
+        "book_id": 10,
+        "request_date": "2026-02-03 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 12,
+        "book_id": 11,
+        "request_date": "2026-02-02 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 13,
+        "book_id": 12,
+        "request_date": "2026-02-01 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 14,
+        "book_id": 13,
+        "request_date": "2026-01-31 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 15,
+        "book_id": 14,
+        "request_date": "2026-01-30 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 16,
+        "book_id": 15,
+        "request_date": "2026-01-29 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 17,
+        "book_id": 16,
+        "request_date": "2026-01-28 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 18,
+        "book_id": 17,
+        "request_date": "2026-01-27 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 19,
+        "book_id": 18,
+        "request_date": "2026-01-26 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 20,
+        "book_id": 19,
+        "request_date": "2026-01-25 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 21,
+        "book_id": 20,
+        "request_date": "2026-01-24 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 22,
+        "book_id": 21,
+        "request_date": "2026-01-23 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 23,
+        "book_id": 22,
+        "request_date": "2026-01-22 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 24,
+        "book_id": 23,
+        "request_date": "2026-01-21 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 25,
+        "book_id": 24,
+        "request_date": "2026-01-20 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 26,
+        "book_id": 25,
+        "request_date": "2026-01-19 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 27,
+        "book_id": 26,
+        "request_date": "2026-01-18 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 28,
+        "book_id": 27,
+        "request_date": "2026-01-17 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 29,
+        "book_id": 28,
+        "request_date": "2026-01-16 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 30,
+        "book_id": 29,
+        "request_date": "2026-01-15 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 31,
+        "book_id": 30,
+        "request_date": "2026-01-14 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 32,
+        "book_id": 31,
+        "request_date": "2026-01-13 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 33,
+        "book_id": 32,
+        "request_date": "2026-01-12 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 34,
+        "book_id": 33,
+        "request_date": "2026-01-11 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 35,
+        "book_id": 34,
+        "request_date": "2026-01-10 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 36,
+        "book_id": 35,
+        "request_date": "2026-01-09 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 37,
+        "book_id": 36,
+        "request_date": "2026-01-08 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 38,
+        "book_id": 37,
+        "request_date": "2026-01-07 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 39,
+        "book_id": 38,
+        "request_date": "2026-01-06 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 40,
+        "book_id": 39,
+        "request_date": "2026-01-05 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 41,
+        "book_id": 40,
+        "request_date": "2026-01-04 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 42,
+        "book_id": 41,
+        "request_date": "2026-01-03 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 43,
+        "book_id": 42,
+        "request_date": "2026-01-02 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 44,
+        "book_id": 43,
+        "request_date": "2026-01-01 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 45,
+        "book_id": 44,
+        "request_date": "2025-12-31 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 46,
+        "book_id": 45,
+        "request_date": "2025-12-30 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 47,
+        "book_id": 46,
+        "request_date": "2025-12-29 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 48,
+        "book_id": 47,
+        "request_date": "2025-12-28 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 49,
+        "book_id": 48,
+        "request_date": "2025-12-27 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 50,
+        "book_id": 49,
+        "request_date": "2025-12-26 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 51,
+        "book_id": 50,
+        "request_date": "2025-12-25 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 52,
+        "book_id": 51,
+        "request_date": "2025-12-24 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 53,
+        "book_id": 52,
+        "request_date": "2025-12-23 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 54,
+        "book_id": 53,
+        "request_date": "2025-12-22 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 55,
+        "book_id": 54,
+        "request_date": "2025-12-21 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 56,
+        "book_id": 55,
+        "request_date": "2025-12-20 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 57,
+        "book_id": 56,
+        "request_date": "2025-12-19 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 58,
+        "book_id": 57,
+        "request_date": "2025-12-18 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 59,
+        "book_id": 58,
+        "request_date": "2025-12-17 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 60,
+        "book_id": 59,
+        "request_date": "2025-12-16 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 61,
+        "book_id": 60,
+        "request_date": "2026-02-13 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 62,
+        "book_id": 61,
+        "request_date": "2026-02-12 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 63,
+        "book_id": 62,
+        "request_date": "2026-02-11 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 64,
+        "book_id": 63,
+        "request_date": "2026-02-10 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 65,
+        "book_id": 64,
+        "request_date": "2026-02-09 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 66,
+        "book_id": 65,
+        "request_date": "2026-02-08 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 67,
+        "book_id": 66,
+        "request_date": "2026-02-07 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 68,
+        "book_id": 67,
+        "request_date": "2026-02-06 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 69,
+        "book_id": 68,
+        "request_date": "2026-02-05 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 70,
+        "book_id": 69,
+        "request_date": "2026-02-04 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 1,
+        "book_id": 70,
+        "request_date": "2026-02-03 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 2,
+        "book_id": 71,
+        "request_date": "2026-02-02 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 3,
+        "book_id": 72,
+        "request_date": "2026-02-01 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 4,
+        "book_id": 73,
+        "request_date": "2026-01-31 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 5,
+        "book_id": 74,
+        "request_date": "2026-01-30 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 6,
+        "book_id": 75,
+        "request_date": "2026-01-29 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 7,
+        "book_id": 76,
+        "request_date": "2026-01-28 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 8,
+        "book_id": 77,
+        "request_date": "2026-01-27 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 9,
+        "book_id": 78,
+        "request_date": "2026-01-26 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 10,
+        "book_id": 79,
+        "request_date": "2026-01-25 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 11,
+        "book_id": 80,
+        "request_date": "2026-01-24 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 12,
+        "book_id": 81,
+        "request_date": "2026-01-23 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 13,
+        "book_id": 82,
+        "request_date": "2026-01-22 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 14,
+        "book_id": 83,
+        "request_date": "2026-01-21 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 15,
+        "book_id": 84,
+        "request_date": "2026-01-20 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 16,
+        "book_id": 85,
+        "request_date": "2026-01-19 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 17,
+        "book_id": 86,
+        "request_date": "2026-01-18 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 18,
+        "book_id": 87,
+        "request_date": "2026-01-17 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 19,
+        "book_id": 88,
+        "request_date": "2026-01-16 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 20,
+        "book_id": 89,
+        "request_date": "2026-01-15 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 21,
+        "book_id": 90,
+        "request_date": "2026-01-14 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 22,
+        "book_id": 91,
+        "request_date": "2026-01-13 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 23,
+        "book_id": 92,
+        "request_date": "2026-01-12 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 24,
+        "book_id": 93,
+        "request_date": "2026-01-11 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 25,
+        "book_id": 94,
+        "request_date": "2026-01-10 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 26,
+        "book_id": 95,
+        "request_date": "2026-01-09 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 27,
+        "book_id": 96,
+        "request_date": "2026-01-08 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 28,
+        "book_id": 97,
+        "request_date": "2026-01-07 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 29,
+        "book_id": 98,
+        "request_date": "2026-01-06 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 30,
+        "book_id": 99,
+        "request_date": "2026-01-05 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 31,
+        "book_id": 100,
+        "request_date": "2026-01-04 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 32,
+        "book_id": 101,
+        "request_date": "2026-01-03 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 33,
+        "book_id": 102,
+        "request_date": "2026-01-02 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 34,
+        "book_id": 103,
+        "request_date": "2026-01-01 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 35,
+        "book_id": 104,
+        "request_date": "2025-12-31 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 36,
+        "book_id": 105,
+        "request_date": "2025-12-30 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 37,
+        "book_id": 106,
+        "request_date": "2025-12-29 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 38,
+        "book_id": 107,
+        "request_date": "2025-12-28 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 39,
+        "book_id": 108,
+        "request_date": "2025-12-27 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 40,
+        "book_id": 109,
+        "request_date": "2025-12-26 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 41,
+        "book_id": 110,
+        "request_date": "2025-12-25 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 42,
+        "book_id": 111,
+        "request_date": "2025-12-24 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 43,
+        "book_id": 112,
+        "request_date": "2025-12-23 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 44,
+        "book_id": 113,
+        "request_date": "2025-12-22 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 45,
+        "book_id": 114,
+        "request_date": "2025-12-21 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 46,
+        "book_id": 115,
+        "request_date": "2025-12-20 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 47,
+        "book_id": 116,
+        "request_date": "2025-12-19 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 48,
+        "book_id": 117,
+        "request_date": "2025-12-18 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 49,
+        "book_id": 118,
+        "request_date": "2025-12-17 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 50,
+        "book_id": 119,
+        "request_date": "2025-12-16 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 51,
+        "book_id": 120,
+        "request_date": "2026-02-13 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 52,
+        "book_id": 121,
+        "request_date": "2026-02-12 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 53,
+        "book_id": 122,
+        "request_date": "2026-02-11 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 54,
+        "book_id": 123,
+        "request_date": "2026-02-10 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 55,
+        "book_id": 124,
+        "request_date": "2026-02-09 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 56,
+        "book_id": 125,
+        "request_date": "2026-02-08 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 57,
+        "book_id": 126,
+        "request_date": "2026-02-07 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 58,
+        "book_id": 127,
+        "request_date": "2026-02-06 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 59,
+        "book_id": 128,
+        "request_date": "2026-02-05 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 60,
+        "book_id": 129,
+        "request_date": "2026-02-04 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 61,
+        "book_id": 130,
+        "request_date": "2026-02-03 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 62,
+        "book_id": 131,
+        "request_date": "2026-02-02 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 63,
+        "book_id": 132,
+        "request_date": "2026-02-01 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 64,
+        "book_id": 133,
+        "request_date": "2026-01-31 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 65,
+        "book_id": 134,
+        "request_date": "2026-01-30 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 66,
+        "book_id": 135,
+        "request_date": "2026-01-29 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 67,
+        "book_id": 136,
+        "request_date": "2026-01-28 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 68,
+        "book_id": 137,
+        "request_date": "2026-01-27 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 69,
+        "book_id": 138,
+        "request_date": "2026-01-26 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 70,
+        "book_id": 139,
+        "request_date": "2026-01-25 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 1,
+        "book_id": 140,
+        "request_date": "2026-01-24 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 2,
+        "book_id": 141,
+        "request_date": "2026-01-23 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 3,
+        "book_id": 142,
+        "request_date": "2026-01-22 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 4,
+        "book_id": 143,
+        "request_date": "2026-01-21 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 5,
+        "book_id": 144,
+        "request_date": "2026-01-20 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 6,
+        "book_id": 145,
+        "request_date": "2026-01-19 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 7,
+        "book_id": 146,
+        "request_date": "2026-01-18 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 8,
+        "book_id": 147,
+        "request_date": "2026-01-17 12:05:53",
+        "status": "rejected"
+    },
+    {
+        "student_id": 9,
+        "book_id": 148,
+        "request_date": "2026-01-16 12:05:53",
+        "status": "approved"
+    },
+    {
+        "student_id": 10,
+        "book_id": 149,
+        "request_date": "2026-01-15 12:05:53",
+        "status": "pending"
+    },
+    {
+        "student_id": 11,
+        "book_id": 150,
+        "request_date": "2026-01-14 12:05:53",
+        "status": "approved"
+    }
+]

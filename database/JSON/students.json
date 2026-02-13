@@ -1,0 +1,562 @@
+[
+    {
+        "user_id": 37,
+        "department_id": 1,
+        "roll_no": "CS-2023-001",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Mumbai, India"
+    },
+    {
+        "user_id": 38,
+        "department_id": 2,
+        "roll_no": "IT-2023-002",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Bangalore, India"
+    },
+    {
+        "user_id": 39,
+        "department_id": 3,
+        "roll_no": "EE-2023-003",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Hyderabad, India"
+    },
+    {
+        "user_id": 40,
+        "department_id": 4,
+        "roll_no": "ME-2023-004",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Pune, India"
+    },
+    {
+        "user_id": 41,
+        "department_id": 5,
+        "roll_no": "CE-2023-005",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Chennai, India"
+    },
+    {
+        "user_id": 42,
+        "department_id": 6,
+        "roll_no": "BBA-2023-006",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Kolkata, India"
+    },
+    {
+        "user_id": 43,
+        "department_id": 7,
+        "roll_no": "MATH-2023-007",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Delhi, India"
+    },
+    {
+        "user_id": 44,
+        "department_id": 8,
+        "roll_no": "PHY-2023-008",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ahmedabad, India"
+    },
+    {
+        "user_id": 45,
+        "department_id": 9,
+        "roll_no": "ENG-2023-009",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Jaipur, India"
+    },
+    {
+        "user_id": 46,
+        "department_id": 10,
+        "roll_no": "CHEM-2023-010",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Lucknow, India"
+    },
+    {
+        "user_id": 47,
+        "department_id": 11,
+        "roll_no": "CS-2023-011",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Surat, India"
+    },
+    {
+        "user_id": 48,
+        "department_id": 12,
+        "roll_no": "IT-2023-012",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Vadodara, India"
+    },
+    {
+        "user_id": 49,
+        "department_id": 13,
+        "roll_no": "EE-2023-013",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Indore, India"
+    },
+    {
+        "user_id": 50,
+        "department_id": 1,
+        "roll_no": "ME-2023-014",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Nagpur, India"
+    },
+    {
+        "user_id": 51,
+        "department_id": 2,
+        "roll_no": "CE-2023-015",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Bhopal, India"
+    },
+    {
+        "user_id": 52,
+        "department_id": 3,
+        "roll_no": "BBA-2023-016",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Chandigarh, India"
+    },
+    {
+        "user_id": 53,
+        "department_id": 4,
+        "roll_no": "MATH-2023-017",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Visakhapatnam, India"
+    },
+    {
+        "user_id": 54,
+        "department_id": 5,
+        "roll_no": "PHY-2023-018",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ludhiana, India"
+    },
+    {
+        "user_id": 55,
+        "department_id": 6,
+        "roll_no": "ENG-2023-019",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Kanpur, India"
+    },
+    {
+        "user_id": 56,
+        "department_id": 7,
+        "roll_no": "CHEM-2023-020",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ghaziabad, India"
+    },
+    {
+        "user_id": 57,
+        "department_id": 8,
+        "roll_no": "CS-2023-021",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Mumbai, India"
+    },
+    {
+        "user_id": 58,
+        "department_id": 9,
+        "roll_no": "IT-2023-022",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Bangalore, India"
+    },
+    {
+        "user_id": 59,
+        "department_id": 10,
+        "roll_no": "EE-2023-023",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Hyderabad, India"
+    },
+    {
+        "user_id": 60,
+        "department_id": 11,
+        "roll_no": "ME-2023-024",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Pune, India"
+    },
+    {
+        "user_id": 61,
+        "department_id": 12,
+        "roll_no": "CE-2023-025",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Chennai, India"
+    },
+    {
+        "user_id": 62,
+        "department_id": 13,
+        "roll_no": "BBA-2023-026",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Kolkata, India"
+    },
+    {
+        "user_id": 63,
+        "department_id": 1,
+        "roll_no": "MATH-2023-027",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Delhi, India"
+    },
+    {
+        "user_id": 64,
+        "department_id": 2,
+        "roll_no": "PHY-2023-028",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ahmedabad, India"
+    },
+    {
+        "user_id": 65,
+        "department_id": 3,
+        "roll_no": "ENG-2023-029",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Jaipur, India"
+    },
+    {
+        "user_id": 66,
+        "department_id": 4,
+        "roll_no": "CHEM-2023-030",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Lucknow, India"
+    },
+    {
+        "user_id": 67,
+        "department_id": 5,
+        "roll_no": "CS-2023-031",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Surat, India"
+    },
+    {
+        "user_id": 68,
+        "department_id": 6,
+        "roll_no": "IT-2023-032",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Vadodara, India"
+    },
+    {
+        "user_id": 69,
+        "department_id": 7,
+        "roll_no": "EE-2023-033",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Indore, India"
+    },
+    {
+        "user_id": 70,
+        "department_id": 8,
+        "roll_no": "ME-2023-034",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Nagpur, India"
+    },
+    {
+        "user_id": 71,
+        "department_id": 9,
+        "roll_no": "CE-2023-035",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Bhopal, India"
+    },
+    {
+        "user_id": 72,
+        "department_id": 10,
+        "roll_no": "BBA-2023-036",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Chandigarh, India"
+    },
+    {
+        "user_id": 73,
+        "department_id": 11,
+        "roll_no": "MATH-2023-037",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Visakhapatnam, India"
+    },
+    {
+        "user_id": 74,
+        "department_id": 12,
+        "roll_no": "PHY-2023-038",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ludhiana, India"
+    },
+    {
+        "user_id": 75,
+        "department_id": 13,
+        "roll_no": "ENG-2023-039",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Kanpur, India"
+    },
+    {
+        "user_id": 76,
+        "department_id": 1,
+        "roll_no": "CHEM-2023-040",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ghaziabad, India"
+    },
+    {
+        "user_id": 77,
+        "department_id": 2,
+        "roll_no": "CS-2023-041",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Mumbai, India"
+    },
+    {
+        "user_id": 78,
+        "department_id": 3,
+        "roll_no": "IT-2023-042",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Bangalore, India"
+    },
+    {
+        "user_id": 79,
+        "department_id": 4,
+        "roll_no": "EE-2023-043",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Hyderabad, India"
+    },
+    {
+        "user_id": 80,
+        "department_id": 5,
+        "roll_no": "ME-2023-044",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Pune, India"
+    },
+    {
+        "user_id": 81,
+        "department_id": 6,
+        "roll_no": "CE-2023-045",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Chennai, India"
+    },
+    {
+        "user_id": 82,
+        "department_id": 7,
+        "roll_no": "BBA-2023-046",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Kolkata, India"
+    },
+    {
+        "user_id": 83,
+        "department_id": 8,
+        "roll_no": "MATH-2023-047",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Delhi, India"
+    },
+    {
+        "user_id": 84,
+        "department_id": 9,
+        "roll_no": "PHY-2023-048",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ahmedabad, India"
+    },
+    {
+        "user_id": 85,
+        "department_id": 10,
+        "roll_no": "ENG-2023-049",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Jaipur, India"
+    },
+    {
+        "user_id": 86,
+        "department_id": 11,
+        "roll_no": "CHEM-2023-050",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Lucknow, India"
+    },
+    {
+        "user_id": 87,
+        "department_id": 12,
+        "roll_no": "CS-2023-051",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Surat, India"
+    },
+    {
+        "user_id": 88,
+        "department_id": 13,
+        "roll_no": "IT-2023-052",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Vadodara, India"
+    },
+    {
+        "user_id": 89,
+        "department_id": 1,
+        "roll_no": "EE-2023-053",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Indore, India"
+    },
+    {
+        "user_id": 90,
+        "department_id": 2,
+        "roll_no": "ME-2023-054",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Nagpur, India"
+    },
+    {
+        "user_id": 91,
+        "department_id": 3,
+        "roll_no": "CE-2023-055",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Bhopal, India"
+    },
+    {
+        "user_id": 92,
+        "department_id": 4,
+        "roll_no": "BBA-2023-056",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Chandigarh, India"
+    },
+    {
+        "user_id": 93,
+        "department_id": 5,
+        "roll_no": "MATH-2023-057",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Visakhapatnam, India"
+    },
+    {
+        "user_id": 94,
+        "department_id": 6,
+        "roll_no": "PHY-2023-058",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ludhiana, India"
+    },
+    {
+        "user_id": 95,
+        "department_id": 7,
+        "roll_no": "ENG-2023-059",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Kanpur, India"
+    },
+    {
+        "user_id": 96,
+        "department_id": 8,
+        "roll_no": "CHEM-2023-060",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ghaziabad, India"
+    },
+    {
+        "user_id": 97,
+        "department_id": 9,
+        "roll_no": "CS-2023-061",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Mumbai, India"
+    },
+    {
+        "user_id": 98,
+        "department_id": 10,
+        "roll_no": "IT-2023-062",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Bangalore, India"
+    },
+    {
+        "user_id": 99,
+        "department_id": 11,
+        "roll_no": "EE-2023-063",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Hyderabad, India"
+    },
+    {
+        "user_id": 100,
+        "department_id": 12,
+        "roll_no": "ME-2023-064",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Pune, India"
+    },
+    {
+        "user_id": 101,
+        "department_id": 13,
+        "roll_no": "CE-2023-065",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Chennai, India"
+    },
+    {
+        "user_id": 102,
+        "department_id": 1,
+        "roll_no": "BBA-2023-066",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Kolkata, India"
+    },
+    {
+        "user_id": 103,
+        "department_id": 2,
+        "roll_no": "MATH-2023-067",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Delhi, India"
+    },
+    {
+        "user_id": 104,
+        "department_id": 3,
+        "roll_no": "PHY-2023-068",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Ahmedabad, India"
+    },
+    {
+        "user_id": 105,
+        "department_id": 4,
+        "roll_no": "ENG-2023-069",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Jaipur, India"
+    },
+    {
+        "user_id": 106,
+        "department_id": 5,
+        "roll_no": "CHEM-2023-070",
+        "batch": "2023",
+        "semester": "Semester 2",
+        "address": "Lucknow, India"
+    }
+]

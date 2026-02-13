@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BroadcastChannel Test</title>
+    <style>
+        body { font-family: monospace; margin: 20px; }
+        .container { max-width: 1200px; }
+        .section { border: 1px solid #ccc; margin: 10px 0; padding: 10px; }
+        .log { height: 300px; overflow-y: auto; background: #f0f0f0; padding: 10px; border: 1px solid #999; }
+        button { padding: 5px 10px; margin: 5px; }
+        .sender { background: #ffe0e0; }
+        .receiver { background: #e0e0ff; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>BroadcastChannel Diagnostic Test</h1>
+    
+    <div class="section sender">
+        <h2>Sender (Fines Page Simulation)</h2>
+        <button onclick="sendMessage()">Send Test Message</button>
+        <button onclick="sendFineUpdate()">Send Fine Update (like mark as paid)</button>
+        <div class="log" id="senderLog"></div>
+    </div>
+    
+    <div class="section receiver">
+        <h2>Receiver (ViewStudent Page Simulation)</h2>
+        <p>This should display messages from Sender</p>
+        <div class="log" id="receiverLog"></div>
+    </div>
+</div>
+
+<script>
+    // Sender side
+    let senderChannel = null;
+    let receiverChannel = null;
+    
+    console.log('=== BroadcastChannel Diagnostic Starting ===');
+    
+    try {
+        senderChannel = new BroadcastChannel('fine_updates');
+        console.log('✓ Sender BroadcastChannel created');
+        logSender('✓ BroadcastChannel object created');
+        logSender('Type: ' + typeof senderChannel);
+    } catch(e) {
+        console.error('✗ Error creating sender channel:', e);
+        logSender('✗ Error: ' + e.message);
+    }
+    
+    try {
+        receiverChannel = new BroadcastChannel('fine_updates');
+        console.log('✓ Receiver BroadcastChannel created');
+        logReceiver('✓ BroadcastChannel object created');
+        logReceiver('Type: ' + typeof receiverChannel);
+    } catch(e) {
+        console.error('✗ Error creating receiver channel:', e);
+        logReceiver('✗ Error: ' + e.message);
+    }
+    
+    // Receiver setup
+    try {
+        console.log('Setting up receiver listener...');
+        receiverChannel.addEventListener('message', function(event) {
+            console.log('✓ Receiver: MESSAGE event fired!');
+            console.log('  Data:', event.data);
+            logReceiver('✓ MESSAGE event fired!');
+            logReceiver('  Data: ' + JSON.stringify(event.data));
+        });
+        
+        receiverChannel.onmessage = function(event) {
+            console.log('✓ Receiver: onmessage handler fired!');
+            console.log('  Data:', event.data);
+            logReceiver('✓ onmessage handler fired!');
+            logReceiver('  Data: ' + JSON.stringify(event.data));
+        };
+        
+        console.log('✓ Receiver listeners attached');
+        logReceiver('✓ Listeners attached');
+    } catch(e) {
+        console.error('✗ Error setting up receiver:', e);
+        logReceiver('✗ Error: ' + e.message);
+    }
+    
+    // Send functions
+    function sendMessage() {
+        try {
+            logSender('Sending generic test message...');
+            const msg = { type: 'test', message: 'Hello from sender', timestamp: Date.now() };
+            senderChannel.postMessage(msg);
+            logSender('✓ Message sent: ' + JSON.stringify(msg));
+            console.log('✓ Sent:', msg);
+        } catch(e) {
+            logSender('✗ Error: ' + e.message);
+            console.error('✗ Send error:', e);
+        }
+    }
+    
+    function sendFineUpdate() {
+        try {
+            logSender('Sending fine update (like mark as paid)...');
+            const msg = {
+                type: 'fineUpdated',
+                fineId: Math.floor(Math.random() * 1000),
+                status: 'paid',
+                timestamp: Date.now()
+            };
+            senderChannel.postMessage(msg);
+            logSender('✓ Fine update sent: ' + JSON.stringify(msg));
+            console.log('✓ Fine update sent:', msg);
+        } catch(e) {
+            logSender('✗ Error: ' + e.message);
+            console.error('✗ Send error:', e);
+        }
+    }
+    
+    function logSender(msg) {
+        const log = document.getElementById('senderLog');
+        log.innerHTML += msg + '\n';
+        log.scrollTop = log.scrollHeight;
+    }
+    
+    function logReceiver(msg) {
+        const log = document.getElementById('receiverLog');
+        log.innerHTML += msg + '\n';
+        log.scrollTop = log.scrollHeight;
+    }
+    
+    // Initial logging
+    setTimeout(() => {
+        logSender('--- Ready to test ---');
+        logReceiver('--- Waiting for messages ---');
+        logSender('Note: Click buttons to send messages. Check if they appear in Receiver log.');
+        logSender('If nothing appears in Receiver, BroadcastChannel is not working.');
+    }, 100);
+</script>
+</body>
+</html>

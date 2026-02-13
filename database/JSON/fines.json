@@ -1,0 +1,802 @@
+[
+    {
+        "issued_book_id": 62,
+        "student_id": 2,
+        "amount": 11,
+        "days_late": 6,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 53,
+        "student_id": 3,
+        "amount": 12,
+        "days_late": 29,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 27,
+        "student_id": 4,
+        "amount": 13,
+        "days_late": 26,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 96,
+        "student_id": 5,
+        "amount": 14,
+        "days_late": 23,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 98,
+        "student_id": 6,
+        "amount": 15,
+        "days_late": 27,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 88,
+        "student_id": 7,
+        "amount": 16,
+        "days_late": 19,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 38,
+        "student_id": 8,
+        "amount": 17,
+        "days_late": 15,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 112,
+        "student_id": 9,
+        "amount": 18,
+        "days_late": 18,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 67,
+        "student_id": 10,
+        "amount": 19,
+        "days_late": 3,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 48,
+        "student_id": 11,
+        "amount": 20,
+        "days_late": 4,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 103,
+        "student_id": 12,
+        "amount": 21,
+        "days_late": 12,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 46,
+        "student_id": 13,
+        "amount": 22,
+        "days_late": 16,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 38,
+        "student_id": 14,
+        "amount": 23,
+        "days_late": 15,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 64,
+        "student_id": 15,
+        "amount": 24,
+        "days_late": 26,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 52,
+        "student_id": 16,
+        "amount": 25,
+        "days_late": 18,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 57,
+        "student_id": 17,
+        "amount": 26,
+        "days_late": 13,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 86,
+        "student_id": 18,
+        "amount": 27,
+        "days_late": 2,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 79,
+        "student_id": 19,
+        "amount": 28,
+        "days_late": 3,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 35,
+        "student_id": 20,
+        "amount": 29,
+        "days_late": 6,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 106,
+        "student_id": 21,
+        "amount": 30,
+        "days_late": 25,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 119,
+        "student_id": 22,
+        "amount": 31,
+        "days_late": 5,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 92,
+        "student_id": 23,
+        "amount": 32,
+        "days_late": 15,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 8,
+        "student_id": 24,
+        "amount": 33,
+        "days_late": 21,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 101,
+        "student_id": 25,
+        "amount": 34,
+        "days_late": 15,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 1,
+        "student_id": 26,
+        "amount": 35,
+        "days_late": 27,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 46,
+        "student_id": 27,
+        "amount": 36,
+        "days_late": 6,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 38,
+        "student_id": 28,
+        "amount": 37,
+        "days_late": 17,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 26,
+        "student_id": 29,
+        "amount": 38,
+        "days_late": 16,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 103,
+        "student_id": 30,
+        "amount": 39,
+        "days_late": 7,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 10,
+        "student_id": 31,
+        "amount": 40,
+        "days_late": 29,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 36,
+        "student_id": 32,
+        "amount": 41,
+        "days_late": 8,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 56,
+        "student_id": 33,
+        "amount": 42,
+        "days_late": 5,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 118,
+        "student_id": 34,
+        "amount": 43,
+        "days_late": 27,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 71,
+        "student_id": 35,
+        "amount": 44,
+        "days_late": 12,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 116,
+        "student_id": 36,
+        "amount": 45,
+        "days_late": 16,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 77,
+        "student_id": 37,
+        "amount": 46,
+        "days_late": 2,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 75,
+        "student_id": 38,
+        "amount": 47,
+        "days_late": 1,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 48,
+        "student_id": 39,
+        "amount": 48,
+        "days_late": 1,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 28,
+        "student_id": 40,
+        "amount": 49,
+        "days_late": 23,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 50,
+        "student_id": 41,
+        "amount": 50,
+        "days_late": 19,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 30,
+        "student_id": 42,
+        "amount": 51,
+        "days_late": 11,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 40,
+        "student_id": 43,
+        "amount": 52,
+        "days_late": 21,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 16,
+        "student_id": 44,
+        "amount": 53,
+        "days_late": 6,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 98,
+        "student_id": 45,
+        "amount": 54,
+        "days_late": 3,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 103,
+        "student_id": 46,
+        "amount": 55,
+        "days_late": 7,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 13,
+        "student_id": 47,
+        "amount": 56,
+        "days_late": 9,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 66,
+        "student_id": 48,
+        "amount": 57,
+        "days_late": 1,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 17,
+        "student_id": 49,
+        "amount": 58,
+        "days_late": 24,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 24,
+        "student_id": 50,
+        "amount": 59,
+        "days_late": 13,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 39,
+        "student_id": 51,
+        "amount": 10,
+        "days_late": 11,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 100,
+        "student_id": 52,
+        "amount": 11,
+        "days_late": 28,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 83,
+        "student_id": 53,
+        "amount": 12,
+        "days_late": 7,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 49,
+        "student_id": 54,
+        "amount": 13,
+        "days_late": 21,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 41,
+        "student_id": 55,
+        "amount": 14,
+        "days_late": 30,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 13,
+        "student_id": 56,
+        "amount": 15,
+        "days_late": 4,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 62,
+        "student_id": 57,
+        "amount": 16,
+        "days_late": 20,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 41,
+        "student_id": 58,
+        "amount": 17,
+        "days_late": 12,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 87,
+        "student_id": 59,
+        "amount": 18,
+        "days_late": 4,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 20,
+        "student_id": 60,
+        "amount": 19,
+        "days_late": 11,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 38,
+        "student_id": 61,
+        "amount": 20,
+        "days_late": 27,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 14,
+        "student_id": 62,
+        "amount": 21,
+        "days_late": 5,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 38,
+        "student_id": 63,
+        "amount": 22,
+        "days_late": 24,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 89,
+        "student_id": 64,
+        "amount": 23,
+        "days_late": 27,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 50,
+        "student_id": 65,
+        "amount": 24,
+        "days_late": 29,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 29,
+        "student_id": 66,
+        "amount": 25,
+        "days_late": 5,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 110,
+        "student_id": 67,
+        "amount": 26,
+        "days_late": 11,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 35,
+        "student_id": 68,
+        "amount": 27,
+        "days_late": 22,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 2,
+        "student_id": 69,
+        "amount": 28,
+        "days_late": 1,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 34,
+        "student_id": 70,
+        "amount": 29,
+        "days_late": 17,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 52,
+        "student_id": 1,
+        "amount": 30,
+        "days_late": 9,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 29,
+        "student_id": 2,
+        "amount": 31,
+        "days_late": 25,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 53,
+        "student_id": 3,
+        "amount": 32,
+        "days_late": 8,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 88,
+        "student_id": 4,
+        "amount": 33,
+        "days_late": 30,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 101,
+        "student_id": 5,
+        "amount": 34,
+        "days_late": 9,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 72,
+        "student_id": 6,
+        "amount": 35,
+        "days_late": 9,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 4,
+        "student_id": 7,
+        "amount": 36,
+        "days_late": 29,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    },
+    {
+        "issued_book_id": 100,
+        "student_id": 8,
+        "amount": 37,
+        "days_late": 27,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Lost book"
+    },
+    {
+        "issued_book_id": 40,
+        "student_id": 9,
+        "amount": 38,
+        "days_late": 10,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Damaged book"
+    },
+    {
+        "issued_book_id": 108,
+        "student_id": 10,
+        "amount": 39,
+        "days_late": 3,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Late return"
+    },
+    {
+        "issued_book_id": 115,
+        "student_id": 11,
+        "amount": 40,
+        "days_late": 13,
+        "status": "pending",
+        "paid_on": null,
+        "payment_method": null,
+        "remarks": "Overdue fine"
+    }
+]

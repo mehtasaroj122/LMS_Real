@@ -1,0 +1,15 @@
+[
+    {"name": "Computer Science", "code": "CS", "status": "active"},
+    {"name": "Information Technology", "code": "IT", "status": "active"},
+    {"name": "Electrical Engineering", "code": "EE", "status": "active"},
+    {"name": "Mechanical Engineering", "code": "ME", "status": "active"},
+    {"name": "Civil Engineering", "code": "CE", "status": "active"},
+    {"name": "Business Administration", "code": "BBA", "status": "active"},
+    {"name": "Mathematics", "code": "MATH", "status": "active"},
+    {"name": "Physics", "code": "PHY", "status": "active"},
+    {"name": "Chemistry", "code": "CHM", "status": "active"},
+    {"name": "English Literature", "code": "ENG", "status": "active"},
+    {"name": "Economics", "code": "ECO", "status": "active"},
+    {"name": "Psychology", "code": "PSY", "status": "active"},
+    {"name": "Library Science", "code": "LS", "status": "active"}
+]

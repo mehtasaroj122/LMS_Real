@@ -1,0 +1,254 @@
+[
+    {
+        "user_id":  2,
+        "department_id":  1,
+        "designation":  "Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Delhi, India"
+    },
+    {
+        "user_id":  3,
+        "department_id":  2,
+        "designation":  "Assistant Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Mumbai, India"
+    },
+    {
+        "user_id":  4,
+        "department_id":  3,
+        "designation":  "Senior Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Karnataka, India"
+    },
+    {
+        "user_id":  5,
+        "department_id":  4,
+        "designation":  "Library Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Telangana, India"
+    },
+    {
+        "user_id":  6,
+        "department_id":  5,
+        "designation":  "Cataloguer",
+        "join_date":  "2022-01-15",
+        "address":  "Tamil Nadu, India"
+    },
+    {
+        "user_id":  7,
+        "department_id":  6,
+        "designation":  "Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Maharashtra, India"
+    },
+    {
+        "user_id":  8,
+        "department_id":  7,
+        "designation":  "Assistant Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Gujarat, India"
+    },
+    {
+        "user_id":  9,
+        "department_id":  8,
+        "designation":  "Senior Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Rajasthan, India"
+    },
+    {
+        "user_id":  10,
+        "department_id":  9,
+        "designation":  "Library Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Bihar, India"
+    },
+    {
+        "user_id":  11,
+        "department_id":  10,
+        "designation":  "Cataloguer",
+        "join_date":  "2022-01-15",
+        "address":  "Jharkhand, India"
+    },
+    {
+        "user_id":  12,
+        "department_id":  11,
+        "designation":  "Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Odisha, India"
+    },
+    {
+        "user_id":  13,
+        "department_id":  12,
+        "designation":  "Assistant Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Assam, India"
+    },
+    {
+        "user_id":  14,
+        "department_id":  13,
+        "designation":  "Senior Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Punjab, India"
+    },
+    {
+        "user_id":  15,
+        "department_id":  1,
+        "designation":  "Library Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Himachal Pradesh, India"
+    },
+    {
+        "user_id":  16,
+        "department_id":  2,
+        "designation":  "Cataloguer",
+        "join_date":  "2022-01-15",
+        "address":  "Uttarakhand, India"
+    },
+    {
+        "user_id":  17,
+        "department_id":  3,
+        "designation":  "Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Goa, India"
+    },
+    {
+        "user_id":  18,
+        "department_id":  4,
+        "designation":  "Assistant Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Tripura, India"
+    },
+    {
+        "user_id":  19,
+        "department_id":  5,
+        "designation":  "Senior Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Manipur, India"
+    },
+    {
+        "user_id":  20,
+        "department_id":  6,
+        "designation":  "Library Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Mizoram, India"
+    },
+    {
+        "user_id":  21,
+        "department_id":  7,
+        "designation":  "Cataloguer",
+        "join_date":  "2022-01-15",
+        "address":  "Nagaland, India"
+    },
+    {
+        "user_id":  22,
+        "department_id":  8,
+        "designation":  "Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Sikkim, India"
+    },
+    {
+        "user_id":  23,
+        "department_id":  9,
+        "designation":  "Assistant Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Meghalaya, India"
+    },
+    {
+        "user_id":  24,
+        "department_id":  10,
+        "designation":  "Senior Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Haryana, India"
+    },
+    {
+        "user_id":  25,
+        "department_id":  11,
+        "designation":  "Library Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Chandigarh, India"
+    },
+    {
+        "user_id":  26,
+        "department_id":  12,
+        "designation":  "Cataloguer",
+        "join_date":  "2022-01-15",
+        "address":  "Puducherry, India"
+    },
+    {
+        "user_id":  27,
+        "department_id":  13,
+        "designation":  "Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Andhra Pradesh, India"
+    },
+    {
+        "user_id":  28,
+        "department_id":  1,
+        "designation":  "Assistant Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Arunachal Pradesh, India"
+    },
+    {
+        "user_id":  29,
+        "department_id":  2,
+        "designation":  "Senior Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "West Bengal, India"
+    },
+    {
+        "user_id":  30,
+        "department_id":  3,
+        "designation":  "Library Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Chhattisgarh, India"
+    },
+    {
+        "user_id":  31,
+        "department_id":  4,
+        "designation":  "Cataloguer",
+        "join_date":  "2022-01-15",
+        "address":  "Madhya Pradesh, India"
+    },
+    {
+        "user_id":  32,
+        "department_id":  5,
+        "designation":  "Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Uttar Pradesh, India"
+    },
+    {
+        "user_id":  33,
+        "department_id":  6,
+        "designation":  "Assistant Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Kerala, India"
+    },
+    {
+        "user_id":  34,
+        "department_id":  7,
+        "designation":  "Senior Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Jammu and Kashmir, India"
+    },
+    {
+        "user_id":  35,
+        "department_id":  8,
+        "designation":  "Library Assistant",
+        "join_date":  "2022-01-15",
+        "address":  "Ladakh, India"
+    },
+    {
+        "user_id":  36,
+        "department_id":  9,
+        "designation":  "Cataloguer",
+        "join_date":  "2022-01-15",
+        "address":  "Telangana, India"
+    },
+    {
+        "user_id":  37,
+        "department_id":  10,
+        "designation":  "Librarian",
+        "join_date":  "2022-01-15",
+        "address":  "Andaman and Nicobar, India"
+    }
+]

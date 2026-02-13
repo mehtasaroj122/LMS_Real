@@ -1,0 +1,473 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
+use App\Models\student;
+use App\Models\User;
+use App\Helpers\ActivityLogger;
+use App\Mail\PasswordResetEmail;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+
+class UserController extends Controller
+{
+    public function __construct()
+    {
+        Gate::authorize('access-admin');
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $users = User::with([
+            'student.department',
+            'staff.department'
+        ])
+            ->orderByRaw("CASE WHEN role='admin' THEN 1 WHEN role='staff' THEN 2 WHEN role='student' THEN 3 END")
+            ->latest()
+            ->simplePaginate(7);
+
+        /* ===== Stats ===== */
+        $totalUsers = User::count();
+        $activeUsers = User::where('status', 'active')->count();
+        $inactiveUsers = User::where('status', 'inactive')->count();
+
+        $roleCounts = User::selectRaw('role, COUNT(*) as total')
+            ->groupBy('role')
+            ->pluck('total', 'role');
+
+        // Get departments for the form
+        $departments = \App\Models\Department::all();
+
+        return view('admin.UserManagement', compact(
+            'users',
+            'totalUsers',
+            'activeUsers',
+            'inactiveUsers',
+            'roleCounts',
+            'departments'
+        ));
+    }
+
+    /**
+     * Get users data for AJAX requests (with filtering, search, pagination)
+     */
+    public function getUsersData(Request $request)
+    {
+        try {
+            $search = $request->input('search', '');
+            $status = $request->input('status', 'all');
+            $page = $request->input('page', 1);
+
+            // Build base query
+            $query = User::orderByRaw("CASE WHEN role='admin' THEN 1 WHEN role='staff' THEN 2 WHEN role='student' THEN 3 END")
+                ->latest();
+
+            // Apply search filter
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+
+            // Apply status filter
+            if ($status !== 'all') {
+                $query->where('status', $status);
+            }
+
+            // Paginate results (7 users per page)
+            $users = $query->paginate(7, ['*'], 'page', $page);
+
+            // Load relationships for each user
+            $users->load('student.department', 'staff.department');
+
+            // Get stats for current filters
+            $stats = $this->getUserStats($search, $status);
+
+            // Prepare HTML for table rows
+            $tableRows = '';
+            foreach ($users as $user) {
+                $tableRows .= view('admin.partials.user-row', compact('user'))->render();
+            }
+
+            // Prepare pagination HTML
+            $pagination = $users->links()->toHtml();
+
+            return response()->json([
+                'success' => true,
+                'tableRows' => $tableRows,
+                'pagination' => $pagination,
+                'stats' => $stats,
+                'total' => $users->total(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('getUsersData error: ' . $e->getMessage() . ' ' . $e->getFile() . ':' . $e->getLine());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching users: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get current statistics (for live stat updates)
+     * Always returns GLOBAL counts, independent of any filters
+     */
+    public function getStats(Request $request)
+    {
+        try {
+            // Always return global stats regardless of filters
+            $stats = [
+                'totalUsers' => User::count(),
+                'activeUsers' => User::where('status', 'active')->count(),
+                'inactiveUsers' => User::where('status', 'inactive')->count(),
+                'roleCounts' => User::selectRaw('role, COUNT(*) as count')
+                    ->groupBy('role')
+                    ->pluck('count', 'role')
+                    ->toArray(),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'stats' => $stats,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('getStats error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching stats: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user statistics with optional filters
+     */
+    private function getUserStats($search = '', $status = 'all')
+    {
+        // Build queries for stats
+        $baseQuery = User::query();
+        
+        // Create filtered query with all filters applied
+        $filteredQuery = User::query();
+        
+        // Apply search filter
+        if (!empty($search)) {
+            $filteredQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+        
+        // Apply status filter to filtered query only
+        if ($status !== 'all') {
+            $filteredQuery->where('status', $status);
+        }
+
+        // Get role counts for filtered results
+        $roleCounts = $filteredQuery
+            ->select('role', DB::raw('count(*) as count'))
+            ->groupBy('role')
+            ->pluck('count', 'role')
+            ->toArray();
+
+        return [
+            'totalUsers' => $baseQuery->count(),
+            'activeUsers' => $baseQuery->where('status', 'active')->count(),
+            'inactiveUsers' => $baseQuery->where('status', 'inactive')->count(),
+            'roleCounts' => $roleCounts,
+            'filteredTotal' => $filteredQuery->count(),
+            'filteredActive' => $filteredQuery->clone()->where('status', 'active')->count(),
+            'filteredInactive' => $filteredQuery->clone()->where('status', 'inactive')->count(),
+        ];
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'role' => 'required|in:admin,staff,student',
+            'status' => 'required|in:active,inactive',
+            'roll_no' => 'nullable|required_if:role,student|unique:students,roll_no',
+            'department_id' => 'nullable|required_if:role,student|exists:departments,id',
+            'semester' => 'nullable|required_if:role,student',
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'role' => $data['role'],
+            'status' => $data['status'],
+        ]);
+
+        if ($data['role'] === 'student') {
+            Student::create([
+                'user_id' => $user->id,
+                'roll_no' => $data['roll_no'],
+                'department_id' => $data['department_id'],
+                'semester' => $data['semester'],
+            ]);
+        }
+
+        // Log the activity with full details
+        ActivityLogger::logActivity(
+            'user_created',
+            "Created User: {$user->name} (" . ucfirst($user->role) . ")",
+            'user',
+            'user',
+            $user->id,
+            ['role' => $user->role, 'email' => $user->email]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User created successfully',
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * Get user details for AJAX edit form
+     */
+    public function getDetails(User $user)
+    {
+        $data = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'role' => $user->role,
+            'status' => $user->status,
+        ];
+
+        if ($user->role === 'student' && $user->student) {
+            $data['student'] = [
+                'department_id' => $user->student->department_id,
+                'roll_no' => $user->student->roll_no,
+                'semester' => $user->student->semester,
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'user' => $data
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, User $user)
+    {
+        $data = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:admin,staff,student',
+            'phone' => 'nullable',
+            'address' => 'nullable',
+            'department_id' => 'nullable|required_if:role,student|exists:departments,id',
+            'roll_no' => 'nullable|required_if:role,student|unique:students,roll_no,' . ($user->student->id ?? ''),
+            'semester' => 'nullable|required_if:role,student',
+        ]);
+
+        $oldData = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'phone' => $user->phone,
+            'address' => $user->address,
+        ];
+
+        $user->update([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role' => $data['role'],
+            'phone' => $data['phone'] ?? null,
+            'address' => $data['address'] ?? null,
+        ]);
+
+        // Handle student information
+        if ($data['role'] === 'student') {
+            if ($user->student) {
+                $user->student->update([
+                    'department_id' => $data['department_id'],
+                    'roll_no' => $data['roll_no'],
+                    'semester' => $data['semester'],
+                ]);
+            } else {
+                Student::create([
+                    'user_id' => $user->id,
+                    'department_id' => $data['department_id'],
+                    'roll_no' => $data['roll_no'],
+                    'semester' => $data['semester'],
+                ]);
+            }
+        } else {
+            // Delete student record if role changed from student to something else
+            if ($user->student) {
+                $user->student->delete();
+            }
+        }
+
+        // Prepare changes description
+        $changes = [];
+        if ($oldData['name'] !== $data['name']) {
+            $changes[] = "name: {$oldData['name']} → {$data['name']}";
+        }
+        if ($oldData['email'] !== $data['email']) {
+            $changes[] = "email: {$oldData['email']} → {$data['email']}";
+        }
+        if ($oldData['role'] !== $data['role']) {
+            $changes[] = "role: {$oldData['role']} → {$data['role']}";
+        }
+
+        $changesText = !empty($changes) ? 'Changes: ' . implode(', ', $changes) : 'No changes detected';
+
+        // Log the activity
+        ActivityLogger::logActivity(
+            'user_updated',
+            "Updated User: {$user->name} (" . ucfirst($user->role) . ")",
+            'user',
+            'user',
+            $user->id,
+            ['changes' => $changes, 'role' => $user->role]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User updated successfully',
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * Toggle user status.
+     */
+    public function toggleStatus(Request $request, User $user)
+    {
+        $oldStatus = $user->status;
+        $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+
+        $user->update([
+            'status' => $newStatus
+        ]);
+
+        // Log the activity
+        ActivityLogger::logActivity(
+            'status_changed',
+            "Changed status of {$user->name} (" . ucfirst($user->role) . ") from " . ucfirst($oldStatus) . " to " . ucfirst($newStatus),
+            'user',
+            'user',
+            $user->id,
+            ['old_status' => $oldStatus, 'new_status' => $newStatus]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status updated successfully',
+            'status' => $user->status
+        ]);
+    }
+
+    /**
+     * Reset user password.
+     */
+    public function resetPassword(User $user)
+    {
+        // Generate temporary password
+        $tempPassword = Str::random(10);
+
+        $user->update([
+            'password' => Hash::make($tempPassword),
+            'force_password_change' => true,
+            'password_reset_at' => now()
+        ]);
+
+        // Send email with temporary password
+        try {
+            Mail::to($user->email)->queue(new PasswordResetEmail(
+                $user->name,
+                $user->email,
+                $tempPassword
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+        }
+
+        // Log the activity
+        ActivityLogger::logActivity(
+            'password_reset',
+            "Reset password for user: {$user->name} ({$user->email})",
+            'auth',
+            'user',
+            $user->id
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Temporary password has been sent to user email'
+        ]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Request $request, User $user)
+    {
+        $userName = $user->name;
+        $userRole = $user->role;
+
+        $user->delete();
+
+        // Log the activity
+        ActivityLogger::logActivity(
+            'user_deleted',
+            "Deleted User: {$userName} (" . ucfirst($userRole) . ")",
+            'user',
+            'user',
+            $user->id
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User deleted successfully'
+        ]);
+    }
+
+    /**
+     * Show the activity logs for a specific user.
+     */
+    public function userActivityLogs(User $user)
+    {
+        $logs = ActivityLog::where('model_type', User::class)
+            ->where('model_id', $user->id)
+            ->orWhere('user_id', $user->id)
+            ->with('user')
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'logs' => $logs
+        ]);
+    }
+}
