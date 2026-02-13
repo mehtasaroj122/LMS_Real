@@ -885,38 +885,78 @@
                 </div>
             </div>
 
-            <!-- Replace with new AdminDataTable Component -->
-            <x-admin-data-table 
-                title="Fines Records"
-                subtitle="Manage and update fines for overdue books"
-                :columns="[
-                    ['key' => 'student_id', 'label' => 'Student ID', 'width' => '100px'],
-                    ['key' => 'student_name', 'label' => 'Student Name', 'width' => '150px'],
-                    ['key' => 'book_title', 'label' => 'Book Title', 'width' => '180px'],
-                    ['key' => 'due_date', 'label' => 'Due Date', 'width' => '110px'],
-                    ['key' => 'days_overdue', 'label' => 'Days Overdue', 'width' => '110px'],
-                    ['key' => 'fine_amount', 'label' => 'Fine Amount', 'width' => '120px'],
-                    ['key' => 'status', 'label' => 'Status', 'width' => '100px'],
-                ]"
-                :data="$finesTableData ?? []"
-                :actions="[
-                    ['icon' => 'fa-check-circle', 'class' => 'password', 'tooltip' => 'Mark as Paid', 'onclick' => 'markFinePaid'],
-                    ['icon' => 'fa-ban', 'class' => 'toggle', 'tooltip' => 'Waive Fine', 'onclick' => 'openWaiveModal'],
-                    ['icon' => 'fa-envelope', 'class' => 'edit', 'tooltip' => 'Send Email', 'onclick' => 'sendFineEmail'],
-                ]"
-                :filters="[
-                    ['label' => 'All Status', 'value' => 'all', 'icon' => 'fa-list', 'active' => true],
-                    ['label' => 'Pending', 'value' => 'pending', 'icon' => 'fa-hourglass-half'],
-                    ['label' => 'Paid', 'value' => 'paid', 'icon' => 'fa-check-circle'],
-                    ['label' => 'Waived', 'value' => 'waived', 'icon' => 'fa-ban'],
-                ]"
-                :searchable="true"
-                :showHeader="false"
-                emptyMessage="No fines found. Try adjusting your search or filters."
-            />
+            <!-- Fines Table -->
+            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Student ID</th>
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Student Name</th>
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Book Title</th>
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Due Date</th>
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Days Overdue</th>
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Fine Amount</th>
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Status</th>
+                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($finesTableData as $fine)
+                            <tr style="border-bottom: 1px solid #e5e7eb; color: #0f172a;">
+                                <td style="padding: 0.75rem;">{{ $fine['student_id'] }}</td>
+                                <td style="padding: 0.75rem;">{{ $fine['student_name'] }}</td>
+                                <td style="padding: 0.75rem;">{{ $fine['book_title'] }}</td>
+                                <td style="padding: 0.75rem; color: #64748b;">{{ $fine['due_date'] }}</td>
+                                <td style="padding: 0.75rem; color: #64748b;">{{ $fine['days_overdue'] }}</td>
+                                <td style="padding: 0.75rem;">{{ $fine['fine_amount'] }}</td>
+                                <td style="padding: 0.75rem;">
+                                    <span style="padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 11px; font-weight: 500; background-color: #fef3c7; color: #92400e;">
+                                        {{ $fine['status'] }}
+                                    </span>
+                                </td>
+                                <td style="padding: 0.75rem;">
+                                    @if(strtolower($fine['status']) === 'pending')
+                                        <button onclick="markFinePaid({{ json_encode($fine) }})" style="padding: 0.25rem 0.75rem; margin-right: 0.25rem; background: #2563eb; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 11px;">Paid</button>
+                                        <button onclick="openWaiveModal({{ json_encode($fine) }})" style="padding: 0.25rem 0.75rem; background: #10b981; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 11px;">Waive</button>
+                                    @endif
+                                    <button onclick="sendFineEmail({{ json_encode($fine) }})" style="padding: 0.25rem 0.75rem; background: #6b7280; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 11px;">Email</button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" style="padding: 2rem; text-align: center; color: #64748b;">No fines found</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-            <!-- Pagination Component -->
-            <x-admin-pagination :paginator="$fines ?? null" :showInfo="true" />
+            <!-- Pagination -->
+            @if($fines && $fines->hasPages())
+                <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 0.5rem;">
+                    @if ($fines->onFirstPage())
+                        <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; color: #cbd5e1;">← Previous</span>
+                    @else
+                        <a href="{{ $fines->previousPageUrl() }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; text-decoration: none; color: #0f172a;">← Previous</a>
+                    @endif
+                    
+                    @foreach ($fines->getUrlRange(max(1, $fines->currentPage() - 2), min($fines->lastPage(), $fines->currentPage() + 2)) as $page => $url)
+                        @if ($page == $fines->currentPage())
+                            <span style="padding: 0.5rem 0.75rem; border: 1px solid #2563eb; background: #2563eb; color: white; border-radius: 0.375rem;">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; text-decoration: none; color: #0f172a;">{{ $page }}</a>
+                        @endif
+                    @endforeach
+                    
+                    @if ($fines->hasMorePages())
+                        <a href="{{ $fines->nextPageUrl() }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; text-decoration: none; color: #0f172a;">Next →</a>
+                    @else
+                        <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; color: #cbd5e1;">Next →</span>
+                    @endif
+                </div>
+            @endif
+            <!-- Pagination Component (pending) -->
+            <!-- <x-admin-pagination :paginator="$fines ?? null" :showInfo="true" /> -->
         </div>
     </div>
 
