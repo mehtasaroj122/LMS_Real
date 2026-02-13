@@ -1,21 +1,3 @@
-<!--
-    Reusable Admin Data Table Component
-    
-    Props:
-    - $title: string - Table title
-    - $subtitle: string - Table subtitle
-    - $columns: array - Column definitions: [['key' => 'id', 'label' => 'ID', 'sortable' => true, 'width' => '80px'], ...]
-    - $data: array - Row data
-    - $actions: array - Action buttons: [['icon' => 'fa-edit', 'label' => 'Edit', 'class' => 'edit', 'onclick' => 'editRow()'], ...]
-    - $searchable: boolean - Show search box
-    - $paginated: boolean - Show pagination
-    - $striped: boolean - Alternate row colors
-    - $hover: boolean - Show hover effects
-    - $emptyMessage: string - Message when no data
-    - $rowClass: string - Custom class for rows
-    - $responsive: boolean - Make responsive
--->
-
 @props([
     'title' => 'Data Table',
     'subtitle' => 'Manage your data',

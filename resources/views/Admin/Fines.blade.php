@@ -752,6 +752,128 @@
                 min-width: 100%;
             }
 
+            /* Table Styles - Matching UserManagement */
+            .table-container {
+                border-radius: 8px;
+                overflow: hidden;
+                border: 1px solid;
+                margin-top: 12px;
+            }
+
+            body.light-theme .table-container {
+                background-color: #ffffff;
+                border-color: #e5e7eb;
+            }
+
+            body.dark-theme .table-container {
+                background-color: #1e293b;
+                border-color: #334155;
+            }
+
+            .table-wrapper {
+                overflow-x: hidden;
+            }
+
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                min-width: 1110px;
+            }
+
+            .table th {
+                padding: 6px 8px;
+                text-align: left;
+                font-weight: 600;
+                font-size: 11px;
+                border-bottom: 1px solid;
+                white-space: nowrap;
+            }
+
+            body.light-theme .table th {
+                background-color: #f8fafc;
+                border-color: #e2e8f0;
+                color: #475569;
+            }
+
+            body.dark-theme .table th {
+                background-color: #1e293b;
+                border-color: #334155;
+                color: #cbd5e1;
+            }
+
+            .table td {
+                padding: 6px 8px;
+                border-bottom: 1px solid;
+                vertical-align: middle;
+                font-size: 13px;
+            }
+
+            body.light-theme .table td {
+                border-color: #e2e8f0;
+                color: #0f172a;
+            }
+
+            body.dark-theme .table td {
+                border-color: #334155;
+                color: #f1f5f9;
+            }
+
+            /* Status Badge */
+            .status-badge {
+                padding: 2px 8px;
+                border-radius: 3px;
+                font-size: 11px;
+                font-weight: 500;
+                display: inline-block;
+            }
+
+            .status-badge {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+
+            /* Action Buttons */
+            .action-btn {
+                padding: 4px 8px;
+                margin-right: 4px;
+                border: none;
+                border-radius: 3px;
+                cursor: pointer;
+                font-size: 11px;
+                font-weight: 500;
+                color: white;
+                transition: opacity 0.2s;
+            }
+
+            .action-btn:hover {
+                opacity: 0.8;
+            }
+
+            .action-btn-paid {
+                background: #2563eb;
+            }
+
+            .action-btn-waive {
+                background: #10b981;
+            }
+
+            .action-btn-email {
+                background: #6b7280;
+            }
+
+            /* Utility Classes */
+            .text-center {
+                text-align: center;
+            }
+
+            .text-secondary {
+                color: #64748b;
+            }
+
+            body.dark-theme .text-secondary {
+                color: #94a3b8;
+            }
+
             .fines-table {
                 display: block;
                 overflow-x: auto;
@@ -762,7 +884,12 @@
                 padding: 0.5rem 0.75rem;
             }
 
-            .page-header {
+            /* Utility Classes */
+            .mt-4 {
+                margin-top: 1rem;
+            }
+
+            /* Responsive Design */
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.5rem;
@@ -886,73 +1013,57 @@
             </div>
 
             <!-- Fines Table -->
-            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; overflow: hidden;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background-color: #f9fafb; border-bottom: 1px solid #e5e7eb;">
-                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Student ID</th>
-                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Student Name</th>
-                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Book Title</th>
-                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Due Date</th>
-                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Days Overdue</th>
-                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Fine Amount</th>
-                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Status</th>
-                            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 11px; color: #0f172a;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($finesTableData as $fine)
-                            <tr style="border-bottom: 1px solid #e5e7eb; color: #0f172a;">
-                                <td style="padding: 0.75rem;">{{ $fine['student_id'] }}</td>
-                                <td style="padding: 0.75rem;">{{ $fine['student_name'] }}</td>
-                                <td style="padding: 0.75rem;">{{ $fine['book_title'] }}</td>
-                                <td style="padding: 0.75rem; color: #64748b;">{{ $fine['due_date'] }}</td>
-                                <td style="padding: 0.75rem; color: #64748b;">{{ $fine['days_overdue'] }}</td>
-                                <td style="padding: 0.75rem;">{{ $fine['fine_amount'] }}</td>
-                                <td style="padding: 0.75rem;">
-                                    <span style="padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 11px; font-weight: 500; background-color: #fef3c7; color: #92400e;">
-                                        {{ $fine['status'] }}
-                                    </span>
-                                </td>
-                                <td style="padding: 0.75rem;">
-                                    @if(strtolower($fine['status']) === 'pending')
-                                        <button onclick="markFinePaid({{ json_encode($fine) }})" style="padding: 0.25rem 0.75rem; margin-right: 0.25rem; background: #2563eb; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 11px;">Paid</button>
-                                        <button onclick="openWaiveModal({{ json_encode($fine) }})" style="padding: 0.25rem 0.75rem; background: #10b981; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 11px;">Waive</button>
-                                    @endif
-                                    <button onclick="sendFineEmail({{ json_encode($fine) }})" style="padding: 0.25rem 0.75rem; background: #6b7280; color: white; border: none; border-radius: 0.25rem; cursor: pointer; font-size: 11px;">Email</button>
-                                </td>
-                            </tr>
-                        @empty
+            <div class="table-container">
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td colspan="8" style="padding: 2rem; text-align: center; color: #64748b;">No fines found</td>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Book Title</th>
+                                <th>Due Date</th>
+                                <th>Days Overdue</th>
+                                <th>Fine Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody id="finesTableBody">
+                            @forelse($finesTableData as $fine)
+                                <tr>
+                                    <td>{{ $fine['student_id'] }}</td>
+                                    <td>{{ $fine['student_name'] }}</td>
+                                    <td>{{ $fine['book_title'] }}</td>
+                                    <td>{{ $fine['due_date'] }}</td>
+                                    <td>{{ $fine['days_overdue'] }}</td>
+                                    <td>{{ $fine['fine_amount'] }}</td>
+                                    <td>
+                                        <span class="status-badge">
+                                            {{ $fine['status'] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if(strtolower($fine['status']) === 'pending')
+                                            <button onclick="markFinePaid({{ json_encode($fine) }})" class="action-btn action-btn-paid">Paid</button>
+                                            <button onclick="openWaiveModal({{ json_encode($fine) }})" class="action-btn action-btn-waive">Waive</button>
+                                        @endif
+                                        <button onclick="sendFineEmail({{ json_encode($fine) }})" class="action-btn action-btn-email">Email</button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="text-center text-secondary">No fines found</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Pagination -->
             @if($fines && $fines->hasPages())
-                <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 0.5rem;">
-                    @if ($fines->onFirstPage())
-                        <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; color: #cbd5e1;">← Previous</span>
-                    @else
-                        <a href="{{ $fines->previousPageUrl() }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; text-decoration: none; color: #0f172a;">← Previous</a>
-                    @endif
-                    
-                    @foreach ($fines->getUrlRange(max(1, $fines->currentPage() - 2), min($fines->lastPage(), $fines->currentPage() + 2)) as $page => $url)
-                        @if ($page == $fines->currentPage())
-                            <span style="padding: 0.5rem 0.75rem; border: 1px solid #2563eb; background: #2563eb; color: white; border-radius: 0.375rem;">{{ $page }}</span>
-                        @else
-                            <a href="{{ $url }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; text-decoration: none; color: #0f172a;">{{ $page }}</a>
-                        @endif
-                    @endforeach
-                    
-                    @if ($fines->hasMorePages())
-                        <a href="{{ $fines->nextPageUrl() }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; text-decoration: none; color: #0f172a;">Next →</a>
-                    @else
-                        <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.375rem; color: #cbd5e1;">Next →</span>
-                    @endif
+                <div id="paginationContainer" class="mt-4">
+                    {{ $fines->links() }}
                 </div>
             @endif
         </div>
