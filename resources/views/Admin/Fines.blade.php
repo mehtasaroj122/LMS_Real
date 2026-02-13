@@ -955,8 +955,6 @@
                     @endif
                 </div>
             @endif
-            <!-- Pagination Component (pending) -->
-            <!-- <x-admin-pagination :paginator="$fines ?? null" :showInfo="true" /> -->
         </div>
     </div>
 
