@@ -220,13 +220,15 @@ class BookRequestController extends Controller
             );
             
             // Queue email to send 3 seconds later
+            // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
             if ($bookRequest->student->user->email) {
-                SendBookRequestStatusEmail::dispatch(
-                    $bookRequest->student->user->email,
-                    $bookRequest->student->user->name,
-                    $bookRequest->book->title,
-                    $validated['status']
-                );
+                // SendBookRequestStatusEmail::dispatch(
+                //     $bookRequest->student->user->email,
+                //     $bookRequest->student->user->name,
+                //     $bookRequest->book->title,
+                //     $validated['status']
+                // );
+                \Log::info('Book request status email would have been sent to: ' . $bookRequest->student->user->email);
             }
 
         }

@@ -27,13 +27,21 @@ class SendBookIssuedEmail implements ShouldQueue
 
     public function handle(): void
     {
-        Mail::to($this->studentEmail)->send(new BookIssuedSimple(
-            $this->studentEmail,
-            $this->studentName,
-            $this->bookTitle,
-            $this->author,
-            $this->issueDate,
-            $this->dueDate
-        ));
+        /**
+         * MAIL SYSTEM DISABLED
+         * To re-enable: Uncomment the code below
+         * Make sure MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD are set in .env
+         */
+        // Mail::to($this->studentEmail)->send(new BookIssuedSimple(
+        //     $this->studentEmail,
+        //     $this->studentName,
+        //     $this->bookTitle,
+        //     $this->author,
+        //     $this->issueDate,
+        //     $this->dueDate
+        // ));
+        
+        // Log notification instead of sending email
+        \Log::info('Email would have been sent to: ' . $this->studentEmail . ' (Mail disabled)');
     }
 }

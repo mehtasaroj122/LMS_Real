@@ -202,15 +202,17 @@ class IssueBookController extends Controller
                 );
                 
                 // Queue email to send 3 seconds later
+                // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
                 if ($student->user->email) {
-                    SendBookIssuedEmail::dispatch(
-                        $student->user->email,
-                        $student->user->name,
-                        $book->title,
-                        $book->author ?? 'Unknown',
-                        $issuedBook->issue_date->format('Y-m-d'),
-                        $issuedBook->due_date->format('Y-m-d')
-                    );
+                    // SendBookIssuedEmail::dispatch(
+                    //     $student->user->email,
+                    //     $student->user->name,
+                    //     $book->title,
+                    //     $book->author ?? 'Unknown',
+                    //     $issuedBook->issue_date->format('Y-m-d'),
+                    //     $issuedBook->due_date->format('Y-m-d')
+                    // );
+                    \Log::info('Book issued email would have been sent to: ' . $student->user->email);
                 }
                 
                 $issuedCount++;

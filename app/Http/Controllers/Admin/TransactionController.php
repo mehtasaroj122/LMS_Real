@@ -266,17 +266,19 @@ class TransactionController extends Controller
                 );
                 
                 // Queue email to send 3 seconds later for each book
+                // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
                 foreach ($issuedBooks as $title) {
                     $book = Book::where('title', $title)->first();
                     if ($book) {
-                        SendBookIssuedEmail::dispatch(
-                            $student->user->email,
-                            $student->user->name,
-                            $title,
-                            $book->author ?? 'Unknown',
-                            Carbon::now()->format('Y-m-d'),
-                            Carbon::now()->addDays($issueDuration)->format('Y-m-d')
-                        );
+                        // SendBookIssuedEmail::dispatch(
+                        //     $student->user->email,
+                        //     $student->user->name,
+                        //     $title,
+                        //     $book->author ?? 'Unknown',
+                        //     Carbon::now()->format('Y-m-d'),
+                        //     Carbon::now()->addDays($issueDuration)->format('Y-m-d')
+                        // );
+                        \Log::info('Book issued email would have been sent to: ' . $student->user->email);
                     }
                 }
             }
@@ -416,14 +418,16 @@ class TransactionController extends Controller
                 ]);
                 
                 // Queue email to send 3 seconds later
+                // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
                 if ($student->user) {
-                    SendBookReturnedEmail::dispatch(
-                        $student->user->email,
-                        $student->user->name,
-                        $issuedBook->book->title,
-                        $condition,
-                        $bookFine
-                    );
+                    // SendBookReturnedEmail::dispatch(
+                    //     $student->user->email,
+                    //     $student->user->name,
+                    //     $issuedBook->book->title,
+                    //     $condition,
+                    //     $bookFine
+                    // );
+                    \Log::info('Book returned email would have been sent to: ' . $student->user->email);
                 }
                 
                 $totalFine += $bookFine;

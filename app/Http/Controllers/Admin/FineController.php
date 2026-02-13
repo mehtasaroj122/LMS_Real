@@ -198,13 +198,15 @@ class FineController extends Controller
             ]);
             
             // Queue email to send 3 seconds later
+            // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
             if ($fine->student && $fine->student->user && $fine->student->user->email) {
-                SendFineEmail::dispatch(
-                    $fine->student->user->email,
-                    $fine->student->user->name,
-                    $fine->amount,
-                    'paid'
-                );
+                // SendFineEmail::dispatch(
+                //     $fine->student->user->email,
+                //     $fine->student->user->name,
+                //     $fine->amount,
+                //     'paid'
+                // );
+                \Log::info('Fine email would have been sent to: ' . $fine->student->user->email);
             }
 
             return response()->json([
@@ -243,14 +245,16 @@ class FineController extends Controller
             ]);
             
             // Queue email to send 3 seconds later (include waiver reason)
+            // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
             if ($fine->student && $fine->student->user && $fine->student->user->email) {
-                SendFineEmail::dispatch(
-                    $fine->student->user->email,
-                    $fine->student->user->name,
-                    $fine->amount,
-                    'waived',
-                    $reason
-                );
+                // SendFineEmail::dispatch(
+                //     $fine->student->user->email,
+                //     $fine->student->user->name,
+                //     $fine->amount,
+                //     'waived',
+                //     $reason
+                // );
+                \Log::info('Fine email would have been sent to: ' . $fine->student->user->email);
             }
 
             return response()->json([
@@ -291,15 +295,17 @@ class FineController extends Controller
             $status = strtolower($fine->status);
 
             // Dispatch appropriate email based on status
-            if ($status === 'paid') {
-                SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'paid', null);
-            } elseif ($status === 'waived') {
-                $waiveReason = trim($fine->remarks ?? 'Fine waived by admin');
-                SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'waived', $waiveReason);
-            } else {
-                // For pending status, send a payment reminder
-                SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'pending', null);
-            }
+            // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
+            // if ($status === 'paid') {
+            //     SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'paid', null);
+            // } elseif ($status === 'waived') {
+            //     $waiveReason = trim($fine->remarks ?? 'Fine waived by admin');
+            //     SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'waived', $waiveReason);
+            // } else {
+            //     // For pending status, send a payment reminder
+            //     SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'pending', null);
+            // }
+            \Log::info('Fine email would have been sent to: ' . $studentEmail . ' (Mail disabled)');
 
             return response()->json([
                 'success' => true,

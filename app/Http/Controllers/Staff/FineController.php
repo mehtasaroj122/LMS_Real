@@ -105,8 +105,10 @@ class FineController extends Controller
                     relatedId: $fine->id
                 );
                 // Also queue email to student (includes waiver reason)
+                // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
                 if ($student->user->email) {
-                    SendFineEmail::dispatch($student->user->email, $student->user->name, $fine->amount, 'waived', $reason);
+                    // SendFineEmail::dispatch($student->user->email, $student->user->name, $fine->amount, 'waived', $reason);
+                    \Log::info('Fine email would have been sent to: ' . $student->user->email);
                 }
             }
 
@@ -148,15 +150,17 @@ class FineController extends Controller
             $status = strtolower($fine->status);
 
             // Dispatch appropriate email based on status
-            if ($status === 'paid') {
-                SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'paid', null);
-            } elseif ($status === 'waived') {
-                $waiveReason = trim($fine->remarks ?? 'Fine waived by staff');
-                SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'waived', $waiveReason);
-            } else {
-                // For pending status, send a payment reminder
-                SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'pending', null);
-            }
+            // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
+            // if ($status === 'paid') {
+            //     SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'paid', null);
+            // } elseif ($status === 'waived') {
+            //     $waiveReason = trim($fine->remarks ?? 'Fine waived by staff');
+            //     SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'waived', $waiveReason);
+            // } else {
+            //     // For pending status, send a payment reminder
+            //     SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'pending', null);
+            // }
+            \Log::info('Fine email would have been sent to: ' . $studentEmail . ' (Mail disabled)');
 
             return response()->json([
                 'success' => true,

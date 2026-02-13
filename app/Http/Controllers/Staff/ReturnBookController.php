@@ -211,14 +211,16 @@ class ReturnBookController extends Controller
                 );
                 
                 // Queue email to send 3 seconds later
+                // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
                 if ($student->user->email) {
-                    SendBookReturnedEmail::dispatch(
-                        $student->user->email,
-                        $student->user->name,
-                        $issuedBook->book->title,
-                        $condition,
-                        $bookFine
-                    );
+                    // SendBookReturnedEmail::dispatch(
+                    //     $student->user->email,
+                    //     $student->user->name,
+                    //     $issuedBook->book->title,
+                    //     $condition,
+                    //     $bookFine
+                    // );
+                    \Log::info('Book returned email would have been sent to: ' . $student->user->email);
                 }
                 
                 $returnedCount++;

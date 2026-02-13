@@ -403,15 +403,20 @@ class UserController extends Controller
         ]);
 
         // Send email with temporary password
-        try {
-            Mail::to($user->email)->queue(new PasswordResetEmail(
-                $user->name,
-                $user->email,
-                $tempPassword
-            ));
-        } catch (\Exception $e) {
-            \Log::error('Failed to send password reset email: ' . $e->getMessage());
-        }
+        // MAIL SYSTEM DISABLED - To re-enable:
+        // 1. Uncomment the code below
+        // 2. Set MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD in .env
+        // try {
+        //     Mail::to($user->email)->queue(new PasswordResetEmail(
+        //         $user->name,
+        //         $user->email,
+        //         $tempPassword
+        //     ));
+        // } catch (\Exception $e) {
+        //     \Log::error('Failed to send password reset email: ' . $e->getMessage());
+        // }
+        
+        \Log::info('Password reset email would have been sent to: ' . $user->email . ' (Mail disabled)');
 
         // Log the activity
         ActivityLogger::logActivity(
