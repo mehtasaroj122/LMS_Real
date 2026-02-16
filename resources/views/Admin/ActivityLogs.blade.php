@@ -382,7 +382,8 @@
 
         .activity-table th {
             text-align: left;
-            padding: 0.75rem 1rem; /* Reduced padding */
+            padding: 0.75rem 1rem;
+            /* Reduced padding */
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -428,7 +429,8 @@
         }
 
         .activity-table td {
-            padding: 0.75rem 1rem; /* Reduced padding */
+            padding: 0.75rem 1rem;
+            /* Reduced padding */
             font-size: 0.875rem;
             color: #475569;
             vertical-align: top;
@@ -582,8 +584,8 @@
             max-width: 500px;
             min-width: 350px;
         }
-        
-        .activity-table td:nth-child(5) > div {
+
+        .activity-table td:nth-child(5)>div {
             word-wrap: break-word;
             overflow-wrap: break-word;
             white-space: normal;
@@ -792,12 +794,139 @@
             .activity-table {
                 min-width: 100%;
             }
-            
+
             .table-container {
                 margin: 0;
                 border-radius: 0;
                 border: none;
             }
+        }
+
+        /* ===== NEW SEARCH & FILTER CONTAINER STYLES ===== */
+        .search-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            align-items: center;
+            background: white;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+            margin-top: 0;
+        }
+
+        body.dark-theme .search-filter-container {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            max-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.25rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        body.dark-theme .search-input {
+            background-color: #374151;
+            border-color: #4b5563;
+            color: #f1f5f9;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+        }
+
+        body.dark-theme .search-icon {
+            color: #9ca3af;
+        }
+
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 0.5rem 2rem 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            appearance: none;
+            min-width: 120px;
+            transition: all 0.3s ease;
+            background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+            border: 1px solid #e5e7eb;
+            color: #0f172a;
+        }
+
+        body.dark-theme .filter-select {
+            background: #374151 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+            border-color: #4b5563;
+            color: #f1f5f9;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .reset-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: #f8fafc;
+            color: #0f172a;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        body.dark-theme .reset-btn {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f1f5f9;
+        }
+
+        .reset-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        body.dark-theme .reset-btn:hover {
+            border-color: #3b82f6;
+            color: #93c5fd;
         }
     </style>
 @endpush
@@ -837,47 +966,55 @@
 
     <!-- Filters & Search Section -->
     <div class="filters-section">
-        <form id="activityFilters" method="GET" action="{{ request()->url() }}" class="filters-container">
-            <div class="form-group">
-                <div class="search-wrapper">
-                    <svg class="search-icon" viewBox="0 0 24 24">
-                        <path fill="currentColor"
-                            d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+        <div class="search-filter-container">
+            <div class="search-box">
+                <div class="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <input type="text" id="search" name="search" placeholder="Search by user, action, or details..."
-                        class="search-input" value="{{ request('search') }}">
                 </div>
+                <input type="text" id="search" name="search" placeholder="Search by user, action, or details..."
+                    class="search-input" autocomplete="off" value="{{ request('search') }}">
             </div>
 
-            <div class="form-group">
-                <select id="role" name="role" class="form-select">
+            <div>
+                <select id="role" name="role" class="filter-select">
                     <option value="">All Roles</option>
                     <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                     <option value="staff" {{ request('role') == 'staff' ? 'selected' : '' }}>Staff</option>
                     <option value="student" {{ request('role') == 'student' ? 'selected' : '' }}>Student</option>
                 </select>
-            </div>
 
-            <div class="form-group">
-                <select id="period" name="period" class="form-select">
+                <select id="period" name="period" class="filter-select">
                     <option value="all" {{ request('period') == 'all' ? 'selected' : '' }}>All Time</option>
                     <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Today</option>
                     <option value="7days" {{ request('period') == '7days' ? 'selected' : '' }}>Last 7 Days</option>
                     <option value="30days" {{ request('period') == '30days' ? 'selected' : '' }}>Last 30 Days</option>
                 </select>
-            </div>
 
-            <div class="form-group">
-                <select id="action_category" name="action_category" class="form-select">
+                <select id="action_category" name="action_category" class="filter-select">
                     <option value="">All Categories</option>
-                    @foreach($actionCategories as $category)
-                        <option value="{{ $category }}" {{ request('action_category') == $category ? 'selected' : '' }}>
+                    @foreach ($actionCategories as $category)
+                        <option value="{{ $category }}"
+                            {{ request('action_category') == $category ? 'selected' : '' }}>
                             {{ ucfirst($category) }}
                         </option>
                     @endforeach
                 </select>
+
             </div>
-        </form>
+            <button id="resetFiltersBtn" class="reset-btn" type="button" title="Reset all filters">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+                Reset
+            </button>
+        </div>
     </div>
 
     <!-- Activity Log Entries Section -->
@@ -892,7 +1029,8 @@
                 </div>
                 <h2 class="entries-title">Activity Log Entries</h2>
             </div>
-            <div class="entries-subtext">Showing {{ $activities->count() > 0 ? $activities->firstItem() : 0 }} to {{ $activities->count() > 0 ? $activities->lastItem() : 0 }} of {{ $totalActivities ?? 0 }} entries</div>
+            <div class="entries-subtext">Showing {{ $activities->count() > 0 ? $activities->firstItem() : 0 }} to
+                {{ $activities->count() > 0 ? $activities->lastItem() : 0 }} of {{ $totalActivities ?? 0 }} entries</div>
         </div>
 
         <div class="table-container">
@@ -926,17 +1064,20 @@
                                         $roleClass = 'role-badge-staff';
                                     }
                                 @endphp
-                                <span class="role-badge {{ $roleClass }}">{{ ucfirst($activity->user_role ?? 'User') }}</span>
+                                <span
+                                    class="role-badge {{ $roleClass }}">{{ ucfirst($activity->user_role ?? 'User') }}</span>
                             </td>
                             <td>
-                                <span class="action-badge">{{ strtoupper(str_replace('_', ' ', $activity->action)) }}</span>
+                                <span
+                                    class="action-badge">{{ strtoupper(str_replace('_', ' ', $activity->action)) }}</span>
                             </td>
                             <td>
                                 <div title="{{ $activity->description }}">
                                     {{ Str::limit($activity->description, 100) }}
-                                    @if($activity->browser || $activity->device_type)
+                                    @if ($activity->browser || $activity->device_type)
                                         <div class="details-info">
-                                            {{ $activity->browser }} • {{ ucfirst($activity->device_type) }} • {{ $activity->ip_address }}
+                                            {{ $activity->browser }} • {{ ucfirst($activity->device_type) }} •
+                                            {{ $activity->ip_address }}
                                         </div>
                                     @endif
                                 </div>
@@ -946,12 +1087,14 @@
                         <tr>
                             <td colspan="5" style="text-align: center; padding: 2rem;">
                                 <div class="empty-state">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-state-icon">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="1.5" class="empty-state-icon">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <path d="M12 6v6m0 4v.01"></path>
                                     </svg>
                                     <p style="margin-top: 1rem; font-weight: 500; color: #374151;">No activities found</p>
-                                    <p style="font-size: 0.875rem; margin-top: 0.5rem; color: #64748b;">Try adjusting your filters</p>
+                                    <p style="font-size: 0.875rem; margin-top: 0.5rem; color: #64748b;">Try adjusting your
+                                        filters</p>
                                 </div>
                             </td>
                         </tr>
@@ -961,7 +1104,7 @@
         </div>
 
         <!-- Pagination -->
-        @if($activities->hasPages())
+        @if ($activities->hasPages())
             <div class="pagination-container">
                 {{ $activities->links() }}
             </div>
@@ -975,29 +1118,31 @@
             <p class="summary-subtitle">Count of all activities by action type (across all users)</p>
         </div>
 
-        @if($actionStats->count() > 0)
-        <div class="summary-grid">
-            @foreach($actionStats as $stat)
-                @php
-                    $count = $stat->count;
-                    $badge = 'count-low';
-                    if ($count >= 10) {
-                        $badge = 'count-high';
-                    } elseif ($count >= 5) {
-                        $badge = 'count-medium';
-                    }
-                @endphp
-                <div class="summary-item">
-                    <div class="action-name system-action">{{ strtoupper(str_replace('_', ' ', $stat->action)) }}</div>
-                    <div class="count-badge {{ $badge }}">{{ $count }}</div>
-                </div>
-            @endforeach
-        </div>
+        @if ($actionStats->count() > 0)
+            <div class="summary-grid">
+                @foreach ($actionStats as $stat)
+                    @php
+                        $count = $stat->count;
+                        $badge = 'count-low';
+                        if ($count >= 10) {
+                            $badge = 'count-high';
+                        } elseif ($count >= 5) {
+                            $badge = 'count-medium';
+                        }
+                    @endphp
+                    <div class="summary-item">
+                        <div class="action-name system-action">{{ strtoupper(str_replace('_', ' ', $stat->action)) }}
+                        </div>
+                        <div class="count-badge {{ $badge }}">{{ $count }}</div>
+                    </div>
+                @endforeach
+            </div>
         @else
-        <div class="empty-state">
-            <p style="font-weight: 500; color: #374151;">No activity data available yet</p>
-            <p style="font-size: 0.875rem; margin-top: 0.5rem; color: #64748b;">Activities will appear here as users interact with the system</p>
-        </div>
+            <div class="empty-state">
+                <p style="font-weight: 500; color: #374151;">No activity data available yet</p>
+                <p style="font-size: 0.875rem; margin-top: 0.5rem; color: #64748b;">Activities will appear here as users
+                    interact with the system</p>
+            </div>
         @endif
     </div>
 @endsection
@@ -1006,32 +1151,60 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('search');
-            const filtersForm = document.getElementById('activityFilters');
+            const roleFilter = document.getElementById('role');
+            const periodFilter = document.getElementById('period');
+            const actionCategoryFilter = document.getElementById('action_category');
+            const resetBtn = document.getElementById('resetFiltersBtn');
+
+            // Update URL with filters and reload page
+            const updateFilters = () => {
+                const params = new URLSearchParams();
+                if (searchInput.value) params.set('search', searchInput.value);
+                if (roleFilter.value) params.set('role', roleFilter.value);
+                if (periodFilter.value && periodFilter.value !== 'all') params.set('period', periodFilter
+                .value);
+                if (actionCategoryFilter.value) params.set('action_category', actionCategoryFilter.value);
+
+                window.location.href = window.location.pathname + (params.toString() ? '?' + params.toString() :
+                    '');
+            };
 
             // Auto-submit form on filter changes
-            document.getElementById('role').addEventListener('change', () => filtersForm.submit());
-            document.getElementById('period').addEventListener('change', () => filtersForm.submit());
-            document.getElementById('action_category').addEventListener('change', () => filtersForm.submit());
+            roleFilter.addEventListener('change', updateFilters);
+            periodFilter.addEventListener('change', updateFilters);
+            actionCategoryFilter.addEventListener('change', updateFilters);
 
             // Debounced search
             let searchTimeout;
             searchInput.addEventListener('input', function() {
                 clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => filtersForm.submit(), 500);
+                searchTimeout = setTimeout(updateFilters, 500);
+            });
+
+            // Reset filters
+            resetBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                roleFilter.value = '';
+                periodFilter.value = 'all';
+                actionCategoryFilter.value = '';
+                window.location.href = window.location.pathname;
             });
 
             // Keyboard shortcuts
             document.addEventListener('keydown', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-                if (e.key === '/' && !searchInput.matches(':focus')) {
+                // Ctrl+K or Cmd+K to focus search
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                     e.preventDefault();
                     searchInput.focus();
                 }
-
-                if (e.key === 'Escape' && searchInput.matches(':focus')) {
-                    searchInput.value = '';
-                    searchInput.dispatchEvent(new Event('input'));
+                // Escape in search input to clear it
+                else if (e.key === 'Escape' && document.activeElement.id === 'search') {
+                    if (searchInput.value !== '') {
+                        searchInput.value = '';
+                        updateFilters();
+                    } else {
+                        searchInput.blur();
+                    }
                 }
             });
         });

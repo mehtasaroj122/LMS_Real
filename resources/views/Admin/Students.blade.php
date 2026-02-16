@@ -292,6 +292,119 @@
             outline: 2px solid white;
             outline-offset: 2px;
         }
+
+        /* ===== NEW SEARCH & FILTER CONTAINER STYLES ===== */
+        .search-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            align-items: center;
+            background: white;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        body.dark-theme .search-filter-container {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            max-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.25rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        body.dark-theme .search-input {
+            background-color: #374151;
+            border-color: #4b5563;
+            color: #f1f5f9;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+        }
+        body.dark-theme .search-icon {
+            color: #9ca3af;
+        }
+
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 0.5rem 2rem 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            appearance: none;
+            min-width: 120px;
+            transition: all 0.3s ease;
+            background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+            border: 1px solid #e5e7eb;
+            color: #0f172a;
+        }
+        body.dark-theme .filter-select {
+            background: #374151 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+            border-color: #4b5563;
+            color: #f1f5f9;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .reset-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: #f8fafc;
+            color: #0f172a;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        body.dark-theme .reset-btn {
+            background: #374151;
+            border-color: #4b5563;
+            color: #f1f5f9;
+        }
+        .reset-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        body.dark-theme .reset-btn:hover {
+            border-color: #3b82f6;
+            color: #93c5fd;
+        }
     </style>
 @endpush
 
@@ -344,29 +457,45 @@
             <h2 class="text-base font-semibold text-primary">All Students</h2>
         </div>
 
-        <!-- Table Controls -->
-        <div class="p-3 mb-3 card">
-            <div class="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center">
-                <div class="flex items-center gap-2">
-                    <div class="relative">
-                        <input type="text" id="searchInput" placeholder="Search students..."
-                            class="w-full py-2 pl-10 pr-4 transition bg-transparent border border-gray-300 rounded-lg dark:border-gray-600 text-primary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent md:w-64">
-                        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5"></i>
-                    </div>
-                    <select id="departmentFilter"
-                        class="px-3 py-2 transition bg-transparent border border-gray-300 rounded-lg filter-select dark:border-gray-600 text-primary focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="all">All Departments</option>
-                        @foreach ($departments as $dept)
-                            <option value="{{ $dept->id }}">{{ $dept->name }}</option>
-                        @endforeach
-                    </select>
+        <!-- Search & Filter Container -->
+        <div class="search-filter-container">
+            <div class="search-box">
+                <div class="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
                 </div>
-                <button id="addStudentBtn"
-                    class="flex items-center gap-2 px-3 py-1 font-medium text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    Add Student
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by name, email, or roll number..." autocomplete="off">
+            </div>
+
+            <div class="filters-container">
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+
+                <select class="filter-select" id="departmentFilter">
+                    <option value="all">All Departments</option>
+                    @foreach ($departments as $dept)
+                        <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                    @endforeach
+                </select>
+
+                <button id="resetFiltersBtn" class="reset-btn" title="Reset all filters">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 4px; vertical-align: -2px;">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                    Reset
                 </button>
             </div>
+
+            <button id="addStudentBtn" class="flex items-center gap-2 px-3 py-1 font-medium text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 hover:shadow-lg" style="margin-left: auto;">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Add Student
+            </button>
         </div>
 
         <!-- Students Table -->
@@ -508,6 +637,7 @@
         class StudentManager {
             constructor() {
                 this.currentDepartment = 'all';
+                this.currentStatus = 'all';
                 this.searchDebounceTimer = null;
                 this.selectedRowIndex = -1;
                 this.currentPage = 1;
@@ -520,6 +650,8 @@
                 // Search and filter
                 const searchInput = document.getElementById('searchInput');
                 const departmentFilter = document.getElementById('departmentFilter');
+                const statusFilter = document.getElementById('statusFilter');
+                const resetBtn = document.getElementById('resetFiltersBtn');
 
                 if (searchInput) {
                     searchInput.addEventListener('input', (e) => {
@@ -539,6 +671,20 @@
                     });
                 }
 
+                if (statusFilter) {
+                    statusFilter.addEventListener('change', (e) => {
+                        this.currentStatus = e.target.value;
+                        this.selectedRowIndex = -1;
+                        this.fetchStudents();
+                    });
+                }
+
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => {
+                        this.resetFilters();
+                    });
+                }
+
                 // Add student button
                 const addBtn = document.getElementById('addStudentBtn');
                 if (addBtn) {
@@ -550,17 +696,49 @@
                 // Keyboard navigation
                 document.addEventListener('keydown', (e) => this.handleKeyboardNavigation(e));
 
+                // Setup keyboard shortcuts
+                this.setupKeyboardShortcuts();
+
                 // Load initial data
                 this.fetchStudents();
                 this.refreshStats();
+            }
+
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Ctrl+K or Cmd+K to focus search
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                        e.preventDefault();
+                        document.getElementById('searchInput').focus();
+                    }
+                    // Escape in search input to clear it
+                    else if (e.key === 'Escape' && document.activeElement.id === 'searchInput') {
+                        if (document.getElementById('searchInput').value !== '') {
+                            document.getElementById('searchInput').value = '';
+                            this.fetchStudents();
+                        } else {
+                            document.getElementById('searchInput').blur();
+                        }
+                    }
+                });
+            }
+
+            resetFilters() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('statusFilter').value = 'all';
+                document.getElementById('departmentFilter').value = 'all';
+                this.currentStatus = 'all';
+                this.currentDepartment = 'all';
+                this.fetchStudents();
             }
 
             fetchStudents(page = 1) {
                 this.currentPage = page;
                 const searchTerm = document.getElementById('searchInput')?.value || '';
                 const department = this.currentDepartment;
+                const status = this.currentStatus;
 
-                fetch(`{{ route('admin.students.data') }}?search=${encodeURIComponent(searchTerm)}&department=${department}&page=${page}`, {
+                fetch(`{{ route('admin.students.data') }}?search=${encodeURIComponent(searchTerm)}&department=${department}&status=${status}&page=${page}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',

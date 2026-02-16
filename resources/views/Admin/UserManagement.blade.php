@@ -159,12 +159,7 @@
 
         /* Toolbar */
         .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 12px;
+            display: none;
         }
 
         .section-header {
@@ -292,46 +287,102 @@
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
         }
 
-        /* Filter Tabs */
-        .filter-tabs {
+        /* Search-Filter Container */
+        .search-filter-container {
             display: flex;
-            gap: 6px;
-            margin-bottom: 16px;
             flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            align-items: center;
+            background: white;
+            border: 1px solid #e5e7eb;
         }
 
-        .filter-tab {
-            padding: 6px 12px;
-            border-radius: 18px;
-            border: 1px solid #d1d5db;
-            background: transparent;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
+        body.dark-theme .search-filter-container {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        /* SEARCH BOX */
+        .search-box {
+            flex: 0 0 auto;
+            min-width: 200px;
+            max-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.25rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            font-size: 0.875rem;
             transition: all 0.3s ease;
+            background-color: #f8fafc;
+            color: #0f172a;
         }
 
-        body.light-theme .filter-tab {
-            color: #374151;
-        }
-
-        body.dark-theme .filter-tab {
-            border-color: #475569;
-            color: #cbd5e1;
-        }
-
-        .filter-tab.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            border-color: transparent;
-            color: white;
-        }
-
-        .filter-tab:hover:not(.active) {
-            background-color: #f3f4f6;
-        }
-
-        body.dark-theme .filter-tab:hover:not(.active) {
+        body.dark-theme .search-input {
             background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        body.dark-theme .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 0.875rem;
+            pointer-events: none;
+        }
+
+        body.dark-theme .search-icon {
+            color: #94a3b8;
+        }
+
+        /* Filters Container */
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-select {
+            padding: 0.5rem 2rem 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            appearance: none;
+            min-width: 120px;
+            transition: all 0.3s ease;
+            background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+            border: 1px solid #e5e7eb;
+            color: #0f172a;
+        }
+
+        body.dark-theme .filter-select {
+            background: #334155 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
         }
 
         /* Table Styles */
@@ -873,17 +924,22 @@
                 font-size: 24px;
             }
 
-            .toolbar {
+            .search-filter-container {
                 flex-direction: column;
                 align-items: stretch;
             }
 
-            .search-add-wrapper {
-                flex-direction: column;
+            .search-box {
+                max-width: 100%;
             }
 
-            .search-box {
-                min-width: 100%;
+            .filters-container {
+                width: 100%;
+            }
+
+            .search-add-wrapper {
+                width: 100%;
+                margin-left: 0;
             }
 
             .table th,
@@ -985,31 +1041,43 @@
 
         <!-- Users Section -->
         <div>
-            <div class="toolbar">
-                <div class="section-header">
-                    <h2 class="section-title">All Users</h2>
-                    <p class="section-subtitle">View and manage all system users</p>
+            <!-- Search & Filter Container -->
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by name, email, username...">
+                </div>
+
+                <div class="filters-container">
+                    <select class="filter-select" id="roleFilter">
+                        <option value="all">All Roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="staff">Staff</option>
+                        <option value="student">Student</option>
+                    </select>
+
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+
+                    <select class="filter-select" id="sortFilter">
+                        <option value="recently-added">Recently Added</option>
+                        <option value="name-asc">Name (A-Z)</option>
+                        <option value="name-desc">Name (Z-A)</option>
+                    </select>
                 </div>
 
                 <div class="search-add-wrapper">
-                    <div class="search-box">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" class="search-input"
-                            placeholder="Search by name, username, email, student ID..." id="searchInput">
-                    </div>
-
                     <button class="btn btn-primary" id="addUserBtn">
                         <i class="fas fa-user-plus"></i>
                         Add New User
                     </button>
                 </div>
-            </div>
-
-            <!-- Filter Tabs -->
-            <div class="filter-tabs" id="filterTabs">
-                <button class="filter-tab active" data-filter="all" data-status="all">All Users</button>
-                <button class="filter-tab" data-filter="active" data-status="active">Active</button>
-                <button class="filter-tab" data-filter="inactive" data-status="inactive">Inactive</button>
             </div>
 
             <!-- Users Table -->
@@ -1307,7 +1375,9 @@
                 this.currentModal = null;
                 this.currentUserId = null;
                 this.currentUserRow = null;
-                this.currentFilter = 'all';
+                this.currentStatusFilter = 'all';
+                this.currentRoleFilter = 'all';
+                this.currentSortFilter = 'recently-added';
                 this.currentSearch = '';
                 this.searchTimeout = null;
                 this.init();
@@ -1362,28 +1432,38 @@
             }
 
             /**
-             * Initialize filter tabs with AJAX
+             * Initialize filter dropdowns with AJAX
              */
             initFilters() {
-                const filterTabs = document.querySelectorAll('.filter-tab');
-                if (!filterTabs.length) return;
-
-                filterTabs.forEach(tab => {
-                    tab.addEventListener('click', (e) => {
-                        e.preventDefault();
-
-                        // Update active tab styling
-                        filterTabs.forEach(t => t.classList.remove('active'));
-                        e.currentTarget.classList.add('active');
-
-                        // Get filter status from data attribute
-                        this.currentFilter = e.currentTarget.dataset.status || 'all';
-                        console.log('Filter changed to:', this.currentFilter);
-
-                        // Fetch data from backend (reset to page 1)
+                // Role Filter
+                const roleFilter = document.getElementById('roleFilter');
+                if (roleFilter) {
+                    roleFilter.addEventListener('change', (e) => {
+                        this.currentRoleFilter = e.target.value;
+                        this.currentPage = 1;
                         this.fetchUsersData(1);
                     });
-                });
+                }
+
+                // Status Filter
+                const statusFilter = document.getElementById('statusFilter');
+                if (statusFilter) {
+                    statusFilter.addEventListener('change', (e) => {
+                        this.currentStatusFilter = e.target.value;
+                        this.currentPage = 1;
+                        this.fetchUsersData(1);
+                    });
+                }
+
+                // Sort Filter
+                const sortFilter = document.getElementById('sortFilter');
+                if (sortFilter) {
+                    sortFilter.addEventListener('change', (e) => {
+                        this.currentSortFilter = e.target.value;
+                        this.currentPage = 1;
+                        this.fetchUsersData(1);
+                    });
+                }
             }
 
             /**
@@ -1411,8 +1491,7 @@
              * @param {number} page - Page number to fetch
              */
             fetchUsersData(page = 1) {
-                console.log('Fetching users data - search:', this.currentSearch, 'status:', this.currentFilter, 'page:',
-                    page);
+                console.log('Fetching users data - search:', this.currentSearch, 'status:', this.currentStatusFilter, 'role:', this.currentRoleFilter, 'sort:', this.currentSortFilter, 'page:', page);
 
                 // Show loading state
                 const tableBody = document.getElementById('usersTableBody');
@@ -1421,7 +1500,9 @@
 
                 const params = new URLSearchParams({
                     search: this.currentSearch,
-                    status: this.currentFilter,
+                    status: this.currentStatusFilter,
+                    role: this.currentRoleFilter,
+                    sort: this.currentSortFilter,
                     page: page
                 });
 

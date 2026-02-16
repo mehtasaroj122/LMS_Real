@@ -37,6 +37,7 @@ class BookRequestController extends Controller
 
         $search = $request->get('search', '');
         $status = $request->get('status', 'all');
+        $sort = $request->get('sort', 'date-desc');
         $page = $request->get('page', 1);
         $perPage = 10;
 
@@ -66,8 +67,27 @@ class BookRequestController extends Controller
             $query->where('status', $status);
         }
 
-        // Order by request_date descending (latest first)
-        $query->orderBy('request_date', 'desc');
+        // Apply sorting
+        switch ($sort) {
+            case 'date-asc':
+                $query->orderBy('book_requests.request_date', 'asc');
+                break;
+            case 'student-asc':
+                $query->leftJoin('students', 'book_requests.student_id', '=', 'students.id')
+                      ->leftJoin('users', 'students.user_id', '=', 'users.id')
+                      ->select('book_requests.*')
+                      ->orderBy('users.name', 'asc');
+                break;
+            case 'book-asc':
+                $query->leftJoin('books', 'book_requests.book_id', '=', 'books.id')
+                      ->select('book_requests.*')
+                      ->orderBy('books.title', 'asc');
+                break;
+            case 'date-desc':
+            default:
+                $query->orderBy('book_requests.request_date', 'desc');
+                break;
+        }
 
         // Paginate
         $requests = $query->paginate($perPage, ['*'], 'page', $page);

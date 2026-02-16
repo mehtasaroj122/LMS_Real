@@ -65,11 +65,12 @@ class UserController extends Controller
         try {
             $search = $request->input('search', '');
             $status = $request->input('status', 'all');
+            $role = $request->input('role', 'all');
+            $sort = $request->input('sort', 'recently-added');
             $page = $request->input('page', 1);
 
             // Build base query
-            $query = User::orderByRaw("CASE WHEN role='admin' THEN 1 WHEN role='staff' THEN 2 WHEN role='student' THEN 3 END")
-                ->latest();
+            $query = User::query();
 
             // Apply search filter
             if (!empty($search)) {
@@ -84,6 +85,26 @@ class UserController extends Controller
                 $query->where('status', $status);
             }
 
+            // Apply role filter
+            if ($role !== 'all') {
+                $query->where('role', $role);
+            }
+
+            // Apply sorting
+            switch ($sort) {
+                case 'recently-added':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'name-asc':
+                    $query->orderBy('name', 'asc');
+                    break;
+                case 'name-desc':
+                    $query->orderBy('name', 'desc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc');
+            }
+
             // Paginate results (7 users per page)
             $users = $query->paginate(7, ['*'], 'page', $page);
 
@@ -91,7 +112,7 @@ class UserController extends Controller
             $users->load('student.department', 'staff.department');
 
             // Get stats for current filters
-            $stats = $this->getUserStats($search, $status);
+            $stats = $this->getUserStats($search, $status, $role);
 
             // Prepare HTML for table rows
             $tableRows = '';
@@ -155,7 +176,7 @@ class UserController extends Controller
     /**
      * Get user statistics with optional filters
      */
-    private function getUserStats($search = '', $status = 'all')
+    private function getUserStats($search = '', $status = 'all', $role = 'all')
     {
         // Build queries for stats
         $baseQuery = User::query();
@@ -174,6 +195,11 @@ class UserController extends Controller
         // Apply status filter to filtered query only
         if ($status !== 'all') {
             $filteredQuery->where('status', $status);
+        }
+
+        // Apply role filter to filtered query
+        if ($role !== 'all') {
+            $filteredQuery->where('role', $role);
         }
 
         // Get role counts for filtered results

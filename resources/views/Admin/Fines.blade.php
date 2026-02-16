@@ -259,6 +259,7 @@
         .search-box {
             flex: 1;
             min-width: 200px;
+            max-width: 250px;
             position: relative;
         }
 
@@ -333,6 +334,39 @@
         .filter-select:focus {
             outline: none;
             border-color: #3b82f6;
+        }
+
+        .reset-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        body.light-theme .reset-btn {
+            background: #f8fafc;
+            border-color: #e5e7eb;
+            color: #0f172a;
+        }
+
+        body.dark-theme .reset-btn {
+            background: #0f172a;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+
+        .reset-btn:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        body.dark-theme .reset-btn:hover {
+            border-color: #3b82f6;
+            color: #60a5fa;
         }
 
         /* Fines Table with Stripes - Enhanced */
@@ -907,6 +941,21 @@
                         <option value="paid">Paid</option>
                         <option value="waived">Waived</option>
                     </select>
+
+                    <select class="filter-select" id="sortFilter">
+                        <option value="date-desc">Date (Newest)</option>
+                        <option value="date-asc">Date (Oldest)</option>
+                        <option value="amount-desc">Amount (High to Low)</option>
+                        <option value="amount-asc">Amount (Low to High)</option>
+                    </select>
+
+                    <button id="resetFiltersBtn" class="reset-btn" title="Reset all filters">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 4px; vertical-align: -2px;">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        Reset
+                    </button>
                 </div>
             </div>
 
@@ -1033,6 +1082,7 @@
                 perPage: 10,
                 filter: 'all',
                 search: '',
+                sort: 'date-desc',
                 fines: [],
                 stats: {},
                 pagination: {}
@@ -1132,6 +1182,57 @@
                         this.loadFines();
                     });
                 }
+
+                // Sort filter
+                const sortFilter = document.getElementById('sortFilter');
+                if (sortFilter) {
+                    sortFilter.addEventListener('change', (e) => {
+                        this.state.sort = e.target.value;
+                        this.state.currentPage = 1;
+                        this.loadFines();
+                    });
+                }
+
+                // Reset filters button
+                const resetBtn = document.getElementById('resetFiltersBtn');
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => this.resetFilters());
+                }
+
+                // Keyboard shortcuts
+                this.setupKeyboardShortcuts();
+            },
+
+            resetFilters() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('statusFilter').value = 'all';
+                document.getElementById('sortFilter').value = 'date-desc';
+                this.state.search = '';
+                this.state.filter = 'all';
+                this.state.sort = 'date-desc';
+                this.state.currentPage = 1;
+                this.loadFines();
+            },
+
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Ctrl+K or Cmd+K to focus search
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                        e.preventDefault();
+                        document.getElementById('searchInput').focus();
+                    }
+                    // Escape in search input to clear it
+                    else if (e.key === 'Escape' && document.activeElement.id === 'searchInput') {
+                        if (document.getElementById('searchInput').value !== '') {
+                            document.getElementById('searchInput').value = '';
+                            this.state.search = '';
+                            this.state.currentPage = 1;
+                            this.loadFines();
+                        } else {
+                            document.getElementById('searchInput').blur();
+                        }
+                    }
+                });
             },
 
             setFilter(status) {
@@ -1145,6 +1246,7 @@
                 const params = new URLSearchParams({
                     search: this.state.search,
                     status: this.state.filter,
+                    sort: this.state.sort || 'date-desc',
                     page: this.state.currentPage,
                     per_page: this.state.perPage
                 });

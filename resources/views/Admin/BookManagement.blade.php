@@ -160,14 +160,114 @@
             color: #94a3b8;
         }
 
+        /* Search & Filter Container (new design) */
+        .search-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            align-items: center;
+            background: white;
+            border: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .search-filter-container {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        /* SEARCH BOX – width reduced */
+        .search-box {
+            flex: 0 0 auto;
+            min-width: 200px;
+            max-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.25rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        body.dark-theme .search-input {
+            background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        body.dark-theme .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 0.875rem;
+            pointer-events: none;
+        }
+
+        body.dark-theme .search-icon {
+            color: #94a3b8;
+        }
+
+        /* Filters Container */
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-select {
+            padding: 0.5rem 2rem 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            appearance: none;
+            min-width: 120px;
+            transition: all 0.3s ease;
+            background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+            border: 1px solid #e5e7eb;
+            color: #0f172a;
+        }
+
+        body.dark-theme .filter-select {
+            background: #334155 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .search-add-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-left: auto;
+        }
+
         /* Toolbar */
         .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 12px;
+            display: none;
         }
 
         .section-header {
@@ -187,57 +287,6 @@
 
         body.dark-theme .section-subtitle {
             color: #94a3b8;
-        }
-
-        .search-add-wrapper {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            position: relative;
-            min-width: 250px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 8px 12px 8px 32px;
-            border-radius: 6px;
-            border: 1px solid #d1d5db;
-            font-size: 13px;
-            transition: all 0.3s ease;
-        }
-
-        body.light-theme .search-input {
-            background-color: #ffffff;
-            color: #0f172a;
-        }
-
-        body.dark-theme .search-input {
-            background-color: #1e293b;
-            border-color: #475569;
-            color: #e2e8f0;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        body.dark-theme .search-icon {
-            color: #9ca3af;
         }
 
         /* Button Styles */
@@ -297,24 +346,57 @@
 
         /* Book Count Badge */
         .book-count {
+            display: none;
+        }
+
+        /* Condition Badge */
+        .condition-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: white;
-            border-radius: 16px;
-            font-size: 12px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
             font-weight: 600;
-            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .condition-new {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        body.dark-theme .condition-new {
+            background: linear-gradient(135deg, #14532d 0%, #052e16 100%);
+            color: #4ade80;
+        }
+
+        .condition-good {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        body.dark-theme .condition-good {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: #93c5fd;
+        }
+
+        .condition-damaged {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        body.dark-theme .condition-damaged {
+            background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+            color: #f87171;
         }
 
         /* Table Styles */
         .table-container {
-            border-radius: 8px;
+            border-radius: 0.5rem;
             overflow: hidden;
-            border: 1px solid;
-            margin-top: 12px;
+            border: 1px solid #e5e7eb;
+            margin-top: 0;
         }
 
         body.light-theme .table-container {
@@ -334,39 +416,43 @@
         .table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1200px;
+            min-width: 800px;
+            font-size: 0.875rem;
+        }
+
+        .table thead {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .table thead {
+            border-color: #334155;
         }
 
         .table th {
-            padding: 8px 10px;
+            padding: 0.75rem 1rem;
             text-align: left;
             font-weight: 600;
-            font-size: 11px;
-            border-bottom: 1px solid;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
             white-space: nowrap;
         }
 
         body.light-theme .table th {
             background-color: #f8fafc;
-            border-color: #e2e8f0;
-            color: #475569;
+            color: #64748b;
         }
 
         body.dark-theme .table th {
             background-color: #1e293b;
-            border-color: #334155;
             color: #cbd5e1;
         }
 
         .table td {
-            padding: 8px 10px;
-            border-bottom: 1px solid;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
-            font-size: 13px;
-        }
-
-        body.light-theme .table td {
-            border-color: #e2e8f0;
         }
 
         body.dark-theme .table td {
@@ -382,7 +468,7 @@
         }
 
         body.dark-theme .table tr:hover {
-            background-color: #2d3748;
+            background-color: #334155;
         }
 
         /* Condition Badge */
@@ -769,6 +855,77 @@
             margin-left: 8px;
         }
 
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            background: white;
+        }
+
+        body.dark-theme .pagination-container {
+            background: #1e293b;
+            border-top-color: #334155;
+        }
+
+        .pagination-info {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        body.dark-theme .pagination-info {
+            color: #cbd5e1;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: #0f172a;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-theme .pagination-btn {
+            background: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        body.dark-theme .pagination-btn:hover:not(:disabled) {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .book-management {
@@ -793,22 +950,27 @@
                 font-size: 24px;
             }
 
-            .toolbar {
+            .search-filter-container {
                 flex-direction: column;
                 align-items: stretch;
             }
 
-            .search-add-wrapper {
-                flex-direction: column;
+            .search-box {
+                max-width: 100%;
             }
 
-            .search-box {
-                min-width: 100%;
+            .filters-container {
+                width: 100%;
+            }
+
+            .search-add-wrapper {
+                width: 100%;
+                margin-left: 0;
             }
 
             .table th,
             .table td {
-                padding: 12px;
+                padding: 0.75rem;
             }
 
             .action-buttons {
@@ -890,48 +1052,51 @@
 
         <!-- Books Section -->
         <div>
-            <div class="toolbar">
-                <div class="section-header">
-                    <h2 class="section-title">All Books</h2>
-                    <p class="section-subtitle">View and manage all library books</p>
+            <!-- Search & Filter Container -->
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by title, author, ISBN...">
+                </div>
+
+                <div class="filters-container">
+                    <select class="filter-select" id="conditionFilter">
+                        <option value="all">All Conditions</option>
+                        <option value="new">New</option>
+                        <option value="good">Good</option>
+                        <option value="damaged">Damaged</option>
+                    </select>
+
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="all">All Categories</option>
+                    </select>
+
+                    <select class="filter-select" id="availabilityFilter">
+                        <option value="all">All Stock</option>
+                        <option value="out-of-stock">Out of Stock</option>
+                        <option value="low-stock">Low Stock (1-5)</option>
+                        <option value="in-stock">In Stock (6+)</option>
+                    </select>
+
+                    <select class="filter-select" id="sortFilter">
+                        <option value="recently-added">Recently Added</option>
+                        <option value="title-asc">Title (A-Z)</option>
+                        <option value="title-desc">Title (Z-A)</option>
+                        <option value="author-asc">Author (A-Z)</option>
+                        <option value="author-desc">Author (Z-A)</option>
+                        <option value="copies-desc">Copies (High to Low)</option>
+                    </select>
                 </div>
 
                 <div class="search-add-wrapper">
-                    <div class="search-box">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text"
-                               class="search-input"
-                               placeholder="Search books by title, author, ISBN..."
-                               id="searchInput">
-                    </div>
-
                     <button class="btn btn-primary" id="addBookBtn">
                         <i class="fas fa-plus"></i>
                         Add New Book
                     </button>
                 </div>
-            </div>
-
-            <!-- Filter Tabs -->
-            <div style="display: flex; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid #e5e7eb; padding-bottom: 12px;">
-                <button class="filter-tab active" data-condition="all" style="padding: 8px 16px; background: none; border: none; border-bottom: 2px solid #3b82f6; color: #3b82f6; cursor: pointer; font-weight: 500; transition: all 0.3s;">
-                    All Books
-                </button>
-                <button class="filter-tab" data-condition="new" style="padding: 8px 16px; background: none; border: none; color: #6b7280; cursor: pointer; font-weight: 500; transition: all 0.3s;">
-                    New
-                </button>
-                <button class="filter-tab" data-condition="good" style="padding: 8px 16px; background: none; border: none; color: #6b7280; cursor: pointer; font-weight: 500; transition: all 0.3s;">
-                    Good
-                </button>
-                <button class="filter-tab" data-condition="damaged" style="padding: 8px 16px; background: none; border: none; color: #6b7280; cursor: pointer; font-weight: 500; transition: all 0.3s;">
-                    Damaged
-                </button>
-            </div>
-
-            <!-- Book Count -->
-            <div class="book-count">
-                <i class="fas fa-hashtag"></i>
-                <span id="bookCountDisplay">0 books</span>
             </div>
 
             <!-- Books Table -->
@@ -956,8 +1121,31 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Empty state -->
+                <div id="emptyState" style="text-align: center; padding: 2rem 1rem; color: #64748b; display: none;">
+                    <svg style="margin-bottom: 0.75rem; opacity: 0.5; width: 40px; height: 40px; margin-left: auto; margin-right: auto;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
+                        <path d="M9 9h6"></path>
+                        <path d="M9 13h6"></path>
+                    </svg>
+                    <h3 style="margin-bottom: 0.25rem; font-size: 1rem; font-weight: 600;">No books found</h3>
+                    <p style="color: #64748b;">Try adjusting your search or filters</p>
+                </div>
+
                 <!-- Pagination Container -->
-                <div id="paginationContainer" style="margin-top: 16px; display: flex; justify-content: center;"></div>
+                <div id="paginationContainer" style="display: none;">
+                    <div class="pagination-container">
+                        <div class="pagination-info">
+                            Showing <span id="startRecord">1</span> to <span id="endRecord">10</span> of <span id="totalRecords">0</span> results
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="pagination-btn" id="prevBtn">← Previous</button>
+                            <div id="pageNumbers"></div>
+                            <button class="pagination-btn" id="nextBtn">Next →</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1239,8 +1427,14 @@
                 this.currentBookId = null;
                 this.currentBookTitle = null;
                 this.currentConditionFilter = 'all';
+                this.currentCategoryFilter = 'all';
+                this.currentAvailabilityFilter = 'all';
+                this.currentSortFilter = 'recently-added';
                 this.searchDebounceTimer = null;
                 this.storageBase = '{{ asset('storage') }}';
+                this.allBooks = [];
+                this.currentPage = 1;
+                this.perPage = 10;
                 this.init();
             }
 
@@ -1272,7 +1466,7 @@
                 });
 
                 // Initialize filter tabs
-                this.initFilterTabs();
+                this.initFilters();
 
                 // Initialize search
                 this.initSearch();
@@ -1321,37 +1515,103 @@
                 }
             }
 
-            initFilterTabs() {
-                document.querySelectorAll('.filter-tab').forEach(tab => {
-                    tab.addEventListener('click', (e) => {
-                        document.querySelectorAll('.filter-tab').forEach(t => {
-                            t.style.color = '#6b7280';
-                            t.style.borderBottom = 'none';
-                        });
-                        e.target.style.color = '#3b82f6';
-                        e.target.style.borderBottom = '2px solid #3b82f6';
-                        
-                        this.currentConditionFilter = e.target.dataset.condition;
-                        this.fetchBooksData(1);
+            initFilters() {
+                // Condition filter
+                const conditionFilter = document.getElementById('conditionFilter');
+                if (conditionFilter) {
+                    conditionFilter.addEventListener('change', (e) => {
+                        this.currentConditionFilter = e.target.value;
+                        this.currentPage = 1;
+                        this.fetchBooksData();
                     });
-                });
+                }
+
+                // Category filter
+                const categoryFilter = document.getElementById('categoryFilter');
+                if (categoryFilter) {
+                    categoryFilter.addEventListener('change', (e) => {
+                        this.currentCategoryFilter = e.target.value;
+                        this.currentPage = 1;
+                        this.fetchBooksData();
+                    });
+                }
+
+                // Availability filter
+                const availabilityFilter = document.getElementById('availabilityFilter');
+                if (availabilityFilter) {
+                    availabilityFilter.addEventListener('change', (e) => {
+                        this.currentAvailabilityFilter = e.target.value;
+                        this.currentPage = 1;
+                        this.fetchBooksData();
+                    });
+                }
+
+                // Sort filter
+                const sortFilter = document.getElementById('sortFilter');
+                if (sortFilter) {
+                    sortFilter.addEventListener('change', (e) => {
+                        this.currentSortFilter = e.target.value;
+                        this.currentPage = 1;
+                        this.fetchBooksData();
+                    });
+                }
+
+                // Load categories onmount
+                this.loadCategories();
             }
 
             initSearch() {
                 const searchInput = document.getElementById('searchInput');
-                searchInput.addEventListener('input', (e) => {
-                    clearTimeout(this.searchDebounceTimer);
-                    this.searchDebounceTimer = setTimeout(() => {
-                        this.fetchBooksData(1);
-                    }, 300);
-                });
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        clearTimeout(this.searchDebounceTimer);
+                        this.searchDebounceTimer = setTimeout(() => {
+                            this.currentPage = 1;
+                            this.fetchBooksData();
+                        }, 300);
+                    });
+                }
+            }
+
+            loadCategories() {
+                fetch(`{{ route('admin.books.stats') }}`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const categoryFilter = document.getElementById('categoryFilter');
+                    if (categoryFilter && data.topCategories) {
+                        Object.entries(data.topCategories).forEach(([name, count]) => {
+                            const option = document.createElement('option');
+                            option.value = name;
+                            option.textContent = name;
+                            categoryFilter.appendChild(option);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading categories:', error));
             }
 
             fetchBooksData(page = 1) {
-                const searchTerm = document.getElementById('searchInput').value;
+                const searchTerm = document.getElementById('searchInput')?.value || '';
                 const condition = this.currentConditionFilter;
+                const category = this.currentCategoryFilter;
+                const availability = this.currentAvailabilityFilter;
+                const sort = this.currentSortFilter;
 
-                fetch(`{{ route('admin.books.data') }}?search=${encodeURIComponent(searchTerm)}&condition=${condition}&page=${page}`, {
+                const params = new URLSearchParams({
+                    search: searchTerm,
+                    condition: condition,
+                    category: category,
+                    availability: availability,
+                    sort: sort,
+                    page: page
+                });
+
+                fetch(`{{ route('admin.books.data') }}?${params.toString()}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
@@ -1363,26 +1623,27 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        // Check if there are any results
+                        const emptyState = document.getElementById('emptyState');
+                        const paginationContainer = document.getElementById('paginationContainer');
+                        const tableBody = document.getElementById('booksTableBody');
+
                         if (data.total === 0) {
-                            document.getElementById('booksTableBody').innerHTML = `
-                                <tr>
-                                    <td colspan="9" style="text-align: center; padding: 40px; color: #6b7280;">
-                                        <i class="fas fa-search" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5; display: block;"></i>
-                                        <p style="font-size: 16px; margin: 0; font-weight: 500;">No search results found</p>
-                                        <p style="font-size: 14px; margin-top: 8px; color: #9ca3af;">Try adjusting your search terms</p>
-                                    </td>
-                                </tr>
-                            `;
-                            document.getElementById('paginationContainer').innerHTML = '';
+                            tableBody.innerHTML = '';
+                            emptyState.style.display = 'block';
+                            paginationContainer.style.display = 'none';
                         } else {
-                            document.getElementById('booksTableBody').innerHTML = data.tableRows;
-                            document.getElementById('paginationContainer').innerHTML = data.pagination;
+                            tableBody.innerHTML = data.tableRows;
+                            emptyState.style.display = 'none';
+                            
+                            if (data.pagination && data.total > this.perPage) {
+                                paginationContainer.innerHTML = data.pagination;
+                                paginationContainer.style.display = 'block';
+                                this.setupPaginationListeners();
+                            } else {
+                                paginationContainer.style.display = 'none';
+                            }
+                            
                             this.attachTableEventListeners();
-                        }
-                        const bookCountSpan = document.getElementById('bookCountDisplay');
-                        if (bookCountSpan) {
-                            bookCountSpan.textContent = `${data.total} book${data.total !== 1 ? 's' : ''}`;
                         }
                     } else {
                         this.showNotification('Error loading books', 'error');
@@ -1394,12 +1655,25 @@
                 });
             }
 
+            setupPaginationListeners() {
+                document.querySelectorAll('#paginationContainer a').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const url = new URL(link.href);
+                        const page = url.searchParams.get('page') || 1;
+                        this.currentPage = page;
+                        this.fetchBooksData(page);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                });
+            }
+
             attachTableEventListeners() {
                 document.querySelectorAll('.action-btn.view').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const row = e.target.closest('tr');
                         this.currentBookId = row.dataset.bookId;
-                        this.currentBookTitle = row.cells[1].querySelector('strong').textContent;
+                        this.currentBookTitle = row.cells[1].querySelector('strong')?.textContent || row.cells[1].textContent;
                         this.openViewModal(row);
                     });
                 });
@@ -1408,7 +1682,7 @@
                     btn.addEventListener('click', (e) => {
                         const row = e.target.closest('tr');
                         this.currentBookId = row.dataset.bookId;
-                        this.currentBookTitle = row.cells[1].querySelector('strong').textContent;
+                        this.currentBookTitle = row.cells[1].querySelector('strong')?.textContent || row.cells[1].textContent;
                         this.openEditModal(row);
                     });
                 });
@@ -1417,18 +1691,8 @@
                     btn.addEventListener('click', (e) => {
                         const row = e.target.closest('tr');
                         this.currentBookId = row.dataset.bookId;
-                        this.currentBookTitle = row.cells[1].querySelector('strong').textContent;
+                        this.currentBookTitle = row.cells[1].querySelector('strong')?.textContent || row.cells[1].textContent;
                         this.openDeleteModal();
-                    });
-                });
-
-                document.querySelectorAll('#paginationContainer a').forEach(link => {
-                    link.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const url = new URL(link.href);
-                        const page = url.searchParams.get('page') || 1;
-                        this.fetchBooksData(page);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
                     });
                 });
             }
@@ -1790,7 +2054,8 @@
                         this.closeModal('addBookModal');
                         form.reset();
                         document.getElementById('addNewCategory').value = '';
-                        this.fetchBooksData(1);
+                        this.currentPage = 1;
+                        this.fetchBooksData();
                         setTimeout(() => this.refreshStats(), 150);
                     } else {
                         this.showNotification(data.message || 'Error adding book', 'error');
@@ -1828,7 +2093,8 @@
                     if (data.success) {
                         this.showNotification('Book updated successfully', 'success');
                         this.closeModal('editBookModal');
-                        this.fetchBooksData(1);
+                        this.currentPage = 1;
+                        this.fetchBooksData();
                         setTimeout(() => this.refreshStats(), 150);
                     }
                 })
@@ -1854,7 +2120,8 @@
                     if (data.success) {
                         this.showNotification(`"${this.currentBookTitle}" deleted successfully`, 'success');
                         this.closeModal('deleteBookModal');
-                        this.fetchBooksData(1);
+                        this.currentPage = 1;
+                        this.fetchBooksData();
                         setTimeout(() => this.refreshStats(), 150);
                     }
                 })

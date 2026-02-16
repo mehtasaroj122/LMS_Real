@@ -46,6 +46,7 @@ class StudentController extends Controller
 
         $search = $request->get('search', '');
         $department = $request->get('department', 'all');
+        $status = $request->get('status', 'all');
         $page = $request->get('page', 1);
         $perPage = 10;
 
@@ -71,6 +72,13 @@ class StudentController extends Controller
         // Department filter
         if ($department !== 'all') {
             $query->where('department_id', $department);
+        }
+
+        // Status filter
+        if ($status !== 'all') {
+            $query->whereHas('user', function($q) use ($status) {
+                $q->where('status', $status);
+            });
         }
 
         // Paginate

@@ -35,6 +35,9 @@ class BookController extends Controller
 
         $search = $request->get('search', '');
         $condition = $request->get('condition', 'all');
+        $category = $request->get('category', 'all');
+        $availability = $request->get('availability', 'all');
+        $sort = $request->get('sort', 'title-asc');
         $page = $request->get('page', 1);
         $perPage = 7;
 
@@ -54,6 +57,52 @@ class BookController extends Controller
         // Condition filter
         if ($condition !== 'all') {
             $query->where('condition', $condition);
+        }
+
+        // Category filter
+        if ($category !== 'all') {
+            $query->whereHas('category', function($q) use ($category) {
+                $q->where('name', $category);
+            });
+        }
+
+        // Availability filter
+        if ($availability !== 'all') {
+            switch ($availability) {
+                case 'out-of-stock':
+                    $query->where('available_copies', 0);
+                    break;
+                case 'low-stock':
+                    $query->whereBetween('available_copies', [1, 5]);
+                    break;
+                case 'in-stock':
+                    $query->where('available_copies', '>=', 6);
+                    break;
+            }
+        }
+
+        // Sorting
+        switch ($sort) {
+            case 'recently-added':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'title-asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'title-desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'author-asc':
+                $query->orderBy('author', 'asc');
+                break;
+            case 'author-desc':
+                $query->orderBy('author', 'desc');
+                break;
+            case 'copies-desc':
+                $query->orderBy('total_copies', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
         }
 
         // Paginate

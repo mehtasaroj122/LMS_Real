@@ -1,5 +1,7 @@
 @extends('Admin.layouts.app')
 
+@section('title', 'Student Details')
+
 @push('styles')
     <style>
         /* Student Details Page */

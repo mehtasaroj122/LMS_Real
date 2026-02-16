@@ -330,14 +330,32 @@ class FineController extends Controller
 
             $search = $request->get('search', '');
             $status = $request->get('status', 'all');
+            $sort = $request->get('sort', 'date-desc');
             $perPage = $request->get('per_page', 10);
             $page = $request->get('page', 1);
 
             $query = \App\Models\Fine::with(['student.user', 'issuedBook.book'])
                 ->whereHas('student.user', function($q) {
                     $q->where('role', 'student');
-                })
-                ->orderBy('created_at', 'desc');
+                });
+
+            // Apply sorting
+            switch ($sort) {
+                case 'date-asc':
+                    $query->orderBy('created_at', 'asc');
+                    break;
+                case 'date-desc':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'amount-asc':
+                    $query->orderBy('amount', 'asc');
+                    break;
+                case 'amount-desc':
+                    $query->orderBy('amount', 'desc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc');
+            }
 
             // Search filter
             if (!empty($search)) {
