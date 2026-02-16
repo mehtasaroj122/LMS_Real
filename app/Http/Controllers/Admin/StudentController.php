@@ -87,16 +87,36 @@ class StudentController extends Controller
         // Generate table rows HTML
         $tableRows = '';
         foreach ($students->items() as $student) {
-            $tableRows .= '<tr class="border-b border-gray-200 dark:border-gray-700" data-student-id="' . $student->id . '">';
-            $tableRows .= '<td class="px-6 py-4"><div class="student-info"><span class="student-name">' . htmlspecialchars($student->user->name ?? 'Unknown') . '</span><span class="student-id">' . htmlspecialchars($student->roll_no ?? 'N/A') . '</span></div></td>';
-            $tableRows .= '<td class="px-6 py-4 text-secondary">' . htmlspecialchars($student->user->email ?? 'N/A') . '</td>';
-            $tableRows .= '<td class="px-6 py-4 text-secondary">' . htmlspecialchars($student->department->name ?? 'N/A') . '</td>';
-            $tableRows .= '<td class="px-6 py-4 text-secondary">' . htmlspecialchars($student->batch ?? 'N/A') . '</td>';
-            $tableRows .= '<td class="px-6 py-4"><span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ' . ($student->user->status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200') . '">' . ucfirst($student->user->status) . '</span></td>';
-            $tableRows .= '<td class="px-6 py-4"><div class="action-buttons">';
-            $tableRows .= '<a href="' . route('admin.students.show', $student->id) . '" class="action-btn btn-view"><i data-lucide="eye" class="w-4 h-4"></i>View</a>';
-            $tableRows .= '<button onclick="deleteStudent(' . $student->id . ')" class="action-btn btn-delete"><i data-lucide="trash-2" class="w-4 h-4"></i>Delete</button>';
-            $tableRows .= '</div></td>';
+            $statusClass = $student->user->status === 'active' ? 'status-active' : 'status-inactive';
+            $statusText = ucfirst($student->user->status);
+            $statusIcon = $student->user->status === 'active' 
+                ? '<i class="fas fa-check-circle" style="font-size: 10px;"></i>' 
+                : '<i class="fas fa-times-circle" style="font-size: 10px;"></i>';
+
+            $tableRows .= '<tr data-student-id="' . $student->id . '">';
+            $tableRows .= '<td>';
+            $tableRows .= '<div class="student-info">';
+            $tableRows .= '<span class="student-name">' . htmlspecialchars($student->user->name ?? 'Unknown') . '</span>';
+            $tableRows .= '<div class="text-muted">' . htmlspecialchars($student->roll_no ?? 'N/A') . '</div>';
+            $tableRows .= '</div>';
+            $tableRows .= '</td>';
+            $tableRows .= '<td class="text-muted">' . htmlspecialchars($student->user->email ?? 'N/A') . '</td>';
+            $tableRows .= '<td class="text-muted">' . htmlspecialchars($student->department->name ?? 'N/A') . '</td>';
+            $tableRows .= '<td class="text-muted">' . htmlspecialchars($student->batch ?? 'N/A') . '</td>';
+            $tableRows .= '<td>';
+            $tableRows .= '<span class="status-badge ' . $statusClass . '">';
+            $tableRows .= $statusIcon . ' ' . $statusText;
+            $tableRows .= '</span>';
+            $tableRows .= '</td>';
+            $tableRows .= '<td>';
+            $tableRows .= '<div class="action-buttons">';
+            $tableRows .= '<a href="' . route('admin.students.show', $student->id) . '" class="action-btn" title="View details"><i class="fas fa-eye"></i></a>';
+            $tableRows .= '<button onclick="openEditStudentModal(' . $student->id . ')" class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>';
+            $toggleIcon = $student->user->status === 'active' ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+            $tableRows .= '<button onclick="toggleStudentStatus(' . $student->id . ')" class="action-btn" title="Toggle status"><i class="' . $toggleIcon . '"></i></button>';
+            $tableRows .= '<button onclick="deleteStudent(' . $student->id . ')" class="action-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>';
+            $tableRows .= '</div>';
+            $tableRows .= '</td>';
             $tableRows .= '</tr>';
         }
 
@@ -144,6 +164,39 @@ class StudentController extends Controller
         }
 
         return $stats;
+    }
+
+    /**
+     * Get student edit data for modal
+     */
+    public function getStudentEditData($id)
+    {
+        Gate::authorize('access-admin');
+
+        try {
+            $student = Student::with('user', 'department')->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $student->id,
+                    'name' => $student->user->name,
+                    'email' => $student->user->email,
+                    'phone' => $student->user->phone,
+                    'roll_no' => $student->roll_no,
+                    'department_id' => $student->department_id,
+                    'batch' => $student->batch,
+                    'semester' => $student->semester,
+                    'address' => $student->address,
+                    'status' => $student->user->status,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Student not found'
+            ], 404);
+        }
     }
 
     /**
@@ -266,8 +319,8 @@ class StudentController extends Controller
                 'bookName' => optional($fine->issuedBook && $fine->issuedBook->book) ? $fine->issuedBook->book->title : 'Unknown',
                 'daysOverdue' => ($fine->days_late ?? 0) . ' days',
                 'fineAmount' => $fine->amount ?? 0,
-                'paymentStatus' => $fine->status === 'paid' ? 'paid' : 'unpaid',
-                'actions' => $fine->status === 'paid' ? ['view-history'] : ['adjust', 'waive', 'mark-paid', 'view-history']
+                'paymentStatus' => $fine->status,
+                'actions' => in_array($fine->status, ['paid', 'waived']) ? ['view-history'] : ['adjust', 'waive', 'mark-paid', 'view-history']
             ];
         })->toArray();
         
@@ -577,6 +630,52 @@ class StudentController extends Controller
     }
 
     /**
+     * Toggle student status (active/inactive)
+     */
+    public function toggleStatus(string $id)
+    {
+        try {
+            Gate::authorize('access-admin');
+
+            $student = Student::findOrFail($id);
+            $user = $student->user;
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found for this student.',
+                ], 404);
+            }
+
+            $oldStatus = $user->status;
+            $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+
+            // Update user status
+            $user->status = $newStatus;
+            $user->save();
+
+            // Log the activity
+            ActivityLogger::logStatusChange($student, $oldStatus, $newStatus);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Student status has been updated to ' . ucfirst($newStatus) . '.',
+                'status' => $newStatus,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error toggling student status: ' . $e->getMessage(), [
+                'student_id' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating status: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Change student role
      */
     public function changeRole(Request $request, string $id)
@@ -731,7 +830,14 @@ class StudentController extends Controller
     public function getPrivileges($studentId)
     {
         try {
-            Gate::authorize('access-admin');
+            // Allow both admin and staff to access student privileges
+            $userRole = auth()->user()->role ?? null;
+            if (!in_array($userRole, ['admin', 'staff'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 403);
+            }
 
             $student = Student::findOrFail($studentId);
             $privileges = $student->privileges ?? new \App\Models\StudentPrivilege();
@@ -746,16 +852,22 @@ class StudentController extends Controller
                     'issue_duration_days' => $privileges->issue_duration_days,
                     'per_day_fine' => $privileges->per_day_fine,
                     'borrowing_allowed' => $privileges->borrowing_allowed ?? true,
+                    'grace_period_days' => $privileges->grace_period_days,
+                    'max_fine_amount' => $privileges->max_fine_amount,
                 ],
                 'defaults' => [
-                    'max_books' => 5,
+                    'max_books' => $fineSetting->max_books_per_student ?? 5,
                     'issue_duration_days' => $fineSetting->issue_duration_days ?? 14,
                     'per_day_fine' => $fineSetting->per_day_fine ?? 10,
+                    'grace_period_days' => $fineSetting->grace_period_days ?? 2,
+                    'max_fine_amount' => $fineSetting->max_fine_amount ?? 500,
                 ],
                 'effective' => [
-                    'max_books' => $privileges->max_books ?? 5,
+                    'max_books' => $privileges->max_books ?? ($fineSetting->max_books_per_student ?? 5),
                     'issue_duration_days' => $privileges->issue_duration_days ?? ($fineSetting->issue_duration_days ?? 14),
                     'per_day_fine' => $privileges->per_day_fine ?? ($fineSetting->per_day_fine ?? 10),
+                    'grace_period_days' => $privileges->grace_period_days ?? ($fineSetting->grace_period_days ?? 2),
+                    'max_fine_amount' => $privileges->max_fine_amount ?? ($fineSetting->max_fine_amount ?? 500),
                     'borrowing_allowed' => $privileges->borrowing_allowed ?? true,
                 ]
             ]);
@@ -782,6 +894,8 @@ class StudentController extends Controller
                 'max_books' => 'nullable|integer|min:1|max:20',
                 'issue_duration_days' => 'nullable|integer|min:1|max:90',
                 'per_day_fine' => 'nullable|numeric|min:0|max:100',
+                'grace_period_days' => 'nullable|integer|min:0|max:30',
+                'max_fine_amount' => 'nullable|numeric|min:0|max:10000',
                 'borrowing_allowed' => 'boolean',
             ]);
 
@@ -798,6 +912,12 @@ class StudentController extends Controller
             }
             if ($validated['per_day_fine'] !== null && $privileges->per_day_fine != $validated['per_day_fine']) {
                 $changes['per_day_fine'] = $validated['per_day_fine'];
+            }
+            if ($validated['grace_period_days'] !== null && $privileges->grace_period_days != $validated['grace_period_days']) {
+                $changes['grace_period_days'] = $validated['grace_period_days'];
+            }
+            if ($validated['max_fine_amount'] !== null && $privileges->max_fine_amount != $validated['max_fine_amount']) {
+                $changes['max_fine_amount'] = $validated['max_fine_amount'];
             }
             if ($privileges->borrowing_allowed != $validated['borrowing_allowed']) {
                 $changes['borrowing_allowed'] = $validated['borrowing_allowed'];
@@ -829,6 +949,8 @@ class StudentController extends Controller
                     'max_books' => $privileges->max_books,
                     'issue_duration_days' => $privileges->issue_duration_days,
                     'per_day_fine' => $privileges->per_day_fine,
+                    'grace_period_days' => $privileges->grace_period_days,
+                    'max_fine_amount' => $privileges->max_fine_amount,
                     'borrowing_allowed' => $privileges->borrowing_allowed,
                 ]
             ]);

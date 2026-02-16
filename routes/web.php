@@ -79,12 +79,15 @@ Route::middleware(['auth', 'can:access-admin'])
 
         Route::get('/students/data', [StudentController::class, 'getStudentsData'])->name('students.data');
         Route::get('/students/stats', [StudentController::class, 'getStudentsStats'])->name('students.stats');
+        Route::get('/students/{student}/edit-data', [StudentController::class, 'getStudentEditData'])->name('students.edit-data');
         Route::post('/students/{student}/reset-password', [StudentController::class, 'resetPassword'])
             ->name('students.reset-password');
         Route::post('/students/{student}/deactivate', [StudentController::class, 'deactivate'])
             ->name('students.deactivate');
         Route::post('/students/{student}/activate', [StudentController::class, 'activate'])
             ->name('students.activate');
+        Route::put('/students/{student}/toggle-status', [StudentController::class, 'toggleStatus'])
+            ->name('students.toggle-status');
         Route::post('/students/{student}/change-role', [StudentController::class, 'changeRole'])
             ->name('students.change-role');
 
@@ -307,5 +310,8 @@ Route::middleware('auth')->group(function () {
     // Password change routes
     Route::get('/change-password', [PasswordChangeController::class, 'showChangePassword'])->name('password.change');
     Route::post('/change-password', [PasswordChangeController::class, 'updatePassword'])->name('password.update');
+    
+    // Student privileges endpoint - accessible by admin and staff
+    Route::get('/admin/students/{student}/privileges', [StudentController::class, 'getPrivileges'])->name('api.students.privileges');
 });
 require __DIR__ . '/auth.php';

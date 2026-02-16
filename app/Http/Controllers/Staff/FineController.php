@@ -8,6 +8,8 @@ use App\Models\Notification;
 use App\Jobs\SendFineEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Helpers\ActivityLogger;
+use Throwable;
 
 class FineController extends Controller
 {
@@ -33,6 +35,20 @@ class FineController extends Controller
                 'status' => 'paid',
                 'paid_on' => now()
             ]);
+            
+            // Log the activity
+            try {
+                if ($fine->student) {
+                    ActivityLogger::logStudentActivity(
+                        $fine->student,
+                        'fine_paid',
+                        "Fine of ₹{$fine->amount} marked as paid",
+                        'fine'
+                    );
+                }
+            } catch (Throwable $logError) {
+                \Log::warning('Failed to log activity: ' . $logError->getMessage());
+            }
             
             // Send notification to student
             $student = $fine->student;
@@ -87,6 +103,20 @@ class FineController extends Controller
                 'status' => 'waived',
                 'remarks' => $reason
             ]);
+            
+            // Log the activity
+            try {
+                if ($fine->student) {
+                    ActivityLogger::logStudentActivity(
+                        $fine->student,
+                        'fine_waived',
+                        "Fine of ₹{$fine->amount} waived. Reason: {$reason}",
+                        'fine'
+                    );
+                }
+            } catch (Throwable $logError) {
+                \Log::warning('Failed to log activity: ' . $logError->getMessage());
+            }
             
             // Send notification to student
             $student = $fine->student;

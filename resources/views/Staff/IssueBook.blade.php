@@ -569,6 +569,77 @@
     let selectedBooksContainer;
     let issueButton;
     let issueForm;
+    let studentPrivileges = null;
+    let fineSettings = null;
+
+    // Custom Alert Function
+    window.showCustomAlert = function(title, message, type = 'info') {
+        const alertBox = document.createElement('div');
+        alertBox.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 9999;
+            min-width: 400px;
+            max-width: 500px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        `;
+
+        if (document.body.classList.contains('dark-theme')) {
+            alertBox.style.background = '#1e293b';
+            alertBox.style.color = '#f1f5f9';
+        }
+
+        let icon = '✓';
+        let borderColor = '#10b981';
+        let titleColor = '#059669';
+
+        if (type === 'error') {
+            icon = '✕';
+            borderColor = '#ef4444';
+            titleColor = '#dc2626';
+        } else if (type === 'warning') {
+            icon = '⚠';
+            borderColor = '#f59e0b';
+            titleColor = '#d97706';
+        }
+
+        alertBox.innerHTML = `
+            <div style="border-left: 4px solid ${borderColor}; padding-left: 16px;">
+                <div style="font-size: 18px; font-weight: 700; color: ${titleColor}; margin-bottom: 8px;">
+                    ${icon} ${title}
+                </div>
+                <div style="font-size: 14px; color: #64748b; line-height: 1.6; white-space: pre-wrap;">
+                    ${message}
+                </div>
+                <button style="margin-top: 16px; padding: 8px 16px; background: ${borderColor}; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="this.closest('div').parentElement.remove(); document.querySelector('div[style*=\"background: rgba\"]')?.remove();">OK</button>
+            </div>
+        `;
+
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+        `;
+
+        document.body.appendChild(overlay);
+        document.body.appendChild(alertBox);
+
+        alertBox.querySelector('button').onclick = () => {
+            alertBox.remove();
+            overlay.remove();
+        };
+    };
 
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize Issue Book Elements
@@ -597,8 +668,11 @@
             }
 
             // Fetch students from API
-            fetch(`{{ route('staff.transactions.students') }}?query=${encodeURIComponent(query)}`)
-                .then(response => response.json())
+            fetch(`{{ route('staff.transactions.students') }}?query=${encodeURIComponent(query)}`, { credentials: 'include' })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
                 .then(students => {
                     if (students.length === 0) {
                         studentResults.innerHTML = '<div class="result-item"><div class="result-title">No students found</div></div>';
@@ -624,7 +698,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    studentResults.innerHTML = '<div class="result-item"><div class="result-title">Error loading students</div></div>';
+                    studentResults.innerHTML = '<div class="result-item"><div class="result-title">Error: ' + error.message + '</div></div>';
                     studentResults.style.display = 'block';
                 });
         });
@@ -646,10 +720,10 @@
             }
 
             // Fetch available books from API
-            fetch(`{{ route('staff.transactions.books') }}?query=${encodeURIComponent(query)}&studentId=${selectedStudent.id}`)
+            fetch(`{{ route('staff.transactions.books') }}?query=${encodeURIComponent(query)}&studentId=${selectedStudent.id}`, { credentials: 'include' })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        throw new Error(`HTTP ${response.status}`);
                     }
                     return response.json();
                 })
@@ -685,7 +759,7 @@
                 })
                 .catch(error => {
                     console.error('Error loading books:', error);
-                    bookResults.innerHTML = '<div class="result-item"><div class="result-title">Error loading books</div></div>';
+                    bookResults.innerHTML = '<div class="result-item"><div class="result-title">Error: ' + error.message + '</div></div>';
                     bookResults.style.display = 'block';
                 });
         });
@@ -695,14 +769,24 @@
             e.preventDefault();
 
             if (!selectedStudent || selectedBooks.length === 0) {
-                alert('Please select a student and at least one book');
+                showCustomAlert('Missing Information', 'Please select a student and at least one book', 'warning');
+                return;
+            }
+
+            if (!studentPrivileges) {
+                showCustomAlert('Student Not Selected', 'Please wait for student information to load', 'error');
+                return;
+            }
+
+            if (!studentPrivileges.borrowing_allowed) {
+                showCustomAlert('Borrowing Permission Denied', `${selectedStudent.name} does not have borrowing permission.`, 'error');
                 return;
             }
 
             // Check if student can issue more books
-            const canIssueMore = selectedStudent.maxBooks - selectedStudent.issued;
+            const canIssueMore = studentPrivileges.max_books - selectedStudent.issued;
             if (selectedBooks.length > canIssueMore) {
-                alert(`Student can only issue ${canIssueMore} more book(s)`);
+                showCustomAlert('Exceeds Borrowing Limit', `Student can only issue ${canIssueMore} more book(s).`, 'error');
                 return;
             }
 
@@ -711,6 +795,7 @@
             
             fetch('{{ route("staff.transactions.issue") }}', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -723,16 +808,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(data.message);
-                    // Reset form
+                    showCustomAlert('Books Issued Successfully', data.message, 'success');
                     clearStudentSelection();
                 } else {
-                    alert('Error: ' + data.message);
+                    const isPermError = data.message.includes('allowed to borrow') || data.message.includes('permission');
+                    showCustomAlert(isPermError ? 'Permission Denied' : 'Issue Failed', data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Error issuing books');
+                showCustomAlert('Transaction Error', 'Failed to issue books: ' + error.message, 'error');
             });
         });
 
@@ -753,56 +838,75 @@
         studentResults.style.display = 'none';
         clearStudentBtn.style.display = 'block';
         
-        // Update student details
-        document.getElementById('studentName').textContent = student.name;
-        document.getElementById('studentID').textContent = student.roll_no;
-        document.getElementById('studentDepartment').textContent = student.department;
-        document.getElementById('studentEmail').textContent = student.email;
-        document.getElementById('studentIssued').textContent = `${student.issued} / ${student.maxBooks}`;
-        
-        // Update progress bar
-        const progressPercent = (student.issued / student.maxBooks) * 100;
-        document.getElementById('issuedProgress').style.width = `${progressPercent}%`;
-        
-        selectedStudentCard.style.display = 'block';
-        availableBooksCard.style.display = 'block';
-        
-        // Reset book selection
-        selectedBooks = [];
-        updateSelectedBooksList();
-        updateIssueButton();
-        
-        // Update available books info
-        const canIssueMore = student.maxBooks - student.issued;
-        document.getElementById('canIssueMore').textContent = canIssueMore;
-        document.getElementById('selectedCount').textContent = '0 books';
-        document.getElementById('totalBooks').textContent = '0';
-        
-        // Enable book search
-        searchBookInput.disabled = false;
-        searchBookInput.placeholder = "Search books to issue...";
+        // Fetch student privileges
+        fetch(`/admin/students/${student.id}/privileges`, { credentials: 'include' })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    showCustomAlert('Error', 'Failed to load student privileges', 'error');
+                    return;
+                }
+                
+                studentPrivileges = data.effective;
+                
+                if (!studentPrivileges.borrowing_allowed) {
+                    showCustomAlert('Borrowing Not Allowed', `${student.name} cannot borrow books at this time.`, 'error');
+                    clearStudentSelection();
+                    return;
+                }
+                
+                // Update student details with privileges
+                document.getElementById('studentName').textContent = student.name;
+                document.getElementById('studentID').textContent = student.roll_no;
+                document.getElementById('studentDepartment').textContent = student.department;
+                document.getElementById('studentEmail').textContent = student.email;
+                document.getElementById('studentIssued').textContent = `${student.issued} / ${studentPrivileges.max_books}`;
+                
+                const progressPercent = (student.issued / studentPrivileges.max_books) * 100;
+                document.getElementById('issuedProgress').style.width = `${progressPercent}%`;
+                
+                selectedStudentCard.style.display = 'block';
+                availableBooksCard.style.display = 'block';
+                
+                selectedBooks = [];
+                updateSelectedBooksList();
+                updateIssueButton();
+                
+                const canIssueMore = studentPrivileges.max_books - student.issued;
+                document.getElementById('canIssueMore').textContent = canIssueMore;
+                document.getElementById('selectedCount').textContent = '0 books';
+                document.getElementById('totalBooks').textContent = '0';
+                
+                searchBookInput.disabled = false;
+                searchBookInput.placeholder = "Search books to issue...";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showCustomAlert('Error', 'Failed to load student privileges', 'error');
+                clearStudentSelection();
+            });
     }
 
     // Function to add book to selection
     function addBookToSelection(book) {
-        if (!selectedStudent) return;
+        if (!selectedStudent || !studentPrivileges) return;
         
-        // Check if student can issue more books
-        const canIssueMore = selectedStudent.maxBooks - selectedStudent.issued;
+        // Check if student can issue more books (based on privileges)
+        const canIssueMore = studentPrivileges.max_books - selectedStudent.issued;
         if (selectedBooks.length >= canIssueMore) {
-            alert(`Student can only issue ${canIssueMore} more book(s)`);
+            showCustomAlert('Book Limit Reached', `Student can only issue ${canIssueMore} more book(s).`, 'warning');
             return;
         }
         
         // Check if book is already selected
         if (selectedBooks.some(b => b.id === book.id)) {
-            alert('This book is already selected');
+            showCustomAlert('Book Already Selected', 'This book is already in the selection.', 'warning');
             return;
         }
         
         // Check if book is available
         if (book.available <= 0) {
-            alert('This book is currently unavailable');
+            showCustomAlert('Book Unavailable', 'This book is not in stock.', 'error');
             return;
         }
         
@@ -849,10 +953,10 @@
 
     // Function to update issue button
     function updateIssueButton() {
-        const canIssueMore = selectedStudent ? selectedStudent.maxBooks - selectedStudent.issued : 0;
+        const canIssueMore = selectedStudent && studentPrivileges ? studentPrivileges.max_books - selectedStudent.issued : 0;
         const selectedCount = selectedBooks.length;
         
-        if (selectedStudent && selectedCount > 0) {
+        if (selectedStudent && studentPrivileges && selectedCount > 0) {
             issueButton.disabled = false;
             issueButton.textContent = `Issue Books (${selectedCount}/${canIssueMore})`;
         } else {
@@ -863,9 +967,9 @@
 
     // Function to update available books info
     function updateAvailableBooksInfo() {
-        if (!selectedStudent) return;
+        if (!selectedStudent || !studentPrivileges) return;
         
-        const canIssueMore = selectedStudent.maxBooks - selectedStudent.issued;
+        const canIssueMore = studentPrivileges.max_books - selectedStudent.issued;
         const selectedCount = selectedBooks.length;
         
         document.getElementById('selectedCount').textContent = `${selectedCount} book${selectedCount !== 1 ? 's' : ''}`;
@@ -876,6 +980,7 @@
     // Function to clear student selection
     function clearStudentSelection() {
         selectedStudent = null;
+        studentPrivileges = null;
         selectedStudentId.value = '';
         searchStudentInput.value = '';
         clearStudentBtn.style.display = 'none';
@@ -885,13 +990,11 @@
         updateSelectedBooksList();
         updateIssueButton();
         
-        // Disable book search
         searchBookInput.disabled = true;
         searchBookInput.placeholder = "Select a student first...";
         searchBookInput.value = '';
         bookResults.style.display = 'none';
         
-        // Reset form
         issueForm.reset();
     }
 </script>

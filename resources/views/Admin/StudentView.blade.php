@@ -532,6 +532,18 @@
         /* Books Table */
         .table-container {
             overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        body.light-theme .table-container {
+            background-color: #ffffff;
+            border-color: #e5e7eb;
+        }
+        body.dark-theme .table-container {
+            background-color: #1e293b;
+            border-color: #334155;
         }
 
         .books-table {
@@ -541,43 +553,53 @@
         }
 
         .books-table th {
-            padding: 12px 16px;
+            padding: 6px 8px;
             text-align: left;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             white-space: nowrap;
             border-bottom: 1px solid;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
         }
 
         body.light-theme .books-table th {
-            color: #64748b;
-            border-color: #e5e7eb;
+            color: #475569;
+            border-color: #e2e8f0;
             background-color: #f8fafc;
         }
 
         body.dark-theme .books-table th {
-            color: #94a3b8;
+            color: #cbd5e1;
             border-color: #334155;
-            background-color: #0f172a;
+            background-color: #1e293b;
         }
 
         .books-table td {
-            padding: 16px;
+            padding: 6px 8px;
             border-bottom: 1px solid;
+            vertical-align: middle;
+            font-size: 13px;
+            transition: border-color 0.3s, color 0.3s;
         }
 
         body.light-theme .books-table td {
-            border-color: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #0f172a;
         }
 
         body.dark-theme .books-table td {
-            border-color: #1e293b;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+
+        .books-table tr:last-child td {
+            border-bottom: none;
         }
 
         .books-table tbody tr:hover {
-            transition: background-color 0.2s ease;
+            transition: background-color 0.3s;
         }
 
         body.light-theme .books-table tbody tr:hover {
@@ -585,47 +607,55 @@
         }
 
         body.dark-theme .books-table tbody tr:hover {
-            background-color: #0f172a;
+            background-color: #2d3748;
         }
 
         /* Status Badges in Table */
         .table-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 4px 10px;
-            border-radius: 12px;
+            border-radius: 16px;
             font-size: 11px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
+            gap: 4px;
+            transition: background 0.3s, color 0.3s;
+            white-space: nowrap;
+        }
+
+        .table-badge i {
             display: inline-block;
+            line-height: 1;
         }
 
         .table-badge.issued {
-            background-color: #dcfce7;
-            color: #16a34a;
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
         }
 
         body.dark-theme .table-badge.issued {
-            background-color: #14532d;
+            background: linear-gradient(135deg, #14532d 0%, #052e16 100%);
             color: #4ade80;
         }
 
         .table-badge.overdue {
-            background-color: #fef2f2;
-            color: #dc2626;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
         }
 
         body.dark-theme .table-badge.overdue {
-            background-color: #7f1d1d;
-            color: #fca5a5;
+            background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+            color: #f87171;
         }
 
         .table-badge.returned {
-            background-color: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             color: #64748b;
         }
 
         body.dark-theme .table-badge.returned {
-            background-color: #334155;
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
             color: #94a3b8;
         }
 
@@ -642,7 +672,52 @@
             color: #f87171;
         }
 
-        /* Action Button */
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-start;
+        }
+        
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        body.light-theme .action-btn {
+            color: #64748b;
+            background-color: #f1f5f9;
+        }
+        
+        body.dark-theme .action-btn {
+            color: #94a3b8;
+            background-color: #334155;
+        }
+        
+        body.light-theme .action-btn:hover {
+            background-color: #e0e7ff;
+            color: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.dark-theme .action-btn:hover {
+            background-color: #1e40af;
+            color: #93c5fd;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Legacy view-btn support */
         .view-btn {
             padding: 6px 12px;
             border-radius: 6px;
@@ -1786,43 +1861,53 @@
         }
 
         .fines-table th {
-            padding: 12px 16px;
+            padding: 6px 8px;
             text-align: left;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             white-space: nowrap;
             border-bottom: 1px solid;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
         }
 
         body.light-theme .fines-table th {
-            color: #64748b;
-            border-color: #e5e7eb;
+            color: #475569;
+            border-color: #e2e8f0;
             background-color: #f8fafc;
         }
 
         body.dark-theme .fines-table th {
-            color: #94a3b8;
+            color: #cbd5e1;
             border-color: #334155;
-            background-color: #0f172a;
+            background-color: #1e293b;
         }
 
         .fines-table td {
-            padding: 16px;
+            padding: 6px 8px;
             border-bottom: 1px solid;
+            vertical-align: middle;
+            font-size: 13px;
+            transition: border-color 0.3s, color 0.3s;
         }
 
         body.light-theme .fines-table td {
-            border-color: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #0f172a;
         }
 
         body.dark-theme .fines-table td {
-            border-color: #1e293b;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+
+        .fines-table tr:last-child td {
+            border-bottom: none;
         }
 
         .fines-table tbody tr:hover {
-            transition: background-color 0.2s ease;
+            transition: background-color 0.3s;
         }
 
         body.light-theme .fines-table tbody tr:hover {
@@ -1830,38 +1915,56 @@
         }
 
         body.dark-theme .fines-table tbody tr:hover {
-            background-color: #0f172a;
+            background-color: #2d3748;
         }
 
         /* Payment Status Badges */
         .payment-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 4px 10px;
-            border-radius: 12px;
+            border-radius: 16px;
             font-size: 11px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
+            gap: 4px;
+            transition: background 0.3s, color 0.3s;
+            white-space: nowrap;
+        }
+
+        .payment-badge i {
             display: inline-block;
+            line-height: 1;
         }
 
         .payment-badge.unpaid {
-            background-color: #fee2e2;
-            color: #dc2626;
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
         }
 
         body.dark-theme .payment-badge.unpaid {
-            background-color: #7f1d1d;
-            color: #fca5a5;
+            background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+            color: #f87171;
         }
 
         .payment-badge.paid {
-            background-color: #dcfce7;
-            color: #16a34a;
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
         }
 
         body.dark-theme .payment-badge.paid {
-            background-color: #14532d;
+            background: linear-gradient(135deg, #14532d 0%, #052e16 100%);
             color: #4ade80;
+        }
+
+        .payment-badge.waive {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            color: #92400e;
+        }
+
+        body.dark-theme .payment-badge.waive {
+            background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+            color: #f59e0b;
         }
 
         /* Fine Actions */
@@ -1878,8 +1981,18 @@
             font-weight: 500;
             cursor: pointer;
             border: 1px solid;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .action-btn-small i {
+            display: inline-block;
+            line-height: 1;
+            font-size: 11px;
         }
 
         .action-btn-small.adjust {
@@ -1907,7 +2020,9 @@
         }
 
         body.light-theme .action-btn-small:hover {
-            opacity: 0.9;
+            background-color: #bfdbfe;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         body.dark-theme .action-btn-small.adjust {
@@ -1916,10 +2031,22 @@
             border-color: #1e3a8a;
         }
 
+        body.dark-theme .action-btn-small.adjust:hover {
+            background-color: #1e40af;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
         body.dark-theme .action-btn-small.waive {
             background-color: #14532d;
             color: #4ade80;
             border-color: #14532d;
+        }
+
+        body.dark-theme .action-btn-small.waive:hover {
+            background-color: #15803d;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         body.dark-theme .action-btn-small.mark-paid {
@@ -1928,14 +2055,22 @@
             border-color: #5b21b6;
         }
 
+        body.dark-theme .action-btn-small.mark-paid:hover {
+            background-color: #6d28d9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
         body.dark-theme .action-btn-small.view-history {
             background-color: #334155;
             color: #94a3b8;
             border-color: #334155;
         }
 
-        body.dark-theme .action-btn-small:hover {
-            opacity: 0.9;
+        body.dark-theme .action-btn-small.view-history:hover {
+            background-color: #475569;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         /* Bottom Row */
@@ -3203,21 +3338,25 @@
             filteredBooks.forEach(book => {
                 const row = document.createElement('tr');
 
-                // Get status badge class and text
+                // Get status badge class, text and icon
                 let statusClass = '';
                 let statusText = '';
+                let statusIcon = '';
                 switch(book.status) {
                     case 'issued':
                         statusClass = 'issued';
                         statusText = 'Issued';
+                        statusIcon = 'fas fa-book-open';
                         break;
                     case 'overdue':
                         statusClass = 'overdue';
                         statusText = 'Overdue';
+                        statusIcon = 'fas fa-exclamation-circle';
                         break;
                     case 'returned':
                         statusClass = 'returned';
                         statusText = 'Returned';
+                        statusIcon = 'fas fa-redo';
                         break;
                 }
 
@@ -3230,7 +3369,7 @@
             <td>${book.dueDate}</td>
             <td>${book.returnDate}</td>
             <td>
-                <span class="table-badge ${statusClass}">${statusText}</span>
+                <span class="table-badge ${statusClass}"><i class="${statusIcon}" style="font-size: 10px; margin-right: 2px;"></i>${statusText}</span>
             </td>
             <td>
                 <span class="fine-amount ${book.fine > 0 ? 'has-fine' : ''}">
@@ -3238,8 +3377,8 @@
                 </span>
             </td>
             <td>
-                <button class="view-btn" onclick="viewBookDetails(${book.id})">
-                    View
+                <button class="view-btn" onclick="viewBookDetails(${book.id})" title="View Details">
+                    <i class="fas fa-eye"></i> View
                 </button>
             </td>
         `;
@@ -3465,37 +3604,57 @@
                 const row = document.createElement('tr');
 
                 // Get payment status badge
-                const statusClass = fine.paymentStatus === 'paid' ? 'paid' : 'unpaid';
-                const statusText = fine.paymentStatus === 'paid' ? 'Paid' : 'Unpaid';
+                let statusClass = '';
+                let statusText = '';
+                let statusIcon = '';
+                
+                if (fine.paymentStatus === 'paid') {
+                    statusClass = 'paid';
+                    statusText = 'Paid';
+                    statusIcon = 'fas fa-check-circle';
+                } else if (fine.paymentStatus === 'waived') {
+                    statusClass = 'waive';
+                    statusText = 'Waived';
+                    statusIcon = 'fas fa-ban';
+                } else {
+                    statusClass = 'unpaid';
+                    statusText = 'Unpaid';
+                    statusIcon = 'fas fa-times-circle';
+                }
 
                 // Build action buttons
                 let actionButtons = '';
                 fine.actions.forEach(action => {
                     let buttonText = '';
                     let buttonClass = '';
+                    let iconClass = '';
 
                     switch(action) {
                         case 'adjust':
                             buttonText = 'Adjust';
                             buttonClass = 'adjust';
+                            iconClass = 'fas fa-sliders-h';
                             break;
                         case 'waive':
                             buttonText = 'Waive';
                             buttonClass = 'waive';
+                            iconClass = 'fas fa-check-circle';
                             break;
                         case 'mark-paid':
                             buttonText = 'Mark Paid';
                             buttonClass = 'mark-paid';
+                            iconClass = 'fas fa-credit-card';
                             break;
                         case 'view-history':
                             buttonText = 'View History';
                             buttonClass = 'view-history';
+                            iconClass = 'fas fa-history';
                             break;
                     }
 
                     actionButtons += `
-                <button class="action-btn-small ${buttonClass}" onclick="handleFineAction('${action}', ${fine.id})">
-                    ${buttonText}
+                <button class="action-btn-small ${buttonClass}" onclick="handleFineAction('${action}', ${fine.id})" title="${buttonText}">
+                    <i class="${iconClass}"></i> ${buttonText}
                 </button>
             `;
                 });
@@ -3503,11 +3662,11 @@
                 row.innerHTML = `
             <td><strong>${fine.bookName}</strong></td>
             <td>${fine.daysOverdue}</td>
-            <td style="color: ${fine.paymentStatus === 'unpaid' ? '#dc2626' : '#16a34a'}; font-weight: 600;">
+            <td style="color: ${fine.paymentStatus === 'unpaid' ? '#dc2626' : fine.paymentStatus === 'waived' ? '#ea580c' : '#16a34a'}; font-weight: 600;">
                 ₹${fine.fineAmount}
             </td>
             <td>
-                <span class="payment-badge ${statusClass}">${statusText}</span>
+                <span class="payment-badge ${statusClass}"><i class="${statusIcon}" style="font-size: 10px; margin-right: 2px;"></i>${statusText}</span>
             </td>
             <td>
                 <div class="fine-actions">

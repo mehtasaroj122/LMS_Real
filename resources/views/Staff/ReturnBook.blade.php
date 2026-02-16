@@ -704,11 +704,14 @@
 
         // Return Book Variables
         let selectedReturnStudent = null;
+        let selectedReturnStudentPrivileges = null;
         let selectedIssuedBooks = [];
         let selectedCondition = null;
         let returnSearchDebounceTimer = null;
         let cachedStudents = {};
         let selectedReturnStudentId;
+        let searchReturnStudentInput;
+        let returnStudentResults;
         let returnStudentCard;
         let issuedBooksSection;
         let issuedBooksContainer;
@@ -719,6 +722,75 @@
         let fineDetails;
         let totalFineElement;
         let clearReturnStudentBtn;
+
+        // Custom Alert Function
+        window.showCustomAlert = function(title, message, type = 'info') {
+            const alertBox = document.createElement('div');
+            alertBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 24px;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                z-index: 9999;
+                min-width: 400px;
+                max-width: 500px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            `;
+
+            if (document.body.classList.contains('dark-theme')) {
+                alertBox.style.background = '#1e293b';
+                alertBox.style.color = '#f1f5f9';
+            }
+
+            let icon = '✓';
+            let borderColor = '#10b981';
+            let titleColor = '#059669';
+
+            if (type === 'error') {
+                icon = '✕';
+                borderColor = '#ef4444';
+                titleColor = '#dc2626';
+            } else if (type === 'warning') {
+                icon = '⚠';
+                borderColor = '#f59e0b';
+                titleColor = '#d97706';
+            }
+
+            alertBox.innerHTML = `
+                <div style="border-left: 4px solid ${borderColor}; padding-left: 16px;">
+                    <div style="font-size: 18px; font-weight: 700; color: ${titleColor}; margin-bottom: 8px;">
+                        ${icon} ${title}
+                    </div>
+                    <div style="font-size: 14px; color: #64748b; line-height: 1.6; white-space: pre-wrap;">
+                        ${message}
+                    </div>
+                    <button style="margin-top: 16px; padding: 8px 16px; background: ${borderColor}; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="this.closest('div').parentElement.remove(); document.querySelector('div[style*=\"background: rgba\"]')?.remove();">OK</button>
+                </div>
+            `;
+
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 9998;
+            `;
+
+            document.body.appendChild(overlay);
+            document.body.appendChild(alertBox);
+
+            alertBox.querySelector('button').onclick = () => {
+                alertBox.remove();
+                overlay.remove();
+            };
+        };
 
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Return Book Elements
@@ -756,9 +828,13 @@
 
                 // Fetch students from API immediately (no debounce delay)
                 fetch(
-                        `{{ route('staff.transactions.students') }}?query=${encodeURIComponent(query)}`
+                        `{{ route('staff.transactions.students') }}?query=${encodeURIComponent(query)}`,
+                        { credentials: 'include' }
                     )
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.json();
+                    })
                     .then(students => {
                         // Cache the results
                         students.forEach(s => {
@@ -795,9 +871,13 @@
                             // Fetch issued books count for ALL students in parallel (quick lightweight call)
                             students.forEach(student => {
                                 fetch(
-                                        `{{ route('staff.transactions.issued-books') }}?studentId=${student.id}&countOnly=1`
+                                        `{{ route('staff.transactions.issued-books') }}?studentId=${student.id}&countOnly=1`,
+                                        { credentials: 'include' }
                                     )
-                                    .then(resp => resp.json())
+                                    .then(resp => {
+                                        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                                        return resp.json();
+                                    })
                                     .then(data => {
                                         const count = data.count || 0;
                                         const {
@@ -850,9 +930,13 @@
                                 `;
 
                                     fetch(
-                                            `{{ route('staff.transactions.issued-books') }}?studentId=${student.id}`
+                                            `{{ route('staff.transactions.issued-books') }}?studentId=${student.id}`,
+                                            { credentials: 'include' }
                                         )
-                                        .then(resp => resp.json())
+                                        .then(resp => {
+                                            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                                            return resp.json();
+                                        })
                                         .then(issuedBooks => {
                                             selectStudentForReturn(
                                                 student,
@@ -874,7 +958,7 @@
                     .catch(error => {
                         console.error('Error:', error);
                         returnStudentResults.innerHTML =
-                            '<div class="result-item"><div class="result-title">Error loading students</div></div>';
+                            '<div class="result-item"><div class="result-title">Error: ' + error.message + '</div></div>';
                         returnStudentResults.style.display = 'block';
                     });
             });
@@ -884,7 +968,10 @@
                 e.preventDefault();
 
                 if (!selectedReturnStudent || selectedIssuedBooks.length === 0 || !selectedCondition) {
-                    alert('Please select a student, at least one book, and condition');
+                    showCustomAlert('Missing Information', `Please select:
+• A student
+• At least one book to return
+• Book condition`, 'warning');
                     return;
                 }
 
@@ -893,6 +980,7 @@
 
                 fetch('{{ route('staff.transactions.return') }}', {
                         method: 'POST',
+                        credentials: 'include',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -907,18 +995,19 @@
                     .then(data => {
                         if (data.success) {
                             const totalFine = data.total_fine || 0;
-                            alert(data.message + (totalFine > 0 ?
-                                `\n\nTotal Fine: ₹${totalFine.toLocaleString()}` : ''));
-
-                            // Reset form
+                            const message = data.message + (totalFine > 0 ?
+                                `\n\nTotal Fine: ₹${totalFine.toLocaleString()}` : '');
+                            showCustomAlert('Books Returned Successfully', message, 'success');
                             clearReturnStudentSelection();
                         } else {
-                            alert('Error: ' + data.message);
+                            const isFineError = data.message.toLowerCase().includes('fine') || 
+                                              data.message.toLowerCase().includes('overdue');
+                            showCustomAlert(isFineError ? 'Fine Notice' : 'Return Failed', data.message, 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Error returning books');
+                        showCustomAlert('Transaction Error', 'Failed to return books: ' + error.message, 'error');
                     });
             });
 
@@ -937,27 +1026,44 @@
             searchReturnStudentInput.value = `${student.name} (${student.roll_no})`;
             returnStudentResults.style.display = 'none';
             clearReturnStudentBtn.style.display = 'block';
+            
+            // Fetch student privileges for fine calculation
+            fetch(`/admin/students/${student.id}/privileges`, { credentials: 'include' })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        showCustomAlert('Error', 'Failed to load student privileges', 'error');
+                        return;
+                    }
+                    
+                    selectedReturnStudentPrivileges = data.effective;
+                    
+                    // Update student details
+                    document.getElementById('returnStudentName').textContent = student.name;
+                    document.getElementById('returnStudentID').textContent = student.roll_no;
+                    document.getElementById('returnStudentDepartment').textContent = student.department;
+                    document.getElementById('returnStudentEmail').textContent = student.email;
+                    document.getElementById('returnStudentIssued').textContent = issuedBooks.length;
 
-            // Update student details
-            document.getElementById('returnStudentName').textContent = student.name;
-            document.getElementById('returnStudentID').textContent = student.roll_no;
-            document.getElementById('returnStudentDepartment').textContent = student.department;
-            document.getElementById('returnStudentEmail').textContent = student.email;
-            document.getElementById('returnStudentIssued').textContent = issuedBooks.length;
+                    returnStudentCard.style.display = 'block';
+                    issuedBooksSection.style.display = 'block';
+                    fineCalculationCard.style.display = 'block';
 
-            returnStudentCard.style.display = 'block';
-            issuedBooksSection.style.display = 'block';
-            fineCalculationCard.style.display = 'block';
+                    // Display issued books with checkboxes
+                    displayIssuedBooks(issuedBooks);
 
-            // Display issued books with checkboxes
-            displayIssuedBooks(issuedBooks);
-
-            // Reset selections
-            selectedIssuedBooks = [];
-            selectedCondition = null;
-            resetConditionSelection();
-            updateReturnButton();
-            calculateTotalFine();
+                    // Reset selections
+                    selectedIssuedBooks = [];
+                    selectedCondition = null;
+                    resetConditionSelection();
+                    updateReturnButton();
+                    calculateTotalFine();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showCustomAlert('Error', 'Failed to load student privileges', 'error');
+                    clearReturnStudentSelection();
+                });
         }
 
         // Function to display issued books
@@ -1055,7 +1161,8 @@
 
             // Update selected condition for all books
             const conditionElement = document.querySelector(`.condition-option[data-condition="${condition}"]`);
-            const conditionFine = parseInt(conditionElement.dataset.fine) || 0;
+            const fineValue = conditionElement.dataset.fine;
+            const conditionFine = fineValue ? Number(fineValue.trim()) : 0;
 
             selectedIssuedBooks.forEach(book => {
                 book.condition = condition;
@@ -1085,9 +1192,10 @@
                 return;
             }
 
-            const perDayFine = fineSettings.per_day_fine;
-            const gracePeriod = fineSettings.grace_period_days;
-            const maxFine = fineSettings.max_fine_amount;
+            // Use student privilege settings if available, otherwise fall back to global fine settings
+            const perDayFine = selectedReturnStudentPrivileges?.per_day_fine ?? fineSettings.per_day_fine;
+            const gracePeriod = selectedReturnStudentPrivileges?.grace_period_days ?? fineSettings.grace_period_days;
+            const maxFine = selectedReturnStudentPrivileges?.max_fine_amount ?? fineSettings.max_fine_amount;
 
             selectedIssuedBooks.forEach(book => {
                 // Calculate overdue fine with grace period deduction
@@ -1147,6 +1255,7 @@
         // Function to clear return student selection
         function clearReturnStudentSelection() {
             selectedReturnStudent = null;
+            selectedReturnStudentPrivileges = null;
             selectedReturnStudentId.value = '';
             searchReturnStudentInput.value = '';
             clearReturnStudentBtn.style.display = 'none';

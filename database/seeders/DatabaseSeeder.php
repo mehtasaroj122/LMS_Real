@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
            userSeeder::class,
            categorySeeder::class,
            studentSeeder::class,
-           StudentPrivilegeSeeder::class,
+        //    StudentPrivilegeSeeder::class,
            staffSeeder::class,
            bookSeeder::class,
            BookRequestSeeder::class,

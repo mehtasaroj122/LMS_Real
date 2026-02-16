@@ -197,6 +197,20 @@ class FineController extends Controller
                 'paid_on' => now()
             ]);
             
+            // Log the activity
+            try {
+                if ($fine->student) {
+                    ActivityLogger::logStudentActivity(
+                        $fine->student,
+                        'fine_paid',
+                        "Fine of ₹{$fine->amount} marked as paid",
+                        'fine'
+                    );
+                }
+            } catch (Throwable $logError) {
+                \Log::warning('Failed to log activity: ' . $logError->getMessage());
+            }
+            
             // Queue email to send 3 seconds later
             // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
             if ($fine->student && $fine->student->user && $fine->student->user->email) {
@@ -243,6 +257,20 @@ class FineController extends Controller
                 'status' => 'waived',
                 'remarks' => $reason
             ]);
+            
+            // Log the activity
+            try {
+                if ($fine->student) {
+                    ActivityLogger::logStudentActivity(
+                        $fine->student,
+                        'fine_waived',
+                        "Fine of ₹{$fine->amount} waived. Reason: {$reason}",
+                        'fine'
+                    );
+                }
+            } catch (Throwable $logError) {
+                \Log::warning('Failed to log activity: ' . $logError->getMessage());
+            }
             
             // Queue email to send 3 seconds later (include waiver reason)
             // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env

@@ -430,9 +430,6 @@ class TransactionController extends Controller
                     \Log::info('Book returned email would have been sent to: ' . $student->user->email);
                 }
                 
-                $totalFine += $bookFine;
-                $returnedBooks[] = $issuedBook->book->title;
-                
                 $returnedCount++;
             }
             
