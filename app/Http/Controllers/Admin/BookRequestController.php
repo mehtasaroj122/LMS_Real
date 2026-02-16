@@ -76,23 +76,56 @@ class BookRequestController extends Controller
         $tableRows = '';
         foreach ($requests->items() as $req) {
             $statusClass = $req->status === 'approved' ? 'status-approved' : ($req->status === 'rejected' ? 'status-rejected' : 'status-pending');
-            $statusIcon = $req->status === 'approved' ? 'check-circle' : ($req->status === 'rejected' ? 'x-circle' : 'clock');
+            $statusIcon = $req->status === 'approved' ? 'fa-check-circle' : ($req->status === 'rejected' ? 'fa-circle-xmark' : 'fa-hourglass-end');
             $statusText = ucfirst($req->status);
             $processedBy = $req->processed_by ?? 'N/A';
+            $dateFormatted = $req->request_date->format('Y-m-d');
 
-            $tableRows .= '<tr class="border-b border-gray-200 dark:border-gray-700" data-request-id="' . $req->id . '" data-status="' . $req->status . '">';
-            $tableRows .= '<td class="py-4 px-6"><div class="student-info"><span class="student-name">' . htmlspecialchars($req->student->user->name ?? 'Unknown') . '</span><span class="student-id">' . htmlspecialchars($req->student->roll_no ?? 'N/A') . '</span></div></td>';
-            $tableRows .= '<td class="py-4 px-6"><div class="book-info"><div class="book-title">' . htmlspecialchars($req->book->title) . '</div><div class="book-author">' . htmlspecialchars($req->book->author) . '</div></div></td>';
-            $tableRows .= '<td class="py-4 px-6 text-secondary">' . $req->request_date->format('Y-m-d H:i:s') . '</td>';
-            $tableRows .= '<td class="py-4 px-6"><div class="status-badge ' . $statusClass . '"><i data-lucide="' . $statusIcon . '" class="w-3 h-3"></i>' . $statusText . '</div></td>';
-            $tableRows .= '<td class="py-4 px-6 text-secondary">' . htmlspecialchars($processedBy) . '</td>';
-            $tableRows .= '<td class="py-4 px-6"><div class="action-buttons">';
+            $tableRows .= '<tr data-request-id="' . $req->id . '" data-status="' . $req->status . '">';
             
-            if ($req->status === 'pending') {
-                $tableRows .= '<button class="action-btn btn-accept" onclick="processRequest(' . $req->id . ', \'approved\')"><i data-lucide="check" class="w-3 h-3"></i>Accept</button>';
-                $tableRows .= '<button class="action-btn btn-reject" onclick="processRequest(' . $req->id . ', \'rejected\')"><i data-lucide="x" class="w-3 h-3"></i>Reject</button>';
+            // Student column
+            $studentName = htmlspecialchars($req->student->user->name ?? 'Unknown');
+            $studentRoll = htmlspecialchars($req->student->roll_no ?? 'N/A');
+            $firstLetter = strtoupper(substr($studentName, 0, 1));
+            
+            $tableRows .= '<td><div style="display: flex; align-items: center; gap: 10px; min-width: 0;">';
+            
+            if ($req->student->user->profile_photo) {
+                $studentPhoto = str_starts_with($req->student->user->profile_photo, 'http') 
+                    ? $req->student->user->profile_photo 
+                    : asset('storage/' . $req->student->user->profile_photo);
+                $tableRows .= '<img src="' . $studentPhoto . '" alt="' . $studentName . '" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">';
+            } else {
+                $tableRows .= '<div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; flex-shrink: 0;">' . $firstLetter . '</div>';
             }
             
+            $tableRows .= '<div style="flex: 1; min-width: 0;">';
+            $tableRows .= '<span style="font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' . $studentName . '</span>';
+            $tableRows .= '<div class="text-muted" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' . $studentRoll . '</div>';
+            $tableRows .= '</div></div></td>';
+            
+            // Book column
+            $tableRows .= '<td>' . htmlspecialchars($req->book->title) . '</td>';
+            
+            // Date column
+            $tableRows .= '<td>' . $dateFormatted . '</td>';
+            
+            // Status column
+            $tableRows .= '<td><span class="status-badge ' . $statusClass . '"><i class="fas ' . $statusIcon . '" style="font-size: 10px;"></i> ' . $statusText . '</span></td>';
+            
+            // Processed By column
+            $tableRows .= '<td>' . htmlspecialchars($processedBy) . '</td>';
+            
+            // Actions column
+            $tableRows .= '<td><div class="action-buttons">';
+            if ($req->status === 'pending') {
+                $tableRows .= '<button class="action-btn btn-accept" onclick="processRequest(' . $req->id . ', \'approved\')" title="Approve"><i class="fas fa-check"></i> Accept</button>';
+                $tableRows .= '<button class="action-btn btn-reject" onclick="processRequest(' . $req->id . ', \'rejected\')" title="Reject"><i class="fas fa-times"></i> Reject</button>';
+            } else if ($req->status === 'approved') {
+                $tableRows .= '<span class="action-status accepted"><i class="fas fa-check-circle"></i> Accepted</span>';
+            } else if ($req->status === 'rejected') {
+                $tableRows .= '<span class="action-status rejected"><i class="fas fa-circle-xmark"></i> Rejected</span>';
+            }
             $tableRows .= '</div></td>';
             $tableRows .= '</tr>';
         }

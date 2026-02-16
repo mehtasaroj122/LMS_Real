@@ -13,7 +13,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Delhi",
-        "profile_photo": "https://i.pravatar.cc/300?img=1",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:21:00"
     },
     {
@@ -30,7 +30,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Mumbai",
-        "profile_photo": "https://i.pravatar.cc/300?img=2",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:22:00"
     },
     {
@@ -47,7 +47,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Bangalore",
-        "profile_photo": "https://i.pravatar.cc/300?img=3",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:23:00"
     },
     {
@@ -64,7 +64,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Hyderabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=4",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:24:00"
     },
     {
@@ -81,7 +81,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Pune",
-        "profile_photo": "https://i.pravatar.cc/300?img=5",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:25:00"
     },
     {
@@ -98,7 +98,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Chennai",
-        "profile_photo": "https://i.pravatar.cc/300?img=6",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:26:00"
     },
     {
@@ -115,7 +115,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kolkata",
-        "profile_photo": "https://i.pravatar.cc/300?img=7",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:27:00"
     },
     {
@@ -132,7 +132,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ahmedabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=8",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:28:00"
     },
     {
@@ -149,7 +149,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Surat",
-        "profile_photo": "https://i.pravatar.cc/300?img=9",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:29:00"
     },
     {
@@ -166,7 +166,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Jaipur",
-        "profile_photo": "https://i.pravatar.cc/300?img=10",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:30:00"
     },
     {
@@ -183,7 +183,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Lucknow",
-        "profile_photo": "https://i.pravatar.cc/300?img=11",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:31:00"
     },
     {
@@ -200,7 +200,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Indore",
-        "profile_photo": "https://i.pravatar.cc/300?img=12",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:32:00"
     },
     {
@@ -217,7 +217,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kanpur",
-        "profile_photo": "https://i.pravatar.cc/300?img=13",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:33:00"
     },
     {
@@ -234,7 +234,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Nagpur",
-        "profile_photo": "https://i.pravatar.cc/300?img=14",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:34:00"
     },
     {
@@ -251,7 +251,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Bhopal",
-        "profile_photo": "https://i.pravatar.cc/300?img=15",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:35:00"
     },
     {
@@ -268,7 +268,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Vadodara",
-        "profile_photo": "https://i.pravatar.cc/300?img=16",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:36:00"
     },
     {
@@ -285,7 +285,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ghaziabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=17",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:37:00"
     },
     {
@@ -302,7 +302,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ludhiana",
-        "profile_photo": "https://i.pravatar.cc/300?img=18",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:38:00"
     },
     {
@@ -319,7 +319,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Nashik",
-        "profile_photo": "https://i.pravatar.cc/300?img=19",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:39:00"
     },
     {
@@ -336,7 +336,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Faridabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=20",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:40:00"
     },
     {
@@ -353,7 +353,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Visakhapatnam",
-        "profile_photo": "https://i.pravatar.cc/300?img=21",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:41:00"
     },
     {
@@ -370,7 +370,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Patna",
-        "profile_photo": "https://i.pravatar.cc/300?img=22",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:42:00"
     },
     {
@@ -387,7 +387,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Vadodara",
-        "profile_photo": "https://i.pravatar.cc/300?img=23",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:43:00"
     },
     {
@@ -404,7 +404,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Coimbatore",
-        "profile_photo": "https://i.pravatar.cc/300?img=24",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:44:00"
     },
     {
@@ -421,7 +421,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Erode",
-        "profile_photo": "https://i.pravatar.cc/300?img=25",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:45:00"
     },
     {
@@ -438,7 +438,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Salem",
-        "profile_photo": "https://i.pravatar.cc/300?img=26",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:46:00"
     },
     {
@@ -455,7 +455,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Madurai",
-        "profile_photo": "https://i.pravatar.cc/300?img=27",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:47:00"
     },
     {
@@ -472,7 +472,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Tiruppur",
-        "profile_photo": "https://i.pravatar.cc/300?img=28",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:48:00"
     },
     {
@@ -489,7 +489,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kancheepuram",
-        "profile_photo": "https://i.pravatar.cc/300?img=29",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:49:00"
     },
     {
@@ -506,7 +506,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Nellore",
-        "profile_photo": "https://i.pravatar.cc/300?img=30",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:50:00"
     },
     {
@@ -523,7 +523,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Tirupati",
-        "profile_photo": "https://i.pravatar.cc/300?img=31",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:51:00"
     },
     {
@@ -540,7 +540,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ongole",
-        "profile_photo": "https://i.pravatar.cc/300?img=32",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:52:00"
     },
     {
@@ -557,7 +557,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Handwara",
-        "profile_photo": "https://i.pravatar.cc/300?img=33",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:53:00"
     },
     {
@@ -574,7 +574,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Malappuram",
-        "profile_photo": "https://i.pravatar.cc/300?img=34",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:54:00"
     },
     {
@@ -591,7 +591,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kannur",
-        "profile_photo": "https://i.pravatar.cc/300?img=35",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:55:00"
     },
     {
@@ -608,7 +608,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kasaragod",
-        "profile_photo": "https://i.pravatar.cc/300?img=36",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:56:00"
     },
     {
@@ -625,7 +625,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Mumbai",
-        "profile_photo": "https://i.pravatar.cc/300?img=37",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:57:00"
     },
     {
@@ -642,7 +642,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Bangalore",
-        "profile_photo": "https://i.pravatar.cc/300?img=38",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:58:00"
     },
     {
@@ -659,7 +659,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Hyderabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=39",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:59:00"
     },
     {
@@ -676,7 +676,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Pune",
-        "profile_photo": "https://i.pravatar.cc/300?img=40",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:20:00"
     },
     {
@@ -693,7 +693,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Chennai",
-        "profile_photo": "https://i.pravatar.cc/300?img=41",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:21:00"
     },
     {
@@ -710,7 +710,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kolkata",
-        "profile_photo": "https://i.pravatar.cc/300?img=42",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:22:00"
     },
     {
@@ -727,7 +727,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ahmedabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=43",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:23:00"
     },
     {
@@ -744,7 +744,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Surat",
-        "profile_photo": "https://i.pravatar.cc/300?img=44",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:24:00"
     },
     {
@@ -761,7 +761,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Jaipur",
-        "profile_photo": "https://i.pravatar.cc/300?img=45",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:25:00"
     },
     {
@@ -778,7 +778,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Lucknow",
-        "profile_photo": "https://i.pravatar.cc/300?img=46",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:26:00"
     },
     {
@@ -795,7 +795,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Indore",
-        "profile_photo": "https://i.pravatar.cc/300?img=47",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:27:00"
     },
     {
@@ -812,7 +812,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kanpur",
-        "profile_photo": "https://i.pravatar.cc/300?img=48",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:28:00"
     },
     {
@@ -829,7 +829,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Nagpur",
-        "profile_photo": "https://i.pravatar.cc/300?img=49",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:29:00"
     },
     {
@@ -846,7 +846,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Bhopal",
-        "profile_photo": "https://i.pravatar.cc/300?img=50",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:30:00"
     },
     {
@@ -863,7 +863,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Vadodara",
-        "profile_photo": "https://i.pravatar.cc/300?img=51",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:31:00"
     },
     {
@@ -880,7 +880,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ghaziabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=52",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:32:00"
     },
     {
@@ -897,7 +897,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ludhiana",
-        "profile_photo": "https://i.pravatar.cc/300?img=53",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:33:00"
     },
     {
@@ -914,7 +914,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Nashik",
-        "profile_photo": "https://i.pravatar.cc/300?img=54",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:34:00"
     },
     {
@@ -931,7 +931,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Faridabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=55",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:35:00"
     },
     {
@@ -948,7 +948,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Visakhapatnam",
-        "profile_photo": "https://i.pravatar.cc/300?img=56",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:36:00"
     },
     {
@@ -965,7 +965,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Patna",
-        "profile_photo": "https://i.pravatar.cc/300?img=57",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:37:00"
     },
     {
@@ -982,7 +982,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Coimbatore",
-        "profile_photo": "https://i.pravatar.cc/300?img=58",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:38:00"
     },
     {
@@ -999,7 +999,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Erode",
-        "profile_photo": "https://i.pravatar.cc/300?img=59",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:39:00"
     },
     {
@@ -1016,7 +1016,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Salem",
-        "profile_photo": "https://i.pravatar.cc/300?img=60",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:40:00"
     },
     {
@@ -1033,7 +1033,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Madurai",
-        "profile_photo": "https://i.pravatar.cc/300?img=61",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:41:00"
     },
     {
@@ -1050,7 +1050,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Tiruppur",
-        "profile_photo": "https://i.pravatar.cc/300?img=62",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:42:00"
     },
     {
@@ -1067,7 +1067,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kancheepuram",
-        "profile_photo": "https://i.pravatar.cc/300?img=63",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:43:00"
     },
     {
@@ -1084,7 +1084,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Nellore",
-        "profile_photo": "https://i.pravatar.cc/300?img=64",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:44:00"
     },
     {
@@ -1101,7 +1101,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Tirupati",
-        "profile_photo": "https://i.pravatar.cc/300?img=65",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:45:00"
     },
     {
@@ -1118,7 +1118,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ongole",
-        "profile_photo": "https://i.pravatar.cc/300?img=66",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:46:00"
     },
     {
@@ -1135,7 +1135,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Handwara",
-        "profile_photo": "https://i.pravatar.cc/300?img=67",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:47:00"
     },
     {
@@ -1152,7 +1152,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Malappuram",
-        "profile_photo": "https://i.pravatar.cc/300?img=68",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:48:00"
     },
     {
@@ -1169,7 +1169,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kannur",
-        "profile_photo": "https://i.pravatar.cc/300?img=69",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:49:00"
     },
     {
@@ -1186,7 +1186,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kasaragod",
-        "profile_photo": "https://i.pravatar.cc/300?img=70",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:50:00"
     },
     {
@@ -1203,7 +1203,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kottayam",
-        "profile_photo": "https://i.pravatar.cc/300?img=71",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:51:00"
     },
     {
@@ -1220,7 +1220,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Pathanamthitta",
-        "profile_photo": "https://i.pravatar.cc/300?img=72",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:52:00"
     },
     {
@@ -1237,7 +1237,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Alappuzha",
-        "profile_photo": "https://i.pravatar.cc/300?img=73",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:53:00"
     },
     {
@@ -1254,7 +1254,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Idukki",
-        "profile_photo": "https://i.pravatar.cc/300?img=74",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:54:00"
     },
     {
@@ -1271,7 +1271,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Thrissur",
-        "profile_photo": "https://i.pravatar.cc/300?img=75",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:55:00"
     },
     {
@@ -1288,7 +1288,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ernakulam",
-        "profile_photo": "https://i.pravatar.cc/300?img=76",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:56:00"
     },
     {
@@ -1305,7 +1305,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kozhikode",
-        "profile_photo": "https://i.pravatar.cc/300?img=77",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:57:00"
     },
     {
@@ -1322,7 +1322,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Palakkad",
-        "profile_photo": "https://i.pravatar.cc/300?img=78",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:58:00"
     },
     {
@@ -1339,7 +1339,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kollam",
-        "profile_photo": "https://i.pravatar.cc/300?img=79",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:59:00"
     },
     {
@@ -1356,7 +1356,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Thiruvananthapuram",
-        "profile_photo": "https://i.pravatar.cc/300?img=80",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:20:00"
     },
     {
@@ -1373,7 +1373,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Wayanad",
-        "profile_photo": "https://i.pravatar.cc/300?img=81",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:21:00"
     },
     {
@@ -1390,7 +1390,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Srinagar",
-        "profile_photo": "https://i.pravatar.cc/300?img=82",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:22:00"
     },
     {
@@ -1407,7 +1407,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Amritsar",
-        "profile_photo": "https://i.pravatar.cc/300?img=83",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:23:00"
     },
     {
@@ -1424,7 +1424,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Chandigarh",
-        "profile_photo": "https://i.pravatar.cc/300?img=84",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:24:00"
     },
     {
@@ -1441,7 +1441,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Shimla",
-        "profile_photo": "https://i.pravatar.cc/300?img=85",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:25:00"
     },
     {
@@ -1458,7 +1458,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Dehradun",
-        "profile_photo": "https://i.pravatar.cc/300?img=86",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:26:00"
     },
     {
@@ -1475,7 +1475,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Nainital",
-        "profile_photo": "https://i.pravatar.cc/300?img=87",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:27:00"
     },
     {
@@ -1492,7 +1492,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Uttarkashi",
-        "profile_photo": "https://i.pravatar.cc/300?img=88",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:28:00"
     },
     {
@@ -1509,7 +1509,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kathmandu",
-        "profile_photo": "https://i.pravatar.cc/300?img=89",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:29:00"
     },
     {
@@ -1526,7 +1526,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Darjeeling",
-        "profile_photo": "https://i.pravatar.cc/300?img=90",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:30:00"
     },
     {
@@ -1543,7 +1543,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Sikkim",
-        "profile_photo": "https://i.pravatar.cc/300?img=91",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:31:00"
     },
     {
@@ -1560,7 +1560,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Mumbai",
-        "profile_photo": "https://i.pravatar.cc/300?img=92",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:32:00"
     },
     {
@@ -1577,7 +1577,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Bangalore",
-        "profile_photo": "https://i.pravatar.cc/300?img=93",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:33:00"
     },
     {
@@ -1594,7 +1594,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Hyderabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=94",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:34:00"
     },
     {
@@ -1611,7 +1611,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Pune",
-        "profile_photo": "https://i.pravatar.cc/300?img=95",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:35:00"
     },
     {
@@ -1628,7 +1628,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Chennai",
-        "profile_photo": "https://i.pravatar.cc/300?img=96",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:36:00"
     },
     {
@@ -1645,7 +1645,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kolkata",
-        "profile_photo": "https://i.pravatar.cc/300?img=97",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:37:00"
     },
     {
@@ -1662,7 +1662,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Ahmedabad",
-        "profile_photo": "https://i.pravatar.cc/300?img=98",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 15:38:00"
     },
     {
@@ -1679,7 +1679,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Surat",
-        "profile_photo": "https://i.pravatar.cc/300?img=99",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 7:39:00"
     },
     {
@@ -1696,7 +1696,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Jaipur",
-        "profile_photo": "https://i.pravatar.cc/300?img=100",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 8:40:00"
     },
     {
@@ -1713,7 +1713,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Lucknow",
-        "profile_photo": "https://i.pravatar.cc/300?img=101",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 9:41:00"
     },
     {
@@ -1730,7 +1730,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Indore",
-        "profile_photo": "https://i.pravatar.cc/300?img=102",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 10:42:00"
     },
     {
@@ -1747,7 +1747,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Kanpur",
-        "profile_photo": "https://i.pravatar.cc/300?img=103",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 11:43:00"
     },
     {
@@ -1764,7 +1764,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Nagpur",
-        "profile_photo": "https://i.pravatar.cc/300?img=104",
+        "profile_photo": null,
         "last_login_at": "2026-02-12 12:44:00"
     },
     {
@@ -1781,7 +1781,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Bhopal",
-        "profile_photo": "https://i.pravatar.cc/300?img=105",
+        "profile_photo": null,
         "last_login_at": "2026-02-10 13:45:00"
     },
     {
@@ -1798,7 +1798,7 @@
         "password_reset_at": null,
         "is_verified": true,
         "address": "Vadodara",
-        "profile_photo": "https://i.pravatar.cc/300?img=106",
+        "profile_photo": null,
         "last_login_at": "2026-02-11 14:46:00"
     }
 ]

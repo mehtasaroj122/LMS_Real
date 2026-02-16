@@ -5,271 +5,330 @@
 
 @push('styles')
     <style>
-    /* Book Requests Styles - Enhanced with Striped Table and Hover Effects */
-    .requests-table {
-        border-collapse: separate;
-        border-spacing: 0;
-        width: 100%;
+    /* ===== TABLE & PAGINATION STYLES (both themes) ===== */
+    .table-container {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid;
+        transition: background-color 0.3s, border-color 0.3s;
     }
 
-    .requests-table thead tr {
-        background-color: #f8fafc;
+    /* Light theme table container */
+    body.light-theme .table-container {
+        background-color: #ffffff;
+        border-color: #e5e7eb;
     }
-
-    body.dark-theme .requests-table thead tr {
+    /* Dark theme table container */
+    body.dark-theme .table-container {
         background-color: #1e293b;
+        border-color: #334155;
+    }
+
+    .table-wrapper {
+        overflow-x: hidden;
+    }
+
+    .requests-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1110px;
     }
 
     .requests-table th {
+        padding: 6px 8px;
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-size: 0.65rem;
-        padding: 0.6rem 0.8rem;
-        border-bottom: 2px solid #e2e8f0;
-        color: #64748b;
+        font-size: 11px;
+        border-bottom: 1px solid;
+        white-space: nowrap;
+        text-align: start;
+        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
     }
 
-    body.dark-theme .requests-table th {
-        border-bottom-color: #475569;
-        color: #94a3b8;
-    }
-
-    .requests-table tbody tr {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    body.dark-theme .requests-table tbody tr {
-        border-bottom-color: #334155;
-    }
-
-    /* Striped rows */
-    .requests-table tbody tr:nth-child(even) {
+    /* Light theme th */
+    body.light-theme .requests-table th {
         background-color: #f8fafc;
-    }
-
-    body.dark-theme .requests-table tbody tr:nth-child(even) {
-        background-color: rgba(30, 41, 59, 0.4);
-    }
-
-    /* Hover effects */
-    .requests-table tbody tr:hover {
-        background-color: #e2e8f0 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-
-    body.dark-theme .requests-table tbody tr:hover {
-        background-color: #334155 !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    }
-
-    .requests-table td {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
+        border-color: #e2e8f0;
         color: #475569;
     }
-
-    body.dark-theme .requests-table td {
+    /* Dark theme th */
+    body.dark-theme .requests-table th {
+        background-color: #1e293b;
+        border-color: #334155;
         color: #cbd5e1;
     }
 
-    .requests-table td:first-child {
-        border-top-left-radius: 0.5rem;
-        border-bottom-left-radius: 0.5rem;
+    .requests-table td {
+        padding: 6px 8px;
+        border-bottom: 1px solid;
+        vertical-align: middle;
+        font-size: 13px;
+        transition: border-color 0.3s, color 0.3s;
     }
 
-    .requests-table td:last-child {
-        border-top-right-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
+    /* Light theme td */
+    body.light-theme .requests-table td {
+        border-color: #e2e8f0;
+        color: #0f172a;
+    }
+    /* Dark theme td */
+    body.dark-theme .requests-table td {
+        border-color: #334155;
+        color: #f1f5f9;
+    }
+
+    .requests-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .requests-table tr:hover {
+        transition: background-color 0.3s;
+    }
+    body.light-theme .requests-table tr:hover {
+        background-color: #f8fafc;
+    }
+    body.dark-theme .requests-table tr:hover {
+        background-color: #2d3748;
+    }
+
+    /* Column width constraints */
+    .requests-table th:nth-child(1),
+    .requests-table td:nth-child(1) {
+        padding-right: 4px;
+        max-width: 140px;
+    }
+    .requests-table th:nth-child(2),
+    .requests-table td:nth-child(2) {
+           padding-left: 4px;
+           max-width: 90px;
+           overflow: hidden;
+           text-overflow: ellipsis;
+           white-space: nowrap;
+    }
+    .requests-table th:nth-child(3),
+    .requests-table td:nth-child(3),
+    .requests-table th:nth-child(4),
+    .requests-table td:nth-child(4),
+    .requests-table th:nth-child(5),
+    .requests-table td:nth-child(5) {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .requests-table th:nth-child(6),
+    .requests-table td:nth-child(6) {
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Text muted (secondary info) */
+    .text-muted {
+        transition: color 0.3s;
+        font-size: 12px;
+    }
+    body.light-theme .text-muted {
+        color: #64748b;
+    }
+    body.dark-theme .text-muted {
+        color: #94a3b8;
     }
 
     /* Status Badges */
     .status-badge {
-        padding: 0.2rem 0.5rem;
-        border-radius: 9999px;
-        font-size: 0.7rem;
-        font-weight: 600;
         display: inline-flex;
         align-items: center;
-        gap: 0.2rem;
-        transition: all 0.2s ease;
-        border: 1px solid transparent;
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 11px;
+        font-weight: 600;
+        gap: 4px;
+        transition: background 0.3s, color 0.3s;
     }
-
-    .status-badge:hover {
-        transform: scale(1.05);
-    }
-
-    .status-pending {
-        background-color: #fef3c7;
+    
+    body.light-theme .status-pending {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
         color: #92400e;
-        border-color: #fde68a;
     }
-
     body.dark-theme .status-pending {
-        background-color: #78350f;
+        background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
         color: #fbbf24;
-        border-color: #92400e;
     }
-
-    .status-approved {
-        background-color: #dcfce7;
+    
+    body.light-theme .status-approved {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
         color: #166534;
-        border-color: #bbf7d0;
     }
-
     body.dark-theme .status-approved {
-        background-color: #14532d;
+        background: linear-gradient(135deg, #14532d 0%, #052e16 100%);
         color: #4ade80;
-        border-color: #166534;
     }
-
-    .status-rejected {
-        background-color: #fee2e2;
+    
+    body.light-theme .status-rejected {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
         color: #991b1b;
-        border-color: #fecaca;
     }
-
     body.dark-theme .status-rejected {
-        background-color: #7f1d1d;
+        background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
         color: #f87171;
-        border-color: #991b1b;
     }
 
-    /* Action Buttons */
+    /* Action buttons */
     .action-buttons {
         display: flex;
-        gap: 0.3rem;
+        gap: 6px;
+        justify-content: flex-start;
     }
-
     .action-btn {
-        padding: 0.4rem 0.8rem;
-        border-radius: 0.5rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 6px 12px;
+        border-radius: 6px;
         border: none;
-        cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 0.3rem;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-
-    .action-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-accept {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-    }
-
-    .btn-accept:hover {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
-    }
-
-    .btn-reject {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        color: white;
-    }
-
-    .btn-reject:hover {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
-    }
-
-    /* Student info styling */
-    .student-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .student-name {
-        font-weight: 600;
-        color: #1e293b;
-        line-height: 1.4;
-    }
-
-    body.dark-theme .student-name {
-        color: #f1f5f9;
-    }
-
-    .student-id {
-        font-size: 0.8rem;
-        color: #64748b;
-        line-height: 1.4;
-    }
-
-    body.dark-theme .student-id {
-        color: #94a3b8;
-    }
-
-    /* Book info styling */
-    .book-info {
-        max-width: 300px;
-    }
-
-    .book-title {
+        justify-content: center;
+        gap: 6px;
+        font-size: 13px;
         font-weight: 500;
-        color: #1e293b;
-        margin-bottom: 0.125rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    
+    /* Accept Button - Light Theme */
+    body.light-theme .btn-accept {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+    body.light-theme .btn-accept:hover {
+        background-color: #bbf7d0;
+        color: #15803d;
+    }
+    
+    /* Accept Button - Dark Theme */
+    body.dark-theme .btn-accept {
+        background-color: #14532d;
+        color: #86efac;
+    }
+    body.dark-theme .btn-accept:hover {
+        background-color: #1b6e4e;
+        color: #a7f3d0;
+    }
+    
+    /* Reject Button - Light Theme */
+    body.light-theme .btn-reject {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    body.light-theme .btn-reject:hover {
+        background-color: #fecaca;
+        color: #b91c1c;
+    }
+    
+    /* Reject Button - Dark Theme */
+    body.dark-theme .btn-reject {
+        background-color: #7f1d1d;
+        color: #fca5a5;
+    }
+    body.dark-theme .btn-reject:hover {
+        background-color: #991b1b;
+        color: #fecaca;
     }
 
-    body.dark-theme .book-title {
-        color: #f1f5f9;
+    /* Muted and disabled action status */
+    .action-status.accepted,
+    .action-status.rejected {
+        background: none !important;
+        color: #94a3b8 !important; /* Muted text for light theme */
+        opacity: 1;
+        border-radius: 0;
+        padding: 0;
+        pointer-events: none;
+        cursor: not-allowed;
+        font-weight: 500;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    body.dark-theme .action-status.accepted,
+    body.dark-theme .action-status.rejected {
+        color: #64748b !important; /* Muted text for dark theme */
+    }
+    .action-status.accepted i,
+    .action-status.rejected i {
+        color: inherit !important;
+        filter: grayscale(0.5);
     }
 
-    .book-author {
-        font-size: 0.8rem;
-        color: #64748b;
-        font-style: italic;
+    /* Pagination styles */
+    .pagination {
+        display: flex;
+        gap: 8px;
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 0;
+        justify-content: end;
+    }
+    .pagination li a,
+    .pagination li span {
+        display: block;
+        padding: 6px 12px;
+        border: 1px solid;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 13px;
+        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
     }
 
-    body.dark-theme .book-author {
+    /* Light theme pagination */
+    body.light-theme .pagination li a,
+    body.light-theme .pagination li span {
+        background-color: #ffffff;
+        border-color: #e2e8f0;
+        color: #3b82f6;
+    }
+    body.light-theme .pagination li a:hover {
+        background-color: #f1f5f9;
+    }
+    body.light-theme .pagination li.active span {
+        background-color: #3b82f6;
+        color: #ffffff;
+        border-color: #3b82f6;
+    }
+    body.light-theme .pagination li.disabled span {
+        color: #94a3b8;
+        background-color: #f1f5f9;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+
+    /* Dark theme pagination */
+    body.dark-theme .pagination li a,
+    body.dark-theme .pagination li span {
+        background-color: #1e293b;
+        border-color: #475569;
         color: #94a3b8;
     }
-
-    /* Table column widths */
-    .requests-table th:nth-child(1),
-    .requests-table td:nth-child(1) {
-        min-width: 200px;
-        width: 18%;
+    body.dark-theme .pagination li a:hover {
+        background-color: #334155;
+        color: #e2e8f0;
+    }
+    body.dark-theme .pagination li.active span {
+        background-color: #3b82f6;
+        color: #ffffff;
+        border-color: #3b82f6;
+    }
+    body.dark-theme .pagination li.disabled span {
+        color: #64748b;
+        background-color: #0f172a;
+        border-color: #334155;
+        cursor: not-allowed;
     }
 
-    .requests-table th:nth-child(2),
-    .requests-table td:nth-child(2) {
-        min-width: 250px;
-        width: 28%;
-    }
-
-    .requests-table th:nth-child(3),
-    .requests-table td:nth-child(3) {
-        min-width: 120px;
-        width: 12%;
-    }
-
-    .requests-table th:nth-child(4),
-    .requests-table td:nth-child(4) {
-        min-width: 110px;
-        width: 12%;
-    }
-
-    .requests-table th:nth-child(5),
-    .requests-table td:nth-child(5) {
-        min-width: 140px;
-        width: 15%;
-    }
-
-    .requests-table th:nth-child(6),
-    .requests-table td:nth-child(6) {
-        min-width: 150px;
-        width: 15%;
+    /* Stats Cards */
+    .stats-card {
+        transition: all 0.3s ease;
     }
 
     /* Searchable Select Styles */
@@ -630,17 +689,17 @@
         </div>
 
         <!-- Requests Table -->
-        <div class="p-0 overflow-hidden card">
-            <div class="overflow-x-auto">
-                <table class="w-full requests-table">
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table class="requests-table">
                     <thead>
-                    <tr class="border-b border-gray-200 dark:border-gray-700">
-                        <th class="px-4 py-2 text-xs font-medium text-left text-secondary">Student</th>
-                        <th class="px-4 py-2 text-xs font-medium text-left text-secondary">Book</th>
-                        <th class="px-4 py-2 text-xs font-medium text-left text-secondary">Request Date</th>
-                        <th class="px-4 py-2 text-xs font-medium text-left text-secondary">Status</th>
-                        <th class="px-4 py-2 text-xs font-medium text-left text-secondary">Processed By</th>
-                        <th class="px-4 py-2 text-xs font-medium text-left text-secondary">Actions</th>
+                    <tr>
+                        <th>Student</th>
+                        <th>Book</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Processed By</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody id="requestsTableBody">
@@ -649,7 +708,7 @@
                 </table>
             </div>
 
-            <!-- Pagination - Keeping original style -->
+            <!-- Pagination -->
             <div id="paginationContainer" class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
                 <!-- Pagination links will be populated by JavaScript -->
             </div>
