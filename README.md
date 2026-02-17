@@ -1,4 +1,5 @@
-# 📚 Library Management System (LMS) V4
+# 📚 Library Management System (LMS) 
+# Created By Saroj Mehta
 
 > A modern, secure, and feature-rich Library Management System built with Laravel, featuring advanced security protocols, comprehensive activity logging, and an intuitive admin dashboard.
 
@@ -329,7 +330,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Library Management System V4**
 
 For issues, questions, or suggestions:
-- 📧 Email: support@libraryms.local
+- 📧 Email: librarymanagementsystem270@gmail.com
 - 🐛 Issues: [GitHub Issues](https://github.com/yourusername/library-management-system/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/library-management-system/discussions)
 
