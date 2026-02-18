@@ -1,0 +1,31 @@
+flowchart LR
+    %% Context (Level 0) diagram for Library Management System
+    style LMS fill:#f3f4f6,stroke:#334155,stroke-width:2px
+    subgraph External_Actors[External Actors]
+      WebClients["Web / Mobile Clients"]
+      Students["Students"]
+      Staff["Library Staff"]
+      Admins["Administrators"]
+    end
+
+    ExternalEmail["Email / SMS Provider"]
+    PaymentGateway["Payment Gateway"]
+    AuthProvider["Auth Provider (LDAP / SSO)"]
+    Database["Database / Data Store"]
+
+    WebClients -->|"UI / API (HTTP)"| LMS["Library Management System"]
+    Students -->|"Search / Request / Borrow / Return / Pay Fines"| LMS
+    Staff -->|"Issue / Return / Manage Catalog / Process Requests"| LMS
+    Admins -->|"Manage Users, Settings, Reports"| LMS
+
+    LMS -->|"Persist / Query"| Database
+    LMS -->|"Send notifications (email/sms)"| ExternalEmail
+    LMS -->|"Process payments / refunds"| PaymentGateway
+    LMS -->|"Authenticate users"| AuthProvider
+
+    classDef external fill:#eef2ff,stroke:#1e3a8a,stroke-width:1px
+    class WebClients,Students,Staff,Admins,ExternalEmail,PaymentGateway,AuthProvider,Database external
+
+    %% Notes
+    %% - This is a level-0 context diagram: it shows the system boundary (LMS) and external actors/systems.
+    %% - Internal components (catalog, issuance engine, notification service) are purposefully omitted here.

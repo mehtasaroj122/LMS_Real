@@ -1,0 +1,45 @@
+flowchart LR
+  WebBrowser["Web Browser / SPA"]
+  MobileApp["Mobile App"]
+  LB["Load Balancer / CDN"]
+  Web["Web Server (NGINX)"]
+  App["App Server (PHP/Laravel)"]
+  Workers["Background Workers (Redis + Workers)"]
+  Search["Search Index (Elasticsearch)"]
+  Cache["Cache (Redis)"]
+  DB["Primary DB (MySQL/Postgres)"]
+  FileStore["File Storage (S3/Local)"]
+  SMTP["Email/SMS Gateway"]
+  PGW["Payment Gateway"]
+  SSO["Auth Provider (SSO/LDAP)"]
+
+  WebBrowser -->|HTTPS| LB
+  MobileApp -->|HTTPS| LB
+  LB --> Web
+  Web -->|proxy| App
+
+  App -->|read/write| DB
+  App -->|cache read/write| Cache
+  App -->|index/update| Search
+  App -->|upload/download| FileStore
+  App -->|enqueue job| Workers
+  App -->|authenticate| SSO
+  App -->|send notifications| SMTP
+  App -->|process payments| PGW
+
+  Workers -->|process jobs| App
+  Workers -->|read/write| DB
+  Workers -->|update cache| Cache
+  Workers -->|send notifications| SMTP
+  Workers -->|refunds / payment calls| PGW
+
+  Search -->|index updates| App
+  DB -->|replicate| Search
+  FileStore -->|serve files| LB
+
+  classDef comp fill:#f8fafc,stroke:#0f172a
+  class LB,Web,App,Workers,Search,Cache,DB,FileStore,SMTP,PGW,SSO comp
+  class LB,Web,App,Workers,Search,Cache,DB,FileStore,SMTP,PGW,SSO comp
+
+  %% notes
+  %% This physical DFD maps logical processes to physical components: clients -> LB -> Web/App -> DB/Cache/Search/Workers.

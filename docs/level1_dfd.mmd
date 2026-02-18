@@ -1,0 +1,64 @@
+flowchart LR
+    %% Level-1 Data Flow Diagram for Library Management System
+    %% Processes are numbered 1.0..1.4
+
+    Students["Students"]
+    Staff["Library Staff"]
+    Admins["Administrators"]
+    PaymentGateway["Payment Gateway"]
+    ExternalEmail["Email / SMS Provider"]
+
+    subgraph LMS["Library Management System"]
+      P1["1.0 Catalog & Search"]
+      P2["1.1 Catalog Management"]
+      P3["1.2 Loan / Issue Management"]
+      P4["1.3 Payments & Fines"]
+      P5["1.4 Users & Settings"]
+      Notif["Notification Service"]
+    end
+
+    subgraph DataStores["Data Stores"]
+      DB_Books[("Book Catalog")]
+      DB_Users[("User / Profiles")]
+      DB_Transactions[("Loan Transactions")]
+      DB_Fines[("Fines & Payments")]
+    end
+
+    %% External -> Processes
+    Students -->|"search queries / browse"| P1
+    Students -->|"borrow request / return"| P3
+    Students -->|"pay fine"| P4
+
+    Staff -->|"add/update books"| P2
+    Staff -->|"issue/return books"| P3
+
+    Admins -->|"manage users / settings"| P5
+
+    %% Processes -> Data Stores
+    P1 -->|"read/write catalog"| DB_Books
+    P2 -->|"create/update/delete books"| DB_Books
+
+    P3 -->|"create/update loan records"| DB_Transactions
+    P3 -->|"update book availability"| DB_Books
+    P3 -->|"lookup borrower profile"| DB_Users
+
+    P4 -->|"record payments"| DB_Fines
+    P4 -->|"charge gateway"| PaymentGateway
+
+    P5 -->|"create/update user profiles"| DB_Users
+
+    %% Notifications
+    P3 -->|"issue/return notifications"| Notif
+    P4 -->|"payment receipts"| Notif
+    P5 -->|"admin alerts"| Notif
+    Notif -->|"send email/sms"| ExternalEmail
+
+    %% Data flows between stores (reporting / reconciliation)
+    DB_Transactions -->|"generate reports"| P5
+    DB_Fines -->|"reconcile payments"| P5
+
+    %% Styling hints (optional)
+    classDef process fill:#fff7ed,stroke:#f97316,stroke-width:1px
+    class P1,P2,P3,P4,P5 process
+    classDef datastore fill:#eef2ff,stroke:#1e40af,stroke-width:1px
+    class DB_Books,DB_Users,DB_Transactions,DB_Fines datastore

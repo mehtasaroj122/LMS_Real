@@ -1,0 +1,113 @@
+flowchart TB
+  %% Combined Level-2 DFDs for all Level-1 processes
+  %% Sections: 1.0 Catalog & Search, 1.1 Catalog Management,
+  %% 1.2 Loan/Issue Management, 1.3 Payments & Fines, 1.4 Users & Settings
+
+  %% External actors
+  Students["Students"]
+  Staff["Library Staff"]
+  Admins["Administrators"]
+  PaymentGateway["Payment Gateway"]
+  ExternalEmail["Email / SMS Provider"]
+
+  subgraph DATA["Data Stores"]
+    DB_Books[("Book Catalog")]
+    DB_Users[("User / Profiles")]
+    DB_Loans[("Loan Transactions")]
+    DB_Fines[("Fines & Payments")]
+  end
+
+  %% ===== 1.0 Catalog & Search (Level-2) =====
+  subgraph CATALOG["1.0 Catalog & Search (Level-2)"]
+    C1["1.0.1 Accept Query"]
+    C2["1.0.2 Search Index / Filter"]
+    C3["1.0.3 Return Results"]
+  end
+
+  Students -->|"search / browse"| C1
+  C1 --> C2
+  C2 --> DB_Books
+  C2 --> C3
+  C3 --> Students
+
+  %% ===== 1.1 Catalog Management (Level-2) =====
+  subgraph CM["1.1 Catalog Management (Level-2)"]
+    M1["1.1.1 Add / Import Book"]
+    M2["1.1.2 Update Metadata / Inventory"]
+    M3["1.1.3 Remove / Archive"]
+    M4["1.1.4 Validate ISBN / Dedupe"]
+  end
+
+  Staff -->|"add/update books"| M1
+  M1 --> M4
+  M4 -->|"validated metadata"| M2
+  M2 --> DB_Books
+  M3 --> DB_Books
+
+  %% ===== 1.2 Loan / Issue Management (Level-2) =====
+  subgraph LOAN["1.2 Loan / Issue Management (Level-2)"]
+    L1["1.2.1 Validate Request"]
+    L2["1.2.2 Check Availability & Reserve"]
+    L3["1.2.3 Issue Book"]
+    L4["1.2.4 Return & Inspect"]
+    L5["1.2.5 Overdue & Fine Calculation"]
+    L6["1.2.6 Update Inventory"]
+  end
+
+  Students -->|"borrow request / return"| L1
+  L1 --> DB_Users
+  L1 --> DB_Loans
+  L1 --> L2
+  L2 --> DB_Books
+  L2 --> L3
+  L3 --> DB_Loans
+  L3 --> DB_Books
+  L3 -->|"notify borrower"| ExternalEmail
+  L4 --> L5
+  L4 --> DB_Loans
+  L4 --> DB_Books
+  L5 --> DB_Fines
+  L5 -->|"request payment"| Students
+  L5 -->|"charge"| PaymentGateway
+  L6 --> DB_Books
+
+  %% ===== 1.3 Payments & Fines (Level-2) =====
+  subgraph PAY["1.3 Payments & Fines (Level-2)"]
+    P1["1.3.1 Generate Fine Record"]
+    P2["1.3.2 Present Payment Options"]
+    P3["1.3.3 Process Payment"]
+    P4["1.3.4 Confirm & Record"]
+  end
+
+  L5 -->|"fine created"| P1
+  Students -->|"view/pay fines"| P2
+  P2 --> P3
+  P3 --> PaymentGateway
+  PaymentGateway --> P4
+  P4 --> DB_Fines
+  P4 -->|"receipt"| ExternalEmail
+
+  %% ===== 1.4 Users & Settings (Level-2) =====
+  subgraph USR["1.4 Users & Settings (Level-2)"]
+    U1["1.4.1 Register / Create User"]
+    U2["1.4.2 Update Profile & Roles"]
+    U3["1.4.3 Manage Privileges"]
+    U4["1.4.4 Audit & Reports"]
+  end
+
+  Admins -->|"manage users"| U1
+  U1 --> DB_Users
+  U2 --> DB_Users
+  U3 --> DB_Users
+  DB_Loans -->|"loan history"| U4
+  DB_Fines -->|"payments / fines data"| U4
+
+  %% Cross-process notes: reporting / reconciliation
+  DB_Books -->|"catalog snapshot"| U4
+  DB_Users -->|"user directory"| L1
+
+  %% Styling
+  classDef process fill:#fffaf0,stroke:#b45309
+  classDef datastore fill:#eff6ff,stroke:#1e40af
+  class C1,C2,C3,M1,M2,M3,M4,L1,L2,L3,L4,L5,L6,P1,P2,P3,P4,U1,U2,U3,U4 process
+  class DB_Books,DB_Users,DB_Loans,DB_Fines datastore

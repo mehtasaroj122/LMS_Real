@@ -1,0 +1,64 @@
+flowchart LR
+    %% Level-2 DFD: Decomposition of 1.2 Loan / Issue Management
+
+    Students["Students"]
+    Staff["Library Staff"]
+    Notif["Notification Service"]
+    PaymentGateway["Payment Gateway"]
+
+    subgraph LMS["1.2 Loan / Issue Management"]
+      P21["1.2.1 Validate Request"]
+      P22["1.2.2 Check Availability & Reserve"]
+      P23["1.2.3 Issue Book"]
+      P24["1.2.4 Return & Inspect"]
+      P25["1.2.5 Overdue & Fine Calculation"]
+      P26["1.2.6 Update Inventory"]
+    end
+
+    subgraph DataStores["Data Stores"]
+      DB_Books[("Book Catalog")]
+      DB_Users[("User / Profiles")]
+      DB_Loans[("Loan Transactions")]
+      DB_Fines[("Fines & Payments")]
+    end
+
+    %% Flows: external -> sub-processes
+    Students -->|"Borrow request / Return submission"| P21
+    Staff -->|"Manual issue/return / override"| P23
+
+    %% Process sequence and data flows
+    P21 -->|"validate user & eligibility"| DB_Users
+    P21 -->|"validate holds / restrictions"| DB_Loans
+    P21 -->|"request accepted/rejected"| Students
+
+    P21 -->|"eligible request"| P22
+    P22 -->|"check copies & reserve"| DB_Books
+    P22 -->|"reservation result"| P23
+
+    P23 -->|"create loan record"| DB_Loans
+    P23 -->|"decrement available_copies"| DB_Books
+    P23 -->|"notify borrower"| Notif
+
+    P24 -->|"return details"| P24
+    P24 -->|"inspect condition"| P25
+    P24 -->|"update loan record (returned)"| DB_Loans
+    P24 -->|"increment available_copies"| DB_Books
+
+    P25 -->|"calculate fine if overdue/damaged"| DB_Fines
+    P25 -->|"request payment"| Students
+    P25 -->|"charge / process payment"| PaymentGateway
+    P25 -->|"record payment status"| DB_Fines
+
+    P26 -->|"sync inventory changes"| DB_Books
+    DB_Loans -->|"loan history for reports"| P26
+
+    %% Notifications
+    P23 -->|"issue notification"| Notif
+    P25 -->|"fine notification / receipt"| Notif
+    Notif -->|"send email/sms"| Students
+
+    %% Styling
+    classDef process fill:#fff7ed,stroke:#f97316
+    class P21,P22,P23,P24,P25,P26 process
+    classDef datastore fill:#eef2ff,stroke:#1e40af
+    class DB_Books,DB_Users,DB_Loans,DB_Fines datastore

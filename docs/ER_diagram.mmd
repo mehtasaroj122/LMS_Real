@@ -1,0 +1,103 @@
+erDiagram
+    USERS {
+        int id PK "primary key"
+        enum role
+        string name
+        string email "unique"
+        string phone
+        string password
+        enum status
+        timestamp last_login_at
+    }
+
+    STUDENTS {
+        int id PK
+        int user_id FK
+        int department_id FK
+        string roll_no "unique"
+        string batch
+        string semester
+    }
+
+    STAFF {
+        int id PK
+        int user_id FK
+        int department_id FK
+        string designation
+        date join_date
+    }
+
+    DEPARTMENTS {
+        int id PK
+        string name "unique"
+        string code
+    }
+
+    CATEGORIES {
+        int id PK
+        string name "unique"
+        text description
+    }
+
+    BOOKS {
+        int id PK
+        int category_id FK
+        string title
+        string author
+        string isbn "unique"
+        int total_copies
+        int available_copies
+        enum condition
+    }
+
+    ISSUED_BOOKS {
+        int id PK
+        int book_id FK
+        int student_id FK
+        int issued_by FK "users.id, nullable"
+        date issue_date
+        date due_date
+        date return_date
+        decimal fine_amount
+        enum status
+    }
+
+    FINES {
+        int id PK
+        int issued_book_id FK
+        int student_id FK
+        decimal amount
+        int days_late
+        enum status
+    }
+
+    BOOK_REQUESTS {
+        int id PK
+        int student_id FK
+        int book_id FK
+        datetime request_date
+        enum status
+    }
+
+    STUDENT_PRIVILEGES {
+        int id PK
+        int student_id FK "unique, optional"
+        int max_books
+        int issue_duration_days
+        decimal per_day_fine
+        boolean borrowing_allowed
+    }
+
+    %% Relationships (cardinalities derived from migrations)
+    USERS ||--o{ STUDENTS : "1 user to 0..* student profiles (no unique constraint)"
+    USERS ||--o{ STAFF : "1 user to 0..* staff profiles (no unique constraint)"
+    DEPARTMENTS ||--o{ STUDENTS : "1 department to many students"
+    DEPARTMENTS ||--o{ STAFF : "1 department to many staff"
+    CATEGORIES ||--o{ BOOKS : "1 category to many books"
+    BOOKS ||--o{ ISSUED_BOOKS : "1 book to many issues"
+    STUDENTS ||--o{ ISSUED_BOOKS : "1 student to many issues"
+    ISSUED_BOOKS ||--o{ FINES : "1 issue to 0..* fines"
+    STUDENTS ||--o{ FINES : "1 student to many fines"
+    STUDENTS ||--o{ BOOK_REQUESTS : "1 student to many requests"
+    BOOKS ||--o{ BOOK_REQUESTS : "1 book to many requests"
+    STUDENTS ||--|| STUDENT_PRIVILEGES : "1 student to 0..1 privilege (unique)"
