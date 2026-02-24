@@ -33,7 +33,7 @@ class UserController extends Controller
         ])
             ->orderByRaw("CASE WHEN role='admin' THEN 1 WHEN role='staff' THEN 2 WHEN role='student' THEN 3 END")
             ->latest()
-            ->simplePaginate(7);
+            ->simplePaginate(15);
 
         /* ===== Stats ===== */
         $totalUsers = User::count();
@@ -105,8 +105,8 @@ class UserController extends Controller
                     $query->orderBy('created_at', 'desc');
             }
 
-            // Paginate results (7 users per page)
-            $users = $query->paginate(7, ['*'], 'page', $page);
+            // Paginate results (15 users per page)
+            $users = $query->paginate(15, ['*'], 'page', $page);
 
             // Load relationships for each user
             $users->load('student.department', 'staff.department');

@@ -39,7 +39,7 @@ class BookController extends Controller
         $availability = $request->get('availability', 'all');
         $sort = $request->get('sort', 'title-asc');
         $page = $request->get('page', 1);
-        $perPage = 7;
+        $perPage = 15; // You can adjust this as needed
 
         // Build query
         $query = book::query();
