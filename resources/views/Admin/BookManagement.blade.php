@@ -855,6 +855,142 @@
             margin-left: 8px;
         }
 
+        /* Form Error Styles - One Error at a Time */
+        .form-control.error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        body.dark-theme .form-control.error {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .form-control.error:focus {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        body.dark-theme .form-control.error:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .field-error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            animation: slideDown 0.2s ease;
+        }
+
+        body.dark-theme .field-error-message {
+            color: #f87171;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== Confirmation Popup Styles ===== */
+        .confirmation-popup {
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        .confirmation-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 32px;
+        }
+
+        .confirmation-icon.danger {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #ef4444;
+        }
+
+        .confirmation-icon.warning {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #f59e0b;
+        }
+
+        .confirmation-icon.info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #3b82f6;
+        }
+
+        .confirmation-icon.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #10b981;
+        }
+
+        .confirmation-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        body.dark-theme .confirmation-title {
+            color: #f3f4f6;
+        }
+
+        .confirmation-message {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        .confirmation-details {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        body.dark-theme .confirmation-details {
+            background: #334155;
+        }
+
+        .confirmation-warning {
+            display: flex;
+            align-items: flex-start;
+            background: #fef2f2;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #991b1b;
+            text-align: left;
+        }
+
+        body.dark-theme .confirmation-warning {
+            background: #450a0a;
+            color: #fca5a5;
+        }
+
+        .btn-confirm-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-confirm-danger:hover {
+            background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+        }
+
         /* Pagination */
         .pagination-container {
             display: flex;
@@ -1405,12 +1541,29 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="modal-description" id="deleteBookMessage">Are you sure you want to delete this book?</p>
-                <p style="color: #ef4444; font-weight: 500; margin-top: 8px;">This action cannot be undone.</p>
+                <div class="confirmation-popup">
+                    <div class="confirmation-icon danger">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h3 class="confirmation-title">Delete This Book?</h3>
+                    <p class="confirmation-message">
+                        You are about to permanently delete the following book:
+                    </p>
+                    <div class="confirmation-details">
+                        <strong id="deleteBookTitle">Loading...</strong><br>
+                        <span id="deleteBookISBN" style="color: #6b7280; font-size: 12px;">loading...</span>
+                    </div>
+                    <div class="confirmation-warning">
+                        <i class="fas fa-exclamation-triangle" style="margin-right: 6px; margin-top: 2px;"></i>
+                        <span>This action cannot be undone. All book data will be permanently deleted.</span>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelDeleteBook">Cancel</button>
-                <button class="btn btn-danger" id="confirmDeleteBook">
+            <div class="modal-footer" style="justify-content: center; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+                <button class="btn btn-outline" id="cancelDeleteBook" style="min-width: 100px;">
+                    Cancel
+                </button>
+                <button class="btn btn-confirm-danger" id="confirmDeleteBook" style="min-width: 100px;">
                     <i class="fas fa-trash-alt"></i>
                     Delete Book
                 </button>
@@ -1426,6 +1579,7 @@
                 this.currentModal = null;
                 this.currentBookId = null;
                 this.currentBookTitle = null;
+                this.currentBookISBN = null;
                 this.currentConditionFilter = 'all';
                 this.currentCategoryFilter = 'all';
                 this.currentAvailabilityFilter = 'all';
@@ -1512,6 +1666,40 @@
                             placeholder.style.display = 'block';
                         }
                     });
+                }
+
+                // Add input event listeners to clear errors when user starts typing
+                this.initInputErrorListeners();
+            }
+
+            initInputErrorListeners() {
+                // Add input listeners to Add Book form
+                const addBookForm = document.getElementById('addBookForm');
+                if (addBookForm) {
+                    addBookForm.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.addEventListener('input', () => this.clearFieldError(input));
+                        input.addEventListener('change', () => this.clearFieldError(input));
+                    });
+                }
+
+                // Add input listeners to Edit Book form
+                const editBookForm = document.getElementById('editBookForm');
+                if (editBookForm) {
+                    editBookForm.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.addEventListener('input', () => this.clearFieldError(input));
+                        input.addEventListener('change', () => this.clearFieldError(input));
+                    });
+                }
+            }
+
+            clearFieldError(input) {
+                // Remove error class
+                input.classList.remove('error');
+                
+                // Remove error message element if exists
+                const errorElement = input.parentElement.querySelector('.field-error-message');
+                if (errorElement) {
+                    errorElement.remove();
                 }
             }
 
@@ -1692,6 +1880,7 @@
                         const row = e.target.closest('tr');
                         this.currentBookId = row.dataset.bookId;
                         this.currentBookTitle = row.cells[1].querySelector('strong')?.textContent || row.cells[1].textContent;
+                        this.currentBookISBN = row.cells[0].textContent || '';
                         this.openDeleteModal();
                     });
                 });
@@ -1900,7 +2089,8 @@
             }
 
             openDeleteModal() {
-                document.getElementById('deleteBookMessage').textContent = `Are you sure you want to delete "${this.currentBookTitle}"?`;
+                document.getElementById('deleteBookTitle').textContent = this.currentBookTitle || 'Unknown Book';
+                document.getElementById('deleteBookISBN').textContent = `ISBN: ${this.currentBookISBN || 'N/A'}`;
                 this.openModal('deleteBookModal');
             }
 
@@ -1909,40 +2099,34 @@
                 const categorySelect = document.getElementById('addCategorySelect');
                 const newCategoryInput = document.getElementById('addNewCategory');
 
-                // Custom validation for category fields
-                const selectedCategory = categorySelect.value.trim();
-                const newCategory = newCategoryInput.value.trim();
+                // Clear all previous errors
+                this.clearFieldErrors(form);
 
-                // Validate: must select one OR create one, but not both empty
-                if (!selectedCategory && !newCategory) {
-                    this.showNotification('Please select an existing category or create a new one', 'error');
+                // Define field order for validation (top to bottom in form)
+                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id', 'new_category', 'condition', 'total_copies', 'available_copies', 'description'];
+
+                // Validate category selection first (custom validation)
+                const categoryError = this.validateCategory(categorySelect, newCategoryInput);
+                if (categoryError) {
+                    this.showFieldError(categoryError.input, categoryError.error);
                     return;
                 }
 
-                // Validate: cannot have both selected
-                if (selectedCategory && newCategory) {
-                    this.showNotification('Please choose either an existing category OR create a new one, not both', 'error');
-                    return;
-                }
-
-                // If creating new category, validate the name
-                if (newCategory && newCategory.length < 2) {
-                    this.showNotification('New category name must be at least 2 characters long', 'error');
+                // Validate form fields one at a time
+                const validationError = this.validateFormOneByOne(form, fieldOrder);
+                if (validationError) {
+                    this.showFieldError(validationError.input, validationError.error);
                     return;
                 }
 
                 // If creating new category, we need to create it first
+                const newCategory = newCategoryInput.value.trim();
                 if (newCategory) {
                     this.createNewCategory(newCategory, form);
                     return;
                 }
 
-                // Standard form validation for other fields
-                if (!form.checkValidity()) {
-                    form.reportValidity();
-                    return;
-                }
-
+                // All validations passed, submit the form
                 this.submitAddBookForm(form);
             }
 
@@ -2011,11 +2195,6 @@
             }
 
             submitAddBookForm(form) {
-                if (!form.checkValidity()) {
-                    form.reportValidity();
-                    return;
-                }
-
                 const formData = new FormData(form);
                 
                 // Remove new_category if it's empty to avoid sending it
@@ -2034,20 +2213,23 @@
                     },
                     body: formData
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            throw new Error(data.message || `HTTP error! status: ${response.status}`);
-                        }).catch(err => {
-                            if (err instanceof Error && err.message.includes('HTTP error')) {
-                                throw err;
-                            }
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        });
-                    }
-                    return response.json();
-                })
+                .then(response => response.json().catch(() => {
+                    throw new Error('Invalid JSON response');
+                }))
                 .then(data => {
+                    // Handle server-side validation errors with one-error-at-a-time
+                    if (data.errors && Object.keys(data.errors).length > 0) {
+                        const firstErrorField = Object.keys(data.errors)[0];
+                        const firstErrorMessage = data.errors[firstErrorField][0];
+                        const input = form.querySelector(`[name="${firstErrorField}"]`);
+                        if (input) {
+                            this.showFieldError(input, firstErrorMessage);
+                        } else {
+                            this.showNotification(firstErrorMessage, 'error');
+                        }
+                        return;
+                    }
+
                     console.log('Book submission response:', data);
                     if (data.success) {
                         this.showNotification('Book added successfully', 'success');
@@ -2069,8 +2251,17 @@
 
             submitEditBook() {
                 const form = document.getElementById('editBookForm');
-                if (!form.checkValidity()) {
-                    form.reportValidity();
+
+                // Clear all previous errors
+                this.clearFieldErrors(form);
+
+                // Define field order for validation (top to bottom in form)
+                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id', 'condition', 'total_copies', 'available_copies', 'description'];
+
+                // Validate form fields one at a time
+                const validationError = this.validateFormOneByOne(form, fieldOrder);
+                if (validationError) {
+                    this.showFieldError(validationError.input, validationError.error);
                     return;
                 }
 
@@ -2085,17 +2276,31 @@
                     },
                     body: formData
                 })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
+                .then(response => response.json().catch(() => {
+                    throw new Error('Invalid JSON response');
+                }))
                 .then(data => {
+                    // Handle server-side validation errors with one-error-at-a-time
+                    if (data.errors && Object.keys(data.errors).length > 0) {
+                        const firstErrorField = Object.keys(data.errors)[0];
+                        const firstErrorMessage = data.errors[firstErrorField][0];
+                        const input = form.querySelector(`[name="${firstErrorField}"]`);
+                        if (input) {
+                            this.showFieldError(input, firstErrorMessage);
+                        } else {
+                            this.showNotification(firstErrorMessage, 'error');
+                        }
+                        return;
+                    }
+
                     if (data.success) {
                         this.showNotification('Book updated successfully', 'success');
                         this.closeModal('editBookModal');
                         this.currentPage = 1;
                         this.fetchBooksData();
                         setTimeout(() => this.refreshStats(), 150);
+                    } else {
+                        this.showNotification(data.message || 'Error updating book', 'error');
                     }
                 })
                 .catch(error => {
@@ -2154,6 +2359,216 @@
                         notification.remove();
                     }
                 }, 5000);
+            }
+
+            // One-error-at-a-time validation helpers
+            clearFieldErrors(form) {
+                // Remove error class and error messages from all form controls
+                form.querySelectorAll('.form-control').forEach(input => {
+                    input.classList.remove('error');
+                    const existingError = input.parentElement.querySelector('.field-error-message');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+                });
+            }
+
+            showFieldError(input, message) {
+                // Clear all errors first
+                const form = input.closest('form');
+                if (form) {
+                    this.clearFieldErrors(form);
+                }
+
+                // Add error class to the input
+                input.classList.add('error');
+
+                // Create error message element
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error-message';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+
+                // Insert error message after the input
+                input.parentElement.appendChild(errorDiv);
+
+                // Focus the input
+                input.focus();
+
+                // Scroll input into view
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            validateField(input, rules) {
+                const value = input.value.trim();
+                const name = input.name;
+                const type = input.type;
+                const isRequired = input.hasAttribute('required');
+
+                // Skip validation for empty non-required fields
+                if (!isRequired && value === '') {
+                    return null;
+                }
+
+                // Check required fields
+                if (rules.required && value === '') {
+                    return rules.requiredMessage || 'This field is required';
+                }
+
+                // Check minimum length
+                if (rules.minLength && value.length < rules.minLength) {
+                    return rules.minLengthMessage || `Must be at least ${rules.minLength} characters`;
+                }
+
+                // Check maximum length
+                if (rules.maxLength && value.length > rules.maxLength) {
+                    return rules.maxLengthMessage || `Must not exceed ${rules.maxLength} characters`;
+                }
+
+                // Check numeric fields
+                if (rules.numeric && value !== '' && isNaN(value)) {
+                    return rules.numericMessage || 'Must be a valid number';
+                }
+
+                // Check minimum value for numeric fields
+                if (rules.min !== undefined && value !== '' && parseFloat(value) < rules.min) {
+                    return rules.minMessage || `Must be at least ${rules.min}`;
+                }
+
+                // Check maximum value for numeric fields
+                if (rules.max !== undefined && value !== '' && parseFloat(value) > rules.max) {
+                    return rules.maxMessage || `Must not exceed ${rules.max}`;
+                }
+
+                // Check ISBN format (basic validation)
+                if (rules.isbn && value !== '') {
+                    // Remove dashes and spaces
+                    const cleanIsbn = value.replace(/[-\s]/g, '');
+                    if (!/^(?:\d{10}|\d{13})$/.test(cleanIsbn)) {
+                        return rules.isbnMessage || 'Invalid ISBN format (10 or 13 digits required)';
+                    }
+                }
+
+                // Check file type
+                if (rules.accept && type === 'file' && value !== '') {
+                    const file = input.files[0];
+                    if (file) {
+                        const acceptedTypes = rules.accept.split(',').map(t => t.trim());
+                        const fileType = file.type;
+                        const fileName = file.name.toLowerCase();
+                        const isValid = acceptedTypes.some(type => {
+                            if (type.startsWith('.')) {
+                                return fileName.endsWith(type);
+                            }
+                            return fileType.includes(type.replace('*', ''));
+                        });
+                        if (!isValid) {
+                            return rules.acceptMessage || `File type not allowed. Accepted: ${rules.accept}`;
+                        }
+                    }
+                }
+
+                // Check file size
+                if (rules.maxSize && type === 'file' && value !== '') {
+                    const file = input.files[0];
+                    if (file) {
+                        const maxBytes = rules.maxSize * 1024 * 1024; // Convert MB to bytes
+                        if (file.size > maxBytes) {
+                            return rules.maxSizeMessage || `File size must not exceed ${rules.maxSize}MB`;
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            validateFormOneByOne(form, fieldOrder) {
+                const fieldRules = {
+                    isbn: {
+                        required: true,
+                        requiredMessage: 'ISBN is required',
+                        isbn: true,
+                        isbnMessage: 'Invalid ISBN format (10 or 13 digits required)'
+                    },
+                    title: {
+                        required: true,
+                        requiredMessage: 'Title is required',
+                        minLength: 2,
+                        minLengthMessage: 'Title must be at least 2 characters'
+                    },
+                    author: {
+                        required: true,
+                        requiredMessage: 'Author is required',
+                        minLength: 2,
+                        minLengthMessage: 'Author must be at least 2 characters'
+                    },
+                    shelf_no: {
+                        required: true,
+                        requiredMessage: 'Rack number is required'
+                    },
+                    category_id: {
+                        required: true,
+                        requiredMessage: 'Category is required'
+                    },
+                    condition: {
+                        required: true,
+                        requiredMessage: 'Condition is required'
+                    },
+                    total_copies: {
+                        required: true,
+                        requiredMessage: 'Total copies is required',
+                        numeric: true,
+                        numericMessage: 'Total copies must be a number',
+                        min: 1,
+                        minMessage: 'Total copies must be at least 1'
+                    },
+                    available_copies: {
+                        required: true,
+                        requiredMessage: 'Available copies is required',
+                        numeric: true,
+                        numericMessage: 'Available copies must be a number',
+                        min: 0,
+                        minMessage: 'Available copies cannot be negative'
+                    },
+                    cover_image: {
+                        maxSize: 2,
+                        maxSizeMessage: 'Cover image must not exceed 2MB',
+                        accept: 'image/*',
+                        acceptMessage: 'Please select a valid image file (JPEG, PNG, GIF)'
+                    }
+                };
+
+                // Find the first field with an error
+                for (const fieldName of fieldOrder) {
+                    const input = form.querySelector(`[name="${fieldName}"]`);
+                    if (input && fieldRules[fieldName]) {
+                        const error = this.validateField(input, fieldRules[fieldName]);
+                        if (error) {
+                            return { field: fieldName, error: error, input: input };
+                        }
+                    }
+                }
+
+                return null; // No errors
+            }
+
+            // Validate category selection for Add form
+            validateCategory(categorySelect, newCategoryInput) {
+                const selectedCategory = categorySelect.value.trim();
+                const newCategory = newCategoryInput.value.trim();
+
+                if (!selectedCategory && !newCategory) {
+                    return { field: 'category_id', error: 'Please select a category or create a new one', input: categorySelect };
+                }
+
+                if (selectedCategory && newCategory) {
+                    return { field: 'new_category', error: 'Please choose either existing OR new category, not both', input: newCategoryInput };
+                }
+
+                if (newCategory && newCategory.length < 2) {
+                    return { field: 'new_category', error: 'New category name must be at least 2 characters', input: newCategoryInput };
+                }
+
+                return null;
             }
         }
 

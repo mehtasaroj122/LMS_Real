@@ -958,11 +958,251 @@
                 font-size: 14px;
             }
         }
+
+        /* Conditional Field Styles */
+        .conditional-field {
+            transition: all 0.3s ease;
+        }
+
+        .conditional-field.hidden {
+            display: none !important;
+        }
+
+        .conditional-field .form-label::after {
+            content: '';
+        }
+
+        /* Field Error Styles */
+        .field-error {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .field-error.visible {
+            display: block;
+        }
+
+        .form-control.is-invalid {
+            border-color: #ef4444 !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ef4444' viewBox='0 0 16 16'%3E%3Cpath d='M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23ef4444' stroke-width='1.5'/%3E%3Cpath d='M8 5v4M8 10v.5' stroke='%23ef4444' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 35px;
+        }
+
+            .form-group.error .form-control {
+            border-color: #ef4444;
+        }
+
+        /* ===== Confirmation Popup Styles ===== */
+        .confirmation-popup {
+            text-align: center;
+            padding: 20px 10px;
+        }
+
+        .confirmation-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
+
+        .confirmation-icon.danger {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #dc2626;
+        }
+
+        .confirmation-icon.warning {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #d97706;
+        }
+
+        .confirmation-icon.info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #2563eb;
+        }
+
+        .confirmation-icon.success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #059669;
+        }
+
+        .confirmation-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1f2937;
+        }
+
+        body.dark-theme .confirmation-title {
+            color: #f3f4f6;
+        }
+
+        .confirmation-message {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        body.dark-theme .confirmation-message {
+            color: #9ca3af;
+        }
+
+        .confirmation-warning {
+            font-size: 13px;
+            color: #dc2626;
+            font-weight: 500;
+            margin-top: 16px;
+            padding: 10px;
+            background: #fef2f2;
+            border-radius: 8px;
+            border: 1px solid #fecaca;
+        }
+
+        body.dark-theme .confirmation-warning {
+            background: #450a0a;
+            border-color: #7f1d1d;
+            color: #fca5a5;
+        }
+
+        .confirmation-details {
+            font-size: 13px;
+            color: #374151;
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        body.dark-theme .confirmation-details {
+            background: #1f2937;
+            color: #d1d5db;
+        }
+
+        .confirmation-details strong {
+            color: #111827;
+        }
+
+        body.dark-theme .confirmation-details strong {
+            color: #f9fafb;
+        }
+
+        .confirmation-user-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-align: left;
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        body.dark-theme .confirmation-user-card {
+            background: #162033;
+            border-color: #334155;
+        }
+
+        .confirmation-user-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+        }
+
+        .confirmation-user-meta {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .confirmation-user-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        body.dark-theme .confirmation-user-name {
+            color: #f8fafc;
+        }
+
+        .confirmation-user-email {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #64748b;
+            word-break: break-word;
+        }
+
+        body.dark-theme .confirmation-user-email {
+            color: #94a3b8;
+        }
+
+        .popup-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            justify-content: center;
+        }
+
+        .popup-buttons .btn {
+            min-width: 120px;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .btn-confirm-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-confirm-danger:hover {
+            background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+        }
+
+        .btn-confirm-warning {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-confirm-warning:hover {
+            background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+        }
+
+        .btn-confirm-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-confirm-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
     </style>
 @endpush
 
 @section('content')
-    <div class="user-management">
+    <div class="user-management" data-auth-user-id="{{ auth()->id() }}">
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">User Management</h1>
@@ -1113,7 +1353,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title">Add New User</h3>
-                <button class="modal-close-btn" id="closeAddUserModal">
+                <button type="button" class="modal-close-btn" id="closeAddUserModal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1125,38 +1365,39 @@
 
                     <div class="form-group">
                         <label class="form-label required">Full Name</label>
-                        <input type="text" class="form-control" name="name" placeholder="John Doe" required>
+                        <input type="text" class="form-control" name="name" id="addName" placeholder="John Doe">
+                        <span class="field-error" id="addNameError"></span>
                     </div>
-
 
                     <div class="form-group">
                         <label class="form-label required">Email</label>
-                        <input type="email" class="form-control" name="email" placeholder="john@example.com"
-                            required>
+                        <input type="email" class="form-control" name="email" id="addEmail" placeholder="john@example.com">
+                        <span class="field-error" id="addEmailError"></span>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label required">Password</label>
-                        <input type="password" class="form-control" name="password" placeholder="Min. 6 characters"
-                            minlength="6" required>
+                        <input type="password" class="form-control" name="password" id="addPassword" placeholder="Min. 6 characters" minlength="6">
+                        <span class="field-error" id="addPasswordError"></span>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label required">Role</label>
-                        <select class="form-control" name="role" required>
+                        <select class="form-control" name="role" id="addRoleSelect" required>
                             <option value="">Select Role</option>
                             <option value="admin">Admin</option>
                             <option value="staff">Staff</option>
                             <option value="student" selected>Student</option>
                         </select>
+                        <span class="field-error" id="addRoleError"></span>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Phone</label>
-                        <input type="tel" class="form-control" name="phone" placeholder="+1 234 567 8900">
+                        <input type="tel" class="form-control" name="phone" id="addPhone" placeholder="+1 234 567 8900">
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group conditional-field" data-for="staff,student">
                         <label class="form-label">Department</label>
                         <select class="form-control" name="department_id" id="addDepartmentSelect">
                             <option value="">Select Department</option>
@@ -1164,16 +1405,36 @@
                                 <option value="{{ $dept->id }}">{{ $dept->name }}</option>
                             @endforeach
                         </select>
+                        <span class="field-error" id="addDepartmentError"></span>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Roll Number</label>
-                        <input type="text" class="form-control" name="roll_no" placeholder="CSE-2021-001">
+                    <div class="form-group conditional-field" data-for="staff">
+                        <label class="form-label">Staff Designation</label>
+                        <input type="text" class="form-control" name="designation" id="addDesignation" placeholder="Staff Member">
+                        <span class="field-error" id="addDesignationError"></span>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group conditional-field" data-for="staff">
+                        <label class="form-label">Join Date</label>
+                        <input type="date" class="form-control" name="join_date" id="addJoinDate">
+                        <span class="field-error" id="addJoinDateError"></span>
+                    </div>
+
+                    <div class="form-group conditional-field" data-for="student">
+                        <label class="form-label" id="rollNoLabel">Roll Number</label>
+                        <input type="text" class="form-control" name="roll_no" id="addRollNo" placeholder="CSE-2021-001">
+                        <span class="field-error" id="addRollNoError"></span>
+                    </div>
+
+                    <div class="form-group conditional-field" data-for="student">
+                        <label class="form-label">Batch</label>
+                        <input type="text" class="form-control" name="batch" id="addBatch" placeholder="2024">
+                        <span class="field-error" id="addBatchError"></span>
+                    </div>
+
+                    <div class="form-group conditional-field" data-for="student">
                         <label class="form-label">Semester</label>
-                        <select class="form-control" name="semester">
+                        <select class="form-control" name="semester" id="addSemester">
                             <option value="">Select Semester</option>
                             <option value="1">1st</option>
                             <option value="2">2nd</option>
@@ -1184,6 +1445,7 @@
                             <option value="7">7th</option>
                             <option value="8">8th</option>
                         </select>
+                        <span class="field-error" id="addSemesterError"></span>
                     </div>
 
                     <div class="form-group">
@@ -1208,8 +1470,8 @@
 
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelAddUser">Cancel</button>
-                <button class="btn btn-primary" id="submitAddUser">
+                <button type="button" class="btn btn-outline" id="cancelAddUser">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitAddUser">
                     <i class="fas fa-user-plus"></i>
                     Add User
                 </button>
@@ -1222,7 +1484,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title">Edit User</h3>
-                <button class="modal-close-btn" id="closeEditUserModal">
+                <button type="button" class="modal-close-btn" id="closeEditUserModal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1232,22 +1494,25 @@
                 <form id="editUserForm">
                     <div class="form-group">
                         <label class="form-label required">Full Name</label>
-                        <input type="text" class="form-control" id="editFullName" name="name" required>
+                        <input type="text" class="form-control" id="editFullName" name="name">
+                        <span class="field-error" id="editNameError"></span>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label required">Email</label>
-                        <input type="email" class="form-control" id="editEmail" name="email" required>
+                        <input type="email" class="form-control" id="editEmail" name="email">
+                        <span class="field-error" id="editEmailError"></span>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label required">Role</label>
-                        <select class="form-control" id="editRole" name="role" required>
+                        <select class="form-control" id="editRole" name="role">
                             <option value="">Select Role</option>
                             <option value="admin">Admin</option>
                             <option value="staff">Staff</option>
                             <option value="student">Student</option>
                         </select>
+                        <span class="field-error" id="editRoleError"></span>
                     </div>
 
                     <div class="form-group">
@@ -1263,12 +1528,32 @@
                                 <option value="{{ $dept->id }}">{{ $dept->name }}</option>
                             @endforeach
                         </select>
+                        <span class="field-error" id="editDepartmentError"></span>
+                    </div>
+
+                    <div class="form-group" id="editStaffDesignationGroup" style="display: none;">
+                        <label class="form-label">Staff Designation</label>
+                        <input type="text" class="form-control" id="editDesignation" name="designation" placeholder="Staff Member">
+                        <span class="field-error" id="editDesignationError"></span>
+                    </div>
+
+                    <div class="form-group" id="editStaffJoinDateGroup" style="display: none;">
+                        <label class="form-label">Join Date</label>
+                        <input type="date" class="form-control" id="editJoinDate" name="join_date">
+                        <span class="field-error" id="editJoinDateError"></span>
                     </div>
 
                     <div class="form-group" id="editRollNoGroup" style="display: none;">
-                        <label class="form-label">Roll Number</label>
+                        <label class="form-label" id="editRollNoLabel">Roll Number</label>
                         <input type="text" class="form-control" id="editRollNo" name="roll_no"
                             placeholder="CSE-2021-001">
+                        <span class="field-error" id="editRollNoError"></span>
+                    </div>
+
+                    <div class="form-group" id="editBatchGroup" style="display: none;">
+                        <label class="form-label">Batch</label>
+                        <input type="text" class="form-control" id="editBatch" name="batch" placeholder="2024">
+                        <span class="field-error" id="editBatchError"></span>
                     </div>
 
                     <div class="form-group" id="editSemesterGroup" style="display: none;">
@@ -1284,6 +1569,7 @@
                             <option value="7">7th</option>
                             <option value="8">8th</option>
                         </select>
+                        <span class="field-error" id="editSemesterError"></span>
                     </div>
 
                     <div class="form-group">
@@ -1293,8 +1579,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelEditUser">Cancel</button>
-                <button class="btn btn-primary" id="submitEditUser">
+                <button type="button" class="btn btn-outline" id="cancelEditUser">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitEditUser">
                     <i class="fas fa-save"></i>
                     Save Changes
                 </button>
@@ -1302,7 +1588,7 @@
         </div>
     </div>
 
-    <!-- Reset Password Modal -->
+    <!-- Reset Password Confirmation Modal -->
     <div id="resetPasswordModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
@@ -1312,33 +1598,36 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="modal-description" id="resetPasswordMessage">Set a new password for John Librarian</p>
-
-                <form id="resetPasswordForm">
-                    <div class="form-group">
-                        <label class="form-label required">New Password</label>
-                        <input type="password" class="form-control" placeholder="Enter new password (min. 6 characters)"
-                            minlength="6" required>
+                <div class="confirmation-popup">
+                    <div class="confirmation-icon warning">
+                        <i class="fas fa-key"></i>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label required">Confirm Password</label>
-                        <input type="password" class="form-control" placeholder="Confirm new password" minlength="6"
-                            required>
+                    <h3 class="confirmation-title">Reset User Password?</h3>
+                    <p class="confirmation-message">
+                        You are about to reset the password for:
+                    </p>
+                    <div class="confirmation-details">
+                        <strong id="resetPasswordUserName">Loading...</strong><br>
+                        <span id="resetPasswordUserEmail" style="color: #6b7280; font-size: 12px;">loading...</span>
                     </div>
-                </form>
+                    <p class="confirmation-message" style="margin-top: 16px;">
+                        A new temporary password will be generated and sent to the user's email address.
+                    </p>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelResetPassword">Cancel</button>
-                <button class="btn btn-primary" id="submitResetPassword">
-                    <i class="fas fa-key"></i>
-                    Reset Password
+            <div class="modal-footer" style="justify-content: center; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+                <button class="btn btn-outline" id="cancelResetPassword" style="min-width: 100px;">
+                    Cancel
+                </button>
+                <button class="btn btn-confirm-warning" id="submitResetPassword" style="min-width: 100px;">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Reset Link
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Delete User Modal -->
+    <!-- Delete User Confirmation Modal -->
     <div id="deleteUserModal" class="modal-overlay">
         <div class="modal">
             <div class="modal-header">
@@ -1348,12 +1637,26 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="modal-description" id="deleteUserMessage">Are you sure you want to delete this user?</p>
-                <p style="color: #ef4444; font-weight: 500; margin-top: 8px;">This action cannot be undone.</p>
+                <div class="confirmation-popup">
+                    <div class="confirmation-icon danger">
+                        <i class="fas fa-trash-alt"></i>
+                    </div>
+                    <h3 class="confirmation-title">Delete User?</h3>
+                    <p class="confirmation-message">This will permanently remove this user.</p>
+                    <div class="confirmation-user-card">
+                        <div class="confirmation-user-avatar" id="deleteUserAvatar">U</div>
+                        <div class="confirmation-user-meta">
+                            <div class="confirmation-user-name" id="deleteUserName">Loading...</div>
+                            <div class="confirmation-user-email" id="deleteUserEmail">loading...</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelDeleteUser">Cancel</button>
-                <button class="btn btn-danger" id="confirmDeleteUser">
+            <div class="modal-footer" style="justify-content: center; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+                <button type="button" class="btn btn-outline" id="cancelDeleteUser" style="min-width: 100px;">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-confirm-danger" id="confirmDeleteUser" style="min-width: 100px;">
                     <i class="fas fa-trash-alt"></i>
                     Delete User
                 </button>
@@ -1372,9 +1675,13 @@
         class UserManager {
             constructor() {
                 console.log('UserManager initialized');
+                const userManagementRoot = document.querySelector('.user-management');
                 this.currentModal = null;
                 this.currentUserId = null;
                 this.currentUserRow = null;
+                this.loggedInUserId = Number(userManagementRoot?.dataset.authUserId || 0);
+                this.perPage = 15;
+                this.currentPage = Number(new URLSearchParams(window.location.search).get('page')) || 1;
                 this.currentStatusFilter = 'all';
                 this.currentRoleFilter = 'all';
                 this.currentSortFilter = 'recently-added';
@@ -1491,6 +1798,7 @@
              * @param {number} page - Page number to fetch
              */
             fetchUsersData(page = 1) {
+                this.currentPage = Number(page) || 1;
                 console.log('Fetching users data - search:', this.currentSearch, 'status:', this.currentStatusFilter, 'role:', this.currentRoleFilter, 'sort:', this.currentSortFilter, 'page:', page);
 
                 // Show loading state
@@ -1604,20 +1912,77 @@
                     });
             }
 
+            refreshPaginationOnly() {
+                const params = new URLSearchParams({
+                    search: this.currentSearch,
+                    status: this.currentStatusFilter,
+                    role: this.currentRoleFilter,
+                    sort: this.currentSortFilter,
+                    page: this.currentPage
+                });
+
+                fetch(`/admin/users/data?${params.toString()}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': this.csrf()
+                        }
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (!data.success) return;
+                        const paginationContainer = document.getElementById('paginationContainer');
+                        if (paginationContainer) {
+                            paginationContainer.innerHTML = data.pagination;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error refreshing pagination:', error);
+                    });
+            }
+
             /**
              * Initialize modal open/close event listeners
              */
             initModalEvents() {
+                const addUserForm = document.getElementById('addUserForm');
+                if (addUserForm) {
+                    addUserForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.submitAddUser();
+                    });
+                }
+
+                const editUserForm = document.getElementById('editUserForm');
+                if (editUserForm) {
+                    editUserForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.submitEditUser();
+                    });
+                }
+
                 // Add User Modal
                 document.getElementById('addUserBtn').addEventListener('click', () => {
                     console.log('Add user button clicked');
                     this.openModal('addUserModal');
+                    // Initialize field visibility based on default role
+                    const roleSelect = document.getElementById('addRoleSelect');
+                    if (roleSelect) {
+                        this.toggleAddUserFields(roleSelect.value);
+                    }
                 });
 
                 document.getElementById('submitAddUser').addEventListener('click', (e) => {
                     e.preventDefault();
                     console.log('Submit add user clicked');
                     this.submitAddUser();
+                });
+
+                document.getElementById('addRoleSelect').addEventListener('change', (e) => {
+                    this.toggleAddUserFields(e.target.value);
                 });
 
                 document.getElementById('closeAddUserModal').addEventListener('click', () => {
@@ -1674,6 +2039,19 @@
                     });
                 }
 
+                if (document.getElementById('submitResetPassword')) {
+                    document.getElementById('submitResetPassword').addEventListener('click', () => {
+                        this.confirmResetPassword();
+                    });
+                }
+
+                // Status Toggle Modal
+                if (document.getElementById('closeStatusToggleModal')) {
+                    document.getElementById('closeStatusToggleModal').addEventListener('click', () => {
+                        this.closeModal('statusToggleModal');
+                    });
+                }
+
                 // Close modals when clicking on overlay
                 document.querySelectorAll('.modal-overlay').forEach(overlay => {
                     overlay.addEventListener('click', (e) => {
@@ -1697,6 +2075,8 @@
                 // Edit buttons
                 document.querySelectorAll('.action-btn.edit').forEach((btn) => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         console.log('Edit button clicked');
                         const row = e.target.closest('tr');
                         if (!row) {
@@ -1718,6 +2098,8 @@
 
                 document.querySelectorAll('.action-btn.password').forEach((btn) => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         console.log('Password reset button clicked');
                         const row = e.target.closest('tr');
                         if (!row) {
@@ -1726,8 +2108,8 @@
                         }
                         this.currentUserId = row.dataset.userId;
                         this.currentUserRow = row;
-                        console.log('Resetting password for user:', this.currentUserId);
-                        this.sendPasswordReset();
+                        console.log('Opening password reset confirmation for user:', this.currentUserId);
+                        this.openResetPasswordModal();
                     });
                 });
 
@@ -1739,6 +2121,8 @@
 
                 document.querySelectorAll('.action-btn.toggle').forEach((btn) => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         console.log('Toggle button clicked');
                         const row = e.target.closest('tr');
                         if (!row) {
@@ -1760,6 +2144,8 @@
 
                 document.querySelectorAll('.action-btn.delete').forEach((btn) => {
                     btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         console.log('Delete button clicked');
                         const row = e.target.closest('tr');
                         if (!row) {
@@ -1864,9 +2250,21 @@
 
                 this.currentModal = null;
 
-                // Reset forms
+                // Reset forms and clear errors
                 if (modalId === 'addUserModal') {
                     document.getElementById('addUserForm').reset();
+                    // Clear all error states
+                    this.clearAddUserErrors();
+                    // Reset field visibility to default (student)
+                    this.toggleAddUserFields('student');
+                }
+
+                if (modalId === 'editUserModal') {
+                    document.getElementById('editUserForm').reset();
+                    // Clear all error states
+                    this.clearEditUserErrors();
+                    // Reset field visibility to default
+                    this.toggleStudentFields('student');
                 }
             }
 
@@ -1921,11 +2319,26 @@
                             // Show/hide student-specific fields based on role
                             this.toggleStudentFields(role);
 
-                            // If student, populate student-specific fields
+                            document.getElementById('editDepartment').value = '';
+                            document.getElementById('editDesignation').value = '';
+                            document.getElementById('editJoinDate').value = '';
+                            document.getElementById('editRollNo').value = '';
+                            document.getElementById('editBatch').value = '';
+                            document.getElementById('editSemester').value = '';
+
+                            // Populate role-specific fields
                             if (role === 'student' && user.student) {
                                 document.getElementById('editDepartment').value = user.student.department_id || '';
                                 document.getElementById('editRollNo').value = user.student.roll_no || '';
+                                document.getElementById('editBatch').value = user.student.batch || '';
                                 document.getElementById('editSemester').value = user.student.semester || '';
+                            } else if (role === 'staff' && user.staff) {
+                                document.getElementById('editDepartment').value = user.staff.department_id || '';
+                                document.getElementById('editDesignation').value = user.staff.designation || '';
+                                document.getElementById('editJoinDate').value = user.staff.join_date || '';
+                            } else if (role === 'staff') {
+                                document.getElementById('editDesignation').value = 'Staff Member';
+                                document.getElementById('editJoinDate').value = this.getTodayDate();
                             }
 
                             // Open the modal
@@ -1945,28 +2358,111 @@
              */
             toggleStudentFields(role) {
                 const deptGroup = document.getElementById('editDepartmentGroup');
+                const designationGroup = document.getElementById('editStaffDesignationGroup');
+                const joinDateGroup = document.getElementById('editStaffJoinDateGroup');
                 const rollNoGroup = document.getElementById('editRollNoGroup');
+                const batchGroup = document.getElementById('editBatchGroup');
                 const semesterGroup = document.getElementById('editSemesterGroup');
+                const rollNoLabel = document.getElementById('editRollNoLabel');
+                const rollNoInput = document.getElementById('editRollNo');
 
                 if (role === 'student') {
                     deptGroup.style.display = 'block';
+                    designationGroup.style.display = 'none';
+                    joinDateGroup.style.display = 'none';
                     rollNoGroup.style.display = 'block';
+                    batchGroup.style.display = 'block';
                     semesterGroup.style.display = 'block';
+                    // Update Roll Number label for student
+                    if (rollNoLabel) rollNoLabel.textContent = 'Roll Number';
+                    if (rollNoInput) rollNoInput.placeholder = 'CSE-2021-001';
+                } else if (role === 'staff') {
+                    deptGroup.style.display = 'block';
+                    designationGroup.style.display = 'block';
+                    joinDateGroup.style.display = 'block';
+                    rollNoGroup.style.display = 'none';
+                    batchGroup.style.display = 'none';
+                    semesterGroup.style.display = 'none';
+                    if (!document.getElementById('editJoinDate').value) {
+                        document.getElementById('editJoinDate').value = this.getTodayDate();
+                    }
                 } else {
                     deptGroup.style.display = 'none';
+                    designationGroup.style.display = 'none';
+                    joinDateGroup.style.display = 'none';
                     rollNoGroup.style.display = 'none';
+                    batchGroup.style.display = 'none';
                     semesterGroup.style.display = 'none';
                 }
+            }
+
+            /**
+             * Toggle visibility of role-specific fields in Add User modal
+             * @param {string} role - Selected role (admin, staff, student)
+             */
+            toggleAddUserFields(role) {
+                const conditionalFields = document.querySelectorAll('.conditional-field');
+                const rollNoLabel = document.getElementById('rollNoLabel');
+                const rollNoInput = document.getElementById('addRollNo');
+                const addJoinDate = document.getElementById('addJoinDate');
+
+                conditionalFields.forEach(field => {
+                    const allowedRoles = field.getAttribute('data-for');
+                    if (allowedRoles && allowedRoles.includes(role)) {
+                        field.classList.remove('hidden');
+                    } else {
+                        field.classList.add('hidden');
+                    }
+                });
+
+                // Update Roll Number label based on role
+                if (rollNoLabel) {
+                    if (role === 'student') {
+                        rollNoLabel.textContent = 'Roll Number';
+                        rollNoInput.placeholder = 'CSE-2021-001';
+                    } else {
+                        rollNoLabel.textContent = 'Roll Number';
+                        rollNoInput.placeholder = 'CSE-2021-001';
+                    }
+                }
+
+                if (role === 'staff' && addJoinDate && !addJoinDate.value) {
+                    addJoinDate.value = this.getTodayDate();
+                }
+            }
+
+            getTodayDate() {
+                return new Date().toISOString().split('T')[0];
             }
 
             /**
              * Open delete confirmation modal
              */
             openDeleteModal() {
-                const userName = this.currentUserRow.cells[0].textContent;
-                document.getElementById('deleteUserMessage').textContent =
-                    `Are you sure you want to delete "${userName}"?`;
+                const userName = this.currentUserRow.querySelector('.user-name span')?.textContent?.trim() || 'Unknown User';
+                const userEmail = this.currentUserRow.querySelector('td:first-child .text-muted')?.textContent?.trim() || 'No email available';
+                const userInitial = userName.charAt(0).toUpperCase() || 'U';
+                
+                // Update modal content
+                document.getElementById('deleteUserName').textContent = userName;
+                document.getElementById('deleteUserEmail').textContent = userEmail;
+                document.getElementById('deleteUserAvatar').textContent = userInitial;
+                
                 this.openModal('deleteUserModal');
+            }
+
+            /**
+             * Open reset password confirmation modal
+             */
+            openResetPasswordModal() {
+                const userName = this.currentUserRow.cells[0].textContent;
+                const userEmail = this.currentUserRow.dataset.email || '';
+                
+                // Update modal content
+                document.getElementById('resetPasswordUserName').textContent = userName;
+                document.getElementById('resetPasswordUserEmail').textContent = userEmail;
+                
+                this.openModal('resetPasswordModal');
             }
 
             /**
@@ -2024,32 +2520,397 @@
                 }, 5000);
             }
 
+            getUserRows() {
+                return Array.from(document.querySelectorAll('#usersTableBody tr[data-user-id]'));
+            }
+
+            findUserRow(userId) {
+                return document.querySelector(`#usersTableBody tr[data-user-id="${userId}"]`);
+            }
+
+            removeEmptyStateRow() {
+                const emptyRow = document.querySelector('#usersTableBody tr:not([data-user-id])');
+                if (emptyRow) {
+                    emptyRow.remove();
+                }
+            }
+
+            renderEmptyStateIfNeeded() {
+                const tableBody = document.getElementById('usersTableBody');
+                if (!tableBody || this.getUserRows().length > 0) {
+                    return;
+                }
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-gray-500">
+                            <i class="fas fa-users fa-2x mb-4"></i>
+                            <p>No users found</p>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            createRowElement(rowHtml) {
+                const template = document.createElement('template');
+                template.innerHTML = rowHtml.trim();
+                return template.content.firstElementChild;
+            }
+
+            doesUserMatchCurrentView(user) {
+                if (!user) {
+                    return false;
+                }
+
+                if (this.currentRoleFilter !== 'all' && user.role !== this.currentRoleFilter) {
+                    return false;
+                }
+
+                if (this.currentStatusFilter !== 'all' && user.status !== this.currentStatusFilter) {
+                    return false;
+                }
+
+                if (this.currentSearch) {
+                    const search = this.currentSearch.toLowerCase();
+                    const haystack = `${user.name || ''} ${user.email || ''}`.toLowerCase();
+                    if (!haystack.includes(search)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            getComparableName(rowElement, fallbackUser = null) {
+                if (fallbackUser?.name) {
+                    return fallbackUser.name.toLowerCase();
+                }
+
+                return rowElement?.querySelector('.user-name span')?.textContent?.trim().toLowerCase() || '';
+            }
+
+            insertRowIntoCurrentTable(rowElement, user, { replaceExisting = false } = {}) {
+                const tableBody = document.getElementById('usersTableBody');
+                if (!tableBody || !rowElement) {
+                    return;
+                }
+
+                const existingRow = this.findUserRow(user.id);
+                if (existingRow && replaceExisting) {
+                    existingRow.remove();
+                }
+
+                this.removeEmptyStateRow();
+
+                let rows = this.getUserRows();
+                const isLoggedInUser = Number(user.id) === Number(this.loggedInUserId);
+
+                if (isLoggedInUser) {
+                    tableBody.prepend(rowElement);
+                } else if (this.currentSortFilter === 'name-asc' || this.currentSortFilter === 'name-desc') {
+                    const newName = this.getComparableName(rowElement, user);
+                    const compare = this.currentSortFilter === 'name-asc'
+                        ? (candidateName) => newName.localeCompare(candidateName) < 0
+                        : (candidateName) => newName.localeCompare(candidateName) > 0;
+
+                    let inserted = false;
+                    for (const candidateRow of rows) {
+                        if (Number(candidateRow.dataset.userId) === Number(this.loggedInUserId)) {
+                            continue;
+                        }
+
+                        const candidateName = this.getComparableName(candidateRow);
+                        if (compare(candidateName)) {
+                            tableBody.insertBefore(rowElement, candidateRow);
+                            inserted = true;
+                            break;
+                        }
+                    }
+
+                    if (!inserted) {
+                        tableBody.appendChild(rowElement);
+                    }
+                } else {
+                    const pinnedRow = this.findUserRow(this.loggedInUserId);
+                    if (pinnedRow && pinnedRow.parentNode === tableBody) {
+                        pinnedRow.insertAdjacentElement('afterend', rowElement);
+                    } else {
+                        tableBody.prepend(rowElement);
+                    }
+                }
+
+                rows = this.getUserRows();
+                while (rows.length > this.perPage) {
+                    rows[rows.length - 1].remove();
+                    rows = this.getUserRows();
+                }
+
+                this.initTableActions();
+            }
+
+            upsertVisibleUserRow(rowHtml, user) {
+                if (!this.doesUserMatchCurrentView(user)) {
+                    const existingRow = this.findUserRow(user.id);
+                    if (existingRow) {
+                        existingRow.remove();
+                        this.renderEmptyStateIfNeeded();
+                    }
+                    return;
+                }
+
+                const rowElement = this.createRowElement(rowHtml);
+                this.insertRowIntoCurrentTable(rowElement, user, { replaceExisting: true });
+            }
+
+            prependVisibleUserRow(rowHtml, user) {
+                if (!this.doesUserMatchCurrentView(user)) {
+                    return;
+                }
+
+                const rowElement = this.createRowElement(rowHtml);
+                this.insertRowIntoCurrentTable(rowElement, user, { replaceExisting: false });
+            }
+
+            removeVisibleUserRow(userId) {
+                const row = this.findUserRow(userId);
+                if (!row) {
+                    return false;
+                }
+
+                row.remove();
+                this.renderEmptyStateIfNeeded();
+                return true;
+            }
+
             /**
-             * Submit add user form
+             * Submit add user form with one-error-at-a-time validation
              */
             submitAddUser() {
                 console.log('Submitting add user form');
                 const form = document.getElementById('addUserForm');
+                const formData = new FormData(form);
 
-                // Validate form
-                if (!form.checkValidity()) {
-                    form.reportValidity();
+                // Clear all previous errors first
+                this.clearAddUserErrors();
+
+                // Get the role to determine which fields to validate
+                const role = formData.get('role') || 'student';
+
+                // Validate fields one by one and find the FIRST error
+                const firstError = this.validateAddUserField(role, formData);
+
+                // If there's an error, show it and stop
+                if (firstError) {
+                    this.showAddUserFieldError(firstError.fieldId, firstError.message);
+                    this.scrollToElement(firstError.fieldId);
                     return;
                 }
 
-                const formData = new FormData(form);
+                // If no client-side errors, proceed with AJAX submission
+                this.submitAddUserAjax(form, formData);
+            }
 
+            /**
+             * Clear all error states in the add user form
+             */
+            clearAddUserErrors() {
+                const errorFields = ['addNameError', 'addEmailError', 'addPasswordError', 'addRoleError',
+                    'addDepartmentError', 'addDesignationError', 'addJoinDateError', 'addRollNoError', 'addBatchError', 'addSemesterError'];
+                const inputFields = ['addName', 'addEmail', 'addPassword', 'addRoleSelect',
+                    'addDepartmentSelect', 'addDesignation', 'addJoinDate', 'addRollNo', 'addBatch', 'addSemester'];
+
+                errorFields.forEach(id => {
+                    const errorEl = document.getElementById(id);
+                    if (errorEl) {
+                        errorEl.classList.remove('visible');
+                        errorEl.textContent = '';
+                    }
+                });
+
+                inputFields.forEach(id => {
+                    const inputEl = document.getElementById(id);
+                    if (inputEl) {
+                        inputEl.classList.remove('is-invalid');
+                    }
+                });
+            }
+
+            /**
+             * Validate form fields one by one and return the FIRST error
+             * @param {string} role - The selected user role
+             * @param {FormData} formData - Form data object
+             * @returns {object|null} - First error object or null if no errors
+             */
+            validateAddUserField(role, formData) {
+                // Priority order for validation
+                const validations = [
+                    // 1. Name validation
+                    {
+                        fieldId: 'addName',
+                        field: 'name',
+                        check: () => {
+                            const name = formData.get('name')?.trim();
+                            if (!name) return 'Please enter the user\'s full name';
+                            if (name.length < 2) return 'Name must be at least 2 characters';
+                            return null;
+                        }
+                    },
+                    // 2. Email format validation
+                    {
+                        fieldId: 'addEmail',
+                        field: 'email',
+                        check: () => {
+                            const email = formData.get('email')?.trim();
+                            if (!email) return 'Please enter an email address';
+                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            if (!emailRegex.test(email)) return 'Please enter a valid email address';
+                            return null;
+                        }
+                    },
+                    // 3. Password validation
+                    {
+                        fieldId: 'addPassword',
+                        field: 'password',
+                        check: () => {
+                            const password = formData.get('password');
+                            if (!password) return 'Please enter a password';
+                            if (password.length < 6) return 'Password must be at least 6 characters';
+                            return null;
+                        }
+                    },
+                    // 4. Role validation
+                    {
+                        fieldId: 'addRoleSelect',
+                        field: 'role',
+                        check: () => {
+                            const roleValue = formData.get('role');
+                            if (!roleValue) return 'Please select a user role';
+                            if (!['admin', 'staff', 'student'].includes(roleValue)) {
+                                return 'Please select a valid user role';
+                            }
+                            return null;
+                        }
+                    },
+                    // 5. Role-specific validations
+                    ...(role === 'student' ? [
+                        // Student: Department
+                        {
+                            fieldId: 'addDepartmentSelect',
+                            field: 'department_id',
+                            check: () => {
+                                const dept = formData.get('department_id');
+                                if (!dept) return 'Please select a department for the student';
+                                return null;
+                            }
+                        },
+                        // Student: Roll Number
+                        {
+                            fieldId: 'addRollNo',
+                            field: 'roll_no',
+                            check: () => {
+                                const rollNo = formData.get('roll_no')?.trim();
+                                if (!rollNo) return 'Please enter the student\'s roll number';
+                                return null;
+                            }
+                        },
+                        // Student: Semester
+                        {
+                            fieldId: 'addSemester',
+                            field: 'semester',
+                            check: () => {
+                                const semester = formData.get('semester');
+                                if (!semester) return 'Please select the current semester';
+                                return null;
+                            }
+                        }
+                    ] : role === 'staff' ? [
+                        // Staff: Department
+                        {
+                            fieldId: 'addDepartmentSelect',
+                            field: 'department_id',
+                            check: () => {
+                                const dept = formData.get('department_id');
+                                if (!dept) return 'Please select a department for the staff member';
+                                return null;
+                            }
+                        },
+                        // Staff: Designation
+                        {
+                            fieldId: 'addDesignation',
+                            field: 'designation',
+                            check: () => {
+                                const designation = formData.get('designation')?.trim();
+                                if (!designation) return 'Please enter the staff designation';
+                                return null;
+                            }
+                        },
+                        // Staff: Join Date
+                        {
+                            fieldId: 'addJoinDate',
+                            field: 'join_date',
+                            check: () => {
+                                const joinDate = formData.get('join_date');
+                                if (!joinDate) return 'Please select the join date for the staff member';
+                                return null;
+                            }
+                        }
+                    ] : [])
+                ];
+
+                // Run validations in order and return the FIRST error
+                for (const validation of validations) {
+                    const error = validation.check();
+                    if (error) {
+                        return {
+                            fieldId: validation.fieldId,
+                            message: error
+                        };
+                    }
+                }
+
+                return null;
+            }
+
+            /**
+             * Show error message below a specific field
+             */
+            showAddUserFieldError(fieldId, message) {
+                const inputEl = document.getElementById(fieldId);
+                const errorEl = document.getElementById(fieldId + 'Error');
+
+                if (inputEl) {
+                    inputEl.classList.add('is-invalid');
+                }
+
+                if (errorEl) {
+                    errorEl.textContent = message;
+                    errorEl.classList.add('visible');
+                }
+            }
+
+            /**
+             * Scroll to an element
+             */
+            scrollToElement(elementId) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Focus on the input after scrolling
+                    setTimeout(() => {
+                        element.focus();
+                    }, 300);
+                }
+            }
+
+            /**
+             * Submit add user form via AJAX
+             */
+            submitAddUserAjax(form, formData) {
                 // Show loading state
                 const submitBtn = document.getElementById('submitAddUser');
                 const originalText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
                 submitBtn.disabled = true;
-
-                // Log form data for debugging
-                console.log('Form data:');
-                for (let [key, value] of formData.entries()) {
-                    console.log(`${key}: ${value}`);
-                }
 
                 // Submit form via AJAX
                 fetch("{{ route('admin.users.store') }}", {
@@ -2063,10 +2924,32 @@
                     .then(res => {
                         console.log('Response status:', res.status);
                         if (!res.ok) {
-                            // Try to get validation errors
                             return res.json().then(data => {
-                                throw new Error(data.message ||
-                                    `Validation error: ${JSON.stringify(data.errors)}`);
+                                // Handle server-side validation errors (like unique constraints)
+                                if (data.errors) {
+                                    // Get the first error from server
+                                    const firstErrorField = Object.keys(data.errors)[0];
+                                    const firstErrorMessage = data.errors[firstErrorField][0];
+
+                                    // Map field names to error element IDs
+                                    const fieldMap = {
+                                        'email': 'addEmailError',
+                                        'roll_no': 'addRollNoError',
+                                        'batch': 'addBatchError',
+                                        'department_id': 'addDepartmentError',
+                                        'designation': 'addDesignationError',
+                                        'join_date': 'addJoinDateError',
+                                        'semester': 'addSemesterError',
+                                        'name': 'addNameError',
+                                        'password': 'addPasswordError',
+                                        'role': 'addRoleError'
+                                    };
+
+                                    const errorElementId = fieldMap[firstErrorField] || 'addNameError';
+                                    throw new Error(firstErrorMessage);
+                                }
+
+                                throw new Error(data.message || 'Validation error occurred');
                             });
                         }
                         return res.json();
@@ -2077,12 +2960,15 @@
                             this.showNotification(data.message || 'User added successfully', 'success');
                             this.closeModal('addUserModal');
                             form.reset();
+                            this.clearAddUserErrors();
+                            // Reset field visibility to default (student)
+                            this.toggleAddUserFields('student');
 
                             // Immediately refresh stats for live update
                             this.refreshStats();
 
-                            // Refresh the user list
-                            this.fetchUsersData(1);
+                            this.prependVisibleUserRow(data.rowHtml, data.user);
+                            this.refreshPaginationOnly();
                         } else {
                             throw new Error(data.message || 'Error adding user');
                         }
@@ -2098,10 +2984,13 @@
             }
 
             /**
-             * Submit edit user form
+             * Submit edit user form with one-error-at-a-time validation
              */
             submitEditUser() {
                 console.log('Submitting edit user form for user:', this.currentUserId);
+
+                // Clear all previous errors first
+                this.clearEditUserErrors();
 
                 // Create form data
                 const formData = new FormData();
@@ -2116,16 +3005,191 @@
                 if (role === 'student') {
                     formData.append('department_id', document.getElementById('editDepartment').value);
                     formData.append('roll_no', document.getElementById('editRollNo').value);
+                    formData.append('batch', document.getElementById('editBatch').value);
                     formData.append('semester', document.getElementById('editSemester').value);
+                } else if (role === 'staff') {
+                    formData.append('department_id', document.getElementById('editDepartment').value);
+                    formData.append('designation', document.getElementById('editDesignation').value);
+                    formData.append('join_date', document.getElementById('editJoinDate').value);
                 }
 
+                // Validate fields one by one and find the FIRST error
+                const firstError = this.validateEditUserField(role, formData);
+
+                // If there's an error, show it and stop
+                if (firstError) {
+                    this.showEditUserFieldError(firstError.fieldId, firstError.message);
+                    this.scrollToElement(firstError.fieldId);
+                    return;
+                }
+
+                // If no client-side errors, proceed with AJAX submission
+                this.submitEditUserAjax(formData);
+            }
+
+            /**
+             * Clear all error states in the edit user form
+             */
+            clearEditUserErrors() {
+                const errorFields = ['editNameError', 'editEmailError', 'editRoleError',
+                    'editDepartmentError', 'editDesignationError', 'editJoinDateError', 'editRollNoError', 'editBatchError', 'editSemesterError'];
+                const inputFields = ['editFullName', 'editEmail', 'editRole',
+                    'editDepartment', 'editDesignation', 'editJoinDate', 'editRollNo', 'editBatch', 'editSemester'];
+
+                errorFields.forEach(id => {
+                    const errorEl = document.getElementById(id);
+                    if (errorEl) {
+                        errorEl.classList.remove('visible');
+                        errorEl.textContent = '';
+                    }
+                });
+
+                inputFields.forEach(id => {
+                    const inputEl = document.getElementById(id);
+                    if (inputEl) {
+                        inputEl.classList.remove('is-invalid');
+                    }
+                });
+            }
+
+            /**
+             * Validate form fields one by one and return the FIRST error for Edit form
+             * @param {string} role - The selected user role
+             * @param {FormData} formData - Form data object
+             * @returns {object|null} - First error object or null if no errors
+             */
+            validateEditUserField(role, formData) {
+                // Priority order for validation
+                const validations = [
+                    // 1. Name validation
+                    {
+                        fieldId: 'editFullName',
+                        check: () => {
+                            const name = formData.get('name')?.trim();
+                            if (!name) return 'Please enter the user\'s full name';
+                            if (name.length < 2) return 'Name must be at least 2 characters';
+                            return null;
+                        }
+                    },
+                    // 2. Email format validation
+                    {
+                        fieldId: 'editEmail',
+                        check: () => {
+                            const email = formData.get('email')?.trim();
+                            if (!email) return 'Please enter an email address';
+                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            if (!emailRegex.test(email)) return 'Please enter a valid email address';
+                            return null;
+                        }
+                    },
+                    // 3. Role validation
+                    {
+                        fieldId: 'editRole',
+                        check: () => {
+                            const roleValue = formData.get('role');
+                            if (!roleValue) return 'Please select a user role';
+                            if (!['admin', 'staff', 'student'].includes(roleValue)) {
+                                return 'Please select a valid user role';
+                            }
+                            return null;
+                        }
+                    },
+                    // 4. Role-specific validations
+                    ...(role === 'student' ? [
+                        // Student: Department
+                        {
+                            fieldId: 'editDepartment',
+                            check: () => {
+                                const dept = formData.get('department_id');
+                                if (!dept) return 'Please select a department for the student';
+                                return null;
+                            }
+                        },
+                        // Student: Roll Number
+                        {
+                            fieldId: 'editRollNo',
+                            check: () => {
+                                const rollNo = formData.get('roll_no')?.trim();
+                                if (!rollNo) return 'Please enter the student\'s roll number';
+                                return null;
+                            }
+                        },
+                        // Student: Semester
+                        {
+                            fieldId: 'editSemester',
+                            check: () => {
+                                const semester = formData.get('semester');
+                                if (!semester) return 'Please select the current semester';
+                                return null;
+                            }
+                        }
+                    ] : role === 'staff' ? [
+                        // Staff: Department
+                        {
+                            fieldId: 'editDepartment',
+                            check: () => {
+                                const dept = formData.get('department_id');
+                                if (!dept) return 'Please select a department for the staff member';
+                                return null;
+                            }
+                        },
+                        // Staff: Designation
+                        {
+                            fieldId: 'editDesignation',
+                            check: () => {
+                                const designation = formData.get('designation')?.trim();
+                                if (!designation) return 'Please enter the staff designation';
+                                return null;
+                            }
+                        },
+                        // Staff: Join Date
+                        {
+                            fieldId: 'editJoinDate',
+                            check: () => {
+                                const joinDate = formData.get('join_date');
+                                if (!joinDate) return 'Please select the join date for the staff member';
+                                return null;
+                            }
+                        }
+                    ] : [])
+                ];
+
+                // Run validations in order and return the FIRST error
+                for (const validation of validations) {
+                    const error = validation.check();
+                    if (error) {
+                        return {
+                            fieldId: validation.fieldId,
+                            message: error
+                        };
+                    }
+                }
+
+                return null;
+            }
+
+            /**
+             * Show error message below a specific field in Edit form
+             */
+            showEditUserFieldError(fieldId, message) {
+                const inputEl = document.getElementById(fieldId);
+                const errorEl = document.getElementById(fieldId + 'Error');
+
+                if (inputEl) {
+                    inputEl.classList.add('is-invalid');
+                }
+
+                if (errorEl) {
+                    errorEl.textContent = message;
+                    errorEl.classList.add('visible');
+                }
+            }
+
+            /**
+             * Submit edit user form via AJAX
+             */
+            submitEditUserAjax(formData) {
                 formData.append('_method', 'PUT');
-
-                // Log form data for debugging
-                console.log('Form data:');
-                for (let [key, value] of formData.entries()) {
-                    console.log(`${key}: ${value}`);
-                }
 
                 // Show loading state
                 const submitBtn = document.getElementById('submitEditUser');
@@ -2146,8 +3210,29 @@
                         console.log('Response status:', res.status);
                         if (!res.ok) {
                             return res.json().then(data => {
-                                throw new Error(data.message ||
-                                    `Validation error: ${JSON.stringify(data.errors)}`);
+                                // Handle server-side validation errors (like unique constraints)
+                                if (data.errors) {
+                                    const firstErrorField = Object.keys(data.errors)[0];
+                                    const firstErrorMessage = data.errors[firstErrorField][0];
+
+                                    // Map field names to error element IDs
+                                    const fieldMap = {
+                                        'email': 'editEmailError',
+                                        'roll_no': 'editRollNoError',
+                                        'batch': 'editBatchError',
+                                        'department_id': 'editDepartmentError',
+                                        'designation': 'editDesignationError',
+                                        'join_date': 'editJoinDateError',
+                                        'semester': 'editSemesterError',
+                                        'name': 'editNameError',
+                                        'role': 'editRoleError'
+                                    };
+
+                                    const errorElementId = fieldMap[firstErrorField] || 'editNameError';
+                                    throw new Error(firstErrorMessage);
+                                }
+
+                                throw new Error(data.message || 'Validation error occurred');
                             });
                         }
                         return res.json();
@@ -2161,8 +3246,8 @@
                             // Immediately refresh stats for live update (role change may affect counts)
                             this.refreshStats();
 
-                            // Refresh the user list
-                            this.fetchUsersData(1);
+                            this.upsertVisibleUserRow(data.rowHtml, data.user);
+                            this.refreshPaginationOnly();
                         } else {
                             throw new Error(data.message || 'Error updating user');
                         }
@@ -2213,8 +3298,13 @@
                             // Immediately refresh stats for live update
                             this.refreshStats();
 
-                            // Refresh the user list
-                            this.fetchUsersData(1);
+                            const removedFromCurrentTable = this.removeVisibleUserRow(this.currentUserId);
+
+                            if (removedFromCurrentTable && this.getUserRows().length === 0 && this.currentPage > 1) {
+                                this.fetchUsersData(this.currentPage - 1);
+                            } else {
+                                this.refreshPaginationOnly();
+                            }
                         } else {
                             throw new Error(data.message || 'Error deleting user');
                         }
@@ -2226,6 +3316,110 @@
                     .finally(() => {
                         deleteBtn.innerHTML = originalText;
                         deleteBtn.disabled = false;
+                    });
+            }
+
+            /**
+             * Confirm and execute password reset
+             */
+            confirmResetPassword() {
+                console.log('Confirming password reset for user:', this.currentUserId);
+
+                // Show loading state
+                const resetBtn = document.getElementById('submitResetPassword');
+                const originalText = resetBtn.innerHTML;
+                resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                resetBtn.disabled = true;
+
+                // Reset password via AJAX
+                fetch(`/admin/users/${this.currentUserId}/reset-password`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': this.csrf(),
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(res => {
+                        console.log('Response status:', res.status);
+                        if (!res.ok) {
+                            throw new Error(`HTTP error! status: ${res.status}`);
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data);
+                        if (data.success) {
+                            this.showNotification(data.message || 'Password reset email sent successfully', 'success');
+                            this.closeModal('resetPasswordModal');
+                        } else {
+                            throw new Error(data.message || 'Error resetting password');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.showNotification(error.message || 'Error sending password reset email', 'error');
+                    })
+                    .finally(() => {
+                        resetBtn.innerHTML = originalText;
+                        resetBtn.disabled = false;
+                    });
+            }
+
+            /**
+             * Confirm and execute status toggle
+             */
+            confirmStatusToggle() {
+                console.log('Confirming status toggle for user:', this.currentUserId);
+
+                const row = this.statusToggleRow;
+                const button = this.statusToggleButton;
+
+                // Show loading state on button
+                const confirmBtn = document.getElementById('confirmStatusToggle');
+                const originalText = confirmBtn.innerHTML;
+                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                confirmBtn.disabled = true;
+
+                // Toggle status via AJAX
+                fetch(`/admin/users/${this.currentUserId}/status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': this.csrf(),
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(res => {
+                        console.log('Response status:', res.status);
+                        if (!res.ok) {
+                            throw new Error(`HTTP error! status: ${res.status}`);
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data);
+                        if (data.success) {
+                            this.showNotification(data.message || 'Status updated successfully', 'success');
+                            this.closeModal('statusToggleModal');
+
+                            this.applyStatusUpdateToRow(row, button, data.status);
+
+                            if (this.currentStatusFilter !== 'all' && data.status !== this.currentStatusFilter) {
+                                this.removeRowAfterStatusChange(row);
+                            }
+
+                            this.refreshStats();
+                        } else {
+                            throw new Error(data.message || 'Error updating status');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.showNotification(error.message || 'Error updating status', 'error');
+                    })
+                    .finally(() => {
+                        confirmBtn.innerHTML = originalText;
+                        confirmBtn.disabled = false;
                     });
             }
 
@@ -2263,11 +3457,13 @@
                         if (data.success) {
                             this.showNotification(data.message || 'Status updated successfully', 'success');
 
-                            // Refresh user list first, then update stats for live display
-                            this.fetchUsersData(1);
+                            this.applyStatusUpdateToRow(row, button, data.status);
 
-                            // Update stats after a brief delay to ensure proper order
-                            setTimeout(() => this.refreshStats(), 150);
+                            if (this.currentStatusFilter !== 'all' && data.status !== this.currentStatusFilter) {
+                                this.removeRowAfterStatusChange(row);
+                            }
+
+                            this.refreshStats();
                         } else {
                             throw new Error(data.message || 'Error updating status');
                         }
@@ -2279,6 +3475,42 @@
                         button.innerHTML = originalIcon;
                         button.disabled = false;
                     });
+            }
+
+            applyStatusUpdateToRow(row, button, newStatus) {
+                row.dataset.status = newStatus;
+
+                const statusBadge = row.querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.classList.toggle('status-active', newStatus === 'active');
+                    statusBadge.classList.toggle('status-inactive', newStatus !== 'active');
+                    statusBadge.innerHTML = `
+                        <i class="fas ${newStatus === 'active' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                        ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}
+                    `;
+                }
+
+                button.dataset.status = newStatus;
+                button.innerHTML = `<i class="fas ${newStatus === 'active' ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>`;
+                button.disabled = false;
+            }
+
+            removeRowAfterStatusChange(row) {
+                row.remove();
+
+                const tableBody = document.getElementById('usersTableBody');
+                if (!tableBody || tableBody.children.length > 0) {
+                    return;
+                }
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center py-8 text-gray-500">
+                            <i class="fas fa-users fa-2x mb-4"></i>
+                            <p>No users found</p>
+                        </td>
+                    </tr>
+                `;
             }
 
             /**

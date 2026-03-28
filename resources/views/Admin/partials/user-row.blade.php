@@ -58,16 +58,16 @@
     <td>{{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->format('d-M-Y') : 'Never' }}</td>
     <td>
         <div class="action-buttons">
-            <button class="action-btn edit" title="Edit User">
+            <button type="button" class="action-btn edit" title="Edit User">
                 <i class="fas fa-edit"></i>
             </button>
-            <button class="action-btn password" title="Reset Password">
+            <button type="button" class="action-btn password" title="Reset Password">
                 <i class="fas fa-key"></i>
             </button>
-            <button class="action-btn toggle" title="Toggle Status" data-status="{{ $user->status }}">
+            <button type="button" class="action-btn toggle" title="Toggle Status" data-status="{{ $user->status }}">
                 <i class="fas {{ $user->status === 'active' ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
             </button>
-            <button class="action-btn delete" title="Delete User">
+            <button type="button" class="action-btn delete" title="Delete User">
                 <i class="fas fa-trash-alt"></i>
             </button>
         </div>

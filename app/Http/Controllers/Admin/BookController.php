@@ -288,6 +288,7 @@ class BookController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Please select an existing category or create a new one',
+                    'errors' => ['category_id' => ['Please select an existing category or create a new one']],
                 ], 422);
             }
 
@@ -295,6 +296,7 @@ class BookController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Please choose either an existing category OR create a new one, not both',
+                    'errors' => ['new_category' => ['Please choose either existing OR new category, not both']],
                 ], 422);
             }
 
@@ -373,10 +375,15 @@ class BookController extends Controller
 
             return redirect()->route('admin.books.index')->with('success', 'Book created successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // One-error-at-a-time: Return only the first error from the first field with an error
+            $errors = $e->errors();
+            $firstField = array_key_first($errors);
+            $firstError = $errors[$firstField][0];
+            
             return response()->json([
                 'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors(),
+                'message' => $firstError,
+                'errors' => [$firstField => [$firstError]], // Single error structure
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
@@ -409,81 +416,102 @@ class BookController extends Controller
     {
         Gate::authorize('access-admin');
 
-        $book = book::findOrFail($id);
+        try {
+            $book = book::findOrFail($id);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'isbn' => 'required|string|unique:books,isbn,' . $id,
-            'publisher' => 'nullable|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'total_copies' => 'required|integer|min:1',
-            'available_copies' => 'required|integer|min:0',
-            'condition' => 'required|in:new,good,damaged',
-            'shelf_no' => 'nullable|string|max:50',
-            'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
-        $oldCondition = $book->condition;
-        $oldCopies = $book->available_copies;
-        $book->update($validated);
-
-        // Handle cover replacement if a new file was uploaded
-        if ($request->hasFile('cover_image')) {
-            // Delete old cover if exists
-            if (!empty($book->cover_image) && Storage::disk('public')->exists($book->cover_image)) {
-                Storage::disk('public')->delete($book->cover_image);
-            }
-            $path = $request->file('cover_image')->store('books/covers', 'public');
-            $book->cover_image = $path;
-            $book->save();
-        }
-
-        // Log activity
-        $category = category::find($validated['category_id']);
-        $changes = [];
-        if ($oldCondition !== $book->condition) {
-            $changes[] = "condition from {$oldCondition} to {$book->condition}";
-        }
-        $changeDetails = !empty($changes) ? ' (' . implode(', ', $changes) . ')' : '';
-
-        ActivityLogger::logActivity(
-            'book_updated',
-            'Updated Book: ' . $book->title . ' (Category: ' . ($category->name ?? 'N/A') . ')' . $changeDetails,
-            'book',
-            'book',
-            $book->id,
-            ['changes' => $changes, 'category_id' => $book->category_id]
-        );
-
-        // Check inventory and notify admin if low
-        if ($book->available_copies < 5 && $oldCopies >= 5) {
-            // Inventory crossed threshold - notify admin
-            $admin = User::where('role', 'admin')->first();
-            if ($admin) {
-                Notification::notify(
-                    user: $admin,
-                    type: 'book.low_inventory',
-                    title: 'Low Book Inventory Alert',
-                    message: "{$book->title} now has only {$book->available_copies} copy(ies) remaining in stock",
-                    data: ['book_id' => $book->id, 'available_copies' => $book->available_copies, 'title' => $book->title],
-                    relatedModel: 'Book',
-                    relatedId: $book->id
-                );
-            }
-        }
-
-        // Check if this is an AJAX request
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Book updated successfully',
-                'book' => $book,
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'author' => 'required|string|max:255',
+                'isbn' => 'required|string|unique:books,isbn,' . $id,
+                'publisher' => 'nullable|string|max:255',
+                'category_id' => 'required|exists:categories,id',
+                'total_copies' => 'required|integer|min:1',
+                'available_copies' => 'required|integer|min:0',
+                'condition' => 'required|in:new,good,damaged',
+                'shelf_no' => 'nullable|string|max:50',
+                'description' => 'nullable|string',
+                'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             ]);
-        }
 
-        return redirect()->route('admin.books.index')->with('success', 'Book updated successfully');
+            $oldCondition = $book->condition;
+            $oldCopies = $book->available_copies;
+            $book->update($validated);
+
+            // Handle cover replacement if a new file was uploaded
+            if ($request->hasFile('cover_image')) {
+                // Delete old cover if exists
+                if (!empty($book->cover_image) && Storage::disk('public')->exists($book->cover_image)) {
+                    Storage::disk('public')->delete($book->cover_image);
+                }
+                $path = $request->file('cover_image')->store('books/covers', 'public');
+                $book->cover_image = $path;
+                $book->save();
+            }
+
+            // Log activity
+            $category = category::find($validated['category_id']);
+            $changes = [];
+            if ($oldCondition !== $book->condition) {
+                $changes[] = "condition from {$oldCondition} to {$book->condition}";
+            }
+            $changeDetails = !empty($changes) ? ' (' . implode(', ', $changes) . ')' : '';
+
+            ActivityLogger::logActivity(
+                'book_updated',
+                'Updated Book: ' . $book->title . ' (Category: ' . ($category->name ?? 'N/A') . ')' . $changeDetails,
+                'book',
+                'book',
+                $book->id,
+                ['changes' => $changes, 'category_id' => $book->category_id]
+            );
+
+            // Check inventory and notify admin if low
+            if ($book->available_copies < 5 && $oldCopies >= 5) {
+                // Inventory crossed threshold - notify admin
+                $admin = User::where('role', 'admin')->first();
+                if ($admin) {
+                    Notification::notify(
+                        user: $admin,
+                        type: 'book.low_inventory',
+                        title: 'Low Book Inventory Alert',
+                        message: "{$book->title} now has only {$book->available_copies} copy(ies) remaining in stock",
+                        data: ['book_id' => $book->id, 'available_copies' => $book->available_copies, 'title' => $book->title],
+                        relatedModel: 'Book',
+                        relatedId: $book->id
+                    );
+                }
+            }
+
+            // Check if this is an AJAX request
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Book updated successfully',
+                    'book' => $book,
+                ]);
+            }
+
+            return redirect()->route('admin.books.index')->with('success', 'Book updated successfully');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // One-error-at-a-time: Return only the first error from the first field with an error
+            $errors = $e->errors();
+            $firstField = array_key_first($errors);
+            $firstError = $errors[$firstField][0];
+            
+            return response()->json([
+                'success' => false,
+                'message' => $firstError,
+                'errors' => [$firstField => [$firstError]], // Single error structure
+            ], 422);
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error updating book: ' . $e->getMessage(),
+                ], 500);
+            }
+            throw $e;
+        }
     }
 
     /**

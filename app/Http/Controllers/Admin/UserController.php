@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\staff;
 use App\Models\student;
 use App\Models\User;
 use App\Helpers\ActivityLogger;
@@ -232,16 +233,61 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
+        // Define validation rules with custom error messages
+        $rules = [
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
             'role' => 'required|in:admin,staff,student',
             'status' => 'required|in:active,inactive',
+            'phone' => 'nullable|string|max:255',
+            'address' => 'nullable|string',
             'roll_no' => 'nullable|required_if:role,student|unique:students,roll_no',
-            'department_id' => 'nullable|required_if:role,student|exists:departments,id',
+            'batch' => 'nullable|string|max:20',
+            'department_id' => 'nullable|required_if:role,student,staff|exists:departments,id',
+            'designation' => 'nullable|required_if:role,staff|string|max:100',
+            'join_date' => 'nullable|required_if:role,staff|date',
             'semester' => 'nullable|required_if:role,student',
-        ]);
+        ];
+
+        $messages = [
+            'name.required' => 'Please enter the user\'s full name',
+            'email.required' => 'Please enter an email address',
+            'email.email' => 'Please enter a valid email address',
+            'email.unique' => 'This email is already registered. Please use a different email.',
+            'password.required' => 'Please enter a password',
+            'password.min' => 'Password must be at least 6 characters',
+            'role.required' => 'Please select a user role',
+            'role.in' => 'Please select a valid user role',
+            'status.required' => 'Please select user status',
+            'status.in' => 'Please select a valid status',
+            'roll_no.required_if' => 'Please enter the roll number for the student',
+            'roll_no.unique' => 'This roll number is already assigned to another student',
+            'batch.max' => 'Batch must not exceed 20 characters',
+            'department_id.required_if' => 'Please select a department',
+            'department_id.exists' => 'The selected department is invalid',
+            'designation.required_if' => 'Please enter the staff designation',
+            'designation.max' => 'Staff designation must not exceed 100 characters',
+            'join_date.required_if' => 'Please select the join date for the staff member',
+            'join_date.date' => 'Please enter a valid join date',
+            'semester.required_if' => 'Please select the current semester',
+        ];
+
+        try {
+            $data = $request->validate($rules, $messages);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Get the first validation error
+            $errors = $e->errors();
+            $firstField = array_key_first($errors);
+            $firstMessage = $errors[$firstField][0];
+
+            return response()->json([
+                'success' => false,
+                'message' => $firstMessage,
+                'errors' => $errors,
+                'first_error_field' => $firstField
+            ], 422);
+        }
 
         $user = User::create([
             'name' => $data['name'],
@@ -249,15 +295,21 @@ class UserController extends Controller
             'password' => bcrypt($data['password']),
             'role' => $data['role'],
             'status' => $data['status'],
+            'phone' => $data['phone'] ?? null,
+            'address' => $data['address'] ?? null,
         ]);
 
         if ($data['role'] === 'student') {
             Student::create([
                 'user_id' => $user->id,
                 'roll_no' => $data['roll_no'],
+                'batch' => $data['batch'] ?? null,
                 'department_id' => $data['department_id'],
                 'semester' => $data['semester'],
+                'address' => $data['address'] ?? null,
             ]);
+        } elseif ($data['role'] === 'staff') {
+            $this->syncStaffRecord($user, $data);
         }
 
         // Log the activity with full details
@@ -273,7 +325,8 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User created successfully',
-            'user' => $user
+            'user' => $user->load('student.department', 'staff.department'),
+            'rowHtml' => view('admin.partials.user-row', ['user' => $user])->render(),
         ]);
     }
 
@@ -296,7 +349,14 @@ class UserController extends Controller
             $data['student'] = [
                 'department_id' => $user->student->department_id,
                 'roll_no' => $user->student->roll_no,
+                'batch' => $user->student->batch,
                 'semester' => $user->student->semester,
+            ];
+        } elseif ($user->role === 'staff' && $user->staff) {
+            $data['staff'] = [
+                'department_id' => $user->staff->department_id,
+                'designation' => $user->staff->designation,
+                'join_date' => $user->staff->join_date,
             ];
         }
 
@@ -311,16 +371,55 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $data = $request->validate([
+        // Define validation rules with custom error messages
+        $rules = [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:admin,staff,student',
-            'phone' => 'nullable',
-            'address' => 'nullable',
-            'department_id' => 'nullable|required_if:role,student|exists:departments,id',
+            'phone' => 'nullable|string|max:255',
+            'address' => 'nullable|string',
+            'department_id' => 'nullable|required_if:role,student,staff|exists:departments,id',
             'roll_no' => 'nullable|required_if:role,student|unique:students,roll_no,' . ($user->student->id ?? ''),
+            'batch' => 'nullable|string|max:20',
+            'designation' => 'nullable|required_if:role,staff|string|max:100',
+            'join_date' => 'nullable|required_if:role,staff|date',
             'semester' => 'nullable|required_if:role,student',
-        ]);
+        ];
+
+        $messages = [
+            'name.required' => 'Please enter the user\'s full name',
+            'email.required' => 'Please enter an email address',
+            'email.email' => 'Please enter a valid email address',
+            'email.unique' => 'This email is already registered to another user',
+            'role.required' => 'Please select a user role',
+            'role.in' => 'Please select a valid user role',
+            'roll_no.required_if' => 'Please enter the roll number for the student',
+            'roll_no.unique' => 'This roll number is already assigned to another student',
+            'batch.max' => 'Batch must not exceed 20 characters',
+            'department_id.required_if' => 'Please select a department',
+            'department_id.exists' => 'The selected department is invalid',
+            'designation.required_if' => 'Please enter the staff designation',
+            'designation.max' => 'Staff designation must not exceed 100 characters',
+            'join_date.required_if' => 'Please select the join date for the staff member',
+            'join_date.date' => 'Please enter a valid join date',
+            'semester.required_if' => 'Please select the current semester',
+        ];
+
+        try {
+            $data = $request->validate($rules, $messages);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Get the first validation error
+            $errors = $e->errors();
+            $firstField = array_key_first($errors);
+            $firstMessage = $errors[$firstField][0];
+
+            return response()->json([
+                'success' => false,
+                'message' => $firstMessage,
+                'errors' => $errors,
+                'first_error_field' => $firstField
+            ], 422);
+        }
 
         $oldData = [
             'name' => $user->name,
@@ -340,24 +439,42 @@ class UserController extends Controller
 
         // Handle student information
         if ($data['role'] === 'student') {
+            if ($user->staff) {
+                $user->staff->delete();
+            }
+
             if ($user->student) {
                 $user->student->update([
                     'department_id' => $data['department_id'],
                     'roll_no' => $data['roll_no'],
+                    'batch' => $data['batch'] ?? null,
                     'semester' => $data['semester'],
+                    'address' => $data['address'] ?? null,
                 ]);
             } else {
                 Student::create([
                     'user_id' => $user->id,
                     'department_id' => $data['department_id'],
                     'roll_no' => $data['roll_no'],
+                    'batch' => $data['batch'] ?? null,
                     'semester' => $data['semester'],
+                    'address' => $data['address'] ?? null,
                 ]);
             }
-        } else {
-            // Delete student record if role changed from student to something else
+        } elseif ($data['role'] === 'staff') {
             if ($user->student) {
                 $user->student->delete();
+            }
+
+            $this->syncStaffRecord($user, $data);
+        } else {
+            // Delete role-specific records if role changed to admin
+            if ($user->student) {
+                $user->student->delete();
+            }
+
+            if ($user->staff) {
+                $user->staff->delete();
             }
         }
 
@@ -388,7 +505,26 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'User updated successfully',
-            'user' => $user
+            'user' => $user->load('student.department', 'staff.department'),
+            'rowHtml' => view('admin.partials.user-row', ['user' => $user])->render(),
+        ]);
+    }
+
+    private function syncStaffRecord(User $user, array $data): void
+    {
+        $staffData = [
+            'department_id' => $data['department_id'],
+            'designation' => $data['designation'],
+            'join_date' => $data['join_date'],
+        ];
+
+        if ($user->staff) {
+            $user->staff->update($staffData);
+            return;
+        }
+
+        staff::create($staffData + [
+            'user_id' => $user->id,
         ]);
     }
 
