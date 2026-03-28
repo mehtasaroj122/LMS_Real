@@ -27,10 +27,13 @@ class UserController extends Controller
      */
     public function index()
     {
+        $currentUserId = auth()->id();
+
         $users = User::with([
             'student.department',
             'staff.department'
         ])
+            ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$currentUserId])
             ->orderByRaw("CASE WHEN role='admin' THEN 1 WHEN role='staff' THEN 2 WHEN role='student' THEN 3 END")
             ->latest()
             ->simplePaginate(15);
@@ -63,6 +66,7 @@ class UserController extends Controller
     public function getUsersData(Request $request)
     {
         try {
+            $currentUserId = auth()->id();
             $search = $request->input('search', '');
             $status = $request->input('status', 'all');
             $role = $request->input('role', 'all');
@@ -89,6 +93,9 @@ class UserController extends Controller
             if ($role !== 'all') {
                 $query->where('role', $role);
             }
+
+            // Keep the signed-in user pinned to the top of the current result set.
+            $query->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$currentUserId]);
 
             // Apply sorting
             switch ($sort) {

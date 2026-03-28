@@ -9,7 +9,12 @@
                 </div>
             @endif
             <div>
-                <div style="font-weight: 600;" class="user-name">{{ $user->name }}</div>
+                <div style="font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;" class="user-name">
+                    <span>{{ $user->name }}</span>
+                    @if ($user->id === auth()->id())
+                        <small class="text-muted" style="font-size: 11px;">(you)</small>
+                    @endif
+                </div>
                 <div style="font-size: 12px; margin-top: 2px;" class="text-muted">{{ $user->email }}</div>
             </div>
         </div>
