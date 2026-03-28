@@ -38,12 +38,12 @@
                 <p class="text-xs text-muted">Currently issued</p>
             </div>
 
-            <!-- Overdue Books -->
+            <!-- Overdue Fines -->
             <div class="p-4 shadow-sm card">
                 <div class="flex items-start justify-between mb-2">
                     <div>
-                        <p class="text-xs font-medium text-muted">Overdue Books</p>
-                        <h3 class="text-2xl font-bold text-danger">{{ $overdueBooks }}</h3>
+                        <p class="text-xs font-medium text-muted">Overdue Fines</p>
+                        <h3 class="text-2xl font-bold text-danger">₹{{ number_format($pendingFines, 2) }}</h3>
                     </div>
                     <i data-lucide="alert-circle" class="w-5 h-5 text-danger"></i>
                 </div>
@@ -127,29 +127,36 @@
         <!-- ==================== MAIN SECTIONS ==================== -->
         <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
 
-            <!-- Overdue Books -->
+            <!-- Overdue Fines -->
             <div class="p-3 shadow-sm card">
-                <h4 class="mb-2 text-sm font-bold">Overdue Books</h4>
+                <h4 class="mb-2 text-sm font-bold">Overdue Fines</h4>
 
-                @forelse($overdueList as $issue)
+                @forelse($pendingFinesList as $fine)
                     <div class="flex items-start justify-between gap-2 pb-2 mb-2 border-b last:border-b-0 last:mb-0 last:pb-0">
                         <div class="flex-1">
-                            <h5 class="text-xs font-semibold">{{ $issue->book->title }}</h5>
+                            <h5 class="text-xs font-semibold">{{ $fine->issuedBook->book->title ?? 'N/A' }}</h5>
                             <p class="mt-0.5 text-xs text-muted">
-                                {{ $issue->student->user->name }}
+                                {{ $fine->student->user->name }}
                             </p>
                             <p class="mt-0.5 text-xs text-muted">
-                                Due: {{ \Carbon\Carbon::parse($issue->due_date)->format('m/d/Y') }}
+                                {{ $fine->days_late }} days late
                             </p>
                         </div>
 
                         <span class="inline-flex items-center justify-center flex-shrink-0 px-1.5 py-0.5 text-xs font-bold text-white bg-red-600 rounded-full whitespace-nowrap">
-                            {{ (int) \Carbon\Carbon::parse($issue->due_date)->diffInDays(now()) }} days
+                            ₹{{ number_format($fine->amount, 2) }}
                         </span>
                     </div>
                 @empty
-                    <p class="text-xs text-muted">No overdue books 🎉</p>
+                    <p class="text-xs text-muted">No pending fines 🎉</p>
                 @endforelse
+
+                <!-- View All Button -->
+                <div class="mt-3 pt-3 text-center border-t">
+                    <a href="{{ route('admin.fines.index') }}" class="inline-block px-4 py-2 text-xs font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors">
+                        View All Fines
+                    </a>
+                </div>
             </div>
 
             <!-- Recent Activity -->

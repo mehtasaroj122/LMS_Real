@@ -82,11 +82,10 @@ class AdminDashboardController extends Controller
          | RECENT DATA (Lists)
          |=========================*/
 
-        // Latest overdue issued books
-        $overdueList = IssuedBook::with(['book', 'student.user'])
-            ->where('status', 'issued')
-            ->whereDate('due_date', '<', Carbon::today())
-            ->latest('due_date')
+        // Pending fines list (for dashboard display)
+        $pendingFinesList = Fine::with(['student.user', 'issuedBook.book'])
+            ->whereRaw('LOWER(status) = ?', ['pending'])
+            ->latest('created_at')
             ->limit(5)
             ->get();
 
@@ -111,7 +110,7 @@ class AdminDashboardController extends Controller
             'pendingRequestsCount',
             'todayActivities',
             'totalCategories',
-            'overdueList',
+            'pendingFinesList',
             'recentActivities'
         ));
     }
