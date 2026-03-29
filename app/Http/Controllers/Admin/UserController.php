@@ -197,8 +197,8 @@ class UserController extends Controller
             // Return both global and filtered stats
             $stats = [
                 'totalUsers' => $baseQuery->count(),
-                'activeUsers' => $baseQuery->where('status', 'active')->count(),
-                'inactiveUsers' => $baseQuery->where('status', 'inactive')->count(),
+                'activeUsers' => (clone $baseQuery)->where('status', 'active')->count(),
+                'inactiveUsers' => (clone $baseQuery)->where('status', 'inactive')->count(),
                 'roleCounts' => $roleCounts,
                 'filteredTotal' => $filteredQuery->count(),
                 'filteredActive' => $filteredQuery->clone()->where('status', 'active')->count(),
@@ -256,8 +256,8 @@ class UserController extends Controller
 
         return [
             'totalUsers' => $baseQuery->count(),
-            'activeUsers' => $baseQuery->where('status', 'active')->count(),
-            'inactiveUsers' => $baseQuery->where('status', 'inactive')->count(),
+            'activeUsers' => (clone $baseQuery)->where('status', 'active')->count(),
+            'inactiveUsers' => (clone $baseQuery)->where('status', 'inactive')->count(),
             'roleCounts' => $roleCounts,
             'filteredTotal' => $filteredQuery->count(),
             'filteredActive' => $filteredQuery->clone()->where('status', 'active')->count(),
