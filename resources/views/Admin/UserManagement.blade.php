@@ -766,6 +766,7 @@
 
         /* Form Styles */
         .form-group {
+            position: relative;
             margin-bottom: 20px;
         }
 
@@ -988,19 +989,23 @@
 
         .form-control.is-invalid {
             border-color: #ef4444 !important;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ef4444' viewBox='0 0 16 16'%3E%3Cpath d='M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z'/%3E%3Ccircle cx='8' cy='8' r='6' fill='none' stroke='%23ef4444' stroke-width='1.5'/%3E%3Cpath d='M8 5v4M8 10v.5' stroke='%23ef4444' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 16px;
             padding-right: 35px;
         }
 
         .form-control.is-valid {
             border-color: #10b981 !important;
+            padding-right: 35px;
         }
 
         .form-control.is-pending {
             border-color: #f59e0b !important;
+            padding-right: 35px;
+        }
+
+        select.form-control.is-valid,
+        select.form-control.is-invalid,
+        select.form-control.is-pending {
+            padding-right: 64px;
         }
 
         .status-radio.is-invalid {
@@ -1013,6 +1018,55 @@
             outline: 1px solid #10b981;
             border-radius: 10px;
             padding: 8px 10px;
+        }
+
+        .field-validation-icon {
+            position: absolute;
+            right: 12px;
+            top: 42px;
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease, color 0.2s ease;
+        }
+
+        select.form-control ~ .field-validation-icon {
+            right: 38px;
+        }
+
+        .form-group.has-valid .field-validation-icon,
+        .form-group.has-invalid .field-validation-icon,
+        .form-group.has-pending .field-validation-icon {
+            opacity: 1;
+        }
+
+        .form-group.has-valid .field-validation-icon {
+            color: #10b981;
+        }
+
+        .form-group.has-invalid .field-validation-icon {
+            color: #ef4444;
+        }
+
+        .form-group.has-pending .field-validation-icon {
+            color: #f59e0b;
+        }
+
+        body.dark-theme .form-group.has-valid .field-validation-icon {
+            color: #34d399;
+        }
+
+        body.dark-theme .form-group.has-invalid .field-validation-icon {
+            color: #f87171;
+        }
+
+        body.dark-theme .form-group.has-pending .field-validation-icon {
+            color: #fbbf24;
         }
 
         .btn:disabled {
@@ -1768,6 +1822,7 @@
                 this.verifiedValues = {};
                 this.fieldState = {};
 
+                this.ensureFieldIcons();
                 this.attachListeners();
                 this.refreshVisibility();
             }
@@ -1819,6 +1874,67 @@
             getErrorElement(fieldName) {
                 const config = this.getFieldConfig(fieldName);
                 return config?.errorId ? document.getElementById(config.errorId) : null;
+            }
+
+            getFieldIcon(fieldName) {
+                return this.getFieldGroup(fieldName)?.querySelector('.field-validation-icon') ?? null;
+            }
+
+            ensureFieldIcons() {
+                if (!this.form) {
+                    return;
+                }
+
+                Object.keys(this.fields).forEach((fieldName) => {
+                    const config = this.getFieldConfig(fieldName);
+                    if (!config || config.type === 'radio') {
+                        return;
+                    }
+
+                    const group = this.getFieldGroup(fieldName);
+                    const error = this.getErrorElement(fieldName);
+                    const element = document.getElementById(config.id);
+                    if (!group || !element || group.querySelector('.field-validation-icon')) {
+                        return;
+                    }
+
+                    const icon = document.createElement('span');
+                    icon.className = 'field-validation-icon';
+                    icon.setAttribute('aria-hidden', 'true');
+
+                    if (error && error.parentElement === group) {
+                        group.insertBefore(icon, error);
+                    } else {
+                        group.appendChild(icon);
+                    }
+                });
+            }
+
+            clearFieldVisualState(fieldName) {
+                const group = this.getFieldGroup(fieldName);
+                const error = this.getErrorElement(fieldName);
+                const inputs = this.getFieldElements(fieldName);
+                const icon = this.getFieldIcon(fieldName);
+                const radioWrapper = fieldName === 'status' ? document.getElementById('addStatusRadio') : null;
+
+                group?.classList.remove('error', 'has-valid', 'has-invalid', 'has-pending');
+                inputs.forEach((input) => {
+                    input.classList.remove('is-valid', 'is-invalid', 'is-pending');
+                });
+                radioWrapper?.classList.remove('is-valid', 'is-invalid');
+
+                if (error) {
+                    error.textContent = '';
+                    error.classList.remove('visible');
+                }
+
+                if (icon) {
+                    icon.innerHTML = '';
+                }
+            }
+
+            clearAllVisualStates() {
+                Object.keys(this.fields).forEach((fieldName) => this.clearFieldVisualState(fieldName));
             }
 
             getRole() {
@@ -1938,21 +2054,35 @@
                 const group = this.getFieldGroup(fieldName);
                 const error = this.getErrorElement(fieldName);
                 const inputs = this.getFieldElements(fieldName);
+                const icon = this.getFieldIcon(fieldName);
                 const radioWrapper = fieldName === 'status' ? document.getElementById('addStatusRadio') : null;
 
-                group?.classList.remove('error');
+                group?.classList.remove('error', 'has-valid', 'has-invalid', 'has-pending');
                 inputs.forEach((input) => input.classList.remove('is-valid', 'is-invalid', 'is-pending'));
                 radioWrapper?.classList.remove('is-valid', 'is-invalid');
 
                 if (state === 'valid') {
+                    group?.classList.add('has-valid');
                     inputs.forEach((input) => input.classList.add('is-valid'));
                     radioWrapper?.classList.add('is-valid');
                 } else if (state === 'invalid') {
                     group?.classList.add('error');
+                    group?.classList.add('has-invalid');
                     inputs.forEach((input) => input.classList.add('is-invalid'));
                     radioWrapper?.classList.add('is-invalid');
                 } else if (state === 'pending') {
+                    group?.classList.add('has-pending');
                     inputs.forEach((input) => input.classList.add('is-pending'));
+                }
+
+                if (icon) {
+                    icon.innerHTML = state === 'valid'
+                        ? '<i class="fas fa-check-circle"></i>'
+                        : state === 'invalid'
+                            ? '<i class="fas fa-exclamation-circle"></i>'
+                            : state === 'pending'
+                                ? '<i class="fas fa-spinner fa-spin"></i>'
+                                : '';
                 }
 
                 if (error) {
@@ -1975,15 +2105,20 @@
                 const group = this.getFieldGroup(fieldName);
                 const error = this.getErrorElement(fieldName);
                 const inputs = this.getFieldElements(fieldName);
+                const icon = this.getFieldIcon(fieldName);
                 const radioWrapper = fieldName === 'status' ? document.getElementById('addStatusRadio') : null;
 
-                group?.classList.remove('error');
+                group?.classList.remove('error', 'has-valid', 'has-invalid', 'has-pending');
                 inputs.forEach((input) => input.classList.remove('is-valid', 'is-invalid', 'is-pending'));
                 radioWrapper?.classList.remove('is-valid', 'is-invalid');
 
                 if (error) {
                     error.textContent = '';
                     error.classList.remove('visible');
+                }
+
+                if (icon) {
+                    icon.innerHTML = '';
                 }
 
                 this.pendingFields.delete(fieldName);
@@ -2237,6 +2372,7 @@
                 this.fieldState = {};
                 Object.keys(this.fields).forEach((fieldName) => this.clearFieldState(fieldName));
                 this.refreshVisibility();
+                this.clearAllVisualStates();
             }
 
             seed(values = {}) {
@@ -2264,6 +2400,7 @@
                 });
 
                 this.refreshVisibility();
+                this.clearAllVisualStates();
             }
 
             updateSubmitState() {
@@ -2699,6 +2836,7 @@
                     if (roleSelect) {
                         this.toggleAddUserFields(roleSelect.value);
                         this.addUserValidator?.refreshVisibility();
+                        this.addUserValidator?.clearAllVisualStates();
                     }
                 });
 
@@ -2953,6 +3091,14 @@
                 if (modal) {
                     modal.classList.add('active');
                     document.body.style.overflow = 'hidden';
+
+                    if (modalId === 'addUserModal') {
+                        this.addUserValidator?.clearAllVisualStates();
+                    }
+
+                    if (modalId === 'editUserModal') {
+                        this.editUserValidator?.clearAllVisualStates();
+                    }
 
                     // Focus first input field after a short delay
                     setTimeout(() => {
