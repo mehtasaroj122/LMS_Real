@@ -1140,7 +1140,7 @@
                         <i class="fas fa-book"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value">0</div>
+                        <div class="stat-value" id="totalBooksCount">{{ $initialStats['totalBooks'] ?? 0 }}</div>
                         <div class="stat-label">Total Books</div>
                     </div>
                 </div>
@@ -1153,7 +1153,7 @@
                         <i class="fas fa-book-open"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value">0</div>
+                        <div class="stat-value" id="totalCopiesCount">{{ $initialStats['totalCopies'] ?? 0 }}</div>
                         <div class="stat-label">Total Copies</div>
                     </div>
                 </div>
@@ -1166,7 +1166,7 @@
                         <i class="fas fa-book-reader"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value">0</div>
+                        <div class="stat-value" id="availableCopiesCount">{{ $initialStats['availableCopies'] ?? 0 }}</div>
                         <div class="stat-label">Available Copies</div>
                     </div>
                 </div>
@@ -1179,7 +1179,7 @@
                         <i class="fas fa-tags"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-value">0</div>
+                        <div class="stat-value" id="categoriesCount">{{ count($initialStats['topCategories'] ?? []) }}</div>
                         <div class="stat-label">Categories</div>
                     </div>
                 </div>
@@ -1208,6 +1208,9 @@
 
                     <select class="filter-select" id="categoryFilter">
                         <option value="all">All Categories</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->name }}">{{ $category->name }}</option>
+                        @endforeach
                     </select>
 
                     <select class="filter-select" id="availabilityFilter">
@@ -1253,13 +1256,78 @@
                         </tr>
                         </thead>
                         <tbody id="booksTableBody">
-                        <!-- Books will be loaded via AJAX -->
+                        @forelse($initialBooks as $book)
+                            @php
+                                $conditionClass = $book->condition === 'new' ? 'condition-new' : ($book->condition === 'damaged' ? 'condition-damaged' : 'condition-good');
+                                $conditionIcon = $book->condition === 'new' ? 'fa-star' : ($book->condition === 'damaged' ? 'fa-exclamation-triangle' : 'fa-check-circle');
+                            @endphp
+                            <tr
+                                data-book-id="{{ $book->id }}"
+                                data-category-id="{{ $book->category->id ?? '' }}"
+                                data-category-name="{{ $book->category->name ?? 'N/A' }}"
+                                data-condition="{{ $book->condition }}"
+                                data-cover="{{ $book->cover_image ?? '' }}"
+                                data-description="{{ $book->description ?? '' }}"
+                                data-publisher="{{ $book->publisher ?? '' }}"
+                                data-isbn="{{ $book->isbn ?? '' }}"
+                                data-shelf="{{ $book->shelf_no ?? '' }}"
+                                data-total-copies="{{ $book->total_copies ?? 0 }}"
+                                data-available-copies="{{ $book->available_copies ?? 0 }}"
+                            >
+                                <td>{{ $book->isbn }}</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        @if($book->cover_image)
+                                            @php
+                                                $imageUrl = str_starts_with($book->cover_image, 'http') ? $book->cover_image : asset('storage/' . $book->cover_image);
+                                            @endphp
+                                            <img src="{{ $imageUrl }}" alt="{{ $book->title }}" style="width: 40px; height: 50px; border-radius: 4px; object-fit: cover; border: 1px solid #e5e7eb;">
+                                        @else
+                                            <div style="width: 40px; height: 50px; min-width: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; border-radius: 4px; color: #ffffff; font-weight: 700; font-size: 20px; flex-shrink: 0;">
+                                                {{ strtoupper(substr($book->title, 0, 1)) }}
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <strong style="font-size: 13px;">{{ $book->title }}</strong>
+                                            <div style="font-size: 10px; color: #9ca3af; margin-top: 1px;">{{ $book->publisher ?? 'Unknown' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ $book->author }}</td>
+                                <td>{{ $book->category->name ?? 'N/A' }}</td>
+                                <td>{{ $book->shelf_no ?? 'N/A' }}</td>
+                                <td>
+                                    <div class="copy-count">
+                                        <span class="copy-total">{{ $book->total_copies }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="copy-count">
+                                        <span class="copy-available">{{ $book->available_copies }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="condition-badge {{ $conditionClass }}">
+                                        <i class="fas {{ $conditionIcon }}"></i>
+                                        {{ ucfirst($book->condition) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
+                                        <button class="action-btn edit" title="Edit Book"><i class="fas fa-edit"></i></button>
+                                        <button class="action-btn delete" title="Delete Book"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                        @endforelse
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Empty state -->
-                <div id="emptyState" style="text-align: center; padding: 2rem 1rem; color: #64748b; display: none;">
+                <div id="emptyState" style="text-align: center; padding: 2rem 1rem; color: #64748b; display: {{ $initialBooks->total() === 0 ? 'block' : 'none' }};">
                     <svg style="margin-bottom: 0.75rem; opacity: 0.5; width: 40px; height: 40px; margin-left: auto; margin-right: auto;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path>
                         <path d="M9 9h6"></path>
@@ -1270,17 +1338,8 @@
                 </div>
 
                 <!-- Pagination Container -->
-                <div id="paginationContainer" style="display: none;">
-                    <div class="pagination-container">
-                        <div class="pagination-info">
-                            Showing <span id="startRecord">1</span> to <span id="endRecord">10</span> of <span id="totalRecords">0</span> results
-                        </div>
-                        <div class="pagination-controls">
-                            <button class="pagination-btn" id="prevBtn">← Previous</button>
-                            <div id="pageNumbers"></div>
-                            <button class="pagination-btn" id="nextBtn">Next →</button>
-                        </div>
-                    </div>
+                <div id="paginationContainer" style="display: {{ $initialBooks->lastPage() > 1 ? 'block' : 'none' }};">
+                    {!! $initialBooks->links()->toHtml() !!}
                 </div>
             </div>
         </div>
@@ -1580,6 +1639,7 @@
                 this.currentBookId = null;
                 this.currentBookTitle = null;
                 this.currentBookISBN = null;
+                this.currentSearch = '';
                 this.currentConditionFilter = 'all';
                 this.currentCategoryFilter = 'all';
                 this.currentAvailabilityFilter = 'all';
@@ -1587,8 +1647,8 @@
                 this.searchDebounceTimer = null;
                 this.storageBase = '{{ asset('storage') }}';
                 this.allBooks = [];
-                this.currentPage = 1;
-                this.perPage = 10;
+                this.currentPage = Number(new URLSearchParams(window.location.search).get('page')) || 1;
+                this.perPage = 15;
                 this.init();
             }
 
@@ -1625,11 +1685,9 @@
                 // Initialize search
                 this.initSearch();
 
-                // Load initial data
-                this.fetchBooksData();
-
-                // Refresh stats
-                this.refreshStats();
+                // Enable interaction for server-rendered initial state
+                this.attachTableEventListeners();
+                this.setupPaginationListeners();
 
                 // Attach cover preview handlers (if inputs exist)
                 const addCoverInput = document.getElementById('addCover');
@@ -1743,60 +1801,37 @@
                         this.fetchBooksData();
                     });
                 }
-
-                // Load categories onmount
-                this.loadCategories();
             }
 
             initSearch() {
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) {
+                    this.currentSearch = searchInput.value.trim();
                     searchInput.addEventListener('input', (e) => {
                         clearTimeout(this.searchDebounceTimer);
                         this.searchDebounceTimer = setTimeout(() => {
+                            this.currentSearch = e.target.value.trim();
                             this.currentPage = 1;
-                            this.fetchBooksData();
+                            this.fetchBooksData(1);
                         }, 300);
                     });
                 }
             }
-
-            loadCategories() {
-                fetch(`{{ route('admin.books.stats') }}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const categoryFilter = document.getElementById('categoryFilter');
-                    if (categoryFilter && data.topCategories) {
-                        Object.entries(data.topCategories).forEach(([name, count]) => {
-                            const option = document.createElement('option');
-                            option.value = name;
-                            option.textContent = name;
-                            categoryFilter.appendChild(option);
-                        });
-                    }
-                })
-                .catch(error => console.error('Error loading categories:', error));
-            }
-
             fetchBooksData(page = 1) {
-                const searchTerm = document.getElementById('searchInput')?.value || '';
+                const requestedPage = Number(page) || 1;
+                this.currentPage = requestedPage;
                 const condition = this.currentConditionFilter;
                 const category = this.currentCategoryFilter;
                 const availability = this.currentAvailabilityFilter;
                 const sort = this.currentSortFilter;
 
                 const params = new URLSearchParams({
-                    search: searchTerm,
+                    search: this.currentSearch,
                     condition: condition,
                     category: category,
                     availability: availability,
                     sort: sort,
-                    page: page
+                    page: requestedPage
                 });
 
                 fetch(`{{ route('admin.books.data') }}?${params.toString()}`, {
@@ -1811,27 +1846,44 @@
                 })
                 .then(data => {
                     if (data.success) {
+                        if (data.last_page > 0 && requestedPage > data.last_page) {
+                            return this.fetchBooksData(data.last_page);
+                        }
+
                         const emptyState = document.getElementById('emptyState');
                         const paginationContainer = document.getElementById('paginationContainer');
                         const tableBody = document.getElementById('booksTableBody');
+                        this.currentPage = Number(data.current_page) || requestedPage;
 
-                        if (data.total === 0) {
-                            tableBody.innerHTML = '';
-                            emptyState.style.display = 'block';
-                            paginationContainer.style.display = 'none';
-                        } else {
-                            tableBody.innerHTML = data.tableRows;
-                            emptyState.style.display = 'none';
-                            
-                            if (data.pagination && data.total > this.perPage) {
-                                paginationContainer.innerHTML = data.pagination;
-                                paginationContainer.style.display = 'block';
-                                this.setupPaginationListeners();
-                            } else {
+                        try {
+                            if (data.total === 0) {
+                                tableBody.innerHTML = '';
+                                emptyState.style.display = 'block';
                                 paginationContainer.style.display = 'none';
+                            } else {
+                                tableBody.innerHTML = data.tableRows || '';
+                                emptyState.style.display = 'none';
+
+                                if (data.pagination && Number(data.last_page) > 1) {
+                                    paginationContainer.innerHTML = data.pagination;
+                                    paginationContainer.style.display = 'block';
+                                    this.setupPaginationListeners();
+                                } else {
+                                    paginationContainer.style.display = 'none';
+                                }
+
+                                this.attachTableEventListeners();
                             }
-                            
-                            this.attachTableEventListeners();
+                        } catch (renderError) {
+                            console.error('Error rendering books table:', renderError);
+                        }
+
+                        try {
+                            if (data.stats) {
+                                this.updateStats(data.stats);
+                            }
+                        } catch (statsError) {
+                            console.error('Error updating book stats:', statsError);
                         }
                     } else {
                         this.showNotification('Error loading books', 'error');
@@ -1886,8 +1938,27 @@
                 });
             }
 
+            updateStats(stats) {
+                const totalBooks = document.getElementById('totalBooksCount');
+                const totalCopies = document.getElementById('totalCopiesCount');
+                const availableCopies = document.getElementById('availableCopiesCount');
+                const categories = document.getElementById('categoriesCount');
+
+                if (totalBooks) totalBooks.textContent = stats?.totalBooks ?? 0;
+                if (totalCopies) totalCopies.textContent = stats?.totalCopies ?? 0;
+                if (availableCopies) availableCopies.textContent = stats?.availableCopies ?? 0;
+                if (categories) categories.textContent = Object.keys(stats?.topCategories || {}).length;
+            }
+
             refreshStats() {
-                fetch(`{{ route('admin.books.stats') }}`, {
+                const params = new URLSearchParams({
+                    search: this.currentSearch,
+                    condition: this.currentConditionFilter,
+                    category: this.currentCategoryFilter,
+                    availability: this.currentAvailabilityFilter,
+                });
+
+                fetch(`{{ route('admin.books.stats') }}?${params.toString()}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
@@ -1895,17 +1966,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    const totalBooksElement = document.querySelector('.stat-total .stat-value');
-                    if (totalBooksElement) totalBooksElement.textContent = data.totalBooks;
-
-                    const totalCopiesElement = document.querySelector('.stat-available .stat-value');
-                    if (totalCopiesElement) totalCopiesElement.textContent = data.totalCopies;
-
-                    const availableElement = document.querySelector('.stat-borrowed .stat-value');
-                    if (availableElement) availableElement.textContent = data.availableCopies;
-
-                    const categoriesElement = document.querySelector('.stat-categories .stat-value');
-                    if (categoriesElement) categoriesElement.textContent = Object.keys(data.topCategories).length;
+                    this.updateStats(data);
                 })
                 .catch(error => console.error('Error fetching stats:', error));
             }
@@ -2066,7 +2127,7 @@
                 document.getElementById('editISBN').value = cells[0].textContent;
                 document.getElementById('editTitle').value = titleCell.querySelector('strong').textContent;
                 document.getElementById('editAuthor').value = cells[2].textContent;
-                document.getElementById('editCategory').value = row.dataset.category;
+                document.getElementById('editCategory').value = row.dataset.categoryId || '';
                 document.getElementById('editRack').value = cells[4].textContent;
                 document.getElementById('editTotalCopies').value = cells[5].querySelector('.copy-total').textContent;
                 document.getElementById('editAvailableCopies').value = cells[6].querySelector('.copy-available').textContent;
@@ -2237,8 +2298,8 @@
                         form.reset();
                         document.getElementById('addNewCategory').value = '';
                         this.currentPage = 1;
-                        this.fetchBooksData();
-                        setTimeout(() => this.refreshStats(), 150);
+                        this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
+                        this.fetchBooksData(1);
                     } else {
                         this.showNotification(data.message || 'Error adding book', 'error');
                     }
@@ -2296,9 +2357,8 @@
                     if (data.success) {
                         this.showNotification('Book updated successfully', 'success');
                         this.closeModal('editBookModal');
-                        this.currentPage = 1;
-                        this.fetchBooksData();
-                        setTimeout(() => this.refreshStats(), 150);
+                        this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
+                        this.fetchBooksData(this.currentPage);
                     } else {
                         this.showNotification(data.message || 'Error updating book', 'error');
                     }
@@ -2325,9 +2385,8 @@
                     if (data.success) {
                         this.showNotification(`"${this.currentBookTitle}" deleted successfully`, 'success');
                         this.closeModal('deleteBookModal');
-                        this.currentPage = 1;
-                        this.fetchBooksData();
-                        setTimeout(() => this.refreshStats(), 150);
+                        this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
+                        this.fetchBooksData(this.currentPage);
                     }
                 })
                 .catch(error => {
@@ -2578,4 +2637,3 @@
         });
     </script>
 @endpush
-

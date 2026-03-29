@@ -6,13 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\BookStoreRequest;
 use App\Models\book;
 use App\Models\category;
-use App\Models\ActivityLog;
 use App\Models\Notification;
 use App\Models\User;
 use App\Helpers\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
@@ -24,7 +22,12 @@ class BookController extends Controller
     {
         Gate::authorize('access-admin');
         $categories = category::orderBy('name')->get();
-        return view('admin.BookManagement', compact('categories'));
+        $initialBooks = book::with('category')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+        $initialStats = $this->calculateBookStats(book::query());
+
+        return view('admin.BookManagement', compact('categories', 'initialBooks', 'initialStats'));
     }
 
     /**
@@ -42,45 +45,7 @@ class BookController extends Controller
         $page = $request->get('page', 1);
         $perPage = 15; // You can adjust this as needed
 
-        // Build query
-        $query = book::query();
-
-        // Search filter
-        if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('author', 'like', '%' . $search . '%')
-                  ->orWhere('isbn', 'like', '%' . $search . '%')
-                  ->orWhere('publisher', 'like', '%' . $search . '%');
-            });
-        }
-
-        // Condition filter
-        if ($condition !== 'all') {
-            $query->where('condition', $condition);
-        }
-
-        // Category filter
-        if ($category !== 'all') {
-            $query->whereHas('category', function($q) use ($category) {
-                $q->where('name', $category);
-            });
-        }
-
-        // Availability filter
-        if ($availability !== 'all') {
-            switch ($availability) {
-                case 'out-of-stock':
-                    $query->where('available_copies', 0);
-                    break;
-                case 'low-stock':
-                    $query->whereBetween('available_copies', [1, 5]);
-                    break;
-                case 'in-stock':
-                    $query->where('available_copies', '>=', 6);
-                    break;
-            }
-        }
+        $query = $this->buildFilteredBooksQuery($search, $condition, $category, $availability);
 
         // Sorting
         switch ($sort) {
@@ -185,75 +150,9 @@ class BookController extends Controller
         // Generate pagination HTML
         $paginationHtml = $books->links()->toHtml();
 
-        // Calculate stats based on current filters (for live updates)
-        $statsQuery = book::query();
-
-        // Apply same search filter to stats
-        if (!empty($search)) {
-            $statsQuery->where(function($q) use ($search) {
-                $q->where('title', 'like', '%' . $search . '%')
-                  ->orWhere('author', 'like', '%' . $search . '%')
-                  ->orWhere('isbn', 'like', '%' . $search . '%')
-                  ->orWhere('publisher', 'like', '%' . $search . '%');
-            });
-        }
-
-        // Apply same condition filter to stats
-        if ($condition !== 'all') {
-            $statsQuery->where('condition', $condition);
-        }
-
-        // Apply same category filter to stats
-        if ($category !== 'all') {
-            $statsQuery->whereHas('category', function($q) use ($category) {
-                $q->where('name', $category);
-            });
-        }
-
-        // Apply same availability filter to stats
-        if ($availability !== 'all') {
-            switch ($availability) {
-                case 'out-of-stock':
-                    $statsQuery->where('available_copies', 0);
-                    break;
-                case 'low-stock':
-                    $statsQuery->whereBetween('available_copies', [1, 5]);
-                    break;
-                case 'in-stock':
-                    $statsQuery->where('available_copies', '>=', 6);
-                    break;
-            }
-        }
-
-        $filteredBooks = $statsQuery->with('category')->get();
-        
-        // Calculate stats by iterating through filtered books
-        $totalCopies = 0;
-        $availableCopies = 0;
-        $topCategories = [];
-        
-        foreach ($filteredBooks as $book) {
-            // Sum up copies
-            $totalCopies += $book->total_copies ?? 0;
-            $availableCopies += $book->available_copies ?? 0;
-            
-            // Count categories
-            if ($book->category) {
-                $categoryName = $book->category->name;
-                if (!isset($topCategories[$categoryName])) {
-                    $topCategories[$categoryName] = 0;
-                }
-                $topCategories[$categoryName]++;
-            }
-        }
-        
-        $filteredStats = [
-            'totalBooks' => $filteredBooks->count(),
-            'totalCopies' => $totalCopies,
-            'availableCopies' => $availableCopies,
-            'borrowedCopies' => $totalCopies - $availableCopies,
-            'topCategories' => $topCategories,
-        ];
+        $filteredStats = $this->calculateBookStats(
+            $this->buildFilteredBooksQuery($search, $condition, $category, $availability)
+        );
 
         return response()->json([
             'success' => true,
@@ -273,39 +172,14 @@ class BookController extends Controller
     {
         Gate::authorize('access-admin');
 
-        $totalBooks = book::count();
-        $totalCopies = book::sum('total_copies') ?? 0;
-        $availableCopies = book::sum('available_copies') ?? 0;
-        $borrowedCopies = $totalCopies - $availableCopies;
-
-        // Get all categories with book counts
-        $topCategories = book::select('category_id', DB::raw('count(*) as count'))
-            ->groupBy('category_id')
-            ->orderByDesc('count')
-            ->get();
-
-        // Map to include category names
-        $categoriesWithNames = [];
-        foreach ($topCategories as $item) {
-            if ($item->category) {
-                $categoriesWithNames[$item->category->name] = $item->count;
-            }
-        }
-
-        // Get condition breakdown
-        $conditionBreakdown = book::select('condition', DB::raw('count(*) as count'))
-            ->groupBy('condition')
-            ->pluck('count', 'condition')
-            ->toArray();
-
-        $stats = [
-            'totalBooks' => $totalBooks,
-            'totalCopies' => $totalCopies,
-            'availableCopies' => $availableCopies,
-            'borrowedCopies' => $borrowedCopies,
-            'topCategories' => $categoriesWithNames,
-            'conditionBreakdown' => $conditionBreakdown,
-        ];
+        $stats = $this->calculateBookStats(
+            $this->buildFilteredBooksQuery(
+                $request?->get('search', ''),
+                $request?->get('condition', 'all'),
+                $request?->get('category', 'all'),
+                $request?->get('availability', 'all')
+            )
+        );
 
         // Return JSON if AJAX request
         if ($request && $request->expectsJson()) {
@@ -628,5 +502,84 @@ class BookController extends Controller
                 'message' => 'Error creating category: ' . $e->getMessage(),
             ], 422);
         }
+    }
+
+    private function buildFilteredBooksQuery(
+        string $search = '',
+        string $condition = 'all',
+        string $category = 'all',
+        string $availability = 'all'
+    ) {
+        $query = book::query();
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('author', 'like', '%' . $search . '%')
+                    ->orWhere('isbn', 'like', '%' . $search . '%')
+                    ->orWhere('publisher', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($condition !== 'all') {
+            $query->where('condition', $condition);
+        }
+
+        if ($category !== 'all') {
+            $query->whereHas('category', function ($q) use ($category) {
+                $q->where('name', $category);
+            });
+        }
+
+        if ($availability !== 'all') {
+            switch ($availability) {
+                case 'out-of-stock':
+                    $query->where('available_copies', 0);
+                    break;
+                case 'low-stock':
+                    $query->whereBetween('available_copies', [1, 5]);
+                    break;
+                case 'in-stock':
+                    $query->where('available_copies', '>=', 6);
+                    break;
+            }
+        }
+
+        return $query;
+    }
+
+    private function calculateBookStats($query): array
+    {
+        $books = $query->with('category')->get();
+
+        $totalCopies = 0;
+        $availableCopies = 0;
+        $topCategories = [];
+        $conditionBreakdown = [];
+
+        foreach ($books as $book) {
+            $totalCopies += $book->total_copies ?? 0;
+            $availableCopies += $book->available_copies ?? 0;
+
+            if (!empty($book->condition)) {
+                $conditionBreakdown[$book->condition] = ($conditionBreakdown[$book->condition] ?? 0) + 1;
+            }
+
+            if ($book->category) {
+                $categoryName = $book->category->name;
+                $topCategories[$categoryName] = ($topCategories[$categoryName] ?? 0) + 1;
+            }
+        }
+
+        arsort($topCategories);
+
+        return [
+            'totalBooks' => $books->count(),
+            'totalCopies' => $totalCopies,
+            'availableCopies' => $availableCopies,
+            'borrowedCopies' => $totalCopies - $availableCopies,
+            'topCategories' => $topCategories,
+            'conditionBreakdown' => $conditionBreakdown,
+        ];
     }
 }
