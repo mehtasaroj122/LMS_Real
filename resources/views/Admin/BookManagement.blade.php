@@ -727,6 +727,7 @@
 
         /* Form Styles */
         .form-group {
+            position: relative;
             margin-bottom: 20px;
         }
 
@@ -904,6 +905,51 @@
 
         body.dark-theme .field-error-message {
             color: #f87171;
+        }
+
+        .field-validation-icon {
+            position: absolute;
+            right: 12px;
+            top: 42px;
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease, color 0.2s ease;
+        }
+
+        .form-group.has-valid .field-validation-icon,
+        .form-group.has-invalid .field-validation-icon,
+        .form-group.has-pending .field-validation-icon {
+            opacity: 1;
+        }
+
+        .form-group.has-valid .field-validation-icon {
+            color: #16a34a;
+        }
+
+        .form-group.has-invalid .field-validation-icon {
+            color: #dc2626;
+        }
+
+        .form-group.has-pending .field-validation-icon {
+            color: #2563eb;
+        }
+
+        body.dark-theme .form-group.has-valid .field-validation-icon {
+            color: #22c55e;
+        }
+
+        body.dark-theme .form-group.has-invalid .field-validation-icon {
+            color: #f87171;
+        }
+
+        body.dark-theme .form-group.has-pending .field-validation-icon {
+            color: #60a5fa;
         }
 
         .btn:disabled {
@@ -1675,8 +1721,8 @@
                 this.currentPage = Number(new URLSearchParams(window.location.search).get('page')) || 1;
                 this.perPage = 15;
                 this.bookFormStates = {
-                    addBookForm: { pending: new Set(), verified: {} },
-                    editBookForm: { pending: new Set(), verified: {} },
+                    addBookForm: { pending: new Set(), verified: {}, activeErrorField: null },
+                    editBookForm: { pending: new Set(), verified: {}, activeErrorField: null },
                 };
                 this.init();
             }
@@ -1777,6 +1823,8 @@
                         return;
                     }
 
+                    this.ensureBookFieldIcons(form);
+
                     form.querySelectorAll('input, select, textarea').forEach(input => {
                         const triggerEvent = input.type === 'file' || input.tagName === 'SELECT' ? 'change' : 'input';
 
@@ -1792,13 +1840,20 @@
                                 delete this.getBookFormState(form).verified.isbn;
                             }
 
-                            this.clearFieldError(input, { clearValidityOnly: true });
-                            this.validateSingleBookField(form, input, { showErrors: false, runRemote: false });
+                            this.validateSingleBookField(form, input, {
+                                showErrors: true,
+                                runRemote: false,
+                                activeInput: input,
+                            });
 
                             if (input.name === 'total_copies') {
                                 const availableCopiesInput = form.querySelector('[name="available_copies"]');
                                 if (availableCopiesInput) {
-                                    this.validateSingleBookField(form, availableCopiesInput, { showErrors: false, runRemote: false });
+                                    this.validateSingleBookField(form, availableCopiesInput, {
+                                        showErrors: false,
+                                        runRemote: false,
+                                        activeInput: input,
+                                    });
                                 }
                             }
                         });
@@ -1808,6 +1863,7 @@
                                 this.validateSingleBookField(form, input, {
                                     showErrors: true,
                                     runRemote: input.name === 'isbn',
+                                    activeInput: input,
                                 });
                             });
                         }
@@ -1825,6 +1881,97 @@
                 return form.id === 'addBookForm'
                     ? document.getElementById('submitAddBook')
                     : document.getElementById('submitEditBook');
+            }
+
+            getBookFieldGroup(input) {
+                return input?.closest('.form-group') ?? null;
+            }
+
+            getBookFieldErrorElement(input, { createIfMissing = false } = {}) {
+                if (!input) {
+                    return null;
+                }
+
+                const parent = input.parentElement;
+                let errorElement = parent?.querySelector('.field-error-message') ?? null;
+
+                if (!errorElement && createIfMissing && parent) {
+                    errorElement = document.createElement('div');
+                    errorElement.className = 'field-error-message';
+                    errorElement.setAttribute('role', 'alert');
+                    parent.appendChild(errorElement);
+                }
+
+                return errorElement;
+            }
+
+            getBookFieldIcon(input) {
+                return this.getBookFieldGroup(input)?.querySelector('.field-validation-icon') ?? null;
+            }
+
+            ensureBookFieldIcons(form) {
+                form.querySelectorAll('input, select, textarea').forEach(input => {
+                    if (input.type === 'file') {
+                        return;
+                    }
+
+                    const group = this.getBookFieldGroup(input);
+                    if (!group || group.querySelector('.field-validation-icon')) {
+                        return;
+                    }
+
+                    const icon = document.createElement('span');
+                    icon.className = 'field-validation-icon';
+                    icon.setAttribute('aria-hidden', 'true');
+                    group.appendChild(icon);
+                });
+            }
+
+            clearDisplayedBookError(input) {
+                if (!input) {
+                    return;
+                }
+
+                input.classList.remove('error');
+                input.removeAttribute('aria-invalid');
+
+                const errorElement = this.getBookFieldErrorElement(input);
+                if (errorElement) {
+                    errorElement.innerHTML = '';
+                    errorElement.style.display = 'none';
+                }
+            }
+
+            clearBookFieldVisualState(input) {
+                if (!input) {
+                    return;
+                }
+
+                input.classList.remove('error', 'valid', 'pending');
+                input.removeAttribute('aria-invalid');
+
+                const group = this.getBookFieldGroup(input);
+                group?.classList.remove('has-valid', 'has-invalid', 'has-pending');
+
+                const icon = this.getBookFieldIcon(input);
+                if (icon) {
+                    icon.innerHTML = '';
+                }
+
+                const errorElement = this.getBookFieldErrorElement(input);
+                if (errorElement) {
+                    errorElement.innerHTML = '';
+                    errorElement.style.display = 'none';
+                }
+            }
+
+            focusBookField(input) {
+                if (!input) {
+                    return;
+                }
+
+                input.focus({ preventScroll: true });
+                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
             normalizeBookFieldValue(fieldName, value) {
@@ -1935,50 +2082,87 @@
 
             setBookFieldState(input, state = 'neutral', message = '') {
                 input.classList.remove('error', 'valid', 'pending');
+                const form = input.closest('form');
+                const stateStore = form ? this.getBookFormState(form) : null;
+                const group = this.getBookFieldGroup(input);
+                const icon = this.getBookFieldIcon(input);
+                const errorElement = this.getBookFieldErrorElement(input, {
+                    createIfMissing: state === 'error',
+                });
 
-                const parent = input.parentElement;
-                let errorElement = parent.querySelector('.field-error-message');
-                if (!errorElement) {
-                    errorElement = document.createElement('div');
-                    errorElement.className = 'field-error-message';
-                    parent.appendChild(errorElement);
-                }
+                group?.classList.remove('has-valid', 'has-invalid', 'has-pending');
 
                 if (state === 'error') {
+                    group?.classList.add('has-invalid');
                     input.classList.add('error');
+                    input.setAttribute('aria-invalid', 'true');
                     input.dataset.valid = 'false';
                     errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
                     errorElement.style.display = 'flex';
+                    if (icon) {
+                        icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+                    }
                 } else {
-                    errorElement.innerHTML = '';
-                    errorElement.style.display = 'none';
+                    input.removeAttribute('aria-invalid');
+                    if (errorElement) {
+                        errorElement.innerHTML = '';
+                        errorElement.style.display = 'none';
+                    }
 
                     if (state === 'valid') {
+                        group?.classList.add('has-valid');
                         input.classList.add('valid');
                         input.dataset.valid = 'true';
+                        if (icon) {
+                            icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                        }
                     } else if (state === 'pending') {
+                        group?.classList.add('has-pending');
                         input.classList.add('pending');
                         input.dataset.valid = 'false';
+                        if (icon) {
+                            icon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        }
                     } else {
                         input.dataset.valid = 'false';
+                        if (icon) {
+                            icon.innerHTML = '';
+                        }
                     }
                 }
 
-                this.updateBookSubmitState(input.closest('form'));
+                if (stateStore) {
+                    stateStore.activeErrorField = state === 'error' ? input.name : null;
+                }
+
+                this.updateBookSubmitState(form);
             }
 
             clearFieldError(input, { clearValidityOnly = false } = {}) {
-                input.classList.remove('error', 'pending');
+                this.clearDisplayedBookError(input);
+                input.classList.remove('pending');
+                this.getBookFieldGroup(input)?.classList.remove('has-invalid', 'has-pending');
 
-                const errorElement = input.parentElement.querySelector('.field-error-message');
-                if (errorElement) {
-                    errorElement.innerHTML = '';
-                    errorElement.style.display = 'none';
+                const icon = this.getBookFieldIcon(input);
+                if (icon) {
+                    icon.innerHTML = input.classList.contains('valid')
+                        ? '<i class="fas fa-check-circle"></i>'
+                        : '';
+                }
+
+                const form = input.closest('form');
+                const state = form ? this.getBookFormState(form) : null;
+                if (state?.activeErrorField === input.name) {
+                    state.activeErrorField = null;
                 }
 
                 if (!clearValidityOnly) {
+                    this.getBookFieldGroup(input)?.classList.remove('has-valid');
                     input.classList.remove('valid');
                     input.dataset.valid = 'false';
+                    if (icon) {
+                        icon.innerHTML = '';
+                    }
                 }
             }
 
@@ -2048,9 +2232,12 @@
                 return null;
             }
 
-            validateCategoryState(form, { showErrors = false } = {}) {
+            validateCategoryState(form, { showErrors = false, activeInput = null } = {}) {
                 const categorySelect = form.querySelector('[name="category_id"]');
                 const newCategoryInput = form.querySelector('[name="new_category"]');
+                const categoryTarget = activeInput && ['category_id', 'new_category'].includes(activeInput.name)
+                    ? activeInput
+                    : categorySelect;
 
                 if (!categorySelect) {
                     return true;
@@ -2062,7 +2249,7 @@
 
                     if (!selectedCategory) {
                         if (showErrors) {
-                            this.setBookFieldState(categorySelect, 'error', 'Select a valid category.');
+                            this.setBookFieldState(categoryTarget, 'error', 'Select a valid category.');
                         } else {
                             categorySelect.dataset.valid = 'false';
                             this.updateBookSubmitState(form);
@@ -2083,7 +2270,7 @@
 
                 if (!selectedCategory && !newCategory) {
                     if (showErrors) {
-                        this.setBookFieldState(categorySelect, 'error', 'Select an existing category or create a new one.');
+                        this.setBookFieldState(categoryTarget, 'error', 'Select an existing category or create a new one.');
                     } else {
                         categorySelect.dataset.valid = 'false';
                         newCategoryInput.dataset.valid = 'false';
@@ -2094,7 +2281,7 @@
 
                 if (selectedCategory && newCategory) {
                     if (showErrors) {
-                        this.setBookFieldState(newCategoryInput, 'error', 'Choose either an existing category or a new category, not both.');
+                        this.setBookFieldState(categoryTarget, 'error', 'Choose either an existing category or a new category, not both.');
                     } else {
                         categorySelect.dataset.valid = 'false';
                         newCategoryInput.dataset.valid = 'false';
@@ -2117,8 +2304,8 @@
                     }
                 }
 
-                this.setBookFieldState(categorySelect, 'valid');
-                this.setBookFieldState(newCategoryInput, selectedCategory || newCategory ? 'valid' : 'neutral');
+                this.setBookFieldState(categorySelect, selectedCategory ? 'valid' : 'neutral');
+                this.setBookFieldState(newCategoryInput, newCategory ? 'valid' : 'neutral');
                 return true;
             }
 
@@ -2167,11 +2354,11 @@
                 }
             }
 
-            async validateSingleBookField(form, input, { showErrors = false, runRemote = false } = {}) {
+            async validateSingleBookField(form, input, { showErrors = false, runRemote = false, activeInput = input } = {}) {
                 const rules = this.getBookFieldRules()[input.name];
 
                 if (input.name === 'category_id' || input.name === 'new_category') {
-                    return this.validateCategoryState(form, { showErrors });
+                    return this.validateCategoryState(form, { showErrors, activeInput });
                 }
 
                 if (!rules) {
@@ -2204,9 +2391,7 @@
                         return true;
                     }
 
-                    input.dataset.valid = 'false';
-                    input.classList.remove('error', 'valid', 'pending');
-                    this.updateBookSubmitState(form);
+                    this.setBookFieldState(input, 'neutral');
                     return false;
                 }
 
@@ -2216,23 +2401,65 @@
 
             async validateBookForm(form, { showErrors = true } = {}) {
                 let isValid = true;
+                let firstInvalidInput = null;
                 const inputs = Array.from(form.querySelectorAll('input, select, textarea'));
 
                 for (const input of inputs) {
                     if (input.type === 'file') {
-                        const result = await this.validateSingleBookField(form, input, { showErrors, runRemote: false });
+                        const result = await this.validateSingleBookField(form, input, {
+                            showErrors,
+                            runRemote: false,
+                            activeInput: input,
+                        });
                         isValid = result && isValid;
+                        if (!result && !firstInvalidInput) {
+                            firstInvalidInput = input;
+                        }
                         continue;
                     }
 
                     const result = await this.validateSingleBookField(form, input, {
                         showErrors,
                         runRemote: input.name === 'isbn',
+                        activeInput: input,
                     });
                     isValid = result && isValid;
+                    if (!result && !firstInvalidInput) {
+                        firstInvalidInput = input;
+                    }
+                }
+
+                if (!isValid && firstInvalidInput) {
+                    this.focusBookField(firstInvalidInput);
                 }
 
                 return isValid;
+            }
+
+            applyBookServerErrors(form, errors = {}) {
+                if (!form || !errors || Object.keys(errors).length === 0) {
+                    return;
+                }
+
+                let firstInput = null;
+
+                Object.entries(errors).forEach(([fieldName, messages]) => {
+                    const message = Array.isArray(messages) ? messages[0] : messages;
+                    const input = form.querySelector(`[name="${fieldName}"]`);
+                    if (!input) {
+                        return;
+                    }
+
+                    this.setBookFieldState(input, 'error', message);
+
+                    if (!firstInput) {
+                        firstInput = input;
+                    }
+                });
+
+                if (firstInput) {
+                    this.focusBookField(firstInput);
+                }
             }
 
             updateBookSubmitState(form) {
@@ -2793,12 +3020,7 @@
                 }))
                 .then(data => {
                     if (data.errors && Object.keys(data.errors).length > 0) {
-                        Object.entries(data.errors).forEach(([fieldName, messages]) => {
-                            const input = form.querySelector(`[name="${fieldName}"]`);
-                            if (input) {
-                                this.setBookFieldState(input, 'error', messages[0]);
-                            }
-                        });
+                        this.applyBookServerErrors(form, data.errors);
                         return;
                     }
 
@@ -2844,12 +3066,7 @@
                     }))
                     .then(data => {
                         if (data.errors && Object.keys(data.errors).length > 0) {
-                            Object.entries(data.errors).forEach(([fieldName, messages]) => {
-                                const input = form.querySelector(`[name="${fieldName}"]`);
-                                if (input) {
-                                    this.setBookFieldState(input, 'error', messages[0]);
-                                }
-                            });
+                            this.applyBookServerErrors(form, data.errors);
                             return;
                         }
 
@@ -2928,10 +3145,17 @@
                 const state = this.getBookFormState(form);
                 state.pending.clear();
                 state.verified = {};
+                state.activeErrorField = null;
 
                 form.querySelectorAll('.form-control').forEach(input => {
                     input.classList.remove('error', 'valid', 'pending');
                     input.dataset.valid = 'false';
+                    input.removeAttribute('aria-invalid');
+                    input.closest('.form-group')?.classList.remove('has-valid', 'has-invalid', 'has-pending');
+                    const icon = input.closest('.form-group')?.querySelector('.field-validation-icon');
+                    if (icon) {
+                        icon.innerHTML = '';
+                    }
                     const errorElement = input.parentElement.querySelector('.field-error-message');
                     if (errorElement) {
                         errorElement.innerHTML = '';
@@ -2977,25 +3201,20 @@
 
                 this.resetBookFormValidation(form);
 
-                const isbnInput = form.querySelector('[name="isbn"]');
-                if (isbnInput) {
-                    const normalizedIsbn = this.normalizeBookFieldValue('isbn', isbnInput.value);
-                    isbnInput.value = normalizedIsbn;
-                    this.getBookFormState(form).verified.isbn = normalizedIsbn;
-                    this.setBookFieldState(isbnInput, 'valid');
-                }
-
                 form.querySelectorAll('input, select, textarea').forEach(input => {
-                    if (input.name === 'isbn') {
-                        return;
+                    if (input.type !== 'file') {
+                        input.value = this.normalizeBookFieldValue(input.name, input.value);
                     }
 
                     if (input.name === 'category_id' || input.name === 'new_category') {
                         this.validateCategoryState(form, { showErrors: false });
-                        return;
+                    } else {
+                        this.validateSingleBookField(form, input, { showErrors: false, runRemote: false });
                     }
+                });
 
-                    this.validateSingleBookField(form, input, { showErrors: false, runRemote: false });
+                form.querySelectorAll('.form-control').forEach(input => {
+                    this.clearBookFieldVisualState(input);
                 });
 
                 this.updateBookSubmitState(form);
