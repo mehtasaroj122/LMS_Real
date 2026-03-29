@@ -1157,7 +1157,7 @@
             <div class="stat-card stat-copies">
                 <div class="stat-content">
                     <div class="stat-icon">
-                        <i class="fas fa-boxes"></i>
+                        <i class="fas fa-book-open"></i>
                     </div>
                     <div class="stat-info">
                         <div class="stat-value">0</div>
