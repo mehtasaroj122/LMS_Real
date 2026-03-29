@@ -31,7 +31,8 @@
         .students-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1110px;
+            min-width: 1080px;
+            table-layout: fixed;
         }
 
         .students-table th {
@@ -94,7 +95,8 @@
         .students-table th:nth-child(1),
         .students-table td:nth-child(1) {
             padding-right: 4px;
-            max-width: 150px;
+            width: 18%;
+            max-width: 18%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -102,25 +104,52 @@
         .students-table th:nth-child(2),
         .students-table td:nth-child(2) {
             padding-left: 4px;
-            max-width: 100px;
+            width: 16%;
+            max-width: 16%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
         .students-table th:nth-child(3),
-        .students-table td:nth-child(3),
-        .students-table th:nth-child(4),
-        .students-table td:nth-child(4),
-        .students-table th:nth-child(5),
-        .students-table td:nth-child(5) {
-            max-width: 100px;
+        .students-table td:nth-child(3) {
+            width: 12%;
+            max-width: 12%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        .students-table th:nth-child(4),
+        .students-table td:nth-child(4),
+        .students-table th:nth-child(5),
+        .students-table td:nth-child(5),
         .students-table th:nth-child(6),
         .students-table td:nth-child(6) {
-            max-width: 90px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .students-table th:nth-child(4),
+        .students-table td:nth-child(4) {
+            width: 20%;
+            max-width: 20%;
+        }
+        .students-table th:nth-child(5),
+        .students-table td:nth-child(5) {
+            width: 8%;
+            max-width: 8%;
+        }
+        .students-table th:nth-child(6),
+        .students-table td:nth-child(6) {
+            width: 11%;
+            max-width: 11%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .students-table th:nth-child(7),
+        .students-table td:nth-child(7) {
+            width: 15%;
+            max-width: 15%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -843,6 +872,7 @@
                         <tr>
                             <th>Student</th>
                             <th>Email</th>
+                            <th>Phone</th>
                             <th>Department</th>
                             <th>Batch</th>
                             <th>Status</th>
@@ -1208,7 +1238,7 @@
                             if (data.total === 0) {
                                 document.getElementById('studentsTableBody').innerHTML = `
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 40px; color: #6b7280;">
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #6b7280;">
                                 <i class="fas fa-search" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5; display: block;"></i>
                                 <p style="font-size: 16px; margin: 0; font-weight: 500;">No students found</p>
                                 <p style="font-size: 14px; margin-top: 8px; color: #9ca3af;">Try adjusting your search or filters</p>

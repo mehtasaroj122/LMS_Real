@@ -369,105 +369,248 @@
             color: #60a5fa;
         }
 
-        /* Fines Table with Stripes - Enhanced */
+        /* Fines table styled to match Admin Students table */
         .fines-table-container {
-            border-radius: 0.5rem;
+            border-radius: 8px;
             overflow: hidden;
+            border: 1px solid;
             margin-bottom: 1rem;
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         body.light-theme .fines-table-container {
-            background: white;
-            border: 1px solid #e5e7eb;
+            background-color: #ffffff;
+            border-color: #e5e7eb;
         }
 
         body.dark-theme .fines-table-container {
-            background: #1e293b;
-            border: 1px solid #334155;
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+
+        .fines-table-wrapper {
+            overflow-x: hidden;
         }
 
         .fines-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.75rem;
-            min-width: 700px;
+            min-width: 1080px;
+            table-layout: fixed;
         }
 
         .fines-table thead {
             border-bottom: 1px solid;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
 
         body.light-theme .fines-table thead {
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border-color: #e5e7eb;
         }
 
         body.dark-theme .fines-table thead {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-color: #334155;
         }
 
         .fines-table th {
-            padding: 0.75rem 1rem;
-            text-align: left;
+            padding: 6px 8px;
             font-weight: 600;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-secondary);
+            font-size: 11px;
+            border-bottom: 1px solid;
             white-space: nowrap;
+            text-align: start;
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        body.light-theme .fines-table th {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            color: #475569;
+        }
+
+        body.dark-theme .fines-table th {
+            background-color: #1e293b;
+            border-color: #334155;
+            color: #cbd5e1;
         }
 
         .fines-table td {
-            padding: 0.75rem 1rem;
+            padding: 6px 8px;
             border-bottom: 1px solid;
             vertical-align: middle;
+            font-size: 13px;
+            transition: border-color 0.3s, color 0.3s;
         }
 
         body.light-theme .fines-table td {
-            border-color: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #0f172a;
         }
 
         body.dark-theme .fines-table td {
             border-color: #334155;
+            color: #f1f5f9;
         }
 
-        /* Striped rows - clean alternating pattern */
-        .fines-table tbody tr:nth-child(even) {
-            background-color: rgba(241, 245, 249, 0.3);
+        .fines-table th:nth-child(1),
+        .fines-table td:nth-child(1) {
+            padding-right: 4px;
+            width: 18%;
+            max-width: 18%;
         }
 
-        body.dark-theme .fines-table tbody tr:nth-child(even) {
-            background-color: rgba(30, 41, 59, 0.3);
+        .fines-table th:nth-child(2),
+        .fines-table td:nth-child(2) {
+            padding-left: 4px;
+            width: 24%;
+            max-width: 24%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        /* Hover effects */
-        .fines-table tbody tr:hover {
-            background-color: rgba(0, 0, 0, 0.02);
+        .fines-table th:nth-child(3),
+        .fines-table td:nth-child(3) {
+            width: 12%;
+            max-width: 12%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .fines-table th:nth-child(4),
+        .fines-table td:nth-child(4) {
+            width: 10%;
+            max-width: 10%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .fines-table th:nth-child(5),
+        .fines-table td:nth-child(5) {
+            width: 10%;
+            max-width: 10%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .fines-table th:nth-child(6),
+        .fines-table td:nth-child(6) {
+            width: 10%;
+            max-width: 10%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .fines-table th:nth-child(7),
+        .fines-table td:nth-child(7) {
+            width: 16%;
+            max-width: 16%;
         }
 
         body.dark-theme .fines-table tbody tr:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: #2d3748;
+        }
+
+        body.light-theme .fines-table tbody tr:hover {
+            background-color: #f8fafc;
         }
 
         .fines-table tbody tr:last-child td {
             border-bottom: none;
         }
 
-        /* Status Badges - Same as My Books but customized for fines */
+        .student-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        .student-avatar {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            overflow: hidden;
+            color: #ffffff;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
+
+        .student-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .student-details {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .student-name {
+            font-weight: 600;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        body.light-theme .student-name {
+            color: #1e293b;
+        }
+
+        body.dark-theme .student-name {
+            color: #f8fafc;
+        }
+
+        .student-roll {
+            font-size: 0.75rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        body.light-theme .student-roll {
+            color: #64748b;
+        }
+
+        body.dark-theme .student-roll {
+            color: #94a3b8;
+        }
+
+        .text-muted {
+            transition: color 0.3s;
+        }
+
+        body.light-theme .text-muted {
+            color: #64748b;
+        }
+
+        body.dark-theme .text-muted {
+            color: #94a3b8;
+        }
+
+        /* Status Badges */
         .status-badge {
             display: inline-flex;
             align-items: center;
-            padding: 0.125rem 0.5rem;
-            border-radius: 9999px;
-            font-size: 0.65rem;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 11px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            gap: 0.3rem;
+            gap: 4px;
+            transition: background 0.3s, color 0.3s;
         }
 
         .status-pending {
@@ -503,7 +646,7 @@
         /* Fine Amount */
         .fine-amount {
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 13px;
         }
 
         body.light-theme .fine-amount.pending {
@@ -522,24 +665,35 @@
             color: #86efac;
         }
 
-        /* Action Buttons - Optimized */
+        /* Action buttons */
         .action-buttons {
             display: flex;
-            gap: 0.4rem;
-            flex-wrap: wrap;
+            gap: 6px;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            align-items: center;
         }
 
         .action-btn {
-            padding: 0.4rem 0.8rem;
-            border-radius: 0.375rem;
-            font-size: 0.7rem;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .fine-actions-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-start;
             white-space: nowrap;
         }
 
@@ -571,35 +725,39 @@
 
         /* Email Button Styles */
         .btn-email {
-            padding: 0.4rem 0.6rem;
-            border-radius: 0.375rem;
-            font-size: 0.7rem;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s;
+            border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: transparent;
-            color: var(--text-secondary);
         }
 
         body.light-theme .btn-email {
-            border-color: #e5e7eb;
-            background-color: #f8fafc;
+            color: #64748b;
+            background-color: #f1f5f9;
         }
 
         body.dark-theme .btn-email {
-            border-color: #475569;
-            background-color: #1e293b;
+            color: #94a3b8;
+            background-color: #334155;
         }
 
         .btn-email:hover {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            color: white;
-            border-color: #f97316;
+            color: #f97316;
+            background: #ffedd5;
             transform: translateY(-1px);
+        }
+
+        body.dark-theme .btn-email:hover {
+            background: #9a3412;
+            color: #fdba74;
         }
 
         /* Utility Classes for Layout */
@@ -850,8 +1008,7 @@
             }
 
             .fines-table {
-                display: block;
-                overflow-x: auto;
+                min-width: 1040px;
             }
 
             .fines-table th,
@@ -1024,30 +1181,31 @@
 
             <!-- Fines Table Container -->
             <div class="fines-table-container">
-                <table class="fines-table">
-                    <thead>
-                        <tr>
-                            <th>Student ID</th>
-                            <th>Student Name</th>
-                            <th>Book Title</th>
-                            <th>Due Date</th>
-                            <th>Days Overdue</th>
-                            <th>Fine Amount</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="finesTableBody">
-                        <!-- Data will be loaded here by JavaScript -->
-                        <tr>
-                            <td colspan="8" class="text-center">
-                                <div class="flex justify-center py-8">
-                                    <div class="loading-spinner"></div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="fines-table-wrapper">
+                    <table class="fines-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Book Title</th>
+                                <th>Due Date</th>
+                                <th>Days Overdue</th>
+                                <th>Fine Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="finesTableBody">
+                            <!-- Data will be loaded here by JavaScript -->
+                            <tr>
+                                <td colspan="7" class="text-center">
+                                    <div class="flex justify-center py-8">
+                                        <div class="loading-spinner"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
                 <div id="emptyState" class="empty-state">
                     <div class="empty-state-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
@@ -1363,7 +1521,7 @@
 
                 if (tbody) {
                     tbody.innerHTML =
-                        '<tr><td colspan="8" class="text-center"><div class="flex justify-center py-8"><div class="loading-spinner"></div></div></td></tr>';
+                        '<tr><td colspan="7" class="text-center"><div class="flex justify-center py-8"><div class="loading-spinner"></div></div></td></tr>';
                     if (emptyState) emptyState.style.display = 'none';
                 }
 
@@ -1418,11 +1576,20 @@
 
                 tbody.innerHTML = this.state.fines.map(fine => `
             <tr data-fine-id="${fine.id}">
-                <td>${fine.studentId}</td>
-                <td>${fine.studentName}</td>
+                <td>
+                    <div class="student-cell">
+                        <div class="student-avatar">
+                            ${this.getStudentAvatarMarkup(fine)}
+                        </div>
+                        <div class="student-details">
+                            <div class="student-name">${fine.studentName}</div>
+                            <div class="student-roll">${fine.studentId}</div>
+                        </div>
+                    </div>
+                </td>
                 <td>${fine.bookTitle}</td>
-                <td class="text-secondary">${fine.dueDate}</td>
-                <td class="text-secondary">${fine.daysOverdue}</td>
+                <td class="text-muted">${fine.dueDate}</td>
+                <td class="text-muted">${fine.daysOverdue}</td>
                 <td>
                     <span class="fine-amount ${fine.status.toLowerCase()}">
                         ₹${parseFloat(fine.fineAmount).toFixed(2)}
@@ -1435,7 +1602,7 @@
                     </span>
                 </td>
                 <td>
-                    <div class="flex items-center gap-2">
+                    <div class="fine-actions-cell">
                         <div class="action-buttons">
                             ${fine.status.toLowerCase() === 'pending' ? `
                                             <button class="action-btn btn-paid" onclick="finesManager.markAsPaid(${fine.id})">
@@ -1452,13 +1619,13 @@
                                                 Waive
                                             </button>
                                         ` : ''}
+                            <button class="btn-email" onclick="finesManager.sendEmailNotification(${fine.id})" title="Send Email">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                    <polyline points="22,6 12,13 2,6"></polyline>
+                                </svg>
+                            </button>
                         </div>
-                        <button class="btn-email" onclick="finesManager.sendEmailNotification(${fine.id})" title="Send Email">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                <polyline points="22,6 12,13 2,6"></polyline>
-                            </svg>
-                        </button>
                     </div>
                 </td>
             </tr>
@@ -1497,6 +1664,22 @@
                 document.getElementById('collectedFines').textContent = `₹${(stats.collected || 0).toFixed(2)}`;
                 document.getElementById('pendingFines').textContent = `₹${(stats.pending || 0).toFixed(2)}`;
                 document.getElementById('waivedFines').textContent = `₹${(stats.waived || 0).toFixed(2)}`;
+            },
+
+            getStudentAvatarMarkup(fine) {
+                if (fine.studentAvatar) {
+                    return `<img src="${fine.studentAvatar}" alt="${fine.studentName}" loading="lazy">`;
+                }
+
+                const studentName = fine.studentName || 'Unknown';
+                return this.getInitials(studentName);
+            },
+
+            getInitials(name) {
+                return (name || 'U')
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase();
             },
 
             renderPagination() {

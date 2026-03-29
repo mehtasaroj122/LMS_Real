@@ -116,6 +116,7 @@ class StudentController extends Controller
             $tableRows .= '</div>';
             $tableRows .= '</td>';
             $tableRows .= '<td class="text-muted">' . htmlspecialchars($student->user->email ?? 'N/A') . '</td>';
+            $tableRows .= '<td class="text-muted">' . htmlspecialchars($student->user->phone ?? 'N/A') . '</td>';
             $tableRows .= '<td class="text-muted">' . htmlspecialchars($student->department->name ?? 'N/A') . '</td>';
             $tableRows .= '<td class="text-muted">' . htmlspecialchars($student->batch ?? 'N/A') . '</td>';
             $tableRows .= '<td>';

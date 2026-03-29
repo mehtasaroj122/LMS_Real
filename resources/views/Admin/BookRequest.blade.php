@@ -30,7 +30,8 @@
     .requests-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 1110px;
+        min-width: 1020px;
+        table-layout: fixed;
     }
 
     .requests-table th {
@@ -93,33 +94,46 @@
     .requests-table th:nth-child(1),
     .requests-table td:nth-child(1) {
         padding-right: 4px;
-        max-width: 140px;
+        width: 18%;
+        max-width: 18%;
     }
     .requests-table th:nth-child(2),
     .requests-table td:nth-child(2) {
-           padding-left: 4px;
-           max-width: 90px;
-           overflow: hidden;
-           text-overflow: ellipsis;
-           white-space: nowrap;
+        padding-left: 4px;
+        width: 28%;
+        max-width: 28%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     .requests-table th:nth-child(3),
-    .requests-table td:nth-child(3),
+    .requests-table td:nth-child(3) {
+        width: 11%;
+        max-width: 11%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
     .requests-table th:nth-child(4),
-    .requests-table td:nth-child(4),
+    .requests-table td:nth-child(4) {
+        width: 11%;
+        max-width: 11%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
     .requests-table th:nth-child(5),
     .requests-table td:nth-child(5) {
-        max-width: 120px;
+        width: 15%;
+        max-width: 15%;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
     .requests-table th:nth-child(6),
     .requests-table td:nth-child(6) {
-        max-width: 90px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        width: 17%;
+        max-width: 17%;
     }
 
     /* Text muted (secondary info) */
@@ -178,16 +192,18 @@
         display: flex;
         gap: 6px;
         justify-content: flex-start;
+        align-items: center;
+        flex-wrap: nowrap;
     }
     .action-btn {
-        padding: 6px 12px;
+        padding: 6px 10px;
         border-radius: 6px;
         border: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 500;
         transition: all 0.3s ease;
         cursor: pointer;

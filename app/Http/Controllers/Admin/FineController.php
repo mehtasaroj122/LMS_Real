@@ -34,21 +34,7 @@ class FineController extends Controller
             })
             ->orderBy('created_at', 'desc');
 
-        // Search filter
-        if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->whereHas('student.user', function($sq) use ($search) {
-                    $sq->where('name', 'like', "%$search%")
-                       ->orWhere('email', 'like', "%$search%");
-                })
-                ->orWhereHas('issuedBook.book', function($sq) use ($search) {
-                    $sq->where('title', 'like', "%$search%");
-                })
-                ->orWhere('remarks', 'like', "%$search%")
-                ->orWhere('amount', 'like', "%$search%")
-                ->orWhere('status', 'like', "%$search%");
-            });
-        }
+        $this->applyFineSearch($query, $search);
 
         // Status filter
         if ($status !== 'all') {
@@ -69,7 +55,13 @@ class FineController extends Controller
             $dueDate = $fine->issuedBook && $fine->issuedBook->due_date
                 ? $fine->issuedBook->due_date->format('M d, Y')
                 : 'N/A';
-            
+            $profilePhoto = $fine->student && $fine->student->user
+                ? $fine->student->user->profile_photo
+                : null;
+            $studentAvatar = !empty($profilePhoto)
+                ? (str_starts_with($profilePhoto, 'http') ? $profilePhoto : asset('storage/' . $profilePhoto))
+                : null;
+
             // Map camelCase keys to snake_case for component
             return [
                 'id' => $fine->id,
@@ -85,7 +77,8 @@ class FineController extends Controller
                 'fine_amount' => '₹' . number_format((float)$fine->amount, 2),
                 'status' => ucfirst($fine->status),
                 'created_at' => $fine->created_at->format('M d, Y'),
-                'remarks' => $fine->remarks ?? ''
+                'remarks' => $fine->remarks ?? '',
+                'student_avatar' => $studentAvatar,
             ];
         })->toArray();
 
@@ -94,20 +87,7 @@ class FineController extends Controller
             $q->where('role', 'student');
         });
         
-        if (!empty($search)) {
-            $statsQuery->where(function($q) use ($search) {
-                $q->whereHas('student.user', function($sq) use ($search) {
-                    $sq->where('name', 'like', "%$search%")
-                       ->orWhere('email', 'like', "%$search%");
-                })
-                ->orWhereHas('issuedBook.book', function($sq) use ($search) {
-                    $sq->where('title', 'like', "%$search%");
-                })
-                ->orWhere('remarks', 'like', "%$search%")
-                ->orWhere('amount', 'like', "%$search%")
-                ->orWhere('status', 'like', "%$search%");
-            });
-        }
+        $this->applyFineSearch($statsQuery, $search);
         
         if ($status !== 'all') {
             if (strtolower($status) === 'overdue') {
@@ -385,22 +365,7 @@ class FineController extends Controller
                     $query->orderBy('created_at', 'desc');
             }
 
-            // Search filter
-            if (!empty($search)) {
-                $query->where(function($q) use ($search) {
-                    $q->whereHas('student.user', function($sq) use ($search) {
-                        $sq->where('name', 'like', "%$search%")
-                           ->orWhere('email', 'like', "%$search%");
-                    })
-                    ->orWhereHas('issuedBook.book', function($sq) use ($search) {
-                        $sq->where('title', 'like', "%$search%");
-                    })
-                    ->orWhere('remarks', 'like', "%$search%")
-                    ->orWhere('amount', 'like', "%$search%")
-                    ->orWhere('status', 'like', "%$search%")
-                    ;
-                });
-            }
+            $this->applyFineSearch($query, $search);
 
             // Status filter
             if ($status !== 'all') {
@@ -419,6 +384,12 @@ class FineController extends Controller
                 $dueDate = $fine->issuedBook && $fine->issuedBook->due_date
                     ? $fine->issuedBook->due_date->format('M d, Y')
                     : 'N/A';
+                $profilePhoto = $fine->student && $fine->student->user
+                    ? $fine->student->user->profile_photo
+                    : null;
+                $studentAvatar = !empty($profilePhoto)
+                    ? (str_starts_with($profilePhoto, 'http') ? $profilePhoto : asset('storage/' . $profilePhoto))
+                    : null;
                 return [
                     'id' => $fine->id,
                     'fineId' => 'FN-' . str_pad($fine->id, 6, '0', STR_PAD_LEFT),
@@ -426,6 +397,7 @@ class FineController extends Controller
                     'studentName' => $fine->student && $fine->student->user
                         ? $fine->student->user->name
                         : 'Unknown',
+                    'studentAvatar' => $studentAvatar,
                     'bookTitle' => $fine->issuedBook && $fine->issuedBook->book
                         ? $fine->issuedBook->book->title
                         : 'Unknown',
@@ -442,21 +414,7 @@ class FineController extends Controller
             $statsQuery = \App\Models\Fine::whereHas('student.user', function($q) {
                 $q->where('role', 'student');
             });
-            if (!empty($search)) {
-                $statsQuery->where(function($q) use ($search) {
-                    $q->whereHas('student.user', function($sq) use ($search) {
-                        $sq->where('name', 'like', "%$search%")
-                           ->orWhere('email', 'like', "%$search%");
-                    })
-                    ->orWhereHas('issuedBook.book', function($sq) use ($search) {
-                        $sq->where('title', 'like', "%$search%");
-                    })
-                    ->orWhere('remarks', 'like', "%$search%")
-                    ->orWhere('amount', 'like', "%$search%")
-                    ->orWhere('status', 'like', "%$search%")
-                    ;
-                });
-            }
+            $this->applyFineSearch($statsQuery, $search);
             if ($status !== 'all') {
                 if (strtolower($status) === 'overdue') {
                     $statsQuery->whereHas('issuedBook', function($q) {
@@ -498,6 +456,31 @@ class FineController extends Controller
                 'message' => 'Error loading fines: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    private function applyFineSearch($query, ?string $search): void
+    {
+        $search = trim((string) ($search ?? ''));
+
+        if ($search === '') {
+            return;
+        }
+
+        $query->where(function($q) use ($search) {
+            $q->whereHas('student.user', function($sq) use ($search) {
+                $sq->where('name', 'like', "%{$search}%")
+                   ->orWhere('email', 'like', "%{$search}%");
+            })
+            ->orWhereHas('student', function($sq) use ($search) {
+                $sq->where('roll_no', 'like', "%{$search}%");
+            })
+            ->orWhereHas('issuedBook.book', function($sq) use ($search) {
+                $sq->where('title', 'like', "%{$search}%");
+            })
+            ->orWhere('remarks', 'like', "%{$search}%")
+            ->orWhere('amount', 'like', "%{$search}%")
+            ->orWhere('status', 'like', "%{$search}%");
+        });
     }
 
     /**
@@ -755,4 +738,3 @@ class FineController extends Controller
         }
     }
 }
-
