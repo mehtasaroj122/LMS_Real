@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BookStoreRequest;
 use App\Models\book;
 use App\Models\category;
 use App\Models\ActivityLog;
@@ -184,14 +185,81 @@ class BookController extends Controller
         // Generate pagination HTML
         $paginationHtml = $books->links()->toHtml();
 
-        // Get stats
-        $stats = $this->getBookStats();
+        // Calculate stats based on current filters (for live updates)
+        $statsQuery = book::query();
+
+        // Apply same search filter to stats
+        if (!empty($search)) {
+            $statsQuery->where(function($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('author', 'like', '%' . $search . '%')
+                  ->orWhere('isbn', 'like', '%' . $search . '%')
+                  ->orWhere('publisher', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Apply same condition filter to stats
+        if ($condition !== 'all') {
+            $statsQuery->where('condition', $condition);
+        }
+
+        // Apply same category filter to stats
+        if ($category !== 'all') {
+            $statsQuery->whereHas('category', function($q) use ($category) {
+                $q->where('name', $category);
+            });
+        }
+
+        // Apply same availability filter to stats
+        if ($availability !== 'all') {
+            switch ($availability) {
+                case 'out-of-stock':
+                    $statsQuery->where('available_copies', 0);
+                    break;
+                case 'low-stock':
+                    $statsQuery->whereBetween('available_copies', [1, 5]);
+                    break;
+                case 'in-stock':
+                    $statsQuery->where('available_copies', '>=', 6);
+                    break;
+            }
+        }
+
+        $filteredBooks = $statsQuery->with('category')->get();
+        
+        // Calculate stats by iterating through filtered books
+        $totalCopies = 0;
+        $availableCopies = 0;
+        $topCategories = [];
+        
+        foreach ($filteredBooks as $book) {
+            // Sum up copies
+            $totalCopies += $book->total_copies ?? 0;
+            $availableCopies += $book->available_copies ?? 0;
+            
+            // Count categories
+            if ($book->category) {
+                $categoryName = $book->category->name;
+                if (!isset($topCategories[$categoryName])) {
+                    $topCategories[$categoryName] = 0;
+                }
+                $topCategories[$categoryName]++;
+            }
+        }
+        
+        $filteredStats = [
+            'totalBooks' => $filteredBooks->count(),
+            'totalCopies' => $totalCopies,
+            'availableCopies' => $availableCopies,
+            'borrowedCopies' => $totalCopies - $availableCopies,
+            'topCategories' => $topCategories,
+        ];
 
         return response()->json([
             'success' => true,
             'tableRows' => $tableRows,
             'pagination' => $paginationHtml,
-            'stats' => $stats,
+            'stats' => $filteredStats,
             'total' => $books->total(),
             'current_page' => $books->currentPage(),
             'last_page' => $books->lastPage(),
@@ -259,26 +327,12 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(BookStoreRequest $request)
     {
         Gate::authorize('access-admin');
 
         try {
-            // First, validate all fields including new_category
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'author' => 'required|string|max:255',
-                'isbn' => 'required|string|unique:books',
-                'publisher' => 'nullable|string|max:255',
-                'category_id' => 'nullable|integer|exists:categories,id',
-                'new_category' => 'nullable|string|max:255',
-                'total_copies' => 'required|integer|min:1',
-                'available_copies' => 'required|integer|min:0',
-                'condition' => 'required|in:new,good,damaged',
-                'shelf_no' => 'nullable|string|max:50',
-                'description' => 'nullable|string',
-                'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
+            $validated = $request->validated();
 
             // Validate that either category_id or new_category is provided (but not both)
             $categoryId = !empty($validated['category_id']) ? (int)$validated['category_id'] : null;
@@ -300,7 +354,11 @@ class BookController extends Controller
                 ], 422);
             }
 
-            // If category_id is provided, use it; otherwise use the one already created
+            if (!$categoryId && $newCategoryName) {
+                $categoryModel = category::firstOrCreate(['name' => $newCategoryName]);
+                $categoryId = $categoryModel->id;
+            }
+
             $validated['category_id'] = $categoryId;
 
             // Remove new_category from validated array as it's not a book column
@@ -374,17 +432,6 @@ class BookController extends Controller
             }
 
             return redirect()->route('admin.books.index')->with('success', 'Book created successfully');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // One-error-at-a-time: Return only the first error from the first field with an error
-            $errors = $e->errors();
-            $firstField = array_key_first($errors);
-            $firstError = $errors[$firstField][0];
-            
-            return response()->json([
-                'success' => false,
-                'message' => $firstError,
-                'errors' => [$firstField => [$firstError]], // Single error structure
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -412,26 +459,32 @@ class BookController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(BookStoreRequest $request, string $id)
     {
         Gate::authorize('access-admin');
 
         try {
             $book = book::findOrFail($id);
 
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'author' => 'required|string|max:255',
-                'isbn' => 'required|string|unique:books,isbn,' . $id,
-                'publisher' => 'nullable|string|max:255',
-                'category_id' => 'required|exists:categories,id',
-                'total_copies' => 'required|integer|min:1',
-                'available_copies' => 'required|integer|min:0',
-                'condition' => 'required|in:new,good,damaged',
-                'shelf_no' => 'nullable|string|max:50',
-                'description' => 'nullable|string',
-                'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
+            $validated = $request->validated();
+            $categoryId = !empty($validated['category_id']) ? (int) $validated['category_id'] : null;
+            $newCategoryName = !empty($validated['new_category']) ? trim($validated['new_category']) : null;
+
+            if ($categoryId && $newCategoryName) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please choose either an existing category OR create a new one, not both',
+                    'errors' => ['new_category' => ['Please choose either existing OR new category, not both']],
+                ], 422);
+            }
+
+            if (!$categoryId && $newCategoryName) {
+                $categoryModel = category::firstOrCreate(['name' => $newCategoryName]);
+                $categoryId = $categoryModel->id;
+            }
+
+            $validated['category_id'] = $categoryId;
+            unset($validated['new_category']);
 
             $oldCondition = $book->condition;
             $oldCopies = $book->available_copies;
@@ -492,17 +545,6 @@ class BookController extends Controller
             }
 
             return redirect()->route('admin.books.index')->with('success', 'Book updated successfully');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // One-error-at-a-time: Return only the first error from the first field with an error
-            $errors = $e->errors();
-            $firstField = array_key_first($errors);
-            $firstError = $errors[$firstField][0];
-            
-            return response()->json([
-                'success' => false,
-                'message' => $firstError,
-                'errors' => [$firstField => [$firstError]], // Single error structure
-            ], 422);
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([

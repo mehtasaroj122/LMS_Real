@@ -1838,8 +1838,10 @@
                                 paginationContainer.innerHTML = data.pagination;
                             }
 
-                            // DO NOT update stats here - they will be updated by refreshStats()
-                            // This prevents showing filtered stats temporarily
+                            // Update stats based on filtered results
+                            if (data.stats) {
+                                this.updateStats(data.stats);
+                            }
 
                             // Re-initialize table actions for new rows
                             this.initTableActions();
@@ -1861,21 +1863,28 @@
 
             /**
              * Update stats cards with data from backend
-             * @param {Object} stats - Statistics data
+             * @param {Object} stats - Statistics data including filtered values
              */
             updateStats(stats) {
                 console.log('Updating stats:', stats);
 
-                // Update total users count
-                document.getElementById('totalUsersCount').textContent = stats.totalUsers || 0;
+                // When filters are applied, use filtered values
+                // When no filters, use global values
+                const hasFilters = this.currentSearch || this.currentStatusFilter !== 'all' || this.currentRoleFilter !== 'all';
+
+                // Update total users count (show filtered count when filters applied, else global)
+                const totalCount = hasFilters ? (stats.filteredTotal || 0) : (stats.totalUsers || 0);
+                document.getElementById('totalUsersCount').textContent = totalCount;
 
                 // Update active users count
-                document.getElementById('activeUsersCount').textContent = stats.activeUsers || 0;
+                const activeCount = hasFilters ? (stats.filteredActive || 0) : (stats.activeUsers || 0);
+                document.getElementById('activeUsersCount').textContent = activeCount;
 
                 // Update inactive users count
-                document.getElementById('inactiveUsersCount').textContent = stats.inactiveUsers || 0;
+                const inactiveCount = hasFilters ? (stats.filteredInactive || 0) : (stats.inactiveUsers || 0);
+                document.getElementById('inactiveUsersCount').textContent = inactiveCount;
 
-                // Update role counts
+                // Update role counts (always use filtered counts so they match the filtered results)
                 document.getElementById('roleCountAdmin').textContent = stats.roleCounts?.admin || 0;
                 document.getElementById('roleCountStaff').textContent = stats.roleCounts?.staff || 0;
                 document.getElementById('roleCountStudent').textContent = stats.roleCounts?.student || 0;
@@ -1884,13 +1893,19 @@
             /**
              * Refresh stats from server without fetching user list
              * Used for real-time stat updates after delete/status change
-             * Stats always show GLOBAL counts, not filtered by current tab
+             * Passes current filters so stats can show both global and filtered counts
              */
             refreshStats() {
-                console.log('Refreshing global stats...');
+                console.log('Refreshing stats with current filters...');
 
-                // Always fetch GLOBAL stats (no filter), not filtered by current tab
-                fetch(`/admin/users/stats`, {
+                // Fetch stats with current filters applied
+                const params = new URLSearchParams({
+                    search: this.currentSearch,
+                    status: this.currentStatusFilter,
+                    role: this.currentRoleFilter
+                });
+
+                fetch(`/admin/users/stats?${params}`, {
                         method: 'GET',
                         headers: {
                             'Accept': 'application/json',
@@ -1902,7 +1917,7 @@
                         return res.json();
                     })
                     .then(data => {
-                        console.log('Global stats received:', data);
+                        console.log('Stats received:', data);
                         if (data.success) {
                             this.updateStats(data.stats);
                         }
@@ -1954,6 +1969,18 @@
                         e.preventDefault();
                         this.submitAddUser();
                     });
+                    this.bindUserFormErrorClearing([
+                        'addName',
+                        'addEmail',
+                        'addPassword',
+                        'addRoleSelect',
+                        'addDepartmentSelect',
+                        'addDesignation',
+                        'addJoinDate',
+                        'addRollNo',
+                        'addBatch',
+                        'addSemester'
+                    ]);
                 }
 
                 const editUserForm = document.getElementById('editUserForm');
@@ -1962,6 +1989,17 @@
                         e.preventDefault();
                         this.submitEditUser();
                     });
+                    this.bindUserFormErrorClearing([
+                        'editFullName',
+                        'editEmail',
+                        'editRole',
+                        'editDepartment',
+                        'editDesignation',
+                        'editJoinDate',
+                        'editRollNo',
+                        'editBatch',
+                        'editSemester'
+                    ]);
                 }
 
                 // Add User Modal
@@ -2735,6 +2773,92 @@
                 });
             }
 
+            bindUserFormErrorClearing(fieldIds) {
+                fieldIds.forEach((id) => {
+                    const inputEl = document.getElementById(id);
+                    if (!inputEl) {
+                        return;
+                    }
+
+                    const clear = () => this.clearUserFieldError(id);
+                    inputEl.addEventListener('input', clear);
+                    inputEl.addEventListener('change', clear);
+                });
+            }
+
+            getUserFieldErrorElementId(fieldId) {
+                const fieldMap = {
+                    addName: 'addNameError',
+                    addEmail: 'addEmailError',
+                    addPassword: 'addPasswordError',
+                    addRoleSelect: 'addRoleError',
+                    addDepartmentSelect: 'addDepartmentError',
+                    addDesignation: 'addDesignationError',
+                    addJoinDate: 'addJoinDateError',
+                    addRollNo: 'addRollNoError',
+                    addBatch: 'addBatchError',
+                    addSemester: 'addSemesterError',
+                    editFullName: 'editNameError',
+                    editEmail: 'editEmailError',
+                    editRole: 'editRoleError',
+                    editDepartment: 'editDepartmentError',
+                    editDesignation: 'editDesignationError',
+                    editJoinDate: 'editJoinDateError',
+                    editRollNo: 'editRollNoError',
+                    editBatch: 'editBatchError',
+                    editSemester: 'editSemesterError'
+                };
+
+                return fieldMap[fieldId] || `${fieldId}Error`;
+            }
+
+            clearUserFieldError(fieldId) {
+                const inputEl = document.getElementById(fieldId);
+                const errorEl = document.getElementById(this.getUserFieldErrorElementId(fieldId));
+
+                if (inputEl) {
+                    inputEl.classList.remove('is-invalid');
+                }
+
+                if (errorEl) {
+                    errorEl.textContent = '';
+                    errorEl.classList.remove('visible');
+                }
+            }
+
+            getAddUserFieldIdFromServerField(fieldName) {
+                const fieldMap = {
+                    name: 'addName',
+                    email: 'addEmail',
+                    password: 'addPassword',
+                    role: 'addRoleSelect',
+                    department_id: 'addDepartmentSelect',
+                    designation: 'addDesignation',
+                    join_date: 'addJoinDate',
+                    roll_no: 'addRollNo',
+                    batch: 'addBatch',
+                    semester: 'addSemester'
+                };
+
+                return fieldMap[fieldName] || null;
+            }
+
+            getEditUserFieldIdFromServerField(fieldName) {
+                const fieldMap = {
+                    name: 'editFullName',
+                    email: 'editEmail',
+                    role: 'editRole',
+                    department_id: 'editDepartment',
+                    designation: 'editDesignation',
+                    join_date: 'editJoinDate',
+                    roll_no: 'editRollNo',
+                    batch: 'editBatch',
+                    semester: 'editSemester'
+                };
+
+                return fieldMap[fieldName] || null;
+            }
+
             /**
              * Validate form fields one by one and return the FIRST error
              * @param {string} role - The selected user role
@@ -2876,7 +3000,7 @@
              */
             showAddUserFieldError(fieldId, message) {
                 const inputEl = document.getElementById(fieldId);
-                const errorEl = document.getElementById(fieldId + 'Error');
+                const errorEl = document.getElementById(this.getUserFieldErrorElementId(fieldId));
 
                 if (inputEl) {
                     inputEl.classList.add('is-invalid');
@@ -2930,23 +3054,11 @@
                                     // Get the first error from server
                                     const firstErrorField = Object.keys(data.errors)[0];
                                     const firstErrorMessage = data.errors[firstErrorField][0];
-
-                                    // Map field names to error element IDs
-                                    const fieldMap = {
-                                        'email': 'addEmailError',
-                                        'roll_no': 'addRollNoError',
-                                        'batch': 'addBatchError',
-                                        'department_id': 'addDepartmentError',
-                                        'designation': 'addDesignationError',
-                                        'join_date': 'addJoinDateError',
-                                        'semester': 'addSemesterError',
-                                        'name': 'addNameError',
-                                        'password': 'addPasswordError',
-                                        'role': 'addRoleError'
-                                    };
-
-                                    const errorElementId = fieldMap[firstErrorField] || 'addNameError';
-                                    throw new Error(firstErrorMessage);
+                                    const fieldId = this.getAddUserFieldIdFromServerField(firstErrorField);
+                                    const validationError = new Error(firstErrorMessage);
+                                    validationError.isValidationError = true;
+                                    validationError.fieldId = fieldId;
+                                    throw validationError;
                                 }
 
                                 throw new Error(data.message || 'Validation error occurred');
@@ -2975,6 +3087,11 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
+                        if (error.isValidationError && error.fieldId) {
+                            this.showAddUserFieldError(error.fieldId, error.message);
+                            this.scrollToElement(error.fieldId);
+                            return;
+                        }
                         this.showNotification(error.message || 'Error adding user', 'error');
                     })
                     .finally(() => {
@@ -3173,7 +3290,7 @@
              */
             showEditUserFieldError(fieldId, message) {
                 const inputEl = document.getElementById(fieldId);
-                const errorEl = document.getElementById(fieldId + 'Error');
+                const errorEl = document.getElementById(this.getUserFieldErrorElementId(fieldId));
 
                 if (inputEl) {
                     inputEl.classList.add('is-invalid');
@@ -3214,22 +3331,11 @@
                                 if (data.errors) {
                                     const firstErrorField = Object.keys(data.errors)[0];
                                     const firstErrorMessage = data.errors[firstErrorField][0];
-
-                                    // Map field names to error element IDs
-                                    const fieldMap = {
-                                        'email': 'editEmailError',
-                                        'roll_no': 'editRollNoError',
-                                        'batch': 'editBatchError',
-                                        'department_id': 'editDepartmentError',
-                                        'designation': 'editDesignationError',
-                                        'join_date': 'editJoinDateError',
-                                        'semester': 'editSemesterError',
-                                        'name': 'editNameError',
-                                        'role': 'editRoleError'
-                                    };
-
-                                    const errorElementId = fieldMap[firstErrorField] || 'editNameError';
-                                    throw new Error(firstErrorMessage);
+                                    const fieldId = this.getEditUserFieldIdFromServerField(firstErrorField);
+                                    const validationError = new Error(firstErrorMessage);
+                                    validationError.isValidationError = true;
+                                    validationError.fieldId = fieldId;
+                                    throw validationError;
                                 }
 
                                 throw new Error(data.message || 'Validation error occurred');
@@ -3254,6 +3360,11 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
+                        if (error.isValidationError && error.fieldId) {
+                            this.showEditUserFieldError(error.fieldId, error.message);
+                            this.scrollToElement(error.fieldId);
+                            return;
+                        }
                         this.showNotification(error.message || 'Error updating user', 'error');
                     })
                     .finally(() => {

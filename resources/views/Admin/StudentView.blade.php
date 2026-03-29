@@ -1643,6 +1643,264 @@
             color: #94a3b8;
         }
 
+        /* Fine Action Success Popup Styles */
+        .fine-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .fine-popup-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .fine-popup {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+        }
+
+        body.dark-theme .fine-popup {
+            background: #1e293b;
+        }
+
+        .fine-popup-overlay.show .fine-popup {
+            transform: scale(1);
+        }
+
+        .fine-popup-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: popupIconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes popupIconPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .fine-popup-icon.paid {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+        }
+
+        .fine-popup-icon.waived {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 8px 32px rgba(245, 158, 11, 0.4);
+        }
+
+        .fine-popup-icon.adjusted {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
+        }
+
+        .fine-popup-icon.email-sending {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
+        }
+
+        .fine-popup-icon svg {
+            width: 44px;
+            height: 44px;
+            color: white;
+        }
+
+        .fine-popup-icon .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .fine-popup-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1e293b;
+        }
+
+        body.dark-theme .fine-popup-title {
+            color: #f1f5f9;
+        }
+
+        .fine-popup-message {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #64748b;
+        }
+
+        body.dark-theme .fine-popup-message {
+            color: #94a3b8;
+        }
+
+        .fine-popup-details {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        body.dark-theme .fine-popup-details {
+            background: #334155;
+        }
+
+        .fine-popup-details .amount {
+            font-weight: 800;
+            font-size: 32px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        body.light-theme .fine-popup-details .amount {
+            color: #1e293b;
+        }
+
+        body.dark-theme .fine-popup-details .amount {
+            color: #f1f5f9;
+        }
+
+        .fine-popup-details .detail-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+        }
+
+        body.dark-theme .fine-popup-details .detail-label {
+            color: #94a3b8;
+        }
+
+        .fine-popup-email-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: #eff6ff;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #1d4ed8;
+        }
+
+        body.dark-theme .fine-popup-email-indicator {
+            background: #1e3a8a;
+            color: #93c5fd;
+        }
+
+        .fine-popup-email-indicator svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .fine-popup-email-indicator.sending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        body.dark-theme .fine-popup-email-indicator.sending {
+            background: #78350f;
+            color: #fde68a;
+        }
+
+        .fine-popup-email-indicator.sent {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        body.dark-theme .fine-popup-email-indicator.sent {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        .fine-popup-btn {
+            padding: 14px 40px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .fine-popup-btn.primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
+        }
+
+        .fine-popup-btn.primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .fine-popup-btn.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .fine-popup-btn.success:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .fine-popup-btn.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+        }
+
+        .fine-popup-btn.warning:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+        }
+
+        .fine-popup-btn.purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+        }
+
+        .fine-popup-btn.purple:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        }
+
+        .fine-popup-footer {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
         .book-details-body {
             padding: 24px;
         }
@@ -3033,6 +3291,29 @@
         </div>
     </div>
 
+    <!-- Fine Action Success Popup -->
+    <div class="fine-popup-overlay" id="fineSuccessPopup">
+        <div class="fine-popup">
+            <div class="fine-popup-icon" id="finePopupIcon">
+                <!-- Icon will be set dynamically -->
+            </div>
+            <h2 class="fine-popup-title" id="finePopupTitle">Success!</h2>
+            <p class="fine-popup-message" id="finePopupMessage">Operation completed successfully.</p>
+            <div class="fine-popup-details" id="finePopupDetails">
+                <!-- Details will be set dynamically -->
+            </div>
+            <div class="fine-popup-email-indicator" id="finePopupEmailIndicator" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+                <span id="finePopupEmailText">Sending email notification...</span>
+            </div>
+            <button class="fine-popup-btn primary" id="finePopupBtn" onclick="closeFinePopup()">Done</button>
+            <p class="fine-popup-footer" id="finePopupFooter"></p>
+        </div>
+    </div>
+
     <!-- Fine Action Modals -->
     <!-- Adjust Fine Modal -->
     <div class="fine-modal-overlay" id="adjustFineOverlay">
@@ -3851,6 +4132,159 @@
             }, 3000);
         }
 
+        // Fine Success Popup System
+        function showFineSuccessPopup(type, data = {}) {
+            const popup = document.getElementById('fineSuccessPopup');
+            const icon = document.getElementById('finePopupIcon');
+            const title = document.getElementById('finePopupTitle');
+            const message = document.getElementById('finePopupMessage');
+            const details = document.getElementById('finePopupDetails');
+            const emailIndicator = document.getElementById('finePopupEmailIndicator');
+            const emailText = document.getElementById('finePopupEmailText');
+            const btn = document.getElementById('finePopupBtn');
+            const footer = document.getElementById('finePopupFooter');
+
+            // Icon SVGs for different types
+            const icons = {
+                paid: `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>`,
+                waived: `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>`,
+                adjusted: `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                </svg>`,
+                'email-sending': `<div class="spinner"></div>`
+            };
+
+            // Email icon
+            const emailIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+            </svg>`;
+
+            // Check icon for sent state
+            const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>`;
+
+            // Set content based on type
+            switch(type) {
+                case 'paid':
+                    icon.innerHTML = icons.paid;
+                    icon.className = 'fine-popup-icon paid';
+                    title.textContent = 'Payment Received!';
+                    message.textContent = 'The fine has been marked as paid successfully.';
+                    details.innerHTML = `
+                        <span class="detail-label">Fine Amount Paid</span>
+                        <span class="amount">₹${parseFloat(data.amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    `;
+                    btn.className = 'fine-popup-btn success';
+                    btn.textContent = 'Excellent!';
+                    footer.textContent = 'Receipt email has been sent to the student.';
+                    break;
+
+                case 'waived':
+                    icon.innerHTML = icons.waived;
+                    icon.className = 'fine-popup-icon waived';
+                    title.textContent = 'Fine Waived!';
+                    message.textContent = `The fine has been waived successfully.${data.reason ? ' Reason: "' + data.reason + '"' : ''}`;
+                    details.innerHTML = `
+                        <span class="detail-label">Amount Waived</span>
+                        <span class="amount">₹${parseFloat(data.amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    `;
+                    btn.className = 'fine-popup-btn warning';
+                    btn.textContent = 'Got It';
+                    footer.textContent = 'Student has been notified about the waiver.';
+                    break;
+
+                case 'adjusted':
+                    icon.innerHTML = icons.adjusted;
+                    icon.className = 'fine-popup-icon adjusted';
+                    title.textContent = 'Fine Adjusted!';
+                    message.textContent = `The fine amount has been updated from ₹${parseFloat(data.oldAmount || 0).toLocaleString('en-IN')} to ₹${parseFloat(data.newAmount || 0).toLocaleString('en-IN')}.`;
+                    details.innerHTML = `
+                        <span class="detail-label">New Fine Amount</span>
+                        <span class="amount">₹${parseFloat(data.newAmount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    `;
+                    btn.className = 'fine-popup-btn purple';
+                    btn.textContent = 'Updated';
+                    footer.textContent = 'The fine record has been updated.';
+                    break;
+
+                case 'email-sending':
+                    icon.innerHTML = icons['email-sending'];
+                    icon.className = 'fine-popup-icon email-sending';
+                    title.textContent = 'Sending Email...';
+                    message.textContent = 'Notification email is being sent to the student.';
+                    details.innerHTML = `
+                        <span class="detail-label">Sending To</span>
+                        <span class="amount" style="font-size: 16px;">${data.email || 'student@email.com'}</span>
+                    `;
+                    btn.className = 'fine-popup-btn primary';
+                    btn.textContent = 'Sending...';
+                    btn.disabled = true;
+                    footer.textContent = 'Please wait...';
+                    break;
+
+                case 'email-sent':
+                    icon.innerHTML = icons.paid;
+                    icon.className = 'fine-popup-icon paid';
+                    title.textContent = 'Email Sent!';
+                    message.textContent = 'Notification has been successfully delivered to the student.';
+                    details.innerHTML = `
+                        <span class="detail-label">Sent To</span>
+                        <span class="amount" style="font-size: 16px;">${data.email || 'student@email.com'}</span>
+                    `;
+                    btn.className = 'fine-popup-btn success';
+                    btn.textContent = 'Done';
+                    btn.disabled = false;
+                    footer.textContent = '';
+                    break;
+            }
+
+            // Show email indicator for paid and waived (they send emails)
+            if (type === 'paid' || type === 'waived') {
+                emailIndicator.style.display = 'flex';
+                emailIndicator.className = 'fine-popup-email-indicator sending';
+                emailIndicator.innerHTML = `${emailIcon}<span id="finePopupEmailText">Sending notification email...</span>`;
+                
+                // Simulate email sent after 2 seconds
+                setTimeout(() => {
+                    emailIndicator.className = 'fine-popup-email-indicator sent';
+                    emailIndicator.innerHTML = `${checkIcon}<span id="finePopupEmailText">Email sent successfully!</span>`;
+                }, 2000);
+            } else if (type === 'adjusted') {
+                emailIndicator.style.display = 'flex';
+                emailIndicator.className = 'fine-popup-email-indicator';
+                emailIndicator.innerHTML = `${emailIcon}<span id="finePopupEmailText">Student will be notified of the adjustment.</span>`;
+            } else {
+                emailIndicator.style.display = 'none';
+            }
+
+            // Show popup
+            popup.classList.add('show');
+
+            // Auto close after some time if needed
+            // setTimeout(() => closeFinePopup(), 5000);
+        }
+
+        function closeFinePopup() {
+            const popup = document.getElementById('fineSuccessPopup');
+            popup.classList.remove('show');
+        }
+
+        // Close popup on overlay click
+        document.getElementById('fineSuccessPopup')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFinePopup();
+            }
+        });
+
         // Account Management Functions
         function resetPassword() {
             if (!confirm('Are you sure you want to reset the password for this student?\n\nA temporary password will be generated and sent to the student\'s email address.')) {
@@ -4235,6 +4669,7 @@
 
         function submitAdjustFine() {
             const newAmount = document.getElementById('adjustNewAmount').value;
+            const oldAmount = parseFloat(document.getElementById('adjustCurrentAmount').textContent.replace(/[₹,]/g, '')) || 0;
             
             if (!newAmount || isNaN(newAmount) || newAmount < 0) {
                 showToast('Please enter a valid amount.', 'error');
@@ -4257,10 +4692,14 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('✅ Fine adjusted successfully!', 'success');
                     closeFineModal('adjust');
+                    // Show success popup
+                    showFineSuccessPopup('adjusted', {
+                        oldAmount: oldAmount,
+                        newAmount: newAmount
+                    });
                     // Refresh fines table
-                    setTimeout(() => location.reload(), 1500);
+                    setTimeout(() => location.reload(), 3000);
                 } else {
                     showToast(data.message || 'Failed to adjust fine.', 'error');
                     submitBtn.disabled = false;
@@ -4270,7 +4709,7 @@
             .catch(error => {
                 console.error('Error:', error);
                 showToast('Network issue - fine may have been adjusted. Refreshing page...', 'warning');
-                                setTimeout(() => location.reload(), 2000);
+                setTimeout(() => location.reload(), 2000);
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Adjust Fine';
             });
@@ -4287,6 +4726,7 @@
 
         function submitWaiveFine() {
             const reason = document.getElementById('waiveReason').value.trim();
+            const amount = parseFloat(document.getElementById('waiveAmount').textContent.replace(/[₹,]/g, '')) || 0;
             
             if (!reason) {
                 showToast('Please enter a reason for waiving this fine.', 'error');
@@ -4309,9 +4749,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('✅ Fine waived successfully! Email sent to student.', 'success');
                     closeFineModal('waive');
-                    setTimeout(() => location.reload(), 1500);
+                    // Show success popup
+                    showFineSuccessPopup('waived', {
+                        amount: amount,
+                        reason: reason
+                    });
+                    setTimeout(() => location.reload(), 4000);
                 } else {
                     showToast(data.message || 'Failed to waive fine.', 'error');
                     submitBtn.disabled = false;
@@ -4321,7 +4765,7 @@
             .catch(error => {
                 console.error('Error:', error);
                 showToast('Network issue - fine may have been waived. Refreshing page...', 'warning');
-                                setTimeout(() => location.reload(), 2000);
+                setTimeout(() => location.reload(), 2000);
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Waive Fine';
             });
@@ -4336,6 +4780,7 @@
         }
 
         function submitMarkAsPaid() {
+            const amount = parseFloat(document.getElementById('paidAmount').textContent.replace(/[₹,]/g, '')) || 0;
             const submitBtn = document.getElementById('markPaidSubmitBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = 'Marking...';
@@ -4352,9 +4797,12 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showToast('✅ Fine marked as paid! Receipt email sent to student.', 'success');
                     closeFineModal('paid');
-                    setTimeout(() => location.reload(), 1500);
+                    // Show success popup
+                    showFineSuccessPopup('paid', {
+                        amount: amount
+                    });
+                    setTimeout(() => location.reload(), 4000);
                 } else {
                     showToast(data.message || 'Failed to mark fine as paid.', 'error');
                     submitBtn.disabled = false;

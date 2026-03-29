@@ -754,6 +754,69 @@
             }
         }
 
+        /* Action Popup */
+        .action-popup-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: #fff;
+        }
+
+        .action-popup-icon svg {
+            width: 1.9rem;
+            height: 1.9rem;
+        }
+
+        .action-popup-icon.paid {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.25);
+        }
+
+        .action-popup-icon.waived {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.25);
+        }
+
+        .action-popup-icon.email {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.25);
+        }
+
+        .action-popup-icon.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.25);
+        }
+
+        .action-popup-detail {
+            margin-top: 0.75rem;
+            padding: 0.875rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        body.light-theme .action-popup-detail {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            color: #334155;
+        }
+
+        body.dark-theme .action-popup-detail {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        .action-popup-footnote {
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .stats-grid {
@@ -1047,25 +1110,68 @@
         </div>
     </div>
 
+    <!-- Confirm Action Modal -->
+    <div id="confirmActionModal"
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; display: none; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;"
+        class="flex items-center justify-center">
+        <div class="card" style="width: 100%; max-width: 24rem; margin-left: 1rem; margin-right: 1rem;">
+            <div class="p-6 text-center">
+                <div id="confirmActionIcon" class="action-popup-icon paid"></div>
+                <h3 class="mb-2 text-lg font-semibold text-primary" id="confirmActionTitle">Confirm Action</h3>
+                <p class="mb-2 text-secondary" id="confirmActionMessage">Are you sure you want to continue?</p>
+                <div id="confirmActionDetail" class="action-popup-detail" style="display: none;"></div>
+                <div class="flex justify-center mt-6 gap-2">
+                    <button type="button" onclick="finesManager.closeConfirmActionModal()"
+                        class="px-4 py-2 transition border border-gray-300 rounded-lg dark:border-gray-600 text-primary hover:bg-gray-50 dark:hover:bg-gray-800">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmActionSubmitBtn" onclick="finesManager.executeConfirmedAction()"
+                        class="px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
+                        Continue
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Success Modal -->
     <div id="successModal"
         style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; display: none; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;"
         class="flex items-center justify-center">
         <div class="card" style="width: 100%; max-width: 24rem; margin-left: 1rem; margin-right: 1rem;">
             <div class="p-6 text-center">
-                <div
-                    class="flex items-center justify-center w-12 h-12 mx-auto mb-4 text-green-600 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                </div>
+                <div id="successIcon" class="action-popup-icon paid"></div>
                 <h3 class="mb-2 text-lg font-semibold text-primary" id="successTitle">Action Successful!</h3>
-                <p class="mb-6 text-secondary" id="successMessage">The action has been completed.</p>
+                <p class="mb-2 text-secondary" id="successMessage">The action has been completed.</p>
+                <div id="successDetail" class="action-popup-detail" style="display: none;"></div>
+                <p id="successFootnote" class="action-popup-footnote" style="display: none;"></p>
                 <button onclick="finesManager.closeSuccessModal()"
                     class="px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal"
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; display: none; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;"
+        class="flex items-center justify-center">
+        <div class="card" style="width: 100%; max-width: 24rem; margin-left: 1rem; margin-right: 1rem;">
+            <div class="p-6 text-center">
+                <div class="action-popup-icon error">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </div>
+                <h3 class="mb-2 text-lg font-semibold text-primary" id="errorTitle">Something Went Wrong</h3>
+                <p class="mb-2 text-secondary" id="errorMessage">Please try again.</p>
+                <div id="errorDetail" class="action-popup-detail" style="display: none;"></div>
+                <button onclick="finesManager.closeErrorModal()"
+                    class="px-4 py-2 mt-6 text-white transition bg-red-600 rounded-lg hover:bg-red-700">
                     OK
                 </button>
             </div>
@@ -1085,7 +1191,8 @@
                 sort: 'date-desc',
                 fines: [],
                 stats: {},
-                pagination: {}
+                pagination: {},
+                pendingConfirmAction: null
             },
 
             // BroadcastChannel for cross-tab communication
@@ -1476,9 +1583,94 @@
                 });
             },
 
-            markAsPaid(fineId) {
-                if (!confirm('Mark this fine as paid?')) return;
+            getFineRecord(fineId) {
+                return this.state.fines.find((fine) => Number(fine.id) === Number(fineId)) || null;
+            },
 
+            updateStatsLocally(amount, fromStatus, toStatus) {
+                const fineAmount = parseFloat(amount || 0);
+                const oldStatus = (fromStatus || '').toLowerCase();
+                const newStatus = (toStatus || '').toLowerCase();
+
+                const bucketMap = {
+                    pending: 'pending',
+                    paid: 'collected',
+                    waived: 'waived'
+                };
+
+                const fromKey = bucketMap[oldStatus];
+                const toKey = bucketMap[newStatus];
+
+                if (fromKey && typeof this.state.stats[fromKey] !== 'undefined') {
+                    this.state.stats[fromKey] = Math.max(0, parseFloat(this.state.stats[fromKey] || 0) - fineAmount);
+                }
+
+                if (toKey && typeof this.state.stats[toKey] !== 'undefined') {
+                    this.state.stats[toKey] = parseFloat(this.state.stats[toKey] || 0) + fineAmount;
+                }
+            },
+
+            updatePaginationAfterRemoval() {
+                if (!this.state.pagination) {
+                    return;
+                }
+
+                const currentTotal = parseInt(this.state.pagination.total || 0, 10);
+                const newTotal = Math.max(0, currentTotal - 1);
+                const lastPage = Math.max(1, Math.ceil(newTotal / this.state.perPage));
+
+                this.state.pagination.total = newTotal;
+                this.state.pagination.last_page = lastPage;
+                this.state.pagination.current_page = Math.min(this.state.currentPage, lastPage);
+                this.state.currentPage = this.state.pagination.current_page;
+            },
+
+            applyFineStatusChange(fineId, newStatus, extra = {}) {
+                const fine = this.getFineRecord(fineId);
+                if (!fine) {
+                    return;
+                }
+
+                const previousStatus = (fine.status || '').toLowerCase();
+                const targetStatus = (newStatus || '').toLowerCase();
+
+                if (previousStatus === targetStatus) {
+                    return;
+                }
+
+                this.updateStatsLocally(fine.fineAmount, previousStatus, targetStatus);
+
+                fine.status = targetStatus;
+                if (extra.reason) {
+                    fine.remarks = extra.reason;
+                }
+
+                const matchesCurrentFilter = this.state.filter === 'all' || targetStatus === this.state.filter;
+
+                if (!matchesCurrentFilter) {
+                    this.state.fines = this.state.fines.filter((item) => Number(item.id) !== Number(fineId));
+                    this.updatePaginationAfterRemoval();
+
+                    if (this.state.fines.length === 0 && this.state.currentPage > 1 && (this.state.pagination.total || 0) > 0) {
+                        this.state.currentPage -= 1;
+                        this.state.pagination.current_page = this.state.currentPage;
+                        this.loadFines();
+                        this.updateStats();
+                        return;
+                    }
+                }
+
+                this.renderTable();
+                this.updateStats();
+                this.renderPagination();
+            },
+
+            markAsPaid(fineId) {
+                const fine = this.getFineRecord(fineId);
+                this.openConfirmActionModal('paid', fineId, fine);
+            },
+
+            processMarkAsPaid(fineId, fine) {
                 fetch(`/admin/fines/${fineId}/mark-as-paid`, {
                         method: 'POST',
                         headers: {
@@ -1493,10 +1685,14 @@
                     })
                     .then(data => {
                         if (data.success) {
-                            this.showSuccess('Fine marked as paid');
+                            this.showSuccess('paid', {
+                                studentName: fine?.studentName,
+                                bookTitle: fine?.bookTitle,
+                                fineAmount: fine?.fineAmount
+                            });
                             // Notify other pages/tabs that fine was updated
                             this.notifyFineUpdate(fineId, 'paid');
-                            this.loadFines();
+                            this.applyFineStatusChange(fineId, 'paid');
                         } else {
                             this.showError(data.message || 'Error updating fine');
                         }
@@ -1526,6 +1722,7 @@
                 }
 
                 const fineId = this.state.currentFineId;
+                const fine = this.getFineRecord(fineId);
                 fetch(`/admin/fines/${fineId}/waive`, {
                         method: 'POST',
                         headers: {
@@ -1545,10 +1742,17 @@
                     .then(data => {
                         if (data.success) {
                             this.closeWaiveModal();
-                            this.showSuccess('Fine waived successfully');
+                            this.showSuccess('waived', {
+                                studentName: fine?.studentName,
+                                bookTitle: fine?.bookTitle,
+                                fineAmount: fine?.fineAmount,
+                                reason
+                            });
                             // Notify other pages/tabs that fine was updated
-                            this.notifyFineUpdate(this.state.currentFineId, 'waived');
-                            this.loadFines();
+                            this.notifyFineUpdate(fineId, 'waived');
+                            this.applyFineStatusChange(fineId, 'waived', {
+                                reason
+                            });
                         } else {
                             this.showError(data.message || 'Error waiving fine');
                         }
@@ -1561,7 +1765,16 @@
 
             sendEmailNotification(fineId) {
                 const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const fine = this.getFineRecord(fineId);
+                const status = (fine?.status || 'pending').toLowerCase();
+                this.openConfirmActionModal('email', fineId, fine, {
+                    status
+                });
+            },
 
+            processSendEmailNotification(fineId, fine, extra = {}) {
+                const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const status = (extra.status || fine?.status || 'pending').toLowerCase();
                 fetch(`/admin/fines/${fineId}/send-email`, {
                         method: 'POST',
                         headers: {
@@ -1578,8 +1791,13 @@
                     })
                     .then(data => {
                         if (data.success) {
-                            this.showSuccess(data.message ||
-                                'Email notification sent successfully based on fine status');
+                            this.showSuccess('email', {
+                                studentName: fine?.studentName,
+                                bookTitle: fine?.bookTitle,
+                                fineAmount: fine?.fineAmount,
+                                status,
+                                message: data.message
+                            });
                         } else {
                             this.showError(data.message || 'Failed to send email notification');
                         }
@@ -1588,6 +1806,97 @@
                         console.error('Error:', error);
                         this.showError('Error sending email: ' + error.message);
                     });
+            },
+
+            openConfirmActionModal(type, fineId, fine, extra = {}) {
+                const modal = document.getElementById('confirmActionModal');
+                const icon = document.getElementById('confirmActionIcon');
+                const title = document.getElementById('confirmActionTitle');
+                const message = document.getElementById('confirmActionMessage');
+                const detail = document.getElementById('confirmActionDetail');
+                const submitBtn = document.getElementById('confirmActionSubmitBtn');
+                const fineAmount = `₹${parseFloat(fine?.fineAmount || 0).toFixed(2)}`;
+                const bookTitle = fine?.bookTitle || 'this book';
+                const studentName = fine?.studentName || 'this student';
+
+                const icons = {
+                    paid: `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <path d="M2 10h20"></path>
+                            <path d="M7 15h.01"></path>
+                            <path d="M11 15h2"></path>
+                        </svg>
+                    `,
+                    email: `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                            <path d="m3 7 9 6 9-6"></path>
+                        </svg>
+                    `
+                };
+
+                const config = {
+                    paid: {
+                        iconClass: 'paid',
+                        title: 'Mark Fine as Paid?',
+                        message: `Record ${studentName}'s payment now?`,
+                        detail: `${fineAmount} for "${bookTitle}" will be marked as paid.`,
+                        buttonLabel: 'Mark as Paid',
+                        buttonClass: 'bg-green-600 hover:bg-green-700'
+                    },
+                    email: {
+                        iconClass: 'email',
+                        title: 'Send Fine Email?',
+                        message: `Send an email update to ${studentName}?`,
+                        detail: `${fineAmount} for "${bookTitle}" will be emailed based on the current ${extra.status || fine?.status || 'pending'} status.`,
+                        buttonLabel: 'Send Email',
+                        buttonClass: 'bg-orange-600 hover:bg-orange-700'
+                    }
+                }[type];
+
+                if (!config) {
+                    return;
+                }
+
+                icon.className = `action-popup-icon ${config.iconClass}`;
+                icon.innerHTML = icons[type];
+                title.textContent = config.title;
+                message.textContent = config.message;
+                detail.textContent = config.detail;
+                detail.style.display = config.detail ? 'block' : 'none';
+                submitBtn.textContent = config.buttonLabel;
+                submitBtn.className = `px-4 py-2 text-white transition rounded-lg ${config.buttonClass}`;
+                modal.style.display = 'flex';
+                this.state.pendingConfirmAction = {
+                    type,
+                    fineId,
+                    fine,
+                    extra
+                };
+            },
+
+            closeConfirmActionModal() {
+                document.getElementById('confirmActionModal').style.display = 'none';
+                this.state.pendingConfirmAction = null;
+            },
+
+            executeConfirmedAction() {
+                const pending = this.state.pendingConfirmAction;
+                if (!pending) {
+                    return;
+                }
+
+                this.closeConfirmActionModal();
+
+                if (pending.type === 'paid') {
+                    this.processMarkAsPaid(pending.fineId, pending.fine);
+                    return;
+                }
+
+                if (pending.type === 'email') {
+                    this.processSendEmailNotification(pending.fineId, pending.fine, pending.extra);
+                }
             },
 
             exportToCSV() {
@@ -1628,23 +1937,132 @@
                 document.body.removeChild(link);
                 setTimeout(() => URL.revokeObjectURL(url), 100);
 
-                this.showSuccess('CSV exported successfully');
+                this.showSuccess('generic', {
+                    message: 'CSV exported successfully'
+                });
             },
 
-            showSuccess(message) {
+            showSuccess(type, data = {}) {
                 const modal = document.getElementById('successModal');
-                document.getElementById('successTitle').textContent = 'Success!';
-                document.getElementById('successMessage').textContent = message;
+                const icon = document.getElementById('successIcon');
+                const title = document.getElementById('successTitle');
+                const message = document.getElementById('successMessage');
+                const detail = document.getElementById('successDetail');
+                const footnote = document.getElementById('successFootnote');
+
+                const icons = {
+                    paid: `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="m9 12 2 2 4-4"></path>
+                        </svg>
+                    `,
+                    waived: `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            <path d="m9 12 2 2 4-4"></path>
+                        </svg>
+                    `,
+                    email: `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                            <path d="m3 7 9 6 9-6"></path>
+                        </svg>
+                    `
+                };
+
+                const fineAmount = typeof data.fineAmount !== 'undefined'
+                    ? `₹${parseFloat(data.fineAmount || 0).toFixed(2)}`
+                    : 'the selected fine';
+
+                const configs = {
+                    paid: {
+                        iconClass: 'paid',
+                        title: 'Fine Marked as Paid',
+                        message: `${data.studentName || 'The student'}'s payment has been recorded successfully.`,
+                        detail: `${fineAmount} for "${data.bookTitle || 'this book'}" is now marked as paid.`,
+                        footnote: 'The fine status has been updated and the record will refresh automatically.'
+                    },
+                    waived: {
+                        iconClass: 'waived',
+                        title: 'Fine Waived Successfully',
+                        message: `${data.studentName || 'The student'}'s fine has been waived.`,
+                        detail: `${fineAmount} for "${data.bookTitle || 'this book'}" was waived.${data.reason ? ` Reason: ${data.reason}` : ''}`,
+                        footnote: 'The waiver has been saved to the fine record.'
+                    },
+                    email: {
+                        iconClass: 'email',
+                        title: 'Email Sent',
+                        message: data.message || 'The notification email has been queued successfully.',
+                        detail: `${this.getEmailDetailMessage(data.status, data.studentName, data.bookTitle, fineAmount)}`,
+                        footnote: 'The student should receive the latest fine update by email.'
+                    },
+                    generic: {
+                        iconClass: 'paid',
+                        title: 'Success!',
+                        message: data.message || 'The action was completed successfully.',
+                        detail: '',
+                        footnote: ''
+                    }
+                };
+
+                const config = configs[type] || configs.generic;
+
+                icon.className = `action-popup-icon ${config.iconClass}`;
+                icon.innerHTML = icons[type] || icons.paid;
+                title.textContent = config.title;
+                message.textContent = config.message;
+                detail.textContent = config.detail;
+                detail.style.display = config.detail ? 'block' : 'none';
+                footnote.textContent = config.footnote;
+                footnote.style.display = config.footnote ? 'block' : 'none';
                 modal.style.display = 'flex';
-                setTimeout(() => this.closeSuccessModal(), 3000);
+                clearTimeout(this.successModalTimer);
+                this.successModalTimer = setTimeout(() => this.closeSuccessModal(), 3500);
+            },
+
+            getEmailDetailMessage(status, studentName, bookTitle, fineAmount) {
+                const safeStudent = studentName || 'The student';
+                const safeBook = bookTitle || 'the related book';
+
+                if (status === 'paid') {
+                    return `${safeStudent} was sent a payment confirmation for ${fineAmount} on "${safeBook}".`;
+                }
+
+                if (status === 'waived') {
+                    return `${safeStudent} was sent a waiver notice for ${fineAmount} on "${safeBook}".`;
+                }
+
+                return `${safeStudent} was sent a fine reminder for ${fineAmount} on "${safeBook}".`;
             },
 
             closeSuccessModal() {
+                clearTimeout(this.successModalTimer);
                 document.getElementById('successModal').style.display = 'none';
             },
 
             showError(message) {
-                alert('Error: ' + message);
+                const modal = document.getElementById('errorModal');
+                const title = document.getElementById('errorTitle');
+                const body = document.getElementById('errorMessage');
+                const detail = document.getElementById('errorDetail');
+
+                title.textContent = 'Action Could Not Be Completed';
+                body.textContent = message || 'Something went wrong. Please try again.';
+
+                if (message && message.length > 90) {
+                    detail.textContent = message;
+                    detail.style.display = 'block';
+                } else {
+                    detail.textContent = '';
+                    detail.style.display = 'none';
+                }
+
+                modal.style.display = 'flex';
+            },
+
+            closeErrorModal() {
+                document.getElementById('errorModal').style.display = 'none';
             }
         };
 

@@ -526,6 +526,70 @@
         border-color: #3b82f6;
         color: #93c5fd;
     }
+
+    .action-popup-icon {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.75rem;
+    }
+
+    .action-popup-icon.approved {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .action-popup-icon.rejected {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .action-popup-icon.info {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .action-popup-icon.error {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    body.dark-theme .action-popup-icon.approved {
+        background: rgba(34, 197, 94, 0.15);
+        color: #4ade80;
+    }
+
+    body.dark-theme .action-popup-icon.rejected {
+        background: rgba(248, 113, 113, 0.15);
+        color: #f87171;
+    }
+
+    body.dark-theme .action-popup-icon.info {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+    }
+
+    body.dark-theme .action-popup-icon.error {
+        background: rgba(248, 113, 113, 0.15);
+        color: #f87171;
+    }
+
+    .action-popup-message {
+        font-size: 0.8rem;
+        line-height: 1.5;
+    }
+
+    .action-popup-note {
+        font-size: 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    .modal-action-btn {
+        min-width: 110px;
+    }
     
 </style>
 @endpush
@@ -741,16 +805,55 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
+    <!-- Result Modal -->
     <div id="confirmationModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
         <div class="w-full max-w-sm mx-4 card">
             <div class="p-4 text-center">
-                <div class="flex items-center justify-center w-10 h-10 mx-auto mb-2 text-green-600 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-400">
+                <div id="confirmationModalIcon" class="action-popup-icon info">
                     <i data-lucide="check-circle" class="w-6 h-6"></i>
                 </div>
-                <h3 class="mb-1 text-base font-semibold text-primary">Request Created!</h3>
-                <p class="mb-4 text-xs text-secondary">The book request has been successfully created.</p>
-                <button id="closeConfirmationModal" class="px-3 py-1 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
+                <h3 id="confirmationModalTitle" class="mb-1 text-base font-semibold text-primary">Request Created!</h3>
+                <p id="confirmationModalMessage" class="mb-1 text-xs text-secondary action-popup-message">The book request has been successfully created.</p>
+                <p id="confirmationModalNote" class="mb-4 text-xs text-secondary action-popup-note"></p>
+                <button id="closeConfirmationModal" type="button" class="px-3 py-1 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Action Confirmation Modal -->
+    <div id="requestActionModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+        <div class="w-full max-w-sm mx-4 card">
+            <div class="p-4 text-center">
+                <div id="requestActionIcon" class="action-popup-icon info">
+                    <i data-lucide="help-circle" class="w-6 h-6"></i>
+                </div>
+                <h3 id="requestActionTitle" class="mb-1 text-base font-semibold text-primary">Confirm Action</h3>
+                <p id="requestActionMessage" class="mb-1 text-xs text-secondary action-popup-message">Please confirm this request update.</p>
+                <p id="requestActionNote" class="mb-4 text-xs text-secondary action-popup-note"></p>
+                <div class="flex justify-center gap-2">
+                    <button id="cancelRequestAction" type="button" class="px-3 py-1 transition border border-gray-300 rounded-lg modal-action-btn dark:border-gray-600 text-primary hover:bg-gray-50 dark:hover:bg-gray-800">
+                        Cancel
+                    </button>
+                    <button id="confirmRequestAction" type="button" class="px-3 py-1 text-white transition bg-blue-600 rounded-lg modal-action-btn hover:bg-blue-700">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+        <div class="w-full max-w-sm mx-4 card">
+            <div class="p-4 text-center">
+                <div class="action-popup-icon error">
+                    <i data-lucide="circle-alert" class="w-6 h-6"></i>
+                </div>
+                <h3 class="mb-1 text-base font-semibold text-primary">Something Went Wrong</h3>
+                <p id="errorModalMessage" class="mb-4 text-xs text-secondary action-popup-message">We couldn't update the request.</p>
+                <button id="closeErrorModal" type="button" class="px-3 py-1 text-white transition bg-red-600 rounded-lg hover:bg-red-700">
                     OK
                 </button>
             </div>
@@ -992,9 +1095,11 @@
             constructor() {
                 this.currentStatus = 'all';
                 this.currentSort = 'date-desc';
+                this.currentPage = 1;
                 this.searchDebounceTimer = null;
                 this.studentSelect = null;
                 this.bookSelect = null;
+                this.pendingRequestAction = null;
                 this.init();
             }
 
@@ -1011,6 +1116,9 @@
                 document.getElementById('cancelCreateRequest').addEventListener('click', () => this.closeCreateModal());
                 document.getElementById('confirmCreateRequest').addEventListener('click', () => this.submitCreateRequest());
                 document.getElementById('closeConfirmationModal').addEventListener('click', () => this.closeConfirmationModal());
+                document.getElementById('cancelRequestAction').addEventListener('click', () => this.closeRequestActionModal());
+                document.getElementById('confirmRequestAction').addEventListener('click', () => this.executeRequestAction());
+                document.getElementById('closeErrorModal').addEventListener('click', () => this.closeErrorModal());
 
                 // Close modals on overlay click
                 document.getElementById('createRequestModal').addEventListener('click', (e) => {
@@ -1018,6 +1126,12 @@
                 });
                 document.getElementById('confirmationModal').addEventListener('click', (e) => {
                     if (e.target.id === 'confirmationModal') this.closeConfirmationModal();
+                });
+                document.getElementById('requestActionModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'requestActionModal') this.closeRequestActionModal();
+                });
+                document.getElementById('errorModal').addEventListener('click', (e) => {
+                    if (e.target.id === 'errorModal') this.closeErrorModal();
                 });
 
                 // Search and filter
@@ -1150,11 +1264,12 @@
             }
 
             fetchRequests(page = 1) {
+                this.currentPage = Number(page) || 1;
                 const searchTerm = document.getElementById('searchInput')?.value || '';
                 const status = this.currentStatus;
                 const sort = this.currentSort;
 
-                fetch(`{{ route('admin.book-requests.data') }}?search=${encodeURIComponent(searchTerm)}&status=${status}&sort=${sort}&page=${page}`, {
+                fetch(`{{ route('admin.book-requests.data') }}?search=${encodeURIComponent(searchTerm)}&status=${status}&sort=${sort}&page=${this.currentPage}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
@@ -1186,6 +1301,11 @@
                             }
                             document.getElementById('paginationContainer').innerHTML = paginationHtml;
                             this.attachEventListeners();
+                        }
+
+                        // Update stats based on filtered results
+                        if (data.stats) {
+                            this.updateStats(data.stats);
                         }
                     } else {
                         console.error('Error loading requests');
@@ -1256,12 +1376,144 @@
                 document.getElementById('confirmationModal').classList.add('hidden');
             }
 
+            closeRequestActionModal() {
+                document.getElementById('requestActionModal').classList.add('hidden');
+                this.pendingRequestAction = null;
+            }
+
+            closeErrorModal() {
+                document.getElementById('errorModal').classList.add('hidden');
+            }
+
+            showResultModal({ type = 'info', icon = 'check-circle', title, message, note = '' }) {
+                const modal = document.getElementById('confirmationModal');
+                const iconContainer = document.getElementById('confirmationModalIcon');
+                const titleElement = document.getElementById('confirmationModalTitle');
+                const messageElement = document.getElementById('confirmationModalMessage');
+                const noteElement = document.getElementById('confirmationModalNote');
+
+                iconContainer.className = `action-popup-icon ${type}`;
+                iconContainer.innerHTML = `<i data-lucide="${icon}" class="w-6 h-6"></i>`;
+                titleElement.textContent = title;
+                messageElement.textContent = message;
+                noteElement.textContent = note;
+                noteElement.style.display = note ? 'block' : 'none';
+                modal.classList.remove('hidden');
+
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+
+            showErrorModal(message) {
+                document.getElementById('errorModalMessage').textContent = message;
+                document.getElementById('errorModal').classList.remove('hidden');
+
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+
+            getRequestContext(requestId) {
+                const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
+
+                if (!row) {
+                    return {
+                        studentName: 'This student',
+                        bookTitle: 'this book',
+                    };
+                }
+
+                const studentName = row.querySelector('td:first-child span')?.textContent?.trim() || 'This student';
+                const bookTitle = row.querySelector('td:nth-child(2)')?.textContent?.trim() || 'this book';
+
+                return { studentName, bookTitle };
+            }
+
+            openRequestActionModal(requestId, action) {
+                const modal = document.getElementById('requestActionModal');
+                const iconContainer = document.getElementById('requestActionIcon');
+                const titleElement = document.getElementById('requestActionTitle');
+                const messageElement = document.getElementById('requestActionMessage');
+                const noteElement = document.getElementById('requestActionNote');
+                const confirmButton = document.getElementById('confirmRequestAction');
+                const { studentName, bookTitle } = this.getRequestContext(requestId);
+                const isApprove = action === 'approved';
+
+                this.pendingRequestAction = { requestId, action, studentName, bookTitle };
+
+                iconContainer.className = `action-popup-icon ${isApprove ? 'approved' : 'rejected'}`;
+                iconContainer.innerHTML = `<i data-lucide="${isApprove ? 'check-circle' : 'x-circle'}" class="w-6 h-6"></i>`;
+                titleElement.textContent = isApprove ? 'Accept Request?' : 'Reject Request?';
+                messageElement.textContent = isApprove
+                    ? `Approve ${studentName}'s request for "${bookTitle}"?`
+                    : `Reject ${studentName}'s request for "${bookTitle}"?`;
+                noteElement.textContent = isApprove
+                    ? 'The student will be notified that the request was accepted.'
+                    : 'The student will be notified that the request was rejected.';
+                confirmButton.textContent = isApprove ? 'Accept' : 'Reject';
+                confirmButton.className = `px-3 py-1 text-white transition rounded-lg modal-action-btn ${isApprove ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`;
+                modal.classList.remove('hidden');
+
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+
+            executeRequestAction() {
+                if (!this.pendingRequestAction) return;
+
+                const { requestId, action, studentName, bookTitle } = this.pendingRequestAction;
+                const formData = new FormData();
+                formData.append('status', action);
+                formData.append('_method', 'PUT');
+
+                fetch(`{{ url('admin/book-requests') }}/${requestId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        this.closeRequestActionModal();
+                        this.fetchRequests(this.currentPage);
+                        this.refreshStats();
+                        this.showResultModal({
+                            type: action === 'approved' ? 'approved' : 'rejected',
+                            icon: action === 'approved' ? 'check-circle' : 'x-circle',
+                            title: action === 'approved' ? 'Request Accepted' : 'Request Rejected',
+                            message: action === 'approved'
+                                ? `${studentName}'s request for "${bookTitle}" was accepted successfully.`
+                                : `${studentName}'s request for "${bookTitle}" was rejected successfully.`,
+                            note: action === 'approved'
+                                ? 'The request is now marked as approved in the list.'
+                                : 'The request is now marked as rejected in the list.'
+                        });
+                    } else {
+                        this.closeRequestActionModal();
+                        this.showErrorModal(data.message || 'Error updating request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.closeRequestActionModal();
+                    this.showErrorModal('Error updating request');
+                });
+            }
+
             submitCreateRequest() {
                 const studentId = document.getElementById('studentId').value;
                 const bookId = document.getElementById('bookId').value;
 
                 if (!studentId || !bookId) {
-                    alert('Please select both student and book.');
+                    this.showErrorModal('Please select both student and book.');
                     return;
                 }
 
@@ -1281,52 +1533,35 @@
                 .then(data => {
                     if (data.success) {
                         this.closeCreateModal();
-                        document.getElementById('confirmationModal').classList.remove('hidden');
+                        this.showResultModal({
+                            type: 'info',
+                            icon: 'check-circle',
+                            title: 'Request Created!',
+                            message: 'The book request has been successfully created.',
+                        });
                         this.fetchRequests(1);
                         this.refreshStats();
                     } else {
-                        alert(data.message || 'Error creating request');
+                        this.showErrorModal(data.message || 'Error creating request');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Error creating request');
+                    this.showErrorModal('Error creating request');
                 });
+            }
+
+            updateStats(stats) {
+                if (!stats) return;
+                document.getElementById('pendingCount').textContent = stats.pendingCount || 0;
+                document.getElementById('approvedCount').textContent = stats.approvedCount || 0;
+                document.getElementById('rejectedCount').textContent = stats.rejectedCount || 0;
             }
         }
 
         // Make processRequest globally available
         window.processRequest = function(requestId, action) {
-            if (!confirm(`Are you sure you want to ${action} this request?`)) return;
-
-            const formData = new FormData();
-            formData.append('status', action);
-            formData.append('_method', 'PUT');
-
-            fetch(`{{ url('admin/book-requests') }}/${requestId}`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    manager.fetchRequests();
-                    manager.refreshStats();
-                } else {
-                    alert(data.message || 'Error updating request');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error updating request');
-            });
+            manager.openRequestActionModal(requestId, action);
         };
 
         let manager;

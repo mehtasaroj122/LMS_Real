@@ -2,7 +2,14 @@
     <td>
         <div style="display: flex; align-items: center; gap: 12px;">
             @if ($user->profile_photo)
-                <img src="{{ str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset('storage/' . $user->profile_photo) }}" alt="{{ $user->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                @php
+                    $profilePhotoUrl = str_starts_with($user->profile_photo, 'http')
+                        ? $user->profile_photo
+                        : asset(str_starts_with($user->profile_photo, 'storage/')
+                            ? $user->profile_photo
+                            : 'storage/' . ltrim($user->profile_photo, '/'));
+                @endphp
+                <img src="{{ $profilePhotoUrl }}" alt="{{ $user->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
             @else
                 <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">
                     {{ strtoupper(substr($user->name, 0, 1)) }}

@@ -138,16 +138,57 @@
         }
 
         /* Student info styling */
+        .student-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        .student-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 9999px;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        body.light-theme .student-avatar {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+        }
+
+        body.dark-theme .student-avatar {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            color: #ffffff;
+        }
+
+        .student-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
         .student-info {
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
+            min-width: 0;
         }
 
         .student-name {
             font-weight: 600;
             color: var(--text-primary);
             line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .student-email {

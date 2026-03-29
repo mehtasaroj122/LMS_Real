@@ -92,12 +92,27 @@ class StudentController extends Controller
             $statusIcon = $student->user->status === 'active' 
                 ? '<i class="fas fa-check-circle" style="font-size: 10px;"></i>' 
                 : '<i class="fas fa-times-circle" style="font-size: 10px;"></i>';
+            $studentName = htmlspecialchars($student->user->name ?? 'Unknown');
+            $studentRoll = htmlspecialchars($student->roll_no ?? 'N/A');
+            $profilePhoto = $student->user->profile_photo ?? null;
+            $avatarHtml = '<div class="student-avatar">' . htmlspecialchars(strtoupper(substr($student->user->name ?? 'U', 0, 1))) . '</div>';
+
+            if ($profilePhoto) {
+                $avatarUrl = str_starts_with($profilePhoto, 'http')
+                    ? $profilePhoto
+                    : asset(str_starts_with($profilePhoto, 'storage/') ? $profilePhoto : 'storage/' . ltrim($profilePhoto, '/'));
+
+                $avatarHtml = '<div class="student-avatar"><img src="' . htmlspecialchars($avatarUrl) . '" alt="' . $studentName . '"></div>';
+            }
 
             $tableRows .= '<tr data-student-id="' . $student->id . '">';
             $tableRows .= '<td>';
+            $tableRows .= '<div class="student-cell">';
+            $tableRows .= $avatarHtml;
             $tableRows .= '<div class="student-info">';
-            $tableRows .= '<span class="student-name">' . htmlspecialchars($student->user->name ?? 'Unknown') . '</span>';
-            $tableRows .= '<div class="text-muted">' . htmlspecialchars($student->roll_no ?? 'N/A') . '</div>';
+            $tableRows .= '<span class="student-name">' . $studentName . '</span>';
+            $tableRows .= '<div class="text-muted">' . $studentRoll . '</div>';
+            $tableRows .= '</div>';
             $tableRows .= '</div>';
             $tableRows .= '</td>';
             $tableRows .= '<td class="text-muted">' . htmlspecialchars($student->user->email ?? 'N/A') . '</td>';
@@ -963,4 +978,3 @@ class StudentController extends Controller
         }
     }
 }
-

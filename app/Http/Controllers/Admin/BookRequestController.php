@@ -150,6 +150,37 @@ class BookRequestController extends Controller
             $tableRows .= '</tr>';
         }
 
+        // Calculate stats based on search and filter (for live updates)
+        $statsQuery = BookRequest::whereHas('student.user', function($q) {
+            $q->where('role', 'student');
+        });
+
+        // Apply same search filter to stats
+        if (!empty($search)) {
+            $statsQuery->where(function($q) use ($search) {
+                $q->whereHas('student.user', function($sq) use ($search) {
+                    $sq->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('student', function($sq) use ($search) {
+                    $sq->where('roll_no', 'like', '%' . $search . '%');
+                })
+                ->orWhereHas('book', function($bq) use ($search) {
+                    $bq->where('title', 'like', '%' . $search . '%')
+                      ->orWhere('author', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        // Apply same status filter to stats
+        if ($status !== 'all') {
+            $statsQuery->where('status', $status);
+        }
+
+        // Get stats
+        $pendingCount = (clone $statsQuery)->where('status', 'pending')->count();
+        $approvedCount = (clone $statsQuery)->where('status', 'approved')->count();
+        $rejectedCount = (clone $statsQuery)->where('status', 'rejected')->count();
+
         // Generate pagination HTML
         $paginationHtml = $requests->links()->toHtml();
 
@@ -160,6 +191,11 @@ class BookRequestController extends Controller
             'total' => $requests->total(),
             'current_page' => $requests->currentPage(),
             'last_page' => $requests->lastPage(),
+            'stats' => [
+                'pendingCount' => $pendingCount,
+                'approvedCount' => $approvedCount,
+                'rejectedCount' => $rejectedCount,
+            ]
         ]);
     }
 

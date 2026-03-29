@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminUserRequest;
 use App\Models\ActivityLog;
 use App\Models\staff;
 use App\Models\student;
@@ -152,20 +153,56 @@ class UserController extends Controller
 
     /**
      * Get current statistics (for live stat updates)
-     * Always returns GLOBAL counts, independent of any filters
+     * Returns GLOBAL counts plus filtered counts based on current filters
      */
     public function getStats(Request $request)
     {
         try {
-            // Always return global stats regardless of filters
+            // Get filter parameters from request
+            $search = $request->input('search', '');
+            $status = $request->input('status', 'all');
+            $role = $request->input('role', 'all');
+
+            // Build base query for global stats
+            $baseQuery = User::query();
+            
+            // Create filtered query with all filters applied
+            $filteredQuery = User::query();
+            
+            // Apply search filter
+            if (!empty($search)) {
+                $filteredQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+            
+            // Apply status filter to filtered query only
+            if ($status !== 'all') {
+                $filteredQuery->where('status', $status);
+            }
+
+            // Apply role filter to filtered query
+            if ($role !== 'all') {
+                $filteredQuery->where('role', $role);
+            }
+
+            // Get role counts for filtered results
+            $roleCounts = $filteredQuery->clone()
+                ->select('role', DB::raw('count(*) as count'))
+                ->groupBy('role')
+                ->pluck('count', 'role')
+                ->toArray();
+
+            // Return both global and filtered stats
             $stats = [
-                'totalUsers' => User::count(),
-                'activeUsers' => User::where('status', 'active')->count(),
-                'inactiveUsers' => User::where('status', 'inactive')->count(),
-                'roleCounts' => User::selectRaw('role, COUNT(*) as count')
-                    ->groupBy('role')
-                    ->pluck('count', 'role')
-                    ->toArray(),
+                'totalUsers' => $baseQuery->count(),
+                'activeUsers' => $baseQuery->where('status', 'active')->count(),
+                'inactiveUsers' => $baseQuery->where('status', 'inactive')->count(),
+                'roleCounts' => $roleCounts,
+                'filteredTotal' => $filteredQuery->count(),
+                'filteredActive' => $filteredQuery->clone()->where('status', 'active')->count(),
+                'filteredInactive' => $filteredQuery->clone()->where('status', 'inactive')->count(),
             ];
 
             return response()->json([
@@ -210,8 +247,8 @@ class UserController extends Controller
             $filteredQuery->where('role', $role);
         }
 
-        // Get role counts for filtered results
-        $roleCounts = $filteredQuery
+        // Get role counts for filtered results - clone to avoid modifying the query builder
+        $roleCounts = $filteredQuery->clone()
             ->select('role', DB::raw('count(*) as count'))
             ->groupBy('role')
             ->pluck('count', 'role')
@@ -231,63 +268,9 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(AdminUserRequest $request)
     {
-        // Define validation rules with custom error messages
-        $rules = [
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'role' => 'required|in:admin,staff,student',
-            'status' => 'required|in:active,inactive',
-            'phone' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'roll_no' => 'nullable|required_if:role,student|unique:students,roll_no',
-            'batch' => 'nullable|string|max:20',
-            'department_id' => 'nullable|required_if:role,student,staff|exists:departments,id',
-            'designation' => 'nullable|required_if:role,staff|string|max:100',
-            'join_date' => 'nullable|required_if:role,staff|date',
-            'semester' => 'nullable|required_if:role,student',
-        ];
-
-        $messages = [
-            'name.required' => 'Please enter the user\'s full name',
-            'email.required' => 'Please enter an email address',
-            'email.email' => 'Please enter a valid email address',
-            'email.unique' => 'This email is already registered. Please use a different email.',
-            'password.required' => 'Please enter a password',
-            'password.min' => 'Password must be at least 6 characters',
-            'role.required' => 'Please select a user role',
-            'role.in' => 'Please select a valid user role',
-            'status.required' => 'Please select user status',
-            'status.in' => 'Please select a valid status',
-            'roll_no.required_if' => 'Please enter the roll number for the student',
-            'roll_no.unique' => 'This roll number is already assigned to another student',
-            'batch.max' => 'Batch must not exceed 20 characters',
-            'department_id.required_if' => 'Please select a department',
-            'department_id.exists' => 'The selected department is invalid',
-            'designation.required_if' => 'Please enter the staff designation',
-            'designation.max' => 'Staff designation must not exceed 100 characters',
-            'join_date.required_if' => 'Please select the join date for the staff member',
-            'join_date.date' => 'Please enter a valid join date',
-            'semester.required_if' => 'Please select the current semester',
-        ];
-
-        try {
-            $data = $request->validate($rules, $messages);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Get the first validation error
-            $errors = $e->errors();
-            $firstField = array_key_first($errors);
-            $firstMessage = $errors[$firstField][0];
-
-            return response()->json([
-                'success' => false,
-                'message' => $firstMessage,
-                'errors' => $errors,
-                'first_error_field' => $firstField
-            ], 422);
-        }
+        $data = $request->validated();
 
         $user = User::create([
             'name' => $data['name'],
@@ -369,57 +352,9 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(AdminUserRequest $request, User $user)
     {
-        // Define validation rules with custom error messages
-        $rules = [
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|in:admin,staff,student',
-            'phone' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'department_id' => 'nullable|required_if:role,student,staff|exists:departments,id',
-            'roll_no' => 'nullable|required_if:role,student|unique:students,roll_no,' . ($user->student->id ?? ''),
-            'batch' => 'nullable|string|max:20',
-            'designation' => 'nullable|required_if:role,staff|string|max:100',
-            'join_date' => 'nullable|required_if:role,staff|date',
-            'semester' => 'nullable|required_if:role,student',
-        ];
-
-        $messages = [
-            'name.required' => 'Please enter the user\'s full name',
-            'email.required' => 'Please enter an email address',
-            'email.email' => 'Please enter a valid email address',
-            'email.unique' => 'This email is already registered to another user',
-            'role.required' => 'Please select a user role',
-            'role.in' => 'Please select a valid user role',
-            'roll_no.required_if' => 'Please enter the roll number for the student',
-            'roll_no.unique' => 'This roll number is already assigned to another student',
-            'batch.max' => 'Batch must not exceed 20 characters',
-            'department_id.required_if' => 'Please select a department',
-            'department_id.exists' => 'The selected department is invalid',
-            'designation.required_if' => 'Please enter the staff designation',
-            'designation.max' => 'Staff designation must not exceed 100 characters',
-            'join_date.required_if' => 'Please select the join date for the staff member',
-            'join_date.date' => 'Please enter a valid join date',
-            'semester.required_if' => 'Please select the current semester',
-        ];
-
-        try {
-            $data = $request->validate($rules, $messages);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Get the first validation error
-            $errors = $e->errors();
-            $firstField = array_key_first($errors);
-            $firstMessage = $errors[$firstField][0];
-
-            return response()->json([
-                'success' => false,
-                'message' => $firstMessage,
-                'errors' => $errors,
-                'first_error_field' => $firstField
-            ], 422);
-        }
+        $data = $request->validated();
 
         $oldData = [
             'name' => $user->name,

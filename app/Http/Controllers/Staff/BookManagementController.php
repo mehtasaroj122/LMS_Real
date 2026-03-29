@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BookStoreRequest;
 use App\Models\book;
 use App\Models\category;
 use App\Models\Notification;
@@ -213,25 +214,12 @@ class BookManagementController extends Controller
         return $stats;
     }
 
-    public function store(Request $request)
+    public function store(BookStoreRequest $request)
     {
         Gate::authorize('access-staff');
 
         try {
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'author' => 'required|string|max:255',
-                'isbn' => 'required|string|unique:books',
-                'publisher' => 'nullable|string|max:255',
-                'category_id' => 'nullable|integer|exists:categories,id',
-                'new_category' => 'nullable|string|max:255',
-                'total_copies' => 'required|integer|min:1',
-                'available_copies' => 'required|integer|min:0',
-                'condition' => 'required|in:new,good,damaged',
-                'shelf_no' => 'nullable|string|max:50',
-                'description' => 'nullable|string',
-                'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
+            $validated = $request->validated();
 
             $categoryId = !empty($validated['category_id']) ? (int)$validated['category_id'] : null;
             $newCategoryName = !empty($validated['new_category']) ? trim($validated['new_category']) : null;
@@ -240,6 +228,7 @@ class BookManagementController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Please select an existing category or create a new one',
+                    'errors' => ['category_id' => ['Please select an existing category or create a new one']],
                 ], 422);
             }
 
@@ -247,7 +236,13 @@ class BookManagementController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Please choose either an existing category OR create a new one, not both',
+                    'errors' => ['new_category' => ['Please choose either existing OR new category, not both']],
                 ], 422);
+            }
+
+            if (!$categoryId && $newCategoryName) {
+                $categoryModel = category::firstOrCreate(['name' => $newCategoryName]);
+                $categoryId = $categoryModel->id;
             }
 
             $validated['category_id'] = $categoryId;
@@ -318,12 +313,6 @@ class BookManagementController extends Controller
             }
 
             return redirect()->route('staff.books.index')->with('success', 'Book created successfully');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors(),
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -332,65 +321,82 @@ class BookManagementController extends Controller
         }
     }
 
-    public function update(Request $request, string $id)
+    public function update(BookStoreRequest $request, string $id)
     {
         Gate::authorize('access-staff');
 
-        $book = book::findOrFail($id);
+        try {
+            $book = book::findOrFail($id);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'isbn' => 'required|string|unique:books,isbn,' . $id,
-            'publisher' => 'nullable|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'total_copies' => 'required|integer|min:1',
-            'available_copies' => 'required|integer|min:0',
-            'condition' => 'required|in:new,good,damaged',
-            'shelf_no' => 'nullable|string|max:50',
-            'description' => 'nullable|string',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+            $validated = $request->validated();
+            $categoryId = !empty($validated['category_id']) ? (int) $validated['category_id'] : null;
+            $newCategoryName = !empty($validated['new_category']) ? trim($validated['new_category']) : null;
 
-        $oldCondition = $book->condition;
-        $book->update($validated);
-
-        // Handle cover replacement if a new file was uploaded
-        if ($request->hasFile('cover_image')) {
-            // Delete old cover if exists
-            if (!empty($book->cover_image) && Storage::disk('public')->exists($book->cover_image)) {
-                Storage::disk('public')->delete($book->cover_image);
+            if ($categoryId && $newCategoryName) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please choose either an existing category OR create a new one, not both',
+                    'errors' => ['new_category' => ['Please choose either existing OR new category, not both']],
+                ], 422);
             }
-            $path = $request->file('cover_image')->store('books/covers', 'public');
-            $book->cover_image = $path;
-            $book->save();
+
+            if (!$categoryId && $newCategoryName) {
+                $categoryModel = category::firstOrCreate(['name' => $newCategoryName]);
+                $categoryId = $categoryModel->id;
+            }
+
+            $validated['category_id'] = $categoryId;
+            unset($validated['new_category']);
+
+            $oldCondition = $book->condition;
+            $book->update($validated);
+
+            // Handle cover replacement if a new file was uploaded
+            if ($request->hasFile('cover_image')) {
+                // Delete old cover if exists
+                if (!empty($book->cover_image) && Storage::disk('public')->exists($book->cover_image)) {
+                    Storage::disk('public')->delete($book->cover_image);
+                }
+                $path = $request->file('cover_image')->store('books/covers', 'public');
+                $book->cover_image = $path;
+                $book->save();
+            }
+
+            $category = category::find($validated['category_id']);
+            $changes = [];
+            if ($oldCondition !== $book->condition) {
+                $changes[] = "condition from {$oldCondition} to {$book->condition}";
+            }
+            $changeDetails = !empty($changes) ? ' (' . implode(', ', $changes) . ')' : '';
+
+            ActivityLogger::logActivity(
+                'book_updated',
+                'Updated Book: ' . $book->title . ' (Category: ' . ($category->name ?? 'N/A') . ')' . $changeDetails,
+                'book',
+                'book',
+                $book->id,
+                ['changes' => $changes, 'category_id' => $book->category_id]
+            );
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Book updated successfully',
+                    'book' => $book,
+                ]);
+            }
+
+            return redirect()->route('staff.books.index')->with('success', 'Book updated successfully');
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error updating book: ' . $e->getMessage(),
+                ], 500);
+            }
+
+            throw $e;
         }
-
-        $category = category::find($validated['category_id']);
-        $changes = [];
-        if ($oldCondition !== $book->condition) {
-            $changes[] = "condition from {$oldCondition} to {$book->condition}";
-        }
-        $changeDetails = !empty($changes) ? ' (' . implode(', ', $changes) . ')' : '';
-
-        ActivityLogger::logActivity(
-            'book_updated',
-            'Updated Book: ' . $book->title . ' (Category: ' . ($category->name ?? 'N/A') . ')' . $changeDetails,
-            'book',
-            'book',
-            $book->id,
-            ['changes' => $changes, 'category_id' => $book->category_id]
-        );
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Book updated successfully',
-                'book' => $book,
-            ]);
-        }
-
-        return redirect()->route('staff.books.index')->with('success', 'Book updated successfully');
     }
 
     public function destroy(string $id)
@@ -427,7 +433,9 @@ class BookManagementController extends Controller
         Gate::authorize('access-staff');
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
+            'name' => ['required', 'string', 'min:2', 'max:50', 'regex:/^[A-Za-z\s&]+$/', 'unique:categories,name'],
+        ], [
+            'name.regex' => 'Category name can only contain letters, spaces, and &',
         ]);
 
         try {

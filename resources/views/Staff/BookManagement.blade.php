@@ -771,6 +771,45 @@
             margin-left: 8px;
         }
 
+        /* Validation Error Styles */
+        .form-control.error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        body.dark-theme .form-control.error {
+            border-color: #f87171 !important;
+            background-color: rgba(239, 68, 68, 0.1) !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .form-control.error:focus {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        body.dark-theme .form-control.error:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .field-error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .field-error-message::before {
+            content: "⚠";
+        }
+
+        body.dark-theme .field-error-message {
+            color: #f87171;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .book-management {
@@ -1082,8 +1121,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelAddBook">Cancel</button>
-                <button class="btn btn-primary" id="submitAddBook">
+                <button type="button" class="btn btn-outline" id="cancelAddBook">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitAddBook">
                     <i class="fas fa-plus"></i>
                     Add Book
                 </button>
@@ -1195,8 +1234,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" id="cancelEditBook">Cancel</button>
-                <button class="btn btn-primary" id="submitEditBook">
+                <button type="button" class="btn btn-outline" id="cancelEditBook">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitEditBook">
                     <i class="fas fa-save"></i>
                     Save Changes
                 </button>
@@ -1284,12 +1323,34 @@
                 document.getElementById('cancelAddBook').addEventListener('click', () => this.closeModal(
                     'addBookModal'));
                 document.getElementById('submitAddBook').addEventListener('click', () => this.submitAddBook());
+                const addBookForm = document.getElementById('addBookForm');
+                if (addBookForm) {
+                    addBookForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.submitAddBook();
+                    });
+                    addBookForm.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.addEventListener('input', () => this.clearFieldError(input));
+                        input.addEventListener('change', () => this.clearFieldError(input));
+                    });
+                }
 
                 document.getElementById('closeEditBookModal').addEventListener('click', () => this.closeModal(
                     'editBookModal'));
                 document.getElementById('cancelEditBook').addEventListener('click', () => this.closeModal(
                     'editBookModal'));
                 document.getElementById('submitEditBook').addEventListener('click', () => this.submitEditBook());
+                const editBookForm = document.getElementById('editBookForm');
+                if (editBookForm) {
+                    editBookForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.submitEditBook();
+                    });
+                    editBookForm.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.addEventListener('input', () => this.clearFieldError(input));
+                        input.addEventListener('change', () => this.clearFieldError(input));
+                    });
+                }
 
                 document.getElementById('closeViewBookModal').addEventListener('click', () => this.closeModal(
                     'viewBookModal'));
@@ -1722,41 +1783,23 @@
 
             submitAddBook() {
                 const form = document.getElementById('addBookForm');
-                const categorySelect = document.getElementById('addCategorySelect');
                 const newCategoryInput = document.getElementById('addNewCategory');
+                this.clearFieldErrors(form);
+                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id',
+                    'new_category', 'condition', 'total_copies', 'available_copies', 'description',
+                    'cover_image'
+                ];
+                const validationError = this.validateFormOneByOne(form, fieldOrder);
+                if (validationError) {
+                    this.showFieldError(validationError.input, validationError.error);
+                    return;
+                }
 
-                // Custom validation for category fields
-                const selectedCategory = categorySelect.value.trim();
                 const newCategory = newCategoryInput.value.trim();
-
-                // Validate: must select one OR create one, but not both empty
-                if (!selectedCategory && !newCategory) {
-                    this.showNotification('Please select an existing category or create a new one', 'error');
-                    return;
-                }
-
-                // Validate: cannot have both selected
-                if (selectedCategory && newCategory) {
-                    this.showNotification('Please choose either an existing category OR create a new one, not both',
-                        'error');
-                    return;
-                }
-
-                // If creating new category, validate the name
-                if (newCategory && newCategory.length < 2) {
-                    this.showNotification('New category name must be at least 2 characters long', 'error');
-                    return;
-                }
 
                 // If creating new category, we need to create it first
                 if (newCategory) {
                     this.createNewCategory(newCategory, form);
-                    return;
-                }
-
-                // Standard form validation for other fields
-                if (!form.checkValidity()) {
-                    form.reportValidity();
                     return;
                 }
 
@@ -1831,11 +1874,6 @@
             }
 
             submitAddBookForm(form) {
-                if (!form.checkValidity()) {
-                    form.reportValidity();
-                    return;
-                }
-
                 const formData = new FormData(form);
 
                 // Remove new_category if it's empty to avoid sending it
@@ -1855,20 +1893,22 @@
                         },
                         body: formData
                     })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw new Error(data.message || `HTTP error! status: ${response.status}`);
-                            }).catch(err => {
-                                if (err instanceof Error && err.message.includes('HTTP error')) {
-                                    throw err;
-                                }
-                                throw new Error(`HTTP error! status: ${response.status}`);
-                            });
-                        }
-                        return response.json();
-                    })
+                    .then(response => response.json().catch(() => {
+                        throw new Error('Invalid JSON response');
+                    }))
                     .then(data => {
+                        if (data.errors && Object.keys(data.errors).length > 0) {
+                            const firstErrorField = Object.keys(data.errors)[0];
+                            const firstErrorMessage = data.errors[firstErrorField][0];
+                            const input = form.querySelector(`[name="${firstErrorField}"]`);
+                            if (input) {
+                                this.showFieldError(input, firstErrorMessage);
+                            } else {
+                                this.showNotification(firstErrorMessage, 'error');
+                            }
+                            return;
+                        }
+
                         console.log('Book submission response:', data);
                         if (data.success) {
                             this.showNotification('Book added successfully', 'success');
@@ -1889,8 +1929,13 @@
 
             submitEditBook() {
                 const form = document.getElementById('editBookForm');
-                if (!form.checkValidity()) {
-                    form.reportValidity();
+                this.clearFieldErrors(form);
+                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id',
+                    'condition', 'total_copies', 'available_copies', 'description', 'cover_image'
+                ];
+                const validationError = this.validateFormOneByOne(form, fieldOrder);
+                if (validationError) {
+                    this.showFieldError(validationError.input, validationError.error);
                     return;
                 }
 
@@ -1905,11 +1950,22 @@
                         },
                         body: formData
                     })
-                    .then(response => {
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        return response.json();
-                    })
+                    .then(response => response.json().catch(() => {
+                        throw new Error('Invalid JSON response');
+                    }))
                     .then(data => {
+                        if (data.errors && Object.keys(data.errors).length > 0) {
+                            const firstErrorField = Object.keys(data.errors)[0];
+                            const firstErrorMessage = data.errors[firstErrorField][0];
+                            const input = form.querySelector(`[name="${firstErrorField}"]`);
+                            if (input) {
+                                this.showFieldError(input, firstErrorMessage);
+                            } else {
+                                this.showNotification(firstErrorMessage, 'error');
+                            }
+                            return;
+                        }
+
                         if (data.success) {
                             this.showNotification('Book updated successfully', 'success');
                             this.closeModal('editBookModal');
@@ -1982,6 +2038,260 @@
                         notification.remove();
                     }
                 }, 5000);
+            }
+
+            clearFieldError(input) {
+                input.classList.remove('error');
+                const errorElement = input.parentElement.querySelector('.field-error-message');
+                if (errorElement) {
+                    errorElement.remove();
+                }
+            }
+
+            clearFieldErrors(form) {
+                form.querySelectorAll('.form-control').forEach(input => {
+                    input.classList.remove('error');
+                    const existingError = input.parentElement.querySelector('.field-error-message');
+                    if (existingError) {
+                        existingError.remove();
+                    }
+                });
+            }
+
+            showFieldError(input, message) {
+                this.clearFieldError(input);
+                input.classList.add('error');
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error-message';
+                errorDiv.textContent = message;
+
+                input.parentElement.appendChild(errorDiv);
+                input.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                input.focus();
+            }
+
+            validateField(input, rules) {
+                const value = input.value.trim();
+                const type = input.type;
+                const isRequired = input.hasAttribute('required');
+
+                if (!isRequired && value === '') {
+                    return null;
+                }
+
+                if (rules.required && value === '') {
+                    return rules.requiredMessage || 'This field is required';
+                }
+
+                if (rules.minLength && value.length < rules.minLength) {
+                    return rules.minLengthMessage || `Must be at least ${rules.minLength} characters`;
+                }
+
+                if (rules.maxLength && value.length > rules.maxLength) {
+                    return rules.maxLengthMessage || `Must not exceed ${rules.maxLength} characters`;
+                }
+
+                let processedValue = value;
+                if (rules.transform) {
+                    processedValue = rules.transform(value);
+                }
+
+                if (rules.numeric && processedValue !== '' && isNaN(processedValue)) {
+                    return rules.numericMessage || 'Must be a valid number';
+                }
+
+                if (rules.min !== undefined && processedValue !== '' && parseFloat(processedValue) < rules.min) {
+                    return rules.minMessage || `Must be at least ${rules.min}`;
+                }
+
+                if (rules.max !== undefined && processedValue !== '' && parseFloat(processedValue) > rules.max) {
+                    return rules.maxMessage || `Must not exceed ${rules.max}`;
+                }
+
+                if (rules.pattern && processedValue !== '') {
+                    if (!rules.pattern.test(processedValue)) {
+                        return rules.patternMessage || 'Invalid format';
+                    }
+                }
+
+                if (rules.custom) {
+                    const customError = rules.custom(processedValue, input.closest('form'));
+                    if (customError) {
+                        return customError;
+                    }
+                }
+
+                if (rules.accept && type === 'file' && value !== '') {
+                    const file = input.files[0];
+                    if (file) {
+                        const acceptedTypes = rules.accept.split(',').map(t => t.trim());
+                        const fileType = file.type;
+                        const fileName = file.name.toLowerCase();
+                        const isValid = acceptedTypes.some(acceptedType => {
+                            if (acceptedType.startsWith('.')) {
+                                return fileName.endsWith(acceptedType);
+                            }
+
+                            return fileType.includes(acceptedType.replace('*', ''));
+                        });
+
+                        if (!isValid) {
+                            return rules.acceptMessage || `File type not allowed. Accepted: ${rules.accept}`;
+                        }
+                    }
+                }
+
+                if (rules.maxSize && type === 'file' && value !== '') {
+                    const file = input.files[0];
+                    if (file) {
+                        const maxBytes = rules.maxSize * 1024 * 1024;
+                        if (file.size > maxBytes) {
+                            return rules.maxSizeMessage || `File size must not exceed ${rules.maxSize}MB`;
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            validateFormOneByOne(form, fieldOrder) {
+                const fieldRules = {
+                    isbn: {
+                        required: true,
+                        requiredMessage: 'ISBN is required',
+                        pattern: /^[0-9]{10,13}$/,
+                        patternMessage: 'ISBN must be 10-13 digits only (e.g., 9780134685991)',
+                        transform: (value) => value.replace(/[-\s]/g, '')
+                    },
+                    shelf_no: {
+                        required: true,
+                        requiredMessage: 'Rack number is required',
+                        pattern: /^[A-Za-z0-9]+[-]?[A-Za-z0-9]*$/,
+                        patternMessage: 'Rack number must be alphanumeric (e.g., A-12, B5, Shelf1)',
+                        maxLength: 20,
+                        maxLengthMessage: 'Rack number must not exceed 20 characters'
+                    },
+                    title: {
+                        required: true,
+                        requiredMessage: 'Title is required',
+                        minLength: 2,
+                        minLengthMessage: 'Title must be at least 2 characters',
+                        maxLength: 255,
+                        maxLengthMessage: 'Title must not exceed 255 characters',
+                        pattern: /^[A-Za-z0-9\s\-:'.&()]+$/,
+                        patternMessage: 'Title can only contain letters, numbers, spaces, and: - : \' . & ( )'
+                    },
+                    author: {
+                        required: true,
+                        requiredMessage: 'Author is required',
+                        minLength: 2,
+                        minLengthMessage: 'Author name must be at least 2 characters',
+                        maxLength: 255,
+                        maxLengthMessage: 'Author name must not exceed 255 characters',
+                        pattern: /^[A-Za-z\s.]+$/,
+                        patternMessage: 'Author name can only contain letters, spaces, and periods'
+                    },
+                    publisher: {
+                        maxLength: 255,
+                        maxLengthMessage: 'Publisher name must not exceed 255 characters',
+                        pattern: /^[A-Za-z0-9\s&.,'-]*$/,
+                        patternMessage: 'Publisher can only contain letters, numbers, spaces, and: & . , \' -'
+                    },
+                    category_id: {
+                        custom: (value, currentForm) => {
+                            const newCategoryInput = currentForm?.querySelector('[name="new_category"]');
+                            const newCategoryValue = newCategoryInput ? newCategoryInput.value.trim() : '';
+
+                            if (!value && !newCategoryValue) {
+                                return 'Please select a category or create a new one';
+                            }
+
+                            if (value && newCategoryValue) {
+                                return 'Please choose either existing OR new category, not both';
+                            }
+
+                            return null;
+                        }
+                    },
+                    new_category: {
+                        minLength: 2,
+                        minLengthMessage: 'Category name must be at least 2 characters',
+                        maxLength: 50,
+                        maxLengthMessage: 'Category name must not exceed 50 characters',
+                        pattern: /^[A-Za-z\s&]*$/,
+                        patternMessage: 'Category name can only contain letters, spaces, and &'
+                    },
+                    condition: {
+                        required: true,
+                        requiredMessage: 'Condition is required',
+                        custom: (value) => {
+                            if (!['new', 'good', 'damaged'].includes(value)) {
+                                return 'Condition must be new, good, or damaged';
+                            }
+
+                            return null;
+                        }
+                    },
+                    total_copies: {
+                        required: true,
+                        requiredMessage: 'Total copies is required',
+                        numeric: true,
+                        numericMessage: 'Total copies must be a valid number',
+                        min: 1,
+                        minMessage: 'Total copies must be at least 1',
+                        max: 9999,
+                        maxMessage: 'Total copies must not exceed 9999'
+                    },
+                    available_copies: {
+                        required: true,
+                        requiredMessage: 'Available copies is required',
+                        numeric: true,
+                        numericMessage: 'Available copies must be a valid number',
+                        min: 0,
+                        minMessage: 'Available copies cannot be negative',
+                        max: 9999,
+                        maxMessage: 'Available copies must not exceed 9999',
+                        custom: (value, currentForm) => {
+                            const totalCopies = parseInt(currentForm?.querySelector('[name="total_copies"]')
+                                ?.value || 0, 10);
+                            const available = parseInt(value, 10);
+                            if (available > totalCopies) {
+                                return 'Available copies cannot exceed total copies';
+                            }
+                            return null;
+                        }
+                    },
+                    description: {
+                        maxLength: 2000,
+                        maxLengthMessage: 'Description must not exceed 2000 characters'
+                    },
+                    cover_image: {
+                        maxSize: 2,
+                        maxSizeMessage: 'Cover image must not exceed 2MB',
+                        accept: '.jpeg,.jpg,.png,.gif,.svg',
+                        acceptMessage: 'Please select a valid image file (JPEG, PNG, JPG, GIF, SVG)'
+                    }
+                };
+
+                for (const fieldName of fieldOrder) {
+                    const input = form.querySelector(`[name="${fieldName}"]`);
+                    if (input && fieldRules[fieldName]) {
+                        const error = this.validateField(input, fieldRules[fieldName]);
+                        if (error) {
+                            return {
+                                field: fieldName,
+                                error: error,
+                                input: input
+                            };
+                        }
+                    }
+                }
+
+                return null;
             }
         }
 
