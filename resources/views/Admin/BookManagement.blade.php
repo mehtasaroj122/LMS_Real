@@ -1195,38 +1195,38 @@
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search by title, author, ISBN...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by title, author, ISBN..." value="{{ $search ?? '' }}">
                 </div>
 
                 <div class="filters-container">
                     <select class="filter-select" id="conditionFilter">
-                        <option value="all">All Conditions</option>
-                        <option value="new">New</option>
-                        <option value="good">Good</option>
-                        <option value="damaged">Damaged</option>
+                        <option value="all" {{ ($condition ?? 'all') === 'all' ? 'selected' : '' }}>All Conditions</option>
+                        <option value="new" {{ ($condition ?? 'all') === 'new' ? 'selected' : '' }}>New</option>
+                        <option value="good" {{ ($condition ?? 'all') === 'good' ? 'selected' : '' }}>Good</option>
+                        <option value="damaged" {{ ($condition ?? 'all') === 'damaged' ? 'selected' : '' }}>Damaged</option>
                     </select>
 
                     <select class="filter-select" id="categoryFilter">
-                        <option value="all">All Categories</option>
+                        <option value="all" {{ ($selectedCategory ?? 'all') === 'all' ? 'selected' : '' }}>All Categories</option>
                         @foreach($categories as $category)
-                            <option value="{{ $category->name }}">{{ $category->name }}</option>
+                            <option value="{{ $category->name }}" {{ ($selectedCategory ?? 'all') === $category->name ? 'selected' : '' }}>{{ $category->name }}</option>
                         @endforeach
                     </select>
 
                     <select class="filter-select" id="availabilityFilter">
-                        <option value="all">All Stock</option>
-                        <option value="out-of-stock">Out of Stock</option>
-                        <option value="low-stock">Low Stock (1-5)</option>
-                        <option value="in-stock">In Stock (6+)</option>
+                        <option value="all" {{ ($availability ?? 'all') === 'all' ? 'selected' : '' }}>All Stock</option>
+                        <option value="out-of-stock" {{ ($availability ?? 'all') === 'out-of-stock' ? 'selected' : '' }}>Out of Stock</option>
+                        <option value="low-stock" {{ ($availability ?? 'all') === 'low-stock' ? 'selected' : '' }}>Low Stock (1-5)</option>
+                        <option value="in-stock" {{ ($availability ?? 'all') === 'in-stock' ? 'selected' : '' }}>In Stock (6+)</option>
                     </select>
 
                     <select class="filter-select" id="sortFilter">
-                        <option value="recently-added">Recently Added</option>
-                        <option value="title-asc">Title (A-Z)</option>
-                        <option value="title-desc">Title (Z-A)</option>
-                        <option value="author-asc">Author (A-Z)</option>
-                        <option value="author-desc">Author (Z-A)</option>
-                        <option value="copies-desc">Copies (High to Low)</option>
+                        <option value="recently-added" {{ ($sort ?? 'recently-added') === 'recently-added' ? 'selected' : '' }}>Recently Added</option>
+                        <option value="title-asc" {{ ($sort ?? 'recently-added') === 'title-asc' ? 'selected' : '' }}>Title (A-Z)</option>
+                        <option value="title-desc" {{ ($sort ?? 'recently-added') === 'title-desc' ? 'selected' : '' }}>Title (Z-A)</option>
+                        <option value="author-asc" {{ ($sort ?? 'recently-added') === 'author-asc' ? 'selected' : '' }}>Author (A-Z)</option>
+                        <option value="author-desc" {{ ($sort ?? 'recently-added') === 'author-desc' ? 'selected' : '' }}>Author (Z-A)</option>
+                        <option value="copies-desc" {{ ($sort ?? 'recently-added') === 'copies-desc' ? 'selected' : '' }}>Copies (High to Low)</option>
                     </select>
                 </div>
 
@@ -1652,6 +1652,14 @@
                 this.init();
             }
 
+            syncCurrentFiltersFromDom() {
+                this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
+                this.currentConditionFilter = document.getElementById('conditionFilter')?.value || 'all';
+                this.currentCategoryFilter = document.getElementById('categoryFilter')?.value || 'all';
+                this.currentAvailabilityFilter = document.getElementById('availabilityFilter')?.value || 'all';
+                this.currentSortFilter = document.getElementById('sortFilter')?.value || 'recently-added';
+            }
+
             init() {
                 // Modal listeners
                 document.getElementById('addBookBtn').addEventListener('click', () => this.openModal('addBookModal'));
@@ -1684,6 +1692,9 @@
 
                 // Initialize search
                 this.initSearch();
+
+                // Keep JS state aligned with the current server-rendered filters
+                this.syncCurrentFiltersFromDom();
 
                 // Enable interaction for server-rendered initial state
                 this.attachTableEventListeners();
@@ -1768,7 +1779,7 @@
                     conditionFilter.addEventListener('change', (e) => {
                         this.currentConditionFilter = e.target.value;
                         this.currentPage = 1;
-                        this.fetchBooksData();
+                        this.fetchBooksData(1);
                     });
                 }
 
@@ -1778,7 +1789,7 @@
                     categoryFilter.addEventListener('change', (e) => {
                         this.currentCategoryFilter = e.target.value;
                         this.currentPage = 1;
-                        this.fetchBooksData();
+                        this.fetchBooksData(1);
                     });
                 }
 
@@ -1788,7 +1799,7 @@
                     availabilityFilter.addEventListener('change', (e) => {
                         this.currentAvailabilityFilter = e.target.value;
                         this.currentPage = 1;
-                        this.fetchBooksData();
+                        this.fetchBooksData(1);
                     });
                 }
 
@@ -1798,7 +1809,7 @@
                     sortFilter.addEventListener('change', (e) => {
                         this.currentSortFilter = e.target.value;
                         this.currentPage = 1;
-                        this.fetchBooksData();
+                        this.fetchBooksData(1);
                     });
                 }
             }
@@ -1806,7 +1817,6 @@
             initSearch() {
                 const searchInput = document.getElementById('searchInput');
                 if (searchInput) {
-                    this.currentSearch = searchInput.value.trim();
                     searchInput.addEventListener('input', (e) => {
                         clearTimeout(this.searchDebounceTimer);
                         this.searchDebounceTimer = setTimeout(() => {
@@ -1820,10 +1830,14 @@
             fetchBooksData(page = 1) {
                 const requestedPage = Number(page) || 1;
                 this.currentPage = requestedPage;
+                this.syncCurrentFiltersFromDom();
                 const condition = this.currentConditionFilter;
                 const category = this.currentCategoryFilter;
                 const availability = this.currentAvailabilityFilter;
                 const sort = this.currentSortFilter;
+                const tableBody = document.getElementById('booksTableBody');
+                const emptyState = document.getElementById('emptyState');
+                const paginationContainer = document.getElementById('paginationContainer');
 
                 const params = new URLSearchParams({
                     search: this.currentSearch,
@@ -1833,6 +1847,16 @@
                     sort: sort,
                     page: requestedPage
                 });
+
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+                }
+                if (emptyState) {
+                    emptyState.style.display = 'none';
+                }
+                if (paginationContainer) {
+                    paginationContainer.style.display = 'none';
+                }
 
                 fetch(`{{ route('admin.books.data') }}?${params.toString()}`, {
                     headers: {
@@ -1850,9 +1874,6 @@
                             return this.fetchBooksData(data.last_page);
                         }
 
-                        const emptyState = document.getElementById('emptyState');
-                        const paginationContainer = document.getElementById('paginationContainer');
-                        const tableBody = document.getElementById('booksTableBody');
                         this.currentPage = Number(data.current_page) || requestedPage;
 
                         try {

@@ -18,16 +18,32 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('access-admin');
         $categories = category::orderBy('name')->get();
-        $initialBooks = book::with('category')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-        $initialStats = $this->calculateBookStats(book::query());
+        ['search' => $search, 'condition' => $condition, 'category' => $selectedCategory, 'availability' => $availability, 'sort' => $sort, 'page' => $page] = $this->normalizeBookListFilters($request);
 
-        return view('admin.BookManagement', compact('categories', 'initialBooks', 'initialStats'));
+        $initialBooksQuery = $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability);
+        $this->applyBookSorting($initialBooksQuery, $sort);
+
+        $initialBooks = $initialBooksQuery
+            ->with('category')
+            ->paginate(15, ['*'], 'page', $page);
+        $initialStats = $this->calculateBookStats(
+            $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability)
+        );
+
+        return view('admin.BookManagement', compact(
+            'categories',
+            'initialBooks',
+            'initialStats',
+            'search',
+            'condition',
+            'selectedCategory',
+            'availability',
+            'sort'
+        ));
     }
 
     /**
@@ -37,39 +53,11 @@ class BookController extends Controller
     {
         Gate::authorize('access-admin');
 
-        $search = $request->get('search', '');
-        $condition = $request->get('condition', 'all');
-        $category = $request->get('category', 'all');
-        $availability = $request->get('availability', 'all');
-        $sort = $request->get('sort', 'title-asc');
-        $page = $request->get('page', 1);
+        ['search' => $search, 'condition' => $condition, 'category' => $category, 'availability' => $availability, 'sort' => $sort, 'page' => $page] = $this->normalizeBookListFilters($request);
         $perPage = 15; // You can adjust this as needed
 
         $query = $this->buildFilteredBooksQuery($search, $condition, $category, $availability);
-
-        // Sorting
-        switch ($sort) {
-            case 'recently-added':
-                $query->orderBy('created_at', 'desc');
-                break;
-            case 'title-asc':
-                $query->orderBy('title', 'asc');
-                break;
-            case 'title-desc':
-                $query->orderBy('title', 'desc');
-                break;
-            case 'author-asc':
-                $query->orderBy('author', 'asc');
-                break;
-            case 'author-desc':
-                $query->orderBy('author', 'desc');
-                break;
-            case 'copies-desc':
-                $query->orderBy('total_copies', 'desc');
-                break;
-            default:
-                $query->orderBy('created_at', 'desc');
-        }
+        $this->applyBookSorting($query, $sort);
 
         // Paginate
         $books = $query->paginate($perPage, ['*'], 'page', $page);
@@ -172,12 +160,14 @@ class BookController extends Controller
     {
         Gate::authorize('access-admin');
 
+        ['search' => $search, 'condition' => $condition, 'category' => $category, 'availability' => $availability] = $this->normalizeBookListFilters($request);
+
         $stats = $this->calculateBookStats(
             $this->buildFilteredBooksQuery(
-                $request?->get('search', ''),
-                $request?->get('condition', 'all'),
-                $request?->get('category', 'all'),
-                $request?->get('availability', 'all')
+                $search,
+                $condition,
+                $category,
+                $availability
             )
         );
 
@@ -504,12 +494,64 @@ class BookController extends Controller
         }
     }
 
+    private function normalizeBookListFilters(?Request $request = null): array
+    {
+        $request ??= request();
+
+        $condition = (string) ($request?->input('condition') ?? 'all');
+        $category = (string) ($request?->input('category') ?? 'all');
+        $availability = (string) ($request?->input('availability') ?? 'all');
+        $sort = (string) ($request?->input('sort') ?? 'recently-added');
+
+        return [
+            'search' => trim((string) ($request?->input('search') ?? '')),
+            'condition' => $condition !== '' ? $condition : 'all',
+            'category' => $category !== '' ? $category : 'all',
+            'availability' => $availability !== '' ? $availability : 'all',
+            'sort' => $sort !== '' ? $sort : 'recently-added',
+            'page' => max(1, (int) ($request?->input('page') ?? 1)),
+        ];
+    }
+
+    private function applyBookSorting($query, ?string $sort): void
+    {
+        $sort = (string) ($sort ?? 'recently-added');
+
+        switch ($sort) {
+            case 'recently-added':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'title-asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'title-desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'author-asc':
+                $query->orderBy('author', 'asc');
+                break;
+            case 'author-desc':
+                $query->orderBy('author', 'desc');
+                break;
+            case 'copies-desc':
+                $query->orderBy('total_copies', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
+    }
+
     private function buildFilteredBooksQuery(
-        string $search = '',
-        string $condition = 'all',
-        string $category = 'all',
-        string $availability = 'all'
+        ?string $search = '',
+        ?string $condition = 'all',
+        ?string $category = 'all',
+        ?string $availability = 'all'
     ) {
+        $search = trim((string) ($search ?? ''));
+        $condition = (string) ($condition ?? 'all');
+        $category = (string) ($category ?? 'all');
+        $availability = (string) ($availability ?? 'all');
+
         $query = book::query();
 
         if (!empty($search)) {
