@@ -855,14 +855,32 @@
             margin-left: 8px;
         }
 
-        /* Form Error Styles - One Error at a Time */
+        /* Form Validation Styles */
         .form-control.error {
             border-color: #ef4444 !important;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
         }
 
+        .form-control.valid {
+            border-color: #16a34a !important;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12) !important;
+        }
+
+        .form-control.pending {
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+        }
+
         body.dark-theme .form-control.error {
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        body.dark-theme .form-control.valid {
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2) !important;
+        }
+
+        body.dark-theme .form-control.pending {
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
         }
 
         .form-control.error:focus {
@@ -886,6 +904,13 @@
 
         body.dark-theme .field-error-message {
             color: #f87171;
+        }
+
+        .btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         @keyframes slideDown {
@@ -1357,7 +1382,7 @@
             <div class="modal-body">
                 <p class="modal-description">Enter the details of the new book to add to the library.</p>
 
-                <form id="addBookForm">
+                <form id="addBookForm" novalidate>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label required">ISBN</label>
@@ -1473,7 +1498,7 @@
             <div class="modal-body">
                 <p class="modal-description">Update book information and inventory details.</p>
 
-                <form id="editBookForm">
+                <form id="editBookForm" novalidate>
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label required">ISBN</label>
@@ -1649,6 +1674,10 @@
                 this.allBooks = [];
                 this.currentPage = Number(new URLSearchParams(window.location.search).get('page')) || 1;
                 this.perPage = 15;
+                this.bookFormStates = {
+                    addBookForm: { pending: new Set(), verified: {} },
+                    editBookForm: { pending: new Set(), verified: {} },
+                };
                 this.init();
             }
 
@@ -1742,34 +1771,499 @@
             }
 
             initInputErrorListeners() {
-                // Add input listeners to Add Book form
-                const addBookForm = document.getElementById('addBookForm');
-                if (addBookForm) {
-                    addBookForm.querySelectorAll('input, select, textarea').forEach(input => {
-                        input.addEventListener('input', () => this.clearFieldError(input));
-                        input.addEventListener('change', () => this.clearFieldError(input));
-                    });
-                }
+                ['addBookForm', 'editBookForm'].forEach(formId => {
+                    const form = document.getElementById(formId);
+                    if (!form) {
+                        return;
+                    }
 
-                // Add input listeners to Edit Book form
-                const editBookForm = document.getElementById('editBookForm');
-                if (editBookForm) {
-                    editBookForm.querySelectorAll('input, select, textarea').forEach(input => {
-                        input.addEventListener('input', () => this.clearFieldError(input));
-                        input.addEventListener('change', () => this.clearFieldError(input));
+                    form.querySelectorAll('input, select, textarea').forEach(input => {
+                        const triggerEvent = input.type === 'file' || input.tagName === 'SELECT' ? 'change' : 'input';
+
+                        input.addEventListener(triggerEvent, () => {
+                            if (input.type !== 'file') {
+                                const normalizedValue = this.normalizeBookFieldValue(input.name, input.value);
+                                if (normalizedValue !== input.value) {
+                                    input.value = normalizedValue;
+                                }
+                            }
+
+                            if (input.name === 'isbn') {
+                                delete this.getBookFormState(form).verified.isbn;
+                            }
+
+                            this.clearFieldError(input, { clearValidityOnly: true });
+                            this.validateSingleBookField(form, input, { showErrors: false, runRemote: false });
+
+                            if (input.name === 'total_copies') {
+                                const availableCopiesInput = form.querySelector('[name="available_copies"]');
+                                if (availableCopiesInput) {
+                                    this.validateSingleBookField(form, availableCopiesInput, { showErrors: false, runRemote: false });
+                                }
+                            }
+                        });
+
+                        if (input.type !== 'file') {
+                            input.addEventListener('blur', () => {
+                                this.validateSingleBookField(form, input, {
+                                    showErrors: true,
+                                    runRemote: input.name === 'isbn',
+                                });
+                            });
+                        }
                     });
+
+                    this.updateBookSubmitState(form);
+                });
+            }
+
+            getBookFormState(form) {
+                return this.bookFormStates[form.id];
+            }
+
+            getBookSubmitButton(form) {
+                return form.id === 'addBookForm'
+                    ? document.getElementById('submitAddBook')
+                    : document.getElementById('submitEditBook');
+            }
+
+            normalizeBookFieldValue(fieldName, value) {
+                const rawValue = String(value ?? '');
+
+                switch (fieldName) {
+                    case 'isbn':
+                        return rawValue.replace(/[-\s]/g, '');
+                    case 'title':
+                    case 'author':
+                    case 'publisher':
+                    case 'new_category':
+                    case 'description':
+                        return rawValue.replace(/\s+/g, ' ').trim();
+                    case 'shelf_no':
+                        return rawValue.replace(/\s+/g, '').toUpperCase();
+                    default:
+                        return rawValue.trim();
                 }
             }
 
-            clearFieldError(input) {
-                // Remove error class
-                input.classList.remove('error');
-                
-                // Remove error message element if exists
+            getBookFieldRules() {
+                return {
+                    isbn: {
+                        required: true,
+                        pattern: /^(?:\d{10}|\d{13})$/,
+                        requiredMessage: 'Enter the book ISBN.',
+                        patternMessage: 'ISBN must contain only 10 to 13 digits.',
+                    },
+                    shelf_no: {
+                        required: true,
+                        pattern: /^[A-Za-z0-9]+[-]?[A-Za-z0-9]*$/,
+                        maxLength: 20,
+                        requiredMessage: 'Enter the rack number.',
+                        patternMessage: 'Rack number must contain only letters, numbers, and an optional dash like A-12.',
+                        maxLengthMessage: 'Rack number must be 20 characters or fewer.',
+                    },
+                    title: {
+                        required: true,
+                        minLength: 2,
+                        maxLength: 255,
+                        pattern: /^[A-Za-z0-9\s\-:'.&()]+$/,
+                        requiredMessage: 'Enter the book title.',
+                        minLengthMessage: 'Book title must be at least 2 characters long.',
+                        maxLengthMessage: 'Book title must be 255 characters or fewer.',
+                        patternMessage: 'Title can only contain letters, numbers, spaces, and - : \' . & ( ).',
+                    },
+                    author: {
+                        required: true,
+                        minLength: 2,
+                        maxLength: 255,
+                        pattern: /^[A-Za-z\s.]+$/,
+                        requiredMessage: 'Enter the author name.',
+                        minLengthMessage: 'Author name must be at least 2 characters long.',
+                        maxLengthMessage: 'Author name must be 255 characters or fewer.',
+                        patternMessage: 'Author name can only contain letters, spaces, and periods.',
+                    },
+                    publisher: {
+                        maxLength: 255,
+                        pattern: /^[A-Za-z0-9\s&.,'-]+$/,
+                        maxLengthMessage: 'Publisher name must be 255 characters or fewer.',
+                        patternMessage: 'Publisher name can only contain letters, numbers, spaces, and & . , \' -.',
+                    },
+                    new_category: {
+                        minLength: 2,
+                        maxLength: 50,
+                        pattern: /^[A-Za-z\s&]+$/,
+                        minLengthMessage: 'New category name must be at least 2 characters long.',
+                        maxLengthMessage: 'New category name must be 50 characters or fewer.',
+                        patternMessage: 'Category name can only contain letters, spaces, and &.',
+                    },
+                    total_copies: {
+                        required: true,
+                        numeric: true,
+                        min: 1,
+                        max: 9999,
+                        requiredMessage: 'Enter the total number of copies.',
+                        numericMessage: 'Total copies must be a whole number.',
+                        minMessage: 'Total copies must be at least 1.',
+                        maxMessage: 'Total copies must not exceed 9999.',
+                    },
+                    available_copies: {
+                        required: true,
+                        numeric: true,
+                        min: 0,
+                        max: 9999,
+                        requiredMessage: 'Enter the available number of copies.',
+                        numericMessage: 'Available copies must be a whole number.',
+                        minMessage: 'Available copies cannot be negative.',
+                        maxMessage: 'Available copies must not exceed 9999.',
+                    },
+                    condition: {
+                        required: true,
+                        requiredMessage: 'Select the book condition.',
+                    },
+                    description: {
+                        maxLength: 2000,
+                        maxLengthMessage: 'Description must be 2000 characters or fewer.',
+                    },
+                    cover_image: {
+                        accept: 'image/*',
+                        acceptMessage: 'Cover image must be an image file.',
+                        maxSize: 2,
+                        maxSizeMessage: 'Cover image must not exceed 2MB.',
+                    },
+                };
+            }
+
+            setBookFieldState(input, state = 'neutral', message = '') {
+                input.classList.remove('error', 'valid', 'pending');
+
+                const parent = input.parentElement;
+                let errorElement = parent.querySelector('.field-error-message');
+                if (!errorElement) {
+                    errorElement = document.createElement('div');
+                    errorElement.className = 'field-error-message';
+                    parent.appendChild(errorElement);
+                }
+
+                if (state === 'error') {
+                    input.classList.add('error');
+                    input.dataset.valid = 'false';
+                    errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                    errorElement.style.display = 'flex';
+                } else {
+                    errorElement.innerHTML = '';
+                    errorElement.style.display = 'none';
+
+                    if (state === 'valid') {
+                        input.classList.add('valid');
+                        input.dataset.valid = 'true';
+                    } else if (state === 'pending') {
+                        input.classList.add('pending');
+                        input.dataset.valid = 'false';
+                    } else {
+                        input.dataset.valid = 'false';
+                    }
+                }
+
+                this.updateBookSubmitState(input.closest('form'));
+            }
+
+            clearFieldError(input, { clearValidityOnly = false } = {}) {
+                input.classList.remove('error', 'pending');
+
                 const errorElement = input.parentElement.querySelector('.field-error-message');
                 if (errorElement) {
-                    errorElement.remove();
+                    errorElement.innerHTML = '';
+                    errorElement.style.display = 'none';
                 }
+
+                if (!clearValidityOnly) {
+                    input.classList.remove('valid');
+                    input.dataset.valid = 'false';
+                }
+            }
+
+            validateBookFieldValue(input, rules, form) {
+                const value = input.type === 'file'
+                    ? input.value
+                    : this.normalizeBookFieldValue(input.name, input.value);
+                const isRequired = input.hasAttribute('required');
+
+                if (input.type !== 'file') {
+                    input.value = value;
+                }
+
+                if (!isRequired && value === '') {
+                    return null;
+                }
+
+                if (rules.required && value === '') {
+                    return rules.requiredMessage || 'This field is required.';
+                }
+
+                if (rules.minLength && value.length < rules.minLength) {
+                    return rules.minLengthMessage || `Must be at least ${rules.minLength} characters long.`;
+                }
+
+                if (rules.maxLength && value.length > rules.maxLength) {
+                    return rules.maxLengthMessage || `Must be ${rules.maxLength} characters or fewer.`;
+                }
+
+                if (rules.pattern && value !== '' && !rules.pattern.test(value)) {
+                    return rules.patternMessage || 'This value is not in the correct format.';
+                }
+
+                if (rules.numeric && value !== '' && (!/^\d+$/.test(value) || Number.isNaN(Number(value)))) {
+                    return rules.numericMessage || 'Must be a whole number.';
+                }
+
+                if (rules.min !== undefined && value !== '' && Number(value) < rules.min) {
+                    return rules.minMessage || `Must be at least ${rules.min}.`;
+                }
+
+                if (rules.max !== undefined && value !== '' && Number(value) > rules.max) {
+                    return rules.maxMessage || `Must not exceed ${rules.max}.`;
+                }
+
+                if (input.name === 'available_copies') {
+                    const totalCopies = Number(form.querySelector('[name="total_copies"]')?.value || 0);
+                    if (value !== '' && totalCopies && Number(value) > totalCopies) {
+                        return 'Available copies cannot exceed total copies.';
+                    }
+                }
+
+                if (rules.accept && input.type === 'file' && input.files?.length) {
+                    const file = input.files[0];
+                    if (file && !file.type.startsWith('image/')) {
+                        return rules.acceptMessage;
+                    }
+                }
+
+                if (rules.maxSize && input.type === 'file' && input.files?.length) {
+                    const file = input.files[0];
+                    if (file && file.size > rules.maxSize * 1024 * 1024) {
+                        return rules.maxSizeMessage;
+                    }
+                }
+
+                return null;
+            }
+
+            validateCategoryState(form, { showErrors = false } = {}) {
+                const categorySelect = form.querySelector('[name="category_id"]');
+                const newCategoryInput = form.querySelector('[name="new_category"]');
+
+                if (!categorySelect) {
+                    return true;
+                }
+
+                if (!newCategoryInput) {
+                    const selectedCategory = categorySelect.value.trim();
+                    this.clearFieldError(categorySelect, { clearValidityOnly: true });
+
+                    if (!selectedCategory) {
+                        if (showErrors) {
+                            this.setBookFieldState(categorySelect, 'error', 'Select a valid category.');
+                        } else {
+                            categorySelect.dataset.valid = 'false';
+                            this.updateBookSubmitState(form);
+                        }
+                        return false;
+                    }
+
+                    this.setBookFieldState(categorySelect, 'valid');
+                    return true;
+                }
+
+                const selectedCategory = categorySelect.value.trim();
+                const newCategory = this.normalizeBookFieldValue('new_category', newCategoryInput.value);
+                newCategoryInput.value = newCategory;
+
+                this.clearFieldError(categorySelect, { clearValidityOnly: true });
+                this.clearFieldError(newCategoryInput, { clearValidityOnly: true });
+
+                if (!selectedCategory && !newCategory) {
+                    if (showErrors) {
+                        this.setBookFieldState(categorySelect, 'error', 'Select an existing category or create a new one.');
+                    } else {
+                        categorySelect.dataset.valid = 'false';
+                        newCategoryInput.dataset.valid = 'false';
+                        this.updateBookSubmitState(form);
+                    }
+                    return false;
+                }
+
+                if (selectedCategory && newCategory) {
+                    if (showErrors) {
+                        this.setBookFieldState(newCategoryInput, 'error', 'Choose either an existing category or a new category, not both.');
+                    } else {
+                        categorySelect.dataset.valid = 'false';
+                        newCategoryInput.dataset.valid = 'false';
+                        this.updateBookSubmitState(form);
+                    }
+                    return false;
+                }
+
+                if (newCategory) {
+                    const categoryRules = this.getBookFieldRules().new_category;
+                    const categoryMessage = this.validateBookFieldValue(newCategoryInput, categoryRules, form);
+                    if (categoryMessage) {
+                        if (showErrors) {
+                            this.setBookFieldState(newCategoryInput, 'error', categoryMessage);
+                        } else {
+                            newCategoryInput.dataset.valid = 'false';
+                            this.updateBookSubmitState(form);
+                        }
+                        return false;
+                    }
+                }
+
+                this.setBookFieldState(categorySelect, 'valid');
+                this.setBookFieldState(newCategoryInput, selectedCategory || newCategory ? 'valid' : 'neutral');
+                return true;
+            }
+
+            async validateRemoteBookField(form, input) {
+                const state = this.getBookFormState(form);
+                state.pending.add(input.name);
+                this.setBookFieldState(input, 'pending');
+
+                try {
+                    const payload = {
+                        field: input.name,
+                        [input.name]: this.normalizeBookFieldValue(input.name, input.value),
+                        book_id: form.id === 'editBookForm' ? this.currentBookId : null,
+                    };
+
+                    if (input.name === 'available_copies') {
+                        payload.total_copies = form.querySelector('[name="total_copies"]')?.value || '';
+                    }
+
+                    const response = await fetch('{{ route('admin.books.validate-field') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(payload),
+                    });
+
+                    state.pending.delete(input.name);
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        this.setBookFieldState(input, 'error', data.message || 'This value is invalid.');
+                        return false;
+                    }
+
+                    state.verified[input.name] = payload[input.name];
+                    this.setBookFieldState(input, 'valid');
+                    return true;
+                } catch (error) {
+                    state.pending.delete(input.name);
+                    this.setBookFieldState(input, 'error', 'Could not verify this field right now. Please try again.');
+                    return false;
+                }
+            }
+
+            async validateSingleBookField(form, input, { showErrors = false, runRemote = false } = {}) {
+                const rules = this.getBookFieldRules()[input.name];
+
+                if (input.name === 'category_id' || input.name === 'new_category') {
+                    return this.validateCategoryState(form, { showErrors });
+                }
+
+                if (!rules) {
+                    input.dataset.valid = 'true';
+                    this.updateBookSubmitState(form);
+                    return true;
+                }
+
+                const message = this.validateBookFieldValue(input, rules, form);
+                if (message) {
+                    if (showErrors) {
+                        this.setBookFieldState(input, 'error', message);
+                    } else {
+                        input.dataset.valid = 'false';
+                        this.updateBookSubmitState(form);
+                    }
+                    return false;
+                }
+
+                if (input.name === 'isbn') {
+                    const normalizedIsbn = this.normalizeBookFieldValue('isbn', input.value);
+                    const state = this.getBookFormState(form);
+
+                    if (runRemote) {
+                        return this.validateRemoteBookField(form, input);
+                    }
+
+                    if (state.verified.isbn === normalizedIsbn) {
+                        this.setBookFieldState(input, 'valid');
+                        return true;
+                    }
+
+                    input.dataset.valid = 'false';
+                    input.classList.remove('error', 'valid', 'pending');
+                    this.updateBookSubmitState(form);
+                    return false;
+                }
+
+                this.setBookFieldState(input, 'valid');
+                return true;
+            }
+
+            async validateBookForm(form, { showErrors = true } = {}) {
+                let isValid = true;
+                const inputs = Array.from(form.querySelectorAll('input, select, textarea'));
+
+                for (const input of inputs) {
+                    if (input.type === 'file') {
+                        const result = await this.validateSingleBookField(form, input, { showErrors, runRemote: false });
+                        isValid = result && isValid;
+                        continue;
+                    }
+
+                    const result = await this.validateSingleBookField(form, input, {
+                        showErrors,
+                        runRemote: input.name === 'isbn',
+                    });
+                    isValid = result && isValid;
+                }
+
+                return isValid;
+            }
+
+            updateBookSubmitState(form) {
+                if (!form) {
+                    return;
+                }
+
+                const button = this.getBookSubmitButton(form);
+                if (!button) {
+                    return;
+                }
+
+                const state = this.getBookFormState(form);
+                const invalidInputs = Array.from(form.querySelectorAll('.form-control')).some(input => {
+                    if (input.type === 'file') {
+                        return input.files?.length ? input.dataset.valid !== 'true' : false;
+                    }
+
+                    if (['publisher', 'description'].includes(input.name)) {
+                        return input.value.trim() !== '' && input.dataset.valid !== 'true';
+                    }
+
+                    if (input.name === 'new_category') {
+                        const categorySelected = form.querySelector('[name="category_id"]')?.value.trim();
+                        return input.dataset.valid !== 'true' && (!categorySelected || input.value.trim() !== '');
+                    }
+
+                    return input.dataset.valid !== 'true';
+                });
+
+                button.disabled = state.pending.size > 0 || invalidInputs;
             }
 
             initFilters() {
@@ -1998,6 +2492,12 @@
                 // Refresh categories if opening the add book modal
                 if (modalId === 'addBookModal') {
                     this.refreshCategoriesDropdown();
+                    const form = document.getElementById('addBookForm');
+                    if (form) {
+                        form.reset();
+                        this.resetBookFormValidation(form);
+                        this.seedBookFormValidation(form);
+                    }
                 }
                 
                 const modal = document.getElementById(modalId);
@@ -2050,6 +2550,12 @@
 
             closeModal(modalId) {
                 document.getElementById(modalId).classList.remove('active');
+                if (modalId === 'addBookModal') {
+                    this.resetBookFormValidation(document.getElementById('addBookForm'));
+                }
+                if (modalId === 'editBookModal') {
+                    this.resetBookFormValidation(document.getElementById('editBookForm'));
+                }
                 this.currentModal = null;
             }
 
@@ -2141,6 +2647,7 @@
             }
 
             openEditModal(row) {
+                const form = document.getElementById('editBookForm');
                 const cells = row.cells;
                 const titleCell = cells[1];
                 const publisher = titleCell.querySelector('div') ? titleCell.querySelector('div').textContent : '';
@@ -2167,6 +2674,7 @@
                     if (editPlaceholder) editPlaceholder.style.display = 'block';
                 }
 
+                this.seedBookFormValidation(form);
                 this.openModal('editBookModal');
             }
 
@@ -2178,38 +2686,21 @@
 
             submitAddBook() {
                 const form = document.getElementById('addBookForm');
-                const categorySelect = document.getElementById('addCategorySelect');
                 const newCategoryInput = document.getElementById('addNewCategory');
 
-                // Clear all previous errors
-                this.clearFieldErrors(form);
+                this.validateBookForm(form, { showErrors: true }).then(isValid => {
+                    if (!isValid) {
+                        return;
+                    }
 
-                // Define field order for validation (top to bottom in form)
-                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id', 'new_category', 'condition', 'total_copies', 'available_copies', 'description'];
+                    const newCategory = newCategoryInput.value.trim();
+                    if (newCategory) {
+                        this.createNewCategory(newCategory, form);
+                        return;
+                    }
 
-                // Validate category selection first (custom validation)
-                const categoryError = this.validateCategory(categorySelect, newCategoryInput);
-                if (categoryError) {
-                    this.showFieldError(categoryError.input, categoryError.error);
-                    return;
-                }
-
-                // Validate form fields one at a time
-                const validationError = this.validateFormOneByOne(form, fieldOrder);
-                if (validationError) {
-                    this.showFieldError(validationError.input, validationError.error);
-                    return;
-                }
-
-                // If creating new category, we need to create it first
-                const newCategory = newCategoryInput.value.trim();
-                if (newCategory) {
-                    this.createNewCategory(newCategory, form);
-                    return;
-                }
-
-                // All validations passed, submit the form
-                this.submitAddBookForm(form);
+                    this.submitAddBookForm(form);
+                });
             }
 
             createNewCategory(categoryName, form) {
@@ -2263,6 +2754,8 @@
                         
                         // Clear the new_category input
                         document.getElementById('addNewCategory').value = '';
+                        this.setBookFieldState(categorySelect, 'valid');
+                        this.setBookFieldState(document.getElementById('addNewCategory'), 'valid');
                         
                         this.showNotification(`Category "${categoryName}" created successfully`, 'success');
                         setTimeout(() => this.submitAddBookForm(form), 300);
@@ -2299,16 +2792,13 @@
                     throw new Error('Invalid JSON response');
                 }))
                 .then(data => {
-                    // Handle server-side validation errors with one-error-at-a-time
                     if (data.errors && Object.keys(data.errors).length > 0) {
-                        const firstErrorField = Object.keys(data.errors)[0];
-                        const firstErrorMessage = data.errors[firstErrorField][0];
-                        const input = form.querySelector(`[name="${firstErrorField}"]`);
-                        if (input) {
-                            this.showFieldError(input, firstErrorMessage);
-                        } else {
-                            this.showNotification(firstErrorMessage, 'error');
-                        }
+                        Object.entries(data.errors).forEach(([fieldName, messages]) => {
+                            const input = form.querySelector(`[name="${fieldName}"]`);
+                            if (input) {
+                                this.setBookFieldState(input, 'error', messages[0]);
+                            }
+                        });
                         return;
                     }
 
@@ -2333,60 +2823,49 @@
 
             submitEditBook() {
                 const form = document.getElementById('editBookForm');
-
-                // Clear all previous errors
-                this.clearFieldErrors(form);
-
-                // Define field order for validation (top to bottom in form)
-                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id', 'condition', 'total_copies', 'available_copies', 'description'];
-
-                // Validate form fields one at a time
-                const validationError = this.validateFormOneByOne(form, fieldOrder);
-                if (validationError) {
-                    this.showFieldError(validationError.input, validationError.error);
-                    return;
-                }
-
-                const formData = new FormData(form);
-                formData.append('_method', 'PUT');
-                
-                fetch(`{{ url('admin/books') }}/${this.currentBookId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json',
-                    },
-                    body: formData
-                })
-                .then(response => response.json().catch(() => {
-                    throw new Error('Invalid JSON response');
-                }))
-                .then(data => {
-                    // Handle server-side validation errors with one-error-at-a-time
-                    if (data.errors && Object.keys(data.errors).length > 0) {
-                        const firstErrorField = Object.keys(data.errors)[0];
-                        const firstErrorMessage = data.errors[firstErrorField][0];
-                        const input = form.querySelector(`[name="${firstErrorField}"]`);
-                        if (input) {
-                            this.showFieldError(input, firstErrorMessage);
-                        } else {
-                            this.showNotification(firstErrorMessage, 'error');
-                        }
+                this.validateBookForm(form, { showErrors: true }).then(isValid => {
+                    if (!isValid) {
                         return;
                     }
 
-                    if (data.success) {
-                        this.showNotification('Book updated successfully', 'success');
-                        this.closeModal('editBookModal');
-                        this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
-                        this.fetchBooksData(this.currentPage);
-                    } else {
-                        this.showNotification(data.message || 'Error updating book', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    this.showNotification('Error updating book', 'error');
+                    const formData = new FormData(form);
+                    formData.append('_method', 'PUT');
+
+                    fetch(`{{ url('admin/books') }}/${this.currentBookId}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json().catch(() => {
+                        throw new Error('Invalid JSON response');
+                    }))
+                    .then(data => {
+                        if (data.errors && Object.keys(data.errors).length > 0) {
+                            Object.entries(data.errors).forEach(([fieldName, messages]) => {
+                                const input = form.querySelector(`[name="${fieldName}"]`);
+                                if (input) {
+                                    this.setBookFieldState(input, 'error', messages[0]);
+                                }
+                            });
+                            return;
+                        }
+
+                        if (data.success) {
+                            this.showNotification('Book updated successfully', 'success');
+                            this.closeModal('editBookModal');
+                            this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
+                            this.fetchBooksData(this.currentPage);
+                        } else {
+                            this.showNotification(data.message || 'Error updating book', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.showNotification('Error updating book', 'error');
+                    });
                 });
             }
 
@@ -2441,214 +2920,85 @@
                 }, 5000);
             }
 
-            // One-error-at-a-time validation helpers
-            clearFieldErrors(form) {
-                // Remove error class and error messages from all form controls
+            resetBookFormValidation(form) {
+                if (!form) {
+                    return;
+                }
+
+                const state = this.getBookFormState(form);
+                state.pending.clear();
+                state.verified = {};
+
                 form.querySelectorAll('.form-control').forEach(input => {
-                    input.classList.remove('error');
-                    const existingError = input.parentElement.querySelector('.field-error-message');
-                    if (existingError) {
-                        existingError.remove();
+                    input.classList.remove('error', 'valid', 'pending');
+                    input.dataset.valid = 'false';
+                    const errorElement = input.parentElement.querySelector('.field-error-message');
+                    if (errorElement) {
+                        errorElement.innerHTML = '';
+                        errorElement.style.display = 'none';
                     }
                 });
+
+                if (form.id === 'addBookForm') {
+                    const preview = document.getElementById('addCoverPreview');
+                    const placeholder = document.getElementById('addCoverPlaceholder');
+                    if (preview) {
+                        preview.src = '';
+                        preview.style.display = 'none';
+                    }
+                    if (placeholder) {
+                        placeholder.style.display = 'block';
+                    }
+                }
+
+                if (form.id === 'editBookForm') {
+                    const preview = document.getElementById('editCoverPreview');
+                    const placeholder = document.getElementById('editCoverPlaceholder');
+                    const coverInput = document.getElementById('editCover');
+                    if (preview) {
+                        preview.src = '';
+                        preview.style.display = 'none';
+                    }
+                    if (placeholder) {
+                        placeholder.style.display = 'block';
+                    }
+                    if (coverInput) {
+                        coverInput.value = '';
+                    }
+                }
+
+                this.updateBookSubmitState(form);
             }
 
-            showFieldError(input, message) {
-                // Clear all errors first
-                const form = input.closest('form');
-                if (form) {
-                    this.clearFieldErrors(form);
+            seedBookFormValidation(form) {
+                if (!form) {
+                    return;
                 }
 
-                // Add error class to the input
-                input.classList.add('error');
+                this.resetBookFormValidation(form);
 
-                // Create error message element
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'field-error-message';
-                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-
-                // Insert error message after the input
-                input.parentElement.appendChild(errorDiv);
-
-                // Focus the input
-                input.focus();
-
-                // Scroll input into view
-                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-
-            validateField(input, rules) {
-                const value = input.value.trim();
-                const name = input.name;
-                const type = input.type;
-                const isRequired = input.hasAttribute('required');
-
-                // Skip validation for empty non-required fields
-                if (!isRequired && value === '') {
-                    return null;
+                const isbnInput = form.querySelector('[name="isbn"]');
+                if (isbnInput) {
+                    const normalizedIsbn = this.normalizeBookFieldValue('isbn', isbnInput.value);
+                    isbnInput.value = normalizedIsbn;
+                    this.getBookFormState(form).verified.isbn = normalizedIsbn;
+                    this.setBookFieldState(isbnInput, 'valid');
                 }
 
-                // Check required fields
-                if (rules.required && value === '') {
-                    return rules.requiredMessage || 'This field is required';
-                }
-
-                // Check minimum length
-                if (rules.minLength && value.length < rules.minLength) {
-                    return rules.minLengthMessage || `Must be at least ${rules.minLength} characters`;
-                }
-
-                // Check maximum length
-                if (rules.maxLength && value.length > rules.maxLength) {
-                    return rules.maxLengthMessage || `Must not exceed ${rules.maxLength} characters`;
-                }
-
-                // Check numeric fields
-                if (rules.numeric && value !== '' && isNaN(value)) {
-                    return rules.numericMessage || 'Must be a valid number';
-                }
-
-                // Check minimum value for numeric fields
-                if (rules.min !== undefined && value !== '' && parseFloat(value) < rules.min) {
-                    return rules.minMessage || `Must be at least ${rules.min}`;
-                }
-
-                // Check maximum value for numeric fields
-                if (rules.max !== undefined && value !== '' && parseFloat(value) > rules.max) {
-                    return rules.maxMessage || `Must not exceed ${rules.max}`;
-                }
-
-                // Check ISBN format (basic validation)
-                if (rules.isbn && value !== '') {
-                    // Remove dashes and spaces
-                    const cleanIsbn = value.replace(/[-\s]/g, '');
-                    if (!/^(?:\d{10}|\d{13})$/.test(cleanIsbn)) {
-                        return rules.isbnMessage || 'Invalid ISBN format (10 or 13 digits required)';
+                form.querySelectorAll('input, select, textarea').forEach(input => {
+                    if (input.name === 'isbn') {
+                        return;
                     }
-                }
 
-                // Check file type
-                if (rules.accept && type === 'file' && value !== '') {
-                    const file = input.files[0];
-                    if (file) {
-                        const acceptedTypes = rules.accept.split(',').map(t => t.trim());
-                        const fileType = file.type;
-                        const fileName = file.name.toLowerCase();
-                        const isValid = acceptedTypes.some(type => {
-                            if (type.startsWith('.')) {
-                                return fileName.endsWith(type);
-                            }
-                            return fileType.includes(type.replace('*', ''));
-                        });
-                        if (!isValid) {
-                            return rules.acceptMessage || `File type not allowed. Accepted: ${rules.accept}`;
-                        }
+                    if (input.name === 'category_id' || input.name === 'new_category') {
+                        this.validateCategoryState(form, { showErrors: false });
+                        return;
                     }
-                }
 
-                // Check file size
-                if (rules.maxSize && type === 'file' && value !== '') {
-                    const file = input.files[0];
-                    if (file) {
-                        const maxBytes = rules.maxSize * 1024 * 1024; // Convert MB to bytes
-                        if (file.size > maxBytes) {
-                            return rules.maxSizeMessage || `File size must not exceed ${rules.maxSize}MB`;
-                        }
-                    }
-                }
+                    this.validateSingleBookField(form, input, { showErrors: false, runRemote: false });
+                });
 
-                return null;
-            }
-
-            validateFormOneByOne(form, fieldOrder) {
-                const fieldRules = {
-                    isbn: {
-                        required: true,
-                        requiredMessage: 'ISBN is required',
-                        isbn: true,
-                        isbnMessage: 'Invalid ISBN format (10 or 13 digits required)'
-                    },
-                    title: {
-                        required: true,
-                        requiredMessage: 'Title is required',
-                        minLength: 2,
-                        minLengthMessage: 'Title must be at least 2 characters'
-                    },
-                    author: {
-                        required: true,
-                        requiredMessage: 'Author is required',
-                        minLength: 2,
-                        minLengthMessage: 'Author must be at least 2 characters'
-                    },
-                    shelf_no: {
-                        required: true,
-                        requiredMessage: 'Rack number is required'
-                    },
-                    category_id: {
-                        required: true,
-                        requiredMessage: 'Category is required'
-                    },
-                    condition: {
-                        required: true,
-                        requiredMessage: 'Condition is required'
-                    },
-                    total_copies: {
-                        required: true,
-                        requiredMessage: 'Total copies is required',
-                        numeric: true,
-                        numericMessage: 'Total copies must be a number',
-                        min: 1,
-                        minMessage: 'Total copies must be at least 1'
-                    },
-                    available_copies: {
-                        required: true,
-                        requiredMessage: 'Available copies is required',
-                        numeric: true,
-                        numericMessage: 'Available copies must be a number',
-                        min: 0,
-                        minMessage: 'Available copies cannot be negative'
-                    },
-                    cover_image: {
-                        maxSize: 2,
-                        maxSizeMessage: 'Cover image must not exceed 2MB',
-                        accept: 'image/*',
-                        acceptMessage: 'Please select a valid image file (JPEG, PNG, GIF)'
-                    }
-                };
-
-                // Find the first field with an error
-                for (const fieldName of fieldOrder) {
-                    const input = form.querySelector(`[name="${fieldName}"]`);
-                    if (input && fieldRules[fieldName]) {
-                        const error = this.validateField(input, fieldRules[fieldName]);
-                        if (error) {
-                            return { field: fieldName, error: error, input: input };
-                        }
-                    }
-                }
-
-                return null; // No errors
-            }
-
-            // Validate category selection for Add form
-            validateCategory(categorySelect, newCategoryInput) {
-                const selectedCategory = categorySelect.value.trim();
-                const newCategory = newCategoryInput.value.trim();
-
-                if (!selectedCategory && !newCategory) {
-                    return { field: 'category_id', error: 'Please select a category or create a new one', input: categorySelect };
-                }
-
-                if (selectedCategory && newCategory) {
-                    return { field: 'new_category', error: 'Please choose either existing OR new category, not both', input: newCategoryInput };
-                }
-
-                if (newCategory && newCategory.length < 2) {
-                    return { field: 'new_category', error: 'New category name must be at least 2 characters', input: newCategoryInput };
-                }
-
-                return null;
+                this.updateBookSubmitState(form);
             }
         }
 

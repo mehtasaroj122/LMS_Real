@@ -12,6 +12,7 @@ use App\Helpers\ActivityLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
 {
@@ -180,6 +181,43 @@ class BookController extends Controller
         return $stats;
     }
 
+    public function validateField(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $field = (string) $request->input('field');
+        $allowedFields = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id', 'new_category', 'total_copies', 'available_copies', 'condition', 'description', 'cover_image'];
+
+        if (!in_array($field, $allowedFields, true)) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Unsupported validation field.',
+            ], 422);
+        }
+
+        $data = $this->normalizeBookValidationInput($request->all());
+        $bookId = $request->input('book_id');
+        $rules = BookStoreRequest::rulesFor($bookId);
+        $messages = BookStoreRequest::validationMessages();
+
+        $validator = Validator::make($data, [$field => $rules[$field]], $messages);
+        $this->attachBookValidationCallbacks($validator, $data, $field);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'valid' => false,
+                'field' => $field,
+                'message' => $validator->errors()->first($field),
+            ], 422);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'field' => $field,
+            'message' => null,
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -205,16 +243,16 @@ class BookController extends Controller
             if (!$categoryId && !$newCategoryName) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please select an existing category or create a new one',
-                    'errors' => ['category_id' => ['Please select an existing category or create a new one']],
+                    'message' => 'Select an existing category or create a new one.',
+                    'errors' => ['category_id' => ['Select an existing category or create a new one.']],
                 ], 422);
             }
 
             if ($categoryId && $newCategoryName) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please choose either an existing category OR create a new one, not both',
-                    'errors' => ['new_category' => ['Please choose either existing OR new category, not both']],
+                    'message' => 'Choose either an existing category or a new category, not both.',
+                    'errors' => ['new_category' => ['Choose either an existing category or a new category, not both.']],
                 ], 422);
             }
 
@@ -334,11 +372,19 @@ class BookController extends Controller
             $categoryId = !empty($validated['category_id']) ? (int) $validated['category_id'] : null;
             $newCategoryName = !empty($validated['new_category']) ? trim($validated['new_category']) : null;
 
+            if (!$categoryId && !$newCategoryName) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Select an existing category or create a new one.',
+                    'errors' => ['category_id' => ['Select an existing category or create a new one.']],
+                ], 422);
+            }
+
             if ($categoryId && $newCategoryName) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Please choose either an existing category OR create a new one, not both',
-                    'errors' => ['new_category' => ['Please choose either existing OR new category, not both']],
+                    'message' => 'Choose either an existing category or a new category, not both.',
+                    'errors' => ['new_category' => ['Choose either an existing category or a new category, not both.']],
                 ], 422);
             }
 
@@ -492,6 +538,56 @@ class BookController extends Controller
                 'message' => 'Error creating category: ' . $e->getMessage(),
             ], 422);
         }
+    }
+
+    protected function normalizeBookValidationInput(array $data): array
+    {
+        $normalizeText = function ($value) {
+            if ($value === null) {
+                return null;
+            }
+
+            return trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $value)));
+        };
+
+        if (array_key_exists('isbn', $data)) {
+            $data['isbn'] = preg_replace('/[-\s]/', '', (string) $data['isbn']);
+        }
+
+        foreach (['shelf_no', 'title', 'author', 'publisher', 'new_category', 'description'] as $field) {
+            if (array_key_exists($field, $data)) {
+                $data[$field] = $normalizeText($data[$field]);
+            }
+        }
+
+        if (array_key_exists('total_copies', $data) && $data['total_copies'] !== null && $data['total_copies'] !== '') {
+            $data['total_copies'] = (int) $data['total_copies'];
+        }
+
+        if (array_key_exists('available_copies', $data) && $data['available_copies'] !== null && $data['available_copies'] !== '') {
+            $data['available_copies'] = (int) $data['available_copies'];
+        }
+
+        return $data;
+    }
+
+    protected function attachBookValidationCallbacks($validator, array $data, ?string $field = null): void
+    {
+        $validator->after(function ($validator) use ($data, $field) {
+            $checkCategory = $field === null || in_array($field, ['category_id', 'new_category'], true);
+            $categoryId = trim((string) ($data['category_id'] ?? ''));
+            $newCategory = trim((string) ($data['new_category'] ?? ''));
+
+            if ($checkCategory) {
+                if ($categoryId === '' && $newCategory === '') {
+                    $validator->errors()->add('category_id', 'Select an existing category or create a new one.');
+                }
+
+                if ($categoryId !== '' && $newCategory !== '') {
+                    $validator->errors()->add('new_category', 'Choose either an existing category or a new category, not both.');
+                }
+            }
+        });
     }
 
     private function normalizeBookListFilters(?Request $request = null): array

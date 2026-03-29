@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\Department;
@@ -10,11 +11,15 @@ use App\Models\Notification;
 use App\Models\ActivityLog;
 use App\Helpers\ActivityLogger;
 use App\Mail\PasswordResetEmail;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
@@ -199,6 +204,7 @@ class StudentController extends Controller
                     'name' => $student->user->name,
                     'email' => $student->user->email,
                     'phone' => $student->user->phone,
+                    'date_of_birth' => optional($student->user->date_of_birth)->format('Y-m-d'),
                     'roll_no' => $student->roll_no,
                     'department_id' => $student->department_id,
                     'batch' => $student->batch,
@@ -215,6 +221,234 @@ class StudentController extends Controller
         }
     }
 
+    public function validateField(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $field = (string) $request->input('field');
+        $allowedFields = ['email', 'phone', 'roll_no', 'date_of_birth'];
+
+        if (!in_array($field, $allowedFields, true)) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Unsupported validation field.',
+            ], 422);
+        }
+
+        $student = null;
+        if ($request->filled('student_id')) {
+            $student = Student::find($request->input('student_id'));
+        }
+
+        $data = $this->normalizedStudentInput($request);
+        $rules = [$field => $this->studentValidationRules($student, false)[$field]];
+        $messages = $this->studentValidationMessages();
+
+        $validator = Validator::make($data, $rules, $messages);
+        $this->attachStudentValidationCallbacks($validator, $data);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'valid' => false,
+                'field' => $field,
+                'message' => $validator->errors()->first($field),
+            ], 422);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'field' => $field,
+            'message' => null,
+        ]);
+    }
+
+    protected function normalizedStudentInput(Request $request): array
+    {
+        $cleanText = function ($value) {
+            if ($value === null) {
+                return null;
+            }
+
+            return trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $value)));
+        };
+
+        $normalizePhone = function ($value) {
+            if ($value === null) {
+                return null;
+            }
+
+            $raw = trim((string) $value);
+            if ($raw === '') {
+                return '';
+            }
+
+            $digits = preg_replace('/\D/', '', $raw);
+
+            return str_starts_with($raw, '+') ? '+' . $digits : $digits;
+        };
+
+        return array_merge($request->all(), [
+            'name' => $cleanText($request->input('name')),
+            'email' => strtolower(trim((string) $request->input('email', ''))),
+            'phone' => $normalizePhone($request->input('phone')),
+            'date_of_birth' => $cleanText($request->input('date_of_birth')),
+            'roll_no' => strtoupper($cleanText($request->input('roll_no')) ?? ''),
+            'batch' => $cleanText($request->input('batch')),
+            'semester' => $cleanText($request->input('semester')),
+            'address' => $cleanText($request->input('address')),
+            'status' => $cleanText($request->input('status')),
+        ]);
+    }
+
+    protected function studentValidationRules(?Student $student = null, bool $includeStatus = false): array
+    {
+        $rules = [
+            'name' => ['bail', 'required', 'string', 'min:2', 'max:100', 'regex:/^[A-Za-z ]+$/'],
+            'email' => [
+                'bail',
+                'required',
+                'string',
+                'email:rfc',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($student?->user_id),
+            ],
+            'phone' => [
+                'bail',
+                'required',
+                'string',
+                'min:8',
+                'max:20',
+                'regex:/^\+[1-9]\d{7,14}$/',
+                Rule::unique('users', 'phone')->ignore($student?->user_id),
+            ],
+            'date_of_birth' => ['bail', 'required', 'date', 'before:today'],
+            'roll_no' => [
+                'bail',
+                'required',
+                'string',
+                'min:3',
+                'max:30',
+                'regex:/^[A-Za-z0-9-]+$/',
+                Rule::unique('students', 'roll_no')->ignore($student?->id),
+            ],
+            'department_id' => ['bail', 'required', 'integer', Rule::exists('departments', 'id')],
+            'batch' => ['bail', 'required', 'regex:/^(19|20)\d{2}$/'],
+            'semester' => ['bail', 'required', 'integer', 'between:1,12'],
+            'address' => ['bail', 'required', 'string', 'min:10', 'max:255', 'not_regex:/<[^>]*>/'],
+        ];
+
+        if ($includeStatus) {
+            $rules['status'] = ['bail', 'required', Rule::in(['active', 'inactive'])];
+        }
+
+        return $rules;
+    }
+
+    protected function studentValidationMessages(): array
+    {
+        return [
+            'name.required' => 'Enter the student\'s full name.',
+            'name.min' => 'Full name must be at least 2 characters long.',
+            'name.max' => 'Full name must be 100 characters or fewer.',
+            'name.regex' => 'Full name can use letters and spaces only.',
+
+            'email.required' => 'Enter the student\'s email address.',
+            'email.email' => 'Enter a valid email address, like student@example.com.',
+            'email.max' => 'Email address must be 255 characters or fewer.',
+            'email.unique' => 'This email is already assigned to another user.',
+
+            'phone.required' => 'Enter the student\'s phone number with country code.',
+            'phone.min' => 'Enter a valid phone number with country code, like +9779812345678.',
+            'phone.max' => 'Phone number is too long. Use international format like +9779812345678.',
+            'phone.regex' => 'Enter a valid phone number with country code, like +9779812345678.',
+            'phone.unique' => 'This phone number is already assigned to another user.',
+
+            'date_of_birth.required' => 'Select the student\'s date of birth.',
+            'date_of_birth.date' => 'Enter a valid date of birth.',
+            'date_of_birth.before' => 'Date of birth must be earlier than today.',
+
+            'roll_no.required' => 'Enter the student ID.',
+            'roll_no.min' => 'Student ID must be at least 3 characters long.',
+            'roll_no.max' => 'Student ID must be 30 characters or fewer.',
+            'roll_no.regex' => 'Student ID can use letters, numbers, and hyphens only.',
+            'roll_no.unique' => 'This student ID is already in use.',
+
+            'department_id.required' => 'Select a department.',
+            'department_id.integer' => 'Select a valid department.',
+            'department_id.exists' => 'Select a valid department.',
+
+            'batch.required' => 'Enter the batch year.',
+            'batch.regex' => 'Batch year must be a 4-digit year.',
+
+            'semester.required' => 'Enter the semester number.',
+            'semester.integer' => 'Semester must be a number between 1 and 12.',
+            'semester.between' => 'Semester must be a number between 1 and 12.',
+
+            'address.required' => 'Enter the student\'s address.',
+            'address.min' => 'Address must be at least 10 characters long.',
+            'address.max' => 'Address must be 255 characters or fewer.',
+            'address.not_regex' => 'Address contains unsupported characters. Remove any HTML or script-like content.',
+
+            'status.required' => 'Select the student status.',
+            'status.in' => 'Select a valid student status.',
+        ];
+    }
+
+    protected function attachStudentValidationCallbacks($validator, array $data): void
+    {
+        $validator->after(function ($validator) use ($data) {
+            if (!empty($data['date_of_birth']) && !$validator->errors()->has('date_of_birth')) {
+                try {
+                    $age = Carbon::parse($data['date_of_birth'])->age;
+
+                    if ($age < 14 || $age > 100) {
+                        $validator->errors()->add('date_of_birth', 'Student age must be between 14 and 100 years.');
+                    }
+                } catch (\Throwable $e) {
+                    $validator->errors()->add('date_of_birth', 'Enter a valid date of birth.');
+                }
+            }
+        });
+    }
+
+    protected function validateStudentData(Request $request, ?Student $student = null, bool $includeStatus = false): array
+    {
+        $data = $this->normalizedStudentInput($request);
+        $validator = Validator::make(
+            $data,
+            $this->studentValidationRules($student, $includeStatus),
+            $this->studentValidationMessages()
+        );
+
+        $this->attachStudentValidationCallbacks($validator, $data);
+
+        return $validator->validate();
+    }
+
+    protected function duplicateStudentErrors(QueryException $e, array $validated): array
+    {
+        $errorMsg = $e->getMessage();
+        $errors = [];
+
+        if (stripos($errorMsg, 'users_email_unique') !== false || (stripos($errorMsg, 'Duplicate entry') !== false && stripos($errorMsg, $validated['email'] ?? '') !== false)) {
+            $errors['email'] = ['This email is already assigned to another user.'];
+        }
+
+        if (stripos($errorMsg, 'users_phone_unique') !== false || (stripos($errorMsg, 'Duplicate entry') !== false && stripos($errorMsg, $validated['phone'] ?? '') !== false)) {
+            $errors['phone'] = ['This phone number is already assigned to another user.'];
+        }
+
+        if (stripos($errorMsg, 'students_roll_no_unique') !== false || (stripos($errorMsg, 'Duplicate entry') !== false && stripos($errorMsg, $validated['roll_no'] ?? '') !== false)) {
+            $errors['roll_no'] = ['This student ID is already in use.'];
+        }
+
+        if (empty($errors)) {
+            $errors['email'] = ['Unable to save the student with the provided details.'];
+        }
+
+        return $errors;
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -222,42 +456,35 @@ class StudentController extends Controller
     {
         Gate::authorize('access-admin');
 
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|unique:users,phone',
-            'roll_no' => 'required|string|unique:students,roll_no',
-            'department_id' => 'required|exists:departments,id',
-            'batch' => 'required|string',
-            'semester' => 'required|string',
-            'address' => 'nullable|string',
-        ]);
+        $validated = $this->validateStudentData($request);
 
         try {
-            // Create user
-            $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'role' => 'student',
-                'status' => 'active',
-                'password' => bcrypt('password'),
-            ]);
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Handle unique constraint race (phone/email) gracefully
-            $errorMsg = $e->getMessage();
-            $errors = [];
+            $student = DB::transaction(function () use ($validated) {
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'phone' => $validated['phone'],
+                    'date_of_birth' => $validated['date_of_birth'],
+                    'role' => 'student',
+                    'status' => 'active',
+                    'password' => bcrypt('password'),
+                ]);
 
-            if (stripos($errorMsg, 'users_email_unique') !== false || (stripos($errorMsg, 'Duplicate entry') !== false && stripos($errorMsg, $validated['email']) !== false)) {
-                $errors['email'] = ['The email has already been taken.'];
-            }
-            if (stripos($errorMsg, 'users_phone_unique') !== false || (stripos($errorMsg, 'Duplicate entry') !== false && stripos($errorMsg, $validated['phone']) !== false)) {
-                $errors['phone'] = ['The phone number has already been taken.'];
-            }
+                $student = Student::create([
+                    'user_id' => $user->id,
+                    'roll_no' => $validated['roll_no'],
+                    'department_id' => $validated['department_id'],
+                    'batch' => $validated['batch'],
+                    'semester' => $validated['semester'],
+                    'address' => $validated['address'],
+                ]);
 
-            if (empty($errors)) {
-                $errors['phone'] = ['A user with the provided details already exists.'];
-            }
+                $student->load('user', 'department');
+
+                return $student;
+            });
+        } catch (QueryException $e) {
+            $errors = $this->duplicateStudentErrors($e, $validated);
 
             return response()->json([
                 'success' => false,
@@ -265,19 +492,6 @@ class StudentController extends Controller
                 'errors' => $errors,
             ], 422);
         }
-
-        // Create student
-        $student = Student::create([
-            'user_id' => $user->id,
-            'roll_no' => $validated['roll_no'],
-            'department_id' => $validated['department_id'],
-            'batch' => $validated['batch'],
-            'semester' => $validated['semester'],
-            'address' => $validated['address'] ?? null,
-        ]);
-
-        // Load relations so client can update UI immediately
-        $student->load('user', 'department');
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -410,23 +624,14 @@ class StudentController extends Controller
         $student = Student::findOrFail($id);
         $user = $student->user;
 
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users,email,' . $student->user_id,
-            'phone' => 'required|string',
-            'roll_no' => 'required|string|unique:students,roll_no,' . $student->id,
-            'department_id' => 'required|exists:departments,id',
-            'batch' => 'required|string',
-            'semester' => 'required|string',
-            'address' => 'nullable|string',
-            'status' => 'required|in:active,inactive',
-        ]);
+        $validated = $this->validateStudentData($request, $student, true);
 
         // Track changes in User model
         $userChanges = [];
         if ($user->name !== $validated['name']) $userChanges['name'] = $validated['name'];
         if ($user->email !== $validated['email']) $userChanges['email'] = $validated['email'];
         if ($user->phone !== $validated['phone']) $userChanges['phone'] = $validated['phone'];
+        if (optional($user->date_of_birth)->format('Y-m-d') !== $validated['date_of_birth']) $userChanges['date_of_birth'] = $validated['date_of_birth'];
         if ($user->status !== $validated['status']) $userChanges['status'] = $validated['status'];
 
         // Track changes in Student model
@@ -435,24 +640,35 @@ class StudentController extends Controller
         if ($student->department_id != $validated['department_id']) $studentChanges['department_id'] = $validated['department_id'];
         if ($student->batch !== $validated['batch']) $studentChanges['batch'] = $validated['batch'];
         if ($student->semester !== $validated['semester']) $studentChanges['semester'] = $validated['semester'];
-        if ($student->address !== ($validated['address'] ?? null)) $studentChanges['address'] = $validated['address'] ?? null;
+        if ($student->address !== $validated['address']) $studentChanges['address'] = $validated['address'];
 
-        // Update user
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'status' => $validated['status'],
-        ]);
+        try {
+            DB::transaction(function () use ($user, $student, $validated) {
+                $user->update([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'phone' => $validated['phone'],
+                    'date_of_birth' => $validated['date_of_birth'],
+                    'status' => $validated['status'],
+                ]);
 
-        // Update student
-        $student->update([
-            'roll_no' => $validated['roll_no'],
-            'department_id' => $validated['department_id'],
-            'batch' => $validated['batch'],
-            'semester' => $validated['semester'],
-            'address' => $validated['address'] ?? null,
-        ]);
+                $student->update([
+                    'roll_no' => $validated['roll_no'],
+                    'department_id' => $validated['department_id'],
+                    'batch' => $validated['batch'],
+                    'semester' => $validated['semester'],
+                    'address' => $validated['address'],
+                ]);
+            });
+        } catch (QueryException $e) {
+            $errors = $this->duplicateStudentErrors($e, $validated);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $errors,
+            ], 422);
+        }
 
         // Log the activity with actual changes
         $allChanges = array_merge($userChanges, $studentChanges);

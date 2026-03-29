@@ -72,6 +72,7 @@ Route::middleware(['auth', 'can:access-admin'])
 
         Route::get('/books/data', [BookController::class, 'getBooksData'])->name('books.data');
         Route::get('/books/stats', [BookController::class, 'getBookStats'])->name('books.stats');
+        Route::post('/books/validate-field', [BookController::class, 'validateField'])->name('books.validate-field');
         Route::post('/categories', [BookController::class, 'createCategory'])->name('categories.store');
 
         Route::get('/book-requests/data', [BookRequestController::class, 'getRequestsData'])->name('book-requests.data');
@@ -79,6 +80,7 @@ Route::middleware(['auth', 'can:access-admin'])
 
         Route::get('/students/data', [StudentController::class, 'getStudentsData'])->name('students.data');
         Route::get('/students/stats', [StudentController::class, 'getStudentsStats'])->name('students.stats');
+        Route::post('/students/validate-field', [StudentController::class, 'validateField'])->name('students.validate-field');
         Route::get('/students/{student}/edit-data', [StudentController::class, 'getStudentEditData'])->name('students.edit-data');
         Route::post('/students/{student}/reset-password', [StudentController::class, 'resetPassword'])
             ->name('students.reset-password');
@@ -92,6 +94,7 @@ Route::middleware(['auth', 'can:access-admin'])
             ->name('students.change-role');
 
         Route::resource('books', BookController::class);
+        Route::post('/users/validate-field', [UserController::class, 'validateField'])->name('users.validate-field');
         Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::get('/users/{user}/details', [UserController::class, 'getDetails'])->name('users.details');
         Route::patch('/users/{user}/status', [UserController::class, 'toggleStatus'])

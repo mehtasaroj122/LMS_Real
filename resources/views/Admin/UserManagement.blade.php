@@ -968,8 +968,9 @@
             display: none !important;
         }
 
-        .conditional-field .form-label::after {
-            content: '';
+        .conditional-field .form-label.required::after {
+            content: ' *';
+            color: #ef4444;
         }
 
         /* Field Error Styles */
@@ -994,7 +995,32 @@
             padding-right: 35px;
         }
 
-            .form-group.error .form-control {
+        .form-control.is-valid {
+            border-color: #10b981 !important;
+        }
+
+        .form-control.is-pending {
+            border-color: #f59e0b !important;
+        }
+
+        .status-radio.is-invalid {
+            outline: 1px solid #ef4444;
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .status-radio.is-valid {
+            outline: 1px solid #10b981;
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .form-group.error .form-control {
             border-color: #ef4444;
         }
 
@@ -1360,7 +1386,7 @@
             <div class="modal-body">
                 <p class="modal-description">Create a new user account with appropriate role and permissions</p>
 
-                <form id="addUserForm">
+                <form id="addUserForm" novalidate>
                     @csrf
 
                     <div class="form-group">
@@ -1395,10 +1421,11 @@
                     <div class="form-group">
                         <label class="form-label">Phone</label>
                         <input type="tel" class="form-control" name="phone" id="addPhone" placeholder="+1 234 567 8900">
+                        <span class="field-error" id="addPhoneError"></span>
                     </div>
 
                     <div class="form-group conditional-field" data-for="staff,student">
-                        <label class="form-label">Department</label>
+                        <label class="form-label required">Department</label>
                         <select class="form-control" name="department_id" id="addDepartmentSelect">
                             <option value="">Select Department</option>
                             @foreach ($departments ?? [] as $dept)
@@ -1409,7 +1436,7 @@
                     </div>
 
                     <div class="form-group conditional-field" data-for="staff">
-                        <label class="form-label">Staff Designation</label>
+                        <label class="form-label required">Staff Designation</label>
                         <input type="text" class="form-control" name="designation" id="addDesignation" placeholder="Staff Member">
                         <span class="field-error" id="addDesignationError"></span>
                     </div>
@@ -1421,19 +1448,19 @@
                     </div>
 
                     <div class="form-group conditional-field" data-for="student">
-                        <label class="form-label" id="rollNoLabel">Roll Number</label>
+                        <label class="form-label required" id="rollNoLabel">Roll Number</label>
                         <input type="text" class="form-control" name="roll_no" id="addRollNo" placeholder="CSE-2021-001">
                         <span class="field-error" id="addRollNoError"></span>
                     </div>
 
                     <div class="form-group conditional-field" data-for="student">
-                        <label class="form-label">Batch</label>
+                        <label class="form-label required">Batch</label>
                         <input type="text" class="form-control" name="batch" id="addBatch" placeholder="2024">
                         <span class="field-error" id="addBatchError"></span>
                     </div>
 
                     <div class="form-group conditional-field" data-for="student">
-                        <label class="form-label">Semester</label>
+                        <label class="form-label required">Semester</label>
                         <select class="form-control" name="semester" id="addSemester">
                             <option value="">Select Semester</option>
                             <option value="1">1st</option>
@@ -1450,12 +1477,13 @@
 
                     <div class="form-group">
                         <label class="form-label">Address</label>
-                        <textarea class="form-control" name="address" placeholder="123 Main St, City, Country" rows="3"></textarea>
+                        <textarea class="form-control" name="address" id="addAddress" placeholder="123 Main St, City, Country" rows="3"></textarea>
+                        <span class="field-error" id="addAddressError"></span>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="addStatusGroup">
                         <label class="form-label">Status</label>
-                        <div class="status-radio">
+                        <div class="status-radio" id="addStatusRadio">
                             <label class="status-option">
                                 <input type="radio" name="status" value="active" checked>
                                 <span>Active</span>
@@ -1465,6 +1493,7 @@
                                 <span>Inactive</span>
                             </label>
                         </div>
+                        <span class="field-error" id="addStatusError"></span>
                     </div>
                 </form>
 
@@ -1491,7 +1520,7 @@
             <div class="modal-body">
                 <p class="modal-description">Update user information and permissions</p>
 
-                <form id="editUserForm">
+                <form id="editUserForm" novalidate>
                     <div class="form-group">
                         <label class="form-label required">Full Name</label>
                         <input type="text" class="form-control" id="editFullName" name="name">
@@ -1518,10 +1547,11 @@
                     <div class="form-group">
                         <label class="form-label">Phone</label>
                         <input type="tel" class="form-control" id="editPhone" name="phone">
+                        <span class="field-error" id="editPhoneError"></span>
                     </div>
 
                     <div class="form-group" id="editDepartmentGroup" style="display: none;">
-                        <label class="form-label">Department</label>
+                        <label class="form-label required">Department</label>
                         <select class="form-control" id="editDepartment" name="department_id">
                             <option value="">Select Department</option>
                             @foreach ($departments ?? [] as $dept)
@@ -1532,7 +1562,7 @@
                     </div>
 
                     <div class="form-group" id="editStaffDesignationGroup" style="display: none;">
-                        <label class="form-label">Staff Designation</label>
+                        <label class="form-label required">Staff Designation</label>
                         <input type="text" class="form-control" id="editDesignation" name="designation" placeholder="Staff Member">
                         <span class="field-error" id="editDesignationError"></span>
                     </div>
@@ -1544,20 +1574,20 @@
                     </div>
 
                     <div class="form-group" id="editRollNoGroup" style="display: none;">
-                        <label class="form-label" id="editRollNoLabel">Roll Number</label>
+                        <label class="form-label required" id="editRollNoLabel">Roll Number</label>
                         <input type="text" class="form-control" id="editRollNo" name="roll_no"
                             placeholder="CSE-2021-001">
                         <span class="field-error" id="editRollNoError"></span>
                     </div>
 
                     <div class="form-group" id="editBatchGroup" style="display: none;">
-                        <label class="form-label">Batch</label>
+                        <label class="form-label required">Batch</label>
                         <input type="text" class="form-control" id="editBatch" name="batch" placeholder="2024">
                         <span class="field-error" id="editBatchError"></span>
                     </div>
 
                     <div class="form-group" id="editSemesterGroup" style="display: none;">
-                        <label class="form-label">Semester</label>
+                        <label class="form-label required">Semester</label>
                         <select class="form-control" id="editSemester" name="semester">
                             <option value="">Select Semester</option>
                             <option value="1">1st</option>
@@ -1575,6 +1605,7 @@
                     <div class="form-group">
                         <label class="form-label">Address</label>
                         <textarea class="form-control" id="editAddress" name="address" rows="3"></textarea>
+                        <span class="field-error" id="editAddressError"></span>
                     </div>
                 </form>
             </div>
@@ -1667,6 +1698,642 @@
 
 @push('scripts')
     <script>
+        const USER_VALIDATION_MESSAGES = {
+            name: {
+                required: 'Enter the user\'s full name.',
+                min: 'Full name must be at least 2 characters long.',
+                format: 'Full name can use letters and spaces only.',
+            },
+            email: {
+                required: 'Enter the user\'s email address.',
+                format: 'Enter a valid email address, like user@example.com.',
+                unique: 'This email is already assigned to another user.',
+            },
+            password: {
+                required: 'Enter a password for the user.',
+                min: 'Password must be at least 6 characters long.',
+            },
+            role: {
+                required: 'Select a user role.',
+                invalid: 'Select a valid user role.',
+            },
+            phone: {
+                format: 'Enter a valid phone number with country code, like +9779812345678.',
+                unique: 'This phone number is already assigned to another user.',
+            },
+            address: {
+                min: 'Address must be at least 10 characters long.',
+                unsafe: 'Address contains unsupported characters. Remove any HTML or script-like content.',
+            },
+            department_id: {
+                required: 'Select a department.',
+            },
+            designation: {
+                required: 'Enter the staff designation.',
+                min: 'Staff designation must be at least 2 characters long.',
+            },
+            join_date: {
+                required: 'Select the join date for the staff member.',
+                invalid: 'Enter a valid join date.',
+                future: 'Join date cannot be in the future.',
+            },
+            roll_no: {
+                required: 'Enter the student ID.',
+                min: 'Student ID must be at least 3 characters long.',
+                format: 'Student ID can use letters, numbers, and hyphens only.',
+                unique: 'This student ID is already in use.',
+            },
+            batch: {
+                required: 'Enter the batch year.',
+                format: 'Batch year must be a 4-digit year.',
+            },
+            semester: {
+                required: 'Select the current semester.',
+                format: 'Semester must be a number between 1 and 8.',
+            },
+            status: {
+                required: 'Select the user status.',
+            },
+        };
+
+        class LiveUserFormValidator {
+            constructor({ formId, submitButtonId, fields, createMode = false, getUserId = () => null }) {
+                this.form = document.getElementById(formId);
+                this.submitButton = document.getElementById(submitButtonId);
+                this.fields = fields;
+                this.createMode = createMode;
+                this.getUserId = getUserId;
+                this.abortControllers = {};
+                this.pendingFields = new Set();
+                this.verifiedValues = {};
+                this.fieldState = {};
+
+                this.attachListeners();
+                this.refreshVisibility();
+            }
+
+            getFieldConfig(fieldName) {
+                return this.fields[fieldName] || null;
+            }
+
+            getFieldElement(fieldName) {
+                const config = this.getFieldConfig(fieldName);
+                if (!config) {
+                    return null;
+                }
+
+                if (config.type === 'radio') {
+                    return this.form?.querySelector(`input[name="${config.name}"]:checked`) || null;
+                }
+
+                return document.getElementById(config.id);
+            }
+
+            getFieldElements(fieldName) {
+                const config = this.getFieldConfig(fieldName);
+                if (!config || !this.form) {
+                    return [];
+                }
+
+                if (config.type === 'radio') {
+                    return Array.from(this.form.querySelectorAll(`input[name="${config.name}"]`));
+                }
+
+                const element = document.getElementById(config.id);
+                return element ? [element] : [];
+            }
+
+            getFieldGroup(fieldName) {
+                const config = this.getFieldConfig(fieldName);
+                if (!config) {
+                    return null;
+                }
+
+                if (config.groupId) {
+                    return document.getElementById(config.groupId);
+                }
+
+                return this.getFieldElement(fieldName)?.closest('.form-group') || null;
+            }
+
+            getErrorElement(fieldName) {
+                const config = this.getFieldConfig(fieldName);
+                return config?.errorId ? document.getElementById(config.errorId) : null;
+            }
+
+            getRole() {
+                return this.normalizeValue('role', this.getRawValue('role')) || 'student';
+            }
+
+            getActiveFields(role = this.getRole()) {
+                return Object.keys(this.fields).filter((fieldName) => {
+                    const config = this.getFieldConfig(fieldName);
+                    if (!config) {
+                        return false;
+                    }
+
+                    if (!config.roles || config.roles.length === 0) {
+                        return true;
+                    }
+
+                    return config.roles.includes(role);
+                });
+            }
+
+            getRawValue(fieldName) {
+                const config = this.getFieldConfig(fieldName);
+                if (!config || !this.form) {
+                    return '';
+                }
+
+                if (config.type === 'radio') {
+                    return this.form.querySelector(`input[name="${config.name}"]:checked`)?.value ?? '';
+                }
+
+                return document.getElementById(config.id)?.value ?? '';
+            }
+
+            normalizeValue(fieldName, value) {
+                const rawValue = String(value ?? '');
+
+                switch (fieldName) {
+                    case 'name':
+                    case 'address':
+                    case 'designation':
+                        return rawValue.replace(/\s+/g, ' ').trim();
+                    case 'email':
+                        return rawValue.trim().toLowerCase();
+                    case 'phone': {
+                        const trimmed = rawValue.trim();
+                        const digits = trimmed.replace(/\D/g, '');
+
+                        if (!trimmed) {
+                            return '';
+                        }
+
+                        return trimmed.startsWith('+') ? `+${digits}` : digits;
+                    }
+                    case 'roll_no':
+                        return rawValue.trim().toUpperCase();
+                    default:
+                        return rawValue.trim();
+                }
+            }
+
+            setValue(fieldName, value) {
+                const config = this.getFieldConfig(fieldName);
+                if (!config || !this.form) {
+                    return;
+                }
+
+                if (config.type === 'radio') {
+                    this.getFieldElements(fieldName).forEach((input) => {
+                        input.checked = input.value === value;
+                    });
+                    return;
+                }
+
+                const element = document.getElementById(config.id);
+                if (element) {
+                    element.value = value;
+                }
+            }
+
+            collectValues() {
+                const values = {};
+
+                Object.keys(this.fields).forEach((fieldName) => {
+                    const normalized = this.normalizeValue(fieldName, this.getRawValue(fieldName));
+                    values[fieldName] = normalized;
+
+                    const config = this.getFieldConfig(fieldName);
+                    if (config?.type !== 'radio') {
+                        const element = document.getElementById(config.id);
+                        if (element && element.value !== normalized) {
+                            element.value = normalized;
+                        }
+                    }
+                });
+
+                return values;
+            }
+
+            isUniqueField(fieldName, values) {
+                if (fieldName === 'email') {
+                    return Boolean(values.email);
+                }
+
+                if (fieldName === 'phone') {
+                    return Boolean(values.phone);
+                }
+
+                if (fieldName === 'roll_no') {
+                    return values.role === 'student' && Boolean(values.roll_no);
+                }
+
+                return false;
+            }
+
+            setState(fieldName, state, message = '') {
+                const group = this.getFieldGroup(fieldName);
+                const error = this.getErrorElement(fieldName);
+                const inputs = this.getFieldElements(fieldName);
+                const radioWrapper = fieldName === 'status' ? document.getElementById('addStatusRadio') : null;
+
+                group?.classList.remove('error');
+                inputs.forEach((input) => input.classList.remove('is-valid', 'is-invalid', 'is-pending'));
+                radioWrapper?.classList.remove('is-valid', 'is-invalid');
+
+                if (state === 'valid') {
+                    inputs.forEach((input) => input.classList.add('is-valid'));
+                    radioWrapper?.classList.add('is-valid');
+                } else if (state === 'invalid') {
+                    group?.classList.add('error');
+                    inputs.forEach((input) => input.classList.add('is-invalid'));
+                    radioWrapper?.classList.add('is-invalid');
+                } else if (state === 'pending') {
+                    inputs.forEach((input) => input.classList.add('is-pending'));
+                }
+
+                if (error) {
+                    error.textContent = message;
+                    error.classList.toggle('visible', state === 'invalid' && Boolean(message));
+                }
+
+                if (state === 'pending') {
+                    this.pendingFields.add(fieldName);
+                    this.fieldState[fieldName] = { valid: false };
+                } else {
+                    this.pendingFields.delete(fieldName);
+                    this.fieldState[fieldName] = { valid: state === 'valid' };
+                }
+
+                this.updateSubmitState();
+            }
+
+            clearFieldState(fieldName, { logicalValid = false, keepState = true } = {}) {
+                const group = this.getFieldGroup(fieldName);
+                const error = this.getErrorElement(fieldName);
+                const inputs = this.getFieldElements(fieldName);
+                const radioWrapper = fieldName === 'status' ? document.getElementById('addStatusRadio') : null;
+
+                group?.classList.remove('error');
+                inputs.forEach((input) => input.classList.remove('is-valid', 'is-invalid', 'is-pending'));
+                radioWrapper?.classList.remove('is-valid', 'is-invalid');
+
+                if (error) {
+                    error.textContent = '';
+                    error.classList.remove('visible');
+                }
+
+                this.pendingFields.delete(fieldName);
+                if (keepState) {
+                    this.fieldState[fieldName] = { valid: logicalValid };
+                } else {
+                    delete this.fieldState[fieldName];
+                }
+                this.updateSubmitState();
+            }
+
+            isFieldRequired(fieldName, values = this.collectValues()) {
+                const role = values.role;
+
+                switch (fieldName) {
+                    case 'name':
+                    case 'email':
+                    case 'role':
+                        return true;
+                    case 'password':
+                    case 'status':
+                        return this.createMode;
+                    case 'department_id':
+                        return ['student', 'staff'].includes(role);
+                    case 'designation':
+                    case 'join_date':
+                        return role === 'staff';
+                    case 'roll_no':
+                    case 'batch':
+                    case 'semester':
+                        return role === 'student';
+                    default:
+                        return false;
+                }
+            }
+
+            getSyncMessage(fieldName, values) {
+                const value = values[fieldName] ?? '';
+                const role = values.role;
+
+                switch (fieldName) {
+                    case 'name':
+                        if (!value) return USER_VALIDATION_MESSAGES.name.required;
+                        if (value.length < 2) return USER_VALIDATION_MESSAGES.name.min;
+                        if (!/^[A-Za-z ]+$/.test(value)) return USER_VALIDATION_MESSAGES.name.format;
+                        return '';
+                    case 'email':
+                        if (!value) return USER_VALIDATION_MESSAGES.email.required;
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return USER_VALIDATION_MESSAGES.email.format;
+                        return '';
+                    case 'password':
+                        if (!this.createMode) return '';
+                        if (!value) return USER_VALIDATION_MESSAGES.password.required;
+                        if (value.length < 6) return USER_VALIDATION_MESSAGES.password.min;
+                        return '';
+                    case 'role':
+                        if (!value) return USER_VALIDATION_MESSAGES.role.required;
+                        if (!['admin', 'staff', 'student'].includes(value)) return USER_VALIDATION_MESSAGES.role.invalid;
+                        return '';
+                    case 'phone':
+                        if (!value) return '';
+                        if (!/^\+[1-9]\d{7,14}$/.test(value)) return USER_VALIDATION_MESSAGES.phone.format;
+                        return '';
+                    case 'address':
+                        if (!value) return '';
+                        if (value.length < 10) return USER_VALIDATION_MESSAGES.address.min;
+                        if (/<[^>]*>/.test(value)) return USER_VALIDATION_MESSAGES.address.unsafe;
+                        return '';
+                    case 'department_id':
+                        if (!['student', 'staff'].includes(role)) return '';
+                        return value ? '' : USER_VALIDATION_MESSAGES.department_id.required;
+                    case 'designation':
+                        if (role !== 'staff') return '';
+                        if (!value) return USER_VALIDATION_MESSAGES.designation.required;
+                        if (value.length < 2) return USER_VALIDATION_MESSAGES.designation.min;
+                        return '';
+                    case 'join_date': {
+                        if (role !== 'staff') return '';
+                        if (!value) return USER_VALIDATION_MESSAGES.join_date.required;
+                        const joinDate = new Date(value);
+                        if (Number.isNaN(joinDate.getTime())) return USER_VALIDATION_MESSAGES.join_date.invalid;
+                        const today = new Date();
+                        const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                        if (joinDate > todayMidnight) return USER_VALIDATION_MESSAGES.join_date.future;
+                        return '';
+                    }
+                    case 'roll_no':
+                        if (role !== 'student') return '';
+                        if (!value) return USER_VALIDATION_MESSAGES.roll_no.required;
+                        if (value.length < 3) return USER_VALIDATION_MESSAGES.roll_no.min;
+                        if (!/^[A-Za-z0-9-]+$/.test(value)) return USER_VALIDATION_MESSAGES.roll_no.format;
+                        return '';
+                    case 'batch':
+                        if (role !== 'student') return '';
+                        if (!value) return USER_VALIDATION_MESSAGES.batch.required;
+                        if (!/^(19|20)\d{2}$/.test(value)) return USER_VALIDATION_MESSAGES.batch.format;
+                        return '';
+                    case 'semester':
+                        if (role !== 'student') return '';
+                        if (!value) return USER_VALIDATION_MESSAGES.semester.required;
+                        if (!/^[1-8]$/.test(value)) return USER_VALIDATION_MESSAGES.semester.format;
+                        return '';
+                    case 'status':
+                        if (!this.createMode) return '';
+                        return value ? '' : USER_VALIDATION_MESSAGES.status.required;
+                    default:
+                        return '';
+                }
+            }
+
+            async runUniqueValidation(fieldName, value, values) {
+                if (!this.isUniqueField(fieldName, values)) {
+                    return true;
+                }
+
+                if (this.verifiedValues[fieldName] === value) {
+                    this.setState(fieldName, 'valid');
+                    return true;
+                }
+
+                this.abortControllers[fieldName]?.abort();
+                const controller = new AbortController();
+                this.abortControllers[fieldName] = controller;
+                this.setState(fieldName, 'pending');
+
+                try {
+                    const payload = {
+                        ...values,
+                        field: fieldName,
+                        user_id: this.getUserId(),
+                    };
+
+                    const response = await fetch('{{ route('admin.users.validate-field') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        signal: controller.signal,
+                        body: JSON.stringify(payload),
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        const message = data.message || USER_VALIDATION_MESSAGES[fieldName]?.unique || 'This value is already in use.';
+                        this.setState(fieldName, 'invalid', message);
+                        return false;
+                    }
+
+                    if (this.collectValues()[fieldName] !== value) {
+                        return false;
+                    }
+
+                    this.verifiedValues[fieldName] = value;
+                    this.setState(fieldName, 'valid');
+                    return true;
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        return false;
+                    }
+
+                    this.setState(fieldName, 'invalid', 'Could not verify this field right now. Please try again.');
+                    return false;
+                }
+            }
+
+            async validateField(fieldName, { runUniqueCheck = false } = {}) {
+                const values = this.collectValues();
+                const activeFields = this.getActiveFields(values.role);
+
+                if (!activeFields.includes(fieldName)) {
+                    this.clearFieldState(fieldName);
+                    return true;
+                }
+
+                const syncMessage = this.getSyncMessage(fieldName, values);
+                if (syncMessage) {
+                    this.setState(fieldName, 'invalid', syncMessage);
+                    return false;
+                }
+
+                if (this.isUniqueField(fieldName, values)) {
+                    if (!runUniqueCheck) {
+                        this.setState(fieldName, 'valid');
+                        return true;
+                    }
+
+                    return this.runUniqueValidation(fieldName, values[fieldName], values);
+                }
+
+                this.setState(fieldName, 'valid');
+                return true;
+            }
+
+            async validateAll() {
+                const values = this.collectValues();
+                const activeFields = this.getActiveFields(values.role);
+                let firstInvalidField = null;
+                let allValid = true;
+
+                for (const fieldName of activeFields) {
+                    const isValid = await this.validateField(fieldName, { runUniqueCheck: true });
+                    if (!isValid) {
+                        allValid = false;
+                        if (!firstInvalidField) {
+                            firstInvalidField = fieldName;
+                        }
+                    }
+                }
+
+                if (!allValid && firstInvalidField) {
+                    const field = this.getFieldElement(firstInvalidField) || this.getFieldElements(firstInvalidField)[0];
+                    field?.focus();
+                }
+
+                return allValid;
+            }
+
+            refreshVisibility() {
+                const activeFields = this.getActiveFields();
+                const values = this.collectValues();
+                Object.keys(this.fields).forEach((fieldName) => {
+                    if (!activeFields.includes(fieldName)) {
+                        this.abortControllers[fieldName]?.abort();
+                        delete this.verifiedValues[fieldName];
+                        this.clearFieldState(fieldName, { logicalValid: false, keepState: false });
+                    } else {
+                        const value = values[fieldName];
+                        const isRequired = this.isFieldRequired(fieldName, values);
+                        const shouldStayNeutral = !value && !['role', 'status'].includes(fieldName);
+
+                        if (shouldStayNeutral) {
+                            this.clearFieldState(fieldName, { logicalValid: !isRequired });
+                        } else {
+                            this.validateField(fieldName, { runUniqueCheck: false });
+                        }
+                    }
+                });
+
+                this.updateSubmitState();
+            }
+
+            resetForm() {
+                this.form?.reset();
+                Object.values(this.abortControllers).forEach((controller) => controller?.abort());
+                this.abortControllers = {};
+                this.pendingFields.clear();
+                this.verifiedValues = {};
+                this.fieldState = {};
+                Object.keys(this.fields).forEach((fieldName) => this.clearFieldState(fieldName));
+                this.refreshVisibility();
+            }
+
+            seed(values = {}) {
+                this.resetForm();
+
+                Object.keys(this.fields).forEach((fieldName) => {
+                    const config = this.getFieldConfig(fieldName);
+                    if (!config) {
+                        return;
+                    }
+
+                    let value = '';
+                    if (fieldName === 'department_id') {
+                        value = values.department_id ?? '';
+                    } else {
+                        value = values[fieldName] ?? '';
+                    }
+
+                    const normalized = this.normalizeValue(fieldName, value);
+                    this.setValue(fieldName, normalized);
+
+                    if (['email', 'phone', 'roll_no'].includes(fieldName) && normalized) {
+                        this.verifiedValues[fieldName] = normalized;
+                    }
+                });
+
+                this.refreshVisibility();
+            }
+
+            updateSubmitState() {
+                if (!this.submitButton) {
+                    return;
+                }
+
+                const activeFields = this.getActiveFields();
+                const hasPending = this.pendingFields.size > 0;
+                const hasInvalid = activeFields.some((fieldName) => !this.fieldState[fieldName]?.valid);
+                this.submitButton.disabled = hasPending || hasInvalid;
+            }
+
+            applyServerErrors(errors = {}) {
+                Object.entries(errors).forEach(([fieldName, fieldErrors]) => {
+                    const message = Array.isArray(fieldErrors) ? fieldErrors[0] : fieldErrors;
+                    if (!message || !this.fields[fieldName]) {
+                        return;
+                    }
+
+                    this.setState(fieldName, 'invalid', message);
+                });
+            }
+
+            toFormData() {
+                const values = this.collectValues();
+                const formData = new FormData(this.form);
+
+                Object.entries(values).forEach(([fieldName, value]) => {
+                    formData.set(fieldName, value);
+                });
+
+                return formData;
+            }
+
+            attachListeners() {
+                Object.keys(this.fields).forEach((fieldName) => {
+                    const config = this.getFieldConfig(fieldName);
+                    const elements = this.getFieldElements(fieldName);
+
+                    elements.forEach((element) => {
+                        const inputEvent = config?.type === 'radio' || element.tagName === 'SELECT' || element.type === 'date' ? 'change' : 'input';
+
+                        element.addEventListener(inputEvent, () => {
+                            const normalized = this.normalizeValue(fieldName, this.getRawValue(fieldName));
+
+                            if (config?.type !== 'radio' && element.value !== normalized) {
+                                element.value = normalized;
+                            }
+
+                            if (['email', 'phone', 'roll_no'].includes(fieldName) && this.verifiedValues[fieldName] !== normalized) {
+                                delete this.verifiedValues[fieldName];
+                            }
+
+                            if (fieldName === 'role') {
+                                this.refreshVisibility();
+                                return;
+                            }
+
+                            this.validateField(fieldName, { runUniqueCheck: false });
+                        });
+
+                        element.addEventListener('blur', () => {
+                            this.validateField(fieldName, { runUniqueCheck: true });
+                        });
+                    });
+                });
+            }
+        }
+
         /**
          * UserManager - Main class for managing user operations
          * Handles all user management functionality including CRUD operations, modals, and UI interactions
@@ -1698,6 +2365,7 @@
 
                 // Initialize modal events
                 this.initModalEvents();
+                this.initValidators();
 
                 // Initialize search functionality (LIVE SEARCH - DEBOUNCED)
                 this.initSearch();
@@ -1713,6 +2381,49 @@
 
                 // Initialize pagination click handlers
                 this.initPagination();
+            }
+
+            initValidators() {
+                this.addUserValidator = new LiveUserFormValidator({
+                    formId: 'addUserForm',
+                    submitButtonId: 'submitAddUser',
+                    createMode: true,
+                    fields: {
+                        name: { id: 'addName', errorId: 'addNameError' },
+                        email: { id: 'addEmail', errorId: 'addEmailError' },
+                        password: { id: 'addPassword', errorId: 'addPasswordError' },
+                        role: { id: 'addRoleSelect', errorId: 'addRoleError' },
+                        phone: { id: 'addPhone', errorId: 'addPhoneError' },
+                        department_id: { id: 'addDepartmentSelect', errorId: 'addDepartmentError', roles: ['student', 'staff'] },
+                        designation: { id: 'addDesignation', errorId: 'addDesignationError', roles: ['staff'] },
+                        join_date: { id: 'addJoinDate', errorId: 'addJoinDateError', roles: ['staff'] },
+                        roll_no: { id: 'addRollNo', errorId: 'addRollNoError', roles: ['student'] },
+                        batch: { id: 'addBatch', errorId: 'addBatchError', roles: ['student'] },
+                        semester: { id: 'addSemester', errorId: 'addSemesterError', roles: ['student'] },
+                        address: { id: 'addAddress', errorId: 'addAddressError' },
+                        status: { name: 'status', type: 'radio', groupId: 'addStatusGroup', errorId: 'addStatusError' },
+                    },
+                });
+
+                this.editUserValidator = new LiveUserFormValidator({
+                    formId: 'editUserForm',
+                    submitButtonId: 'submitEditUser',
+                    createMode: false,
+                    getUserId: () => this.currentUserId,
+                    fields: {
+                        name: { id: 'editFullName', errorId: 'editNameError' },
+                        email: { id: 'editEmail', errorId: 'editEmailError' },
+                        role: { id: 'editRole', errorId: 'editRoleError' },
+                        phone: { id: 'editPhone', errorId: 'editPhoneError' },
+                        department_id: { id: 'editDepartment', errorId: 'editDepartmentError', roles: ['student', 'staff'] },
+                        designation: { id: 'editDesignation', errorId: 'editDesignationError', roles: ['staff'] },
+                        join_date: { id: 'editJoinDate', errorId: 'editJoinDateError', roles: ['staff'] },
+                        roll_no: { id: 'editRollNo', errorId: 'editRollNoError', roles: ['student'] },
+                        batch: { id: 'editBatch', errorId: 'editBatchError', roles: ['student'] },
+                        semester: { id: 'editSemester', errorId: 'editSemesterError', roles: ['student'] },
+                        address: { id: 'editAddress', errorId: 'editAddressError' },
+                    },
+                });
             }
 
             /**
@@ -1969,18 +2680,6 @@
                         e.preventDefault();
                         this.submitAddUser();
                     });
-                    this.bindUserFormErrorClearing([
-                        'addName',
-                        'addEmail',
-                        'addPassword',
-                        'addRoleSelect',
-                        'addDepartmentSelect',
-                        'addDesignation',
-                        'addJoinDate',
-                        'addRollNo',
-                        'addBatch',
-                        'addSemester'
-                    ]);
                 }
 
                 const editUserForm = document.getElementById('editUserForm');
@@ -1989,17 +2688,6 @@
                         e.preventDefault();
                         this.submitEditUser();
                     });
-                    this.bindUserFormErrorClearing([
-                        'editFullName',
-                        'editEmail',
-                        'editRole',
-                        'editDepartment',
-                        'editDesignation',
-                        'editJoinDate',
-                        'editRollNo',
-                        'editBatch',
-                        'editSemester'
-                    ]);
                 }
 
                 // Add User Modal
@@ -2010,6 +2698,7 @@
                     const roleSelect = document.getElementById('addRoleSelect');
                     if (roleSelect) {
                         this.toggleAddUserFields(roleSelect.value);
+                        this.addUserValidator?.refreshVisibility();
                     }
                 });
 
@@ -2021,6 +2710,7 @@
 
                 document.getElementById('addRoleSelect').addEventListener('change', (e) => {
                     this.toggleAddUserFields(e.target.value);
+                    this.addUserValidator?.refreshVisibility();
                 });
 
                 document.getElementById('closeAddUserModal').addEventListener('click', () => {
@@ -2040,6 +2730,7 @@
 
                 document.getElementById('editRole').addEventListener('change', (e) => {
                     this.toggleStudentFields(e.target.value);
+                    this.editUserValidator?.refreshVisibility();
                 });
 
                 document.getElementById('closeEditUserModal').addEventListener('click', () => {
@@ -2290,17 +2981,13 @@
 
                 // Reset forms and clear errors
                 if (modalId === 'addUserModal') {
-                    document.getElementById('addUserForm').reset();
-                    // Clear all error states
-                    this.clearAddUserErrors();
+                    this.addUserValidator?.resetForm();
                     // Reset field visibility to default (student)
                     this.toggleAddUserFields('student');
                 }
 
                 if (modalId === 'editUserModal') {
-                    document.getElementById('editUserForm').reset();
-                    // Clear all error states
-                    this.clearEditUserErrors();
+                    this.editUserValidator?.resetForm();
                     // Reset field visibility to default
                     this.toggleStudentFields('student');
                 }
@@ -2378,6 +3065,20 @@
                                 document.getElementById('editDesignation').value = 'Staff Member';
                                 document.getElementById('editJoinDate').value = this.getTodayDate();
                             }
+
+                            this.editUserValidator?.seed({
+                                name: user.name || '',
+                                email: user.email || '',
+                                role: user.role || 'student',
+                                phone: user.phone || '',
+                                address: user.address || '',
+                                department_id: user.student?.department_id || user.staff?.department_id || '',
+                                designation: user.staff?.designation || '',
+                                join_date: user.staff?.join_date || '',
+                                roll_no: user.student?.roll_no || '',
+                                batch: user.student?.batch || '',
+                                semester: user.student?.semester || '',
+                            });
 
                             // Open the modal
                             this.openModal('editUserModal');
@@ -2723,28 +3424,15 @@
             /**
              * Submit add user form with one-error-at-a-time validation
              */
-            submitAddUser() {
+            async submitAddUser() {
                 console.log('Submitting add user form');
                 const form = document.getElementById('addUserForm');
-                const formData = new FormData(form);
-
-                // Clear all previous errors first
-                this.clearAddUserErrors();
-
-                // Get the role to determine which fields to validate
-                const role = formData.get('role') || 'student';
-
-                // Validate fields one by one and find the FIRST error
-                const firstError = this.validateAddUserField(role, formData);
-
-                // If there's an error, show it and stop
-                if (firstError) {
-                    this.showAddUserFieldError(firstError.fieldId, firstError.message);
-                    this.scrollToElement(firstError.fieldId);
+                const isValid = await this.addUserValidator?.validateAll();
+                if (!isValid) {
                     return;
                 }
 
-                // If no client-side errors, proceed with AJAX submission
+                const formData = this.addUserValidator.toFormData();
                 this.submitAddUserAjax(form, formData);
             }
 
@@ -2792,21 +3480,25 @@
                     addEmail: 'addEmailError',
                     addPassword: 'addPasswordError',
                     addRoleSelect: 'addRoleError',
+                    addPhone: 'addPhoneError',
                     addDepartmentSelect: 'addDepartmentError',
                     addDesignation: 'addDesignationError',
                     addJoinDate: 'addJoinDateError',
                     addRollNo: 'addRollNoError',
                     addBatch: 'addBatchError',
                     addSemester: 'addSemesterError',
+                    addAddress: 'addAddressError',
                     editFullName: 'editNameError',
                     editEmail: 'editEmailError',
                     editRole: 'editRoleError',
+                    editPhone: 'editPhoneError',
                     editDepartment: 'editDepartmentError',
                     editDesignation: 'editDesignationError',
                     editJoinDate: 'editJoinDateError',
                     editRollNo: 'editRollNoError',
                     editBatch: 'editBatchError',
-                    editSemester: 'editSemesterError'
+                    editSemester: 'editSemesterError',
+                    editAddress: 'editAddressError'
                 };
 
                 return fieldMap[fieldId] || `${fieldId}Error`;
@@ -2832,12 +3524,15 @@
                     email: 'addEmail',
                     password: 'addPassword',
                     role: 'addRoleSelect',
+                    phone: 'addPhone',
                     department_id: 'addDepartmentSelect',
                     designation: 'addDesignation',
                     join_date: 'addJoinDate',
                     roll_no: 'addRollNo',
                     batch: 'addBatch',
-                    semester: 'addSemester'
+                    semester: 'addSemester',
+                    address: 'addAddress',
+                    status: 'addStatusGroup'
                 };
 
                 return fieldMap[fieldName] || null;
@@ -2848,12 +3543,14 @@
                     name: 'editFullName',
                     email: 'editEmail',
                     role: 'editRole',
+                    phone: 'editPhone',
                     department_id: 'editDepartment',
                     designation: 'editDesignation',
                     join_date: 'editJoinDate',
                     roll_no: 'editRollNo',
                     batch: 'editBatch',
-                    semester: 'editSemester'
+                    semester: 'editSemester',
+                    address: 'editAddress'
                 };
 
                 return fieldMap[fieldName] || null;
@@ -3051,13 +3748,9 @@
                             return res.json().then(data => {
                                 // Handle server-side validation errors (like unique constraints)
                                 if (data.errors) {
-                                    // Get the first error from server
-                                    const firstErrorField = Object.keys(data.errors)[0];
-                                    const firstErrorMessage = data.errors[firstErrorField][0];
-                                    const fieldId = this.getAddUserFieldIdFromServerField(firstErrorField);
-                                    const validationError = new Error(firstErrorMessage);
+                                    const validationError = new Error(data.message || 'Validation error occurred');
                                     validationError.isValidationError = true;
-                                    validationError.fieldId = fieldId;
+                                    validationError.errors = data.errors;
                                     throw validationError;
                                 }
 
@@ -3071,10 +3764,6 @@
                         if (data.success) {
                             this.showNotification(data.message || 'User added successfully', 'success');
                             this.closeModal('addUserModal');
-                            form.reset();
-                            this.clearAddUserErrors();
-                            // Reset field visibility to default (student)
-                            this.toggleAddUserFields('student');
 
                             // Immediately refresh stats for live update
                             this.refreshStats();
@@ -3087,9 +3776,13 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        if (error.isValidationError && error.fieldId) {
-                            this.showAddUserFieldError(error.fieldId, error.message);
-                            this.scrollToElement(error.fieldId);
+                        if (error.isValidationError && error.errors) {
+                            this.addUserValidator?.applyServerErrors(error.errors);
+                            const firstField = Object.keys(error.errors)[0];
+                            const firstFieldId = this.getAddUserFieldIdFromServerField(firstField);
+                            if (firstFieldId) {
+                                this.scrollToElement(firstFieldId);
+                            }
                             return;
                         }
                         this.showNotification(error.message || 'Error adding user', 'error');
@@ -3103,44 +3796,14 @@
             /**
              * Submit edit user form with one-error-at-a-time validation
              */
-            submitEditUser() {
+            async submitEditUser() {
                 console.log('Submitting edit user form for user:', this.currentUserId);
-
-                // Clear all previous errors first
-                this.clearEditUserErrors();
-
-                // Create form data
-                const formData = new FormData();
-                formData.append('name', document.getElementById('editFullName').value);
-                formData.append('email', document.getElementById('editEmail').value);
-                formData.append('role', document.getElementById('editRole').value);
-                formData.append('phone', document.getElementById('editPhone').value);
-                formData.append('address', document.getElementById('editAddress').value);
-
-                // Add student-specific fields if role is student
-                const role = document.getElementById('editRole').value;
-                if (role === 'student') {
-                    formData.append('department_id', document.getElementById('editDepartment').value);
-                    formData.append('roll_no', document.getElementById('editRollNo').value);
-                    formData.append('batch', document.getElementById('editBatch').value);
-                    formData.append('semester', document.getElementById('editSemester').value);
-                } else if (role === 'staff') {
-                    formData.append('department_id', document.getElementById('editDepartment').value);
-                    formData.append('designation', document.getElementById('editDesignation').value);
-                    formData.append('join_date', document.getElementById('editJoinDate').value);
-                }
-
-                // Validate fields one by one and find the FIRST error
-                const firstError = this.validateEditUserField(role, formData);
-
-                // If there's an error, show it and stop
-                if (firstError) {
-                    this.showEditUserFieldError(firstError.fieldId, firstError.message);
-                    this.scrollToElement(firstError.fieldId);
+                const isValid = await this.editUserValidator?.validateAll();
+                if (!isValid) {
                     return;
                 }
 
-                // If no client-side errors, proceed with AJAX submission
+                const formData = this.editUserValidator.toFormData();
                 this.submitEditUserAjax(formData);
             }
 
@@ -3329,12 +3992,9 @@
                             return res.json().then(data => {
                                 // Handle server-side validation errors (like unique constraints)
                                 if (data.errors) {
-                                    const firstErrorField = Object.keys(data.errors)[0];
-                                    const firstErrorMessage = data.errors[firstErrorField][0];
-                                    const fieldId = this.getEditUserFieldIdFromServerField(firstErrorField);
-                                    const validationError = new Error(firstErrorMessage);
+                                    const validationError = new Error(data.message || 'Validation error occurred');
                                     validationError.isValidationError = true;
-                                    validationError.fieldId = fieldId;
+                                    validationError.errors = data.errors;
                                     throw validationError;
                                 }
 
@@ -3360,9 +4020,13 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        if (error.isValidationError && error.fieldId) {
-                            this.showEditUserFieldError(error.fieldId, error.message);
-                            this.scrollToElement(error.fieldId);
+                        if (error.isValidationError && error.errors) {
+                            this.editUserValidator?.applyServerErrors(error.errors);
+                            const firstField = Object.keys(error.errors)[0];
+                            const firstFieldId = this.getEditUserFieldIdFromServerField(firstField);
+                            if (firstFieldId) {
+                                this.scrollToElement(firstFieldId);
+                            }
                             return;
                         }
                         this.showNotification(error.message || 'Error updating user', 'error');

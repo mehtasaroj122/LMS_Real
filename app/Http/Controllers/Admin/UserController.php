@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class UserController extends Controller
@@ -263,6 +264,69 @@ class UserController extends Controller
             'filteredActive' => $filteredQuery->clone()->where('status', 'active')->count(),
             'filteredInactive' => $filteredQuery->clone()->where('status', 'inactive')->count(),
         ];
+    }
+
+    public function validateField(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $field = (string) $request->input('field');
+        $allowedFields = [
+            'name',
+            'email',
+            'password',
+            'role',
+            'phone',
+            'address',
+            'department_id',
+            'designation',
+            'join_date',
+            'roll_no',
+            'batch',
+            'semester',
+            'status',
+        ];
+
+        if (!in_array($field, $allowedFields, true)) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Unsupported validation field.',
+            ], 422);
+        }
+
+        $user = null;
+        if ($request->filled('user_id')) {
+            $user = User::with('student')->find($request->input('user_id'));
+        }
+
+        $rules = AdminUserRequest::rulesFor($user, !$user);
+        if (!array_key_exists($field, $rules)) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Unsupported validation field.',
+            ], 422);
+        }
+
+        $data = AdminUserRequest::normalizeInput($request->all());
+        $validator = Validator::make(
+            $data,
+            [$field => $rules[$field]],
+            AdminUserRequest::validationMessages()
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'valid' => false,
+                'field' => $field,
+                'message' => $validator->errors()->first($field),
+            ], 422);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'field' => $field,
+            'message' => null,
+        ]);
     }
 
     /**

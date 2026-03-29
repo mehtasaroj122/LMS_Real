@@ -727,7 +727,7 @@
 
         #editStudentModal .error-message {
             transition: color 0.3s ease;
-            display: none !important;
+            display: none;
             color: #dc2626;
             font-size: 12px;
             font-weight: 500;
@@ -750,6 +750,114 @@
         #editStudentModal .required-asterisk {
             color: #ef4444;
             font-weight: 600;
+        }
+
+        .student-form-field {
+            position: relative;
+        }
+
+        .student-form-control {
+            padding-right: 36px !important;
+        }
+
+        .student-form-field .error-message {
+            display: none;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .field-validation-icon {
+            position: absolute;
+            right: 12px;
+            top: 36px;
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease, color 0.2s ease;
+        }
+
+        .student-form-field.has-valid .field-validation-icon,
+        .student-form-field.has-invalid .field-validation-icon,
+        .student-form-field.has-pending .field-validation-icon {
+            opacity: 1;
+        }
+
+        .student-form-field.has-valid .field-validation-icon {
+            color: #16a34a;
+        }
+
+        .student-form-field.has-invalid .field-validation-icon {
+            color: #dc2626;
+        }
+
+        .student-form-field.has-pending .field-validation-icon {
+            color: #2563eb;
+        }
+
+        .student-form-field.has-invalid .error-message {
+            display: block;
+        }
+
+        body.light-theme .student-form-field.has-valid .student-form-control {
+            border-color: #16a34a !important;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+        }
+
+        body.light-theme .student-form-field.has-invalid .student-form-control {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+        }
+
+        body.light-theme .student-form-field.has-pending .student-form-control {
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        body.dark-theme .student-form-field.has-valid .student-form-control {
+            border-color: #22c55e !important;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+        }
+
+        body.dark-theme .student-form-field.has-invalid .student-form-control {
+            border-color: #f87171 !important;
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.18);
+        }
+
+        body.dark-theme .student-form-field.has-pending .student-form-control {
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+        }
+
+        .form-validation-summary {
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        body.light-theme .form-validation-summary {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        body.dark-theme .form-validation-summary {
+            background: rgba(127, 29, 29, 0.35);
+            border-color: #7f1d1d;
+            color: #fecaca;
+        }
+
+        .student-submit-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed !important;
         }
 
         /* Keyboard navigation styling */
@@ -903,50 +1011,60 @@
                     style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
             </div>
 
-            <form action="{{ route('admin.students.store') }}" method="POST" id="addStudentForm">
+            <form action="{{ route('admin.students.store') }}" method="POST" id="addStudentForm" novalidate>
                 @csrf
 
-                <div style="margin-bottom: 12px;">
+                <div id="addStudentValidationSummary" class="form-validation-summary" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
+
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="modal_name" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Full Name <span
                             class="required-asterisk">*</span></label>
-                    <input type="text" id="modal_name" name="name" required
+                    <input type="text" id="modal_name" name="name" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
                         placeholder="Enter student's full name">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="modal_email" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Email <span
                             class="required-asterisk">*</span></label>
-                    <input type="email" id="modal_email" name="email" required
+                    <input type="email" id="modal_email" name="email" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
                         placeholder="student@example.com">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="modal_phone" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Phone <span
                             class="required-asterisk">*</span></label>
-                    <input type="tel" id="modal_phone" name="phone" required
+                    <input type="tel" id="modal_phone" name="phone" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="Enter phone number">
+                        placeholder="+9779812345678">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
-                    <label for="modal_roll_no" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;\">Roll Number
-                        <span class="required-asterisk">*</span></label>
-                    <input type="text" id="modal_roll_no" name="roll_no" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="Enter roll number">
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div style="margin-bottom: 12px;">
-                    <label for="modal_department_id"
-                        style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;\">Department <span
+                <div class="student-form-field" style="margin-bottom: 12px;">
+                    <label for="modal_date_of_birth" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Date of Birth <span
                             class="required-asterisk">*</span></label>
-                    <select id="modal_department_id" name="department_id" required
+                    <input type="date" id="modal_date_of_birth" name="date_of_birth" class="student-form-control" required
+                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <span class="error-message" style="font-size: 12px; display: none;"></span>
+                </div>
+
+                <div class="student-form-field" style="margin-bottom: 12px;">
+                    <label for="modal_roll_no" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Student ID
+                        <span class="required-asterisk">*</span></label>
+                    <input type="text" id="modal_roll_no" name="roll_no" class="student-form-control" required
+                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
+                        placeholder="Enter student ID">
+                    <span class="error-message" style="font-size: 12px; display: none;"></span>
+                </div>
+
+                <div class="student-form-field" style="margin-bottom: 12px;">
+                    <label for="modal_department_id"
+                        style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Department <span
+                            class="required-asterisk">*</span></label>
+                    <select id="modal_department_id" name="department_id" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
                         <option value="">Select a department</option>
                         @foreach ($departments as $dept)
@@ -956,28 +1074,28 @@
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="modal_batch" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Batch <span
                             class="required-asterisk">*</span></label>
-                    <input type="text" id="modal_batch" name="batch" required
+                    <input type="text" id="modal_batch" name="batch" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
                         placeholder="e.g., 2024">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="modal_semester" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Semester
                         <span class="required-asterisk">*</span></label>
-                    <input type="text" id="modal_semester" name="semester" required
+                    <input type="text" id="modal_semester" name="semester" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
                         placeholder="e.g., 1">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 16px;">
+                <div class="student-form-field" style="margin-bottom: 16px;">
                     <label for="modal_address"
-                        style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Address</label>
-                    <textarea id="modal_address" name="address"
+                        style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Address <span class="required-asterisk">*</span></label>
+                    <textarea id="modal_address" name="address" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box; min-height: 80px;"
                         placeholder="Enter student's address"></textarea>
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
@@ -988,7 +1106,7 @@
                         style="padding: 8px 16px; border: 1px solid; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 13px;">
                         Cancel
                     </button>
-                    <button type="submit"
+                    <button type="submit" class="student-submit-btn"
                         style="padding: 8px 16px; border: none; border-radius: 6px; background: #3b82f6; color: white; font-weight: 500; cursor: pointer; font-size: 13px;">
                         Add Student
                     </button>
@@ -1008,51 +1126,61 @@
                     style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
             </div>
 
-            <form id="editStudentForm" method="POST">
+            <form id="editStudentForm" method="POST" novalidate>
                 @csrf
                 @method('PUT')
 
-                <div style="margin-bottom: 12px;">
+                <div id="editStudentValidationSummary" class="form-validation-summary" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
+
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="edit_name" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Full Name <span
                             class="required-asterisk">*</span></label>
-                    <input type="text" id="edit_name" name="name" required
+                    <input type="text" id="edit_name" name="name" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
                         placeholder="Enter student's full name">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="edit_email" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Email <span
                             class="required-asterisk">*</span></label>
-                    <input type="email" id="edit_email" name="email" required
+                    <input type="email" id="edit_email" name="email" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
                         placeholder="student@example.com">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="edit_phone" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Phone <span
                             class="required-asterisk">*</span></label>
-                    <input type="tel" id="edit_phone" name="phone" required
+                    <input type="tel" id="edit_phone" name="phone" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="Enter phone number">
+                        placeholder="+9779812345678">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
-                    <label for="edit_roll_no" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Roll Number
+                <div class="student-form-field" style="margin-bottom: 12px;">
+                    <label for="edit_date_of_birth" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Date of Birth <span
+                            class="required-asterisk">*</span></label>
+                    <input type="date" id="edit_date_of_birth" name="date_of_birth" class="student-form-control" required
+                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                    <span class="error-message" style="font-size: 12px; display: none;"></span>
+                </div>
+
+                <div class="student-form-field" style="margin-bottom: 12px;">
+                    <label for="edit_roll_no" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Student ID
                         <span class="required-asterisk">*</span></label>
-                    <input type="text" id="edit_roll_no" name="roll_no" required
+                    <input type="text" id="edit_roll_no" name="roll_no" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="Enter roll number">
+                        placeholder="Enter student ID">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="edit_department_id"
                         style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Department <span
                             class="required-asterisk">*</span></label>
-                    <select id="edit_department_id" name="department_id" required
+                    <select id="edit_department_id" name="department_id" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
                         <option value="">Select a department</option>
                         @foreach ($departments as $dept)
@@ -1062,37 +1190,37 @@
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="edit_batch" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Batch <span
                             class="required-asterisk">*</span></label>
-                    <input type="text" id="edit_batch" name="batch" required
+                    <input type="text" id="edit_batch" name="batch" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
                         placeholder="e.g., 2024">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="edit_semester" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Semester
                         <span class="required-asterisk">*</span></label>
-                    <input type="text" id="edit_semester" name="semester" required
+                    <input type="text" id="edit_semester" name="semester" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
                         placeholder="e.g., 1">
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 16px;">
+                <div class="student-form-field" style="margin-bottom: 16px;">
                     <label for="edit_address"
-                        style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Address</label>
-                    <textarea id="edit_address" name="address"
+                        style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Address <span class="required-asterisk">*</span></label>
+                    <textarea id="edit_address" name="address" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box; min-height: 80px;"
                         placeholder="Enter student's address"></textarea>
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
-                <div style="margin-bottom: 12px;">
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="edit_status" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Status <span
                             class="required-asterisk">*</span></label>
-                    <select id="edit_status" name="status" required
+                    <select id="edit_status" name="status" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
                         <option value="">Select Status</option>
                         <option value="active">Active</option>
@@ -1106,7 +1234,7 @@
                         style="padding: 8px 16px; border: 1px solid; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 13px;">
                         Cancel
                     </button>
-                    <button type="submit"
+                    <button type="submit" class="student-submit-btn"
                         style="padding: 8px 16px; border: none; border-radius: 6px; background: #3b82f6; color: white; font-weight: 500; cursor: pointer; font-size: 13px;">
                         Update Student
                     </button>
@@ -1834,236 +1962,682 @@
             return isValid;
         }
 
-        // Close modal when clicking outside of it
-        document.addEventListener('DOMContentLoaded', () => {
+        const STUDENT_VALIDATION_MESSAGES = {
+            name: {
+                required: 'Enter the student\'s full name.',
+                min: 'Full name must be at least 2 characters long.',
+                format: 'Full name can use letters and spaces only.',
+            },
+            email: {
+                required: 'Enter the student\'s email address.',
+                format: 'Enter a valid email address, like student@example.com.',
+                unique: 'This email is already assigned to another user.',
+            },
+            phone: {
+                required: 'Enter the student\'s phone number with country code.',
+                format: 'Enter a valid phone number with country code, like +9779812345678.',
+                unique: 'This phone number is already assigned to another user.',
+            },
+            date_of_birth: {
+                required: 'Select the student\'s date of birth.',
+                invalid: 'Enter a valid date of birth.',
+                future: 'Date of birth must be earlier than today.',
+                age: 'Student age must be between 14 and 100 years.',
+            },
+            roll_no: {
+                required: 'Enter the student ID.',
+                min: 'Student ID must be at least 3 characters long.',
+                format: 'Student ID can use letters, numbers, and hyphens only.',
+                unique: 'This student ID is already in use.',
+            },
+            department_id: {
+                required: 'Select a department.',
+            },
+            batch: {
+                required: 'Enter the batch year.',
+                format: 'Batch year must be a 4-digit year.',
+            },
+            semester: {
+                required: 'Enter the semester number.',
+                format: 'Semester must be a number between 1 and 12.',
+            },
+            address: {
+                required: 'Enter the student\'s address.',
+                min: 'Address must be at least 10 characters long.',
+                unsafe: 'Address contains unsupported characters. Remove any HTML or script-like content.',
+            },
+            status: {
+                required: 'Select the student status.',
+            },
+        };
+
+        const STUDENT_FIELD_ORDER = ['name', 'email', 'phone', 'date_of_birth', 'roll_no', 'department_id', 'batch', 'semester', 'address', 'status'];
+        const STUDENT_UNIQUE_FIELDS = new Set(['email', 'phone', 'roll_no']);
+
+        function normalizeStudentFieldValue(fieldName, value) {
+            const rawValue = String(value ?? '');
+
+            switch (fieldName) {
+                case 'name':
+                case 'address':
+                    return rawValue.replace(/\s+/g, ' ').trim();
+                case 'email':
+                    return rawValue.trim().toLowerCase();
+                case 'phone': {
+                    const trimmed = rawValue.trim();
+                    const digits = trimmed.replace(/\D/g, '');
+
+                    if (!trimmed) {
+                        return '';
+                    }
+
+                    return trimmed.startsWith('+') ? `+${digits}` : digits;
+                }
+                case 'roll_no':
+                    return rawValue.trim().toUpperCase();
+                default:
+                    return rawValue.trim();
+            }
+        }
+
+        function getStudentAge(dateOfBirth) {
+            if (!dateOfBirth) {
+                return null;
+            }
+
+            const birthDate = new Date(dateOfBirth);
+            if (Number.isNaN(birthDate.getTime())) {
+                return null;
+            }
+
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age -= 1;
+            }
+
+            return age;
+        }
+
+        function showStudentToast(message, background = '#10b981') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${background};
+                color: white;
+                padding: 12px 16px;
+                border-radius: 6px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 2000;
+                font-size: 14px;
+                font-weight: 500;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        class LiveStudentFormValidator {
+            constructor({ formId, modalId, prefix, summaryId, submitUrl, successMessage, submitMethod = 'POST', includeStatus = false }) {
+                this.form = document.getElementById(formId);
+                this.modal = document.getElementById(modalId);
+                this.prefix = prefix;
+                this.summary = document.getElementById(summaryId);
+                this.submitButton = this.form?.querySelector('.student-submit-btn');
+                this.submitUrl = submitUrl;
+                this.successMessage = successMessage;
+                this.submitMethod = submitMethod;
+                this.includeStatus = includeStatus;
+                this.fieldNames = STUDENT_FIELD_ORDER.filter(fieldName => (fieldName !== 'status' || includeStatus) && this.getField(fieldName));
+                this.abortControllers = {};
+                this.pendingFields = new Set();
+                this.verifiedValues = {};
+                this.fieldState = {};
+
+                this.ensureFieldIcons();
+                this.attachListeners();
+                this.updateSubmitState();
+            }
+
+            getField(fieldName) {
+                return document.getElementById(`${this.prefix}_${fieldName}`);
+            }
+
+            getFieldGroup(fieldName) {
+                return this.getField(fieldName)?.closest('.student-form-field') ?? null;
+            }
+
+            getFieldError(fieldName) {
+                return this.getFieldGroup(fieldName)?.querySelector('.error-message') ?? null;
+            }
+
+            ensureFieldIcons() {
+                this.fieldNames.forEach(fieldName => {
+                    const group = this.getFieldGroup(fieldName);
+                    if (!group || group.querySelector('.field-validation-icon')) {
+                        return;
+                    }
+
+                    const icon = document.createElement('span');
+                    icon.className = 'field-validation-icon';
+                    icon.setAttribute('aria-hidden', 'true');
+                    group.appendChild(icon);
+                });
+            }
+
+            attachListeners() {
+                if (!this.form) {
+                    return;
+                }
+
+                this.fieldNames.forEach(fieldName => {
+                    const field = this.getField(fieldName);
+                    const triggerEvent = field.tagName === 'SELECT' || field.type === 'date' ? 'change' : 'input';
+
+                    field.addEventListener(triggerEvent, () => {
+                        const normalizedValue = normalizeStudentFieldValue(fieldName, field.value);
+                        field.value = normalizedValue;
+                        this.clearSummary();
+
+                        if (STUDENT_UNIQUE_FIELDS.has(fieldName) && this.verifiedValues[fieldName] !== normalizedValue) {
+                            delete this.verifiedValues[fieldName];
+                        }
+
+                        this.validateField(fieldName, { showSummary: false, runUniqueCheck: false });
+                    });
+
+                    field.addEventListener('blur', () => {
+                        this.validateField(fieldName, { showSummary: true, runUniqueCheck: true });
+                    });
+                });
+
+                this.form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+
+                    const isValid = await this.validateAll({ showSummary: true, focusSummary: true });
+                    if (!isValid) {
+                        return;
+                    }
+
+                    await this.submit();
+                });
+            }
+
+            getValues() {
+                const values = {};
+                this.fieldNames.forEach(fieldName => {
+                    const field = this.getField(fieldName);
+                    const normalizedValue = normalizeStudentFieldValue(fieldName, field.value);
+                    field.value = normalizedValue;
+                    values[fieldName] = normalizedValue;
+                });
+                return values;
+            }
+
+            clearSummary() {
+                if (!this.summary) {
+                    return;
+                }
+
+                this.summary.textContent = '';
+                this.summary.hidden = true;
+            }
+
+            showSummary(message, focusSummary = false) {
+                this.clearSummary();
+            }
+
+            setNeutral(fieldName) {
+                const group = this.getFieldGroup(fieldName);
+                const field = this.getField(fieldName);
+                const icon = group?.querySelector('.field-validation-icon');
+                const error = this.getFieldError(fieldName);
+
+                group?.classList.remove('has-valid', 'has-invalid', 'has-pending');
+                field?.removeAttribute('aria-invalid');
+                if (icon) icon.innerHTML = '';
+                if (error) {
+                    error.textContent = '';
+                    error.style.display = 'none';
+                }
+
+                this.pendingFields.delete(fieldName);
+                this.fieldState[fieldName] = { valid: false };
+                this.updateSubmitState();
+            }
+
+            setState(fieldName, state, message = '') {
+                const group = this.getFieldGroup(fieldName);
+                const field = this.getField(fieldName);
+                const icon = group?.querySelector('.field-validation-icon');
+                const error = this.getFieldError(fieldName);
+
+                group?.classList.remove('has-valid', 'has-invalid', 'has-pending');
+                group?.classList.add(`has-${state}`);
+
+                if (field) {
+                    field.setAttribute('aria-invalid', state === 'invalid' ? 'true' : 'false');
+                }
+
+                if (icon) {
+                    icon.innerHTML = state === 'valid'
+                        ? '<i class="fas fa-check-circle"></i>'
+                        : state === 'invalid'
+                            ? '<i class="fas fa-exclamation-circle"></i>'
+                            : '<i class="fas fa-spinner fa-spin"></i>';
+                }
+
+                if (error) {
+                    error.textContent = message;
+                    error.style.display = state === 'invalid' ? 'block' : 'none';
+                }
+
+                if (state === 'pending') {
+                    this.pendingFields.add(fieldName);
+                    this.fieldState[fieldName] = { valid: false };
+                } else {
+                    this.pendingFields.delete(fieldName);
+                    this.fieldState[fieldName] = { valid: state === 'valid' };
+                }
+
+                this.updateSubmitState();
+            }
+
+            getSyncMessage(fieldName, values) {
+                const value = values[fieldName] ?? '';
+
+                switch (fieldName) {
+                    case 'name':
+                        if (!value) return STUDENT_VALIDATION_MESSAGES.name.required;
+                        if (value.length < 2) return STUDENT_VALIDATION_MESSAGES.name.min;
+                        if (!/^[A-Za-z ]+$/.test(value)) return STUDENT_VALIDATION_MESSAGES.name.format;
+                        return '';
+                    case 'email':
+                        if (!value) return STUDENT_VALIDATION_MESSAGES.email.required;
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return STUDENT_VALIDATION_MESSAGES.email.format;
+                        return '';
+                    case 'phone':
+                        if (!value) return STUDENT_VALIDATION_MESSAGES.phone.required;
+                        if (!/^\+[1-9]\d{7,14}$/.test(value)) return STUDENT_VALIDATION_MESSAGES.phone.format;
+                        return '';
+                    case 'date_of_birth': {
+                        if (!value) return STUDENT_VALIDATION_MESSAGES.date_of_birth.required;
+                        const birthDate = new Date(value);
+                        if (Number.isNaN(birthDate.getTime())) return STUDENT_VALIDATION_MESSAGES.date_of_birth.invalid;
+                        const today = new Date();
+                        const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                        if (birthDate >= todayMidnight) return STUDENT_VALIDATION_MESSAGES.date_of_birth.future;
+                        const age = getStudentAge(value);
+                        if (age === null) return STUDENT_VALIDATION_MESSAGES.date_of_birth.invalid;
+                        if (age < 14 || age > 100) return STUDENT_VALIDATION_MESSAGES.date_of_birth.age;
+                        return '';
+                    }
+                    case 'roll_no':
+                        if (!value) return STUDENT_VALIDATION_MESSAGES.roll_no.required;
+                        if (value.length < 3) return STUDENT_VALIDATION_MESSAGES.roll_no.min;
+                        if (!/^[A-Za-z0-9-]+$/.test(value)) return STUDENT_VALIDATION_MESSAGES.roll_no.format;
+                        return '';
+                    case 'department_id':
+                        return value ? '' : STUDENT_VALIDATION_MESSAGES.department_id.required;
+                    case 'batch':
+                        if (!value) return STUDENT_VALIDATION_MESSAGES.batch.required;
+                        if (!/^(19|20)\d{2}$/.test(value)) return STUDENT_VALIDATION_MESSAGES.batch.format;
+                        return '';
+                    case 'semester':
+                        if (!value) return STUDENT_VALIDATION_MESSAGES.semester.required;
+                        if (!/^(?:[1-9]|1[0-2])$/.test(value)) return STUDENT_VALIDATION_MESSAGES.semester.format;
+                        return '';
+                    case 'address':
+                        if (!value) return STUDENT_VALIDATION_MESSAGES.address.required;
+                        if (value.length < 10) return STUDENT_VALIDATION_MESSAGES.address.min;
+                        if (/<[^>]*>/.test(value)) return STUDENT_VALIDATION_MESSAGES.address.unsafe;
+                        return '';
+                    case 'status':
+                        return value ? '' : STUDENT_VALIDATION_MESSAGES.status.required;
+                    default:
+                        return '';
+                }
+            }
+
+            async runUniqueValidation(fieldName, value, showSummary) {
+                if (!STUDENT_UNIQUE_FIELDS.has(fieldName) || !value) {
+                    return true;
+                }
+
+                if (this.verifiedValues[fieldName] === value) {
+                    this.setState(fieldName, 'valid');
+                    return true;
+                }
+
+                this.abortControllers[fieldName]?.abort();
+                const controller = new AbortController();
+                this.abortControllers[fieldName] = controller;
+                this.setState(fieldName, 'pending');
+
+                try {
+                    const response = await fetch('{{ route('admin.students.validate-field') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        signal: controller.signal,
+                        body: JSON.stringify({
+                            field: fieldName,
+                            [fieldName]: value,
+                            student_id: this.form?.dataset.studentId || null,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        const data = await response.json();
+                        const message = data.message || STUDENT_VALIDATION_MESSAGES[fieldName]?.unique || 'This value is already in use.';
+                        this.setState(fieldName, 'invalid', message);
+                        if (showSummary) {
+                            this.showSummary(message, false);
+                        }
+                        return false;
+                    }
+
+                    if (this.getValues()[fieldName] !== value) {
+                        return false;
+                    }
+
+                    this.verifiedValues[fieldName] = value;
+                    this.setState(fieldName, 'valid');
+                    return true;
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        return false;
+                    }
+
+                    const message = 'Could not verify this field right now. Please try again.';
+                    this.setState(fieldName, 'invalid', message);
+                    if (showSummary) {
+                        this.showSummary(message, false);
+                    }
+                    return false;
+                }
+            }
+
+            async validateField(fieldName, { showSummary = false, runUniqueCheck = false } = {}) {
+                const values = this.getValues();
+                const syncMessage = this.getSyncMessage(fieldName, values);
+
+                if (syncMessage) {
+                    this.setState(fieldName, 'invalid', syncMessage);
+                    if (showSummary) {
+                        this.showSummary(syncMessage, false);
+                    }
+                    return false;
+                }
+
+                if (STUDENT_UNIQUE_FIELDS.has(fieldName)) {
+                    if (!runUniqueCheck) {
+                        // Keep the form submittable once the local format is valid.
+                        // Uniqueness is still verified on blur and again on submit.
+                        this.setState(fieldName, 'valid');
+                        return true;
+                    }
+
+                    return this.runUniqueValidation(fieldName, values[fieldName], showSummary);
+                }
+
+                this.setState(fieldName, 'valid');
+                return true;
+            }
+
+            async validateAll({ showSummary = true, focusSummary = false } = {}) {
+                this.clearSummary();
+                let firstInvalidField = null;
+                let allValid = true;
+
+                for (const fieldName of this.fieldNames) {
+                    const isValid = await this.validateField(fieldName, { showSummary, runUniqueCheck: true });
+                    if (!isValid) {
+                        allValid = false;
+                        if (!firstInvalidField) {
+                            firstInvalidField = fieldName;
+                        }
+                    }
+                }
+
+                if (!allValid && firstInvalidField) {
+                    this.getField(firstInvalidField)?.focus();
+                }
+
+                return allValid;
+            }
+
+            applyServerErrors(errors = {}) {
+                this.clearSummary();
+
+                let firstField = '';
+                let firstMessage = '';
+
+                Object.entries(errors).forEach(([fieldName, fieldErrors]) => {
+                    const message = Array.isArray(fieldErrors) ? fieldErrors[0] : fieldErrors;
+                    if (!message || !this.getField(fieldName)) {
+                        return;
+                    }
+
+                    this.setState(fieldName, 'invalid', message);
+
+                    if (!firstMessage) {
+                        firstField = fieldName;
+                        firstMessage = message;
+                    }
+                });
+
+                if (firstMessage) {
+                    this.getField(firstField)?.focus();
+                }
+            }
+
+            resetForm() {
+                this.form?.reset();
+                this.clearSummary();
+                this.pendingFields.clear();
+                this.verifiedValues = {};
+                Object.values(this.abortControllers).forEach(controller => controller?.abort());
+                this.abortControllers = {};
+                this.fieldNames.forEach(fieldName => this.setNeutral(fieldName));
+                this.updateSubmitState();
+            }
+
+            seed(values = {}) {
+                this.resetForm();
+
+                this.fieldNames.forEach(fieldName => {
+                    const field = this.getField(fieldName);
+                    if (!field) {
+                        return;
+                    }
+
+                    const normalizedValue = normalizeStudentFieldValue(fieldName, values[fieldName] ?? '');
+                    field.value = normalizedValue;
+
+                    if (STUDENT_UNIQUE_FIELDS.has(fieldName) && normalizedValue) {
+                        this.verifiedValues[fieldName] = normalizedValue;
+                        this.setState(fieldName, 'valid');
+                    } else {
+                        this.validateField(fieldName, { showSummary: false, runUniqueCheck: false });
+                    }
+                });
+
+                this.updateSubmitState();
+            }
+
+            updateSubmitState() {
+                if (!this.submitButton) {
+                    return;
+                }
+
+                const hasPending = this.pendingFields.size > 0;
+                const hasInvalid = this.fieldNames.some(fieldName => !this.fieldState[fieldName]?.valid);
+                this.submitButton.disabled = hasPending || hasInvalid;
+            }
+
+            async submit() {
+                const values = this.getValues();
+
+                try {
+                    let response;
+
+                    if (this.submitMethod === 'POST') {
+                        const formData = new FormData(this.form);
+                        Object.entries(values).forEach(([fieldName, fieldValue]) => formData.set(fieldName, fieldValue));
+
+                        response = await fetch(this.submitUrl, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                            },
+                            credentials: 'same-origin',
+                        });
+                    } else {
+                        response = await fetch(this.form.action, {
+                            method: this.submitMethod,
+                            body: JSON.stringify(values),
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            credentials: 'same-origin',
+                        });
+                    }
+
+                    if (!response.ok && response.status === 422) {
+                        const data = await response.json();
+                        this.applyServerErrors(data.errors || {});
+                        return;
+                    }
+
+                    const data = await response.json();
+                    if (!data.success) {
+                        this.showSummary(data.message || 'Unable to save the student right now. Please try again.', true);
+                        return;
+                    }
+
+                    this.modal.style.display = 'none';
+                    this.resetForm();
+                    showStudentToast(this.successMessage);
+
+                    if (manager) {
+                        manager.fetchStudents(manager.currentPage);
+                        manager.refreshStats();
+                    }
+                } catch (error) {
+                    console.error('Student form submission failed:', error);
+                    this.showSummary('Unable to save the student right now. Please try again.', true);
+                }
+            }
+        }
+
+        let addStudentValidator;
+        let editStudentValidator;
+
+        window.openEditStudentModal = function(studentId) {
+            const modal = document.getElementById('editStudentModal');
+            const form = document.getElementById('editStudentForm');
+
+            fetch(`{{ url('admin/students') }}/${studentId}/edit-data`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data.success) {
+                        throw new Error(data.message || 'Error loading student data');
+                    }
+
+                    form.action = `{{ url('admin/students') }}/${studentId}`;
+                    form.dataset.studentId = studentId;
+                    editStudentValidator.seed(data.data);
+                    modal.style.display = 'flex';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showStudentToast('Error loading student data', '#ef4444');
+                });
+        };
+
+        function closeEditStudentModal() {
+            const modal = document.getElementById('editStudentModal');
+            const form = document.getElementById('editStudentForm');
+
+            if (modal) {
+                modal.style.display = 'none';
+            }
+
+            if (form) {
+                form.dataset.studentId = '';
+            }
+
+            editStudentValidator?.resetForm();
+        }
+
+        function openAddStudentModal() {
             const modal = document.getElementById('addStudentModal');
             if (modal) {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
+                addStudentValidator?.resetForm();
+                modal.style.display = 'flex';
+            }
+        }
+
+        function closeAddStudentModal() {
+            const modal = document.getElementById('addStudentModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+
+            addStudentValidator?.resetForm();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            addStudentValidator = new LiveStudentFormValidator({
+                formId: 'addStudentForm',
+                modalId: 'addStudentModal',
+                prefix: 'modal',
+                summaryId: 'addStudentValidationSummary',
+                submitUrl: '{{ route('admin.students.store') }}',
+                successMessage: 'Student added successfully!',
+            });
+
+            editStudentValidator = new LiveStudentFormValidator({
+                formId: 'editStudentForm',
+                modalId: 'editStudentModal',
+                prefix: 'edit',
+                summaryId: 'editStudentValidationSummary',
+                submitUrl: '',
+                successMessage: 'Student updated successfully!',
+                submitMethod: 'PUT',
+                includeStatus: true,
+            });
+
+            const addModal = document.getElementById('addStudentModal');
+            if (addModal) {
+                addModal.addEventListener('click', (e) => {
+                    if (e.target === addModal) {
                         closeAddStudentModal();
                     }
                 });
             }
 
-            // Handle form submission
-            const form = document.getElementById('addStudentForm');
-            if (form) {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-
-                    // Clear previous errors
-                    document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
-
-                    // Client-side validation
-                    if (!validateAddStudentForm()) {
-                        return;
-                    }
-
-                    // Submit the form
-                    const formData = new FormData(form);
-                    fetch('{{ route('admin.students.store') }}', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .content,
-                                'Accept': 'application/json',
-                            },
-                            credentials: 'same-origin'
-                        })
-                        .then(response => {
-                            if (!response.ok && response.status === 422) {
-                                return response.json().then(data => {
-                                    throw {
-                                        validation: true,
-                                        errors: data.errors
-                                    };
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                closeAddStudentModal();
-                                
-                                // Show toast notification
-                                const toast = document.createElement('div');
-                                toast.style.cssText = `
-                                    position: fixed;
-                                    top: 20px;
-                                    right: 20px;
-                                    background: #10b981;
-                                    color: white;
-                                    padding: 12px 16px;
-                                    border-radius: 6px;
-                                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                                    z-index: 2000;
-                                    font-size: 14px;
-                                    font-weight: 500;
-                                    animation: slideIn 0.3s ease;
-                                `;
-                                toast.textContent = 'Student added successfully!';
-                                document.body.appendChild(toast);
-                                
-                                setTimeout(() => toast.remove(), 3000);
-                                
-                                // Refresh the table without full reload
-                                if (manager) {
-                                    manager.fetchStudents(manager.currentPage);
-                                    manager.refreshStats();
-                                }
-                            } else {
-                                alert(data.message || 'Error adding student');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            if (error.validation && error.errors) {
-                                // Display validation errors inline
-                                Object.keys(error.errors).forEach(field => {
-                                    const input = document.getElementById('modal_' + field);
-                                    if (input) {
-                                        const errorEl = input.parentElement.querySelector(
-                                            '.error-message');
-                                        if (errorEl) {
-                                            errorEl.textContent = error.errors[field][0];
-                                            errorEl.style.display = 'block';
-                                        }
-                                    }
-                                });
-                            } else {
-                                alert('Error adding student');
-                            }
-                        });
-                });
-            }
-
-            // Handle edit form submission
-            const editForm = document.getElementById('editStudentForm');
-            if (editForm) {
-                editForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-
-                    // Clear previous errors completely using consistent approach
-                    document.querySelectorAll('#editStudentModal .error-message').forEach(el => {
-                        el.textContent = '';
-                        el.classList.remove('show');
-                        el.style.cssText = 'display: none !important;';
-                    });
-
-                    // Client-side validation
-                    if (!validateEditStudentForm()) {
-                        return;
-                    }
-
-                    // Get studentId from form data attribute
-                    const studentId = editForm.dataset.studentId;
-                    if (!studentId) {
-                        alert('Error: Student ID not found');
-                        return;
-                    }
-
-                    // Collect form data manually to ensure it's captured
-                    const formPayload = {
-                        name: document.getElementById('edit_name').value,
-                        email: document.getElementById('edit_email').value,
-                        phone: document.getElementById('edit_phone').value,
-                        roll_no: document.getElementById('edit_roll_no').value,
-                        department_id: document.getElementById('edit_department_id').value,
-                        batch: document.getElementById('edit_batch').value,
-                        semester: document.getElementById('edit_semester').value,
-                        address: document.getElementById('edit_address').value,
-                        status: document.getElementById('edit_status').value,
-                    };
-                    
-                    // Log all form data for debugging
-                    console.log('📤 Form submission - Data to send:');
-                    Object.entries(formPayload).forEach(([key, value]) => {
-                        console.log(`  ${key}: ${value}`);
-                    });
-
-                    // Submit the form
-                    fetch(editForm.action, {
-                            method: 'PUT',
-                            body: JSON.stringify(formPayload),
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .content,
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json',
-                            },
-                            credentials: 'same-origin'
-                        })
-                        .then(response => {
-                            if (!response.ok && response.status === 422) {
-                                return response.json().then(data => {
-                                    throw {
-                                        validation: true,
-                                        errors: data.errors
-                                    };
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                closeEditStudentModal();
-                                
-                                // Show toast notification
-                                const toast = document.createElement('div');
-                                toast.style.cssText = `
-                                    position: fixed;
-                                    top: 20px;
-                                    right: 20px;
-                                    background: #10b981;
-                                    color: white;
-                                    padding: 12px 16px;
-                                    border-radius: 6px;
-                                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                                    z-index: 2000;
-                                    font-size: 14px;
-                                    font-weight: 500;
-                                `;
-                                toast.textContent = 'Student updated successfully!';
-                                document.body.appendChild(toast);
-                                
-                                setTimeout(() => toast.remove(), 3000);
-                                
-                                // Refresh the table
-                                if (manager) {
-                                    manager.fetchStudents(manager.currentPage);
-                                    manager.refreshStats();
-                                }
-                            } else {
-                                alert(data.message || 'Error updating student');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('❌ Update failed:', error);
-                            if (error.validation && error.errors) {
-                                console.log('🔴 Validation errors received:', error.errors);
-                                // Display validation errors inline
-                                Object.keys(error.errors).forEach(field => {
-                                    const input = document.getElementById('edit_' + field);
-                                    if (input) {
-                                        const errorEl = input.parentElement.querySelector(
-                                            '.error-message');
-                                        if (errorEl) {
-                                            errorEl.textContent = error.errors[field][0];
-                                            errorEl.classList.add('show');
-                                            errorEl.style.cssText = 'display: block !important;';
-                                            console.log(`  🔴 ${field}: ${error.errors[field][0]}`);
-                                        }
-                                    }
-                                });
-                            } else {
-                                alert('Error updating student');
-                            }
-                        });
-                });
-            }
-
-            // Close modals when clicking outside
             const editModal = document.getElementById('editStudentModal');
             if (editModal) {
                 editModal.addEventListener('click', (e) => {
