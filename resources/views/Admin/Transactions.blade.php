@@ -135,6 +135,23 @@
             background-color: #1e3a8a;
         }
 
+        .result-item-body {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .result-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .result-title-block {
+            min-width: 0;
+        }
+
         .result-title {
             font-weight: 600;
             color: #111827;
@@ -152,6 +169,74 @@
 
         body.dark-theme .result-subtitle {
             color: #9ca3af;
+        }
+
+        .result-badges {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .result-badge.restricted {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .result-badge.override {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+
+        .result-badge-icon {
+            font-size: 10px;
+            line-height: 1;
+        }
+
+        body.dark-theme .result-badge {
+            background-color: rgba(30, 64, 175, 0.35);
+            color: #bfdbfe;
+        }
+
+        body.dark-theme .result-badge.restricted {
+            background-color: rgba(127, 29, 29, 0.9);
+            color: #fecaca;
+        }
+
+        body.dark-theme .result-badge.override {
+            background-color: rgba(120, 53, 15, 0.95);
+            color: #fde68a;
+        }
+
+        .book-count {
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+
+        .book-count.full {
+            color: #dc2626;
+        }
+
+        body.dark-theme .book-count {
+            color: #93c5fd;
+        }
+
+        body.dark-theme .book-count.full {
+            color: #fca5a5;
         }
 
         .selected-value {
@@ -547,6 +632,693 @@
         body.dark-theme .total-fine {
             color: #f87171;
         }
+
+        .policy-note {
+            border: 1px solid #dbeafe;
+            background: linear-gradient(135deg, #eff6ff, #f8fbff);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #1d4ed8;
+        }
+
+        body.dark-theme .policy-note {
+            border-color: #1d4ed8;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.22), rgba(15, 23, 42, 0.92));
+            color: #bfdbfe;
+        }
+
+        .detail-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .detail-meta {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        body.dark-theme .detail-meta {
+            color: #94a3b8;
+        }
+
+        .fine-breakdown-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 14px;
+            background-color: #f8fafc;
+        }
+
+        body.dark-theme .fine-breakdown-card {
+            border-color: #334155;
+            background-color: #0f172a;
+        }
+
+        .fine-breakdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .fine-breakdown-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        body.dark-theme .fine-breakdown-title {
+            color: #f8fafc;
+        }
+
+        .fine-breakdown-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        body.dark-theme .fine-breakdown-meta {
+            color: #94a3b8;
+        }
+
+        .fine-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 9999px;
+            padding: 4px 10px;
+            background-color: #e2e8f0;
+            color: #334155;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        body.dark-theme .fine-chip {
+            background-color: #1e293b;
+            color: #cbd5e1;
+        }
+
+        .fine-breakdown-lines {
+            display: grid;
+            gap: 6px;
+        }
+
+        .fine-breakdown-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        body.dark-theme .fine-breakdown-line {
+            color: #cbd5e1;
+        }
+
+        .privilege-info-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 18px;
+            padding: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.18);
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 52%, #f8fbff 100%);
+            box-shadow: 0 20px 45px -28px rgba(37, 99, 235, 0.55);
+            color: #0f172a;
+        }
+
+        .privilege-info-card.is-visible {
+            animation: privilegeCardFade 0.35s ease;
+        }
+
+        .privilege-info-card.is-restricted {
+            border-color: rgba(239, 68, 68, 0.2);
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 52%, #fff7f7 100%);
+            box-shadow: 0 20px 45px -28px rgba(220, 38, 38, 0.5);
+        }
+
+        body.dark-theme .privilege-info-card {
+            border-color: rgba(96, 165, 250, 0.24);
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.32) 0%, rgba(15, 23, 42, 0.96) 100%);
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .privilege-info-card.is-restricted {
+            border-color: rgba(248, 113, 113, 0.24);
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.6) 0%, rgba(15, 23, 42, 0.96) 100%);
+        }
+
+        .privilege-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .privilege-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #2563eb;
+            margin-bottom: 6px;
+        }
+
+        .privilege-info-card.is-restricted .privilege-eyebrow {
+            color: #dc2626;
+        }
+
+        body.dark-theme .privilege-eyebrow {
+            color: #93c5fd;
+        }
+
+        body.dark-theme .privilege-info-card.is-restricted .privilege-eyebrow {
+            color: #fca5a5;
+        }
+
+        .privilege-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        body.dark-theme .privilege-title {
+            color: #f8fafc;
+        }
+
+        .privilege-summary {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #334155;
+            max-width: 560px;
+        }
+
+        body.dark-theme .privilege-summary {
+            color: #cbd5e1;
+        }
+
+        .privilege-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 9999px;
+            background-color: rgba(255, 255, 255, 0.78);
+            color: #166534;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(34, 197, 94, 0.18);
+            white-space: nowrap;
+        }
+
+        .privilege-info-card.is-restricted .privilege-status-badge {
+            color: #b91c1c;
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        body.dark-theme .privilege-status-badge {
+            background-color: rgba(15, 23, 42, 0.48);
+            color: #86efac;
+            border-color: rgba(74, 222, 128, 0.24);
+        }
+
+        body.dark-theme .privilege-info-card.is-restricted .privilege-status-badge {
+            color: #fecaca;
+            border-color: rgba(248, 113, 113, 0.24);
+        }
+
+        .privilege-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 9999px;
+            background-color: #22c55e;
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55);
+            animation: privilegePulse 1.8s infinite;
+        }
+
+        .privilege-info-card.is-restricted .privilege-status-dot {
+            background-color: #ef4444;
+            box-shadow: none;
+            animation: none;
+        }
+
+        .privilege-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .privilege-stat {
+            padding: 14px;
+            border-radius: 14px;
+            background-color: rgba(255, 255, 255, 0.76);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .privilege-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px -24px rgba(15, 23, 42, 0.55);
+            border-color: rgba(37, 99, 235, 0.24);
+        }
+
+        body.dark-theme .privilege-stat {
+            background-color: rgba(15, 23, 42, 0.5);
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        body.dark-theme .privilege-stat:hover {
+            border-color: rgba(96, 165, 250, 0.28);
+        }
+
+        .privilege-stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        body.dark-theme .privilege-stat-label {
+            color: #94a3b8;
+        }
+
+        .privilege-stat-value {
+            font-size: 24px;
+            line-height: 1.1;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        body.dark-theme .privilege-stat-value {
+            color: #f8fafc;
+        }
+
+        .privilege-stat-meta {
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        body.dark-theme .privilege-stat-meta {
+            color: #cbd5e1;
+        }
+
+        .privilege-counter-board {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 16px;
+            background-color: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+        }
+
+        body.dark-theme .privilege-counter-board {
+            background-color: rgba(15, 23, 42, 0.48);
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .privilege-counter-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .privilege-counter-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        body.dark-theme .privilege-counter-title {
+            color: #f8fafc;
+        }
+
+        .privilege-counter-subtitle {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        body.dark-theme .privilege-counter-subtitle {
+            color: #94a3b8;
+        }
+
+        .privilege-counter-pill {
+            padding: 6px 10px;
+            border-radius: 9999px;
+            background-color: #dbeafe;
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .privilege-info-card.is-restricted .privilege-counter-pill {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        body.dark-theme .privilege-counter-pill {
+            background-color: rgba(30, 64, 175, 0.4);
+            color: #bfdbfe;
+        }
+
+        body.dark-theme .privilege-info-card.is-restricted .privilege-counter-pill {
+            background-color: rgba(127, 29, 29, 0.88);
+            color: #fecaca;
+        }
+
+        .counter-slot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(46px, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .counter-slot {
+            min-height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px dashed rgba(37, 99, 235, 0.24);
+            background-color: rgba(255, 255, 255, 0.64);
+            color: #2563eb;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .counter-slot.filled {
+            border-style: solid;
+            border-color: transparent;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 14px 30px -24px rgba(37, 99, 235, 0.8);
+        }
+
+        body.dark-theme .counter-slot {
+            background-color: rgba(15, 23, 42, 0.62);
+            color: #93c5fd;
+            border-color: rgba(96, 165, 250, 0.3);
+        }
+
+        .privilege-info-card.is-restricted .counter-slot {
+            color: #b91c1c;
+            border-color: rgba(239, 68, 68, 0.22);
+        }
+
+        body.dark-theme .privilege-info-card.is-restricted .counter-slot {
+            color: #fecaca;
+            border-color: rgba(248, 113, 113, 0.26);
+        }
+
+        .counter-slot-empty {
+            grid-column: 1 / -1;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            background-color: rgba(255, 255, 255, 0.58);
+            border: 1px dashed rgba(148, 163, 184, 0.25);
+        }
+
+        body.dark-theme .counter-slot-empty {
+            color: #94a3b8;
+            background-color: rgba(15, 23, 42, 0.42);
+            border-color: rgba(148, 163, 184, 0.18);
+        }
+
+        .privilege-warning-banner {
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(239, 68, 68, 0.16);
+            background-color: rgba(255, 255, 255, 0.78);
+            color: #991b1b;
+        }
+
+        body.dark-theme .privilege-warning-banner {
+            border-color: rgba(248, 113, 113, 0.2);
+            background-color: rgba(15, 23, 42, 0.54);
+            color: #fecaca;
+        }
+
+        .privilege-warning-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .privilege-warning-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .privilege-warning-copy {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .privilege-details-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 16px;
+            padding: 12px 14px;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 14px;
+            background-color: rgba(255, 255, 255, 0.68);
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .privilege-details-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-color: rgba(37, 99, 235, 0.22);
+        }
+
+        body.dark-theme .privilege-details-toggle {
+            background-color: rgba(15, 23, 42, 0.44);
+            color: #f8fafc;
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        body.dark-theme .privilege-details-toggle:hover {
+            border-color: rgba(96, 165, 250, 0.26);
+        }
+
+        .privilege-details-chevron {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.25s ease;
+        }
+
+        .privilege-details-toggle[aria-expanded="true"] .privilege-details-chevron {
+            transform: rotate(180deg);
+        }
+
+        .privilege-details-panel {
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: max-height 0.3s ease, opacity 0.25s ease, transform 0.25s ease, margin-top 0.25s ease;
+            margin-top: 0;
+        }
+
+        .privilege-details-panel.open {
+            max-height: 340px;
+            opacity: 1;
+            transform: translateY(0);
+            margin-top: 12px;
+        }
+
+        .privilege-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .privilege-detail-item {
+            padding: 14px;
+            border-radius: 14px;
+            background-color: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+        }
+
+        body.dark-theme .privilege-detail-item {
+            background-color: rgba(15, 23, 42, 0.48);
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .privilege-detail-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        body.dark-theme .privilege-detail-label {
+            color: #94a3b8;
+        }
+
+        .privilege-detail-value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        body.dark-theme .privilege-detail-value {
+            color: #f8fafc;
+        }
+
+        .privilege-detail-meta {
+            font-size: 12px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        body.dark-theme .privilege-detail-meta {
+            color: #cbd5e1;
+        }
+
+        .privilege-toast-container {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9995;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .privilege-toast {
+            min-width: 260px;
+            max-width: 340px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            color: #ffffff;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            box-shadow: 0 18px 30px -24px rgba(15, 23, 42, 0.7);
+            font-size: 13px;
+            line-height: 1.5;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            pointer-events: auto;
+            animation: privilegeToastIn 0.24s ease;
+        }
+
+        .privilege-toast.warning {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
+
+        .privilege-toast.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        body.dark-theme .privilege-toast {
+            box-shadow: 0 18px 30px -24px rgba(2, 6, 23, 0.9);
+        }
+
+        @keyframes privilegePulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+
+        @keyframes privilegeCardFade {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes privilegeToastIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .privilege-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .result-title-row,
+            .privilege-info-header,
+            .privilege-counter-header {
+                flex-direction: column;
+            }
+
+            .result-badges {
+                justify-content: flex-start;
+            }
+
+            .privilege-stats-grid,
+            .privilege-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .privilege-toast-container {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+            }
+
+            .privilege-toast {
+                min-width: 0;
+                max-width: none;
+            }
+        }
     </style>
 @endpush
 
@@ -555,7 +1327,7 @@
         <!-- Issue Book Section -->
         <div class="mb-8">
             <h1 class="mb-2 text-3xl font-bold text-primary">Issue Book</h1>
-            <p class="mb-6 text-secondary">Issue multiple books to a student (Max 5 books)</p>
+            <p class="mb-6 text-secondary">Issue multiple books to a student using their effective library privilege rules.</p>
 
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <!-- Issue Form -->
@@ -594,21 +1366,21 @@
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                                 <input type="text" id="searchBook" class="search-input"
-                                    placeholder="Search by title, author, or ISBN...">
+                                    placeholder="Select a student first..." disabled>
                                 <div class="search-results" id="bookResults"></div>
                             </div>
                         </div>
 
                         <!-- Selected Books List -->
                         <div class="selected-books-list" id="selectedBooksList" style="display: none;">
-                            <div class="mb-2 text-sm text-secondary">Selected Books (Max: 5)</div>
+                            <div class="mb-2 text-sm text-secondary" id="selectedBooksHeader">Selected Books</div>
                             <div id="selectedBooksContainer"></div>
                         </div>
 
                         <!-- Issue Button -->
                         <button type="submit" class="w-full py-3 mt-4 font-semibold rounded-lg btn-primary"
                             id="issueButton" disabled>
-                            Issue Books (0/5)
+                            Issue Books
                         </button>
                     </form>
                 </div>
@@ -652,6 +1424,104 @@
                         </div>
                     </div>
 
+                    <div class="privilege-info-card" id="privilegeInfoCard" style="display: none;" aria-live="polite">
+                        <div class="privilege-info-header">
+                            <div>
+                                <div class="privilege-eyebrow">Issue Privileges</div>
+                                <h3 class="privilege-title" id="privilegeCardHeading">Effective Borrowing Access</h3>
+                                <p class="privilege-summary" id="privilegeSummaryText">
+                                    Select a student to review borrowing eligibility, issue duration, and remaining capacity.
+                                </p>
+                            </div>
+                            <span class="privilege-status-badge" id="privilegeStatusBadge" role="status" aria-live="polite">
+                                <span class="privilege-status-dot" aria-hidden="true"></span>
+                                <span id="privilegeStatusText">Allowed</span>
+                            </span>
+                        </div>
+
+                        <div class="privilege-stats-grid">
+                            <div class="privilege-stat">
+                                <div class="privilege-stat-label">Max Books</div>
+                                <div class="privilege-stat-value" id="privilegeMaxBooksValue">-</div>
+                                <div class="privilege-stat-meta" id="privilegeMaxBooksMeta">Effective issue ceiling</div>
+                            </div>
+                            <div class="privilege-stat">
+                                <div class="privilege-stat-label">Duration</div>
+                                <div class="privilege-stat-value" id="privilegeDurationValue">-</div>
+                                <div class="privilege-stat-meta" id="privilegeDurationMeta">Standard issue period</div>
+                            </div>
+                            <div class="privilege-stat">
+                                <div class="privilege-stat-label">Fine Rate</div>
+                                <div class="privilege-stat-value" id="privilegeFineRateValue">-</div>
+                                <div class="privilege-stat-meta" id="privilegeFineRateMeta">Per overdue day</div>
+                            </div>
+                            <div class="privilege-stat">
+                                <div class="privilege-stat-label">Can Issue</div>
+                                <div class="privilege-stat-value" id="privilegeCanIssueValue">-</div>
+                                <div class="privilege-stat-meta" id="privilegeCanIssueMeta">Remaining today</div>
+                            </div>
+                        </div>
+
+                        <div class="privilege-counter-board" aria-live="polite">
+                            <div class="privilege-counter-header">
+                                <div>
+                                    <div class="privilege-counter-title">Book Selection Slots</div>
+                                    <div class="privilege-counter-subtitle" id="bookCounterText">
+                                        0 selected out of 0 available slots
+                                    </div>
+                                </div>
+                                <div class="privilege-counter-pill" id="bookCounterPill">0 / 0</div>
+                            </div>
+                            <div class="counter-slot-grid" id="bookCounterSlots" aria-label="Book selection slots"></div>
+                        </div>
+
+                        <div class="privilege-warning-banner" id="privilegeWarningBanner" role="alert">
+                            <svg class="privilege-warning-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v4m0 4h.01M10.29 3.86l-7.5 13A2 2 0 004.5 20h15a2 2 0 001.71-3.14l-7.5-13a2 2 0 00-3.42 0z" />
+                            </svg>
+                            <div>
+                                <div class="privilege-warning-title">Borrowing Restricted</div>
+                                <p class="privilege-warning-copy" id="privilegeWarningText">
+                                    This student cannot receive new book issues right now.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button type="button" class="privilege-details-toggle" id="privilegeDetailsToggle"
+                            aria-expanded="false" aria-controls="privilegeDetailsPanel" onclick="togglePrivilegeDetails()">
+                            <span id="privilegeDetailsLabel">Show Details</span>
+                            <svg class="privilege-details-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <div class="privilege-details-panel" id="privilegeDetailsPanel" hidden aria-hidden="true">
+                            <div class="privilege-detail-grid">
+                                <div class="privilege-detail-item">
+                                    <div class="privilege-detail-label">Setting Source</div>
+                                    <div class="privilege-detail-value" id="privilegeSourceValue">-</div>
+                                    <div class="privilege-detail-meta" id="privilegeSourceMeta">-</div>
+                                </div>
+                                <div class="privilege-detail-item">
+                                    <div class="privilege-detail-label">Books Issued</div>
+                                    <div class="privilege-detail-value" id="privilegeIssuedValue">-</div>
+                                    <div class="privilege-detail-meta" id="privilegeIssuedMeta">-</div>
+                                </div>
+                                <div class="privilege-detail-item">
+                                    <div class="privilege-detail-label">Issue Duration</div>
+                                    <div class="privilege-detail-value" id="privilegeDurationDetailValue">-</div>
+                                    <div class="privilege-detail-meta" id="privilegeDurationDetailMeta">-</div>
+                                </div>
+                                <div class="privilege-detail-item">
+                                    <div class="privilege-detail-label">Due Date Preview</div>
+                                    <div class="privilege-detail-value" id="privilegeDueDateValue">-</div>
+                                    <div class="privilege-detail-meta" id="privilegeDueDateMeta">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Available Books Summary -->
                     <div class="p-6 card" id="availableBooksCard" style="display: none;">
                         <div class="flex items-center justify-between mb-4">
@@ -676,8 +1546,7 @@
                                 <span class="detail-value" id="canIssueMore">5</span>
                             </div>
                             <div class="p-3 mt-4 rounded-lg info-box">
-                                <p class="text-sm">Select up to 5 different books for this student. Click on search results
-                                    to add books.</p>
+                                <p class="text-sm" id="issueSelectionHint">Select books for this student. The selection limit follows the effective library privilege rules.</p>
                             </div>
                         </div>
                     </div>
@@ -818,11 +1687,48 @@
                                 <span class="detail-value" id="returnStudentIssued">0</span>
                             </div>
                         </div>
+
+                        <div class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+                            <h4 class="mb-3 text-sm font-semibold text-primary">Effective Return Rules</h4>
+                            <div class="space-y-3">
+                                <div class="detail-row">
+                                    <span class="detail-label">Return Condition:</span>
+                                    <span class="detail-value" id="returnConditionSummary">Not selected</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Issue Duration Policy:</span>
+                                    <span class="detail-value" id="returnIssueDurationRule">-</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Late Fine Rule:</span>
+                                    <span class="detail-value" id="returnLateFineRule">-</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Grace Period:</span>
+                                    <span class="detail-value" id="returnGraceRule">-</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Fine Cap Per Book:</span>
+                                    <span class="detail-value" id="returnMaxFineRule">-</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Condition Fine:</span>
+                                    <span class="detail-value" id="returnConditionFineRule">-</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 policy-note" id="returnPrivilegeNote">
+                                Return fine calculations use the student's effective rules first, then the active default library settings when no override exists.
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Fine Calculation -->
                     <div class="p-6 card" id="fineCalculationCard" style="display: none;">
                         <h3 class="mb-4 text-base font-semibold text-primary">Fine Calculation</h3>
+
+                        <div class="mb-4 policy-note" id="finePolicySummary">
+                            Select at least one issued book and a return condition to preview the fine calculation.
+                        </div>
 
                         <div class="mb-4 space-y-3" id="fineDetails">
                             <!-- Fine details will be populated here -->
@@ -842,7 +1748,7 @@
                                         d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
                                         clip-rule="evenodd" />
                                 </svg>
-                                <p class="text-sm">Select books and condition to calculate total fine</p>
+                                <p class="text-sm" id="fineHelperText">Select books and condition to calculate total fine</p>
                             </div>
                         </div>
                     </div>
@@ -869,6 +1775,8 @@
         let selectedIssuedBooks = [];
         let selectedCondition = null;
         let returnSearchDebounceTimer = null;
+        let issueStudentSearchRequest = 0;
+        let returnStudentSearchRequest = 0;
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('=== Transaction Page Loaded ===');
@@ -994,6 +1902,32 @@
                     }
                 });
             };
+
+            window.showPrivilegeToast = function(message, type = 'info') {
+                let toastContainer = document.getElementById('privilegeToastContainer');
+
+                if (!toastContainer) {
+                    toastContainer = document.createElement('div');
+                    toastContainer.id = 'privilegeToastContainer';
+                    toastContainer.className = 'privilege-toast-container';
+                    document.body.appendChild(toastContainer);
+                }
+
+                const toast = document.createElement('div');
+                toast.className = `privilege-toast ${type}`;
+                toast.setAttribute('role', 'status');
+                toast.setAttribute('aria-live', 'polite');
+                toast.textContent = message;
+
+                toastContainer.appendChild(toast);
+
+                window.setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(8px)';
+                    toast.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+                    window.setTimeout(() => toast.remove(), 220);
+                }, 2200);
+            };
             // ========== ISSUE BOOK FUNCTIONALITY ==========
 
             // Issue Book Elements
@@ -1002,6 +1936,12 @@
             const selectedStudentId = document.getElementById('selectedStudentId');
             const selectedStudentCard = document.getElementById('selectedStudentCard');
             const availableBooksCard = document.getElementById('availableBooksCard');
+            const privilegeInfoCard = document.getElementById('privilegeInfoCard');
+            const privilegeWarningBanner = document.getElementById('privilegeWarningBanner');
+            const privilegeWarningText = document.getElementById('privilegeWarningText');
+            const privilegeDetailsPanel = document.getElementById('privilegeDetailsPanel');
+            const privilegeDetailsToggle = document.getElementById('privilegeDetailsToggle');
+            const privilegeDetailsLabel = document.getElementById('privilegeDetailsLabel');
 
             const searchBookInput = document.getElementById('searchBook');
             const bookResults = document.getElementById('bookResults');
@@ -1025,6 +1965,493 @@
             const fineCalculationCard = document.getElementById('fineCalculationCard');
             const fineDetails = document.getElementById('fineDetails');
             const totalFineElement = document.getElementById('totalFine');
+            const finePolicySummary = document.getElementById('finePolicySummary');
+            const fineHelperText = document.getElementById('fineHelperText');
+            const selectedBooksHeader = document.getElementById('selectedBooksHeader');
+            const issueSelectionHint = document.getElementById('issueSelectionHint');
+
+            const privilegeFields = ['max_books', 'issue_duration_days', 'per_day_fine', 'grace_period_days',
+                'max_fine_amount', 'borrowing_allowed'
+            ];
+
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function formatCurrency(amount, minimumFractionDigits = 2) {
+                const number = Number(amount ?? 0);
+                return `₹${number.toLocaleString(undefined, {
+                    minimumFractionDigits,
+                    maximumFractionDigits: 2
+                })}`;
+            }
+
+            function formatDate(dateValue) {
+                if (!dateValue) return 'N/A';
+                const date = new Date(dateValue);
+                if (Number.isNaN(date.getTime())) return 'N/A';
+                return date.toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+
+            function addDaysFromToday(days) {
+                const date = new Date();
+                date.setHours(0, 0, 0, 0);
+                date.setDate(date.getDate() + Number(days ?? 0));
+                return date;
+            }
+
+            function toTitleCase(value) {
+                if (!value) return 'Not selected';
+                return String(value)
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, char => char.toUpperCase());
+            }
+
+            function setDetailValue(elementId, primary, secondary = '') {
+                const element = document.getElementById(elementId);
+                if (!element) return;
+
+                if (!secondary) {
+                    element.textContent = primary;
+                    return;
+                }
+
+                element.innerHTML = `
+                    <span class="detail-stack">
+                        <span>${escapeHtml(primary)}</span>
+                        <span class="detail-meta">${escapeHtml(secondary)}</span>
+                    </span>
+                `;
+            }
+
+            function setPrivilegeStat(baseId, value, meta) {
+                const valueElement = document.getElementById(`${baseId}Value`);
+                const metaElement = document.getElementById(`${baseId}Meta`);
+                if (valueElement) valueElement.textContent = value;
+                if (metaElement) metaElement.textContent = meta;
+            }
+
+            function setPrivilegeDetail(baseId, value, meta) {
+                const valueElement = document.getElementById(`${baseId}Value`);
+                const metaElement = document.getElementById(`${baseId}Meta`);
+                if (valueElement) valueElement.textContent = value;
+                if (metaElement) metaElement.textContent = meta;
+            }
+
+            function getIssueCapacity(rules = getIssueRules(), student = selectedStudent) {
+                if (!rules || !student) return 0;
+                if (!rules.borrowing_allowed) return 0;
+                return Math.max(0, Number(rules.max_books ?? 0) - Number(student.issued ?? 0));
+            }
+
+            function getRemainingIssueCapacity(rules = getIssueRules(), student = selectedStudent) {
+                return Math.max(0, getIssueCapacity(rules, student) - selectedBooks.length);
+            }
+
+            function setBookSearchState(student = selectedStudent, rules = getIssueRules()) {
+                if (!student || !rules) {
+                    searchBookInput.disabled = true;
+                    searchBookInput.placeholder = 'Select a student first...';
+                    return;
+                }
+
+                if (!rules.borrowing_allowed) {
+                    searchBookInput.disabled = true;
+                    searchBookInput.placeholder = 'Borrowing is restricted for this student';
+                    return;
+                }
+
+                searchBookInput.disabled = false;
+                searchBookInput.placeholder = 'Search books to issue...';
+            }
+
+            function buildStudentResultMarkup(student) {
+                const borrowingAllowed = student.borrowingAllowed !== false;
+                const hasOverride = Boolean(student.hasPrivilegeOverride);
+                const canIssueMore = Number(student.canIssueMore ?? Math.max(0, Number(student.maxBooks ?? 0) - Number(student.issued ?? 0)));
+                const badges = [];
+
+                if (!borrowingAllowed) {
+                    badges.push('<span class="result-badge restricted">Restricted</span>');
+                }
+
+                if (hasOverride) {
+                    badges.push('<span class="result-badge override"><span class="result-badge-icon" aria-hidden="true">&#9733;</span>Custom</span>');
+                }
+
+                return `
+                    <div class="result-item-body">
+                        <div class="result-title-row">
+                            <div class="result-title-block">
+                                <div class="result-title">${escapeHtml(student.name)} (${escapeHtml(student.roll_no)})</div>
+                            </div>
+                            <div class="result-badges">${badges.join('')}</div>
+                        </div>
+                        <div class="result-subtitle">
+                            ${escapeHtml(student.department)} • Books Issued:
+                            <span class="book-count ${canIssueMore === 0 ? 'full' : ''}">${escapeHtml(student.issued)}/${escapeHtml(student.maxBooks)}</span>
+                            • Can issue:
+                            <span class="book-count ${canIssueMore === 0 ? 'full' : ''}">${escapeHtml(canIssueMore)} left</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function createPrivilegeState(data = null) {
+                const hasPrivilegeOverride = Boolean(data?.hasPrivilegeOverride);
+                const rawPrivileges = {
+                    ...(data?.privileges ?? {})
+                };
+
+                if (!hasPrivilegeOverride && rawPrivileges.borrowing_allowed === true) {
+                    rawPrivileges.borrowing_allowed = null;
+                }
+
+                const defaults = {
+                    max_books: data?.defaults?.max_books ?? fineSettings.max_books_per_student ?? 5,
+                    issue_duration_days: data?.defaults?.issue_duration_days ?? fineSettings.issue_duration_days ?? 14,
+                    per_day_fine: data?.defaults?.per_day_fine ?? fineSettings.per_day_fine ?? 5,
+                    grace_period_days: data?.defaults?.grace_period_days ?? fineSettings.grace_period_days ?? 2,
+                    max_fine_amount: data?.defaults?.max_fine_amount ?? fineSettings.max_fine_amount ?? 500,
+                    borrowing_allowed: true
+                };
+                const effective = {
+                    ...defaults,
+                    ...(data?.effective ?? {})
+                };
+
+                effective.borrowing_allowed = data?.effective?.borrowing_allowed ??
+                    rawPrivileges.borrowing_allowed ?? true;
+
+                return {
+                    raw: rawPrivileges,
+                    defaults,
+                    effective,
+                    hasPrivilegeOverride,
+                    source(field) {
+                        return rawPrivileges[field] !== null && rawPrivileges[field] !== undefined ?
+                            'Student override' :
+                            'Global default';
+                    },
+                    overrideCount() {
+                        return privilegeFields.filter(field =>
+                            rawPrivileges[field] !== null && rawPrivileges[field] !== undefined
+                        ).length;
+                    }
+                };
+            }
+
+            function getIssueRules() {
+                return studentPrivileges?.effective ?? null;
+            }
+
+            function getReturnRules() {
+                return returnStudentPrivileges?.effective ?? null;
+            }
+
+            function getConditionFine(condition) {
+                if (!condition) return 0;
+                const conditionOption = document.querySelector(`.condition-option[data-condition="${condition}"]`);
+                return Number(conditionOption?.dataset.fine ?? 0);
+            }
+
+            function animatePrivilegeCard() {
+                if (!privilegeInfoCard) return;
+                privilegeInfoCard.classList.remove('is-visible');
+                void privilegeInfoCard.offsetWidth;
+                privilegeInfoCard.classList.add('is-visible');
+            }
+
+            window.renderRestrictedState = function(student, privileges) {
+                privilegeInfoCard.classList.add('is-restricted');
+                privilegeWarningBanner.style.display = 'flex';
+                privilegeWarningText.textContent =
+                    `${student.name} is currently blocked from borrowing. Book search and issuing stay disabled until borrowing access is restored.`;
+                issueSelectionHint.textContent =
+                    'Borrowing is restricted for this student, so no new books can be selected right now.';
+                setPrivilegeStat(
+                    'privilegeCanIssue',
+                    '0',
+                    'Borrowing is currently restricted'
+                );
+            };
+
+            window.updateBookCounter = function() {
+                const slotsContainer = document.getElementById('bookCounterSlots');
+                const counterText = document.getElementById('bookCounterText');
+                const counterPill = document.getElementById('bookCounterPill');
+                const rules = getIssueRules();
+
+                if (!slotsContainer || !counterText || !counterPill) return;
+
+                slotsContainer.innerHTML = '';
+
+                if (!selectedStudent || !rules) {
+                    counterText.textContent = '0 selected out of 0 available slots';
+                    counterPill.textContent = '0 / 0';
+                    const empty = document.createElement('div');
+                    empty.className = 'counter-slot-empty';
+                    empty.textContent = 'Choose a student to unlock the current issue slots.';
+                    slotsContainer.appendChild(empty);
+                    return;
+                }
+
+                const totalSlots = getIssueCapacity(rules, selectedStudent);
+                const selectedCount = Math.min(selectedBooks.length, totalSlots);
+                counterPill.textContent = `${selectedCount} / ${totalSlots}`;
+
+                if (!rules.borrowing_allowed) {
+                    counterText.textContent = 'Borrowing is restricted, so no issue slots are available.';
+                    const empty = document.createElement('div');
+                    empty.className = 'counter-slot-empty';
+                    empty.textContent = 'This student is restricted from borrowing until the privilege setting changes.';
+                    slotsContainer.appendChild(empty);
+                    return;
+                }
+
+                if (totalSlots === 0) {
+                    counterText.textContent = 'No issue slots remain under the current borrowing limit.';
+                    const empty = document.createElement('div');
+                    empty.className = 'counter-slot-empty';
+                    empty.textContent = 'The student is already at the effective borrowing limit.';
+                    slotsContainer.appendChild(empty);
+                    return;
+                }
+
+                counterText.textContent =
+                    `${selectedCount} selected out of ${totalSlots} available slot${totalSlots === 1 ? '' : 's'}.`;
+
+                for (let index = 0; index < totalSlots; index++) {
+                    const slot = document.createElement('div');
+                    slot.className = `counter-slot ${index < selectedCount ? 'filled' : 'available'}`;
+                    slot.textContent = String(index + 1);
+                    slot.setAttribute(
+                        'aria-label',
+                        index < selectedCount ?
+                        `Selected book slot ${index + 1}` :
+                        `Available book slot ${index + 1}`
+                    );
+                    slotsContainer.appendChild(slot);
+                }
+            };
+
+            window.renderPrivilegeInfoCard = function(student, privileges, rawPrivileges = {}, defaults = {}) {
+                const rules = getIssueRules();
+                if (!student || !privileges || !rules) return;
+
+                const availableNow = getIssueCapacity(privileges, student);
+                const remainingAfterSelection = getRemainingIssueCapacity(privileges, student);
+                const overrideCount = privilegeFields.filter(field =>
+                    rawPrivileges[field] !== null && rawPrivileges[field] !== undefined
+                ).length;
+                const dueDate = formatDate(addDaysFromToday(privileges.issue_duration_days));
+                const sourceLabel = overrideCount > 0 ? 'Student Override' : 'Global Default';
+                const sourceMeta = overrideCount > 0 ?
+                    `${overrideCount} custom privilege rule${overrideCount === 1 ? '' : 's'} active on this account.` :
+                    'Every issue rule is currently coming from the active global library defaults.';
+
+                privilegeInfoCard.style.display = 'block';
+                privilegeInfoCard.classList.remove('is-restricted');
+                privilegeWarningBanner.style.display = 'none';
+                document.getElementById('privilegeCardHeading').textContent = `${student.name}'s Issue Privileges`;
+                document.getElementById('privilegeStatusText').textContent = privileges.borrowing_allowed ? 'Allowed' : 'Restricted';
+                document.getElementById('privilegeSummaryText').textContent = privileges.borrowing_allowed ?
+                    (availableNow > 0 ?
+                        `${student.name} can still borrow ${remainingAfterSelection} more book${remainingAfterSelection === 1 ? '' : 's'} right now under the effective issue policy.` :
+                        `${student.name} is allowed to borrow, but the current book limit has already been reached.`) :
+                    `${student.name}'s current privilege settings block new borrowing until access is restored.`;
+
+                setPrivilegeStat(
+                    'privilegeMaxBooks',
+                    String(privileges.max_books),
+                    rawPrivileges.max_books !== null && rawPrivileges.max_books !== undefined ?
+                    'Custom book limit is active' :
+                    `Default limit from library policy (${defaults.max_books ?? privileges.max_books})`
+                );
+                setPrivilegeStat(
+                    'privilegeDuration',
+                    `${privileges.issue_duration_days}d`,
+                    `Due ${dueDate}`
+                );
+                setPrivilegeStat(
+                    'privilegeFineRate',
+                    formatCurrency(privileges.per_day_fine, 0),
+                    `${rawPrivileges.per_day_fine !== null && rawPrivileges.per_day_fine !== undefined ? 'Custom' : 'Default'} late fine rate`
+                );
+                setPrivilegeStat(
+                    'privilegeCanIssue',
+                    String(remainingAfterSelection),
+                    privileges.borrowing_allowed ?
+                    `${selectedBooks.length} selected, ${student.issued} already issued` :
+                    'Borrowing is currently restricted'
+                );
+
+                setPrivilegeDetail('privilegeSource', sourceLabel, sourceMeta);
+                setPrivilegeDetail(
+                    'privilegeIssued',
+                    `${student.issued} / ${privileges.max_books}`,
+                    `${remainingAfterSelection} slot${remainingAfterSelection === 1 ? '' : 's'} still open for new issues`
+                );
+                setPrivilegeDetail(
+                    'privilegeDurationDetail',
+                    `${privileges.issue_duration_days} day${Number(privileges.issue_duration_days) === 1 ? '' : 's'}`,
+                    `${rawPrivileges.issue_duration_days !== null && rawPrivileges.issue_duration_days !== undefined ? 'Student-specific' : 'Default'} duration rule`
+                );
+                setPrivilegeDetail(
+                    'privilegeDueDate',
+                    dueDate,
+                    `Preview if books are issued today at ${formatCurrency(privileges.per_day_fine, 0)}/day after the grace period`
+                );
+
+                selectedBooksHeader.textContent =
+                    `Selected Books (${selectedBooks.length} selected, ${availableNow} slot${availableNow === 1 ? '' : 's'} available)`;
+                issueSelectionHint.textContent = privileges.borrowing_allowed ?
+                    `Select up to ${remainingAfterSelection} more book${remainingAfterSelection === 1 ? '' : 's'} for this student using the effective privilege rules.` :
+                    'Borrowing is restricted for this student, so no books can be added to the issue list.';
+
+                if (!privileges.borrowing_allowed) {
+                    renderRestrictedState(student, privileges);
+                }
+
+                updateBookCounter();
+                animatePrivilegeCard();
+            };
+
+            function renderIssuePrivilegeSummary() {
+                const rules = getIssueRules();
+                if (!selectedStudent || !rules) return;
+
+                renderPrivilegeInfoCard(
+                    selectedStudent,
+                    rules,
+                    studentPrivileges?.raw ?? {},
+                    studentPrivileges?.defaults ?? {}
+                );
+            }
+
+            window.togglePrivilegeDetails = function() {
+                const isExpanded = privilegeDetailsToggle.getAttribute('aria-expanded') === 'true';
+
+                if (isExpanded) {
+                    privilegeDetailsToggle.setAttribute('aria-expanded', 'false');
+                    privilegeDetailsLabel.textContent = 'Show Details';
+                    privilegeDetailsPanel.setAttribute('aria-hidden', 'true');
+                    privilegeDetailsPanel.classList.remove('open');
+                    window.setTimeout(() => {
+                        if (privilegeDetailsToggle.getAttribute('aria-expanded') === 'false') {
+                            privilegeDetailsPanel.hidden = true;
+                        }
+                    }, 250);
+                    return;
+                }
+
+                privilegeDetailsPanel.hidden = false;
+                privilegeDetailsPanel.setAttribute('aria-hidden', 'false');
+                privilegeDetailsToggle.setAttribute('aria-expanded', 'true');
+                privilegeDetailsLabel.textContent = 'Hide Details';
+                window.requestAnimationFrame(() => {
+                    privilegeDetailsPanel.classList.add('open');
+                });
+            };
+
+            function renderReturnPrivilegeSummary() {
+                const rules = getReturnRules();
+                if (!selectedReturnStudent || !rules) return;
+
+                const conditionFine = getConditionFine(selectedCondition);
+                const overrideCount = returnStudentPrivileges?.overrideCount?.() ?? 0;
+
+                setDetailValue(
+                    'returnConditionSummary',
+                    selectedCondition ? toTitleCase(selectedCondition) : 'Not selected',
+                    selectedCondition ? 'This condition fine is applied to each selected book.' :
+                    'Choose a condition to complete the fine preview.'
+                );
+                setDetailValue(
+                    'returnIssueDurationRule',
+                    `${rules.issue_duration_days} day${Number(rules.issue_duration_days) === 1 ? '' : 's'}`,
+                    returnStudentPrivileges.source('issue_duration_days')
+                );
+                setDetailValue(
+                    'returnLateFineRule',
+                    `${formatCurrency(rules.per_day_fine)}/day after grace`,
+                    returnStudentPrivileges.source('per_day_fine')
+                );
+                setDetailValue(
+                    'returnGraceRule',
+                    `${rules.grace_period_days} day${Number(rules.grace_period_days) === 1 ? '' : 's'} grace`,
+                    returnStudentPrivileges.source('grace_period_days')
+                );
+                setDetailValue(
+                    'returnMaxFineRule',
+                    `${formatCurrency(rules.max_fine_amount)} per book`,
+                    returnStudentPrivileges.source('max_fine_amount')
+                );
+                setDetailValue(
+                    'returnConditionFineRule',
+                    selectedCondition ? `${formatCurrency(conditionFine)} per book` : formatCurrency(0),
+                    selectedCondition ? 'Condition penalties come from the active return settings.' :
+                    'Select a return condition to see the matching penalty.'
+                );
+
+                const note = document.getElementById('returnPrivilegeNote');
+                if (note) {
+                    note.textContent = overrideCount > 0 ?
+                        `This return preview is using ${overrideCount} student-specific privilege override${overrideCount === 1 ? '' : 's'} where available, then default library settings for the rest.` :
+                        'No student-specific return overrides were found, so the preview is using the active default library settings.';
+                }
+            }
+
+            function resetIssuePrivilegeSummary() {
+                privilegeInfoCard.style.display = 'none';
+                privilegeInfoCard.classList.remove('is-restricted', 'is-visible');
+                privilegeWarningBanner.style.display = 'none';
+                setPrivilegeStat('privilegeMaxBooks', '-', 'Effective issue ceiling');
+                setPrivilegeStat('privilegeDuration', '-', 'Standard issue period');
+                setPrivilegeStat('privilegeFineRate', '-', 'Per overdue day');
+                setPrivilegeStat('privilegeCanIssue', '-', 'Remaining today');
+                setPrivilegeDetail('privilegeSource', '-', '-');
+                setPrivilegeDetail('privilegeIssued', '-', '-');
+                setPrivilegeDetail('privilegeDurationDetail', '-', '-');
+                setPrivilegeDetail('privilegeDueDate', '-', '-');
+                selectedBooksHeader.textContent = 'Selected Books';
+                issueSelectionHint.textContent =
+                    'Select books for this student. The selection limit follows the effective library privilege rules.';
+                document.getElementById('privilegeCardHeading').textContent = 'Effective Borrowing Access';
+                document.getElementById('privilegeSummaryText').textContent =
+                    'Select a student to review borrowing eligibility, issue duration, and remaining capacity.';
+                document.getElementById('privilegeStatusText').textContent = 'Allowed';
+                privilegeDetailsLabel.textContent = 'Show Details';
+                privilegeDetailsToggle.setAttribute('aria-expanded', 'false');
+                privilegeDetailsPanel.classList.remove('open');
+                privilegeDetailsPanel.hidden = true;
+                privilegeDetailsPanel.setAttribute('aria-hidden', 'true');
+                updateBookCounter();
+            }
+
+            function resetReturnPrivilegeSummary() {
+                [
+                    'returnConditionSummary', 'returnIssueDurationRule', 'returnLateFineRule', 'returnGraceRule',
+                    'returnMaxFineRule', 'returnConditionFineRule'
+                ].forEach(id => setDetailValue(id, id === 'returnConditionSummary' ? 'Not selected' : '-'));
+                const note = document.getElementById('returnPrivilegeNote');
+                if (note) {
+                    note.textContent =
+                        'Return fine calculations use the student\'s effective rules first, then the active default library settings when no override exists.';
+                }
+                finePolicySummary.textContent =
+                    'Select at least one issued book and a return condition to preview the fine calculation.';
+                fineHelperText.textContent = 'Select books and condition to calculate total fine';
+            }
 
             // ========== VERIFY ELEMENTS ARE FOUND ==========
 
@@ -1053,6 +2480,7 @@
             searchStudentInput.addEventListener('input', function(e) {
                 console.log('Student search input event fired:', this.value);
                 const query = this.value;
+                const requestId = ++issueStudentSearchRequest;
                 studentResults.innerHTML = '';
 
                 if (query.length < 2) {
@@ -1073,19 +2501,23 @@
                         return response.json();
                     })
                     .then(students => {
+                        if (requestId !== issueStudentSearchRequest) {
+                            return;
+                        }
+
                         console.log('Students received:', students);
-                        if (students.length === 0) {
+                        studentResults.innerHTML = '';
+                        const uniqueStudents = [...new Map((students || []).map(student => [student.id, student])).values()];
+
+                        if (uniqueStudents.length === 0) {
                             studentResults.innerHTML =
                                 '<div class="result-item"><div class="result-title">No students found</div></div>';
                         } else {
-                            students.forEach(student => {
+                            uniqueStudents.forEach(student => {
                                 const item = document.createElement('div');
                                 item.className = 'result-item';
                                 item.dataset.id = student.id;
-                                item.innerHTML = `
-                                    <div class="result-title">${student.name} (${student.roll_no})</div>
-                                    <div class="result-subtitle">${student.department} • Books Issued: ${student.issued}/${student.maxBooks}</div>
-                                `;
+                                item.innerHTML = buildStudentResultMarkup(student);
 
                                 item.addEventListener('click', function() {
                                     selectStudentForIssue(student);
@@ -1098,6 +2530,10 @@
                         studentResults.style.display = 'block';
                     })
                     .catch(error => {
+                        if (requestId !== issueStudentSearchRequest) {
+                            return;
+                        }
+
                         console.error('Error fetching students:', error);
                         studentResults.innerHTML =
                             '<div class="result-item"><div class="result-title">Error: ' + error.message + '</div></div>';
@@ -1120,6 +2556,14 @@
                     console.warn('No student selected for book search');
                     bookResults.innerHTML =
                         '<div class="result-item"><div class="result-title">Please select a student first</div></div>';
+                    bookResults.style.display = 'block';
+                    return;
+                }
+
+                const issueRules = getIssueRules();
+                if (!issueRules || !issueRules.borrowing_allowed) {
+                    bookResults.innerHTML =
+                        '<div class="result-item"><div class="result-title">Borrowing is restricted for this student</div></div>';
                     bookResults.style.display = 'block';
                     return;
                 }
@@ -1181,6 +2625,7 @@
             searchReturnStudentInput.addEventListener('input', function() {
                 console.log('Return student search input event fired:', this.value);
                 const query = this.value;
+                const requestId = ++returnStudentSearchRequest;
 
                 if (query.length < 2) {
                     returnStudentResults.style.display = 'none';
@@ -1209,17 +2654,18 @@
                         return response.json();
                     })
                     .then(students => {
+                        if (requestId !== returnStudentSearchRequest) {
+                            return;
+                        }
+
                         console.log('Return Students received:', students);
-                        if (students.length === 0) {
+                        const uniqueStudents = [...new Map((students || []).map(s => [s.id, s])).values()];
+
+                        if (uniqueStudents.length === 0) {
                             returnStudentResults.innerHTML =
                                 '<div class="result-item"><div class="result-title">No students found</div></div>';
                         } else {
                             returnStudentResults.innerHTML = '';
-
-                            // Use Set to avoid duplicates based on student ID
-                            const uniqueStudents = [...new Map(students.map(s => [s.id, s]))
-                                .values()
-                            ];
 
                             const studentItems = new Map();
 
@@ -1311,6 +2757,10 @@
                         returnStudentResults.style.display = 'block';
                     })
                     .catch(error => {
+                        if (requestId !== returnStudentSearchRequest) {
+                            return;
+                        }
+
                         console.error('Error fetching return students:', error);
                         returnStudentResults.innerHTML =
                             '<div class="result-item"><div class="result-title">Error: ' + error.message + '</div></div>';
@@ -1322,10 +2772,21 @@
 
             window.selectStudentForIssue = function(student) {
                 selectedStudent = student;
+                studentPrivileges = null;
+                selectedBooks = [];
                 selectedStudentId.value = student.id;
                 searchStudentInput.value = `${student.name} (${student.roll_no})`;
                 studentResults.style.display = 'none';
                 document.getElementById('clearStudentBtn').style.display = 'block';
+                selectedStudentCard.style.display = 'none';
+                availableBooksCard.style.display = 'none';
+                resetIssuePrivilegeSummary();
+                searchBookInput.value = '';
+                bookResults.style.display = 'none';
+                setBookSearchState();
+                updateSelectedBooksList();
+                updateIssueButton();
+                updateAvailableBooksInfo();
 
                 // Fetch student privileges
                 fetch(`/admin/students/${student.id}/privileges`, { credentials: 'include' })
@@ -1336,18 +2797,11 @@
                             return;
                         }
 
-                        studentPrivileges = data.effective;
-
-                        // Check if borrowing is allowed
-                        if (!studentPrivileges.borrowing_allowed) {
-                            showCustomAlert(
-                                'Borrowing Not Allowed',
-                                `Cannot issue books to ${student.name}. This student does not have borrowing permission at this time.\n\nPlease contact the administrator if you believe this is an error.`,
-                                'error'
-                            );
-                            clearStudentSelection();
-                            return;
-                        }
+                        studentPrivileges = createPrivilegeState({
+                            ...data,
+                            hasPrivilegeOverride: student.hasPrivilegeOverride
+                        });
+                        const rules = getIssueRules();
 
                         // Update student details with privilege information
                         document.getElementById('studentName').textContent = student.name;
@@ -1355,29 +2809,22 @@
                         document.getElementById('studentDepartment').textContent = student.department;
                         document.getElementById('studentEmail').textContent = student.email;
                         document.getElementById('studentIssued').textContent =
-                            `${student.issued} / ${studentPrivileges.max_books}`;
+                            `${student.issued} / ${rules.max_books}`;
 
                         // Update progress bar
-                        const progressPercent = (student.issued / studentPrivileges.max_books) * 100;
+                        const progressPercent = Math.min(100, (student.issued / rules.max_books) * 100);
                         document.getElementById('issuedProgress').style.width = `${progressPercent}%`;
 
                         selectedStudentCard.style.display = 'block';
                         availableBooksCard.style.display = 'block';
 
-                        // Reset book selection
-                        selectedBooks = [];
-                        updateSelectedBooksList();
-                        updateIssueButton();
-
                         // Update available books info based on privilege
-                        const canIssueMore = studentPrivileges.max_books - student.issued;
-                        document.getElementById('canIssueMore').textContent = canIssueMore;
+                        document.getElementById('canIssueMore').textContent = getRemainingIssueCapacity(rules, student);
                         document.getElementById('selectedCount').textContent = '0 books';
                         document.getElementById('totalBooks').textContent = '0';
-
-                        // Enable book search
-                        searchBookInput.disabled = false;
-                        searchBookInput.placeholder = "Search books to issue...";
+                        renderIssuePrivilegeSummary();
+                        setBookSearchState(student, rules);
+                        updateIssueButton();
                     })
                     .catch(error => {
                         console.error('Error fetching privileges:', error);
@@ -1387,14 +2834,15 @@
             };
 
             window.addBookToSelection = function(book) {
-                if (!selectedStudent || !studentPrivileges) return;
+                const rules = getIssueRules();
+                if (!selectedStudent || !rules) return;
 
                 // Check if student can issue more books (based on privileges)
-                const canIssueMore = studentPrivileges.max_books - selectedStudent.issued;
+                const canIssueMore = getIssueCapacity(rules, selectedStudent);
                 if (selectedBooks.length >= canIssueMore) {
                     showCustomAlert(
                         'Book Limit Reached',
-                        `Student can only issue ${canIssueMore} more book(s). Privilege limit: ${studentPrivileges.max_books} books maximum.`,
+                        `Student can only issue ${canIssueMore} more book(s). Privilege limit: ${rules.max_books} books maximum.`,
                         'warning'
                     );
                     return;
@@ -1424,6 +2872,11 @@
                 updateSelectedBooksList();
                 updateIssueButton();
                 updateAvailableBooksInfo();
+                const remainingCount = getRemainingIssueCapacity(rules, selectedStudent);
+                showPrivilegeToast(
+                    `${book.title} added. ${remainingCount} issue slot${remainingCount === 1 ? '' : 's'} remaining.`,
+                    'info'
+                );
             };
 
             window.removeBookFromSelection = function(bookId) {
@@ -1469,29 +2922,34 @@
             };
 
             window.updateIssueButton = function() {
-                const canIssueMore = selectedStudent && studentPrivileges ? 
-                    studentPrivileges.max_books - selectedStudent.issued : 0;
+                const rules = getIssueRules();
+                const canIssueMore = selectedStudent && rules ?
+                    getIssueCapacity(rules, selectedStudent) : 0;
                 const selectedCount = selectedBooks.length;
 
-                if (selectedStudent && studentPrivileges && selectedCount > 0) {
+                if (selectedStudent && rules && rules.borrowing_allowed && selectedCount > 0) {
                     issueButton.disabled = false;
                     issueButton.textContent = `Issue Books (${selectedCount}/${canIssueMore})`;
                 } else {
                     issueButton.disabled = true;
-                    issueButton.textContent = `Issue Books (0/${canIssueMore})`;
+                    issueButton.textContent = rules && !rules.borrowing_allowed ?
+                        'Issuing Restricted' :
+                        `Issue Books (${selectedCount}/${canIssueMore})`;
                 }
             };
 
             window.updateAvailableBooksInfo = function() {
-                if (!selectedStudent || !studentPrivileges) return;
+                const rules = getIssueRules();
+                if (!selectedStudent || !rules) return;
 
-                const canIssueMore = studentPrivileges.max_books - selectedStudent.issued;
+                const canIssueMore = getIssueCapacity(rules, selectedStudent);
                 const selectedCount = selectedBooks.length;
 
                 document.getElementById('selectedCount').textContent =
                     `${selectedCount} book${selectedCount !== 1 ? 's' : ''}`;
                 document.getElementById('totalBooks').textContent = selectedCount;
-                document.getElementById('canIssueMore').textContent = canIssueMore - selectedCount;
+                document.getElementById('canIssueMore').textContent = Math.max(0, canIssueMore - selectedCount);
+                renderIssuePrivilegeSummary();
             };
 
             window.clearStudentSelection = function() {
@@ -1505,10 +2963,10 @@
                 selectedBooks = [];
                 updateSelectedBooksList();
                 updateIssueButton();
+                resetIssuePrivilegeSummary();
 
                 // Disable book search
-                searchBookInput.disabled = true;
-                searchBookInput.placeholder = "Select a student first...";
+                setBookSearchState();
                 searchBookInput.value = '';
                 bookResults.style.display = 'none';
             };
@@ -1526,13 +2984,9 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            returnStudentPrivileges = data.effective;
+                            returnStudentPrivileges = createPrivilegeState(data);
                         } else {
-                            // Use fine settings as fallback
-                            returnStudentPrivileges = {
-                                per_day_fine: fineSettings.per_day_fine || 10,
-                                issue_duration_days: fineSettings.issue_duration_days || 14
-                            };
+                            returnStudentPrivileges = createPrivilegeState();
                         }
 
                         // Update student details
@@ -1555,16 +3009,13 @@
                         selectedIssuedBooks = [];
                         selectedCondition = null;
                         resetConditionSelection();
+                        renderReturnPrivilegeSummary();
                         updateReturnButton();
                         calculateTotalFine();
                     })
                     .catch(error => {
                         console.error('Error fetching privileges:', error);
-                        // Fallback to use fine settings
-                        returnStudentPrivileges = {
-                            per_day_fine: fineSettings.per_day_fine || 10,
-                            issue_duration_days: fineSettings.issue_duration_days || 14
-                        };
+                        returnStudentPrivileges = createPrivilegeState();
 
                         // Continue with return process
                         document.getElementById('returnStudentName').textContent = student.name;
@@ -1581,6 +3032,7 @@
                         selectedIssuedBooks = [];
                         selectedCondition = null;
                         resetConditionSelection();
+                        renderReturnPrivilegeSummary();
                         updateReturnButton();
                         calculateTotalFine();
                     });
@@ -1600,7 +3052,7 @@
                 issuedBooks.forEach(issuedBook => {
                     if (issuedBook.returned) return;
 
-                    const dueDate = new Date(issuedBook.dueDate);
+                    const dueDate = new Date(`${issuedBook.dueDate}T00:00:00`);
                     const diffTime = today - dueDate;
                     // Prefer server-provided value (keeps consistent with Carbon calculation)
                     // Fallback to client-side calculation using Math.floor to match Carbon's diffInDays behavior
@@ -1614,13 +3066,15 @@
                     bookItem.innerHTML = `
                         <input type="checkbox" class="book-checkbox" id="book-${issuedBook.id}" 
                                onchange="toggleIssuedBookSelection(${issuedBook.id}, this.checked)"
-                               data-overdue-days="${overdueDays}">
+                               data-overdue-days="${overdueDays}"
+                               data-issue-date="${issuedBook.issueDate}"
+                               data-due-date="${issuedBook.dueDate}">
                         <div class="book-info-full">
                             <div class="book-title">${issuedBook.bookTitle}</div>
                             <div class="book-meta">
                                 <span>${issuedBook.author}</span>
-                                <span>Issued: ${new Date(issuedBook.issueDate).toLocaleDateString()}</span>
-                                <span>Due: ${dueDate.toLocaleDateString()}</span>
+                                <span>Issued: ${formatDate(issuedBook.issueDate)}</span>
+                                <span>Due: ${formatDate(issuedBook.dueDate)}</span>
                             </div>
                             <div class="mt-2">
                                 ${isOverdue ? 
@@ -1648,6 +3102,8 @@
                         bookId: bookId,
                         title: bookTitle,
                         overdueDays: overdueDays,
+                        issueDate: checkbox.dataset.issueDate,
+                        dueDate: checkbox.dataset.dueDate,
                         condition: null,
                         conditionFine: 0
                     });
@@ -1664,6 +3120,7 @@
                     window.resetConditionSelection();
                 }
 
+                renderReturnPrivilegeSummary();
                 window.updateReturnButton();
                 window.calculateTotalFine();
             };
@@ -1687,6 +3144,7 @@
                 });
 
                 document.getElementById('selectedCondition').value = condition;
+                renderReturnPrivilegeSummary();
                 window.updateReturnButton();
                 window.calculateTotalFine();
             };
@@ -1696,6 +3154,7 @@
                     option.classList.remove('selected');
                 });
                 document.getElementById('selectedCondition').value = '';
+                renderReturnPrivilegeSummary();
             };
 
             window.calculateTotalFine = function() {
@@ -1703,56 +3162,89 @@
                 fineDetails.innerHTML = '';
 
                 if (selectedIssuedBooks.length === 0 || !selectedCondition) {
-                    totalFineElement.textContent = '₹0';
+                    totalFineElement.textContent = formatCurrency(0);
+                    finePolicySummary.textContent =
+                        'Select at least one issued book and a return condition to preview the fine calculation.';
+                    fineHelperText.textContent = 'Select books and condition to calculate total fine';
                     return;
                 }
 
                 // Use student-specific privileges if available, otherwise use global settings
-                const perDayFine = returnStudentPrivileges?.per_day_fine ?? fineSettings.per_day_fine ?? 5;
-                const gracePeriod = returnStudentPrivileges?.grace_period_days ?? fineSettings.grace_period_days ?? 2;
-                const maxFine = returnStudentPrivileges?.max_fine_amount ?? fineSettings.max_fine_amount ?? 500;
+                const rules = getReturnRules();
+                const perDayFine = rules?.per_day_fine ?? fineSettings.per_day_fine ?? 5;
+                const gracePeriod = rules?.grace_period_days ?? fineSettings.grace_period_days ?? 2;
+                const maxFine = rules?.max_fine_amount ?? fineSettings.max_fine_amount ?? 500;
+                const conditionFine = getConditionFine(selectedCondition);
+
+                finePolicySummary.innerHTML = `
+                    <strong>${selectedIssuedBooks.length}</strong> selected book${selectedIssuedBooks.length === 1 ? '' : 's'}
+                    will be charged using <strong>${formatCurrency(perDayFine)}/day</strong> after
+                    <strong>${gracePeriod}</strong> grace day${Number(gracePeriod) === 1 ? '' : 's'},
+                    capped at <strong>${formatCurrency(maxFine)}</strong> per book, plus
+                    <strong>${formatCurrency(conditionFine)}</strong> for the
+                    <strong>${escapeHtml(toTitleCase(selectedCondition))}</strong> condition.
+                `;
+                fineHelperText.textContent =
+                    'Each selected book is calculated separately using overdue days, grace period, late fine rate, fine cap, and the chosen condition penalty.';
 
                 selectedIssuedBooks.forEach(book => {
                     // Calculate overdue fine with grace period deduction (matching backend logic)
                     let overdueFine = 0;
+                    const chargeableDays = Math.max(0, book.overdueDays - gracePeriod);
+                    const capped = book.overdueDays > gracePeriod && (chargeableDays * perDayFine) > maxFine;
                     if (book.overdueDays > gracePeriod) {
-                        const chargeableDays = book.overdueDays - gracePeriod;
                         overdueFine = chargeableDays * perDayFine;
                         overdueFine = Math.min(overdueFine, maxFine); // Cap at max fine
                     }
 
-                    const conditionFine = book.conditionFine || 0;
-                    const bookTotal = overdueFine + conditionFine;
+                    const perBookConditionFine = book.conditionFine || 0;
+                    const bookTotal = overdueFine + perBookConditionFine;
                     totalFine += bookTotal;
 
                     const fineItem = document.createElement('div');
-                    fineItem.className = 'detail-row';
+                    fineItem.className = 'fine-breakdown-card';
                     fineItem.innerHTML = `
-                        <span class="detail-label">${book.title}:</span>
-                        <span class="detail-value">₹${bookTotal.toLocaleString()}</span>
+                        <div class="fine-breakdown-header">
+                            <div class="fine-breakdown-title">${escapeHtml(book.title)}</div>
+                            <div class="detail-value">${formatCurrency(bookTotal)}</div>
+                        </div>
+                        <div class="fine-breakdown-meta">
+                            <span class="fine-chip">Issued ${escapeHtml(formatDate(book.issueDate))}</span>
+                            <span class="fine-chip">Due ${escapeHtml(formatDate(book.dueDate))}</span>
+                            <span class="fine-chip">${book.overdueDays > 0 ? `${book.overdueDays} overdue day${book.overdueDays === 1 ? '' : 's'}` : 'On time'}</span>
+                        </div>
+                        <div class="fine-breakdown-lines">
+                            <div class="fine-breakdown-line">
+                                <span>Overdue days</span>
+                                <span>${book.overdueDays}</span>
+                            </div>
+                            <div class="fine-breakdown-line">
+                                <span>Grace deduction</span>
+                                <span>${gracePeriod} day${Number(gracePeriod) === 1 ? '' : 's'}</span>
+                            </div>
+                            <div class="fine-breakdown-line">
+                                <span>Chargeable overdue days</span>
+                                <span>${chargeableDays}</span>
+                            </div>
+                            <div class="fine-breakdown-line">
+                                <span>Late fine</span>
+                                <span>${chargeableDays > 0 ? `${chargeableDays} × ${formatCurrency(perDayFine)} = ${formatCurrency(overdueFine)}` : formatCurrency(0)}</span>
+                            </div>
+                            <div class="fine-breakdown-line">
+                                <span>Condition fine (${escapeHtml(toTitleCase(book.condition))})</span>
+                                <span>${formatCurrency(perBookConditionFine)}</span>
+                            </div>
+                            <div class="fine-breakdown-line">
+                                <span>Book total</span>
+                                <span>${formatCurrency(bookTotal)}</span>
+                            </div>
+                            ${capped ? `<div class="fine-breakdown-line"><span>Cap applied</span><span>Limited to ${formatCurrency(maxFine)}</span></div>` : ''}
+                        </div>
                     `;
                     fineDetails.appendChild(fineItem);
-
-                    // Add breakdown if there are fines
-                    if (overdueFine > 0 || conditionFine > 0) {
-                        const breakdown = document.createElement('div');
-                        breakdown.className = 'text-xs text-secondary ml-4';
-                        let breakdownText = '';
-                        if (overdueFine > 0) {
-                            const chargeableDays = Math.max(0, book.overdueDays - gracePeriod);
-                            breakdownText +=
-                                `Overdue (${chargeableDays} chargeable days × ₹${perDayFine}) = ₹${overdueFine}`;
-                        }
-                        if (conditionFine > 0) {
-                            if (breakdownText) breakdownText += '<br>';
-                            breakdownText += `Condition (${book.condition}) = ₹${conditionFine}`;
-                        }
-                        breakdown.innerHTML = breakdownText;
-                        fineDetails.appendChild(breakdown);
-                    }
                 });
 
-                totalFineElement.textContent = `₹${totalFine.toLocaleString()}`;
+                totalFineElement.textContent = formatCurrency(totalFine);
             };
 
             window.updateReturnButton = function() {
@@ -1768,6 +3260,7 @@
 
             window.clearReturnStudentSelection = function() {
                 selectedReturnStudent = null;
+                returnStudentPrivileges = null;
                 selectedReturnStudentId.value = '';
                 document.getElementById('clearReturnStudentBtn').style.display = 'none';
                 returnStudentCard.style.display = 'none';
@@ -1778,6 +3271,9 @@
                 selectedCondition = null;
                 resetConditionSelection();
                 updateReturnButton();
+                totalFineElement.textContent = formatCurrency(0);
+                fineDetails.innerHTML = '';
+                resetReturnPrivilegeSummary();
 
                 searchReturnStudentInput.value = '';
                 returnStudentResults.style.display = 'none';
@@ -1799,7 +3295,8 @@
                 }
 
                 // Verify student and privileges are loaded
-                if (!studentPrivileges) {
+                const rules = getIssueRules();
+                if (!rules) {
                     showCustomAlert(
                         'Student Not Selected',
                         'Please select a student first and wait for their information to load.',
@@ -1809,7 +3306,7 @@
                 }
 
                 // Check if borrowing is allowed (final verification)
-                if (!studentPrivileges.borrowing_allowed) {
+                if (!rules.borrowing_allowed) {
                     showCustomAlert(
                         'Borrowing Permission Denied',
                         `This student (${selectedStudent.name}) does not have borrowing permission.\n\nPlease contact the administrator to enable borrowing for this student.`,
@@ -1819,11 +3316,11 @@
                 }
 
                 // Check if student can issue more books (based on privilege)
-                const canIssueMore = studentPrivileges.max_books - selectedStudent.issued;
+                const canIssueMore = Math.max(0, rules.max_books - selectedStudent.issued);
                 if (selectedBooks.length > canIssueMore) {
                     showCustomAlert(
                         'Exceeds Borrowing Limit',
-                        `Cannot issue ${selectedBooks.length} books.\n\nStudent can only issue ${canIssueMore} more book(s) out of their ${studentPrivileges.max_books} book limit.`,
+                        `Cannot issue ${selectedBooks.length} books.\n\nStudent can only issue ${canIssueMore} more book(s) out of their ${rules.max_books} book limit.`,
                         'error'
                     );
                     return;
@@ -1847,9 +3344,14 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            const dueDatePreview = formatDate(addDaysFromToday(rules.issue_duration_days));
+                            const remainingAfterIssue = Math.max(
+                                0,
+                                Number(rules.max_books ?? 0) - Number(selectedStudent.issued ?? 0) - selectedBooks.length
+                            );
                             showCustomAlert(
                                 'Books Issued Successfully',
-                                data.message,
+                                `${data.message}\n\nEffective due date: ${dueDatePreview}\nIssue duration: ${rules.issue_duration_days} day(s)\nLate fine rule: ${formatCurrency(rules.per_day_fine)}/day after ${rules.grace_period_days} grace day(s)\nRemaining borrowing capacity after issue: ${remainingAfterIssue}`,
                                 'success'
                             );
                             // Reset form
@@ -1911,9 +3413,12 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            const rules = getReturnRules();
+                            const selectedCount = selectedIssuedBooks.length;
+                            const conditionLabel = toTitleCase(selectedCondition);
                             showCustomAlert(
                                 'Books Returned Successfully',
-                                data.message + `\n\nTotal Fine Charged: ₹${data.total_fine.toLocaleString()}`,
+                                `${data.message}\n\nReturned books: ${selectedCount}\nCondition applied: ${conditionLabel}\nTotal fine charged: ${formatCurrency(data.total_fine)}\nLate fine rule used: ${formatCurrency(rules?.per_day_fine ?? fineSettings.per_day_fine)}/day after ${rules?.grace_period_days ?? fineSettings.grace_period_days} grace day(s)`,
                                 'success'
                             );
 
