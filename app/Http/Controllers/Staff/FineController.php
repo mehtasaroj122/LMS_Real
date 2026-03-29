@@ -30,7 +30,7 @@ class FineController extends Controller
         try {
             Gate::authorize('access-staff');
 
-            $fine = Fine::findOrFail($id);
+            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book'])->findOrFail($id);
             $fine->update([
                 'status' => 'paid',
                 'paid_on' => now()
@@ -43,7 +43,19 @@ class FineController extends Controller
                         $fine->student,
                         'fine_paid',
                         "Fine of ₹{$fine->amount} marked as paid",
-                        'fine'
+                        'fine',
+                        [
+                            'fine_id' => $fine->id,
+                            'issued_book_id' => $fine->issued_book_id,
+                            'amount' => (float) $fine->amount,
+                            'new_amount' => (float) $fine->amount,
+                            'payment_method' => $fine->payment_method ?? 'cash',
+                            'days_late' => (int) ($fine->days_late ?? 0),
+                            'book_title' => $fine->issuedBook?->book?->title,
+                            'isbn' => $fine->issuedBook?->book?->isbn,
+                            'status' => strtolower((string) $fine->status),
+                            'action_type' => 'paid',
+                        ]
                     );
                 }
             } catch (Throwable $logError) {
@@ -89,7 +101,7 @@ class FineController extends Controller
         try {
             Gate::authorize('access-staff');
 
-            $fine = Fine::findOrFail($id);
+            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book'])->findOrFail($id);
             
             // Get reason from either 'reason' or 'remarks' field (frontend sends 'reason')
             $reason = trim($request->get('reason') ?? $request->get('remarks') ?? '');
@@ -111,7 +123,19 @@ class FineController extends Controller
                         $fine->student,
                         'fine_waived',
                         "Fine of ₹{$fine->amount} waived. Reason: {$reason}",
-                        'fine'
+                        'fine',
+                        [
+                            'fine_id' => $fine->id,
+                            'issued_book_id' => $fine->issued_book_id,
+                            'amount' => (float) $fine->amount,
+                            'new_amount' => (float) $fine->amount,
+                            'days_late' => (int) ($fine->days_late ?? 0),
+                            'book_title' => $fine->issuedBook?->book?->title,
+                            'isbn' => $fine->issuedBook?->book?->isbn,
+                            'status' => strtolower((string) $fine->status),
+                            'action_type' => 'waived',
+                            'remarks' => $reason,
+                        ]
                     );
                 }
             } catch (Throwable $logError) {

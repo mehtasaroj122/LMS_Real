@@ -933,8 +933,8 @@
                                 <span class="action-badge">{{ strtoupper(str_replace('_', ' ', $activity->action)) }}</span>
                             </td>
                             <td>
-                                <div title="{{ $activity->description }}">
-                                    {{ Str::limit($activity->description, 100) }}
+                                <div title="{{ $activity->readable_description }}">
+                                    {{ Str::limit($activity->readable_description, 100) }}
                                     @if($activity->browser || $activity->device_type)
                                         <div class="details-info">
                                             {{ $activity->browser }} • {{ ucfirst($activity->device_type) }} • {{ $activity->ip_address }}

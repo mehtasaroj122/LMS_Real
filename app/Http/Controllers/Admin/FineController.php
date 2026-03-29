@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
+use App\Models\Fine;
+use App\Models\FineSetting;
 use App\Models\Notification;
 use App\Models\User;
 use App\Jobs\SendFineEmail;
@@ -171,7 +174,7 @@ class FineController extends Controller
         try {
             Gate::authorize('access-admin');
 
-            $fine = \App\Models\Fine::findOrFail($id);
+            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book'])->findOrFail($id);
             $fine->update([
                 'status' => 'paid',
                 'paid_on' => now()
@@ -184,7 +187,13 @@ class FineController extends Controller
                         $fine->student,
                         'fine_paid',
                         "Fine of ₹{$fine->amount} marked as paid",
-                        'fine'
+                        'fine',
+                        $this->buildFineHistoryMetadata($fine, [
+                            'action_type' => 'paid',
+                            'amount' => (float) $fine->amount,
+                            'new_amount' => (float) $fine->amount,
+                            'payment_method' => $fine->payment_method ?? 'cash',
+                        ])
                     );
                 }
             } catch (Throwable $logError) {
@@ -224,7 +233,7 @@ class FineController extends Controller
         try {
             Gate::authorize('access-admin');
 
-            $fine = \App\Models\Fine::findOrFail($id);
+            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book'])->findOrFail($id);
             
             // Get reason from either 'reason' or 'remarks' field (frontend sends 'reason')
             $reason = trim($request->get('reason') ?? $request->get('remarks') ?? '');
@@ -245,7 +254,13 @@ class FineController extends Controller
                         $fine->student,
                         'fine_waived',
                         "Fine of ₹{$fine->amount} waived. Reason: {$reason}",
-                        'fine'
+                        'fine',
+                        $this->buildFineHistoryMetadata($fine, [
+                            'action_type' => 'waived',
+                            'amount' => (float) $fine->amount,
+                            'new_amount' => (float) $fine->amount,
+                            'remarks' => $reason,
+                        ])
                     );
                 }
             } catch (Throwable $logError) {
@@ -496,7 +511,7 @@ class FineController extends Controller
                 'action' => 'required|in:adjust'
             ]);
 
-            $fine = \App\Models\Fine::findOrFail($id);
+            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book'])->findOrFail($id);
             $oldAmount = $fine->amount;
             
             $fine->update([
@@ -512,7 +527,14 @@ class FineController extends Controller
                         $fine->student,
                         'fine_adjusted',
                         "Fine amount adjusted from ₹{$oldAmount} to ₹{$validated['amount']}",
-                        'fine'
+                        'fine',
+                        $this->buildFineHistoryMetadata($fine, [
+                            'action_type' => 'adjusted',
+                            'old_amount' => (float) $oldAmount,
+                            'new_amount' => (float) $validated['amount'],
+                            'amount_change' => round((float) $validated['amount'] - (float) $oldAmount, 2),
+                            'remarks' => "Adjusted from ₹{$oldAmount} to ₹{$validated['amount']}",
+                        ])
                     );
                 }
             } catch (Throwable $logError) {
@@ -540,61 +562,60 @@ class FineController extends Controller
         try {
             Gate::authorize('access-admin');
 
-            $fine = \App\Models\Fine::findOrFail($id);
+            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book'])->findOrFail($id);
+            $currentAmount = (float) $fine->amount;
+            $perDayRate = $this->resolveFinePerDayRate($fine);
 
-            // Get activity logs related to this fine by looking up student->resource logs
-            $historyLogs = \App\Models\ActivityLog::where(function($q) use ($fine) {
+            $historyLogs = ActivityLog::with('user')
+                ->where(function($q) use ($fine) {
                     $q->where('resource_type', 'student')
                       ->where('resource_id', $fine->student_id);
                 })
                 ->where(function($q2) {
                     $q2->where('action_category', 'fine')
-                       ->orWhere('action', 'fine_applied')
-                       ->orWhere('action', 'fine_adjusted')
-                       ->orWhere('action', 'fine_payment')
-                       ->orWhere('action', 'fine_waived');
+                       ->orWhereIn('action', ['fine_applied', 'fine_adjusted', 'fine_payment', 'fine_paid', 'fine_waived']);
                 })
-                ->orderBy('created_at', 'desc')
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
                 ->get();
 
-            $history = $historyLogs->map(function($log) {
-                return [
-                    'date' => $log->created_at->format('Y-m-d H:i:s'),
-                    'action' => $log->description,
-                    'user' => $log->user_name ?? ($log->user_id ? \App\Models\User::find($log->user_id)?->name : 'System')
-                ];
-            })->values()->all();
+            $history = $historyLogs
+                ->map(fn ($log) => $this->transformFineHistoryLog($log, $fine))
+                ->filter()
+                ->unique('_dedupe')
+                ->values()
+                ->map(function ($item) {
+                    unset($item['_dedupe']);
+                    return $item;
+                });
 
-            // If no history, provide default entries
-            if (empty($history)) {
-                $history = [
-                    [
-                        'date' => $fine->created_at->format('Y-m-d H:i:s'),
-                        'action' => "Fine created for ₹{$fine->amount}",
-                        'user' => 'System'
-                    ]
-                ];
+            $originalAmount = $this->resolveOriginalFineAmount($fine, $history);
 
-                if ($fine->status === 'paid' && $fine->paid_on) {
-                    $history[] = [
-                        'date' => $fine->paid_on->format('Y-m-d H:i:s'),
-                        'action' => 'Fine marked as paid',
-                        'user' => 'Admin'
-                    ];
-                }
-
-                if ($fine->status === 'waived') {
-                    $history[] = [
-                        'date' => $fine->updated_at->format('Y-m-d H:i:s'),
-                        'action' => 'Fine waived',
-                        'user' => 'Admin'
-                    ];
-                }
+            if ($history->isEmpty()) {
+                $history = collect($this->buildFallbackFineHistory($fine, $originalAmount, $historyLogs));
             }
+
+            $calculation = [
+                'baseRate' => $perDayRate,
+                'daysLate' => (int) ($fine->days_late ?? 0),
+                'subtotal' => $originalAmount,
+                'adjustments' => round($currentAmount - $originalAmount, 2),
+                'finalAmount' => $currentAmount,
+            ];
 
             return response()->json([
                 'success' => true,
-                'history' => $history
+                'fineDetails' => [
+                    'currentAmount' => $currentAmount,
+                    'originalAmount' => $originalAmount,
+                    'status' => strtolower((string) $fine->status),
+                    'daysLate' => (int) ($fine->days_late ?? 0),
+                    'bookTitle' => $fine->issuedBook?->book?->title ?? 'Unknown Book',
+                    'isbn' => $fine->issuedBook?->book?->isbn ?? 'N/A',
+                    'perDayRate' => $perDayRate,
+                ],
+                'calculation' => $calculation,
+                'history' => $history->values()->all(),
             ]);
         } catch (Throwable $e) {
             \Log::error('Error getting fine history: ' . $e->getMessage());
@@ -603,6 +624,238 @@ class FineController extends Controller
                 'message' => 'Error loading fine history: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    protected function buildFineHistoryMetadata(Fine $fine, array $overrides = []): array
+    {
+        $book = $fine->issuedBook?->book;
+
+        return array_filter([
+            'fine_id' => $fine->id,
+            'issued_book_id' => $fine->issued_book_id,
+            'book_title' => $book?->title,
+            'isbn' => $book?->isbn,
+            'days_late' => (int) ($fine->days_late ?? 0),
+            'status' => strtolower((string) $fine->status),
+            ...$overrides,
+        ], fn ($value) => $value !== null && $value !== '');
+    }
+
+    protected function resolveFinePerDayRate(Fine $fine): float
+    {
+        if ($fine->student?->privileges?->per_day_fine !== null) {
+            return (float) $fine->student->privileges->per_day_fine;
+        }
+
+        $fineSetting = FineSetting::where('is_active', true)->first() ?? FineSetting::first();
+
+        return (float) ($fineSetting?->per_day_fine ?? 5);
+    }
+
+    protected function decodeFineHistoryMetadata($metadata): array
+    {
+        if (is_array($metadata)) {
+            return $metadata;
+        }
+
+        if (is_string($metadata) && $metadata !== '') {
+            $decoded = json_decode($metadata, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
+    }
+
+    protected function normalizeFineHistoryActionType(string $action, string $description = ''): string
+    {
+        return match ($action) {
+            'fine_applied' => 'created',
+            'fine_adjusted' => 'adjusted',
+            'fine_payment', 'fine_paid' => 'paid',
+            'fine_waived' => 'waived',
+            default => str_contains(strtolower($description), 'adjust')
+                ? 'adjusted'
+                : (str_contains(strtolower($description), 'waiv') ? 'waived' : 'created'),
+        };
+    }
+
+    protected function getFineHistoryActionLabel(string $actionType): string
+    {
+        return match ($actionType) {
+            'created' => 'Created',
+            'adjusted' => 'Adjusted',
+            'paid' => 'Paid',
+            'waived' => 'Waived',
+            default => 'Updated',
+        };
+    }
+
+    protected function extractFineHistoryRemarks(string $actionType, ?string $description): ?string
+    {
+        if (!$description) {
+            return null;
+        }
+
+        if ($actionType === 'waived' && preg_match('/Reason:\s*(.+)$/i', $description, $matches)) {
+            return trim($matches[1]);
+        }
+
+        return null;
+    }
+
+    protected function transformFineHistoryLog(ActivityLog $log, Fine $fine): ?array
+    {
+        $metadata = $this->decodeFineHistoryMetadata($log->metadata);
+        $metadataFineId = isset($metadata['fine_id']) ? (int) $metadata['fine_id'] : null;
+        $metadataIssuedBookId = isset($metadata['issued_book_id']) ? (int) $metadata['issued_book_id'] : null;
+
+        if ($metadataFineId !== $fine->id && $metadataIssuedBookId !== (int) $fine->issued_book_id) {
+            return null;
+        }
+
+        $actionType = $this->normalizeFineHistoryActionType((string) $log->action, (string) $log->description);
+        $oldAmount = array_key_exists('old_amount', $metadata) ? (float) $metadata['old_amount'] : null;
+        $newAmount = array_key_exists('new_amount', $metadata)
+            ? (float) $metadata['new_amount']
+            : (array_key_exists('amount', $metadata) ? (float) $metadata['amount'] : null);
+        $amountChange = array_key_exists('amount_change', $metadata)
+            ? (float) $metadata['amount_change']
+            : ($oldAmount !== null && $newAmount !== null ? round($newAmount - $oldAmount, 2) : null);
+        $paymentMethod = $actionType === 'paid'
+            ? strtolower((string) ($metadata['payment_method'] ?? $fine->payment_method ?? 'cash'))
+            : null;
+        $remarks = $metadata['remarks'] ?? $this->extractFineHistoryRemarks($actionType, $log->description);
+
+        return [
+            'date' => optional($log->created_at)->format('M d, Y h:i A') ?? 'N/A',
+            'actionType' => $actionType,
+            'action' => $this->getFineHistoryActionLabel($actionType),
+            'description' => $metadata['description'] ?? $log->description,
+            'user' => $log->user?->name ?? $log->user_name ?? 'System',
+            'userRole' => $log->user?->role ?? $log->user_role ?? 'system',
+            'amountChange' => $amountChange,
+            'oldAmount' => $oldAmount,
+            'newAmount' => $newAmount,
+            'paymentMethod' => $paymentMethod,
+            'remarks' => $remarks,
+            '_dedupe' => implode('|', [
+                $actionType,
+                optional($log->created_at)->format('Y-m-d H:i:s') ?? 'N/A',
+                $log->user_name ?? 'System',
+                $oldAmount ?? '',
+                $newAmount ?? '',
+            ]),
+        ];
+    }
+
+    protected function resolveOriginalFineAmount(Fine $fine, $history): float
+    {
+        $historyCollection = collect($history);
+        $createdEntry = $historyCollection->firstWhere('actionType', 'created');
+
+        if ($createdEntry && $createdEntry['newAmount'] !== null) {
+            return (float) $createdEntry['newAmount'];
+        }
+
+        $earliestAdjustment = $historyCollection
+            ->filter(fn ($item) => ($item['actionType'] ?? null) === 'adjusted' && $item['oldAmount'] !== null)
+            ->last();
+
+        if ($earliestAdjustment) {
+            return (float) $earliestAdjustment['oldAmount'];
+        }
+
+        if ($fine->remarks && preg_match('/Adjusted from\s*₹?([0-9]+(?:\.[0-9]{1,2})?)/i', $fine->remarks, $matches)) {
+            return (float) $matches[1];
+        }
+
+        return (float) $fine->amount;
+    }
+
+    protected function resolveFallbackActor($logs, array $actions = []): array
+    {
+        $matchedLog = collect($logs)->first(function ($log) use ($actions) {
+            return empty($actions) || in_array($log->action, $actions, true);
+        });
+
+        return [
+            'name' => $matchedLog?->user?->name ?? $matchedLog?->user_name ?? 'System',
+            'role' => $matchedLog?->user?->role ?? $matchedLog?->user_role ?? 'system',
+        ];
+    }
+
+    protected function buildFallbackFineHistory(Fine $fine, float $originalAmount, $logs = null): array
+    {
+        $currentAmount = (float) $fine->amount;
+        $logs = collect($logs);
+        $createdActor = $this->resolveFallbackActor($logs, ['fine_applied']);
+        $adjustedActor = $this->resolveFallbackActor($logs, ['fine_adjusted']);
+        $paidActor = $this->resolveFallbackActor($logs, ['fine_paid', 'fine_payment']);
+        $waivedActor = $this->resolveFallbackActor($logs, ['fine_waived']);
+
+        $history = [[
+            'date' => optional($fine->created_at)->format('M d, Y h:i A') ?? 'N/A',
+            'actionType' => 'created',
+            'action' => 'Created',
+            'description' => "Fine created for ₹{$originalAmount}" . ($fine->issuedBook?->book?->title ? " on '{$fine->issuedBook->book->title}'" : ''),
+            'user' => $createdActor['name'],
+            'userRole' => $createdActor['role'],
+            'amountChange' => null,
+            'oldAmount' => null,
+            'newAmount' => $originalAmount,
+            'paymentMethod' => null,
+            'remarks' => null,
+        ]];
+
+        if (round($currentAmount - $originalAmount, 2) !== 0.0) {
+            $history[] = [
+                'date' => optional($fine->updated_at)->format('M d, Y h:i A') ?? 'N/A',
+                'actionType' => 'adjusted',
+                'action' => 'Adjusted',
+                'description' => 'Fine amount adjusted',
+                'user' => $adjustedActor['name'],
+                'userRole' => $adjustedActor['role'],
+                'amountChange' => round($currentAmount - $originalAmount, 2),
+                'oldAmount' => $originalAmount,
+                'newAmount' => $currentAmount,
+                'paymentMethod' => null,
+                'remarks' => preg_match('/Adjusted from/i', (string) $fine->remarks) ? $fine->remarks : null,
+            ];
+        }
+
+        if ($fine->status === 'paid') {
+            $history[] = [
+                'date' => optional($fine->paid_on)->format('M d, Y') ?? optional($fine->updated_at)->format('M d, Y h:i A') ?? 'N/A',
+                'actionType' => 'paid',
+                'action' => 'Paid',
+                'description' => 'Fine marked as paid',
+                'user' => $paidActor['name'],
+                'userRole' => $paidActor['role'],
+                'amountChange' => null,
+                'oldAmount' => null,
+                'newAmount' => $currentAmount,
+                'paymentMethod' => strtolower((string) ($fine->payment_method ?? 'cash')),
+                'remarks' => null,
+            ];
+        }
+
+        if ($fine->status === 'waived') {
+            $history[] = [
+                'date' => optional($fine->updated_at)->format('M d, Y h:i A') ?? 'N/A',
+                'actionType' => 'waived',
+                'action' => 'Waived',
+                'description' => 'Fine waived',
+                'user' => $waivedActor['name'],
+                'userRole' => $waivedActor['role'],
+                'amountChange' => null,
+                'oldAmount' => null,
+                'newAmount' => $currentAmount,
+                'paymentMethod' => null,
+                'remarks' => $fine->remarks,
+            ];
+        }
+
+        return array_reverse($history);
     }
 
     /**

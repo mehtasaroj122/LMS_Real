@@ -510,7 +510,15 @@ class StudentController extends Controller
     public function show(string $id)
     {
         Gate::authorize('access-admin');
-        $student = Student::with(['user', 'department', 'issuedBooks', 'bookRequests', 'fines'])->findOrFail($id);
+        $student = Student::with([
+            'user',
+            'department',
+            'issuedBooks.book.category',
+            'issuedBooks.issuer',
+            'issuedBooks.fine',
+            'bookRequests',
+            'fines.issuedBook.book',
+        ])->findOrFail($id);
         
         // Ensure the associated user has 'student' role
         if ($student->user->role !== 'student') {
@@ -518,27 +526,34 @@ class StudentController extends Controller
         }
         
         // Transform issued books for frontend
-        $booksData = $student->issuedBooks->map(function($book) {
-            $status = $book->return_date ? 'returned' : (\Carbon\Carbon::parse($book->due_date)->toDateString() < now()->toDateString() ? 'overdue' : 'issued');
-            $daysOverdue = $status === 'overdue' ? now()->diffInDays(\Carbon\Carbon::parse($book->due_date)) : 0;
+        $booksData = $student->issuedBooks->map(function($issued) {
+            $status = $issued->return_date ? 'returned' : (\Carbon\Carbon::parse($issued->due_date)->toDateString() < now()->toDateString() ? 'overdue' : 'issued');
+            $daysOverdue = $status === 'overdue' ? now()->diffInDays(\Carbon\Carbon::parse($issued->due_date)) : 0;
+            $fineAmount = $issued->fine?->amount ?? $issued->fine_amount ?? 0;
             
             return [
-                'id' => $book->id,
-                'title' => $book->book->title ?? 'Unknown',
-                'author' => $book->book->author ?? 'Unknown Author',
-                'publisher' => $book->book->publisher ?? 'Unknown Publisher',
-                'isbn' => $book->book->isbn ?? 'N/A',
-                'description' => $book->book->description ?? 'No description available',
-                'coverImage' => $book->book->cover_image ?? null,
-                'condition' => $book->condition ?? 'Good',
-                'issueDate' => optional($book->issue_date) ? \Carbon\Carbon::parse($book->issue_date)->format('M d, Y') : 'N/A',
-                'issueDateFull' => optional($book->issue_date) ? \Carbon\Carbon::parse($book->issue_date)->format('M d, Y H:i') : 'N/A',
-                'dueDate' => optional($book->due_date) ? \Carbon\Carbon::parse($book->due_date)->format('M d, Y') : 'N/A',
-                'returnDate' => optional($book->return_date) ? \Carbon\Carbon::parse($book->return_date)->format('M d, Y') : '-',
+                'id' => $issued->id,
+                'title' => $issued->book->title ?? 'Unknown',
+                'author' => $issued->book->author ?? 'Unknown Author',
+                'publisher' => $issued->book->publisher ?? 'Unknown Publisher',
+                'isbn' => $issued->book->isbn ?? 'N/A',
+                'description' => $issued->book->description ?? 'No description available',
+                'coverImage' => $issued->book->cover_image ?? null,
+                'condition' => $issued->condition ?? 'Good',
+                'category' => $issued->book?->category?->name ?? 'Uncategorized',
+                'transactionId' => 'TXN-' . str_pad((string) $issued->id, 6, '0', STR_PAD_LEFT),
+                'issueDate' => optional($issued->issue_date) ? \Carbon\Carbon::parse($issued->issue_date)->format('M d, Y') : 'N/A',
+                'issueDateFull' => optional($issued->issue_date) ? \Carbon\Carbon::parse($issued->issue_date)->format('M d, Y H:i') : 'N/A',
+                'dueDate' => optional($issued->due_date) ? \Carbon\Carbon::parse($issued->due_date)->format('M d, Y') : 'N/A',
+                'returnDate' => optional($issued->return_date) ? \Carbon\Carbon::parse($issued->return_date)->format('M d, Y') : '-',
+                'issuedBy' => $issued->issuer?->name ?? 'System',
+                'renewalCount' => $issued->renewal_count ?? 0,
                 'status' => $status,
-                'fine' => $book->fine_amount ?? 0,
+                'fine' => $fineAmount,
+                'hasFine' => (bool) $issued->fine,
+                'fineStatus' => strtolower((string) ($issued->fine?->status ?? 'n/a')),
                 'daysOverdue' => $daysOverdue,
-                'remarks' => $book->remarks ?? 'No remarks'
+                'remarks' => $issued->remarks ?? 'No remarks'
             ];
         })->toArray();
         
@@ -554,64 +569,391 @@ class StudentController extends Controller
             ];
         })->toArray();
         
-        // Activity logs (can be expanded based on actual activity tracking model)
-        $allActivityLogs = ActivityLog::where(function($q) use ($student, $id) {
-            // Logs for this student record
-            $q->where('model_type', 'App\Models\Student')
-              ->where('model_id', $id);
-        })->orWhere(function($q) use ($student) {
-            // Logs for this student's user (login, status change, etc.)
-            $q->where('affected_user_id', $student->user_id);
-        })->orWhere(function($q) use ($student) {
-            // Logs for issued books related to this student
-            $q->where('resource_type', 'issued_book')
-              ->whereIn('resource_id', $student->issuedBooks->pluck('id'));
-        })->orWhere(function($q) use ($student) {
-            // Logs for fines related to this student
-            $q->where('resource_type', 'fine')
-              ->whereIn('resource_id', $student->fines->pluck('id'));
-        })
-        ->orderByDesc('created_at')
-        ->limit(20)
-        ->get()
-        ->map(function($log) use ($student) {
-            // Map action types to frontend icon types
-            $actionType = $log->action ?? $log->action_category ?? 'activity';
-            $typeMap = [
-                'book_issued' => 'book-issued',
-                'book_returned' => 'book-returned',
-                'book_return' => 'book-returned',
-                'fine_applied' => 'fine-applied',
-                'fine_paid' => 'fine-applied',
-                'status_changed' => 'account-status',
-                'user_updated' => 'profile-updated',
-                'profile_updated' => 'profile-updated',
-            ];
-            
-            $frontendType = $typeMap[$actionType] ?? 'profile-updated';
-            
-            // Enhance description: replace "by student" with student's actual name
-            $description = $log->description ?? '';
-            if (strpos($description, 'by student') !== false) {
-                $description = str_replace('by student', 'by ' . $student->user->name, $description);
-            }
-            
-            return [
-                'id' => $log->id,
-                'type' => $frontendType,
-                'title' => $log->getActionNameAttribute() ?? $log->action ?? 'Activity',
-                'description' => $description,
-                'time' => optional($log->created_at)->format('M d, Y h:i A') ?? '',
-                'icon' => $frontendType
-            ];
-        })
-        ->toArray();
+        $allActivityLogs = $this->buildStudentActivityLogPayload($student, 20);
 
         // Separate initial logs (first 10) from remaining logs for pagination
         $activityLogs = array_slice($allActivityLogs, 0, 10);
         $remainingActivityLogs = array_slice($allActivityLogs, 10);
         
         return view('admin.StudentView', compact('student', 'booksData', 'finesData', 'activityLogs', 'remainingActivityLogs'));
+    }
+
+    public function getStudentActivityLogs(Request $request, string $id)
+    {
+        try {
+            Gate::authorize('access-admin');
+
+            $student = Student::with([
+                'user',
+                'issuedBooks.book',
+                'fines.issuedBook.book',
+            ])->findOrFail($id);
+
+            if ($student->user->role !== 'student') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This user is not a student.'
+                ], 422);
+            }
+
+            $limit = max(1, min((int) $request->integer('limit', 20), 50));
+            $logs = $this->buildStudentActivityLogPayload($student, $limit);
+
+            return response()->json([
+                'success' => true,
+                'activityLogs' => $logs,
+                'initialLogs' => array_slice($logs, 0, 10),
+                'remainingLogs' => array_slice($logs, 10),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error loading student activity logs: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading activity logs: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    protected function buildStudentActivityLogPayload(Student $student, int $limit = 20): array
+    {
+        $student->loadMissing([
+            'user',
+            'issuedBooks.book',
+            'fines.issuedBook.book',
+        ]);
+
+        $issuedBookIds = $student->issuedBooks->pluck('id')->filter();
+        $fineIds = $student->fines->pluck('id')->filter();
+        $issuedBooksById = $student->issuedBooks->keyBy(fn ($issuedBook) => (string) $issuedBook->id);
+        $finesById = $student->fines->keyBy(fn ($fine) => (string) $fine->id);
+
+        $activityLogQuery = ActivityLog::with('user')
+            ->where(function ($q) use ($student) {
+                $q->where('model_type', Student::class)
+                    ->where('model_id', $student->id);
+            })
+            ->orWhere(function ($q) use ($student) {
+                $q->where('affected_user_id', $student->user_id);
+            });
+
+        if ($issuedBookIds->isNotEmpty()) {
+            $activityLogQuery->orWhere(function ($q) use ($issuedBookIds) {
+                $q->where('resource_type', 'issued_book')
+                    ->whereIn('resource_id', $issuedBookIds);
+            });
+        }
+
+        if ($fineIds->isNotEmpty()) {
+            $activityLogQuery->orWhere(function ($q) use ($fineIds) {
+                $q->where('resource_type', 'fine')
+                    ->whereIn('resource_id', $fineIds);
+            });
+        }
+
+        return $activityLogQuery
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get()
+            ->map(function (ActivityLog $log) use ($student, $issuedBooksById, $finesById) {
+                $metadata = $this->normalizeActivityMetadata($log->metadata);
+                $type = $this->resolveStudentActivityType($log, $metadata);
+                $status = $this->resolveStudentActivityStatus($log, $type, $metadata);
+                $resource = $this->resolveStudentActivityResource($log, $student, $metadata, $issuedBooksById, $finesById);
+                $actor = $log->user;
+                $sessionId = data_get($metadata, 'session_id')
+                    ?? data_get($metadata, 'session.id')
+                    ?? null;
+
+                return [
+                    'id' => $log->id,
+                    'type' => $type,
+                    'title' => $this->resolveStudentActivityTitle($log, $type),
+                    'description' => $this->resolveStudentActivityDescription($log, $student),
+                    'time' => optional($log->created_at)->diffForHumans() ?? 'Unknown time',
+                    'fullTimestamp' => optional($log->created_at)->format('M d, Y h:i:s A') ?? 'N/A',
+                    'status' => $status,
+                    'userName' => $actor?->name ?? $log->user_name ?? 'System',
+                    'userRole' => $actor?->role ?? $log->user_role ?? 'system',
+                    'userAvatar' => $this->resolveUserAvatarUrl($actor?->profile_photo),
+                    'ipAddress' => $log->ip_address ?: 'Not captured',
+                    'deviceType' => $this->formatActivityLabel($log->device_type, 'Unknown device'),
+                    'browser' => $log->browser ?: 'Unknown browser',
+                    'sessionId' => $sessionId ?: 'Not captured',
+                    'resourceUrl' => $resource['resourceUrl'],
+                    'resourceType' => $resource['resourceType'],
+                    'resourceId' => $resource['resourceId'],
+                    'metadata' => $metadata,
+                    'hasDetails' => !empty($metadata)
+                        || !empty($log->ip_address)
+                        || !empty($log->device_type)
+                        || !empty($log->browser)
+                        || !empty($sessionId),
+                ];
+            })
+            ->values()
+            ->toArray();
+    }
+
+    protected function normalizeActivityMetadata($metadata): array
+    {
+        if (is_array($metadata)) {
+            return $metadata;
+        }
+
+        if (is_string($metadata) && $metadata !== '') {
+            $decoded = json_decode($metadata, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
+    }
+
+    protected function resolveStudentActivityType(ActivityLog $log, array $metadata = []): string
+    {
+        $action = strtolower((string) ($log->action ?? ''));
+        $category = strtolower((string) ($log->action_category ?? ''));
+
+        return match (true) {
+            in_array($action, ['book_issued', 'book_request_issued'], true) => 'book-issued',
+            in_array($action, ['book_returned', 'book_return'], true) => 'book-returned',
+            in_array($action, ['fine_applied', 'fine_adjusted'], true) => 'fine-applied',
+            in_array($action, ['fine_paid', 'fine_payment'], true) => 'fine-paid',
+            $action === 'fine_waived' => 'fine-waived',
+            in_array($action, ['status_changed', 'account_deleted'], true) => 'account-status',
+            in_array($action, ['profile_updated', 'user_updated'], true) => 'profile-updated',
+            in_array($action, ['role_changed', 'privilege_changed', 'privilege_updated', 'library_settings_updated'], true) => 'privilege-change',
+            in_array($action, ['password_reset', 'login', 'logout'], true) => 'auth',
+            $category === 'auth' => 'auth',
+            $category === 'fine' && ($metadata['action_type'] ?? null) === 'paid' => 'fine-paid',
+            $category === 'fine' && ($metadata['action_type'] ?? null) === 'waived' => 'fine-waived',
+            $category === 'fine' => 'fine-applied',
+            $category === 'book' => str_contains($action, 'return') ? 'book-returned' : 'book-issued',
+            default => 'profile-updated',
+        };
+    }
+
+    protected function resolveStudentActivityStatus(ActivityLog $log, string $type, array $metadata = []): string
+    {
+        $rawStatus = strtolower((string) ($log->status ?? 'completed'));
+        $derivedState = strtolower((string) (
+            $metadata['new_status']
+            ?? $metadata['status']
+            ?? $metadata['action_type']
+            ?? ''
+        ));
+
+        if (in_array($rawStatus, ['failed', 'error', 'denied', 'rejected'], true)) {
+            return 'failed';
+        }
+
+        if (in_array($rawStatus, ['warning', 'pending', 'partial'], true)) {
+            return 'warning';
+        }
+
+        if ($type === 'account-status' && in_array($derivedState, ['inactive', 'suspended', 'locked', 'blocked'], true)) {
+            return 'warning';
+        }
+
+        if (in_array($type, ['fine-applied', 'fine-waived', 'privilege-change'], true)) {
+            return 'warning';
+        }
+
+        return 'success';
+    }
+
+    protected function resolveStudentActivityTitle(ActivityLog $log, string $type): string
+    {
+        $action = strtolower((string) ($log->action ?? ''));
+
+        $titleMap = [
+            'book_issued' => 'Book Issued',
+            'book_returned' => 'Book Returned',
+            'book_return' => 'Book Returned',
+            'fine_applied' => 'Fine Applied',
+            'fine_adjusted' => 'Fine Adjusted',
+            'fine_paid' => 'Fine Paid',
+            'fine_payment' => 'Fine Paid',
+            'fine_waived' => 'Fine Waived',
+            'status_changed' => 'Account Status Updated',
+            'profile_updated' => 'Profile Updated',
+            'user_updated' => 'Profile Updated',
+            'role_changed' => 'Privilege Changed',
+            'privilege_updated' => 'Library Privileges Updated',
+            'password_reset' => 'Password Reset',
+            'login' => 'Login Activity',
+            'logout' => 'Logout Activity',
+            'account_deleted' => 'Account Deleted',
+        ];
+
+        if (isset($titleMap[$action])) {
+            return $titleMap[$action];
+        }
+
+        return match ($type) {
+            'fine-paid' => 'Fine Paid',
+            'fine-waived' => 'Fine Waived',
+            'fine-applied' => 'Fine Applied',
+            'book-issued' => 'Book Activity',
+            'book-returned' => 'Book Activity',
+            'account-status' => 'Account Activity',
+            'profile-updated' => 'Profile Activity',
+            'privilege-change' => 'Library Privileges Updated',
+            'auth' => 'Authentication Event',
+            default => 'Activity',
+        };
+    }
+
+    protected function resolveStudentActivityDescription(ActivityLog $log, Student $student): string
+    {
+        $description = trim((string) ($log->readable_description ?? $log->description ?? 'Activity recorded'));
+
+        if ($description === '') {
+            return 'Activity recorded';
+        }
+
+        if (str_contains($description, 'by student')) {
+            $description = str_replace('by student', 'by ' . ($student->user->name ?? 'student'), $description);
+        }
+
+        return $description;
+    }
+
+    protected function resolveStudentActivityResource(
+        ActivityLog $log,
+        Student $student,
+        array $metadata,
+        $issuedBooksById,
+        $finesById
+    ): array {
+        $resourceType = strtolower((string) ($log->resource_type ?? 'student'));
+        $originalResourceType = $resourceType;
+        $resourceId = $log->resource_id ?: $student->id;
+        $actionType = $this->resolveStudentActivityType($log, $metadata);
+        $resourceUrl = route('admin.activity-logs.index');
+
+        if (!empty($metadata['fine_id']) || $resourceType === 'fine' || in_array($actionType, ['fine-applied', 'fine-paid', 'fine-waived'], true)) {
+            $resourceType = 'fine';
+            $resourceId = (string) ($metadata['fine_id'] ?? ($originalResourceType === 'fine' ? $resourceId : 'N/A'));
+            $fine = $finesById->get((string) $resourceId);
+            $resourceUrl = route('admin.fines.index') . '?student=' . urlencode((string) $student->id);
+
+            if ($fine) {
+                $resourceId = (string) $fine->id;
+            }
+        } elseif (!empty($metadata['issued_book_id']) || $resourceType === 'issued_book' || in_array($actionType, ['book-issued', 'book-returned'], true)) {
+            $resourceType = 'issued_book';
+            $resourceId = (string) ($metadata['issued_book_id'] ?? ($originalResourceType === 'issued_book' ? $resourceId : 'N/A'));
+            $issuedBook = $issuedBooksById->get((string) $resourceId);
+            $resourceUrl = route('admin.transactions.index') . '?student=' . urlencode((string) $student->id);
+
+            if ($issuedBook) {
+                $resourceId = (string) $issuedBook->id;
+            }
+        } elseif ($actionType === 'auth') {
+            $resourceType = 'auth';
+            $resourceId = (string) ($log->affected_user_id ?? $student->user_id ?? $student->id);
+            $resourceUrl = route('admin.activity-logs.index') . '?search=' . urlencode($student->user->name ?? $student->roll_no ?? 'student');
+        } elseif (in_array($actionType, ['account-status', 'profile-updated', 'privilege-change'], true)) {
+            $resourceType = 'student';
+            $resourceId = (string) $student->id;
+            $resourceUrl = route('admin.students.show', $student->id);
+        }
+
+        return [
+            'resourceType' => $this->formatActivityLabel($resourceType, 'Student'),
+            'resourceId' => $resourceId ?: 'N/A',
+            'resourceUrl' => $resourceUrl,
+        ];
+    }
+
+    protected function resolveUserAvatarUrl(?string $profilePhoto): ?string
+    {
+        if (!$profilePhoto) {
+            return null;
+        }
+
+        return str_starts_with($profilePhoto, 'http')
+            ? $profilePhoto
+            : asset(str_starts_with($profilePhoto, 'storage/')
+                ? $profilePhoto
+                : 'storage/' . ltrim($profilePhoto, '/'));
+    }
+
+    protected function formatActivityLabel($value, string $fallback = 'N/A'): string
+    {
+        if ($value === null || $value === '') {
+            return $fallback;
+        }
+
+        return Str::of((string) $value)
+            ->replace(['_', '-'], ' ')
+            ->title()
+            ->toString();
+    }
+
+    protected function formatPrivilegeLogMessage(array $changes): string
+    {
+        if (empty($changes)) {
+            return 'Library privileges updated.';
+        }
+
+        $messages = [];
+
+        foreach ($changes as $field => $value) {
+            switch ((string) $field) {
+                case 'borrowing_allowed':
+                    $messages[] = 'borrowing permission set to ' . ($value ? 'allowed' : 'restricted');
+                    break;
+                case 'max_books':
+                    $messages[] = 'maximum books set to ' . $value;
+                    break;
+                case 'issue_duration_days':
+                    $messages[] = 'issue duration set to ' . $value . ' days';
+                    break;
+                case 'per_day_fine':
+                    $messages[] = 'per-day fine set to Rs. ' . number_format((float) $value, 2);
+                    break;
+                case 'grace_period_days':
+                    $messages[] = 'grace period set to ' . $value . ' days';
+                    break;
+                case 'max_fine_amount':
+                    $messages[] = 'maximum fine amount set to Rs. ' . number_format((float) $value, 2);
+                    break;
+                default:
+                    $messages[] = strtolower($this->formatActivityLabel($field)) . ' set to ' . (is_bool($value)
+                        ? ($value ? 'enabled' : 'disabled')
+                        : $value);
+                    break;
+            }
+        }
+
+        return 'Library privileges updated: ' . implode(', ', $messages) . '.';
+    }
+
+    protected function buildPrivilegeLogSnapshot($privileges, $fineSetting): array
+    {
+        return [
+            'max_books' => $privileges->max_books ?? ($fineSetting->max_books_per_student ?? 5),
+            'issue_duration_days' => $privileges->issue_duration_days ?? ($fineSetting->issue_duration_days ?? 14),
+            'per_day_fine' => $privileges->per_day_fine ?? ($fineSetting->per_day_fine ?? 10),
+            'borrowing_allowed' => (bool) ($privileges->borrowing_allowed ?? true),
+            'grace_period_days' => $privileges->grace_period_days ?? ($fineSetting->grace_period_days ?? 2),
+            'max_fine_amount' => $privileges->max_fine_amount ?? ($fineSetting->max_fine_amount ?? 500),
+        ];
+    }
+
+    protected function privilegeValueChanged(string $field, $currentValue, $newValue): bool
+    {
+        if ($field === 'borrowing_allowed') {
+            return (bool) $currentValue !== (bool) $newValue;
+        }
+
+        if (is_numeric($currentValue) || is_numeric($newValue)) {
+            return (float) $currentValue !== (float) $newValue;
+        }
+
+        return $currentValue !== $newValue;
     }
 
     /**
@@ -1121,6 +1463,7 @@ class StudentController extends Controller
             Gate::authorize('access-admin');
 
             $student = Student::findOrFail($studentId);
+            $fineSetting = \App\Models\FineSetting::first() ?? new \App\Models\FineSetting();
 
             $validated = $request->validate([
                 'max_books' => 'nullable|integer|min:1|max:20',
@@ -1138,20 +1481,26 @@ class StudentController extends Controller
 
             // Get or create privileges record
             $privileges = $student->privileges ?? new \App\Models\StudentPrivilege(['student_id' => $student->id]);
+            $originalSettings = $this->buildPrivilegeLogSnapshot($privileges, $fineSetting);
 
             // Track changes for logging
             $changes = [];
-            if (array_key_exists('max_books', $fillablePayload) && $fillablePayload['max_books'] !== null && $privileges->max_books != $fillablePayload['max_books']) {
-                $changes['max_books'] = $fillablePayload['max_books'];
-            }
-            if (array_key_exists('issue_duration_days', $fillablePayload) && $fillablePayload['issue_duration_days'] !== null && $privileges->issue_duration_days != $fillablePayload['issue_duration_days']) {
-                $changes['issue_duration_days'] = $fillablePayload['issue_duration_days'];
-            }
-            if (array_key_exists('per_day_fine', $fillablePayload) && $fillablePayload['per_day_fine'] !== null && $privileges->per_day_fine != $fillablePayload['per_day_fine']) {
-                $changes['per_day_fine'] = $fillablePayload['per_day_fine'];
-            }
-            if (array_key_exists('borrowing_allowed', $fillablePayload) && $privileges->borrowing_allowed != $fillablePayload['borrowing_allowed']) {
-                $changes['borrowing_allowed'] = $fillablePayload['borrowing_allowed'];
+
+            foreach ([
+                'max_books',
+                'issue_duration_days',
+                'per_day_fine',
+                'borrowing_allowed',
+                'grace_period_days',
+                'max_fine_amount',
+            ] as $field) {
+                if (!array_key_exists($field, $fillablePayload) || $fillablePayload[$field] === null) {
+                    continue;
+                }
+
+                if ($this->privilegeValueChanged($field, $originalSettings[$field] ?? null, $fillablePayload[$field])) {
+                    $changes[$field] = $fillablePayload[$field];
+                }
             }
 
             // Update privileges
@@ -1164,9 +1513,12 @@ class StudentController extends Controller
                     ActivityLogger::logStudentActivity(
                         $student,
                         'privilege_updated',
-                        "Library privileges updated: " . json_encode($changes),
+                        $this->formatPrivilegeLogMessage($changes),
                         'privilege',
-                        $changes
+                        [
+                            'changes' => $changes,
+                            'updated_fields' => array_keys($changes),
+                        ]
                     );
                 } catch (\Exception $logError) {
                     \Log::warning('Failed to log privilege change: ' . $logError->getMessage());

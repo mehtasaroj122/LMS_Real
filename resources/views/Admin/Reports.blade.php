@@ -199,32 +199,45 @@
         margin-bottom: clamp(12px, 2vw, 18px);
     }
 
+    /* ============================= */
+    /* STAT CARD STYLES - Dashboard Style */
+    /* ============================= */
     .stat-card {
-        padding: clamp(12px, 1.5vw, 16px);
-        border-radius: clamp(6px, 0.8vw, 10px);
-        border: 1px solid;
-        transition: all 0.3s ease;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
     }
 
     body.light-theme .stat-card {
         background-color: #ffffff;
-        border-color: #e5e7eb;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     body.dark-theme .stat-card {
         background-color: #1e293b;
-        border-color: #334155;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        border: 1px solid #334155;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
     .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        border-color: #3b82f6;
     }
 
     body.dark-theme .stat-card:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        border-color: #60a5fa;
+    }
+
+    .stat-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
 
     .stat-header {
@@ -236,8 +249,8 @@
     }
 
     .stat-label {
-        font-size: clamp(11px, 1.5vw, 12px);
-        font-weight: 600;
+        font-size: 0.875rem;
+        font-weight: 500;
     }
 
     body.light-theme .stat-label {
@@ -249,24 +262,25 @@
     }
 
     .stat-icon {
-        font-size: clamp(18px, 3vw, 24px);
+        font-size: 1.25rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        width: clamp(32px, 5vw, 40px);
-        height: clamp(32px, 5vw, 40px);
-        border-radius: 6px;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.75rem;
     }
 
     .stat-value {
-        font-size: clamp(22px, 4vw, 28px);
+        font-size: 1.875rem;
         font-weight: 700;
-        margin: 2px 0;
-        line-height: 1.2;
+        line-height: 1;
     }
 
     .stat-subtitle {
-        font-size: clamp(10px, 1.2vw, 11px);
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 2px;
     }
 
     body.light-theme .stat-value {
@@ -285,16 +299,31 @@
         color: #94a3b8;
     }
 
-    /* Icon Colors */
+    /* Status Colors for Icons */
     .stat-icon.books { color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
     .stat-icon.available { color: #10b981; background-color: rgba(16, 185, 129, 0.1); }
     .stat-icon.issued { color: #f59e0b; background-color: rgba(245, 158, 11, 0.1); }
     .stat-icon.additions { color: #8b5cf6; background-color: rgba(139, 92, 246, 0.1); }
+    .stat-icon.overdue { color: #ef4444; background-color: rgba(239, 68, 68, 0.1); }
 
-    body.dark-theme .stat-icon.books { color: #60a5fa; }
-    body.dark-theme .stat-icon.available { color: #34d399; }
-    body.dark-theme .stat-icon.issued { color: #fbbf24; }
-    body.dark-theme .stat-icon.additions { color: #c4b5fd; }
+    body.dark-theme .stat-icon.books { color: #60a5fa; background-color: rgba(96, 165, 250, 0.15); }
+    body.dark-theme .stat-icon.available { color: #34d399; background-color: rgba(52, 211, 153, 0.15); }
+    body.dark-theme .stat-icon.issued { color: #fbbf24; background-color: rgba(251, 191, 36, 0.15); }
+    body.dark-theme .stat-icon.additions { color: #c4b5fd; background-color: rgba(196, 181, 253, 0.15); }
+    body.dark-theme .stat-icon.overdue { color: #f87171; background-color: rgba(248, 113, 113, 0.15); }
+
+    /* Alternative status-based colors */
+    .status-blue { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .status-green { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .status-red { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+    .status-yellow { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .status-purple { background-color: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+    body.dark-theme .status-blue { background-color: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+    body.dark-theme .status-green { background-color: rgba(52, 211, 153, 0.15); color: #34d399; }
+    body.dark-theme .status-red { background-color: rgba(252, 165, 165, 0.15); color: #f87171; }
+    body.dark-theme .status-yellow { background-color: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+    body.dark-theme .status-purple { background-color: rgba(196, 181, 253, 0.15); color: #a78bfa; }
 
     /* Charts Section */
     .charts-grid {
@@ -474,8 +503,8 @@
     }
 
     .table-card {
-        padding: clamp(10px, 1.2vw, 14px);
-        border-radius: clamp(6px, 0.8vw, 10px);
+        padding: clamp(14px, 1.5vw, 20px);
+        border-radius: 0.75rem;
         border: 1px solid;
         overflow: hidden;
         transition: all 0.3s ease;
@@ -484,24 +513,38 @@
     body.light-theme .table-card {
         background-color: #ffffff;
         border-color: #e5e7eb;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     body.dark-theme .table-card {
         background-color: #1e293b;
         border-color: #334155;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .table-card:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+
+    body.dark-theme .table-card:hover {
+        border-color: #60a5fa;
+        box-shadow: 0 4px 12px rgba(96, 165, 250, 0.15);
     }
 
     .table-title {
-        font-size: clamp(12px, 1.8vw, 14px);
-        font-weight: 600;
-        margin: 0 0 2px 0;
+        font-size: clamp(13px, 1.5vw, 16px);
+        font-weight: 700;
+        margin: 0 0 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .table-subtitle {
-        font-size: clamp(10px, 1.2vw, 11px);
-        margin: 0 0 clamp(6px, 1vw, 10px) 0;
+        font-size: clamp(11px, 1.2vw, 13px);
+        margin: 0 0 clamp(10px, 1.2vw, 14px) 0;
+        opacity: 0.8;
     }
 
     body.light-theme .table-title {
@@ -527,58 +570,84 @@
     .report-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: clamp(10px, 1.1vw, 11px);
+        font-size: clamp(11px, 1.2vw, 13px);
+        border-radius: 8px;
+        overflow: hidden;
     }
 
     .report-table thead th {
-        padding: clamp(6px, 1vw, 9px);
+        padding: clamp(10px, 1.2vw, 14px) clamp(8px, 1vw, 12px);
         text-align: left;
         font-weight: 600;
         border-bottom: 2px solid;
+        white-space: nowrap;
     }
 
     body.light-theme .report-table thead th {
-        background-color: #f3f4f6;
-        border-color: #e5e7eb;
-        color: #374151;
+        background-color: #f1f5f9;
+        border-color: #e2e8f0;
+        color: #475569;
+        text-transform: uppercase;
+        font-size: clamp(9px, 1vw, 11px);
+        letter-spacing: 0.5px;
     }
 
     body.dark-theme .report-table thead th {
-        background-color: #334155;
-        border-color: #475569;
-        color: #e2e8f0;
+        background-color: #1e293b;
+        border-color: #334155;
+        color: #cbd5e1;
+        text-transform: uppercase;
+        font-size: clamp(9px, 1vw, 11px);
+        letter-spacing: 0.5px;
     }
 
     .report-table tbody td {
-        padding: clamp(6px, 1vw, 9px);
+        padding: clamp(10px, 1.2vw, 14px) clamp(8px, 1vw, 12px);
         border-bottom: 1px solid;
+        vertical-align: middle;
     }
 
     body.light-theme .report-table tbody td {
-        border-color: #e5e7eb;
-        color: #1f2937;
+        border-color: #f1f5f9;
+        color: #334155;
     }
 
     body.dark-theme .report-table tbody td {
-        border-color: #334155;
+        border-color: #1e293b;
         color: #e2e8f0;
     }
 
-    .report-table tbody tr:hover {
-        transition: background-color 0.2s ease;
+    .report-table tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    body.light-theme .report-table tbody tr:nth-child(even) {
+        background-color: #f8fafc;
+    }
+
+    body.dark-theme .report-table tbody tr:nth-child(even) {
+        background-color: #1e293b;
     }
 
     body.light-theme .report-table tbody tr:hover {
-        background-color: #f9fafb;
+        background-color: #e0f2fe;
+        transform: scale(1.005);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
     body.dark-theme .report-table tbody tr:hover {
         background-color: #334155;
+        transform: scale(1.005);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .table-count {
         text-align: right;
-        font-weight: 600;
+        font-weight: 700;
+    }
+
+    .report-table tbody tr:last-child td {
+        border-bottom: none;
     }
 
     /* Badges */
@@ -869,57 +938,49 @@
         <div class="stats-grid">
             <!-- Total Books Card -->
             <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Total Books</div>
-                    </div>
+                <div class="stat-card-header">
                     <div class="stat-icon books">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
                     </div>
+                    <div class="stat-value">7</div>
                 </div>
-                <div class="stat-value">7</div>
+                <div class="stat-label">Total Books</div>
                 <div class="stat-subtitle">64 total copies</div>
             </div>
 
             <!-- Available Card -->
             <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Available</div>
-                    </div>
+                <div class="stat-card-header">
                     <div class="stat-icon available">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
+                    <div class="stat-value">47</div>
                 </div>
-                <div class="stat-value">47</div>
+                <div class="stat-label">Available</div>
                 <div class="stat-subtitle">Ready for issue</div>
             </div>
 
             <!-- Currently Issued Card -->
             <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Currently Issued</div>
-                    </div>
+                <div class="stat-card-header">
                     <div class="stat-icon issued">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                     </div>
+                    <div class="stat-value">17</div>
                 </div>
-                <div class="stat-value">17</div>
+                <div class="stat-label">Currently Issued</div>
                 <div class="stat-subtitle">With students</div>
             </div>
 
             <!-- Recent Additions Card -->
             <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Recent Additions</div>
-                    </div>
+                <div class="stat-card-header">
                     <div class="stat-icon additions">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                     </div>
+                    <div class="stat-value">0</div>
                 </div>
-                <div class="stat-value">0</div>
+                <div class="stat-label">Recent Additions</div>
                 <div class="stat-subtitle">In month period</div>
             </div>
         </div>
@@ -961,54 +1022,46 @@
 
         <div class="transaction-stats-grid">
             <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Books Issued</div>
-                    </div>
+                <div class="stat-card-header">
                     <div class="stat-icon issued">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     </div>
+                    <div class="stat-value">4</div>
                 </div>
-                <div class="stat-value">4</div>
+                <div class="stat-label">Books Issued</div>
                 <div class="stat-subtitle">In month period</div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Books Returned</div>
-                    </div>
+                <div class="stat-card-header">
                     <div class="stat-icon available">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
+                    <div class="stat-value">5</div>
                 </div>
-                <div class="stat-value">5</div>
+                <div class="stat-label">Books Returned</div>
                 <div class="stat-subtitle">In month period</div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Currently Issued</div>
-                    </div>
+                <div class="stat-card-header">
                     <div class="stat-icon issued">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /></svg>
                     </div>
+                    <div class="stat-value">4</div>
                 </div>
-                <div class="stat-value">4</div>
+                <div class="stat-label">Currently Issued</div>
                 <div class="stat-subtitle">Not yet returned</div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-label">Avg. Issue Duration</div>
-                    </div>
+                <div class="stat-card-header">
                     <div class="stat-icon additions">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     </div>
+                    <div class="stat-value">17</div>
                 </div>
-                <div class="stat-value">17</div>
+                <div class="stat-label">Avg. Issue Duration</div>
                 <div class="stat-subtitle">Days</div>
             </div>
         </div>
@@ -1108,56 +1161,48 @@
             </div>
 
             <!-- Fines Statistics Cards -->
-            <div class="transaction-stats-grid">
+            <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Total Generated</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon issued">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22m4.5-18.5H3.5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h17a2 2 0 0 0 2-2v-12a2 2 0 0 0-2-2z"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M7 15h0M2 9.5h20"></path></svg>
                         </div>
+                        <div class="stat-value">₹8,350</div>
                     </div>
-                    <div class="stat-value">₹8350</div>
+                    <div class="stat-label">Total Generated</div>
                     <div class="stat-subtitle">In month period</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Total Collected</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon available">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                         </div>
+                        <div class="stat-value">₹2,110</div>
                     </div>
-                    <div class="stat-value">₹2110</div>
+                    <div class="stat-label">Total Collected</div>
                     <div class="stat-subtitle">Paid fines</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Total Pending</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon overdue">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         </div>
-                        <div class="stat-icon issued">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        </div>
+                        <div class="stat-value">₹6,255</div>
                     </div>
-                    <div class="stat-value">₹6255</div>
+                    <div class="stat-label">Total Pending</div>
                     <div class="stat-subtitle">Unpaid fines</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Total Waived</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon additions">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"></path><path d="M8 6v12a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V6"></path><line x1="9" y1="6" x2="9" y2="3"></line><line x1="15" y1="6" x2="15" y2="3"></line></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
                         </div>
+                        <div class="stat-value">₹0</div>
                     </div>
-                    <div class="stat-value">₹0</div>
+                    <div class="stat-label">Total Waived</div>
                     <div class="stat-subtitle">Waived fines</div>
                 </div>
             </div>
@@ -1235,56 +1280,48 @@
             </div>
 
             <!-- User Statistics Cards -->
-            <div class="transaction-stats-grid">
+            <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Total Users</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                         </div>
+                        <div class="stat-value">6</div>
                     </div>
-                    <div class="stat-value">6</div>
+                    <div class="stat-label">Total Users</div>
                     <div class="stat-subtitle">All registered users</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Active Users</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon available">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"></circle><path d="M12 1v6m0 6v6"></path><path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24"></path><path d="M1 12h6m6 0h6"></path><path d="M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
                         </div>
+                        <div class="stat-value">3</div>
                     </div>
-                    <div class="stat-value">3</div>
+                    <div class="stat-label">Active Users</div>
                     <div class="stat-subtitle">Active accounts</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Inactive Users</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon issued">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="12"></line><line x1="12" y1="12" x2="15" y2="15"></line></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"></path><rect x="3" y="4" width="18" height="18" rx="2"></rect><circle cx="12" cy="10" r="2"></circle><line x1="8" y1="2" x2="8" y2="4"></line><line x1="16" y1="2" x2="16" y2="4"></line></svg>
                         </div>
+                        <div class="stat-value">3</div>
                     </div>
-                    <div class="stat-value">3</div>
+                    <div class="stat-label">Inactive Users</div>
                     <div class="stat-subtitle">Inactive accounts</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">New Users</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon additions">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14m-7-7h14"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
                         </div>
+                        <div class="stat-value">1</div>
                     </div>
-                    <div class="stat-value">1</div>
+                    <div class="stat-label">New Users</div>
                     <div class="stat-subtitle">In month period</div>
                 </div>
             </div>
@@ -1387,56 +1424,48 @@
             </div>
 
             <!-- Overdue Statistics Cards -->
-            <div class="transaction-stats-grid">
+            <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Total Overdue Books</div>
+                    <div class="stat-card-header">
+                        <div class="stat-icon overdue">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         </div>
-                        <div class="stat-icon issued">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                        </div>
+                        <div class="stat-value">8</div>
                     </div>
-                    <div class="stat-value">8</div>
+                    <div class="stat-label">Total Overdue Books</div>
                     <div class="stat-subtitle">Across all students</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">30+ Days Overdue</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon additions">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                         </div>
+                        <div class="stat-value">3</div>
                     </div>
-                    <div class="stat-value">3</div>
+                    <div class="stat-label">30+ Days Overdue</div>
                     <div class="stat-subtitle">Critical overdue</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Total Fine Amount</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon books">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22m4.5-18.5H3.5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h17a2 2 0 0 0 2-2v-12a2 2 0 0 0-2-2z"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                         </div>
+                        <div class="stat-value">₹1,450</div>
                     </div>
-                    <div class="stat-value">₹1,450</div>
+                    <div class="stat-label">Total Fine Amount</div>
                     <div class="stat-subtitle">Accumulated fines</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-header">
-                        <div>
-                            <div class="stat-label">Avg Days Overdue</div>
-                        </div>
+                    <div class="stat-card-header">
                         <div class="stat-icon available">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
                         </div>
+                        <div class="stat-value">24</div>
                     </div>
-                    <div class="stat-value">24</div>
+                    <div class="stat-label">Avg Days Overdue</div>
                     <div class="stat-subtitle">Days</div>
                 </div>
             </div>

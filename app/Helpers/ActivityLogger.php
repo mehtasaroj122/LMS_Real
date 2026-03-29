@@ -68,6 +68,26 @@ class ActivityLogger
     }
 
     /**
+     * Enrich log metadata with request-bound audit details when available.
+     */
+    private static function enrichMetadata(array $metadata = []): array
+    {
+        try {
+            if (!array_key_exists('session_id', $metadata) && app()->bound('session')) {
+                $sessionId = session()->getId();
+
+                if (!empty($sessionId)) {
+                    $metadata['session_id'] = $sessionId;
+                }
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Unable to capture session id for activity log: ' . $e->getMessage());
+        }
+
+        return $metadata;
+    }
+
+    /**
      * Enforce activity log retention limit (max 500 records)
      * Delete oldest records if limit exceeded
      */
@@ -104,6 +124,7 @@ class ActivityLogger
     {
         try {
             $userDetails = self::getUserDetails();
+            $metadata = self::enrichMetadata($metadata);
             
             $activityLog = ActivityLog::create([
                 'user_id' => $userDetails['user_id'],
@@ -119,7 +140,7 @@ class ActivityLogger
                 'ip_address' => Request::ip(),
                 'browser' => self::getBrowserName(),
                 'device_type' => self::getDeviceType(),
-                'metadata' => !empty($metadata) ? json_encode($metadata) : null,
+                'metadata' => !empty($metadata) ? $metadata : null,
                 'resource_type' => 'student',
                 'resource_id' => $student->id,
                 'affected_user_id' => $student->user_id ?? null,
@@ -326,6 +347,7 @@ class ActivityLogger
     ) {
         try {
             $userDetails = self::getUserDetails();
+            $metadata = self::enrichMetadata($metadata);
             
             $activityLog = ActivityLog::create([
                 'user_id' => $userDetails['user_id'],
@@ -339,7 +361,7 @@ class ActivityLogger
                 'ip_address' => Request::ip(),
                 'browser' => self::getBrowserName(),
                 'device_type' => self::getDeviceType(),
-                'metadata' => !empty($metadata) ? json_encode($metadata) : null,
+                'metadata' => !empty($metadata) ? $metadata : null,
                 'resource_type' => $resourceType,
                 'resource_id' => $resourceId,
             ]);

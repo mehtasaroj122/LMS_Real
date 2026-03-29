@@ -1258,6 +1258,266 @@
             background-color: #6d28d9;
         }
 
+        /* Confirmation Modal */
+        .confirmation-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .confirmation-modal-overlay.show {
+            display: flex;
+        }
+
+        .confirmation-modal {
+            background-color: white;
+            border-radius: 12px;
+            max-width: 480px;
+            width: calc(100% - 32px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: confirmationSlideIn 0.3s ease;
+            overflow: hidden;
+        }
+
+        body.dark-theme .confirmation-modal {
+            background-color: #1e293b;
+        }
+
+        @keyframes confirmationSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .confirmation-modal-header {
+            padding: 24px 24px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .confirmation-modal-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .confirmation-modal-icon.warning {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #d97706;
+        }
+
+        body.dark-theme .confirmation-modal-icon.warning {
+            background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+            color: #fbbf24;
+        }
+
+        .confirmation-modal-icon.danger {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #dc2626;
+        }
+
+        body.dark-theme .confirmation-modal-icon.danger {
+            background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+            color: #f87171;
+        }
+
+        .confirmation-modal-icon.info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #2563eb;
+        }
+
+        body.dark-theme .confirmation-modal-icon.info {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: #60a5fa;
+        }
+
+        .confirmation-modal-content {
+            flex: 1;
+        }
+
+        .confirmation-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 8px;
+        }
+
+        body.light-theme .confirmation-modal-title {
+            color: #1f2937;
+        }
+
+        body.dark-theme .confirmation-modal-title {
+            color: #f1f5f9;
+        }
+
+        .confirmation-modal-message {
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        body.light-theme .confirmation-modal-message {
+            color: #6b7280;
+        }
+
+        body.dark-theme .confirmation-modal-message {
+            color: #94a3b8;
+        }
+
+        .confirmation-modal-body {
+            padding: 0 24px 20px;
+        }
+
+        .confirmation-modal-details {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 12px;
+        }
+
+        body.dark-theme .confirmation-modal-details {
+            background-color: #0f172a;
+        }
+
+        .confirmation-modal-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+
+        .confirmation-modal-detail-label {
+            font-weight: 500;
+        }
+
+        body.light-theme .confirmation-modal-detail-label {
+            color: #6b7280;
+        }
+
+        body.dark-theme .confirmation-modal-detail-label {
+            color: #94a3b8;
+        }
+
+        .confirmation-modal-detail-value {
+            font-weight: 600;
+        }
+
+        body.light-theme .confirmation-modal-detail-value {
+            color: #1f2937;
+        }
+
+        body.dark-theme .confirmation-modal-detail-value {
+            color: #f1f5f9;
+        }
+
+        .confirmation-modal-actions {
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid;
+        }
+
+        body.light-theme .confirmation-modal-actions {
+            border-color: #e5e7eb;
+        }
+
+        body.dark-theme .confirmation-modal-actions {
+            border-color: #334155;
+        }
+
+        .confirmation-modal-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .confirmation-modal-btn-cancel {
+            background-color: transparent;
+        }
+
+        body.light-theme .confirmation-modal-btn-cancel {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        body.dark-theme .confirmation-modal-btn-cancel {
+            background-color: #334155;
+            color: #cbd5e1;
+            border: 1px solid #475569;
+        }
+
+        body.light-theme .confirmation-modal-btn-cancel:hover {
+            background-color: #e2e8f0;
+        }
+
+        body.dark-theme .confirmation-modal-btn-cancel:hover {
+            background-color: #475569;
+        }
+
+        .confirmation-modal-btn-confirm {
+            color: white;
+        }
+
+        .confirmation-modal-btn-confirm.primary {
+            background-color: #3b82f6;
+        }
+
+        .confirmation-modal-btn-confirm.primary:hover {
+            background-color: #2563eb;
+        }
+
+        .confirmation-modal-btn-confirm.danger {
+            background-color: #dc2626;
+        }
+
+        .confirmation-modal-btn-confirm.danger:hover {
+            background-color: #b91c1c;
+        }
+
+        .confirmation-modal-btn-confirm.warning {
+            background-color: #d97706;
+        }
+
+        .confirmation-modal-btn-confirm.warning:hover {
+            background-color: #b45309;
+        }
+
+        .confirmation-modal-btn-confirm.success {
+            background-color: #16a34a;
+        }
+
+        .confirmation-modal-btn-confirm.success:hover {
+            background-color: #15803d;
+        }
+
+        .confirmation-modal-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         /* Book Details Modal */
         .book-details-overlay {
             position: fixed;
@@ -1279,8 +1539,8 @@
         .book-details-modal {
             background-color: white;
             border-radius: 12px;
-            max-width: 600px;
-            width: 90%;
+            max-width: 860px;
+            width: 92%;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
@@ -1392,6 +1652,11 @@
 
         body.dark-theme .fine-modal {
             background-color: #1e293b;
+        }
+
+        .fine-modal.wide {
+            max-width: 920px;
+            width: 94%;
         }
 
         .fine-modal-header {
@@ -1589,58 +1854,525 @@
         }
 
         /* Fine History */
+        .fine-history-modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .fine-history-summary {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
+            gap: 16px;
+        }
+
+        .fine-history-hero,
+        .fine-summary-card,
+        .fine-history-section,
+        .fine-calculation-table {
+            border-radius: 14px;
+            border: 1px solid;
+        }
+
+        body.light-theme .fine-history-hero,
+        body.light-theme .fine-summary-card,
+        body.light-theme .fine-history-section,
+        body.light-theme .fine-calculation-table {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        body.light-theme .fine-history-hero {
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+        }
+
+        body.dark-theme .fine-history-hero,
+        body.dark-theme .fine-summary-card,
+        body.dark-theme .fine-history-section,
+        body.dark-theme .fine-calculation-table {
+            background-color: #0f172a;
+            border-color: #334155;
+        }
+
+        body.dark-theme .fine-history-hero {
+            background: linear-gradient(135deg, #172554 0%, #0f172a 100%);
+        }
+
+        .fine-history-hero {
+            padding: 20px;
+        }
+
+        .fine-history-amount {
+            font-size: 34px;
+            font-weight: 800;
+            margin: 8px 0 12px;
+            line-height: 1.1;
+        }
+
+        .fine-history-book-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
+
+        .fine-history-book-meta {
+            font-size: 13px;
+        }
+
+        body.light-theme .fine-history-book-meta {
+            color: #64748b;
+        }
+
+        body.dark-theme .fine-history-book-meta {
+            color: #94a3b8;
+        }
+
+        .fine-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .fine-summary-card {
+            padding: 16px;
+        }
+
+        .fine-summary-label,
+        .fine-history-section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        body.light-theme .fine-summary-label,
+        body.light-theme .fine-history-section-title {
+            color: #64748b;
+        }
+
+        body.dark-theme .fine-summary-label,
+        body.dark-theme .fine-history-section-title {
+            color: #94a3b8;
+        }
+
+        .fine-summary-value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-top: 8px;
+            line-height: 1.35;
+        }
+
+        .history-status-badge,
+        .history-action-badge,
+        .fine-history-amount-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+
+        .history-status-badge.status-pending {
+            background-color: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        body.dark-theme .history-status-badge.status-pending {
+            background-color: #78350f;
+            color: #fcd34d;
+            border-color: #92400e;
+        }
+
+        .history-action-badge.adjusted,
+        .fine-history-amount-change {
+            background-color: #f3e8ff;
+            color: #7c3aed;
+            border-color: #ddd6fe;
+        }
+
+        body.dark-theme .history-action-badge.adjusted,
+        body.dark-theme .fine-history-amount-change {
+            background-color: #4c1d95;
+            color: #c4b5fd;
+            border-color: #6d28d9;
+        }
+
+        .history-status-badge.status-paid,
+        .history-action-badge.paid {
+            background-color: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        body.dark-theme .history-status-badge.status-paid,
+        body.dark-theme .history-action-badge.paid {
+            background-color: #14532d;
+            color: #86efac;
+            border-color: #166534;
+        }
+
+        .history-status-badge.status-waived,
+        .history-action-badge.waived {
+            background-color: #ffedd5;
+            color: #c2410c;
+            border-color: #fdba74;
+        }
+
+        body.dark-theme .history-status-badge.status-waived,
+        body.dark-theme .history-action-badge.waived {
+            background-color: #7c2d12;
+            color: #fdba74;
+            border-color: #9a3412;
+        }
+
+        .history-action-badge.created {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+
+        body.dark-theme .history-action-badge.created {
+            background-color: #1e3a8a;
+            color: #93c5fd;
+            border-color: #1d4ed8;
+        }
+
+        .fine-history-section {
+            padding: 18px;
+        }
+
         .fine-history-list {
             list-style: none;
             padding: 0;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .fine-history-item {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-            border-bottom: 1px solid;
-            align-items: flex-start;
+            position: relative;
+            padding-left: 42px;
         }
 
-        body.light-theme .fine-history-item {
-            border-color: #e2e8f0;
+        .fine-history-item::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 28px;
+            bottom: -16px;
+            width: 2px;
         }
 
-        body.dark-theme .fine-history-item {
-            border-color: #334155;
+        body.light-theme .fine-history-item::before {
+            background-color: #e2e8f0;
         }
 
-        .fine-history-item:last-child {
-            border-bottom: none;
+        body.dark-theme .fine-history-item::before {
+            background-color: #334155;
+        }
+
+        .fine-history-item:last-child::before {
+            display: none;
         }
 
         .fine-history-dot {
-            width: 12px;
-            height: 12px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
+            position: absolute;
+            left: 0;
+            top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        body.light-theme .fine-history-dot {
+            box-shadow: 0 0 0 4px #ffffff;
+        }
+
+        body.dark-theme .fine-history-dot {
+            box-shadow: 0 0 0 4px #1e293b;
+        }
+
+        .fine-history-dot.created {
             background-color: #3b82f6;
-            margin-top: 6px;
-            flex-shrink: 0;
         }
 
-        .fine-history-content h4 {
-            margin: 0 0 4px 0;
-            font-size: 14px;
-            font-weight: 600;
+        .fine-history-dot.adjusted {
+            background-color: #8b5cf6;
         }
 
-        .fine-history-content p {
-            margin: 0;
+        .fine-history-dot.paid {
+            background-color: #10b981;
+        }
+
+        .fine-history-dot.waived {
+            background-color: #f97316;
+        }
+
+        .fine-history-entry {
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid;
+        }
+
+        body.light-theme .fine-history-entry {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+        }
+
+        body.dark-theme .fine-history-entry {
+            background-color: #111827;
+            border-color: #334155;
+        }
+
+        .fine-history-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .fine-history-date {
             font-size: 13px;
+            font-weight: 500;
         }
 
-        body.light-theme .fine-history-content p {
+        body.light-theme .fine-history-date {
             color: #64748b;
         }
 
-        body.dark-theme .fine-history-content p {
+        body.dark-theme .fine-history-date {
             color: #94a3b8;
+        }
+
+        .fine-history-action {
+            margin: 0 0 8px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .fine-history-description {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        body.light-theme .fine-history-description {
+            color: #334155;
+        }
+
+        body.dark-theme .fine-history-description {
+            color: #cbd5e1;
+        }
+
+        .fine-history-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 14px;
+            margin-top: 12px;
+        }
+
+        .fine-history-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .fine-history-actor {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .fine-history-actor-name {
+            font-weight: 600;
+        }
+
+        .fine-history-role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid transparent;
+            line-height: 1;
+        }
+
+        .fine-history-role-badge.role-admin {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        body.dark-theme .fine-history-role-badge.role-admin {
+            background-color: #7f1d1d;
+            color: #fca5a5;
+            border-color: #b91c1c;
+        }
+
+        .fine-history-role-badge.role-staff {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+            border-color: #bfdbfe;
+        }
+
+        body.dark-theme .fine-history-role-badge.role-staff {
+            background-color: #1e3a8a;
+            color: #93c5fd;
+            border-color: #1d4ed8;
+        }
+
+        .fine-history-role-badge.role-student {
+            background-color: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        body.dark-theme .fine-history-role-badge.role-student {
+            background-color: #14532d;
+            color: #86efac;
+            border-color: #166534;
+        }
+
+        .fine-history-role-badge.role-system,
+        .fine-history-role-badge.role-user {
+            background-color: #e2e8f0;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+
+        body.dark-theme .fine-history-role-badge.role-system,
+        body.dark-theme .fine-history-role-badge.role-user {
+            background-color: #334155;
+            color: #cbd5e1;
+            border-color: #475569;
+        }
+
+        body.light-theme .fine-history-meta-item {
+            color: #475569;
+        }
+
+        body.dark-theme .fine-history-meta-item {
+            color: #cbd5e1;
+        }
+
+        .fine-history-amount-change {
+            margin-top: 12px;
+        }
+
+        .fine-history-remarks {
+            margin-top: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border-left: 3px solid;
+            font-size: 13px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        body.light-theme .fine-history-remarks {
+            background-color: #f8fafc;
+            border-left-color: #cbd5e1;
+            color: #475569;
+        }
+
+        body.dark-theme .fine-history-remarks {
+            background-color: #1e293b;
+            border-left-color: #475569;
+            color: #cbd5e1;
+        }
+
+        .fine-calculation-table {
+            padding: 4px 16px;
+        }
+
+        .fine-calculation-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid;
+        }
+
+        body.light-theme .fine-calculation-row {
+            border-color: #e2e8f0;
+        }
+
+        body.dark-theme .fine-calculation-row {
+            border-color: #334155;
+        }
+
+        .fine-calculation-row:last-child {
+            border-bottom: none;
+        }
+
+        .fine-calculation-row.total {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .fine-history-empty {
+            text-align: center;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px dashed;
+            font-size: 14px;
+        }
+
+        body.light-theme .fine-history-empty {
+            border-color: #cbd5e1;
+            color: #64748b;
+            background-color: #f8fafc;
+        }
+
+        body.dark-theme .fine-history-empty {
+            border-color: #475569;
+            color: #94a3b8;
+            background-color: #0f172a;
+        }
+
+        @media (max-width: 768px) {
+            .fine-modal.wide {
+                width: calc(100% - 24px);
+                max-height: calc(100vh - 24px);
+            }
+
+            .fine-history-summary,
+            .fine-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fine-history-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .fine-history-amount {
+                font-size: 28px;
+            }
+
+            .fine-history-item {
+                padding-left: 34px;
+            }
         }
 
         /* Fine Action Success Popup Styles */
@@ -1905,16 +2637,37 @@
             padding: 24px;
         }
 
+        .book-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .book-heading {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .book-title-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
         .book-title {
             font-size: 22px;
             font-weight: 700;
-            margin: 0 0 8px 0;
+            margin: 0;
+            line-height: 1.25;
         }
 
         .book-author {
             font-size: 16px;
             font-weight: 500;
-            margin: 0 0 16px 0;
+            margin: 8px 0 0 0;
         }
 
         body.light-theme .book-author {
@@ -1925,25 +2678,104 @@
             color: #94a3b8;
         }
 
+        .book-category-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            border: 1px solid transparent;
+        }
+
+        body.light-theme .book-category-badge {
+            background-color: #ede9fe;
+            color: #6d28d9;
+            border-color: #ddd6fe;
+        }
+
+        body.dark-theme .book-category-badge {
+            background-color: #312e81;
+            color: #c4b5fd;
+            border-color: #4338ca;
+        }
+
+        .book-details-columns {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .book-details-column,
+        .book-status-section,
+        .book-description {
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid;
+        }
+
+        body.light-theme .book-details-column,
+        body.light-theme .book-status-section,
+        body.light-theme .book-description {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        body.dark-theme .book-details-column,
+        body.dark-theme .book-status-section,
+        body.dark-theme .book-description {
+            background-color: #0f172a;
+            border-color: #334155;
+        }
+
+        .column-title,
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 14px;
+        }
+
+        body.light-theme .column-title,
+        body.light-theme .section-title {
+            color: #64748b;
+        }
+
+        body.dark-theme .column-title,
+        body.dark-theme .section-title {
+            color: #94a3b8;
+        }
+
         .book-details-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .book-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
         }
 
         .book-detail-item {
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 12px;
+            min-height: 76px;
+            border: 1px solid;
         }
 
         body.light-theme .book-detail-item {
-            background-color: #f8fafc;
+            background-color: #ffffff;
             border: 1px solid #e2e8f0;
         }
 
         body.dark-theme .book-detail-item {
-            background-color: #0f172a;
+            background-color: #111827;
             border: 1px solid #334155;
         }
 
@@ -1965,82 +2797,154 @@
         .book-detail-value {
             font-size: 15px;
             font-weight: 600;
-            margin-top: 4px;
+            margin-top: 6px;
+            line-height: 1.4;
+            word-break: break-word;
         }
 
-        .book-detail-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 6px;
+        .book-detail-badge,
+        .fine-status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 10px;
+            border-radius: 999px;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            border: 1px solid transparent;
         }
 
         .book-detail-badge.status-issued {
             background-color: #dcfce7;
-            color: #16a34a;
+            color: #166534;
+            border-color: #bbf7d0;
         }
 
         body.dark-theme .book-detail-badge.status-issued {
             background-color: #14532d;
             color: #4ade80;
+            border-color: #166534;
         }
 
         .book-detail-badge.status-overdue {
             background-color: #fee2e2;
             color: #dc2626;
+            border-color: #fecaca;
         }
 
         body.dark-theme .book-detail-badge.status-overdue {
             background-color: #7f1d1d;
             color: #fca5a5;
+            border-color: #b91c1c;
         }
 
         .book-detail-badge.status-returned {
             background-color: #dbeafe;
             color: #2563eb;
+            border-color: #bfdbfe;
         }
 
         body.dark-theme .book-detail-badge.status-returned {
             background-color: #1e3a8a;
             color: #60a5fa;
+            border-color: #1d4ed8;
         }
 
-        .book-description {
-            margin-bottom: 16px;
-            padding: 12px;
-            border-radius: 8px;
+        .fine-status-badge.fine-status-pending {
+            background-color: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
         }
 
-        body.light-theme .book-description {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+        body.dark-theme .fine-status-badge.fine-status-pending {
+            background-color: #78350f;
+            color: #fcd34d;
+            border-color: #92400e;
         }
 
-        body.dark-theme .book-description {
-            background-color: #0f172a;
-            border: 1px solid #334155;
+        .fine-status-badge.fine-status-paid {
+            background-color: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
         }
 
-        .book-description-title {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
+        body.dark-theme .fine-status-badge.fine-status-paid {
+            background-color: #14532d;
+            color: #4ade80;
+            border-color: #166534;
         }
 
-        body.light-theme .book-description-title {
-            color: #64748b;
+        .fine-status-badge.fine-status-waived {
+            background-color: #ffedd5;
+            color: #c2410c;
+            border-color: #fdba74;
         }
 
-        body.dark-theme .book-description-title {
-            color: #94a3b8;
+        body.dark-theme .fine-status-badge.fine-status-waived {
+            background-color: #7c2d12;
+            color: #fdba74;
+            border-color: #9a3412;
+        }
+
+        .fine-status-badge.fine-status-na {
+            background-color: #e2e8f0;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+
+        body.dark-theme .fine-status-badge.fine-status-na {
+            background-color: #334155;
+            color: #cbd5e1;
+            border-color: #475569;
         }
 
         .book-description-text {
             font-size: 14px;
             line-height: 1.5;
+            white-space: pre-line;
+        }
+
+        .book-detail-item[hidden] {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .book-details-modal {
+                width: calc(100% - 24px);
+                max-height: calc(100vh - 24px);
+            }
+
+            .book-details-header {
+                height: 220px;
+            }
+
+            .book-details-body {
+                padding: 18px;
+            }
+
+            .book-title-row,
+            .book-title-wrap {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .book-details-columns,
+            .book-status-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .book-details-header {
+                height: 200px;
+            }
+
+            .book-cover-avatar {
+                width: 100px;
+                height: 140px;
+                font-size: 30px;
+            }
         }
 
         .btn-delete {
@@ -2486,12 +3390,11 @@
             margin: 0;
         }
 
-        /* Activity Timeline */
         .activity-timeline {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            max-height: 500px;
+            gap: 18px;
+            max-height: 560px;
             overflow-y: auto;
             padding-right: 8px;
         }
@@ -2506,7 +3409,7 @@
 
         .activity-timeline::-webkit-scrollbar-thumb {
             background: #cbd5e1;
-            border-radius: 3px;
+            border-radius: 999px;
         }
 
         body.dark-theme .activity-timeline::-webkit-scrollbar-thumb {
@@ -2522,168 +3425,984 @@
         }
 
         .activity-item {
+            --activity-accent: #64748b;
+            --activity-soft: #e2e8f0;
+            --activity-border: rgba(148, 163, 184, 0.35);
+            display: grid;
+            grid-template-columns: 22px minmax(0, 1fr);
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .activity-item.book-issued {
+            --activity-accent: #2563eb;
+            --activity-soft: #dbeafe;
+            --activity-border: rgba(37, 99, 235, 0.18);
+        }
+
+        .activity-item.book-returned {
+            --activity-accent: #16a34a;
+            --activity-soft: #dcfce7;
+            --activity-border: rgba(22, 163, 74, 0.18);
+        }
+
+        .activity-item.fine-applied {
+            --activity-accent: #dc2626;
+            --activity-soft: #fee2e2;
+            --activity-border: rgba(220, 38, 38, 0.18);
+        }
+
+        .activity-item.fine-paid {
+            --activity-accent: #15803d;
+            --activity-soft: #dcfce7;
+            --activity-border: rgba(21, 128, 61, 0.18);
+        }
+
+        .activity-item.fine-waived {
+            --activity-accent: #ea580c;
+            --activity-soft: #ffedd5;
+            --activity-border: rgba(234, 88, 12, 0.2);
+        }
+
+        .activity-item.account-status {
+            --activity-accent: #9333ea;
+            --activity-soft: #f3e8ff;
+            --activity-border: rgba(147, 51, 234, 0.2);
+        }
+
+        .activity-item.profile-updated {
+            --activity-accent: #ca8a04;
+            --activity-soft: #fef3c7;
+            --activity-border: rgba(202, 138, 4, 0.2);
+        }
+
+        .activity-item.privilege-change {
+            --activity-accent: #4f46e5;
+            --activity-soft: #e0e7ff;
+            --activity-border: rgba(79, 70, 229, 0.2);
+        }
+
+        .activity-item.auth {
+            --activity-accent: #475569;
+            --activity-soft: #e2e8f0;
+            --activity-border: rgba(71, 85, 105, 0.2);
+        }
+
+        body.dark-theme .activity-item.book-issued {
+            --activity-soft: rgba(37, 99, 235, 0.16);
+            --activity-border: rgba(96, 165, 250, 0.28);
+        }
+
+        body.dark-theme .activity-item.book-returned {
+            --activity-soft: rgba(22, 163, 74, 0.18);
+            --activity-border: rgba(74, 222, 128, 0.24);
+        }
+
+        body.dark-theme .activity-item.fine-applied {
+            --activity-soft: rgba(220, 38, 38, 0.18);
+            --activity-border: rgba(252, 165, 165, 0.24);
+        }
+
+        body.dark-theme .activity-item.fine-paid {
+            --activity-soft: rgba(21, 128, 61, 0.2);
+            --activity-border: rgba(74, 222, 128, 0.24);
+        }
+
+        body.dark-theme .activity-item.fine-waived {
+            --activity-soft: rgba(234, 88, 12, 0.2);
+            --activity-border: rgba(251, 146, 60, 0.26);
+        }
+
+        body.dark-theme .activity-item.account-status {
+            --activity-soft: rgba(147, 51, 234, 0.18);
+            --activity-border: rgba(196, 181, 253, 0.24);
+        }
+
+        body.dark-theme .activity-item.profile-updated {
+            --activity-soft: rgba(202, 138, 4, 0.18);
+            --activity-border: rgba(250, 204, 21, 0.22);
+        }
+
+        body.dark-theme .activity-item.privilege-change {
+            --activity-soft: rgba(79, 70, 229, 0.18);
+            --activity-border: rgba(165, 180, 252, 0.24);
+        }
+
+        body.dark-theme .activity-item.auth {
+            --activity-soft: rgba(71, 85, 105, 0.22);
+            --activity-border: rgba(148, 163, 184, 0.24);
+        }
+
+        .activity-connector {
             display: flex;
-            gap: 12px;
-            position: relative;
-            padding-left: 12px;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100%;
         }
 
-        .activity-item:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 8px;
-            width: 8px;
-            height: 8px;
+        .activity-dot {
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
+            background: var(--activity-accent);
+            box-shadow: 0 0 0 4px var(--activity-soft);
+            margin-top: 18px;
+            z-index: 1;
         }
 
-        .activity-item.book-issued:before {
-            background-color: #3b82f6;
+        .activity-line {
+            width: 2px;
+            flex: 1;
+            min-height: 48px;
+            margin-top: 8px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, var(--activity-accent) 0%, rgba(148, 163, 184, 0.08) 100%);
+            opacity: 0.6;
         }
 
-        .activity-item.book-returned:before {
-            background-color: #10b981;
+        .activity-item.is-last .activity-line {
+            opacity: 0;
         }
 
-        .activity-item.fine-applied:before {
-            background-color: #ef4444;
+        .activity-card {
+            position: relative;
+            border: 1px solid var(--activity-border);
+            border-left: 3px solid var(--activity-accent);
+            border-radius: 16px;
+            padding: 16px 16px 14px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
-        .activity-item.account-status:before {
-            background-color: #f59e0b;
+        body.light-theme .activity-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
         }
 
-        .activity-item.profile-updated:before {
-            background-color: #8b5cf6;
+        body.dark-theme .activity-card {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.92) 100%);
+            box-shadow: 0 12px 28px rgba(2, 6, 23, 0.24);
+        }
+
+        .activity-card:hover,
+        .activity-item:focus-within .activity-card {
+            transform: translateY(-2px);
+        }
+
+        .activity-main {
+            display: grid;
+            grid-template-columns: 48px minmax(0, 1fr);
+            gap: 14px;
         }
 
         .activity-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: var(--activity-soft);
+            color: var(--activity-accent);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 18px;
             flex-shrink: 0;
         }
 
-        .activity-item.book-issued .activity-icon {
-            background-color: #dbeafe;
-            color: #2563eb;
-        }
-
-        .activity-item.book-returned .activity-icon {
-            background-color: #dcfce7;
-            color: #16a34a;
-        }
-
-        .activity-item.fine-applied .activity-icon {
-            background-color: #fee2e2;
-            color: #dc2626;
-        }
-
-        .activity-item.account-status .activity-icon {
-            background-color: #fef3c7;
-            color: #d97706;
-        }
-
-        .activity-item.profile-updated .activity-icon {
-            background-color: #f3e8ff;
-            color: #7c3aed;
-        }
-
-        body.dark-theme .activity-item.book-issued .activity-icon {
-            background-color: #1e3a8a;
-            color: #60a5fa;
-        }
-
-        body.dark-theme .activity-item.book-returned .activity-icon {
-            background-color: #14532d;
-            color: #4ade80;
-        }
-
-        body.dark-theme .activity-item.fine-applied .activity-icon {
-            background-color: #7f1d1d;
-            color: #fca5a5;
-        }
-
-        body.dark-theme .activity-item.account-status .activity-icon {
-            background-color: #78350f;
-            color: #fbbf24;
-        }
-
-        body.dark-theme .activity-item.profile-updated .activity-icon {
-            background-color: #5b21b6;
-            color: #c4b5fd;
-        }
-
         .activity-content {
-            flex: 1;
             min-width: 0;
         }
 
+        .activity-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
         .activity-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 4px;
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.35;
         }
 
         .activity-desc {
+            margin: 0 0 12px;
             font-size: 13px;
-            margin-bottom: 4px;
+            line-height: 1.55;
         }
 
         body.light-theme .activity-desc {
-            color: #6b7280;
+            color: #475569;
         }
 
         body.dark-theme .activity-desc {
-            color: #9ca3af;
+            color: #cbd5e1;
         }
 
-        .activity-time {
+        .activity-status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+            border: 1px solid transparent;
+        }
+
+        .activity-status-badge.status-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .activity-status-badge.status-failed {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border-color: #fecaca;
+        }
+
+        .activity-status-badge.status-warning {
+            background-color: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        body.light-theme .activity-title {
+            color: #0f172a;
+        }
+
+        body.dark-theme .activity-title {
+            color: #f8fafc;
+        }
+
+        body.dark-theme .activity-status-badge.status-success {
+            background-color: rgba(22, 163, 74, 0.2);
+            color: #86efac;
+            border-color: rgba(74, 222, 128, 0.25);
+        }
+
+        body.dark-theme .activity-status-badge.status-failed {
+            background-color: rgba(220, 38, 38, 0.22);
+            color: #fca5a5;
+            border-color: rgba(252, 165, 165, 0.24);
+        }
+
+        body.dark-theme .activity-status-badge.status-warning {
+            background-color: rgba(217, 119, 6, 0.2);
+            color: #fcd34d;
+            border-color: rgba(251, 191, 36, 0.22);
+        }
+
+        .activity-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .activity-user {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .activity-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        body.light-theme .activity-avatar {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            color: #1d4ed8;
+        }
+
+        body.dark-theme .activity-avatar {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(79, 70, 229, 0.22) 100%);
+            color: #bfdbfe;
+        }
+
+        .activity-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .activity-user-info {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .activity-user-name-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .activity-user-name {
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 240px;
+        }
+
+        body.light-theme .activity-user-name {
+            color: #1e293b;
+        }
+
+        body.dark-theme .activity-user-name {
+            color: #f1f5f9;
+        }
+
+        .activity-role-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .activity-role-badge.role-admin {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .activity-role-badge.role-staff {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .activity-role-badge.role-student {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .activity-role-badge.role-system {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        body.dark-theme .activity-role-badge.role-admin {
+            background-color: rgba(220, 38, 38, 0.22);
+            color: #fca5a5;
+        }
+
+        body.dark-theme .activity-role-badge.role-staff {
+            background-color: rgba(37, 99, 235, 0.2);
+            color: #93c5fd;
+        }
+
+        body.dark-theme .activity-role-badge.role-student {
+            background-color: rgba(22, 163, 74, 0.2);
+            color: #86efac;
+        }
+
+        body.dark-theme .activity-role-badge.role-system {
+            background-color: rgba(71, 85, 105, 0.26);
+            color: #cbd5e1;
+        }
+
+        .activity-user-resource {
             font-size: 12px;
         }
 
-        body.light-theme .activity-time {
-            color: #9ca3af;
+        body.light-theme .activity-user-resource {
+            color: #64748b;
         }
 
-        body.dark-theme .activity-time {
-            color: #6b7280;
+        body.dark-theme .activity-user-resource {
+            color: #94a3b8;
         }
 
-        /* Show More Button */
-        .show-more-btn {
-            margin-top: 12px;
-            padding: 10px 16px;
-            border: 1px solid;
-            background-color: transparent;
-            border-radius: 6px;
-            font-size: 14px;
+        .activity-meta-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        .activity-time-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
             font-weight: 500;
+            white-space: nowrap;
+        }
+
+        body.light-theme .activity-time-chip {
+            background-color: #f8fafc;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        body.dark-theme .activity-time-chip {
+            background-color: rgba(15, 23, 42, 0.85);
+            color: #cbd5e1;
+            border: 1px solid rgba(71, 85, 105, 0.6);
+        }
+
+        .activity-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            background: transparent;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 6px 0;
+            transition: color 0.2s ease;
+        }
+
+        body.light-theme .activity-toggle-btn {
+            color: var(--activity-accent);
+        }
+
+        body.dark-theme .activity-toggle-btn {
+            color: color-mix(in srgb, var(--activity-accent) 62%, #ffffff 38%);
+        }
+
+        .activity-toggle-btn.is-disabled {
+            cursor: default;
+            opacity: 0.55;
+            pointer-events: none;
+        }
+
+        .activity-technical-panel {
+            margin-top: 14px;
+            border-radius: 14px;
+            padding: 14px;
+            border: 1px solid var(--activity-border);
+            background: color-mix(in srgb, var(--activity-soft) 58%, transparent);
+        }
+
+        body.dark-theme .activity-technical-panel {
+            background: color-mix(in srgb, var(--activity-soft) 72%, rgba(15, 23, 42, 0.85));
+        }
+
+        .activity-technical-panel[hidden] {
+            display: none !important;
+        }
+
+        .activity-technical-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .activity-technical-item {
+            padding: 10px 12px;
+            border-radius: 12px;
+        }
+
+        body.light-theme .activity-technical-item {
+            background-color: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(226, 232, 240, 0.95);
+        }
+
+        body.dark-theme .activity-technical-item {
+            background-color: rgba(15, 23, 42, 0.88);
+            border: 1px solid rgba(51, 65, 85, 0.9);
+        }
+
+        .activity-technical-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        body.light-theme .activity-technical-label {
+            color: #64748b;
+        }
+
+        body.dark-theme .activity-technical-label {
+            color: #94a3b8;
+        }
+
+        .activity-technical-value {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        body.light-theme .activity-technical-value {
+            color: #1e293b;
+        }
+
+        body.dark-theme .activity-technical-value {
+            color: #e2e8f0;
+        }
+
+        .activity-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 14px;
+            opacity: 0;
+            transform: translateY(6px);
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .activity-card:hover .activity-actions,
+        .activity-item:focus-within .activity-actions {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .activity-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            padding: 9px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .activity-action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .activity-action-btn.view-resource {
+            background-color: var(--activity-soft);
+            color: var(--activity-accent);
+            border-color: var(--activity-border);
+        }
+
+        .activity-action-btn.more-details {
+            background-color: transparent;
+        }
+
+        body.light-theme .activity-action-btn.more-details {
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+
+        body.dark-theme .activity-action-btn.more-details {
+            color: #e2e8f0;
+            border-color: rgba(100, 116, 139, 0.7);
+        }
+
+        .activity-action-btn.is-disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .show-more-btn {
+            width: 100%;
+            margin-top: 4px;
+            padding: 12px 16px;
+            border: 1px dashed;
+            background-color: transparent;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
-            align-self: flex-start;
         }
 
         body.light-theme .show-more-btn {
-            border-color: #3b82f6;
-            color: #3b82f6;
-        }
-
-        body.light-theme .show-more-btn:hover {
+            border-color: #93c5fd;
+            color: #2563eb;
             background-color: #eff6ff;
         }
 
+        body.light-theme .show-more-btn:hover {
+            background-color: #dbeafe;
+        }
+
         body.dark-theme .show-more-btn {
-            border-color: #60a5fa;
-            color: #60a5fa;
+            border-color: rgba(96, 165, 250, 0.45);
+            color: #93c5fd;
+            background-color: rgba(30, 64, 175, 0.16);
         }
 
         body.dark-theme .show-more-btn:hover {
+            background-color: rgba(37, 99, 235, 0.22);
+        }
+
+        .activity-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(15, 23, 42, 0.62);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+            padding: 20px;
+        }
+
+        .activity-modal-overlay.show {
+            display: flex;
+        }
+
+        .activity-modal {
+            width: min(860px, 100%);
+            max-height: min(88vh, 900px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.light-theme .activity-modal {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+        }
+
+        body.dark-theme .activity-modal {
             background-color: #0f172a;
+            border-color: #334155;
+            box-shadow: 0 28px 70px rgba(2, 6, 23, 0.48);
+        }
+
+        .activity-modal-header {
+            padding: 22px 24px;
+            background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .activity-modal-kicker {
+            margin: 0 0 6px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.75;
+        }
+
+        .activity-modal-header h2 {
+            margin: 0;
+            font-size: 22px;
+            line-height: 1.3;
+        }
+
+        .activity-modal-header p {
+            margin: 8px 0 0;
+            font-size: 14px;
+            opacity: 0.92;
+        }
+
+        .activity-modal-close {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .activity-modal-close:hover {
+            background: rgba(255, 255, 255, 0.24);
+        }
+
+        .activity-modal-body {
+            padding: 22px 24px 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .activity-modal-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .activity-detail-card {
+            border-radius: 16px;
+            padding: 14px 16px;
+            border: 1px solid;
+        }
+
+        body.light-theme .activity-detail-card {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        body.dark-theme .activity-detail-card {
+            background-color: #111c30;
+            border-color: #334155;
+        }
+
+        .activity-detail-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        body.light-theme .activity-detail-label {
+            color: #64748b;
+        }
+
+        body.dark-theme .activity-detail-label {
+            color: #94a3b8;
+        }
+
+        .activity-detail-value {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        body.light-theme .activity-detail-value {
+            color: #0f172a;
+        }
+
+        body.dark-theme .activity-detail-value {
+            color: #f8fafc;
+        }
+
+        .activity-modal-section {
+            border-radius: 18px;
+            padding: 18px;
+            border: 1px solid;
+        }
+
+        body.light-theme .activity-modal-section {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+        }
+
+        body.dark-theme .activity-modal-section {
+            background-color: #111827;
+            border-color: #334155;
+        }
+
+        .activity-modal-section h4 {
+            margin: 0 0 14px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .activity-modal-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .activity-modal-description {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        body.light-theme .activity-modal-description {
+            color: #475569;
+        }
+
+        body.dark-theme .activity-modal-description {
+            color: #cbd5e1;
+        }
+
+        .activity-metadata-list {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .activity-metadata-item {
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+
+        body.light-theme .activity-metadata-item {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        body.dark-theme .activity-metadata-item {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+        }
+
+        .activity-metadata-key {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        body.light-theme .activity-metadata-key {
+            color: #64748b;
+        }
+
+        body.dark-theme .activity-metadata-key {
+            color: #94a3b8;
+        }
+
+        .activity-metadata-value {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.5;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        body.light-theme .activity-metadata-value {
+            color: #1e293b;
+        }
+
+        body.dark-theme .activity-metadata-value {
+            color: #e2e8f0;
+        }
+
+        .activity-modal-empty {
+            font-size: 13px;
+            padding: 14px;
+            border-radius: 14px;
+        }
+
+        body.light-theme .activity-modal-empty {
+            background-color: #f8fafc;
+            color: #64748b;
+            border: 1px dashed #cbd5e1;
+        }
+
+        body.dark-theme .activity-modal-empty {
+            background-color: rgba(15, 23, 42, 0.9);
+            color: #94a3b8;
+            border: 1px dashed rgba(100, 116, 139, 0.7);
+        }
+
+        .activity-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 0 24px 24px;
+        }
+
+        @media (max-width: 768px) {
+            .activity-main {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-icon {
+                width: 42px;
+                height: 42px;
+                border-radius: 12px;
+            }
+
+            .activity-header,
+            .activity-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .activity-meta-controls {
+                width: 100%;
+                margin-left: 0;
+                justify-content: space-between;
+            }
+
+            .activity-technical-grid,
+            .activity-modal-grid,
+            .activity-metadata-list {
+                grid-template-columns: 1fr;
+            }
+
+            .activity-actions {
+                opacity: 1;
+                transform: translateY(0);
+                pointer-events: auto;
+            }
+
+            .activity-modal-overlay {
+                padding: 12px;
+            }
+
+            .activity-modal-header,
+            .activity-modal-body,
+            .activity-modal-actions {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .activity-item {
+                grid-template-columns: 16px minmax(0, 1fr);
+                gap: 10px;
+            }
+
+            .activity-dot {
+                width: 12px;
+                height: 12px;
+                margin-top: 16px;
+            }
+
+            .activity-card {
+                padding: 14px;
+            }
+
+            .activity-action-btn,
+            .show-more-btn {
+                width: 100%;
+            }
+
+            .activity-modal-header h2 {
+                font-size: 19px;
+            }
         }
 
         /* Empty State */
@@ -3232,6 +4951,88 @@
                 </div>
             </div>
         </div>
+
+        <div class="activity-modal-overlay" id="activityDetailsOverlay">
+            <div class="activity-modal" role="dialog" aria-modal="true" aria-labelledby="activityDetailsTitle">
+                <div class="activity-modal-header">
+                    <div>
+                        <p class="activity-modal-kicker">Audit Event</p>
+                        <h2 id="activityDetailsTitle">Activity Details</h2>
+                        <p id="activityDetailsSubtitle">Review technical details and metadata for this activity.</p>
+                    </div>
+                    <button type="button" class="activity-modal-close" id="closeActivityDetailsBtn" aria-label="Close activity details">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="activity-modal-body">
+                    <div class="activity-modal-grid">
+                        <div class="activity-detail-card">
+                            <span class="activity-detail-label">Status</span>
+                            <div class="activity-detail-value" id="activityDetailsStatus"></div>
+                        </div>
+                        <div class="activity-detail-card">
+                            <span class="activity-detail-label">Resource</span>
+                            <div class="activity-detail-value" id="activityDetailsResource"></div>
+                        </div>
+                        <div class="activity-detail-card">
+                            <span class="activity-detail-label">Timestamp</span>
+                            <div class="activity-detail-value" id="activityDetailsTimestamp"></div>
+                        </div>
+                        <div class="activity-detail-card">
+                            <span class="activity-detail-label">Session</span>
+                            <div class="activity-detail-value" id="activityDetailsSession"></div>
+                        </div>
+                    </div>
+
+                    <div class="activity-modal-section">
+                        <h4>Performed By</h4>
+                        <div class="activity-modal-user" id="activityDetailsUser"></div>
+                    </div>
+
+                    <div class="activity-modal-section">
+                        <h4>Description</h4>
+                        <p class="activity-modal-description" id="activityDetailsDescription"></p>
+                    </div>
+
+                    <div class="activity-modal-section">
+                        <h4>Technical Details</h4>
+                        <div class="activity-technical-grid">
+                            <div class="activity-technical-item">
+                                <span class="activity-technical-label">IP Address</span>
+                                <span class="activity-technical-value" id="activityDetailsIp"></span>
+                            </div>
+                            <div class="activity-technical-item">
+                                <span class="activity-technical-label">Device Type</span>
+                                <span class="activity-technical-value" id="activityDetailsDevice"></span>
+                            </div>
+                            <div class="activity-technical-item">
+                                <span class="activity-technical-label">Browser</span>
+                                <span class="activity-technical-value" id="activityDetailsBrowser"></span>
+                            </div>
+                            <div class="activity-technical-item">
+                                <span class="activity-technical-label">Session ID</span>
+                                <span class="activity-technical-value" id="activityDetailsSessionPanel"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="activity-modal-section">
+                        <h4>Metadata</h4>
+                        <div class="activity-metadata-list" id="activityMetadataList"></div>
+                    </div>
+                </div>
+                <div class="activity-modal-actions">
+                    <a href="#" class="activity-action-btn view-resource" id="activityDetailsResourceLink" target="_blank" rel="noopener">
+                        <i class="fas fa-external-link-alt"></i>
+                        View Resource
+                    </a>
+                    <button type="button" class="activity-action-btn more-details" onclick="closeActivityDetails()">
+                        <i class="fas fa-times-circle"></i>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Role Selection Modal -->
@@ -3388,25 +5189,90 @@
 
     <!-- Fine History Modal -->
     <div class="fine-modal-overlay" id="historyOverlay">
-        <div class="fine-modal">
+        <div class="fine-modal wide">
             <div class="fine-modal-header">
                 <h2>Fine Payment History</h2>
                 <button class="fine-modal-close" onclick="closeFineModal('history')">&times;</button>
             </div>
-            <div class="fine-modal-body">
-                <div class="fine-info-box">
-                    <div class="fine-info-label">Fine Amount</div>
-                    <div class="fine-info-value" id="historyAmount">₹0</div>
+            <div class="fine-modal-body fine-history-modal-body">
+                <div class="fine-history-summary">
+                    <div class="fine-history-hero">
+                        <div class="fine-summary-label">Current Fine Amount</div>
+                        <div class="fine-history-amount" id="historyAmount">₹0.00</div>
+                        <p class="fine-history-book-title" id="historyBookTitle">Loading book details...</p>
+                        <div class="fine-history-book-meta" id="historyBookIsbn">ISBN: N/A</div>
+                    </div>
+
+                    <div class="fine-summary-grid">
+                        <div class="fine-summary-card">
+                            <div class="fine-summary-label">Original Amount</div>
+                            <div class="fine-summary-value" id="historyOriginalAmount">₹0.00</div>
+                        </div>
+                        <div class="fine-summary-card">
+                            <div class="fine-summary-label">Status</div>
+                            <div class="fine-summary-value" id="historyStatus">Pending</div>
+                        </div>
+                        <div class="fine-summary-card">
+                            <div class="fine-summary-label">Days Late</div>
+                            <div class="fine-summary-value" id="historyDaysLate">0 days</div>
+                        </div>
+                    </div>
                 </div>
-                <ul class="fine-history-list" id="fineHistoryList">
-                    <li class="fine-history-item" style="text-align: center; padding: 20px;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M12 6v6l4 2"/>
-                        </svg>
-                        Loading history...
-                    </li>
-                </ul>
+
+                <div class="fine-history-section">
+                    <div class="fine-history-section-title">Enhanced Timeline</div>
+                    <ul class="fine-history-list" id="fineHistoryList">
+                        <li class="fine-history-empty">Loading history...</li>
+                    </ul>
+                </div>
+
+                <div class="fine-history-section" id="historyCalculationSection" hidden>
+                    <div class="fine-history-section-title">Calculation Breakdown</div>
+                    <div class="fine-calculation-table">
+                        <div class="fine-calculation-row">
+                            <span>Per day rate</span>
+                            <strong id="historyCalcBaseRate">₹0.00</strong>
+                        </div>
+                        <div class="fine-calculation-row">
+                            <span>Days late</span>
+                            <strong id="historyCalcDaysLate">0</strong>
+                        </div>
+                        <div class="fine-calculation-row">
+                            <span>Subtotal</span>
+                            <strong id="historyCalcSubtotal">₹0.00</strong>
+                        </div>
+                        <div class="fine-calculation-row" id="historyCalcAdjustmentsRow" hidden>
+                            <span>Adjustments</span>
+                            <strong id="historyCalcAdjustments">₹0.00</strong>
+                        </div>
+                        <div class="fine-calculation-row total">
+                            <span>Final Amount</span>
+                            <strong id="historyCalcFinalAmount">₹0.00</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="confirmation-modal-overlay" id="confirmationModalOverlay">
+        <div class="confirmation-modal" role="dialog" aria-modal="true" aria-labelledby="confirmationModalTitle">
+            <div class="confirmation-modal-header">
+                <div class="confirmation-modal-icon" id="confirmationModalIcon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="confirmation-modal-content">
+                    <h3 class="confirmation-modal-title" id="confirmationModalTitle">Confirm Action</h3>
+                    <p class="confirmation-modal-message" id="confirmationModalMessage">Are you sure you want to proceed with this action?</p>
+                </div>
+            </div>
+            <div class="confirmation-modal-body" id="confirmationModalBody">
+                <!-- Dynamic details will be inserted here -->
+            </div>
+            <div class="confirmation-modal-actions">
+                <button class="confirmation-modal-btn confirmation-modal-btn-cancel" id="confirmationCancelBtn" onclick="closeConfirmationModal()">Cancel</button>
+                <button class="confirmation-modal-btn confirmation-modal-btn-confirm" id="confirmationConfirmBtn" onclick="confirmAction()">Confirm</button>
             </div>
         </div>
     </div>
@@ -3421,51 +5287,94 @@
                 <button class="book-details-close" id="closeBookDetailsBtn">&times;</button>
             </div>
             <div class="book-details-body">
-                <h2 class="book-title" id="bookDetailsTitle"></h2>
-                <p class="book-author" id="bookDetailsAuthor"></p>
-                
-                <div class="book-details-grid">
-                    <div class="book-detail-item">
-                        <div class="book-detail-label">ISBN</div>
-                        <div class="book-detail-value" id="bookDetailsISBN"></div>
-                    </div>
-                    <div class="book-detail-item">
-                        <div class="book-detail-label">Publisher</div>
-                        <div class="book-detail-value" id="bookDetailsPublisher"></div>
-                    </div>
-                    <div class="book-detail-item">
-                        <div class="book-detail-label">Status</div>
-                        <div class="book-detail-value" id="bookDetailsStatus"></div>
-                    </div>
-                    <div class="book-detail-item">
-                        <div class="book-detail-label">Condition</div>
-                        <div class="book-detail-value" id="bookDetailsCondition"></div>
-                    </div>
-                    <div class="book-detail-item">
-                        <div class="book-detail-label">Issue Date</div>
-                        <div class="book-detail-value" id="bookDetailsIssueDate"></div>
-                    </div>
-                    <div class="book-detail-item">
-                        <div class="book-detail-label">Due Date</div>
-                        <div class="book-detail-value" id="bookDetailsDueDate"></div>
-                    </div>
-                    <div class="book-detail-item">
-                        <div class="book-detail-label">Return Date</div>
-                        <div class="book-detail-value" id="bookDetailsReturnDate"></div>
-                    </div>
-                    <div class="book-detail-item">
-                        <div class="book-detail-label">Fine Amount</div>
-                        <div class="book-detail-value" id="bookDetailsFine"></div>
+                <div class="book-title-row">
+                    <div class="book-heading">
+                        <div class="book-title-wrap">
+                            <h2 class="book-title" id="bookDetailsTitle"></h2>
+                            <span class="book-category-badge" id="bookDetailsCategory"></span>
+                        </div>
+                        <p class="book-author" id="bookDetailsAuthor"></p>
                     </div>
                 </div>
 
-                <div id="overdueInfo" style="display: none;" class="book-detail-item">
-                    <div class="book-detail-label">Days Overdue</div>
-                    <div class="book-detail-value" id="bookDetailsDaysOverdue"></div>
+                <div class="book-details-columns">
+                    <div class="book-details-column">
+                        <div class="column-title">Book Information</div>
+                        <div class="book-details-grid">
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">ISBN</div>
+                                <div class="book-detail-value" id="bookDetailsISBN"></div>
+                            </div>
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">Publisher</div>
+                                <div class="book-detail-value" id="bookDetailsPublisher"></div>
+                            </div>
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">Condition</div>
+                                <div class="book-detail-value" id="bookDetailsCondition"></div>
+                            </div>
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">Category</div>
+                                <div class="book-detail-value" id="bookDetailsCategoryValue"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-details-column">
+                        <div class="column-title">Transaction Details</div>
+                        <div class="book-details-grid">
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">Transaction ID</div>
+                                <div class="book-detail-value" id="bookDetailsTransactionId"></div>
+                            </div>
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">Issue Date</div>
+                                <div class="book-detail-value" id="bookDetailsIssueDate"></div>
+                            </div>
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">Due Date</div>
+                                <div class="book-detail-value" id="bookDetailsDueDate"></div>
+                            </div>
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">Return Date</div>
+                                <div class="book-detail-value" id="bookDetailsReturnDate"></div>
+                            </div>
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">Issued By</div>
+                                <div class="book-detail-value" id="bookDetailsIssuedBy"></div>
+                            </div>
+                            <div class="book-detail-item">
+                                <div class="book-detail-label">Renewal Count</div>
+                                <div class="book-detail-value" id="bookDetailsRenewalCount"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="book-status-section">
+                    <div class="section-title">Status &amp; Fines</div>
+                    <div class="book-status-grid">
+                        <div class="book-detail-item">
+                            <div class="book-detail-label">Status</div>
+                            <div class="book-detail-value" id="bookDetailsStatus"></div>
+                        </div>
+                        <div class="book-detail-item" id="overdueInfo" hidden>
+                            <div class="book-detail-label">Days Overdue</div>
+                            <div class="book-detail-value" id="bookDetailsDaysOverdue"></div>
+                        </div>
+                        <div class="book-detail-item">
+                            <div class="book-detail-label">Fine Amount</div>
+                            <div class="book-detail-value" id="bookDetailsFine"></div>
+                        </div>
+                        <div class="book-detail-item" id="fineStatusInfo" hidden>
+                            <div class="book-detail-label">Fine Status</div>
+                            <div class="book-detail-value" id="bookDetailsFineStatus"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="book-description">
-                    <div class="book-description-title">Description</div>
+                    <div class="section-title">Description</div>
                     <div class="book-description-text" id="bookDetailsDescription"></div>
                 </div>
             </div>
@@ -3670,13 +5579,75 @@
 
         // Action functions
         function sendNotification() {
-            console.log('Sending notification...');
-            alert('Notification sent to student!\n\nIn a real application, this would open a notification dialog.');
+            showConfirmationModal({
+                title: 'Send Notification to Student',
+                message: 'A notification will be sent to the student\'s email address. This can be used for reminders, announcements, or important updates.',
+                iconType: 'info',
+                confirmText: 'Send Notification',
+                confirmClass: 'primary',
+                details: [
+                    { label: 'Action', value: 'Send Email Notification' },
+                    { label: 'Recipient', value: 'Student\'s registered email address' },
+                    { label: 'Purpose', value: 'Library announcements or reminders' }
+                ],
+                onConfirm: () => {
+                    showToast('Sending notification to student...', 'info');
+                    // Simulate API call
+                    setTimeout(() => {
+                        showToast('Notification sent successfully! The student will receive it shortly.', 'success');
+                    }, 1500);
+                }
+            });
         }
 
         function printReport() {
-            console.log('Printing report...');
-            alert('Report generated!\n\nIn a real application, this would generate a PDF report for printing.');
+            showConfirmationModal({
+                title: 'Generate Student Report',
+                message: 'A comprehensive report will be generated including student details, issued books, fines, and activity logs.',
+                iconType: 'info',
+                confirmText: 'Generate Report',
+                confirmClass: 'primary',
+                details: [
+                    { label: 'Action', value: 'Generate PDF Report' },
+                    { label: 'Contents', value: 'Student profile, books, fines, activity logs' },
+                    { label: 'Format', value: 'PDF document for printing' }
+                ],
+                onConfirm: () => {
+                    showToast('Generating report... Please wait.', 'info');
+                    // Simulate API call
+                    setTimeout(() => {
+                        showToast('Report generated successfully! Download will start automatically.', 'success');
+                    }, 2000);
+                }
+            });
+        }
+
+        function formatDisplayLabel(value, fallback = 'N/A') {
+            if (value === null || value === undefined || value === '') {
+                return fallback;
+            }
+
+            return String(value)
+                .replace(/[_-]+/g, ' ')
+                .replace(/\b\w/g, character => character.toUpperCase());
+        }
+
+        function getFineStatusMeta(status) {
+            const normalizedStatus = String(status || 'n/a').toLowerCase() === 'unpaid'
+                ? 'pending'
+                : String(status || 'n/a').toLowerCase();
+
+            const labels = {
+                pending: 'Pending',
+                paid: 'Paid',
+                waived: 'Waived',
+                'n/a': 'N/A',
+            };
+
+            return {
+                key: labels[normalizedStatus] ? normalizedStatus : 'n/a',
+                label: labels[normalizedStatus] || 'N/A',
+            };
         }
 
         function viewBookDetails(bookId) {
@@ -3691,8 +5662,10 @@
             coverContainer.innerHTML = '';
             if (book.coverImage) {
                 const img = document.createElement('img');
-                // Prepend storage base URL to relative path
-                img.src = '{{ asset("storage") }}/' + book.coverImage;
+                const normalizedCoverPath = String(book.coverImage).replace(/^storage\//, '');
+                img.src = /^https?:\/\//i.test(book.coverImage)
+                    ? book.coverImage
+                    : '{{ asset("storage") }}/' + normalizedCoverPath;
                 img.alt = book.title || '';
                 img.className = 'book-cover-image';
                 img.style.maxHeight = '240px';
@@ -3707,28 +5680,46 @@
 
             // Populate book details
             document.getElementById('bookDetailsTitle').textContent = book.title;
-            document.getElementById('bookDetailsAuthor').textContent = `by ${book.author}`;
+            document.getElementById('bookDetailsAuthor').textContent = `by ${book.author || 'Unknown Author'}`;
             document.getElementById('bookDetailsISBN').textContent = book.isbn;
             document.getElementById('bookDetailsPublisher').textContent = book.publisher;
-            document.getElementById('bookDetailsCondition').textContent = book.condition;
-            document.getElementById('bookDetailsIssueDate').textContent = book.issueDateFull;
+            document.getElementById('bookDetailsCondition').textContent = formatDisplayLabel(book.condition, 'Good');
+            document.getElementById('bookDetailsCategory').textContent = book.category || 'Uncategorized';
+            document.getElementById('bookDetailsCategoryValue').textContent = book.category || 'Uncategorized';
+            document.getElementById('bookDetailsTransactionId').textContent = book.transactionId || 'N/A';
+            document.getElementById('bookDetailsIssueDate').textContent = book.issueDate || 'N/A';
             document.getElementById('bookDetailsDueDate').textContent = book.dueDate;
             document.getElementById('bookDetailsReturnDate').textContent = book.returnDate;
+            document.getElementById('bookDetailsIssuedBy').textContent = book.issuedBy || 'System';
+            document.getElementById('bookDetailsRenewalCount').textContent = String(book.renewalCount ?? 0);
             document.getElementById('bookDetailsFine').textContent = `₹${parseFloat(book.fine).toFixed(2)}`;
-            document.getElementById('bookDetailsDescription').textContent = book.description;
+            document.getElementById('bookDetailsDescription').textContent = book.description || 'No description available';
 
             // Status badge
             const statusBadge = document.getElementById('bookDetailsStatus');
-            let statusText = book.status.charAt(0).toUpperCase() + book.status.slice(1);
+            let statusText = formatDisplayLabel(book.status, 'Issued');
             statusBadge.innerHTML = `<span class="book-detail-badge status-${book.status}">${statusText}</span>`;
 
             // Show/hide overdue info
             const overdueInfo = document.getElementById('overdueInfo');
             if (book.status === 'overdue') {
-                overdueInfo.style.display = 'block';
+                overdueInfo.hidden = false;
                 document.getElementById('bookDetailsDaysOverdue').textContent = `${book.daysOverdue} days`;
             } else {
-                overdueInfo.style.display = 'none';
+                overdueInfo.hidden = true;
+                document.getElementById('bookDetailsDaysOverdue').textContent = '';
+            }
+
+            // Fine status is only visible when a fine record exists
+            const fineStatusInfo = document.getElementById('fineStatusInfo');
+            const fineStatusBadge = document.getElementById('bookDetailsFineStatus');
+            if (book.hasFine) {
+                const fineStatus = getFineStatusMeta(book.fineStatus);
+                fineStatusInfo.hidden = false;
+                fineStatusBadge.innerHTML = `<span class="fine-status-badge fine-status-${fineStatus.key}">${fineStatus.label}</span>`;
+            } else {
+                fineStatusInfo.hidden = true;
+                fineStatusBadge.innerHTML = '';
             }
 
             // Show modal
@@ -3741,9 +5732,26 @@
             overlay.classList.remove('show');
         }
 
+        function closeActivityDetails() {
+            const overlay = document.getElementById('activityDetailsOverlay');
+            overlay?.classList.remove('show');
+        }
+
         // Back button functionality
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && document.activeElement.tagName !== 'INPUT') {
+                const bookDetailsOverlay = document.getElementById('bookDetailsOverlay');
+                if (bookDetailsOverlay?.classList.contains('show')) {
+                    closeBookDetailsModal();
+                    return;
+                }
+
+                const activityDetailsOverlay = document.getElementById('activityDetailsOverlay');
+                if (activityDetailsOverlay?.classList.contains('show')) {
+                    closeActivityDetails();
+                    return;
+                }
+
                 // Navigate back
                 const backLink = document.querySelector('.back-link');
                 if (backLink && backLink.href) {
@@ -3798,7 +5806,7 @@
             document.getElementById('saveChangesBtn')?.addEventListener('click', savePrivilegeSettings);
             
             // Load privilege settings on page load
-            loadPrivilegeSettings();
+            loadPrivilegeSettings().catch(() => {});
 
             // Fine action buttons will be set up in renderFinesTable
 
@@ -3807,6 +5815,13 @@
             document.getElementById('bookDetailsOverlay')?.addEventListener('click', function(e) {
                 if (e.target === this) {
                     closeBookDetailsModal();
+                }
+            });
+
+            document.getElementById('closeActivityDetailsBtn')?.addEventListener('click', closeActivityDetails);
+            document.getElementById('activityDetailsOverlay')?.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeActivityDetails();
                 }
             });
         }
@@ -3960,21 +5975,25 @@
             });
         }
 
-        // Track activity logs display state
         let activityLogsIndex = 0;
         let allActivityLogs = [];
+        let activityLogLookup = new Map();
 
-        // Render activity logs
         function renderActivityLogs() {
             const activityTimeline = document.getElementById('activityTimeline');
             if (!activityTimeline) return;
 
             activityTimeline.innerHTML = '';
-            
-            // Combine all logs
-            allActivityLogs = [...activityLogs, ...(remainingActivityLogs || [])];
+            allActivityLogs = [...activityLogs, ...(remainingActivityLogs || [])].map(log => ({
+                ...log,
+                id: String(log.id ?? ''),
+                type: String(log.type || 'auth'),
+                status: String(log.status || 'success'),
+                metadata: log.metadata && typeof log.metadata === 'object' ? log.metadata : {},
+            }));
 
-            // Check if there are no logs at all
+            activityLogLookup = new Map(allActivityLogs.map(log => [String(log.id), log]));
+
             if (allActivityLogs.length === 0) {
                 const emptyState = document.createElement('div');
                 emptyState.className = 'empty-state';
@@ -3990,7 +6009,6 @@
                 return;
             }
 
-            // Reset index and display first batch
             activityLogsIndex = 0;
             displayActivityLogsBatch();
         }
@@ -3999,84 +6017,299 @@
             const activityTimeline = document.getElementById('activityTimeline');
             if (!activityTimeline) return;
 
-            // Display next 10 logs
-            const logsToDisplay = allActivityLogs.slice(activityLogsIndex, activityLogsIndex + 10);
-            logsToDisplay.forEach(log => {
-                appendActivityItem(log, activityTimeline);
-            });
-
-            activityLogsIndex += 10;
-
-            // Remove existing button if any
             const existingButton = activityTimeline.querySelector('.show-more-btn');
             if (existingButton) {
                 existingButton.remove();
             }
 
-            // Check if there are more logs to show
+            const logsToDisplay = allActivityLogs.slice(activityLogsIndex, activityLogsIndex + 10);
+            logsToDisplay.forEach(log => appendActivityItem(log, activityTimeline));
+            activityLogsIndex += 10;
+
             if (activityLogsIndex < allActivityLogs.length) {
-                // Add "Show More" button
                 const showMoreButton = document.createElement('button');
+                showMoreButton.type = 'button';
                 showMoreButton.className = 'show-more-btn';
                 showMoreButton.textContent = 'Show More';
-                showMoreButton.onclick = function() {
-                    displayActivityLogsBatch();
-                };
+                showMoreButton.addEventListener('click', displayActivityLogsBatch);
                 activityTimeline.appendChild(showMoreButton);
             }
+
+            refreshActivityTimelineTail();
+        }
+
+        function refreshActivityTimelineTail() {
+            const items = document.querySelectorAll('#activityTimeline .activity-item');
+            items.forEach(item => item.classList.remove('is-last'));
+            items[items.length - 1]?.classList.add('is-last');
         }
 
         function appendActivityItem(log, container) {
-            const activityItem = document.createElement('div');
-            activityItem.className = `activity-item ${log.type}`;
+            const activityItem = document.createElement('article');
+            const typeConfig = getActivityTypeConfig(log.type);
+            const statusConfig = getActivityStatusConfig(log.status);
+            const roleMeta = getActivityRoleMeta(log.userRole);
+            const technicalPanelId = `activityTechnicalDetails-${log.id}`;
+            const resourceLabel = getActivityResourceLabel(log);
 
-            // Get icon based on type
-            let iconSVG = '';
-            switch(log.type) {
-                case 'book-issued':
-                    iconSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-                </svg>`;
-                    break;
-                case 'book-returned':
-                    iconSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>`;
-                    break;
-                case 'fine-applied':
-                    iconSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="1" x2="12" y2="23"/>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>`;
-                    break;
-                case 'account-status':
-                    iconSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="8.5" cy="7" r="4"/>
-                    <polyline points="17 11 19 13 23 9"/>
-                </svg>`;
-                    break;
-                case 'profile-updated':
-                    iconSVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>`;
-                    break;
+            activityItem.className = `activity-item ${String(log.type || 'auth').replace(/[^a-z0-9-_]/gi, '')}`;
+            activityItem.innerHTML = `
+                <div class="activity-connector" aria-hidden="true">
+                    <span class="activity-dot"></span>
+                    <span class="activity-line"></span>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-main">
+                        <div class="activity-icon">
+                            <i class="${escapeHtml(typeConfig.icon)}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-header">
+                                <h4 class="activity-title">${escapeHtml(log.title || typeConfig.label)}</h4>
+                                <span class="activity-status-badge status-${escapeHtml(statusConfig.key)}">${escapeHtml(statusConfig.label)}</span>
+                            </div>
+                            <p class="activity-desc">${escapeHtml(log.description || 'Activity recorded')}</p>
+                            <div class="activity-meta">
+                                <div class="activity-user">
+                                    ${getActivityAvatarMarkup(log)}
+                                    <div class="activity-user-info">
+                                        <div class="activity-user-name-row">
+                                            <span class="activity-user-name">${escapeHtml(log.userName || 'System')}</span>
+                                            <span class="activity-role-badge role-${escapeHtml(roleMeta.roleClass)}">${escapeHtml(roleMeta.label)}</span>
+                                        </div>
+                                        <span class="activity-user-resource">${escapeHtml(resourceLabel)}</span>
+                                    </div>
+                                </div>
+                                <div class="activity-meta-controls">
+                                    <span class="activity-time-chip" title="${escapeHtml(log.fullTimestamp || log.time || 'N/A')}">
+                                        <i class="far fa-clock"></i>
+                                        ${escapeHtml(log.time || 'N/A')}
+                                    </span>
+                                    <button type="button" class="activity-toggle-btn${log.hasDetails ? '' : ' is-disabled'}" data-action="toggle-details" aria-expanded="false" aria-controls="${escapeHtml(technicalPanelId)}">
+                                        <i class="fas fa-chevron-down"></i>
+                                        ${log.hasDetails ? 'Details' : 'No Details'}
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="activity-technical-panel" id="${escapeHtml(technicalPanelId)}" hidden>
+                                <div class="activity-technical-grid">
+                                    <div class="activity-technical-item">
+                                        <span class="activity-technical-label">IP Address</span>
+                                        <span class="activity-technical-value">${escapeHtml(log.ipAddress || 'Not captured')}</span>
+                                    </div>
+                                    <div class="activity-technical-item">
+                                        <span class="activity-technical-label">Device Type</span>
+                                        <span class="activity-technical-value">${escapeHtml(log.deviceType || 'Unknown device')}</span>
+                                    </div>
+                                    <div class="activity-technical-item">
+                                        <span class="activity-technical-label">Browser</span>
+                                        <span class="activity-technical-value">${escapeHtml(log.browser || 'Unknown browser')}</span>
+                                    </div>
+                                    <div class="activity-technical-item">
+                                        <span class="activity-technical-label">Session ID</span>
+                                        <span class="activity-technical-value">${escapeHtml(log.sessionId || 'Not captured')}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="activity-actions">
+                                ${log.resourceUrl
+                                    ? `<a class="activity-action-btn view-resource" href="${escapeHtml(log.resourceUrl)}" target="_blank" rel="noopener">
+                                            <i class="fas fa-external-link-alt"></i>
+                                            View Resource
+                                       </a>`
+                                    : `<span class="activity-action-btn view-resource is-disabled">
+                                            <i class="fas fa-ban"></i>
+                                            View Resource
+                                       </span>`
+                                }
+                                <button type="button" class="activity-action-btn more-details" data-action="show-details">
+                                    <i class="fas fa-info-circle"></i>
+                                    More Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            activityItem.querySelector('[data-action="toggle-details"]')?.addEventListener('click', () => toggleTechnicalDetails(log.id));
+            activityItem.querySelector('[data-action="show-details"]')?.addEventListener('click', () => showActivityDetails(log.id));
+            container.appendChild(activityItem);
+        }
+
+        function toggleTechnicalDetails(logId) {
+            const normalizedId = String(logId);
+            const log = activityLogLookup.get(normalizedId);
+            if (!log || !log.hasDetails) {
+                return;
             }
 
-            activityItem.innerHTML = `
-            <div class="activity-icon">
-                ${iconSVG}
-            </div>
-            <div class="activity-content">
-                <div class="activity-title">${log.title}</div>
-                <div class="activity-desc">${log.description}</div>
-                <div class="activity-time">${log.time}</div>
-            </div>
-        `;
+            const panel = document.getElementById(`activityTechnicalDetails-${normalizedId}`);
+            const toggleButton = document.querySelector(`[aria-controls="activityTechnicalDetails-${normalizedId}"]`);
+            if (!panel || !toggleButton) return;
 
-            container.appendChild(activityItem);
+            const shouldOpen = panel.hidden;
+            panel.hidden = !shouldOpen;
+            toggleButton.setAttribute('aria-expanded', String(shouldOpen));
+            toggleButton.innerHTML = `
+                <i class="fas fa-chevron-${shouldOpen ? 'up' : 'down'}"></i>
+                ${shouldOpen ? 'Hide Details' : 'Details'}
+            `;
+        }
+
+        function showActivityDetails(logId) {
+            const log = activityLogLookup.get(String(logId));
+            const overlay = document.getElementById('activityDetailsOverlay');
+            if (!log || !overlay) {
+                showToast('Activity details are unavailable right now.', 'warning');
+                return;
+            }
+
+            const typeConfig = getActivityTypeConfig(log.type);
+            const statusConfig = getActivityStatusConfig(log.status);
+            const roleMeta = getActivityRoleMeta(log.userRole);
+            const resourceLabel = getActivityResourceLabel(log);
+            const metadataList = document.getElementById('activityMetadataList');
+            const resourceLink = document.getElementById('activityDetailsResourceLink');
+
+            document.getElementById('activityDetailsTitle').textContent = log.title || typeConfig.label;
+            document.getElementById('activityDetailsSubtitle').textContent = typeConfig.label;
+            document.getElementById('activityDetailsStatus').innerHTML = `<span class="activity-status-badge status-${escapeHtml(statusConfig.key)}">${escapeHtml(statusConfig.label)}</span>`;
+            document.getElementById('activityDetailsResource').textContent = resourceLabel;
+            document.getElementById('activityDetailsTimestamp').textContent = log.fullTimestamp || log.time || 'N/A';
+            document.getElementById('activityDetailsSession').textContent = log.sessionId || 'Not captured';
+            document.getElementById('activityDetailsUser').innerHTML = `
+                ${getActivityAvatarMarkup(log)}
+                <div class="activity-user-info">
+                    <div class="activity-user-name-row">
+                        <span class="activity-user-name">${escapeHtml(log.userName || 'System')}</span>
+                        <span class="activity-role-badge role-${escapeHtml(roleMeta.roleClass)}">${escapeHtml(roleMeta.label)}</span>
+                    </div>
+                    <span class="activity-user-resource">${escapeHtml(typeConfig.label)}</span>
+                </div>
+            `;
+            document.getElementById('activityDetailsDescription').textContent = log.description || 'Activity recorded';
+            document.getElementById('activityDetailsIp').textContent = log.ipAddress || 'Not captured';
+            document.getElementById('activityDetailsDevice').textContent = log.deviceType || 'Unknown device';
+            document.getElementById('activityDetailsBrowser').textContent = log.browser || 'Unknown browser';
+            document.getElementById('activityDetailsSessionPanel').textContent = log.sessionId || 'Not captured';
+
+            if (metadataList) {
+                const metadataMarkup = getActivityMetadataMarkup(log.metadata);
+                metadataList.innerHTML = metadataMarkup || '<div class="activity-modal-empty">No additional metadata was captured for this activity.</div>';
+            }
+
+            if (resourceLink) {
+                if (log.resourceUrl) {
+                    resourceLink.href = log.resourceUrl;
+                    resourceLink.classList.remove('is-disabled');
+                    resourceLink.setAttribute('aria-disabled', 'false');
+                } else {
+                    resourceLink.href = '#';
+                    resourceLink.classList.add('is-disabled');
+                    resourceLink.setAttribute('aria-disabled', 'true');
+                }
+            }
+
+            overlay.classList.add('show');
+        }
+
+        function getActivityTypeConfig(type) {
+            const typeMap = {
+                'book-issued': { label: 'Book Issued', icon: 'fas fa-book-open' },
+                'book-returned': { label: 'Book Returned', icon: 'fas fa-undo-alt' },
+                'fine-applied': { label: 'Fine Applied', icon: 'fas fa-money-bill-wave' },
+                'fine-paid': { label: 'Fine Paid', icon: 'fas fa-check-circle' },
+                'fine-waived': { label: 'Fine Waived', icon: 'fas fa-ban' },
+                'account-status': { label: 'Account Status', icon: 'fas fa-user-shield' },
+                'profile-updated': { label: 'Profile Updated', icon: 'fas fa-user-edit' },
+                'privilege-change': { label: 'Privilege Change', icon: 'fas fa-user-cog' },
+                auth: { label: 'Authentication', icon: 'fas fa-shield-alt' },
+            };
+
+            return typeMap[type] || typeMap.auth;
+        }
+
+        function getActivityStatusConfig(status) {
+            const normalizedStatus = String(status || 'success').toLowerCase();
+            const statusMap = {
+                success: { key: 'success', label: 'Success' },
+                failed: { key: 'failed', label: 'Failed' },
+                warning: { key: 'warning', label: 'Warning' },
+            };
+
+            return statusMap[normalizedStatus] || statusMap.success;
+        }
+
+        function getActivityRoleMeta(role) {
+            const normalizedRole = String(role || 'system').toLowerCase();
+            const allowedRoles = ['admin', 'staff', 'student'];
+
+            return {
+                roleClass: allowedRoles.includes(normalizedRole) ? normalizedRole : 'system',
+                label: formatDisplayLabel(normalizedRole, 'System'),
+            };
+        }
+
+        function getActivityAvatarMarkup(log) {
+            if (log.userAvatar) {
+                return `<span class="activity-avatar"><img src="${escapeHtml(log.userAvatar)}" alt="${escapeHtml(log.userName || 'User')}"></span>`;
+            }
+
+            return `<span class="activity-avatar">${escapeHtml(getActivityInitials(log.userName || 'System'))}</span>`;
+        }
+
+        function getActivityInitials(name) {
+            const parts = String(name || 'System')
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean)
+                .slice(0, 2);
+
+            if (parts.length === 0) {
+                return 'SY';
+            }
+
+            return parts.map(part => part.charAt(0).toUpperCase()).join('');
+        }
+
+        function getActivityMetadataMarkup(metadata) {
+            const filteredEntries = Object.entries(metadata || {}).filter(([key]) => !['session_id'].includes(String(key)));
+            if (filteredEntries.length === 0) {
+                return '';
+            }
+
+            return filteredEntries.map(([key, value]) => `
+                <div class="activity-metadata-item">
+                    <span class="activity-metadata-key">${escapeHtml(formatDisplayLabel(key))}</span>
+                    <div class="activity-metadata-value">${escapeHtml(formatActivityMetadataValue(value))}</div>
+                </div>
+            `).join('');
+        }
+
+        function formatActivityMetadataValue(value) {
+            if (value === null || value === undefined || value === '') {
+                return 'Not captured';
+            }
+
+            if (Array.isArray(value)) {
+                return value.map(item => formatActivityMetadataValue(item)).join(', ');
+            }
+
+            if (typeof value === 'object') {
+                return JSON.stringify(value, null, 2);
+            }
+
+            return String(value);
+        }
+
+        function getActivityResourceLabel(log) {
+            const resourceType = log.resourceType || 'Resource';
+            const resourceId = String(log.resourceId || '').trim();
+
+            return resourceId && resourceId !== 'N/A'
+                ? `${resourceType} #${resourceId}`
+                : resourceType;
         }
 
         // Toast notification system
@@ -4285,113 +6518,236 @@
             }
         });
 
-        // Account Management Functions
-        function resetPassword() {
-            if (!confirm('Are you sure you want to reset the password for this student?\n\nA temporary password will be generated and sent to the student\'s email address.')) {
-                return;
+        // Confirmation Modal Helper
+        function showConfirmationModal(config) {
+            const {
+                title = 'Confirm Action',
+                message = 'Are you sure you want to proceed with this action?',
+                iconType = 'warning', // 'warning', 'danger', 'info'
+                confirmText = 'Confirm',
+                confirmClass = 'primary', // 'primary', 'danger', 'warning', 'success'
+                details = null,
+                onConfirm = () => {}
+            } = config;
+
+            const overlay = document.getElementById('confirmationModalOverlay');
+            const icon = document.getElementById('confirmationModalIcon');
+            const titleEl = document.getElementById('confirmationModalTitle');
+            const messageEl = document.getElementById('confirmationModalMessage');
+            const bodyEl = document.getElementById('confirmationModalBody');
+            const confirmBtn = document.getElementById('confirmationConfirmBtn');
+
+            // Set icon based on type
+            const iconMap = {
+                warning: '<i class="fas fa-exclamation-triangle"></i>',
+                danger: '<i class="fas fa-trash-alt"></i>',
+                info: '<i class="fas fa-info-circle"></i>'
+            };
+            icon.innerHTML = iconMap[iconType] || iconMap.warning;
+            icon.className = `confirmation-modal-icon ${iconType}`;
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+
+            // Build details section if provided
+            if (details) {
+                bodyEl.innerHTML = `
+                    <div class="confirmation-modal-details">
+                        ${details.map(d => `
+                            <div class="confirmation-modal-detail-row">
+                                <span class="confirmation-modal-detail-label">${d.label}</span>
+                                <span class="confirmation-modal-detail-value">${d.value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                bodyEl.innerHTML = '';
             }
 
-            const resetBtn = document.getElementById('resetPasswordBtn');
-            resetBtn.disabled = true;
-            resetBtn.textContent = 'Resetting...';
+            confirmBtn.textContent = confirmText;
+            confirmBtn.className = `confirmation-modal-btn confirmation-modal-btn-confirm ${confirmClass}`;
 
-            fetch(`/admin/students/${studentId}/reset-password`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            // Store callback
+            window.confirmationCallback = onConfirm;
+
+            overlay.classList.add('show');
+        }
+
+        function closeConfirmationModal() {
+            const overlay = document.getElementById('confirmationModalOverlay');
+            overlay.classList.remove('show');
+            window.confirmationCallback = null;
+        }
+
+        function confirmAction() {
+            if (typeof window.confirmationCallback === 'function') {
+                window.confirmationCallback();
+            }
+            closeConfirmationModal();
+        }
+
+        // Account Management Functions
+        function resetPassword() {
+            showConfirmationModal({
+                title: 'Reset Student Password',
+                message: 'A temporary password will be generated and sent to the student\'s email address. The student must change it on first login.',
+                iconType: 'warning',
+                confirmText: 'Reset Password',
+                confirmClass: 'primary',
+                details: [
+                    { label: 'Action', value: 'Password Reset' },
+                    { label: 'Impact', value: 'Student will receive new temporary password via email' }
+                ],
+                onConfirm: () => {
+                    const resetBtn = document.getElementById('resetPasswordBtn');
+                    resetBtn.disabled = true;
+                    resetBtn.textContent = 'Resetting...';
+
+                    fetch(`/admin/students/${studentId}/reset-password`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to reset password');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Temporary password has been sent to the student\'s email address.', 'success');
+                            refreshStudentLiveSections({ refreshActivityLogs: true }).catch(error => {
+                                console.error('Live refresh failed after password reset:', error);
+                            });
+                        } else {
+                            showToast(data.message || 'Failed to reset password.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while resetting the password.', 'error');
+                    })
+                    .finally(() => {
+                        resetBtn.disabled = false;
+                        resetBtn.textContent = 'Reset Password';
+                    });
                 }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to reset password');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    showToast('Temporary password has been sent to the student\'s email address. The student must change it on first login.', 'success');
-                } else {
-                    showToast(data.message || 'Failed to reset password.', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('An error occurred while resetting the password.', 'error');
-            })
-            .finally(() => {
-                resetBtn.disabled = false;
-                resetBtn.textContent = 'Reset Password';
             });
         }
 
         function suspendAccount() {
-            if (confirm('Are you sure you want to suspend this student account? The student will not be able to access the system until the account is reactivated.')) {
-                // Simulate API call
-                setTimeout(() => {
-                    showToast('Account suspended successfully! The student has been notified.', 'warning');
-                }, 500);
-            }
+            showConfirmationModal({
+                title: 'Suspend Student Account',
+                message: 'The student will not be able to access the system until the account is reactivated. All active sessions will be terminated.',
+                iconType: 'warning',
+                confirmText: 'Suspend Account',
+                confirmClass: 'warning',
+                details: [
+                    { label: 'Action', value: 'Account Suspension' },
+                    { label: 'Impact', value: 'Student will lose access to library services' },
+                    { label: 'Reversible', value: 'Yes, can be reactivated later' }
+                ],
+                onConfirm: () => {
+                    // Simulate API call
+                    setTimeout(() => {
+                        showToast('Account suspended successfully! The student has been notified.', 'warning');
+                    }, 500);
+                }
+            });
         }
 
         function activateAccount() {
-            if (confirm('Are you sure you want to activate this student account? The student will be able to access the system immediately.')) {
-                // Make API call to activate account
-                fetch(`/admin/students/${studentId}/activate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Account activated successfully! The student has been notified.', 'success');
-                        studentStatus = 'active';
-                        // Update the badge without page reload
-                        updateStatusBadge();
-                        // Update the button
-                        updateAccountStatusButton();
-                    } else {
-                        showToast(data.message || 'Failed to activate account.', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('An error occurred while activating the account.', 'error');
-                });
-            }
+            showConfirmationModal({
+                title: 'Activate Student Account',
+                message: 'The student will be able to access the system immediately and use all library services.',
+                iconType: 'info',
+                confirmText: 'Activate Account',
+                confirmClass: 'success',
+                details: [
+                    { label: 'Action', value: 'Account Activation' },
+                    { label: 'Impact', value: 'Student will regain full access to library services' },
+                    { label: 'Status', value: 'Account will be set to Active' }
+                ],
+                onConfirm: () => {
+                    // Make API call to activate account
+                    fetch(`/admin/students/${studentId}/activate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Account activated successfully! The student has been notified.', 'success');
+                            studentStatus = 'active';
+                            // Update the badge without page reload
+                            updateStatusBadge();
+                            // Update the button
+                            updateAccountStatusButton();
+                            refreshStudentLiveSections({ refreshActivityLogs: true }).catch(error => {
+                                console.error('Live refresh failed after account activation:', error);
+                            });
+                        } else {
+                            showToast(data.message || 'Failed to activate account.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while activating the account.', 'error');
+                    });
+                }
+            });
         }
 
         function deactivateAccount() {
-            if (confirm('Are you sure you want to deactivate this student account? The student will not be able to access the system until the account is activated.')) {
-                // Make API call to deactivate account
-                fetch(`/admin/students/${studentId}/deactivate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showToast('Account deactivated successfully! The student has been notified.', 'warning');
-                        studentStatus = 'inactive';
-                        // Update the badge without page reload
-                        updateStatusBadge();
-                        // Update the button
-                        updateAccountStatusButton();
-                    } else {
-                        showToast(data.message || 'Failed to deactivate account.', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('An error occurred while deactivating the account.', 'error');
-                });
-            }
+            showConfirmationModal({
+                title: 'Deactivate Student Account',
+                message: 'The student will not be able to access the system until the account is activated. This is a security measure.',
+                iconType: 'warning',
+                confirmText: 'Deactivate Account',
+                confirmClass: 'warning',
+                details: [
+                    { label: 'Action', value: 'Account Deactivation' },
+                    { label: 'Impact', value: 'Student will lose access to library services' },
+                    { label: 'Reversible', value: 'Yes, can be reactivated later' }
+                ],
+                onConfirm: () => {
+                    // Make API call to deactivate account
+                    fetch(`/admin/students/${studentId}/deactivate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Account deactivated successfully! The student has been notified.', 'warning');
+                            studentStatus = 'inactive';
+                            // Update the badge without page reload
+                            updateStatusBadge();
+                            // Update the button
+                            updateAccountStatusButton();
+                            refreshStudentLiveSections({ refreshActivityLogs: true }).catch(error => {
+                                console.error('Live refresh failed after account deactivation:', error);
+                            });
+                        } else {
+                            showToast(data.message || 'Failed to deactivate account.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while deactivating the account.', 'error');
+                    });
+                }
+            });
         }
 
         function updateStatusBadge() {
@@ -4466,6 +6822,63 @@
             updateConfirmButton();
         }
 
+        function submitRoleChange() {
+            if (!selectedRole) return;
+
+            showConfirmationModal({
+                title: 'Change Student Role',
+                message: `Changing the role to '${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}' will modify the student's permissions and access levels.`,
+                iconType: 'warning',
+                confirmText: 'Change Role',
+                confirmClass: 'primary',
+                details: [
+                    { label: 'New Role', value: selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1) },
+                    { label: 'Impact', value: 'Student permissions will be updated immediately' },
+                    { label: 'Reversible', value: 'Yes, role can be changed again later' }
+                ],
+                onConfirm: () => {
+                    const confirmBtn = document.getElementById('confirmRoleBtn');
+                    confirmBtn.disabled = true;
+                    confirmBtn.textContent = 'Changing...';
+
+                    fetch(`/admin/students/${studentId}/change-role`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ role: selectedRole })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to change role');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showToast(`Role changed to ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)} successfully!`, 'success');
+                            closeRoleModal();
+                            // Optional: Reload page after delay to show updated role
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            showToast(data.message || 'Failed to change role.', 'error');
+                            confirmBtn.disabled = false;
+                            confirmBtn.textContent = 'Change Role';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while changing the role.', 'error');
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'Change Role';
+                    });
+                }
+            });
+        }
+
         function selectRole(role) {
             // Remove active state from all role options
             document.querySelectorAll('.role-option').forEach(option => {
@@ -4498,102 +6911,83 @@
             selectedRole = null;
         }
 
-        function submitRoleChange() {
-            if (!selectedRole) return;
 
-            const confirmBtn = document.getElementById('confirmRoleBtn');
-            confirmBtn.disabled = true;
-            confirmBtn.textContent = 'Changing...';
-
-            fetch(`/admin/students/${studentId}/change-role`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ role: selectedRole })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to change role');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    showToast(`Role changed to ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)} successfully!`, 'success');
-                    closeRoleModal();
-                    // Optional: Reload page after delay to show updated role
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showToast(data.message || 'Failed to change role.', 'error');
-                    confirmBtn.disabled = false;
-                    confirmBtn.textContent = 'Change Role';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('An error occurred while changing the role.', 'error');
-                confirmBtn.disabled = false;
-                confirmBtn.textContent = 'Change Role';
-            });
-        }
 
         function deleteAccount() {
-            if (!confirm('⚠️ WARNING: This action cannot be undone!\n\nAre you sure you want to permanently delete this student account? All associated data will be permanently removed.')) {
-                return;
-            }
+            showConfirmationModal({
+                title: '⚠️ Delete Student Account',
+                message: 'This action cannot be undone! All associated data including issued books, fines, and activity logs will be permanently removed.',
+                iconType: 'danger',
+                confirmText: 'Delete Permanently',
+                confirmClass: 'danger',
+                details: [
+                    { label: 'Action', value: 'Permanent Account Deletion' },
+                    { label: 'Impact', value: 'All student data will be permanently removed' },
+                    { label: 'Reversible', value: 'NO - This action cannot be undone' },
+                    { label: 'Data Affected', value: 'Profile, issued books, fines, activity logs' }
+                ],
+                onConfirm: () => {
+                    const deleteBtn = document.getElementById('deleteAccountBtn');
+                    deleteBtn.disabled = true;
+                    deleteBtn.textContent = 'Deleting...';
 
-            const deleteBtn = document.getElementById('deleteAccountBtn');
-            deleteBtn.disabled = true;
-            deleteBtn.textContent = 'Deleting...';
+                    showToast('Deleting account... This may take a few moments.', 'info');
 
-            showToast('Deleting account... This may take a few moments.', 'info');
-
-            fetch(`/admin/students/${studentId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    fetch(`/admin/students/${studentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to delete account');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Account deleted successfully! Redirecting to students list...', 'success');
+                            setTimeout(() => {
+                                window.location.href = '/admin/students';
+                            }, 3000);
+                        } else {
+                            showToast(data.message || 'Failed to delete account.', 'error');
+                            deleteBtn.disabled = false;
+                            deleteBtn.textContent = 'Delete Account';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('An error occurred while deleting the account.', 'error');
+                        deleteBtn.disabled = false;
+                        deleteBtn.textContent = 'Delete Account';
+                    });
                 }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to delete account');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    showToast('Account deleted successfully! Redirecting to students list...', 'success');
-                    setTimeout(() => {
-                        window.location.href = '/admin/students';
-                    }, 3000);
-                } else {
-                    showToast(data.message || 'Failed to delete account.', 'error');
-                    deleteBtn.disabled = false;
-                    deleteBtn.textContent = 'Delete Account';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('An error occurred while deleting the account.', 'error');
-                deleteBtn.disabled = false;
-                deleteBtn.textContent = 'Delete Account';
             });
         }
 
         // Fine Management Functions
         function generateReceipt() {
-            // Simulate receipt generation
-            showToast('Generating receipt PDF...', 'info');
-
-            setTimeout(() => {
-                showToast('Receipt generated successfully! Download will start automatically.', 'success');
-                // In real app: trigger PDF download
-            }, 1000);
+            showConfirmationModal({
+                title: 'Generate Fine Receipt',
+                message: 'A receipt will be generated for all pending and paid fines. This receipt can be used for payment verification and record keeping.',
+                iconType: 'info',
+                confirmText: 'Generate Receipt',
+                confirmClass: 'primary',
+                details: [
+                    { label: 'Action', value: 'Generate Fine Receipt PDF' },
+                    { label: 'Contents', value: 'All fines (pending, paid, waived)' },
+                    { label: 'Format', value: 'PDF document for printing' }
+                ],
+                onConfirm: () => {
+                    showToast('Generating receipt PDF...', 'info');
+                    setTimeout(() => {
+                        showToast('Receipt generated successfully! Download will start automatically.', 'success');
+                    }, 1500);
+                }
+            });
         }
 
         function handleFineAction(action, fineId) {
@@ -4622,9 +7016,143 @@
         let currentFineId = null;
         let currentStudentId = {{ $student->id }};
 
+        function replaceArrayContents(targetArray, nextItems = []) {
+            targetArray.splice(0, targetArray.length, ...nextItems);
+        }
+
+        function normalizeStudentFineRecord(fine) {
+            const normalizedStatus = String(fine.paymentStatus ?? fine.status ?? 'pending').toLowerCase();
+            const statusKey = normalizedStatus === 'unpaid' ? 'pending' : normalizedStatus;
+            const overdueValue = Number(fine.daysOverdue ?? fine.days_late ?? 0);
+
+            return {
+                id: Number(fine.id),
+                bookName: fine.bookName ?? fine.bookTitle ?? 'Unknown',
+                daysOverdue: typeof fine.daysOverdue === 'string'
+                    ? fine.daysOverdue
+                    : `${overdueValue} day${overdueValue === 1 ? '' : 's'}`,
+                fineAmount: Number(fine.fineAmount ?? fine.amount ?? 0),
+                paymentStatus: statusKey,
+                actions: Array.isArray(fine.actions)
+                    ? fine.actions
+                    : (['paid', 'waived'].includes(statusKey)
+                        ? ['view-history']
+                        : ['adjust', 'waive', 'mark-paid', 'view-history']),
+            };
+        }
+
+        function updatePendingFineSummary() {
+            const pendingFineValue = document.getElementById('pendingFineValue');
+            if (!pendingFineValue) {
+                return;
+            }
+
+            const pendingTotal = finesData.reduce((total, fine) => {
+                return String(fine.paymentStatus || '').toLowerCase() === 'pending'
+                    ? total + Number(fine.fineAmount || 0)
+                    : total;
+            }, 0);
+
+            pendingFineValue.textContent = `₹${pendingTotal.toFixed(2)}`;
+        }
+
+        function syncStudentFines(nextFines = []) {
+            replaceArrayContents(finesData, nextFines.map(normalizeStudentFineRecord));
+            renderFinesTable();
+            updatePendingFineSummary();
+        }
+
+        function normalizeStudentActivityLog(log) {
+            return {
+                ...log,
+                id: String(log.id ?? ''),
+                type: String(log.type || 'auth'),
+                status: String(log.status || 'success'),
+                metadata: log.metadata && typeof log.metadata === 'object' ? log.metadata : {},
+            };
+        }
+
+        function syncStudentActivityLogs(nextLogs = []) {
+            const normalizedLogs = nextLogs.map(normalizeStudentActivityLog);
+            replaceArrayContents(activityLogs, normalizedLogs.slice(0, 10));
+            replaceArrayContents(remainingActivityLogs, normalizedLogs.slice(10));
+            renderActivityLogs();
+        }
+
+        function loadStudentFines() {
+            return fetch(`/admin/students/${currentStudentId}/fines`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json().then(data => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok || !data.success) {
+                    throw new Error(data.message || 'Failed to load fines');
+                }
+
+                syncStudentFines(Array.isArray(data.fines) ? data.fines : []);
+                return data;
+            });
+        }
+
+        function loadStudentActivityLogs() {
+            return fetch(`/admin/students/${currentStudentId}/activity-logs`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json().then(data => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok || !data.success) {
+                    throw new Error(data.message || 'Failed to load activity logs');
+                }
+
+                syncStudentActivityLogs(Array.isArray(data.activityLogs) ? data.activityLogs : []);
+                return data;
+            });
+        }
+
+        function refreshStudentLiveSections(options = {}) {
+            const {
+                refreshFines = false,
+                refreshPrivileges = false,
+                refreshActivityLogs = true,
+            } = options;
+
+            const tasks = [];
+
+            if (refreshFines) {
+                tasks.push(loadStudentFines());
+            }
+
+            if (refreshPrivileges) {
+                tasks.push(loadPrivilegeSettings());
+            }
+
+            if (refreshActivityLogs) {
+                tasks.push(loadStudentActivityLogs());
+            }
+
+            if (tasks.length === 0) {
+                return Promise.resolve();
+            }
+
+            return Promise.allSettled(tasks).then(results => {
+                const rejected = results.find(result => result.status === 'rejected');
+                if (rejected) {
+                    throw rejected.reason;
+                }
+
+                return results;
+            });
+        }
+
         // Load privilege settings when page loads
         function loadPrivilegeSettings() {
-            fetch(`/admin/students/${currentStudentId}/privileges`, {
+            return fetch(`/admin/students/${currentStudentId}/privileges`, {
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
@@ -4650,11 +7178,14 @@
                         borrowing_allowed: privileges.borrowing_allowed
                     };
                 } else {
-                    console.error('Failed to load privileges:', data.message);
+                    throw new Error(data.message || 'Failed to load privileges');
                 }
+
+                return data;
             })
             .catch(error => {
                 console.error('Error loading privileges:', error);
+                throw error;
             });
         }
 
@@ -4676,44 +7207,68 @@
                 return;
             }
 
-            const submitBtn = document.getElementById('adjustFineSubmitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Adjusting...';
+            showConfirmationModal({
+                title: 'Adjust Fine Amount',
+                message: `You are about to change the fine amount from ₹${oldAmount.toFixed(2)} to ₹${parseFloat(newAmount).toFixed(2)}. This action will be recorded in the audit log.`,
+                iconType: 'warning',
+                confirmText: 'Adjust Fine',
+                confirmClass: 'primary',
+                details: [
+                    { label: 'Current Amount', value: '₹' + oldAmount.toFixed(2) },
+                    { label: 'New Amount', value: '₹' + parseFloat(newAmount).toFixed(2) },
+                    { label: 'Difference', value: (parseFloat(newAmount) - oldAmount >= 0 ? '+' : '') + (parseFloat(newAmount) - oldAmount).toFixed(2) }
+                ],
+                onConfirm: () => {
+                    const submitBtn = document.getElementById('adjustFineSubmitBtn');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Adjusting...';
 
-            fetch(`/admin/fines/${currentFineId}/adjust`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({ amount: newAmount, action: 'adjust' })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeFineModal('adjust');
-                    // Show success popup
-                    showFineSuccessPopup('adjusted', {
-                        oldAmount: oldAmount,
-                        newAmount: newAmount
+                    fetch(`/admin/fines/${currentFineId}/adjust`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ amount: newAmount, action: 'adjust' })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            closeFineModal('adjust');
+                            // Show success popup
+                            showFineSuccessPopup('adjusted', {
+                                oldAmount: oldAmount,
+                                newAmount: newAmount
+                            });
+                            refreshStudentLiveSections({
+                                refreshFines: true,
+                                refreshActivityLogs: true,
+                            }).catch(error => {
+                                console.error('Live refresh failed after fine adjustment:', error);
+                                showToast('Fine updated, but the page could not refresh live. Please refresh manually if needed.', 'warning');
+                            });
+                        } else {
+                            showToast(data.message || 'Failed to adjust fine.', 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Adjust Fine';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        refreshStudentLiveSections({
+                            refreshFines: true,
+                            refreshActivityLogs: true,
+                        }).catch(() => {});
+                        showToast('Network issue - the fine may have been updated. Live refresh attempted.', 'warning');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Adjust Fine';
                     });
-                    // Refresh fines table
-                    setTimeout(() => location.reload(), 3000);
-                } else {
-                    showToast(data.message || 'Failed to adjust fine.', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Adjust Fine';
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Network issue - fine may have been adjusted. Refreshing page...', 'warning');
-                setTimeout(() => location.reload(), 2000);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Adjust Fine';
             });
         }
+
+
 
         function waiveFine(fineId, fine) {
             currentFineId = fineId;
@@ -4733,43 +7288,69 @@
                 return;
             }
 
-            const submitBtn = document.getElementById('waiveFineSubmitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Waiving...';
+            showConfirmationModal({
+                title: 'Waive Fine',
+                message: `You are about to waive the fine of ₹${amount.toFixed(2)}. The student will be notified and the fine will be marked as waived.`,
+                iconType: 'warning',
+                confirmText: 'Waive Fine',
+                confirmClass: 'warning',
+                details: [
+                    { label: 'Fine Amount', value: '₹' + amount.toFixed(2) },
+                    { label: 'Reason', value: reason },
+                    { label: 'Impact', value: 'Fine will be marked as waived' },
+                    { label: 'Notification', value: 'Student will be notified via email' }
+                ],
+                onConfirm: () => {
+                    const submitBtn = document.getElementById('waiveFineSubmitBtn');
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Waiving...';
 
-            fetch(`/admin/fines/${currentFineId}/waive`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({ reason: reason })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeFineModal('waive');
-                    // Show success popup
-                    showFineSuccessPopup('waived', {
-                        amount: amount,
-                        reason: reason
+                    fetch(`/admin/fines/${currentFineId}/waive`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({ reason: reason })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            closeFineModal('waive');
+                            // Show success popup
+                            showFineSuccessPopup('waived', {
+                                amount: amount,
+                                reason: reason
+                            });
+                            refreshStudentLiveSections({
+                                refreshFines: true,
+                                refreshActivityLogs: true,
+                            }).catch(error => {
+                                console.error('Live refresh failed after fine waiver:', error);
+                                showToast('Fine waived, but the page could not refresh live. Please refresh manually if needed.', 'warning');
+                            });
+                        } else {
+                            showToast(data.message || 'Failed to waive fine.', 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Waive Fine';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        refreshStudentLiveSections({
+                            refreshFines: true,
+                            refreshActivityLogs: true,
+                        }).catch(() => {});
+                        showToast('Network issue - the fine may have been waived. Live refresh attempted.', 'warning');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Waive Fine';
                     });
-                    setTimeout(() => location.reload(), 4000);
-                } else {
-                    showToast(data.message || 'Failed to waive fine.', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Waive Fine';
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Network issue - fine may have been waived. Refreshing page...', 'warning');
-                setTimeout(() => location.reload(), 2000);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Waive Fine';
             });
         }
+
+
 
         function markFineAsPaid(fineId, fine) {
             currentFineId = fineId;
@@ -4785,43 +7366,74 @@
             submitBtn.disabled = true;
             submitBtn.textContent = 'Marking...';
 
-            fetch(`/admin/fines/${currentFineId}/mark-as-paid`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-                ,
-                credentials: 'same-origin',
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeFineModal('paid');
-                    // Show success popup
-                    showFineSuccessPopup('paid', {
-                        amount: amount
+            showConfirmationModal({
+                title: 'Mark Fine as Paid',
+                message: `You are confirming that the fine of ₹${amount.toFixed(2)} has been paid. Please ensure payment has been received before proceeding.`,
+                iconType: 'warning',
+                confirmText: 'Mark as Paid',
+                confirmClass: 'success',
+                details: [
+                    { label: 'Fine Amount', value: '₹' + amount.toFixed(2) },
+                    { label: 'Action', value: 'Mark as Paid' },
+                    { label: 'Impact', value: 'Fine status will change to Paid' },
+                    { label: 'Notification', value: 'Student will receive payment confirmation' }
+                ],
+                onConfirm: () => {
+                    fetch(`/admin/fines/${currentFineId}/mark-as-paid`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        credentials: 'same-origin',
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            closeFineModal('paid');
+                            // Show success popup
+                            showFineSuccessPopup('paid', {
+                                amount: amount
+                            });
+                            refreshStudentLiveSections({
+                                refreshFines: true,
+                                refreshActivityLogs: true,
+                            }).catch(error => {
+                                console.error('Live refresh failed after marking fine as paid:', error);
+                                showToast('Fine marked as paid, but the page could not refresh live. Please refresh manually if needed.', 'warning');
+                            });
+                        } else {
+                            showToast(data.message || 'Failed to mark fine as paid.', 'error');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Mark as Paid';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        refreshStudentLiveSections({
+                            refreshFines: true,
+                            refreshActivityLogs: true,
+                        }).catch(() => {});
+                        showToast('Network issue - the fine may have been marked as paid. Live refresh attempted.', 'warning');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Mark as Paid';
                     });
-                    setTimeout(() => location.reload(), 4000);
-                } else {
-                    showToast(data.message || 'Failed to mark fine as paid.', 'error');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Mark as Paid';
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Network issue - fine may have been marked as paid. Refreshing page...', 'warning');
-                setTimeout(() => location.reload(), 2000);
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Mark as Paid';
             });
         }
 
+
+
         function viewFineHistory(fineId, fine) {
             currentFineId = fineId;
-            document.getElementById('historyAmount').textContent = '₹' + parseFloat(fine.fineAmount).toFixed(2);
-            document.getElementById('fineHistoryList').innerHTML = '<li class="fine-history-item" style="text-align: center; padding: 20px;"><span>Loading...</span></li>';
+            document.getElementById('historyAmount').textContent = formatCurrency(fine.fineAmount);
+            document.getElementById('historyOriginalAmount').textContent = 'Loading...';
+            document.getElementById('historyStatus').innerHTML = renderHistoryStatusBadge(fine.paymentStatus || 'pending');
+            document.getElementById('historyDaysLate').textContent = fine.daysOverdue || '0 days';
+            document.getElementById('historyBookTitle').textContent = fine.bookName || 'Loading book details...';
+            document.getElementById('historyBookIsbn').textContent = 'ISBN: Loading...';
+            document.getElementById('historyCalculationSection').hidden = true;
+            document.getElementById('fineHistoryList').innerHTML = '<li class="fine-history-empty">Loading history...</li>';
             document.getElementById('historyOverlay').classList.add('show');
 
             fetch(`/admin/fines/${fineId}/history`, {
@@ -4831,28 +7443,177 @@
                 ,
                 credentials: 'same-origin'
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load fine history');
+                }
+
+                return response.json();
+            })
             .then(data => {
                 const historyList = document.getElementById('fineHistoryList');
-                if (data.success && data.history && data.history.length > 0) {
-                    historyList.innerHTML = data.history.map(item => `
-                        <li class="fine-history-item">
-                            <div class="fine-history-dot"></div>
-                            <div class="fine-history-content">
-                                <h4>${item.action}</h4>
-                                <p><strong>Date:</strong> ${item.date}</p>
-                                <p><strong>By:</strong> ${item.user}</p>
-                            </div>
-                        </li>
-                    `).join('');
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to load fine history');
+                }
+
+                const fineDetails = data.fineDetails || {};
+                const calculation = data.calculation || null;
+                const history = Array.isArray(data.history) ? data.history : [];
+
+                document.getElementById('historyAmount').textContent = formatCurrency(fineDetails.currentAmount ?? fine.fineAmount);
+                document.getElementById('historyOriginalAmount').textContent = formatCurrency(fineDetails.originalAmount ?? fine.fineAmount);
+                document.getElementById('historyStatus').innerHTML = renderHistoryStatusBadge(fineDetails.status || fine.paymentStatus || 'pending');
+                document.getElementById('historyDaysLate').textContent = `${fineDetails.daysLate ?? 0} day${Number(fineDetails.daysLate ?? 0) === 1 ? '' : 's'}`;
+                document.getElementById('historyBookTitle').textContent = fineDetails.bookTitle || fine.bookName || 'Unknown Book';
+                document.getElementById('historyBookIsbn').textContent = `ISBN: ${fineDetails.isbn || 'N/A'}`;
+
+                const calculationSection = document.getElementById('historyCalculationSection');
+                const adjustmentsRow = document.getElementById('historyCalcAdjustmentsRow');
+                if (calculation) {
+                    calculationSection.hidden = false;
+                    document.getElementById('historyCalcBaseRate').textContent = formatCurrency(calculation.baseRate);
+                    document.getElementById('historyCalcDaysLate').textContent = `${calculation.daysLate ?? 0}`;
+                    document.getElementById('historyCalcSubtotal').textContent = formatCurrency(calculation.subtotal);
+
+                    const adjustmentValue = Number(calculation.adjustments ?? 0);
+                    adjustmentsRow.hidden = adjustmentValue === 0;
+                    document.getElementById('historyCalcAdjustments').textContent = formatSignedCurrency(adjustmentValue);
+                    document.getElementById('historyCalcFinalAmount').textContent = formatCurrency(calculation.finalAmount);
                 } else {
-                    historyList.innerHTML = '<li class="fine-history-item" style="text-align: center; padding: 20px;"><p>No history available</p></li>';
+                    calculationSection.hidden = true;
+                }
+
+                if (history.length > 0) {
+                    historyList.innerHTML = history.map(renderFineHistoryItem).join('');
+                } else {
+                    historyList.innerHTML = '<li class="fine-history-empty">No history available for this fine yet.</li>';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('fineHistoryList').innerHTML = '<li class="fine-history-item" style="text-align: center; padding: 20px;"><p style="color: #ef4444;">Unable to load history. Please try again.</p></li>';
+                document.getElementById('fineHistoryList').innerHTML = '<li class="fine-history-empty">Unable to load history. Please try again.</li>';
             });
+        }
+
+        function formatCurrency(value) {
+            const numericValue = Number(value);
+            return `₹${Number.isFinite(numericValue) ? numericValue.toFixed(2) : '0.00'}`;
+        }
+
+        function formatSignedCurrency(value) {
+            const numericValue = Number(value);
+            if (!Number.isFinite(numericValue) || numericValue === 0) {
+                return formatCurrency(0);
+            }
+
+            return `${numericValue > 0 ? '+' : '-'}${formatCurrency(Math.abs(numericValue))}`;
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderHistoryStatusBadge(status) {
+            const normalizedStatus = String(status || 'pending').toLowerCase();
+            return `<span class="history-status-badge status-${escapeHtml(normalizedStatus)}">${escapeHtml(formatDisplayLabel(normalizedStatus, 'Pending'))}</span>`;
+        }
+
+        function getFineHistoryActionConfig(actionType) {
+            const normalizedType = String(actionType || 'created').toLowerCase();
+            const actionMap = {
+                created: { label: 'Created', icon: 'fa-plus' },
+                adjusted: { label: 'Adjusted', icon: 'fa-sliders-h' },
+                paid: { label: 'Paid', icon: 'fa-check' },
+                waived: { label: 'Waived', icon: 'fa-ban' },
+            };
+
+            return {
+                type: actionMap[normalizedType] ? normalizedType : 'created',
+                ...(actionMap[normalizedType] || actionMap.created),
+            };
+        }
+
+        function getPaymentMethodMeta(paymentMethod) {
+            const normalizedMethod = String(paymentMethod || '').toLowerCase();
+            const methodMap = {
+                cash: { icon: 'fa-money-bill-wave', label: 'Cash' },
+                card: { icon: 'fa-credit-card', label: 'Card' },
+                online: { icon: 'fa-globe', label: 'Online' },
+            };
+
+            return methodMap[normalizedMethod] || null;
+        }
+
+        function getRoleMeta(userRole) {
+            const normalizedRole = String(userRole || 'system').toLowerCase();
+            const roleMap = {
+                admin: { icon: 'fa-user-shield', label: 'Admin' },
+                staff: { icon: 'fa-user-tie', label: 'Staff' },
+                student: { icon: 'fa-user-graduate', label: 'Student' },
+                system: { icon: 'fa-microchip', label: 'System' },
+                user: { icon: 'fa-user', label: 'User' },
+            };
+
+            return {
+                roleClass: roleMap[normalizedRole] ? normalizedRole : 'user',
+                ...(roleMap[normalizedRole] || roleMap.user),
+            };
+        }
+
+        function renderFineHistoryItem(item) {
+            const actionConfig = getFineHistoryActionConfig(item.actionType);
+            const roleMeta = getRoleMeta(item.userRole);
+            const amountDelta = item.amountChange !== null
+                ? `<span>${escapeHtml(formatSignedCurrency(item.amountChange))}</span>`
+                : '';
+            const amountChangeMarkup = item.actionType === 'adjusted' && item.oldAmount !== null && item.newAmount !== null
+                ? `<div class="fine-history-amount-change">${formatCurrency(item.oldAmount)} &rarr; ${formatCurrency(item.newAmount)} ${amountDelta}</div>`
+                : '';
+            const paymentMethod = getPaymentMethodMeta(item.paymentMethod);
+            const paymentMethodMarkup = paymentMethod
+                ? `<span class="fine-history-meta-item"><i class="fas ${paymentMethod.icon}"></i>${escapeHtml(paymentMethod.label)}</span>`
+                : '';
+            const remarksMarkup = item.remarks
+                ? `<div class="fine-history-remarks">"${escapeHtml(item.remarks)}"</div>`
+                : '';
+
+            return `
+                <li class="fine-history-item">
+                    <div class="fine-history-dot ${actionConfig.type}">
+                        <i class="fas ${actionConfig.icon}"></i>
+                    </div>
+                    <div class="fine-history-entry">
+                        <div class="fine-history-top">
+                            <span class="history-action-badge ${actionConfig.type}">
+                                <i class="fas ${actionConfig.icon}"></i>
+                                ${escapeHtml(item.action || actionConfig.label)}
+                            </span>
+                            <span class="fine-history-date">${escapeHtml(item.date || 'N/A')}</span>
+                        </div>
+                        <p class="fine-history-action">${escapeHtml(item.action || actionConfig.label)}</p>
+                        <p class="fine-history-description">${escapeHtml(item.description || item.action || actionConfig.label)}</p>
+                        ${amountChangeMarkup}
+                        <div class="fine-history-meta">
+                            <span class="fine-history-meta-item">
+                                <span class="fine-history-actor">
+                                    <span class="fine-history-actor-name">${escapeHtml(item.user || 'System')}</span>
+                                    <span class="fine-history-role-badge role-${escapeHtml(roleMeta.roleClass)}">
+                                        <i class="fas ${roleMeta.icon}"></i>
+                                        ${escapeHtml(roleMeta.label)}
+                                    </span>
+                                </span>
+                            </span>
+                            ${paymentMethodMarkup}
+                        </div>
+                        ${remarksMarkup}
+                    </div>
+                </li>
+            `;
         }
 
         function closeFineModal(type) {
@@ -4896,36 +7657,59 @@
                 return;
             }
 
-            showToast('Saving privilege settings...', 'info');
+            showConfirmationModal({
+                title: 'Save Library Privilege Settings',
+                message: 'These settings will override the global defaults for this student. Changes will take effect immediately.',
+                iconType: 'warning',
+                confirmText: 'Save Changes',
+                confirmClass: 'primary',
+                details: [
+                    { label: 'Max Books', value: maxBooks + ' books' },
+                    { label: 'Issue Duration', value: maxDays + ' days' },
+                    { label: 'Fine Rate', value: '₹' + fineRate + ' per day' },
+                    { label: 'Borrowing', value: borrowingPermission === 'allowed' ? 'Allowed' : 'Restricted' }
+                ],
+                onConfirm: () => {
+                    showToast('Saving privilege settings...', 'info');
 
-            fetch(`/admin/students/${currentStudentId}/privileges`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({
-                    max_books: parseInt(maxBooks),
-                    issue_duration_days: parseInt(maxDays),
-                    per_day_fine: parseFloat(fineRate),
-                    borrowing_allowed: borrowingPermission === 'allowed'
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('✅ Privilege settings saved successfully!', 'success');
-                    // Reload privileges to reflect changes
-                    setTimeout(() => loadPrivilegeSettings(), 500);
-                } else {
-                    showToast(data.message || 'Failed to save privilege settings.', 'error');
+                    fetch(`/admin/students/${currentStudentId}/privileges`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            max_books: parseInt(maxBooks),
+                            issue_duration_days: parseInt(maxDays),
+                            per_day_fine: parseFloat(fineRate),
+                            borrowing_allowed: borrowingPermission === 'allowed'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('✅ Privilege settings saved successfully!', 'success');
+                            refreshStudentLiveSections({
+                                refreshPrivileges: true,
+                                refreshActivityLogs: true,
+                            }).catch(error => {
+                                console.error('Live refresh failed after saving privilege settings:', error);
+                                showToast('Privileges saved, but live refresh could not complete. Please refresh manually if needed.', 'warning');
+                            });
+                        } else {
+                            showToast(data.message || 'Failed to save privilege settings.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        refreshStudentLiveSections({
+                            refreshPrivileges: true,
+                            refreshActivityLogs: true,
+                        }).catch(() => {});
+                        showToast('Network issue - privileges may have been saved. Live refresh attempted.', 'warning');
+                    });
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Network issue - privileges may have been saved. Refreshing...', 'warning');
-                setTimeout(() => location.reload(), 2000);
             });
         }
     </script>

@@ -33,31 +33,53 @@ class IssueBookController extends Controller
     {
         Gate::authorize('access-staff');
         $query = $request->input('query', '');
+        $fineSetting = FineSetting::where('is_active', true)->first() ?? FineSetting::first();
+        $defaultMaxBooks = $fineSetting->max_books_per_student ?? 5;
+
         $students = Student::selectRaw('DISTINCT students.*')
-            ->with('user', 'department')
+            ->with('user', 'department', 'privileges')
+            ->withCount([
+                'issuedBooks as active_issued_books_count' => function ($q) {
+                    $q->whereNull('return_date');
+                }
+            ])
             ->whereHas('user', function($q) { $q->where('role', 'student'); })
             ->when($query, function($q) use ($query) {
-                return $q->where('user_id', 'like', "%$query%")
-                    ->orWhereHas('user', function($subQuery) use ($query) {
-                        $subQuery->where('name', 'like', "%$query%")->orWhere('email', 'like', "%$query%");
-                    })
-                    ->orWhereHas('department', function($subQuery) use ($query) {
-                        $subQuery->where('name', 'like', "%$query%");
-                    });
+                return $q->where(function ($studentQuery) use ($query) {
+                    $studentQuery
+                        ->where('students.id', 'like', "%$query%")
+                        ->orWhere('students.roll_no', 'like', "%$query%")
+                        ->orWhereHas('user', function($subQuery) use ($query) {
+                            $subQuery->where('name', 'like', "%$query%")
+                                ->orWhere('email', 'like', "%$query%");
+                        })
+                        ->orWhereHas('department', function($subQuery) use ($query) {
+                            $subQuery->where('name', 'like', "%$query%");
+                        });
+                });
             })
             ->limit(15)
             ->get()
-            ->map(function($student) {
-                $issuedCount = IssuedBook::where('student_id', $student->id)->whereNull('return_date')->count();
+            ->unique('id')
+            ->values()
+            ->map(function($student) use ($defaultMaxBooks) {
+                $issuedCount = $student->active_issued_books_count ?? 0;
+                $privileges = $student->privileges;
+                $maxBooks = $privileges->max_books ?? $defaultMaxBooks;
+                $canIssueMore = max(0, $maxBooks - $issuedCount);
+
                 return [
                     'id' => $student->id,
                     'name' => $student->user->name,
-                    'studentId' => $student->user_id,
+                    'studentId' => $student->roll_no ?? $student->id,
                     'roll_no' => $student->roll_no,
                     'email' => $student->user->email,
                     'department' => $student->department->name ?? 'N/A',
                     'issued' => $issuedCount,
-                    'maxBooks' => $student->max_books_allowed ?? 5,
+                    'maxBooks' => $maxBooks,
+                    'borrowingAllowed' => $privileges->borrowing_allowed ?? true,
+                    'hasPrivilegeOverride' => $privileges !== null,
+                    'canIssueMore' => $canIssueMore,
                 ];
             });
         return response()->json($students);
@@ -113,13 +135,18 @@ class IssueBookController extends Controller
                 return [
                     'id' => $issued->id,
                     'bookId' => $issued->book_id,
+                    'bookTitle' => $issued->book->title,
                     'book_title' => $issued->book->title,
                     'title' => $issued->book->title,
                     'author' => $issued->book->author ?? 'Unknown',
                     'isbn' => $issued->book->isbn,
+                    'issueDate' => $issued->issue_date->format('Y-m-d'),
                     'issue_date' => $issued->issue_date->format('Y-m-d'),
+                    'dueDate' => $issued->due_date->format('Y-m-d'),
                     'due_date' => $issued->due_date->format('Y-m-d'),
+                    'overdueDays' => $overdueDays,
                     'overdue_days' => $overdueDays,
+                    'isOverdue' => $overdueDays > 0,
                     'is_overdue' => $overdueDays > 0,
                     'returned' => !is_null($issued->return_date),
                 ];

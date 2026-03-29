@@ -106,6 +106,7 @@ Route::middleware(['auth', 'can:access-admin'])
         Route::get('/students/{student}/fines', [StudentController::class, 'getStudentFines'])->name('students.fines');
         Route::get('/students/{student}/receipt', [StudentController::class, 'generateReceipt'])->name('students.receipt');
         Route::get('/students/{student}/privileges', [StudentController::class, 'getPrivileges'])->name('students.privileges');
+        Route::get('/students/{student}/activity-logs', [StudentController::class, 'getStudentActivityLogs'])->name('students.activity-logs');
         Route::post('/students/{student}/privileges', [StudentController::class, 'savePrivileges'])->name('students.privileges.save');
         Route::resource('transactions', TransactionController::class)->only(['index']);
         Route::get('/transactions/students/search', [TransactionController::class, 'getStudents'])->name('transactions.students');

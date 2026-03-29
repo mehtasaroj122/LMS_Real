@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class ActivityLog extends Model
 {
@@ -107,12 +108,12 @@ class ActivityLog extends Model
     public function getFormattedDescriptionAttribute()
     {
         // If description already has proper format, return as is
-        if (strpos($this->description, '•') !== false) {
-            return $this->description;
+        if (str_contains((string) $this->description, '•')) {
+            return (string) $this->description;
         }
 
         // Format based on action type
-        $formatted = $this->description;
+        $formatted = $this->readable_description;
 
         // Add user info if available
         if ($this->user) {
@@ -120,6 +121,159 @@ class ActivityLog extends Model
         }
 
         return $formatted;
+    }
+
+    /**
+     * Get a human-friendly description, including cleanup for legacy JSON fragments.
+     */
+    public function getReadableDescriptionAttribute(): string
+    {
+        $description = trim((string) ($this->description ?? 'Activity recorded'));
+        if ($description === '') {
+            return 'Activity recorded';
+        }
+
+        $action = strtolower((string) ($this->action ?? ''));
+        $category = strtolower((string) ($this->action_category ?? ''));
+
+        if ($action === 'privilege_updated' || $category === 'privilege') {
+            return $this->formatPrivilegeDescription($this->extractChangePayload($description));
+        }
+
+        $embeddedPayload = $this->extractEmbeddedJsonPayload($description);
+        if ($embeddedPayload) {
+            $summary = $this->formatGenericChangeSummary($embeddedPayload['changes']);
+            if ($summary !== null) {
+                return rtrim($embeddedPayload['prefix'], ':') . ': ' . $summary;
+            }
+        }
+
+        return $description;
+    }
+
+    protected function extractChangePayload(string $description): array
+    {
+        if (is_array($this->metadata) && !empty($this->metadata)) {
+            $metadata = isset($this->metadata['changes']) && is_array($this->metadata['changes'])
+                ? $this->metadata['changes']
+                : $this->metadata;
+
+            return collect($metadata)
+                ->except(['session_id'])
+                ->toArray();
+        }
+
+        $embeddedPayload = $this->extractEmbeddedJsonPayload($description);
+
+        return $embeddedPayload['changes'] ?? [];
+    }
+
+    protected function extractEmbeddedJsonPayload(string $description): ?array
+    {
+        if (!preg_match('/^(?<prefix>.*?):\s*(?<json>\{.*\})$/', $description, $matches)) {
+            return null;
+        }
+
+        $decoded = json_decode($matches['json'], true);
+        if (!is_array($decoded)) {
+            return null;
+        }
+
+        return [
+            'prefix' => trim($matches['prefix']),
+            'changes' => $decoded,
+        ];
+    }
+
+    protected function formatPrivilegeDescription(array $changes): string
+    {
+        if (empty($changes)) {
+            return 'Library privileges updated.';
+        }
+
+        $messages = [];
+
+        foreach ($changes as $field => $value) {
+            switch ((string) $field) {
+                case 'borrowing_allowed':
+                    $messages[] = 'borrowing permission set to ' . ($value ? 'allowed' : 'restricted');
+                    break;
+                case 'max_books':
+                    $messages[] = 'maximum books set to ' . $value;
+                    break;
+                case 'issue_duration_days':
+                    $messages[] = 'issue duration set to ' . $value . ' days';
+                    break;
+                case 'per_day_fine':
+                    $messages[] = 'per-day fine set to Rs. ' . number_format((float) $value, 2);
+                    break;
+                case 'grace_period_days':
+                    $messages[] = 'grace period set to ' . $value . ' days';
+                    break;
+                case 'max_fine_amount':
+                    $messages[] = 'maximum fine amount set to Rs. ' . number_format((float) $value, 2);
+                    break;
+                default:
+                    $messages[] = $this->formatFieldLabel($field) . ' set to ' . $this->formatValue($value);
+                    break;
+            }
+        }
+
+        return 'Library privileges updated: ' . implode(', ', $messages) . '.';
+    }
+
+    protected function formatGenericChangeSummary(array $changes): ?string
+    {
+        $messages = [];
+
+        foreach ($changes as $field => $value) {
+            if ($field === 'session_id') {
+                continue;
+            }
+
+            $messages[] = $this->formatFieldLabel($field) . ' set to ' . $this->formatValue($value);
+        }
+
+        if (empty($messages)) {
+            return null;
+        }
+
+        return implode(', ', $messages) . '.';
+    }
+
+    protected function formatFieldLabel(string $field): string
+    {
+        return Str::of($field)
+            ->replace(['_', '-'], ' ')
+            ->lower()
+            ->toString();
+    }
+
+    protected function formatValue($value): string
+    {
+        if (is_bool($value)) {
+            return $value ? 'enabled' : 'disabled';
+        }
+
+        if (is_array($value)) {
+            if (array_is_list($value)) {
+                return collect($value)
+                    ->map(fn ($item) => $this->formatValue($item))
+                    ->implode(', ');
+            }
+
+            return collect($value)
+                ->map(function ($item, $key) {
+                    return $this->formatFieldLabel((string) $key) . ': ' . $this->formatValue($item);
+                })
+                ->implode(', ');
+        }
+
+        if (is_numeric($value)) {
+            return (string) $value;
+        }
+
+        return (string) $value;
     }
 
     /**

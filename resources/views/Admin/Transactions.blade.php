@@ -633,6 +633,227 @@
             color: #f87171;
         }
 
+        .return-total-summary {
+            margin-top: 12px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #fff7ed, #ffffff);
+        }
+
+        body.dark-theme .return-total-summary {
+            border-color: #334155;
+            background: linear-gradient(135deg, rgba(124, 45, 18, 0.28), rgba(15, 23, 42, 0.96));
+        }
+
+        .return-total-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .return-total-summary-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #9a3412;
+        }
+
+        body.dark-theme .return-total-summary-label {
+            color: #fdba74;
+        }
+
+        .return-total-summary-note {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #78716c;
+        }
+
+        body.dark-theme .return-total-summary-note {
+            color: #cbd5e1;
+        }
+
+        .return-student-shell {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .return-student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .return-student-header {
+            border-bottom-color: #334155;
+        }
+
+        .return-student-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .return-student-heading-copy {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .return-student-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        body.dark-theme .return-student-subtitle {
+            color: #94a3b8;
+        }
+
+        .return-issued-chip {
+            min-width: 112px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #eff6ff, #ffffff);
+            border: 1px solid #dbeafe;
+            text-align: right;
+        }
+
+        body.dark-theme .return-issued-chip {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.28), rgba(15, 23, 42, 0.96));
+            border-color: rgba(96, 165, 250, 0.2);
+        }
+
+        .return-issued-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        body.dark-theme .return-issued-label {
+            color: #94a3b8;
+        }
+
+        .return-issued-value {
+            display: block;
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1;
+            color: #0f172a;
+        }
+
+        body.dark-theme .return-issued-value {
+            color: #f8fafc;
+        }
+
+        .return-student-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .return-meta-card,
+        .return-rule-card {
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background-color: #f8fafc;
+        }
+
+        body.dark-theme .return-meta-card,
+        body.dark-theme .return-rule-card {
+            border-color: #334155;
+            background-color: #0f172a;
+        }
+
+        .return-meta-label,
+        .return-rule-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        body.dark-theme .return-meta-label,
+        body.dark-theme .return-rule-label {
+            color: #94a3b8;
+        }
+
+        .return-meta-value,
+        .return-rule-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        body.dark-theme .return-meta-value,
+        body.dark-theme .return-rule-value {
+            color: #f8fafc;
+        }
+
+        .return-rules-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .return-rules-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .return-rules-caption {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        body.dark-theme .return-rules-caption {
+            color: #94a3b8;
+        }
+
+        .return-rules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .return-rule-value .detail-stack {
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        @media (max-width: 640px) {
+            .return-student-header,
+            .return-rules-heading {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .return-issued-chip {
+                width: 100%;
+                text-align: left;
+            }
+
+            .return-student-meta-grid,
+            .return-rules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .policy-note {
             border: 1px solid #dbeafe;
             background: linear-gradient(135deg, #eff6ff, #f8fbff);
@@ -1650,6 +1871,16 @@
                             disabled>
                             Process Return
                         </button>
+
+                        <div class="return-total-summary" id="returnTotalSummary" aria-live="polite">
+                            <div class="return-total-summary-row">
+                                <span class="return-total-summary-label">Total Fine</span>
+                                <span class="total-fine" id="returnFormTotalFine">₹0</span>
+                            </div>
+                            <p class="return-total-summary-note" id="returnTotalSummaryNote">
+                                Select books and a return condition to preview the payable fine.
+                            </p>
+                        </div>
                     </form>
                 </div>
 
@@ -1657,67 +1888,82 @@
                 <div class="space-y-6">
                     <!-- Student Information -->
                     <div class="p-6 card" id="returnStudentCard" style="display: none;">
-                        <div class="flex items-center gap-2 mb-4">
-                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <h3 class="text-base font-semibold text-primary">Student Information</h3>
-                        </div>
+                        <div class="return-student-shell">
+                            <div class="return-student-header">
+                                <div class="return-student-heading">
+                                    <svg class="w-5 h-5 mt-0.5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <div class="return-student-heading-copy">
+                                        <h3 class="text-base font-semibold text-primary">Student Information</h3>
+                                        <p class="return-student-subtitle">
+                                            Quick borrower summary with the effective return rules used for fine calculation.
+                                        </p>
+                                    </div>
+                                </div>
 
-                        <div class="space-y-3">
-                            <div class="detail-row">
-                                <span class="detail-label">Name:</span>
-                                <span class="detail-value" id="returnStudentName">-</span>
+                                <div class="return-issued-chip">
+                                    <span class="return-issued-label">Books Issued</span>
+                                    <span class="return-issued-value" id="returnStudentIssued">0</span>
+                                </div>
                             </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Roll No:</span>
-                                <span class="detail-value" id="returnStudentID">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Department:</span>
-                                <span class="detail-value" id="returnStudentDepartment">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Email:</span>
-                                <span class="detail-value" id="returnStudentEmail">-</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Books Issued:</span>
-                                <span class="detail-value" id="returnStudentIssued">0</span>
-                            </div>
-                        </div>
 
-                        <div class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
-                            <h4 class="mb-3 text-sm font-semibold text-primary">Effective Return Rules</h4>
-                            <div class="space-y-3">
-                                <div class="detail-row">
-                                    <span class="detail-label">Return Condition:</span>
-                                    <span class="detail-value" id="returnConditionSummary">Not selected</span>
+                            <div class="return-student-meta-grid">
+                                <div class="return-meta-card">
+                                    <div class="return-meta-label">Name</div>
+                                    <div class="return-meta-value" id="returnStudentName">-</div>
                                 </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Issue Duration Policy:</span>
-                                    <span class="detail-value" id="returnIssueDurationRule">-</span>
+                                <div class="return-meta-card">
+                                    <div class="return-meta-label">Roll No</div>
+                                    <div class="return-meta-value" id="returnStudentID">-</div>
                                 </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Late Fine Rule:</span>
-                                    <span class="detail-value" id="returnLateFineRule">-</span>
+                                <div class="return-meta-card">
+                                    <div class="return-meta-label">Department</div>
+                                    <div class="return-meta-value" id="returnStudentDepartment">-</div>
                                 </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Grace Period:</span>
-                                    <span class="detail-value" id="returnGraceRule">-</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Fine Cap Per Book:</span>
-                                    <span class="detail-value" id="returnMaxFineRule">-</span>
-                                </div>
-                                <div class="detail-row">
-                                    <span class="detail-label">Condition Fine:</span>
-                                    <span class="detail-value" id="returnConditionFineRule">-</span>
+                                <div class="return-meta-card">
+                                    <div class="return-meta-label">Email</div>
+                                    <div class="return-meta-value" id="returnStudentEmail">-</div>
                                 </div>
                             </div>
-                            <div class="mt-4 policy-note" id="returnPrivilegeNote">
-                                Return fine calculations use the student's effective rules first, then the active default library settings when no override exists.
+
+                            <div class="return-rules-section">
+                                <div class="return-rules-heading">
+                                    <h4 class="text-sm font-semibold text-primary">Effective Return Rules</h4>
+                                    <span class="return-rules-caption">Compact policy view for the selected borrower</span>
+                                </div>
+
+                                <div class="return-rules-grid">
+                                    <div class="return-rule-card">
+                                        <div class="return-rule-label">Return Condition</div>
+                                        <div class="return-rule-value" id="returnConditionSummary">Not selected</div>
+                                    </div>
+                                    <div class="return-rule-card">
+                                        <div class="return-rule-label">Issue Duration Policy</div>
+                                        <div class="return-rule-value" id="returnIssueDurationRule">-</div>
+                                    </div>
+                                    <div class="return-rule-card">
+                                        <div class="return-rule-label">Late Fine Rule</div>
+                                        <div class="return-rule-value" id="returnLateFineRule">-</div>
+                                    </div>
+                                    <div class="return-rule-card">
+                                        <div class="return-rule-label">Grace Period</div>
+                                        <div class="return-rule-value" id="returnGraceRule">-</div>
+                                    </div>
+                                    <div class="return-rule-card">
+                                        <div class="return-rule-label">Fine Cap Per Book</div>
+                                        <div class="return-rule-value" id="returnMaxFineRule">-</div>
+                                    </div>
+                                    <div class="return-rule-card">
+                                        <div class="return-rule-label">Condition Fine</div>
+                                        <div class="return-rule-value" id="returnConditionFineRule">-</div>
+                                    </div>
+                                </div>
+
+                                <div class="policy-note" id="returnPrivilegeNote">
+                                    Return fine calculations use the student's effective rules first, then the active default library settings when no override exists.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1965,6 +2211,8 @@
             const fineCalculationCard = document.getElementById('fineCalculationCard');
             const fineDetails = document.getElementById('fineDetails');
             const totalFineElement = document.getElementById('totalFine');
+            const returnFormTotalFineElement = document.getElementById('returnFormTotalFine');
+            const returnTotalSummaryNote = document.getElementById('returnTotalSummaryNote');
             const finePolicySummary = document.getElementById('finePolicySummary');
             const fineHelperText = document.getElementById('fineHelperText');
             const selectedBooksHeader = document.getElementById('selectedBooksHeader');
@@ -2162,6 +2410,17 @@
                 if (!condition) return 0;
                 const conditionOption = document.querySelector(`.condition-option[data-condition="${condition}"]`);
                 return Number(conditionOption?.dataset.fine ?? 0);
+            }
+
+            function setReturnTotalFineDisplay(amount, note) {
+                const formatted = formatCurrency(amount);
+                totalFineElement.textContent = formatted;
+                if (returnFormTotalFineElement) {
+                    returnFormTotalFineElement.textContent = formatted;
+                }
+                if (returnTotalSummaryNote && note !== undefined) {
+                    returnTotalSummaryNote.textContent = note;
+                }
             }
 
             function animatePrivilegeCard() {
@@ -3162,7 +3421,10 @@
                 fineDetails.innerHTML = '';
 
                 if (selectedIssuedBooks.length === 0 || !selectedCondition) {
-                    totalFineElement.textContent = formatCurrency(0);
+                    setReturnTotalFineDisplay(
+                        0,
+                        'Select books and a return condition to preview the payable fine.'
+                    );
                     finePolicySummary.textContent =
                         'Select at least one issued book and a return condition to preview the fine calculation.';
                     fineHelperText.textContent = 'Select books and condition to calculate total fine';
@@ -3244,7 +3506,10 @@
                     fineDetails.appendChild(fineItem);
                 });
 
-                totalFineElement.textContent = formatCurrency(totalFine);
+                setReturnTotalFineDisplay(
+                    totalFine,
+                    `${selectedIssuedBooks.length} selected book${selectedIssuedBooks.length === 1 ? '' : 's'} with ${toTitleCase(selectedCondition)} condition.`
+                );
             };
 
             window.updateReturnButton = function() {
@@ -3271,7 +3536,10 @@
                 selectedCondition = null;
                 resetConditionSelection();
                 updateReturnButton();
-                totalFineElement.textContent = formatCurrency(0);
+                setReturnTotalFineDisplay(
+                    0,
+                    'Select books and a return condition to preview the payable fine.'
+                );
                 fineDetails.innerHTML = '';
                 resetReturnPrivilegeSummary();
 
