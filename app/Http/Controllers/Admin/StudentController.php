@@ -1131,32 +1131,31 @@ class StudentController extends Controller
                 'borrowing_allowed' => 'boolean',
             ]);
 
+            $fillablePayload = array_intersect_key(
+                $validated,
+                array_flip((new \App\Models\StudentPrivilege())->getFillable())
+            );
+
             // Get or create privileges record
             $privileges = $student->privileges ?? new \App\Models\StudentPrivilege(['student_id' => $student->id]);
 
             // Track changes for logging
             $changes = [];
-            if ($validated['max_books'] !== null && $privileges->max_books != $validated['max_books']) {
-                $changes['max_books'] = $validated['max_books'];
+            if (array_key_exists('max_books', $fillablePayload) && $fillablePayload['max_books'] !== null && $privileges->max_books != $fillablePayload['max_books']) {
+                $changes['max_books'] = $fillablePayload['max_books'];
             }
-            if ($validated['issue_duration_days'] !== null && $privileges->issue_duration_days != $validated['issue_duration_days']) {
-                $changes['issue_duration_days'] = $validated['issue_duration_days'];
+            if (array_key_exists('issue_duration_days', $fillablePayload) && $fillablePayload['issue_duration_days'] !== null && $privileges->issue_duration_days != $fillablePayload['issue_duration_days']) {
+                $changes['issue_duration_days'] = $fillablePayload['issue_duration_days'];
             }
-            if ($validated['per_day_fine'] !== null && $privileges->per_day_fine != $validated['per_day_fine']) {
-                $changes['per_day_fine'] = $validated['per_day_fine'];
+            if (array_key_exists('per_day_fine', $fillablePayload) && $fillablePayload['per_day_fine'] !== null && $privileges->per_day_fine != $fillablePayload['per_day_fine']) {
+                $changes['per_day_fine'] = $fillablePayload['per_day_fine'];
             }
-            if ($validated['grace_period_days'] !== null && $privileges->grace_period_days != $validated['grace_period_days']) {
-                $changes['grace_period_days'] = $validated['grace_period_days'];
-            }
-            if ($validated['max_fine_amount'] !== null && $privileges->max_fine_amount != $validated['max_fine_amount']) {
-                $changes['max_fine_amount'] = $validated['max_fine_amount'];
-            }
-            if ($privileges->borrowing_allowed != $validated['borrowing_allowed']) {
-                $changes['borrowing_allowed'] = $validated['borrowing_allowed'];
+            if (array_key_exists('borrowing_allowed', $fillablePayload) && $privileges->borrowing_allowed != $fillablePayload['borrowing_allowed']) {
+                $changes['borrowing_allowed'] = $fillablePayload['borrowing_allowed'];
             }
 
             // Update privileges
-            $privileges->fill($validated);
+            $privileges->fill($fillablePayload);
             $privileges->save();
 
             // Log the activity
