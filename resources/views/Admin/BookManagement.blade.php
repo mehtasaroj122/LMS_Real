@@ -858,10 +858,13 @@
         /* Form Error Styles - One Error at a Time */
         .form-control.error {
             border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
         }
 
         body.dark-theme .form-control.error {
+            border-color: #f87171 !important;
+            background-color: rgba(239, 68, 68, 0.1) !important;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
         }
 
@@ -882,6 +885,10 @@
             align-items: center;
             gap: 4px;
             animation: slideDown 0.2s ease;
+        }
+
+        .field-error-message::before {
+            content: "⚠";
         }
 
         body.dark-theme .field-error-message {
@@ -1147,10 +1154,10 @@
             </div>
 
             <!-- Total Copies -->
-            <div class="stat-card stat-available">
+            <div class="stat-card stat-copies">
                 <div class="stat-content">
                     <div class="stat-icon">
-                        <i class="fas fa-book-open"></i>
+                        <i class="fas fa-boxes"></i>
                     </div>
                     <div class="stat-info">
                         <div class="stat-value">0</div>
@@ -1160,7 +1167,7 @@
             </div>
 
             <!-- Available Copies -->
-            <div class="stat-card stat-borrowed">
+            <div class="stat-card stat-available">
                 <div class="stat-content">
                     <div class="stat-icon">
                         <i class="fas fa-book-reader"></i>
@@ -1833,6 +1840,11 @@
                             
                             this.attachTableEventListeners();
                         }
+
+                        // Update stats based on filtered results
+                        if (data.stats) {
+                            this.updateStats(data.stats);
+                        }
                     } else {
                         this.showNotification('Error loading books', 'error');
                     }
@@ -1908,6 +1920,23 @@
                     if (categoriesElement) categoriesElement.textContent = Object.keys(data.topCategories).length;
                 })
                 .catch(error => console.error('Error fetching stats:', error));
+            }
+
+            updateStats(stats) {
+                if (!stats) return;
+                const totalBooksElement = document.querySelector('.stat-total .stat-value');
+                if (totalBooksElement) totalBooksElement.textContent = stats.totalBooks || 0;
+
+                const totalCopiesElement = document.querySelector('.stat-copies .stat-value');
+                if (totalCopiesElement) totalCopiesElement.textContent = stats.totalCopies || 0;
+
+                const availableElement = document.querySelector('.stat-available .stat-value');
+                if (availableElement) availableElement.textContent = stats.availableCopies || 0;
+
+                const categoriesElement = document.querySelector('.stat-categories .stat-value');
+                if (categoriesElement && stats.topCategories) {
+                    categoriesElement.textContent = Object.keys(stats.topCategories).length || 0;
+                }
             }
 
             openModal(modalId) {
@@ -2096,21 +2125,13 @@
 
             submitAddBook() {
                 const form = document.getElementById('addBookForm');
-                const categorySelect = document.getElementById('addCategorySelect');
                 const newCategoryInput = document.getElementById('addNewCategory');
 
                 // Clear all previous errors
                 this.clearFieldErrors(form);
 
                 // Define field order for validation (top to bottom in form)
-                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id', 'new_category', 'condition', 'total_copies', 'available_copies', 'description'];
-
-                // Validate category selection first (custom validation)
-                const categoryError = this.validateCategory(categorySelect, newCategoryInput);
-                if (categoryError) {
-                    this.showFieldError(categoryError.input, categoryError.error);
-                    return;
-                }
+                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id', 'new_category', 'condition', 'total_copies', 'available_copies', 'description', 'cover_image'];
 
                 // Validate form fields one at a time
                 const validationError = this.validateFormOneByOne(form, fieldOrder);
@@ -2256,7 +2277,7 @@
                 this.clearFieldErrors(form);
 
                 // Define field order for validation (top to bottom in form)
-                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id', 'condition', 'total_copies', 'available_copies', 'description'];
+                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id', 'condition', 'total_copies', 'available_copies', 'description', 'cover_image'];
 
                 // Validate form fields one at a time
                 const validationError = this.validateFormOneByOne(form, fieldOrder);
@@ -2374,33 +2395,20 @@
             }
 
             showFieldError(input, message) {
-                // Clear all errors first
-                const form = input.closest('form');
-                if (form) {
-                    this.clearFieldErrors(form);
-                }
-
-                // Add error class to the input
+                this.clearFieldError(input);
                 input.classList.add('error');
-
-                // Create error message element
+                
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'field-error-message';
-                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-
-                // Insert error message after the input
+                errorDiv.textContent = message;
+                
                 input.parentElement.appendChild(errorDiv);
-
-                // Focus the input
-                input.focus();
-
-                // Scroll input into view
                 input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                input.focus();
             }
 
             validateField(input, rules) {
                 const value = input.value.trim();
-                const name = input.name;
                 const type = input.type;
                 const isRequired = input.hasAttribute('required');
 
@@ -2424,27 +2432,39 @@
                     return rules.maxLengthMessage || `Must not exceed ${rules.maxLength} characters`;
                 }
 
+                // Apply transform if defined
+                let processedValue = value;
+                if (rules.transform) {
+                    processedValue = rules.transform(value);
+                }
+
                 // Check numeric fields
-                if (rules.numeric && value !== '' && isNaN(value)) {
+                if (rules.numeric && processedValue !== '' && isNaN(processedValue)) {
                     return rules.numericMessage || 'Must be a valid number';
                 }
 
                 // Check minimum value for numeric fields
-                if (rules.min !== undefined && value !== '' && parseFloat(value) < rules.min) {
+                if (rules.min !== undefined && processedValue !== '' && parseFloat(processedValue) < rules.min) {
                     return rules.minMessage || `Must be at least ${rules.min}`;
                 }
 
                 // Check maximum value for numeric fields
-                if (rules.max !== undefined && value !== '' && parseFloat(value) > rules.max) {
+                if (rules.max !== undefined && processedValue !== '' && parseFloat(processedValue) > rules.max) {
                     return rules.maxMessage || `Must not exceed ${rules.max}`;
                 }
 
-                // Check ISBN format (basic validation)
-                if (rules.isbn && value !== '') {
-                    // Remove dashes and spaces
-                    const cleanIsbn = value.replace(/[-\s]/g, '');
-                    if (!/^(?:\d{10}|\d{13})$/.test(cleanIsbn)) {
-                        return rules.isbnMessage || 'Invalid ISBN format (10 or 13 digits required)';
+                // Check pattern/regex
+                if (rules.pattern && processedValue !== '') {
+                    if (!rules.pattern.test(processedValue)) {
+                        return rules.patternMessage || 'Invalid format';
+                    }
+                }
+
+                // Check custom validation
+                if (rules.custom) {
+                    const customError = rules.custom(processedValue, input.closest('form'));
+                    if (customError) {
+                        return customError;
                     }
                 }
 
@@ -2486,54 +2506,116 @@
                     isbn: {
                         required: true,
                         requiredMessage: 'ISBN is required',
-                        isbn: true,
-                        isbnMessage: 'Invalid ISBN format (10 or 13 digits required)'
+                        pattern: /^[0-9]{10,13}$/,
+                        patternMessage: 'ISBN must be 10-13 digits only (e.g., 9780134685991)',
+                        transform: (value) => value.replace(/[-\s]/g, '')
+                    },
+                    shelf_no: {
+                        required: true,
+                        requiredMessage: 'Rack number is required',
+                        pattern: /^[A-Za-z0-9]+[-]?[A-Za-z0-9]*$/,
+                        patternMessage: 'Rack number must be alphanumeric (e.g., A-12, B5, Shelf1)',
+                        maxLength: 20,
+                        maxLengthMessage: 'Rack number must not exceed 20 characters'
                     },
                     title: {
                         required: true,
                         requiredMessage: 'Title is required',
                         minLength: 2,
-                        minLengthMessage: 'Title must be at least 2 characters'
+                        minLengthMessage: 'Title must be at least 2 characters',
+                        maxLength: 255,
+                        maxLengthMessage: 'Title must not exceed 255 characters',
+                        pattern: /^[A-Za-z0-9\s\-:'.&()]+$/,
+                        patternMessage: 'Title can only contain letters, numbers, spaces, and: - : \' . & ( )'
                     },
                     author: {
                         required: true,
                         requiredMessage: 'Author is required',
                         minLength: 2,
-                        minLengthMessage: 'Author must be at least 2 characters'
+                        minLengthMessage: 'Author name must be at least 2 characters',
+                        maxLength: 255,
+                        maxLengthMessage: 'Author name must not exceed 255 characters',
+                        pattern: /^[A-Za-z\s.]+$/,
+                        patternMessage: 'Author name can only contain letters, spaces, and periods'
                     },
-                    shelf_no: {
-                        required: true,
-                        requiredMessage: 'Rack number is required'
+                    publisher: {
+                        maxLength: 255,
+                        maxLengthMessage: 'Publisher name must not exceed 255 characters',
+                        pattern: /^[A-Za-z0-9\s&.,'-]*$/,
+                        patternMessage: 'Publisher can only contain letters, numbers, spaces, and: & . , \' -'
                     },
                     category_id: {
-                        required: true,
-                        requiredMessage: 'Category is required'
+                        custom: (value, currentForm) => {
+                            const newCategoryInput = currentForm?.querySelector('[name="new_category"]');
+                            const newCategoryValue = newCategoryInput ? newCategoryInput.value.trim() : '';
+
+                            if (!value && !newCategoryValue) {
+                                return 'Please select a category or create a new one';
+                            }
+
+                            if (value && newCategoryValue) {
+                                return 'Please choose either existing OR new category, not both';
+                            }
+
+                            return null;
+                        }
+                    },
+                    new_category: {
+                        minLength: 2,
+                        minLengthMessage: 'Category name must be at least 2 characters',
+                        maxLength: 50,
+                        maxLengthMessage: 'Category name must not exceed 50 characters',
+                        pattern: /^[A-Za-z\s&]*$/,
+                        patternMessage: 'Category name can only contain letters, spaces, and &'
                     },
                     condition: {
                         required: true,
-                        requiredMessage: 'Condition is required'
+                        requiredMessage: 'Condition is required',
+                        custom: (value) => {
+                            if (!['new', 'good', 'damaged'].includes(value)) {
+                                return 'Condition must be new, good, or damaged';
+                            }
+
+                            return null;
+                        }
                     },
                     total_copies: {
                         required: true,
                         requiredMessage: 'Total copies is required',
                         numeric: true,
-                        numericMessage: 'Total copies must be a number',
+                        numericMessage: 'Total copies must be a valid number',
                         min: 1,
-                        minMessage: 'Total copies must be at least 1'
+                        minMessage: 'Total copies must be at least 1',
+                        max: 9999,
+                        maxMessage: 'Total copies must not exceed 9999'
                     },
                     available_copies: {
                         required: true,
                         requiredMessage: 'Available copies is required',
                         numeric: true,
-                        numericMessage: 'Available copies must be a number',
+                        numericMessage: 'Available copies must be a valid number',
                         min: 0,
-                        minMessage: 'Available copies cannot be negative'
+                        minMessage: 'Available copies cannot be negative',
+                        max: 9999,
+                        maxMessage: 'Available copies must not exceed 9999',
+                        custom: (value, currentForm) => {
+                            const totalCopies = parseInt(currentForm?.querySelector('[name="total_copies"]')?.value || 0, 10);
+                            const available = parseInt(value, 10);
+                            if (available > totalCopies) {
+                                return 'Available copies cannot exceed total copies';
+                            }
+                            return null;
+                        }
+                    },
+                    description: {
+                        maxLength: 2000,
+                        maxLengthMessage: 'Description must not exceed 2000 characters'
                     },
                     cover_image: {
                         maxSize: 2,
                         maxSizeMessage: 'Cover image must not exceed 2MB',
-                        accept: 'image/*',
-                        acceptMessage: 'Please select a valid image file (JPEG, PNG, GIF)'
+                        accept: '.jpeg,.jpg,.png,.gif,.svg',
+                        acceptMessage: 'Please select a valid image file (JPEG, PNG, JPG, GIF, SVG)'
                     }
                 };
 
@@ -2550,26 +2632,6 @@
 
                 return null; // No errors
             }
-
-            // Validate category selection for Add form
-            validateCategory(categorySelect, newCategoryInput) {
-                const selectedCategory = categorySelect.value.trim();
-                const newCategory = newCategoryInput.value.trim();
-
-                if (!selectedCategory && !newCategory) {
-                    return { field: 'category_id', error: 'Please select a category or create a new one', input: categorySelect };
-                }
-
-                if (selectedCategory && newCategory) {
-                    return { field: 'new_category', error: 'Please choose either existing OR new category, not both', input: newCategoryInput };
-                }
-
-                if (newCategory && newCategory.length < 2) {
-                    return { field: 'new_category', error: 'New category name must be at least 2 characters', input: newCategoryInput };
-                }
-
-                return null;
-            }
         }
 
         // Initialize when DOM is loaded
@@ -2578,4 +2640,3 @@
         });
     </script>
 @endpush
-
