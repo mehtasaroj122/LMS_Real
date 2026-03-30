@@ -4,7 +4,6 @@
 
 @push('styles')
     <style>
-        /* Header */
         .page-header {
             margin-bottom: 8px;
         }
@@ -32,7 +31,6 @@
             color: #94a3b8;
         }
 
-        /* Dashboard Specific Styles */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(1, 1fr);
@@ -116,7 +114,6 @@
             color: #94a3b8;
         }
 
-        /* Status Colors */
         .status-blue {
             background-color: #dbeafe;
             color: #2563eb;
@@ -167,21 +164,8 @@
             color: #a78bfa;
         }
 
-        /* Two Column Layout for Due Today & Overdue */
-        .two-column-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        @media (min-width: 1024px) {
-            .two-column-layout {
-                grid-template-columns: 1fr 2fr;
-            }
-        }
-
-        .section-card {
+        .section-card,
+        .table-card {
             border-radius: 0.75rem;
             padding: 1.25rem;
             height: 100%;
@@ -189,40 +173,48 @@
             flex-direction: column;
         }
 
-        body.light-theme .section-card {
+        body.light-theme .section-card,
+        body.light-theme .table-card {
             background-color: #ffffff;
             border: 1px solid #e5e7eb;
         }
 
-        body.dark-theme .section-card {
+        body.dark-theme .section-card,
+        body.dark-theme .table-card {
             background-color: #1e293b;
             border: 1px solid #334155;
         }
 
-        .section-header {
+        .section-header,
+        .table-card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
             margin-bottom: 1rem;
             padding-bottom: 0.75rem;
             border-bottom: 1px solid;
         }
 
-        body.light-theme .section-header {
+        body.light-theme .section-header,
+        body.light-theme .table-card-header {
             border-color: #e5e7eb;
         }
 
-        body.dark-theme .section-header {
+        body.dark-theme .section-header,
+        body.dark-theme .table-card-header {
             border-color: #334155;
         }
 
-        .section-title {
+        .section-title,
+        .table-card-title {
             font-size: 1rem;
             font-weight: 600;
             color: #0f172a;
         }
 
-        body.dark-theme .section-title {
+        body.dark-theme .section-title,
+        body.dark-theme .table-card-title {
             color: #e2e8f0;
         }
 
@@ -231,16 +223,7 @@
             font-weight: 600;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
-        }
-
-        .count-green {
-            background-color: #dcfce7;
-            color: #16a34a;
-        }
-
-        body.dark-theme .count-green {
-            background-color: #14532d;
-            color: #4ade80;
+            white-space: nowrap;
         }
 
         .count-red {
@@ -253,7 +236,141 @@
             color: #f87171;
         }
 
-        /* Due Today Section */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .charts-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .tables-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .tables-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            padding: 0.25rem 0;
+        }
+
+        .table-card {
+            max-height: 380px;
+        }
+
+        .table-card-heading {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .table-card-link {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .table-card-link:hover {
+            text-decoration: underline;
+        }
+
+        .table-card-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background-color: #dbeafe;
+            color: #1e40af;
+            white-space: nowrap;
+        }
+
+        body.dark-theme .table-card-count {
+            background-color: #1e3a8a;
+            color: #60a5fa;
+        }
+
+        .table-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .table-item {
+            padding: 0.875rem 0;
+            border-bottom: 1px solid;
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        body.light-theme .table-item {
+            border-color: #f1f5f9;
+        }
+
+        body.dark-theme .table-item {
+            border-color: #334155;
+        }
+
+        .table-item:last-child {
+            border-bottom: none;
+        }
+
+        .table-item-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .table-item-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #0f172a;
+        }
+
+        body.dark-theme .table-item-title {
+            color: #e2e8f0;
+        }
+
+        .table-item-subtitle {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        body.dark-theme .table-item-subtitle {
+            color: #94a3b8;
+        }
+
+        .table-item-meta {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        body.dark-theme .table-item-meta {
+            color: #64748b;
+        }
+
+        .table-request-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.25rem;
+        }
+
         .empty-state {
             flex: 1;
             display: flex;
@@ -262,6 +379,10 @@
             justify-content: center;
             padding: 1.5rem 1rem;
             text-align: center;
+        }
+
+        .table-empty-state {
+            min-height: 180px;
         }
 
         .empty-icon {
@@ -304,11 +425,10 @@
             color: #94a3b8;
         }
 
-        /* Overdue Books List */
         .overdue-list {
             flex: 1;
             overflow-y: auto;
-            max-height: 300px;
+            max-height: 340px;
         }
 
         .overdue-item {
@@ -318,6 +438,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 0.75rem;
             transition: background-color 0.2s ease;
         }
 
@@ -368,7 +489,6 @@
             flex-direction: column;
             align-items: flex-end;
             gap: 0.25rem;
-            margin-left: 0.75rem;
         }
 
         .overdue-date {
@@ -387,100 +507,18 @@
             padding: 0.125rem 0.5rem;
             border-radius: 9999px;
             background-color: #dc2626;
-            color: white;
+            color: #ffffff;
         }
 
         body.dark-theme .overdue-days {
             background-color: #ef4444;
         }
 
-        /* Pending Book Requests Section */
-        .request-list {
-            flex: 1;
-        }
-
-        .request-item {
-            padding: 1rem 0;
-            border-bottom: 1px solid;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        body.light-theme .request-item {
-            border-color: #e5e7eb;
-        }
-
-        body.dark-theme .request-item {
-            border-color: #334155;
-        }
-
-        .request-item:last-child {
-            border-bottom: none;
-        }
-
-        .request-info {
-            flex: 1;
-        }
-
-        .request-book {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            color: #0f172a;
-        }
-
-        body.dark-theme .request-book {
-            color: #e2e8f0;
-        }
-
-        .request-student {
-            font-size: 0.875rem;
-            color: #64748b;
-            margin-bottom: 0.25rem;
-        }
-
-        body.dark-theme .request-student {
-            color: #94a3b8;
-        }
-
-        .request-date {
-            font-size: 0.875rem;
-            color: #64748b;
-        }
-
-        body.dark-theme .request-date {
-            color: #94a3b8;
-        }
-
-        .request-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        .badge-pending {
-            background-color: #fef3c7;
-            color: #d97706;
-        }
-
-        body.dark-theme .badge-pending {
-            background-color: #78350f;
-            color: #fbbf24;
-        }
-
         .action-btn {
             padding: 0.375rem 0.75rem;
             border-radius: 0.375rem;
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             border: none;
@@ -489,31 +527,16 @@
 
         body.light-theme .action-btn {
             background-color: #2563eb;
-            color: white;
+            color: #ffffff;
         }
 
         body.dark-theme .action-btn {
             background-color: #1e40af;
-            color: white;
+            color: #ffffff;
         }
 
         .action-btn:hover {
             opacity: 0.9;
-        }
-        /* Specific action button variants */
-        .action-btn.btn-reject {
-            background-color: #f59e0b; /* amber-400 warning */
-            color: #000000;
-        }
-
-        body.light-theme .action-btn.btn-reject {
-            background-color: #f59e0b; /* ensure override in light theme */
-            color: #000000;
-        }
-
-        body.dark-theme .action-btn.btn-reject {
-            background-color: #b45309; /* amber-700 darker for dark theme */
-            color: #ffffff;
         }
 
         .action-btn.btn-accept {
@@ -521,22 +544,19 @@
             color: #ffffff;
         }
 
-        /* Disabled action button appearance after an action */
+        .action-btn.btn-reject {
+            background-color: #f59e0b;
+            color: #000000;
+        }
+
+        body.dark-theme .action-btn.btn-reject {
+            background-color: #b45309;
+            color: #ffffff;
+        }
+
         .action-btn:disabled {
             cursor: not-allowed;
             opacity: 0.7;
-            filter: grayscale(0.02);
-        }
-        .view-all-link {
-            float: right;
-            font-size: 0.9rem;
-            color: #2563eb;
-            text-decoration: none;
-            margin-left: 0.5rem;
-        }
-
-        .view-all-link:hover {
-            text-decoration: underline;
         }
 
         .toast-container {
@@ -553,28 +573,31 @@
         .toast {
             pointer-events: auto;
             padding: 0.5rem 0.75rem;
-            color: #fff;
+            color: #ffffff;
             border-radius: 0.375rem;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
             font-weight: 600;
             opacity: 0.95;
         }
 
-        .toast.success { background: #16a34a; }
-        .toast.error { background: #ef4444; }
+        .toast.success {
+            background: #16a34a;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
     </style>
 @endpush
 
 @section('content')
     <div class="dashboard">
-        <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Staff Dashboard</h1>
             <p class="page-description">Manage daily library operations</p>
         </div>
-        <!-- Dashboard Overview Cards -->
+
         <div class="dashboard-grid">
-            <!-- Books Issued Card -->
             <div class="stat-card status-blue">
                 <div class="stat-card-header">
                     <div class="stat-icon status-blue">
@@ -589,7 +612,6 @@
                 <div class="stat-label">Currently Issued</div>
             </div>
 
-            <!-- Due Today Card -->
             <div class="stat-card status-green">
                 <div class="stat-card-header">
                     <div class="stat-icon status-green">
@@ -607,7 +629,6 @@
                 <div class="stat-label">Due Today</div>
             </div>
 
-            <!-- Overdue Card -->
             <div class="stat-card status-red">
                 <div class="stat-card-header">
                     <div class="stat-icon status-red">
@@ -623,7 +644,6 @@
                 <div class="stat-label">Overdue</div>
             </div>
 
-            <!-- Pending Requests Card -->
             <div class="stat-card status-yellow">
                 <div class="stat-card-header">
                     <div class="stat-icon status-yellow">
@@ -636,12 +656,11 @@
                             <line x1="9" y1="15" x2="15" y2="15" />
                         </svg>
                     </div>
-                    <div class="stat-value">{{ $pendingRequestsCount ?? 0 }}</div>
+                    <div class="stat-value" data-pending-count-display>{{ $pendingRequestsCount ?? 0 }}</div>
                 </div>
                 <div class="stat-label">Pending Requests</div>
             </div>
 
-            <!-- Pending Fines Card -->
             <div class="stat-card status-purple">
                 <div class="stat-card-header">
                     <div class="stat-icon status-purple">
@@ -658,90 +677,179 @@
             </div>
         </div>
 
-        <!-- Due Today & Overdue Books in Single Row -->
-        <div class="two-column-layout">
-            <!-- Due Today Section -->
+        <div class="charts-row">
             <div class="section-card">
                 <div class="section-header">
-                    <h2 class="section-title">Due Today</h2>
-                    <span class="section-count count-green">0</span>
+                    <h2 class="section-title">Book Circulation</h2>
                 </div>
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                            <polyline points="22 4 12 14.01 9 11.01" />
-                        </svg>
-                    </div>
-                    <h3 class="empty-title">No books due today</h3>
-                    <p class="empty-subtitle">All clear for today!</p>
+                <div class="chart-container">
+                    <canvas id="circulationChart"></canvas>
                 </div>
             </div>
 
-            <!-- Overdue Books Section -->
             <div class="section-card">
                 <div class="section-header">
-                    <h2 class="section-title">Overdue Books</h2>
-                    <span class="section-count count-red">{{ isset($overdues) ? $overdues->count() : ($overdueCount ?? 0) }}</span>
+                    <h2 class="section-title">7-Day Activity</h2>
                 </div>
-                <div class="overdue-list">
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="tables-row">
+            <div class="table-card">
+                <div class="table-card-header">
+                    <div class="table-card-heading">
+                        <h3 class="table-card-title">Pending Requests</h3>
+                        <a href="{{ route('staff.book-requests.index') }}" class="table-card-link">View all</a>
+                    </div>
+                    <span class="table-card-count" data-pending-count-display>{{ $pendingRequestsCount ?? 0 }}</span>
+                </div>
+
+                <div class="table-list pending-requests-list">
+                    @if(isset($pendingRequests) && $pendingRequests->count())
+                        @foreach($pendingRequests as $req)
+                            <div class="table-item table-request-item" id="request-{{ $req->id }}" data-request-id="{{ $req->id }}">
+                                <div class="table-item-top">
+                                    <div>
+                                        <div class="table-item-title">{{ optional($req->book)->title ?? 'Untitled' }}</div>
+                                        <div class="table-item-subtitle">{{ data_get($req, 'student.user.name', 'Unknown') }}</div>
+                                    </div>
+                                    <div class="table-item-meta">{{ optional($req->request_date)->format('M d, Y') }}</div>
+                                </div>
+                                <div class="table-item-meta">
+                                    {{ data_get($req, 'student.student_id') ?: data_get($req, 'student.roll_no', 'No ID') }}
+                                </div>
+                                <div class="table-request-actions">
+                                    <button class="action-btn btn-accept" onclick="processBookRequest({{ $req->id }}, 'approved')">Accept</button>
+                                    <button class="action-btn btn-reject" onclick="processBookRequest({{ $req->id }}, 'rejected')">Reject</button>
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="empty-state table-empty-state">
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 8v4l3 3" />
+                                    <circle cx="12" cy="12" r="10" />
+                                </svg>
+                            </div>
+                            <h3 class="empty-title">No pending requests</h3>
+                            <p class="empty-subtitle">You're all caught up for now.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-card-header">
+                    <h3 class="table-card-title">Due Today</h3>
+                    <span class="table-card-count">{{ $dueToday ?? 0 }}</span>
+                </div>
+
+                <div class="table-list">
+                    @if(isset($dueTodayList) && $dueTodayList->count())
+                        @foreach($dueTodayList as $item)
+                            <div class="table-item">
+                                <div class="table-item-top">
+                                    <div>
+                                        <div class="table-item-title">{{ optional($item->book)->title ?? 'Untitled' }}</div>
+                                        <div class="table-item-subtitle">{{ data_get($item, 'student.user.name', 'Unknown') }}</div>
+                                    </div>
+                                    <div class="table-item-meta">Due today</div>
+                                </div>
+                                <div class="table-item-meta">Due: {{ optional($item->due_date)->format('M d, Y') }}</div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="empty-state table-empty-state">
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                            </div>
+                            <h3 class="empty-title">No books due today</h3>
+                            <p class="empty-subtitle">All clear for today.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-card-header">
+                    <h3 class="table-card-title">Recent Issues</h3>
+                </div>
+
+                <div class="table-list">
+                    @if(isset($recentlyIssued) && $recentlyIssued->count())
+                        @foreach($recentlyIssued as $item)
+                            <div class="table-item">
+                                <div class="table-item-top">
+                                    <div>
+                                        <div class="table-item-title">{{ optional($item->book)->title ?? 'Untitled' }}</div>
+                                        <div class="table-item-subtitle">{{ data_get($item, 'student.user.name', 'Unknown') }}</div>
+                                    </div>
+                                    <div class="table-item-meta">{{ optional($item->issue_date)->diffForHumans() ?? 'Recently' }}</div>
+                                </div>
+                                <div class="table-item-meta">Issued on {{ optional($item->issue_date)->format('M d, Y') }}</div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="empty-state table-empty-state">
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M12 6v6l4 2" />
+                                    <circle cx="12" cy="12" r="10" />
+                                </svg>
+                            </div>
+                            <h3 class="empty-title">No recent issues</h3>
+                            <p class="empty-subtitle">No books have been issued recently.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <h2 class="section-title">Overdue Books</h2>
+                <span class="section-count count-red">{{ $overdueCount ?? 0 }}</span>
+            </div>
+
+            <div class="overdue-list">
                 @if(isset($overdues) && $overdues->count())
                     @foreach($overdues as $item)
                         <div class="overdue-item">
                             <div class="overdue-info">
                                 <div class="overdue-book">{{ optional($item->book)->title ?? 'Untitled' }}</div>
-                                <div class="overdue-student">{{ optional($item->student)->user->name ?? optional($item->student)->name ?? 'Unknown' }}</div>
+                                <div class="overdue-student">{{ data_get($item, 'student.user.name', 'Unknown') }}</div>
                             </div>
                             <div class="overdue-details">
-                                <div class="overdue-date">Due: {{ optional($item->due_date)->format('n/j/Y') }}</div>
-                                <div class="overdue-days">{{ (int) \Carbon\Carbon::parse($item->due_date)->diffInDays(\Carbon\Carbon::now()) }}d</div>
+                                <div class="overdue-date">Due: {{ optional($item->due_date)->format('M d, Y') }}</div>
+                                <div class="overdue-days">{{ optional($item->due_date)->diffInDays(now()) ?? 0 }}d</div>
                             </div>
                         </div>
                     @endforeach
                 @else
-                    <div class="overdue-item empty-state">
-                        <div class="empty-title">No overdue books</div>
-                        <p class="empty-subtitle">Great — nothing overdue right now.</p>
-                    </div>
-                @endif
-            </div>
-            </div>
-        </div>
-
-        <!-- Pending Book Requests Section -->
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Pending Book Requests <a href="{{ route('staff.book-requests.index') }}" class="view-all-link">View all</a></h2>
-            </div>
-            <div class="request-list">
-                @if(isset($pendingRequests) && $pendingRequests->count())
-                    @foreach($pendingRequests as $req)
-                        <div class="request-item" id="request-{{ $req->id }}">
-                            <div class="request-info">
-                                <div class="request-book">{{ optional($req->book)->title ?? 'Untitled' }}</div>
-                                <div class="request-student">{{ optional($req->student)->user->name ?? optional($req->student)->name ?? 'Unknown' }} • {{ optional($req->student)->student_id ?? '' }}</div>
-                                <div class="request-date">Requested: {{ optional($req->request_date)->format('M d, Y') }}</div>
-                            </div>
-                            <div class="request-status">
-                                <div class="action-buttons">
-                                    <button class="action-btn btn-accept" data-id="{{ $req->id }}" onclick="processBookRequest({{ $req->id }}, 'approved', this)">Accept</button>
-                                    <button class="action-btn btn-reject" data-id="{{ $req->id }}" onclick="processBookRequest({{ $req->id }}, 'rejected', this)">Reject</button>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="empty-state" style="text-align:center;padding:1.5rem;">
-                        <div class="empty-icon" aria-hidden="true" style="margin-bottom:0.5rem;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 8v4l3 3"></path>
-                                <circle cx="12" cy="12" r="10"></circle>
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
                             </svg>
                         </div>
-                        <div class="empty-title">No pending requests</div>
-                        <p class="empty-subtitle">You're all caught up — there are no pending book requests right now.</p>
+                        <h3 class="empty-title">No overdue books</h3>
+                        <p class="empty-subtitle">Great, nothing is overdue right now.</p>
                     </div>
                 @endif
             </div>
@@ -750,8 +858,8 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Simple hover effect enhancement
         document.addEventListener('DOMContentLoaded', function() {
             const statCards = document.querySelectorAll('.stat-card');
 
@@ -765,166 +873,306 @@
                 });
             });
 
-            // No inline button handlers here; buttons call `processBookRequest` directly.
+            initializeDashboardCharts();
         });
 
-            // Utility to escape HTML when inserting from server
-            function escapeHtml(str) {
-                return String(str)
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#39;');
+        function initializeDashboardCharts() {
+            if (typeof Chart === 'undefined') {
+                return;
             }
 
-            // Simple toast
-            function showToast(message, type = 'success') {
-                let container = document.getElementById('toast-container');
-                if (!container) {
-                    container = document.createElement('div');
-                    container.id = 'toast-container';
-                    container.className = 'toast-container';
-                    document.body.appendChild(container);
+            const isDark = document.body.classList.contains('dark-theme');
+            const palette = {
+                surface: isDark ? '#1e293b' : '#ffffff',
+                grid: isDark ? '#334155' : '#e5e7eb',
+                text: isDark ? '#cbd5e1' : '#475569'
+            };
+
+            Chart.defaults.color = palette.text;
+            Chart.defaults.borderColor = palette.grid;
+
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
                 }
-                const t = document.createElement('div');
-                t.className = 'toast ' + (type === 'error' ? 'error' : 'success');
-                t.textContent = message;
-                container.appendChild(t);
-                setTimeout(() => {
-                    t.style.transition = 'opacity 300ms ease, transform 300ms ease';
-                    t.style.opacity = '0';
-                    t.style.transform = 'translateY(-8px)';
-                    setTimeout(() => t.remove(), 350);
-                }, 3000);
+            };
+
+            const circulationCanvas = document.getElementById('circulationChart');
+            if (circulationCanvas) {
+                new Chart(circulationCanvas.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: @json($circulationData['labels'] ?? []),
+                        datasets: [{
+                            data: @json($circulationData['data'] ?? []),
+                            backgroundColor: @json($circulationData['colors'] ?? []),
+                            borderWidth: 2,
+                            borderColor: palette.surface
+                        }]
+                    },
+                    options: {
+                        ...commonOptions,
+                        cutout: '65%'
+                    }
+                });
             }
 
-            // Process a book request (accept or reject)
-            function processBookRequest(requestId, status, btn) {
-                if (!confirm(`Are you sure you want to ${status === 'approved' ? 'accept' : 'reject'} this request?`)) return;
+            const activityCanvas = document.getElementById('activityChart');
+            if (activityCanvas) {
+                new Chart(activityCanvas.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: @json($activityData['labels'] ?? []),
+                        datasets: [{
+                                label: 'Issued',
+                                data: @json($activityData['issued'] ?? []),
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            },
+                            {
+                                label: 'Returned',
+                                data: @json($activityData['returned'] ?? []),
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointHoverRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        ...commonOptions,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    color: palette.grid
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
 
-                const url = `/staff/book-requests/${requestId}`;
-                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
 
-                fetch(url, {
+        function showToast(message, type = 'success') {
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + (type === 'error' ? 'error' : 'success');
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.transition = 'opacity 300ms ease, transform 300ms ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-8px)';
+                setTimeout(() => toast.remove(), 350);
+            }, 3000);
+        }
+
+        function updatePendingRequestsCount(delta) {
+            const displays = document.querySelectorAll('[data-pending-count-display]');
+            if (!displays.length) {
+                return;
+            }
+
+            const current = parseInt(displays[0].textContent, 10) || 0;
+            const next = Math.max(0, current + delta);
+
+            displays.forEach(display => {
+                display.textContent = next.toString();
+            });
+        }
+
+        function createPendingRequestItem(request) {
+            const item = document.createElement('div');
+            item.className = 'table-item table-request-item';
+            item.id = `request-${request.id}`;
+            item.dataset.requestId = request.id;
+            item.innerHTML = `
+                <div class="table-item-top">
+                    <div>
+                        <div class="table-item-title">${escapeHtml(request.book.title)}</div>
+                        <div class="table-item-subtitle">${escapeHtml(request.student.name)}</div>
+                    </div>
+                    <div class="table-item-meta">${escapeHtml(request.request_date)}</div>
+                </div>
+                <div class="table-item-meta">${escapeHtml(request.student.student_id || 'No ID')}</div>
+                <div class="table-request-actions">
+                    <button class="action-btn btn-accept" onclick="processBookRequest(${request.id}, 'approved')">Accept</button>
+                    <button class="action-btn btn-reject" onclick="processBookRequest(${request.id}, 'rejected')">Reject</button>
+                </div>
+            `;
+
+            return item;
+        }
+
+        function renderPendingEmptyState(container) {
+            if (!container) {
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="empty-state table-empty-state">
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M12 8v4l3 3"></path>
+                            <circle cx="12" cy="12" r="10"></circle>
+                        </svg>
+                    </div>
+                    <h3 class="empty-title">No pending requests</h3>
+                    <p class="empty-subtitle">You're all caught up for now.</p>
+                </div>
+            `;
+        }
+
+        function fetchNextPending() {
+            const container = document.querySelector('.pending-requests-list');
+            if (!container) {
+                return;
+            }
+
+            const existing = Array.from(container.querySelectorAll('[data-request-id]'))
+                .map(element => element.dataset.requestId)
+                .join(',');
+
+            const url = `{{ route('staff.book-requests.next') }}?exclude=${encodeURIComponent(existing)}`;
+
+            fetch(url, {
+                    credentials: 'same-origin',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.request) {
+                        const emptyState = container.querySelector('.empty-state');
+                        if (emptyState) {
+                            emptyState.remove();
+                        }
+
+                        container.appendChild(createPendingRequestItem(data.request));
+                        return;
+                    }
+
+                    if (!container.querySelector('[data-request-id]')) {
+                        renderPendingEmptyState(container);
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to fetch next pending request', error);
+                });
+        }
+
+        async function processBookRequest(requestId, status) {
+            const actionLabel = status === 'approved' ? 'accept' : 'reject';
+            if (!confirm(`Are you sure you want to ${actionLabel} this request?`)) {
+                return;
+            }
+
+            const requestElement = document.getElementById(`request-${requestId}`);
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            try {
+                const response = await fetch(`{{ url('staff/book-requests') }}/${requestId}`, {
                     method: 'PUT',
                     credentials: 'same-origin',
                     headers: {
-                        'Accept': 'application/json',
+                        Accept: 'application/json',
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': token,
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify({ status: status })
-                })
-                .then(async response => {
-                    // Surface non-OK responses for easier debugging
-                    if (!response.ok) {
-                        const text = await response.text().catch(() => 'Unable to read response body');
-                        console.error('Book request update failed', response.status, text);
-                        alert(`Request failed: HTTP ${response.status}\n${text}`);
-                        return;
-                    }
+                    body: JSON.stringify({
+                        status: status
+                    })
+                });
 
-                    const data = await response.json().catch(err => {
-                        console.error('Failed to parse JSON response', err);
-                        alert('Unexpected server response (invalid JSON)');
-                        return null;
+                const data = await response.json().catch(() => null);
+
+                if (!response.ok || !data || !data.success) {
+                    console.error('Book request update failed', response.status, data);
+                    showToast(data && data.message ? data.message : `Request failed (HTTP ${response.status})`, 'error');
+                    return;
+                }
+
+                if (requestElement) {
+                    const buttons = requestElement.querySelectorAll('.action-btn');
+                    buttons.forEach(button => {
+                        button.disabled = true;
                     });
 
-                    if (!data) return;
-
-                    if (data.success) {
-                        const requestEl = document.getElementById(`request-${requestId}`);
-                        if (status === 'approved') {
-                            // Update Accept button to Approved and disable both
-                            const acceptBtn = requestEl.querySelector('.btn-accept');
-                            const rejectBtn = requestEl.querySelector('.btn-reject');
-                            acceptBtn.textContent = 'Approved';
-                            acceptBtn.disabled = true;
-                            acceptBtn.style.backgroundColor = '#16a34a';
-                            acceptBtn.style.color = '#ffffff';
-                            rejectBtn.disabled = true;
-                            acceptBtn.style.cursor = 'not-allowed';
-                            acceptBtn.style.opacity = '0.7';
-                            // decrement pending count display
-                            updatePendingRequestsCount(-1);
-                        } else if (status === 'rejected') {
-                            const rejectBtn = requestEl.querySelector('.btn-reject');
-                            const acceptBtn = requestEl.querySelector('.btn-accept');
-                            rejectBtn.textContent = 'Rejected';
-                            rejectBtn.disabled = true;
-                            rejectBtn.style.backgroundColor = '#ef4444';
-                            rejectBtn.style.color = '#ffffff';
-                            acceptBtn.disabled = true;
-                            rejectBtn.style.cursor = 'not-allowed';
-                            rejectBtn.style.opacity = '0.7';
-                            updatePendingRequestsCount(-1);
-                        }
-
-                        // Show toast and remove the processed row after 3s, then try to fetch a replacement
-                        showToast(status === 'approved' ? 'Request approved' : 'Request rejected', 'success');
-                        setTimeout(() => {
-                            const el = document.getElementById(`request-${requestId}`);
-                            if (el) el.remove();
-                            // attempt to fetch next pending to keep 10 items
-                            fetchNextPending();
-                        }, 3000);
-                    } else {
-                        alert('Error: ' + (data.message || 'Unable to update request'));
+                    const activeButton = requestElement.querySelector(status === 'approved' ? '.btn-accept' : '.btn-reject');
+                    if (activeButton) {
+                        activeButton.textContent = status === 'approved' ? 'Approved' : 'Rejected';
                     }
-                })
-                .catch(err => {
-                    console.error('Network or JS error while updating request', err);
-                    alert('Error updating request: ' + (err.message || err));
-                });
-            }
+                }
 
-            function updatePendingRequestsCount(delta) {
-                const pendingCountEl = document.querySelector('.stat-card.status-yellow .stat-value');
-                if (!pendingCountEl) return;
-                const current = parseInt(pendingCountEl.textContent) || 0;
-                const next = Math.max(0, current + delta);
-                pendingCountEl.textContent = next.toString();
-            }
+                updatePendingRequestsCount(-1);
+                showToast(status === 'approved' ? 'Request approved' : 'Request rejected', 'success');
 
-            // Fetch the next pending request not already displayed and append it
-            function fetchNextPending() {
-                const existing = Array.from(document.querySelectorAll('.request-item')).map(el => el.id.replace('request-', '')).join(',');
-                const url = `/staff/book-requests/next?exclude=${existing}`;
-                fetch(url, {
-                    credentials: 'same-origin',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
+                setTimeout(() => {
+                    if (requestElement) {
+                        requestElement.remove();
                     }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.request) {
-                        const r = data.request;
-                        const container = document.querySelector('.request-list');
-                        if (!container) return;
-                        const div = document.createElement('div');
-                        div.className = 'request-item';
-                        div.id = `request-${r.id}`;
-                        div.innerHTML = `
-                            <div class="request-info">
-                                <div class="request-book">${escapeHtml(r.book.title)}</div>
-                                <div class="request-student">${escapeHtml(r.student.name)} • ${escapeHtml(r.student.student_id)}</div>
-                                <div class="request-date">Requested: ${r.request_date}</div>
-                            </div>
-                            <div class="request-status">
-                                <div class="action-buttons">
-                                    <button class="action-btn btn-accept" data-id="${r.id}" onclick="processBookRequest(${r.id}, 'approved', this)">Accept</button>
-                                    <button class="action-btn btn-reject" data-id="${r.id}" onclick="processBookRequest(${r.id}, 'rejected', this)">Reject</button>
-                                </div>
-                            </div>
-                        `;
-                        container.appendChild(div);
-                    }
-                })
-                .catch(err => console.error('Failed to fetch next pending', err));
+
+                    fetchNextPending();
+                }, 1200);
+            } catch (error) {
+                console.error('Network or JavaScript error while updating request', error);
+                showToast('Error updating request. Please try again.', 'error');
             }
+        }
     </script>
 @endpush

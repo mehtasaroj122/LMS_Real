@@ -173,6 +173,8 @@ Route::middleware(['auth', 'can:access-staff'])
         // Book management AJAX and resource routes (staff)
         Route::get('/books/data', [BookManagementController::class, 'getBooksData'])->name('books.data');
         Route::get('/books/stats', [BookManagementController::class, 'getBookStats'])->name('books.stats');
+        Route::post('/books/validate-field', [BookManagementController::class, 'validateField'])->name('books.validate-field');
+        Route::post('/categories', [BookManagementController::class, 'createCategory'])->name('categories.store');
         Route::post('/books/categories', [BookManagementController::class, 'createCategory'])->name('books.categories.store');
         Route::resource('books', BookManagementController::class);
         Route::post('/books/{book}/request-deletion', [BookDeletionRequestController::class, 'store'])->name('books.request-deletion');
