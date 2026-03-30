@@ -434,7 +434,7 @@
 @endpush
 
 @section('content')
-    <div class="mx-auto max-w-7xl">
+    <div class="w-full">
 
         <div class="mb-2">
             <h2 class="text-lg font-bold text-primary">Admin Dashboard</h2>

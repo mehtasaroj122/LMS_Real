@@ -45,8 +45,8 @@ class TransactionController extends Controller
         Gate::authorize('access-admin');
         
         $query = $request->input('query', '');
-        $fineSetting = FineSetting::where('is_active', true)->first() ?? FineSetting::first();
-        $defaultMaxBooks = $fineSetting->max_books_per_student ?? 5;
+        $fineSetting = FineSetting::resolveActive();
+        $defaultMaxBooks = $fineSetting->max_books_per_student;
         
         $students = Student::selectRaw('DISTINCT students.*')
             ->with('user', 'department', 'privileges')
@@ -335,7 +335,7 @@ class TransactionController extends Controller
             $returnedBooks = [];
             
             $fineCalculator = new FineCalculator();
-            $fineSetting = FineSetting::where('is_active', true)->first();
+            $fineSetting = FineSetting::resolveActive();
             
             foreach ($request->issued_book_ids as $issuedBookId) {
                 $issuedBook = IssuedBook::findOrFail($issuedBookId);
@@ -543,8 +543,7 @@ class TransactionController extends Controller
         }
 
         // Fall back to global fine settings
-        $fineSetting = FineSetting::where('is_active', true)->first();
-        return $fineSetting->issue_duration_days ?? 14;
+        return FineSetting::resolveActive()->issue_duration_days;
     }
 
     /**
@@ -558,8 +557,7 @@ class TransactionController extends Controller
         }
 
         // Fall back to global fine settings
-        $fineSetting = FineSetting::where('is_active', true)->first();
-        return $fineSetting->per_day_fine ?? 10;
+        return FineSetting::resolveActive()->per_day_fine;
     }
 
     /**

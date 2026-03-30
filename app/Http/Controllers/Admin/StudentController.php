@@ -1417,7 +1417,7 @@ class StudentController extends Controller
             $privileges = $student->privileges ?? new \App\Models\StudentPrivilege();
 
             // Get global fine settings for defaults
-            $fineSetting = \App\Models\FineSetting::first() ?? new \App\Models\FineSetting();
+            $fineSetting = \App\Models\FineSetting::resolveActive();
 
             return response()->json([
                 'success' => true,
@@ -1463,7 +1463,7 @@ class StudentController extends Controller
             Gate::authorize('access-admin');
 
             $student = Student::findOrFail($studentId);
-            $fineSetting = \App\Models\FineSetting::first() ?? new \App\Models\FineSetting();
+            $fineSetting = \App\Models\FineSetting::resolveActive();
 
             $validated = $request->validate([
                 'max_books' => 'nullable|integer|min:1|max:20',

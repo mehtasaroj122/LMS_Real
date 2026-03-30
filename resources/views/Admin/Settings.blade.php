@@ -1,572 +1,273 @@
 @extends('Admin.layouts.app')
 
-@section('page-title', 'Settings')
+@section('title', 'Settings')
+
+@php
+    $profilePhotoUrl = $user->profile_photo
+        ? (str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset($user->profile_photo))
+        : null;
+
+    $profileErrorFields = ['name', 'email', 'phone', 'address', 'date_of_birth', 'profile_photo'];
+    $passwordErrorFields = ['current_password', 'new_password', 'new_password_confirmation'];
+    $libraryErrorFields = [
+        'per_day_fine', 'grace_period_days', 'max_fine_amount', 'lost_book_penalty',
+        'damaged_book_penalty', 'fair_condition_penalty', 'issue_duration_days', 'max_books_per_student',
+        'renewal_limit', 'renewal_duration_days',
+    ];
+
+    $hasProfileErrors = collect($profileErrorFields)->contains(fn ($field) => $errors->has($field));
+    $hasPasswordErrors = collect($passwordErrorFields)->contains(fn ($field) => $errors->has($field));
+    $hasLibraryErrors = collect($libraryErrorFields)->contains(fn ($field) => $errors->has($field));
+    $activeTab = $hasPasswordErrors ? 'password' : ($hasLibraryErrors ? 'library' : 'profile');
+
+@endphp
 
 @push('styles')
     <style>
-        /* Settings Page Styles */
-        .settings-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .settings-header {
-            margin-bottom: 1.2rem;
-        }
-
-        .settings-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.3rem;
-            color: var(--text-primary);
-        }
-
-        .settings-header p {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* Settings Sections */
-        .settings-section {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 0.8rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-            display: none;
-        }
-
-        .settings-section.active {
-            display: block;
-        }
-
-        /* Tabs Navigation */
-        .tabs-container {
-            display: flex;
-            gap: 0;
-            border-bottom: 2px solid var(--card-border);
-            margin-bottom: 1.5rem;
-            overflow-x: auto;
-        }
-
-        .tab-button {
-            padding: 1rem 1.5rem;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            color: var(--text-secondary);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .tab-button:hover {
-            color: var(--text-primary);
-            background-color: var(--toggle-bg);
-        }
-
-        .tab-button.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .section-header-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex: 1;
-        }
-
-        .section-header-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .section-header h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .section-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--icon-bg);
-            color: var(--icon-color);
-        }
-
-        /* Form Styles */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            gap: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .form-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.4rem;
-            font-weight: 500;
-            color: var(--text-primary);
-            font-size: 0.8rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--input-border);
-            border-radius: 0.75rem;
-            background-color: var(--input-bg);
-            color: var(--input-text);
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-shadow);
-        }
-
-        .form-control::placeholder {
-            color: var(--text-muted);
-        }
-
-        /* Profile Photo */
-        .profile-photo-container {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .profile-photo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--card-border);
-        }
-
-        .profile-photo-placeholder {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background-color: var(--icon-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid var(--card-border);
-        }
-
-        .profile-photo-upload {
-            flex: 1;
-        }
-
-        .upload-hint {
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-        }
-
-        /* Role Display */
-        .role-display {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            background-color: var(--success-light);
-            color: var(--success-color);
-            border-radius: 2rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .dark-theme .role-display {
-            background-color: rgba(34, 197, 94, 0.2);
-        }
-
-        /* Password Input Wrapper */
-        .password-input-wrapper {
-            position: relative;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 0.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .password-toggle:hover {
-            color: var(--text-primary);
-        }
-
-        /* Library Settings */
-        .library-settings-grid {
-            display: grid;
-            grid-template-columns: repeat(1, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        @media (min-width: 640px) {
-            .library-settings-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .library-settings-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        /* Toggle Switches */
-        .toggle-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .toggle-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            background-color: var(--toggle-bg);
-            border-radius: 0.75rem;
-            margin-bottom: 0.75rem;
-            transition: all 0.3s ease;
-        }
-
-        .toggle-item:hover {
-            background-color: var(--toggle-hover);
-        }
-
-        .toggle-label {
-            flex: 1;
-            margin-right: 1rem;
-        }
-
-        .toggle-label h3 {
-            font-size: 0.95rem;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            color: var(--text-primary);
-        }
-
-        .toggle-label p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        /* Toggle Switch */
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 26px;
-            flex-shrink: 0;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--toggle-off);
-            border-radius: 34px;
-            transition: .4s;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            border-radius: 50%;
-            transition: .4s;
-        }
-
-        input:checked + .toggle-slider {
-            background-color: var(--primary-color);
-        }
-
-        input:checked + .toggle-slider:before {
-            transform: translateX(24px);
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 0.625rem 1.25rem;
-            border-radius: 0.75rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-1px);
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--card-border);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--toggle-bg);
-            border-color: var(--primary-color);
-        }
-
-        .btn-secondary {
-            background-color: var(--toggle-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--card-border);
-        }
-
-        .btn-secondary:hover {
-            background-color: var(--toggle-hover);
-            border-color: var(--primary-color);
-        }
-
-        .btn-full {
-            width: 100%;
-            justify-content: center;
-        }
-
-        /* Button Group */
-        .button-group {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-            justify-content: flex-start;
-        }
-
-        .button-group .btn {
-            white-space: nowrap;
-        }
-
-        /* Compact Button (for header) */
-        .btn-compact {
-            padding: 0.5rem 0.75rem;
-            font-size: 0.8rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-        }
-
-        .btn-compact svg {
-            width: 14px;
-            height: 14px;
-        }
-
-        /* File Upload Button */
-        .file-upload-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background-color: var(--toggle-bg);
-            color: var(--text-primary);
-            border: 1px dashed var(--card-border);
-            border-radius: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .file-upload-btn:hover {
-            border-color: var(--primary-color);
-            background-color: var(--toggle-hover);
-        }
-
-        .file-remove-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background-color: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-left: 0.5rem;
-            transition: background-color 0.3s ease;
-        }
-
-        .file-remove-btn:hover {
-            background-color: #dc2626;
-        }
-
-        .file-remove-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background-color: #ef4444;
-            color: white;
-            border: none;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-left: 0.5rem;
-            transition: background-color 0.3s ease;
-        }
-
-        .file-remove-btn:hover {
-            background-color: #dc2626;
-        }
-
-        /* CSS Variables for Themes */
         :root {
-            /* Light Theme Variables */
             --primary-color: #2563eb;
             --primary-hover: #1d4ed8;
-            --primary-shadow: rgba(37, 99, 235, 0.1);
-            --success-color: #059669;
-            --success-light: #d1fae5;
-            --card-bg: #ffffff;
+            --primary-shadow: rgba(37, 99, 235, 0.12);
+            --success-color: #10b981;
+            --success-soft: rgba(16, 185, 129, 0.12);
+            --warning-color: #f59e0b;
+            --warning-soft: rgba(245, 158, 11, 0.12);
+            --danger-color: #ef4444;
+            --danger-soft: rgba(239, 68, 68, 0.12);
+            --card-bg: #fff;
             --card-border: #e5e7eb;
-            --input-bg: #ffffff;
+            --input-bg: #fff;
             --input-border: #d1d5db;
-            --input-text: #1f2937;
+            --input-text: #111827;
             --text-primary: #111827;
             --text-secondary: #6b7280;
             --text-muted: #9ca3af;
-            --border-color: #e5e7eb;
-            --icon-bg: #f3f4f6;
-            --icon-color: #4b5563;
-            --toggle-bg: #f9fafb;
-            --toggle-hover: #f3f4f6;
+            --icon-bg: #eff6ff;
+            --icon-color: #2563eb;
+            --toggle-bg: #f8fafc;
+            --toggle-hover: #f1f5f9;
             --toggle-off: #d1d5db;
         }
 
         .dark-theme {
-            /* Dark Theme Variables */
-            --primary-color: #3b82f6;
-            --primary-hover: #60a5fa;
-            --primary-shadow: rgba(59, 130, 246, 0.2);
-            --success-color: #10b981;
-            --success-light: rgba(16, 185, 129, 0.1);
-            --card-bg: #1e293b;
-            --card-border: #334155;
-            --input-bg: #0f172a;
-            --input-border: #475569;
-            --input-text: #f1f5f9;
+            --primary-color: #60a5fa;
+            --primary-hover: #93c5fd;
+            --primary-shadow: rgba(96, 165, 250, 0.18);
+            --success-color: #34d399;
+            --success-soft: rgba(52, 211, 153, 0.12);
+            --warning-color: #fbbf24;
+            --warning-soft: rgba(251, 191, 36, 0.12);
+            --danger-color: #f87171;
+            --danger-soft: rgba(248, 113, 113, 0.12);
+            --card-bg: #0f172a;
+            --card-border: #1e293b;
+            --input-bg: #020617;
+            --input-border: #334155;
+            --input-text: #f8fafc;
             --text-primary: #f8fafc;
             --text-secondary: #cbd5e1;
             --text-muted: #94a3b8;
-            --border-color: #334155;
-            --icon-bg: #334155;
-            --icon-color: #cbd5e1;
-            --toggle-bg: #1e293b;
-            --toggle-hover: #334155;
+            --icon-bg: rgba(96, 165, 250, 0.16);
+            --icon-color: #93c5fd;
+            --toggle-bg: rgba(15, 23, 42, 0.72);
+            --toggle-hover: #1e293b;
             --toggle-off: #475569;
         }
 
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .settings-section {
-                padding: 1rem;
-            }
+        .settings-container { width: 100%; max-width: none; margin: 0; }
+        .settings-header { margin-bottom: 1rem; }
+        .settings-header h1 { margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--text-primary); }
+        .settings-header p { margin: 0.35rem 0 0; color: var(--text-secondary); }
 
-            .profile-photo-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .library-settings-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .tab-button {
-                padding: 0.75rem 1rem;
-                font-size: 0.875rem;
-            }
+        .settings-helper {
+            display: flex; gap: 0.85rem; margin-bottom: 1.25rem; padding: 1rem 1.1rem;
+            border: 1px solid var(--card-border); border-radius: 0.95rem;
+            background: linear-gradient(135deg, var(--toggle-bg), transparent);
+            color: var(--text-secondary); font-size: 0.92rem;
         }
 
-        @media (max-width: 640px) {
-            .settings-section {
-                padding: 1rem;
-            }
+        .settings-helper svg { color: var(--primary-color); flex-shrink: 0; margin-top: 0.05rem; }
 
-            .library-settings-grid {
-                grid-template-columns: repeat(1, 1fr);
-            }
+        .tabs-container {
+            display: flex; gap: 0.25rem; padding: 0.25rem; margin-bottom: 1.5rem;
+            border: 1px solid var(--card-border); border-radius: 1rem;
+            background: var(--toggle-bg); overflow-x: auto;
+        }
 
-            .tabs-container {
-                gap: 0;
-                overflow-x: auto;
-            }
+        .tab-button {
+            display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.85rem 1.1rem;
+            border: none; border-radius: 0.8rem; background: transparent;
+            color: var(--text-secondary); font-weight: 600; cursor: pointer;
+            transition: all 0.25s ease; white-space: nowrap;
+        }
 
-            .tab-button {
-                padding: 0.75rem 0.75rem;
-                font-size: 0.8rem;
-                min-width: fit-content;
-            }
+        .tab-button:hover { color: var(--text-primary); background: rgba(255,255,255,0.4); }
+        .tab-button.active {
+            color: #fff; background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            box-shadow: 0 12px 24px -18px var(--primary-color);
+        }
+
+        .settings-section {
+            display: none; padding: 1.25rem; border: 1px solid var(--card-border);
+            border-radius: 1.1rem; background: var(--card-bg);
+            box-shadow: 0 18px 40px -34px rgba(15, 23, 42, 0.7);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .settings-section.active { display: block; }
+        .settings-section.edit-mode { border-color: var(--primary-color); box-shadow: 0 0 0 4px var(--primary-shadow); }
+
+        .section-header {
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+            padding-bottom: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--card-border);
+        }
+
+        .section-header-title { display: flex; align-items: flex-start; gap: 0.85rem; }
+        .section-icon {
+            width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 0.9rem; background: var(--icon-bg); color: var(--icon-color); flex-shrink: 0;
+        }
+
+        .section-copy h2 { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+        .section-copy p { margin: 0.28rem 0 0; color: var(--text-secondary); font-size: 0.9rem; }
+
+        .section-header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 0.65rem; flex-wrap: wrap; }
+
+        .section-status {
+            display: inline-flex; align-items: center; padding: 0.45rem 0.8rem; border-radius: 999px;
+            background: var(--toggle-bg); color: var(--text-secondary); font-size: 0.78rem;
+            font-weight: 700; text-transform: uppercase;
+        }
+
+        .section-status.editing { background: var(--primary-shadow); color: var(--primary-color); }
+        .section-status.dirty { background: var(--warning-soft); color: var(--warning-color); }
+        .section-status.success { background: var(--success-soft); color: var(--success-color); }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.72rem 1rem;
+            border: 1px solid transparent; border-radius: 0.8rem; font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .btn:hover:not(:disabled) { transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); color: #fff; }
+        .btn-secondary { background: var(--toggle-bg); border-color: var(--card-border); color: var(--text-primary); }
+        .btn-outline { background: transparent; border-color: var(--card-border); color: var(--text-primary); }
+
+        .form-grid, .library-settings-grid {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.1rem;
+        }
+
+        .form-group { margin: 0; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        .form-label { display: block; margin-bottom: 0.45rem; font-size: 0.82rem; font-weight: 700; color: var(--text-primary); }
+        .required-marker { color: var(--danger-color); margin-left: 0.2rem; }
+
+        .form-control {
+            width: 100%; padding: 0.82rem 0.95rem; border: 1px solid var(--input-border); border-radius: 0.85rem;
+            background: var(--input-bg); color: var(--input-text); font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        textarea.form-control { min-height: 110px; resize: vertical; }
+        .form-control:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px var(--primary-shadow); }
+        .form-control[disabled] { opacity: 0.72; cursor: not-allowed; background: color-mix(in srgb, var(--toggle-bg) 88%, white 12%); }
+
+        .form-group.has-error .form-control { border-color: var(--danger-color); box-shadow: 0 0 0 4px var(--danger-soft); }
+        .form-group.has-success .form-control { border-color: var(--success-color); box-shadow: 0 0 0 4px var(--success-soft); }
+
+        .field-error {
+            display: block; min-height: 1rem; margin-top: 0.35rem; color: var(--danger-color);
+            font-size: 0.76rem; line-height: 1.4;
+        }
+
+        .form-hint { margin-top: 0.35rem; color: var(--text-muted); font-size: 0.76rem; }
+
+        .profile-photo-container {
+            display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1.25rem; align-items: center;
+            margin-bottom: 1.35rem; padding: 1rem; border-radius: 1rem;
+            background: linear-gradient(135deg, var(--toggle-bg), transparent); border: 1px solid var(--card-border);
+        }
+
+        .profile-photo-placeholder {
+            width: 110px; height: 110px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+            border-radius: 1.1rem; border: 2px dashed var(--card-border); background: var(--card-bg); color: var(--text-muted);
+        }
+
+        .profile-photo-placeholder img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-photo-upload h3 { margin: 0 0 0.35rem; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+        .profile-photo-upload p { margin: 0; color: var(--text-secondary); font-size: 0.88rem; }
+        .photo-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 0.95rem; }
+
+        .file-upload-btn {
+            display: inline-flex; align-items: center; gap: 0.55rem; padding: 0.72rem 0.95rem;
+            border: 1px dashed var(--card-border); border-radius: 0.8rem; background: var(--card-bg);
+            color: var(--text-primary); cursor: pointer; transition: border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .file-upload-btn:hover { border-color: var(--primary-color); background: var(--toggle-hover); }
+        .file-upload-btn.is-disabled { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+
+        .role-display {
+            display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.72rem 0.95rem;
+            border: 1px solid var(--card-border); border-radius: 0.85rem; background: var(--toggle-bg);
+            color: var(--text-primary); font-weight: 600;
+        }
+
+        .password-input-wrapper { position: relative; }
+        .password-toggle {
+            position: absolute; top: 50%; right: 0.75rem; transform: translateY(-50%);
+            display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+            border: none; border-radius: 999px; background: transparent; color: var(--text-muted); cursor: pointer;
+        }
+
+        .password-toggle:hover:not(:disabled) { background: var(--toggle-bg); color: var(--text-primary); }
+        .password-toggle:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .password-requirements {
+            background: var(--toggle-bg); border-radius: 0.95rem; padding: 1.25rem; margin-top: 0.25rem; border: 1px solid var(--card-border);
+        }
+
+        .requirements-title { margin: 0 0 1rem; font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+        .requirements-list { display: flex; flex-direction: column; gap: 0.7rem; }
+        .requirement-item { display: flex; align-items: center; gap: 0.75rem; color: var(--text-muted); font-size: 0.88rem; transition: color 0.3s ease; }
+        .requirement-item.met { color: var(--success-color); }
+
+        .requirement-icon {
+            width: 22px; height: 22px; border: 2px solid currentColor; border-radius: 999px;
+            display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.3s ease;
+        }
+
+        .requirement-item.met .requirement-icon { background: var(--success-color); border-color: var(--success-color); color: white; }
+        .requirement-icon svg { width: 12px; height: 12px; opacity: 0; transition: opacity 0.3s ease; }
+        .requirement-item.met .requirement-icon svg { opacity: 1; }
+
+        .strength-bar { height: 6px; margin-top: 1.25rem; border-radius: 999px; overflow: hidden; background: var(--card-border); }
+        .strength-fill { height: 100%; width: 0; transition: all 0.35s ease; border-radius: 999px; }
+        .strength-fill.weak { width: 33%; background: var(--danger-color); }
+        .strength-fill.fair { width: 50%; background: var(--warning-color); }
+        .strength-fill.good { width: 70%; background: #3b82f6; }
+        .strength-fill.strong { width: 100%; background: var(--success-color); }
+        .strength-text { margin-top: 0.55rem; text-align: center; color: var(--text-muted); font-size: 0.8rem; }
+
+        .library-settings-section { margin-bottom: 1.8rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--card-border); }
+        .library-settings-section:last-of-type { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .section-subtitle {
+            margin: 0 0 1rem; font-size: 0.86rem; font-weight: 800; color: var(--text-secondary);
+            letter-spacing: 0.08em; text-transform: uppercase;
+        }
+
+        .sr-only-hidden { display: none; }
+
+        @media (max-width: 960px) {
+            .section-header { flex-direction: column; }
+            .section-header-actions { width: 100%; justify-content: flex-start; }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid, .library-settings-grid { grid-template-columns: 1fr; }
+            .profile-photo-container { grid-template-columns: 1fr; justify-items: flex-start; }
         }
     </style>
 @endpush
@@ -574,942 +275,1028 @@
 @section('content')
     <div class="settings-container">
         <div class="settings-header">
-            <h1 class="text-primary">Settings</h1>
-            <p class="text-secondary">Manage your account and library configuration</p>
+            <h1>Settings</h1>
+            <p>Manage your admin account, password security, and core library rules from one place.</p>
         </div>
 
-        <!-- Tabs Navigation -->
+        <div class="settings-helper">
+            <i data-lucide="info" width="18" height="18"></i>
+            <div>Each section starts in read-only mode. Click <strong>Edit</strong> to make changes, <strong>Cancel</strong> to revert, and <strong>Save</strong> to persist updates. Unsaved changes are tracked before you leave the page.</div>
+        </div>
+
         <div class="tabs-container">
-            <button class="tab-button active" data-tab="profile">
+            <button class="tab-button {{ $activeTab === 'profile' ? 'active' : '' }}" data-tab="profile" type="button">
                 <i data-lucide="user" width="18" height="18"></i>
-                Profile Settings
+                Profile
             </button>
-            <button class="tab-button" data-tab="password">
+            <button class="tab-button {{ $activeTab === 'password' ? 'active' : '' }}" data-tab="password" type="button">
                 <i data-lucide="lock" width="18" height="18"></i>
-                Password Settings
+                Password
             </button>
-            <button class="tab-button" data-tab="library">
+            <button class="tab-button {{ $activeTab === 'library' ? 'active' : '' }}" data-tab="library" type="button">
                 <i data-lucide="library" width="18" height="18"></i>
-                Library Settings
+                Library
             </button>
         </div>
 
-        <!-- Profile Settings -->
-        <div class="settings-section active" id="profile-tab">
+        <section class="settings-section {{ $activeTab === 'profile' ? 'active' : '' }}" id="profile-tab" data-settings-section="profile" data-start-editing="{{ $hasProfileErrors ? 'true' : 'false' }}">
             <div class="section-header">
                 <div class="section-header-title">
-                    <div class="section-icon">
-                        <i data-lucide="user"></i>
+                    <div class="section-icon"><i data-lucide="user"></i></div>
+                    <div class="section-copy">
+                        <h2>Profile Settings</h2>
+                        <p>Update your identity, contact details, and profile photo with inline validation feedback.</p>
                     </div>
-                    <h2>Profile Settings</h2>
-                    <button type="button" class="btn btn-compact btn-secondary edit-profile-btn" id="editProfileBtn" title="Edit Profile" style="margin-left: 0.5rem;">
-                        <i data-lucide="edit-2" width="14" height="14"></i>
-                        Edit
-                    </button>
-                    <button type="button" class="btn btn-compact btn-outline cancel-profile-btn" id="cancelProfileBtn" style="display: none; margin-left: 0.5rem;" title="Cancel">
-                        <i data-lucide="x" width="14" height="14"></i>
-                    </button>
-                    <button type="button" class="btn btn-compact btn-primary submit-profile-btn" id="submitProfileBtn" form="profileForm" style="display: none; margin-left: 0.5rem;" title="Save">
-                        <i data-lucide="check" width="14" height="14"></i>
-                    </button>
+                </div>
+                <div class="section-header-actions">
+                    <span class="section-status" data-section-status>Read only</span>
+                    <button class="btn btn-secondary" data-action="edit" type="button"><i data-lucide="edit-2" width="16" height="16"></i>Edit</button>
+                    <button class="btn btn-outline" data-action="cancel" type="button" hidden><i data-lucide="x" width="16" height="16"></i>Cancel</button>
+                    <button class="btn btn-primary" data-action="save" form="profileForm" type="submit" hidden><i data-lucide="save" width="16" height="16"></i>Save</button>
                 </div>
             </div>
 
-            <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data" id="profileForm">
+            <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data" id="profileForm" novalidate>
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="remove_profile_photo" id="remove-profile-photo" value="0">
 
                 <div class="profile-photo-container">
                     <div class="profile-photo-placeholder" id="profilePhotoPreview">
-                        @if($user->profile_photo)
-                            <img src="{{ str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset($user->profile_photo) }}" alt="Profile Photo" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        @if ($profilePhotoUrl)
+                            <img src="{{ $profilePhotoUrl }}" alt="Profile Photo">
                         @else
                             <i data-lucide="user" width="48" height="48"></i>
                         @endif
                     </div>
                     <div class="profile-photo-upload">
-                        <label class="form-label">Profile Photo</label>
-                        <div>
-                            <label for="profile-photo" class="file-upload-btn" id="profilePhotoLabel">
+                        <h3>Profile Photo</h3>
+                        <p>Use a clear image for admin identification. Supported formats: JPG, PNG, GIF. Maximum size: 2MB.</p>
+                        <div class="photo-actions">
+                            <label class="file-upload-btn is-disabled" id="profilePhotoLabel" data-photo-upload-label for="profile-photo">
                                 <i data-lucide="upload" width="16" height="16"></i>
                                 Upload Photo
                             </label>
-                            @if($user->profile_photo)
-                                <button type="button" class="file-remove-btn" id="removePhotoBtn">
-                                    <i data-lucide="trash-2" width="16" height="16"></i>
-                                    Remove Photo
-                                </button>
-                            @endif
-                            <input type="file" id="profile-photo" name="profile_photo" accept=".jpg,.jpeg,.png,.gif" class="hidden" disabled>
-                            <p class="upload-hint">JPG, PNG or GIF. Max size 2MB</p>
+                            <button class="btn btn-outline" id="removePhotoBtn" data-remove-photo type="button" {{ $profilePhotoUrl ? '' : 'hidden' }}>
+                                <i data-lucide="trash-2" width="16" height="16"></i>
+                                Remove
+                            </button>
                         </div>
+                        <input class="sr-only-hidden" type="file" id="profile-photo" name="profile_photo" accept=".jpg,.jpeg,.png,.gif" data-editable disabled>
+                        <span class="field-error" data-field="profile_photo">{{ $errors->first('profile_photo') }}</span>
                     </div>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
-                        <label class="form-label">Full Name</label>
-                        <input type="text" class="form-control" name="name" value="{{ $user->name }}" required disabled>
-                        @error('name')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
+                        <label class="form-label" for="profile-name">Full Name<span class="required-marker">*</span></label>
+                        <input class="form-control" type="text" id="profile-name" name="name" value="{{ old('name', $user->name) }}" data-editable disabled>
+                        <span class="field-error" data-field="name">{{ $errors->first('name') }}</span>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-control" name="email" value="{{ $user->email }}" required disabled>
-                        @error('email')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
+                        <label class="form-label" for="profile-email">Email Address<span class="required-marker">*</span></label>
+                        <input class="form-control" type="email" id="profile-email" name="email" value="{{ old('email', $user->email) }}" data-editable disabled>
+                        <span class="field-error" data-field="email">{{ $errors->first('email') }}</span>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Phone</label>
-                        <input type="text" class="form-control" name="phone" value="{{ $user->phone }}" disabled>
-                        @error('phone')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
+                        <label class="form-label" for="profile-phone">Phone Number<span class="required-marker">*</span></label>
+                        <input class="form-control" type="text" id="profile-phone" name="phone" value="{{ old('phone', $user->phone) }}" data-editable disabled>
+                        <span class="field-error" data-field="phone">{{ $errors->first('phone') }}</span>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Address</label>
-                        <input type="text" class="form-control" name="address" value="{{ $user->address }}" disabled>
-                        @error('address')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
+                        <label class="form-label" for="profile-dob">Date of Birth</label>
+                        <input class="form-control" type="date" id="profile-dob" name="date_of_birth" value="{{ old('date_of_birth', optional($user->date_of_birth)->format('Y-m-d')) }}" max="{{ now()->subYears(16)->format('Y-m-d') }}" data-editable disabled>
+                        <span class="field-error" data-field="date_of_birth">{{ $errors->first('date_of_birth') }}</span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label" for="profile-address">Address</label>
+                        <textarea class="form-control" id="profile-address" name="address" rows="4" data-editable disabled>{{ old('address', $user->address) }}</textarea>
+                        <span class="field-error" data-field="address">{{ $errors->first('address') }}</span>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Role</label>
                         <div class="role-display">
-                            <i data-lucide="shield" width="14" height="14"></i>
+                            <i data-lucide="shield" width="16" height="16"></i>
                             {{ ucfirst($user->role) }}
                         </div>
+                        <div class="form-hint">Role changes are managed elsewhere for security.</div>
                     </div>
-                </div>
-
-                <div class="button-group" style="display: none;">
-                    <button type="button" class="btn btn-secondary edit-profile-btn" id="editProfileBtn">
-                        <i data-lucide="edit-2" width="18" height="18"></i>
-                        Edit Profile
-                    </button>
-                    <button type="button" class="btn btn-outline cancel-profile-btn" id="cancelProfileBtn" style="display: none;">
-                        <i data-lucide="x" width="18" height="18"></i>
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary submit-profile-btn" id="submitProfileBtn" style="display: none;">
-                        <i data-lucide="save" width="18" height="18"></i>
-                        Save Changes
-                    </button>
                 </div>
             </form>
-        </div>
+        </section>
 
-        <!-- Password Settings -->
-        <div class="settings-section" id="password-tab">
+        <section class="settings-section {{ $activeTab === 'password' ? 'active' : '' }}" id="password-tab" data-settings-section="password" data-start-editing="{{ $hasPasswordErrors ? 'true' : 'false' }}">
             <div class="section-header">
                 <div class="section-header-title">
-                    <div class="section-icon">
-                        <i data-lucide="lock"></i>
+                    <div class="section-icon"><i data-lucide="lock"></i></div>
+                    <div class="section-copy">
+                        <h2>Password Settings</h2>
+                        <p>Use the live checklist below to create a stronger password before submitting.</p>
                     </div>
-                    <h2>Password Settings</h2>
-                    <button type="button" class="btn btn-compact btn-secondary edit-password-btn" id="editPasswordBtn" title="Change Password" style="margin-left: 0.5rem;">
-                        <i data-lucide="edit-2" width="14" height="14"></i>
-                        Edit
-                    </button>
-                    <button type="button" class="btn btn-compact btn-outline cancel-password-btn" id="cancelPasswordBtn" style="display: none; margin-left: 0.5rem;" title="Cancel">
-                        <i data-lucide="x" width="14" height="14"></i>
-                    </button>
-                    <button type="button" class="btn btn-compact btn-primary submit-password-btn" id="submitPasswordBtn" form="passwordForm" style="display: none; margin-left: 0.5rem;" title="Save">
-                        <i data-lucide="check" width="14" height="14"></i>
-                    </button>
+                </div>
+                <div class="section-header-actions">
+                    <span class="section-status" data-section-status>Read only</span>
+                    <button class="btn btn-secondary" data-action="edit" type="button"><i data-lucide="key" width="16" height="16"></i>Edit</button>
+                    <button class="btn btn-outline" data-action="cancel" type="button" hidden><i data-lucide="x" width="16" height="16"></i>Cancel</button>
+                    <button class="btn btn-primary" data-action="save" form="passwordForm" type="submit" hidden><i data-lucide="save" width="16" height="16"></i>Save</button>
                 </div>
             </div>
 
-            <form action="{{ route('admin.settings.update-password') }}" method="POST" id="passwordForm">
+            <form action="{{ route('admin.settings.update-password') }}" method="POST" id="passwordForm" novalidate>
                 @csrf
                 @method('PUT')
 
                 <div class="form-grid">
                     <div class="form-group full-width">
-                        <label class="form-label">Current Password</label>
+                        <label class="form-label" for="current-password">Current Password</label>
                         <div class="password-input-wrapper">
-                            <input type="password" class="form-control" name="current_password" id="current-password" placeholder="Enter current password" disabled>
-                            <button type="button" class="password-toggle" onclick="togglePassword('current-password', this)">
-                                <i data-lucide="eye" width="18" height="18"></i>
-                            </button>
+                            <input class="form-control" type="password" id="current-password" name="current_password" autocomplete="current-password" placeholder="Enter current password" data-editable disabled>
+                            <button class="password-toggle" data-password-toggle data-target="current-password" type="button" disabled><i data-lucide="eye" width="18" height="18"></i></button>
                         </div>
-                        @error('current_password')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
+                        <span class="field-error" data-field="current_password">{{ $errors->first('current_password') }}</span>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">New Password</label>
+                        <label class="form-label" for="new-password">New Password</label>
                         <div class="password-input-wrapper">
-                            <input type="password" class="form-control" name="new_password" id="new-password" placeholder="Enter new password" disabled>
-                            <button type="button" class="password-toggle" onclick="togglePassword('new-password', this)">
-                                <i data-lucide="eye" width="18" height="18"></i>
-                            </button>
+                            <input class="form-control" type="password" id="new-password" name="new_password" autocomplete="new-password" placeholder="Enter new password" data-editable disabled>
+                            <button class="password-toggle" data-password-toggle data-target="new-password" type="button" disabled><i data-lucide="eye" width="18" height="18"></i></button>
                         </div>
-                        @error('new_password')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
+                        <span class="field-error" data-field="new_password">{{ $errors->first('new_password') }}</span>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Confirm New Password</label>
+                        <label class="form-label" for="confirm-password">Confirm New Password</label>
                         <div class="password-input-wrapper">
-                            <input type="password" class="form-control" name="new_password_confirmation" id="confirm-password" placeholder="Confirm new password" disabled>
-                            <button type="button" class="password-toggle" onclick="togglePassword('confirm-password', this)">
-                                <i data-lucide="eye" width="18" height="18"></i>
-                            </button>
+                            <input class="form-control" type="password" id="confirm-password" name="new_password_confirmation" autocomplete="new-password" placeholder="Confirm new password" data-editable disabled>
+                            <button class="password-toggle" data-password-toggle data-target="confirm-password" type="button" disabled><i data-lucide="eye" width="18" height="18"></i></button>
                         </div>
+                        <span class="field-error" data-field="new_password_confirmation">{{ $errors->first('new_password_confirmation') }}</span>
                     </div>
                 </div>
 
-                <p class="text-muted" style="font-size: 0.875rem; margin-bottom: 1.5rem;">
-                    Must be at least 8 characters with uppercase, lowercase, and number
-                </p>
-
-                <div class="button-group" style="display: none;">
-                    <button type="button" class="btn btn-secondary edit-password-btn" id="editPasswordBtn">
-                        <i data-lucide="edit-2" width="18" height="18"></i>
-                        Change Password
-                    </button>
-                    <button type="button" class="btn btn-outline cancel-password-btn" id="cancelPasswordBtn" style="display: none;">
-                        <i data-lucide="x" width="18" height="18"></i>
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary submit-password-btn" id="submitPasswordBtn" style="display: none;">
-                        <i data-lucide="key" width="18" height="18"></i>
-                        Update Password
-                    </button>
+                <div class="password-requirements" id="passwordRequirements">
+                    <h4 class="requirements-title">Password Requirements</h4>
+                    <div class="requirements-list">
+                        <div class="requirement-item" data-requirement="minLength"><span class="requirement-icon"><i data-lucide="check"></i></span><span class="requirement-text">Minimum 8 characters</span></div>
+                        <div class="requirement-item" data-requirement="uppercase"><span class="requirement-icon"><i data-lucide="check"></i></span><span class="requirement-text">At least one uppercase letter</span></div>
+                        <div class="requirement-item" data-requirement="lowercase"><span class="requirement-icon"><i data-lucide="check"></i></span><span class="requirement-text">At least one lowercase letter</span></div>
+                        <div class="requirement-item" data-requirement="number"><span class="requirement-icon"><i data-lucide="check"></i></span><span class="requirement-text">At least one number</span></div>
+                        <div class="requirement-item" data-requirement="special"><span class="requirement-icon"><i data-lucide="check"></i></span><span class="requirement-text">At least one special character (!@#$%^&*)</span></div>
+                        <div class="requirement-item" data-requirement="match"><span class="requirement-icon"><i data-lucide="check"></i></span><span class="requirement-text">Must match confirmation</span></div>
+                        <div class="requirement-item" data-requirement="different"><span class="requirement-icon"><i data-lucide="check"></i></span><span class="requirement-text">Different from current password</span></div>
+                    </div>
+                    <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                    <div class="strength-text" id="strengthText">Enter a password</div>
                 </div>
             </form>
-        </div>
+        </section>
 
-        <!-- Library Settings -->
-        <div class="settings-section" id="library-tab">
+        <section class="settings-section {{ $activeTab === 'library' ? 'active' : '' }}" id="library-tab" data-settings-section="library" data-start-editing="{{ $hasLibraryErrors ? 'true' : 'false' }}">
             <div class="section-header">
                 <div class="section-header-title">
-                    <div class="section-icon">
-                        <i data-lucide="library"></i>
+                    <div class="section-icon"><i data-lucide="library"></i></div>
+                    <div class="section-copy">
+                        <h2>Library Settings</h2>
+                        <p>Configure circulation rules, renewals, hours, reminders, and automation toggles in one place.</p>
                     </div>
-                    <h2>Library Settings</h2>
-                    <button type="button" class="btn btn-compact btn-secondary edit-library-btn" id="editLibraryBtn" title="Edit Settings" style="margin-left: 0.5rem;">
-                        <i data-lucide="edit-2" width="14" height="14"></i>
-                        Edit
-                    </button>
-                    <button type="button" class="btn btn-compact btn-outline cancel-library-btn" id="cancelLibraryBtn" style="display: none; margin-left: 0.5rem;" title="Cancel">
-                        <i data-lucide="x" width="14" height="14"></i>
-                    </button>
-                    <button type="button" class="btn btn-compact btn-primary submit-library-btn" id="submitLibraryBtn" form="librarySettingsForm" style="display: none; margin-left: 0.5rem;" title="Save">
-                        <i data-lucide="check" width="14" height="14"></i>
-                    </button>
+                </div>
+                <div class="section-header-actions">
+                    <span class="section-status" data-section-status>Read only</span>
+                    <button class="btn btn-secondary" data-action="edit" type="button"><i data-lucide="edit-2" width="16" height="16"></i>Edit</button>
+                    <button class="btn btn-outline" data-action="cancel" type="button" hidden><i data-lucide="x" width="16" height="16"></i>Cancel</button>
+                    <button class="btn btn-primary" data-action="save" form="librarySettingsForm" type="submit" hidden><i data-lucide="save" width="16" height="16"></i>Save</button>
                 </div>
             </div>
 
-            <form action="{{ route('admin.settings.update-library') }}" method="POST" id="librarySettingsForm">
+            <form action="{{ route('admin.settings.update-library') }}" method="POST" id="librarySettingsForm" novalidate>
                 @csrf
                 @method('PUT')
 
-                <div class="library-settings-grid">
-                    <div class="form-group">
-                        <label class="form-label">Fine Per Day (₹)</label>
-                        <div class="relative">
-                            <span class="absolute text-gray-500 transform -translate-y-1/2 left-3 top-1/2">₹</span>
-                            <input type="number" class="pl-8 form-control" name="per_day_fine" value="{{ $fineSetting->per_day_fine ?? 0.50 }}" step="0.01" min="0" required disabled>
+                <div class="library-settings-section">
+                    <h3 class="section-subtitle">Fine Rules</h3>
+                    <div class="library-settings-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="per_day_fine">Fine Per Day</label>
+                            <input class="form-control" type="number" id="per_day_fine" name="per_day_fine" value="{{ old('per_day_fine', $fineSetting->per_day_fine ?? 5) }}" step="0.01" min="0" data-editable disabled>
+                            <span class="field-error" data-field="per_day_fine">{{ $errors->first('per_day_fine') }}</span>
                         </div>
-                        @error('per_day_fine')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
-                    </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Issue Duration (days)</label>
-                        <input type="number" class="form-control" name="issue_duration_days" value="{{ $fineSetting->issue_duration_days ?? 14 }}" min="1" max="365" required disabled>
-                        @error('issue_duration_days')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Grace Period (days)</label>
-                        <input type="number" class="form-control" name="grace_period_days" value="{{ $fineSetting->grace_period_days ?? 2 }}" min="0" max="365" required disabled>
-                        @error('grace_period_days')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Maximum Books Per Student</label>
-                        <input type="number" class="form-control" name="max_books_per_student" value="{{ $fineSetting->max_books_per_student ?? 5 }}" min="1" max="100" required disabled>
-                        @error('max_books_per_student')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Lost Book Penalty (₹)</label>
-                        <div class="relative">
-                            <span class="absolute text-gray-500 transform -translate-y-1/2 left-3 top-1/2">₹</span>
-                            <input type="number" class="pl-8 form-control" name="lost_book_penalty" value="{{ $fineSetting->lost_book_penalty ?? 500 }}" step="0.01" min="0" required disabled>
+                        <div class="form-group">
+                            <label class="form-label" for="grace_period_days">Grace Period (days)</label>
+                            <input class="form-control" type="number" id="grace_period_days" name="grace_period_days" value="{{ old('grace_period_days', $fineSetting->grace_period_days ?? 2) }}" min="0" max="365" data-editable disabled>
+                            <span class="field-error" data-field="grace_period_days">{{ $errors->first('grace_period_days') }}</span>
                         </div>
-                        @error('lost_book_penalty')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
-                    </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Damaged Book Penalty (₹)</label>
-                        <div class="relative">
-                            <span class="absolute text-gray-500 transform -translate-y-1/2 left-3 top-1/2">₹</span>
-                            <input type="number" class="pl-8 form-control" name="damaged_book_penalty" value="{{ $fineSetting->damaged_book_penalty ?? 100 }}" step="0.01" min="0" disabled>
+                        <div class="form-group">
+                            <label class="form-label" for="max_fine_amount">Maximum Fine Amount</label>
+                            <input class="form-control" type="number" id="max_fine_amount" name="max_fine_amount" value="{{ old('max_fine_amount', $fineSetting->max_fine_amount) }}" step="0.01" min="0" data-editable disabled>
+                            <span class="field-error" data-field="max_fine_amount">{{ $errors->first('max_fine_amount') }}</span>
                         </div>
-                        @error('damaged_book_penalty')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
-                    </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Maximum Fine Amount (₹)</label>
-                        <div class="relative">
-                            <span class="absolute text-gray-500 transform -translate-y-1/2 left-3 top-1/2">₹</span>
-                            <input type="number" class="pl-8 form-control" name="max_fine_amount" value="{{ $fineSetting->max_fine_amount ?? 5000 }}" step="0.01" min="0" disabled>
+                        <div class="form-group">
+                            <label class="form-label" for="lost_book_penalty">Lost Book Penalty</label>
+                            <input class="form-control" type="number" id="lost_book_penalty" name="lost_book_penalty" value="{{ old('lost_book_penalty', $fineSetting->lost_book_penalty ?? 1000) }}" step="0.01" min="0" data-editable disabled>
+                            <span class="field-error" data-field="lost_book_penalty">{{ $errors->first('lost_book_penalty') }}</span>
                         </div>
-                        @error('max_fine_amount')
-                            <span style="color: #dc2626; font-size: 12px;">{{ $message }}</span>
-                        @enderror
+
+                        <div class="form-group">
+                            <label class="form-label" for="damaged_book_penalty">Damaged Book Penalty</label>
+                            <input class="form-control" type="number" id="damaged_book_penalty" name="damaged_book_penalty" value="{{ old('damaged_book_penalty', $fineSetting->damaged_book_penalty) }}" step="0.01" min="0" data-editable disabled>
+                            <span class="field-error" data-field="damaged_book_penalty">{{ $errors->first('damaged_book_penalty') }}</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="fair_condition_penalty">Fair Book Penalty</label>
+                            <input class="form-control" type="number" id="fair_condition_penalty" name="fair_condition_penalty" value="{{ old('fair_condition_penalty', $fineSetting->fair_condition_penalty ?? 50) }}" step="0.01" min="0" data-editable disabled>
+                            <span class="field-error" data-field="fair_condition_penalty">{{ $errors->first('fair_condition_penalty') }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="toggle-group">
-                    <div class="toggle-item">
-                        <div class="toggle-label">
-                            <h3>Enable Book Requests</h3>
-                            <p>Allow members to request books that are currently unavailable</p>
+                <div class="library-settings-section">
+                    <h3 class="section-subtitle">Renewal & Lending</h3>
+                    <div class="library-settings-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="issue_duration_days">Issue Duration (days)</label>
+                            <input class="form-control" type="number" id="issue_duration_days" name="issue_duration_days" value="{{ old('issue_duration_days', $fineSetting->issue_duration_days ?? 14) }}" min="1" max="365" data-editable disabled>
+                            <span class="field-error" data-field="issue_duration_days">{{ $errors->first('issue_duration_days') }}</span>
                         </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" checked disabled>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
 
-                    <div class="toggle-item">
-                        <div class="toggle-label">
-                            <h3>Enable Email Notifications</h3>
-                            <p>Send automatic emails for due dates, overdue books, and reservations</p>
+                        <div class="form-group">
+                            <label class="form-label" for="max_books_per_student">Max Books Per Student</label>
+                            <input class="form-control" type="number" id="max_books_per_student" name="max_books_per_student" value="{{ old('max_books_per_student', $fineSetting->max_books_per_student ?? 5) }}" min="1" max="100" data-editable disabled>
+                            <span class="field-error" data-field="max_books_per_student">{{ $errors->first('max_books_per_student') }}</span>
                         </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" checked disabled>
-                            <span class="toggle-slider"></span>
-                        </label>
+
+                        <div class="form-group">
+                            <label class="form-label" for="renewal_limit">Renewal Limit</label>
+                            <input class="form-control" type="number" id="renewal_limit" name="renewal_limit" value="{{ old('renewal_limit', $fineSetting->renewal_limit ?? 2) }}" min="0" max="10" data-editable disabled>
+                            <span class="field-error" data-field="renewal_limit">{{ $errors->first('renewal_limit') }}</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="renewal_duration_days">Renewal Duration (days)</label>
+                            <input class="form-control" type="number" id="renewal_duration_days" name="renewal_duration_days" value="{{ old('renewal_duration_days', $fineSetting->renewal_duration_days ?? 7) }}" min="1" max="30" data-editable disabled>
+                            <span class="field-error" data-field="renewal_duration_days">{{ $errors->first('renewal_duration_days') }}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="button-group" style="display: none;">
-                    <button type="button" class="btn btn-secondary edit-library-btn" id="editLibraryBtn">
-                        <i data-lucide="edit-2" width="18" height="18"></i>
-                        Edit Settings
-                    </button>
-                    <button type="button" class="btn btn-outline cancel-library-btn" id="cancelLibraryBtn" style="display: none;">
-                        <i data-lucide="x" width="18" height="18"></i>
-                        Cancel
-                    </button>
-                    <button type="submit" class="btn btn-primary submit-library-btn" id="submitLibraryBtn" style="display: none;">
-                        <i data-lucide="save" width="18" height="18"></i>
-                        Save Library Settings
-                    </button>
-                </div>
             </form>
-        </div>
+        </section>
     </div>
 @endsection
 
 @push('scripts')
     <script>
-        // Toast Notification System
-        function showToast(message, type = 'info', duration = 5000) {
-            const icons = {
-                success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
-                error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
-                warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3.05h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
-                info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'
-            };
+        document.addEventListener('DOMContentLoaded', () => {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+            const defaultAvatarMarkup = '<i data-lucide="user" width="48" height="48"></i>';
+            const sections = Array.from(document.querySelectorAll('[data-settings-section]'));
+            const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
+            const sectionControllers = new Map();
 
-            const colors = {
-                success: '#10b981',
-                error: '#ef4444',
-                warning: '#f59e0b',
-                info: '#3b82f6'
-            };
+            const profilePhotoPreview = document.getElementById('profilePhotoPreview');
+            const profilePhotoInput = document.getElementById('profile-photo');
+            const profilePhotoLabel = document.getElementById('profilePhotoLabel');
+            const removePhotoBtn = document.getElementById('removePhotoBtn');
+            const removePhotoInput = document.getElementById('remove-profile-photo');
 
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            const toastId = Date.now();
+            const currentPasswordInput = document.getElementById('current-password');
+            const newPasswordInput = document.getElementById('new-password');
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            const requirementItems = Array.from(document.querySelectorAll('.requirement-item'));
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
 
-            toast.id = `toast-${toastId}`;
-            toast.style.cssText = `
-                background-color: ${colors[type]};
-                color: white;
-                padding: 16px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                font-size: 14px;
-                font-weight: 500;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                animation: slideInToast 0.3s ease-out;
-                pointer-events: auto;
-                max-width: 400px;
-                min-width: 300px;
-                word-wrap: break-word;
-            `;
+            initializeToastSystem();
+            initializeTabs();
+            initializeSections();
+            initializeProfilePhotoHandlers();
+            initializePasswordToggles();
+            initializePasswordRequirements();
+            initializeUnsavedChangesGuard();
 
-            toast.innerHTML = `
-                ${icons[type]}
-                <span style="flex: 1;">${message}</span>
-                <button onclick="document.getElementById('toast-${toastId}').remove()" 
-                        style="background: none; border: none; color: white; cursor: pointer; font-size: 18px; padding: 0; line-height: 1;">
-                    ×
-                </button>
-            `;
+            @if (session('success'))
+                showToast({{ Js::from(session('success')) }}, 'success');
+            @endif
 
-            container.appendChild(toast);
-
-            if (duration > 0) {
-                setTimeout(() => {
-                    toast.style.animation = 'slideOutToast 0.3s ease-out forwards';
-                    setTimeout(() => {
-                        if (document.getElementById(`toast-${toastId}`)) {
-                            document.getElementById(`toast-${toastId}`).remove();
-                        }
-                    }, 300);
-                }, duration);
-            }
-        }
-
-        // Initialize toast container
-        if (!document.getElementById('toast-container')) {
-            const container = document.createElement('div');
-            container.id = 'toast-container';
-            container.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                pointer-events: none;
-            `;
-            document.body.appendChild(container);
-
-            // Add animations
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes slideInToast {
-                    from {
-                        transform: translateX(400px);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                }
-                
-                @keyframes slideOutToast {
-                    from {
-                        transform: translateX(0);
-                        opacity: 1;
-                    }
-                    to {
-                        transform: translateX(400px);
-                        opacity: 0;
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        // Initialize Lucide icons
-        lucide.createIcons();
-
-        // Tab switching functionality
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const tabId = this.getAttribute('data-tab');
-                
-                // Remove active class from all buttons and sections
-                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll('.settings-section').forEach(section => section.classList.remove('active'));
-                
-                // Add active class to clicked button and corresponding section
-                this.classList.add('active');
-                document.getElementById(tabId + '-tab').classList.add('active');
-            });
-        });
-
-        // Enable/Disable form fields functionality
-        function enableFormFields(formId, inputSelector = 'input, textarea, select') {
-            const form = document.getElementById(formId);
-            const inputs = form.querySelectorAll(inputSelector);
-            inputs.forEach(input => {
-                input.disabled = false;
-            });
-        }
-
-        function disableFormFields(formId, inputSelector = 'input, textarea, select') {
-            const form = document.getElementById(formId);
-            const inputs = form.querySelectorAll(inputSelector);
-            inputs.forEach(input => {
-                input.disabled = true;
-            });
-        }
-
-        // Profile Settings Edit/Cancel/Submit
-        document.getElementById('editProfileBtn').addEventListener('click', function() {
-            enableFormFields('profileForm');
-            document.getElementById('profilePhotoLabel').style.pointerEvents = 'auto';
-            
-            // Hide inline edit button
-            this.style.display = 'none';
-            
-            // Find and show bottom button group
-            const profileForm = document.getElementById('profileForm');
-            const buttonGroup = profileForm.querySelector('.button-group');
-            if (buttonGroup) {
-                buttonGroup.style.display = 'flex';
-                // Hide the Edit button inside the button-group
-                const editBtnInGroup = buttonGroup.querySelector('.edit-profile-btn');
-                if (editBtnInGroup) editBtnInGroup.style.display = 'none';
-                // Show Cancel and Save buttons
-                const cancelBtn = buttonGroup.querySelector('.cancel-profile-btn');
-                const saveBtn = buttonGroup.querySelector('.submit-profile-btn');
-                if (cancelBtn) cancelBtn.style.display = 'flex';
-                if (saveBtn) saveBtn.style.display = 'flex';
-            }
-        });
-
-        // Profile Cancel button (bottom button group)
-        const profileCancelBtnBottom = document.querySelector('#profileForm .button-group .cancel-profile-btn');
-        if (profileCancelBtnBottom) {
-            profileCancelBtnBottom.addEventListener('click', function(e) {
-                e.preventDefault();
-                disableFormFields('profileForm');
-                document.getElementById('profilePhotoLabel').style.pointerEvents = 'none';
-                
-                // Show inline edit button
-                document.getElementById('editProfileBtn').style.display = 'flex';
-                
-                // Hide bottom button group
-                const profileForm = document.getElementById('profileForm');
-                const buttonGroup = profileForm.querySelector('.button-group');
-                if (buttonGroup) {
-                    buttonGroup.style.display = 'none';
-                }
-                
-                document.getElementById('profileForm').reset();
-            });
-        }
-
-        // Password Settings Edit/Cancel/Submit
-        document.getElementById('editPasswordBtn').addEventListener('click', function() {
-            enableFormFields('passwordForm');
-            
-            // Hide inline edit button
-            this.style.display = 'none';
-            
-            // Find and show bottom button group
-            const passwordForm = document.getElementById('passwordForm');
-            const buttonGroup = passwordForm.querySelector('.button-group');
-            if (buttonGroup) {
-                buttonGroup.style.display = 'flex';
-                // Hide the Edit button inside the button-group
-                const editBtnInGroup = buttonGroup.querySelector('.edit-password-btn');
-                if (editBtnInGroup) editBtnInGroup.style.display = 'none';
-                // Show Cancel and Save buttons
-                const cancelBtn = buttonGroup.querySelector('.cancel-password-btn');
-                const saveBtn = buttonGroup.querySelector('.submit-password-btn');
-                if (cancelBtn) cancelBtn.style.display = 'flex';
-                if (saveBtn) saveBtn.style.display = 'flex';
-            }
-        });
-
-        // Password Cancel button (bottom button group)
-        const passwordCancelBtnBottom = document.querySelector('#passwordForm .button-group .cancel-password-btn');
-        if (passwordCancelBtnBottom) {
-            passwordCancelBtnBottom.addEventListener('click', function(e) {
-                e.preventDefault();
-                disableFormFields('passwordForm');
-                
-                // Show inline edit button
-                document.getElementById('editPasswordBtn').style.display = 'flex';
-                
-                // Hide bottom button group
-                const passwordForm = document.getElementById('passwordForm');
-                const buttonGroup = passwordForm.querySelector('.button-group');
-                if (buttonGroup) {
-                    buttonGroup.style.display = 'none';
-                }
-                
-                document.getElementById('passwordForm').reset();
-            });
-        }
-
-        // Library Settings Edit/Cancel/Submit
-        document.getElementById('editLibraryBtn').addEventListener('click', function() {
-            enableFormFields('librarySettingsForm');
-            
-            // Hide inline edit button
-            this.style.display = 'none';
-            
-            // Find and show bottom button group
-            const libraryForm = document.getElementById('librarySettingsForm');
-            const buttonGroup = libraryForm.querySelector('.button-group');
-            if (buttonGroup) {
-                buttonGroup.style.display = 'flex';
-                // Hide the Edit button inside the button-group
-                const editBtnInGroup = buttonGroup.querySelector('.edit-library-btn');
-                if (editBtnInGroup) editBtnInGroup.style.display = 'none';
-                // Show Cancel and Save buttons
-                const cancelBtn = buttonGroup.querySelector('.cancel-library-btn');
-                const saveBtn = buttonGroup.querySelector('.submit-library-btn');
-                if (cancelBtn) cancelBtn.style.display = 'flex';
-                if (saveBtn) saveBtn.style.display = 'flex';
-            }
-        });
-
-        // Library Cancel button (bottom button group)
-        const libraryCancelBtnBottom = document.querySelector('#librarySettingsForm .button-group .cancel-library-btn');
-        if (libraryCancelBtnBottom) {
-            libraryCancelBtnBottom.addEventListener('click', function(e) {
-                e.preventDefault();
-                disableFormFields('librarySettingsForm');
-                
-                // Show inline edit button
-                document.getElementById('editLibraryBtn').style.display = 'flex';
-                
-                // Hide bottom button group
-                const libraryForm = document.getElementById('librarySettingsForm');
-                const buttonGroup = libraryForm.querySelector('.button-group');
-                if (buttonGroup) {
-                    buttonGroup.style.display = 'none';
-                }
-            });
-        }
-
-        // Password visibility toggle
-        function togglePassword(inputId, button) {
-            const input = document.getElementById(inputId);
-            const icon = button.querySelector('i');
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.setAttribute('data-lucide', 'eye-off');
-            } else {
-                input.type = 'password';
-                icon.setAttribute('data-lucide', 'eye');
-            }
+            @if ($errors->any())
+                showToast('Please correct the highlighted fields before saving.', 'error');
+            @endif
 
             lucide.createIcons();
-        }
 
-        // File upload preview
-        document.getElementById('profile-photo').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Create image preview
-                    const container = document.querySelector('.profile-photo-placeholder');
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'profile-photo';
-                    img.alt = 'Profile photo';
-
-                    // Replace icon with image
-                    container.innerHTML = '';
-                    container.appendChild(img);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Form validation and submission
-        document.addEventListener('DOMContentLoaded', function() {
-            // Toggle switch changes
-            document.querySelectorAll('.toggle-switch input').forEach(toggle => {
-                toggle.addEventListener('change', function() {
-                    console.log('Toggle changed:', this.checked);
+            function initializeTabs() {
+                tabButtons.forEach((button) => {
+                    button.addEventListener('click', () => {
+                        const targetTab = button.dataset.tab;
+                        tabButtons.forEach((tab) => tab.classList.remove('active'));
+                        sections.forEach((section) => section.classList.remove('active'));
+                        button.classList.add('active');
+                        document.getElementById(`${targetTab}-tab`)?.classList.add('active');
+                    });
                 });
-            });
+            }
 
-            // Profile photo upload preview
-            const profilePhotoInput = document.getElementById('profile-photo');
-            const profilePhotoPreview = document.getElementById('profilePhotoPreview');
+            function initializeSections() {
+                sections.forEach((section) => {
+                    const form = section.querySelector('form');
+                    const controller = {
+                        name: section.dataset.settingsSection,
+                        section,
+                        form,
+                        status: section.querySelector('[data-section-status]'),
+                        editButton: section.querySelector('[data-action="edit"]'),
+                        cancelButton: section.querySelector('[data-action="cancel"]'),
+                        saveButton: section.querySelector('[data-action="save"]'),
+                        editing: false,
+                        dirty: false,
+                        saving: false,
+                        justSaved: false,
+                        snapshot: captureSnapshot(form),
+                    };
 
-            if (profilePhotoInput) {
-                profilePhotoInput.addEventListener('change', function(e) {
-                    const file = this.files[0];
+                    sectionControllers.set(controller.name, controller);
+
+                    controller.editButton?.addEventListener('click', () => {
+                        controller.snapshot = captureSnapshot(form);
+                        clearFormErrors(form);
+                        setSectionMode(controller, true);
+
+                        if (controller.name === 'password') {
+                            form.reset();
+                            updatePasswordRequirements();
+                        }
+                    });
+
+                    controller.cancelButton?.addEventListener('click', () => {
+                        restoreSnapshot(controller);
+                        clearFormErrors(form);
+                        controller.dirty = false;
+                        setSectionMode(controller, false);
+
+                        if (controller.name === 'password') {
+                            updatePasswordRequirements();
+                        }
+                    });
+
+                    form.addEventListener('submit', (event) => submitForm(event, controller));
+
+                    form.querySelectorAll('[data-editable]').forEach((field) => {
+                        field.addEventListener('input', () => handleFieldInteraction(controller, field));
+                        field.addEventListener('change', () => handleFieldInteraction(controller, field));
+
+                        if (controller.name === 'profile') {
+                            field.addEventListener('blur', () => validateProfileField(field));
+                        }
+                    });
+
+                    if (section.dataset.startEditing === 'true') {
+                        setSectionMode(controller, true);
+                    } else {
+                        setSectionMode(controller, false);
+                    }
+                });
+            }
+
+            function initializeProfilePhotoHandlers() {
+                const profileController = sectionControllers.get('profile');
+
+                if (!profileController || !profilePhotoInput || !profilePhotoPreview || !removePhotoInput) {
+                    return;
+                }
+
+                profilePhotoInput.addEventListener('change', () => {
+                    if (!profileController.editing) {
+                        return;
+                    }
+
+                    const file = profilePhotoInput.files?.[0];
+                    removePhotoInput.value = '0';
+
                     if (file) {
                         const reader = new FileReader();
-                        reader.onload = function(event) {
-                            profilePhotoPreview.innerHTML = `<img src="${event.target.result}" alt="Profile Photo Preview" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
+                        reader.onload = (event) => {
+                            profilePhotoPreview.innerHTML = `<img src="${event.target?.result ?? ''}" alt="Profile Photo Preview">`;
+                            lucide.createIcons();
+                            updateProfilePhotoControls(profileController);
+                            updateDirtyState(profileController);
                         };
                         reader.readAsDataURL(file);
+                    } else {
+                        updateProfilePhotoControls(profileController);
+                        updateDirtyState(profileController);
                     }
+                });
+
+                removePhotoBtn?.addEventListener('click', (event) => {
+                    event.preventDefault();
+
+                    if (!profileController.editing) {
+                        return;
+                    }
+
+                    profilePhotoInput.value = '';
+                    removePhotoInput.value = '1';
+                    profilePhotoPreview.innerHTML = defaultAvatarMarkup;
+                    lucide.createIcons();
+                    updateProfilePhotoControls(profileController);
+                    updateDirtyState(profileController);
                 });
             }
 
-            // Handle profile form submission
-            const profileForm = document.getElementById('profileForm');
-            if (profileForm) {
-                profileForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    
-                    try {
-                        const formData = new FormData(this);
-                        
-                        const response = await fetch('{{ route("admin.settings.update") }}', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json',
-                            }
-                        });
+            function initializePasswordToggles() {
+                document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+                    button.addEventListener('click', () => {
+                        const target = document.getElementById(button.dataset.target);
+                        const icon = button.querySelector('i');
 
-                        console.log('Profile response status:', response.status);
-                        
-                        // Get response text first to debug
-                        const responseText = await response.text();
-                        console.log('Profile response text:', responseText);
-                        
-                        let data;
-                        try {
-                            data = JSON.parse(responseText);
-                        } catch (parseError) {
-                            console.error('JSON parse error:', parseError);
-                            showToast('Error: Invalid response from server', 'error');
+                        if (!target) {
                             return;
                         }
 
-                        if (response.ok && data.success) {
-                            showToast('Profile updated successfully!', 'success');
-                            
-                            // Disable form and hide bottom buttons
-                            disableFormFields('profileForm');
-                            document.getElementById('profilePhotoLabel').style.pointerEvents = 'none';
-                            
-                            // Show inline edit button
-                            document.getElementById('editProfileBtn').style.display = 'flex';
-                            
-                            // Hide bottom button group
-                            const buttonGroup = document.querySelector('#profileForm .button-group');
-                            if (buttonGroup) {
-                                buttonGroup.style.display = 'none';
-                            }
-                        } else {
-                            showToast(data.message || 'Failed to update profile', 'error');
-                        }
-                    } catch (error) {
-                        showToast('Error updating profile: ' + error.message, 'error');
-                        console.error('Error:', error);
+                        const passwordMode = target.type === 'password';
+                        target.type = passwordMode ? 'text' : 'password';
+                        icon?.setAttribute('data-lucide', passwordMode ? 'eye-off' : 'eye');
+                        lucide.createIcons();
+                    });
+                });
+            }
+
+            function initializePasswordRequirements() {
+                [currentPasswordInput, newPasswordInput, confirmPasswordInput].forEach((input) => {
+                    input?.addEventListener('input', updatePasswordRequirements);
+                });
+
+                updatePasswordRequirements();
+            }
+
+            function initializeUnsavedChangesGuard() {
+                window.addEventListener('beforeunload', (event) => {
+                    const hasUnsavedChanges = Array.from(sectionControllers.values()).some((controller) => controller.editing && controller.dirty && !controller.saving);
+                    if (!hasUnsavedChanges) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.returnValue = '';
+                });
+            }
+
+            function captureSnapshot(form) {
+                const snapshot = { comparable: {}, restore: {}, profilePreviewHtml: null };
+
+                form.querySelectorAll('[data-editable]').forEach((field) => {
+                    if (!field.name) {
+                        return;
+                    }
+
+                    if (field.type === 'checkbox') {
+                        snapshot.comparable[field.name] = field.checked;
+                        snapshot.restore[field.name] = field.checked;
+                        return;
+                    }
+
+                    if (field.type === 'file') {
+                        snapshot.comparable[field.name] = field.files?.[0]?.name ?? '';
+                        snapshot.restore[field.name] = '';
+                        return;
+                    }
+
+                    snapshot.comparable[field.name] = field.value;
+                    snapshot.restore[field.name] = field.value;
+                });
+
+                if (form.id === 'profileForm') {
+                    snapshot.comparable.remove_profile_photo = removePhotoInput?.value ?? '0';
+                    snapshot.restore.remove_profile_photo = removePhotoInput?.value ?? '0';
+                    snapshot.profilePreviewHtml = profilePhotoPreview?.innerHTML ?? '';
+                }
+
+                return snapshot;
+            }
+
+            function restoreSnapshot(controller) {
+                const snapshot = controller.snapshot;
+
+                controller.form.querySelectorAll('[data-editable]').forEach((field) => {
+                    if (!field.name || !(field.name in snapshot.restore)) {
+                        return;
+                    }
+
+                    if (field.type === 'checkbox') {
+                        field.checked = Boolean(snapshot.restore[field.name]);
+                        return;
+                    }
+
+                    if (field.type === 'file') {
+                        field.value = '';
+                        return;
+                    }
+
+                    field.value = snapshot.restore[field.name] ?? '';
+                });
+
+                if (controller.name === 'profile' && profilePhotoPreview && removePhotoInput) {
+                    removePhotoInput.value = snapshot.restore.remove_profile_photo ?? '0';
+                    profilePhotoPreview.innerHTML = snapshot.profilePreviewHtml ?? defaultAvatarMarkup;
+                    lucide.createIcons();
+                    updateProfilePhotoControls(controller);
+                }
+            }
+
+            function toggleEditableFields(form, enabled) {
+                form.querySelectorAll('[data-editable]').forEach((field) => {
+                    field.disabled = !enabled;
+                });
+
+                form.querySelectorAll('[data-password-toggle]').forEach((button) => {
+                    button.disabled = !enabled;
+                });
+            }
+
+            function setSectionMode(controller, editing) {
+                controller.editing = editing;
+                controller.section.classList.toggle('edit-mode', editing);
+                toggleEditableFields(controller.form, editing);
+                controller.editButton.hidden = editing;
+                controller.cancelButton.hidden = !editing;
+                controller.saveButton.hidden = !editing;
+
+                if (controller.name === 'profile') {
+                    profilePhotoLabel?.classList.toggle('is-disabled', !editing);
+                    updateProfilePhotoControls(controller);
+                }
+
+                if (controller.name === 'password') {
+                    updatePasswordRequirements();
+                }
+
+                if (!editing) {
+                    controller.dirty = false;
+                }
+
+                refreshSectionStatus(controller);
+            }
+
+            function refreshSectionStatus(controller) {
+                if (!controller.status) {
+                    return;
+                }
+
+                controller.status.classList.remove('editing', 'dirty', 'success');
+
+                if (controller.saving) {
+                    controller.status.textContent = 'Saving...';
+                    controller.status.classList.add('editing');
+                    return;
+                }
+
+                if (controller.dirty) {
+                    controller.status.textContent = 'Unsaved changes';
+                    controller.status.classList.add('dirty');
+                    return;
+                }
+
+                if (controller.editing) {
+                    controller.status.textContent = 'Editing';
+                    controller.status.classList.add('editing');
+                    return;
+                }
+
+                if (controller.justSaved) {
+                    controller.status.textContent = 'Saved';
+                    controller.status.classList.add('success');
+                    return;
+                }
+
+                controller.status.textContent = 'Read only';
+            }
+
+            function captureComparableState(form) {
+                const comparable = {};
+
+                form.querySelectorAll('[data-editable]').forEach((field) => {
+                    if (!field.name) {
+                        return;
+                    }
+
+                    if (field.type === 'checkbox') {
+                        comparable[field.name] = field.checked;
+                        return;
+                    }
+
+                    if (field.type === 'file') {
+                        comparable[field.name] = field.files?.[0]?.name ?? '';
+                        return;
+                    }
+
+                    comparable[field.name] = field.value;
+                });
+
+                if (form.id === 'profileForm') {
+                    comparable.remove_profile_photo = removePhotoInput?.value ?? '0';
+                }
+
+                return comparable;
+            }
+
+            function updateDirtyState(controller) {
+                controller.dirty = JSON.stringify(captureComparableState(controller.form)) !== JSON.stringify(controller.snapshot.comparable);
+                refreshSectionStatus(controller);
+            }
+
+            function handleFieldInteraction(controller, field) {
+                if (!controller.editing) {
+                    return;
+                }
+
+                if (controller.name === 'profile' && field.name !== 'profile_photo') {
+                    validateProfileField(field, true);
+                } else {
+                    clearFieldError(controller.form, field.name);
+                }
+
+                if (controller.name === 'password') {
+                    updatePasswordRequirements();
+                }
+
+                updateDirtyState(controller);
+            }
+
+            async function submitForm(event, controller) {
+                event.preventDefault();
+                clearFormErrors(controller.form);
+
+                if (controller.name === 'profile' && !validateProfileForm(controller.form)) {
+                    showToast('Please correct the highlighted profile fields.', 'error');
+                    return;
+                }
+
+                if (controller.name === 'password' && !getPasswordRequirementState().allMet) {
+                    showToast('Please satisfy all password requirements before saving.', 'error');
+                    return;
+                }
+
+                controller.saving = true;
+                refreshSectionStatus(controller);
+                setButtonLoading(controller.saveButton, true, 'Saving...');
+
+                try {
+                    const response = await fetch(controller.form.action, {
+                        method: 'POST',
+                        body: new FormData(controller.form),
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                    });
+
+                    const payload = await parseResponse(response);
+
+                    if (response.ok && payload?.success) {
+                        finalizeSuccessfulSave(controller, payload);
+                        showToast(payload.message ?? 'Settings updated successfully.', 'success');
+                        return;
+                    }
+
+                    if (response.status === 422 && payload?.errors) {
+                        applyFormErrors(controller.form, payload.errors);
+                        showToast(payload.message ?? 'Please correct the highlighted fields.', 'error');
+                        return;
+                    }
+
+                    showToast(payload?.message ?? 'Something went wrong while saving.', 'error');
+                } catch (error) {
+                    showToast(`Failed to save changes: ${error.message}`, 'error');
+                } finally {
+                    controller.saving = false;
+                    setButtonLoading(controller.saveButton, false);
+                    refreshSectionStatus(controller);
+                }
+            }
+
+            function finalizeSuccessfulSave(controller, payload) {
+                clearFormErrors(controller.form);
+
+                if (controller.name === 'password') {
+                    controller.form.reset();
+                    updatePasswordRequirements();
+                }
+
+                if (controller.name === 'profile') {
+                    profilePhotoInput.value = '';
+                    removePhotoInput.value = '0';
+
+                    if (!payload.user?.profile_photo && profilePhotoPreview) {
+                        profilePhotoPreview.innerHTML = defaultAvatarMarkup;
+                        lucide.createIcons();
+                    }
+                }
+
+                controller.snapshot = captureSnapshot(controller.form);
+                controller.dirty = false;
+                controller.justSaved = true;
+                setSectionMode(controller, false);
+
+                window.clearTimeout(controller.savedTimeout);
+                controller.savedTimeout = window.setTimeout(() => {
+                    controller.justSaved = false;
+                    refreshSectionStatus(controller);
+                }, 2200);
+            }
+
+            function validateProfileForm(form) {
+                const fields = ['name', 'email', 'phone', 'address', 'date_of_birth'];
+                return fields.every((fieldName) => {
+                    const field = form.querySelector(`[name="${fieldName}"]`);
+                    return field ? validateProfileField(field) : true;
+                });
+            }
+
+            function validateProfileField(field, soft = false) {
+                if (!field?.name) {
+                    return true;
+                }
+
+                const validators = {
+                    name(value) {
+                        if (!value) return 'This field is required.';
+                        if (value.length < 2) return 'Minimum 2 characters required.';
+                        if (value.length > 100) return 'Maximum 100 characters allowed.';
+                        if (!/^[a-zA-Z\s]+$/.test(value)) return 'Name can only contain letters and spaces.';
+                        return '';
+                    },
+                    email(value) {
+                        if (!value) return 'This field is required.';
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Enter a valid email address.';
+                        return '';
+                    },
+                    phone(value) {
+                        if (!value) return 'This field is required.';
+                        if (!/^[0-9]{10,15}$/.test(value)) return 'Phone must contain only numbers (10-15 digits).';
+                        return '';
+                    },
+                    address(value) {
+                        if (!value) return '';
+                        if (value.length < 10) return 'Address must be at least 10 characters.';
+                        if (value.length > 500) return 'Maximum 500 characters allowed.';
+                        return '';
+                    },
+                    date_of_birth(value) {
+                        if (!value) return '';
+
+                        const birthDate = new Date(`${value}T00:00:00`);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+
+                        const hundredYearsAgo = new Date(today);
+                        hundredYearsAgo.setFullYear(today.getFullYear() - 100);
+
+                        if (Number.isNaN(birthDate.getTime())) return 'Enter a valid date of birth.';
+                        if (birthDate >= today) return 'Date of birth must be in the past.';
+                        if (birthDate < hundredYearsAgo) return 'Date of birth must be within the last 100 years.';
+                        return '';
+                    },
+                };
+
+                const value = field.value.trim();
+                const error = validators[field.name] ? validators[field.name](value) : '';
+                setFieldState(field, error, soft);
+                return !error;
+            }
+
+            function setFieldState(field, error, soft = false) {
+                const formGroup = field.closest('.form-group');
+                const errorElement = field.form?.querySelector(`.field-error[data-field="${field.name}"]`);
+
+                if (!formGroup) {
+                    return;
+                }
+
+                formGroup.classList.toggle('has-error', Boolean(error));
+                formGroup.classList.toggle('has-success', !error && Boolean(field.value.trim()) && !soft);
+
+                if (errorElement) {
+                    errorElement.textContent = error;
+                }
+            }
+
+            function clearFormErrors(form) {
+                form.querySelectorAll('.form-group').forEach((group) => {
+                    group.classList.remove('has-error');
+                    group.classList.remove('has-success');
+                });
+
+                form.querySelectorAll('.field-error').forEach((errorElement) => {
+                    errorElement.textContent = '';
+                });
+            }
+
+            function clearFieldError(form, fieldName) {
+                if (!fieldName) {
+                    return;
+                }
+
+                const field = form.querySelector(`[name="${fieldName}"]`);
+                const formGroup = field?.closest('.form-group');
+                const errorElement = form.querySelector(`.field-error[data-field="${fieldName}"]`);
+                formGroup?.classList.remove('has-error');
+
+                if (errorElement) {
+                    errorElement.textContent = '';
+                }
+            }
+
+            function applyFormErrors(form, errors) {
+                clearFormErrors(form);
+
+                Object.entries(errors).forEach(([fieldName, messages]) => {
+                    const message = Array.isArray(messages) ? messages[0] : messages;
+                    const errorElement = form.querySelector(`.field-error[data-field="${fieldName}"]`);
+                    const input = form.querySelector(`[name="${fieldName}"]`);
+                    const formGroup = input?.closest('.form-group');
+
+                    formGroup?.classList.add('has-error');
+                    formGroup?.classList.remove('has-success');
+
+                    if (errorElement) {
+                        errorElement.textContent = message;
                     }
                 });
             }
 
-            // Handle password form submission
-            const passwordForm = document.getElementById('passwordForm');
-            if (passwordForm) {
-                passwordForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
+            function getPasswordRequirementState() {
+                const context = {
+                    current: currentPasswordInput?.value ?? '',
+                    password: newPasswordInput?.value ?? '',
+                    confirmation: confirmPasswordInput?.value ?? '',
+                };
+
+                const checks = {
+                    minLength: ({ password }) => password.length >= 8,
+                    uppercase: ({ password }) => /[A-Z]/.test(password),
+                    lowercase: ({ password }) => /[a-z]/.test(password),
+                    number: ({ password }) => /\d/.test(password),
+                    special: ({ password }) => /[!@#$%^&*(),.?":{}|<>]/.test(password),
+                    match: ({ password, confirmation }) => Boolean(password && confirmation && password === confirmation),
+                    different: ({ password, current }) => Boolean(password && current && password !== current),
+                };
+
+                const results = {};
+                let metCount = 0;
+
+                Object.entries(checks).forEach(([key, validator]) => {
+                    results[key] = validator(context);
+                    if (results[key]) {
+                        metCount++;
+                    }
+                });
+
+                return {
+                    results,
+                    metCount,
+                    allMet: Object.values(results).every(Boolean),
+                    hasPassword: context.password.length > 0,
+                };
+            }
+
+            function updatePasswordRequirements() {
+                const state = getPasswordRequirementState();
+
+                requirementItems.forEach((item) => {
+                    item.classList.toggle('met', Boolean(state.results[item.dataset.requirement]));
+                });
+
+                let strengthClass = '';
+                let strengthLabel = 'Enter a password';
+
+                if (state.hasPassword && state.metCount <= 3) {
+                    strengthClass = 'weak';
+                    strengthLabel = 'Weak - Keep going!';
+                } else if (state.hasPassword && state.metCount <= 5) {
+                    strengthClass = 'fair';
+                    strengthLabel = 'Fair - Add more requirements';
+                } else if (state.hasPassword && state.metCount === 6) {
+                    strengthClass = 'good';
+                    strengthLabel = 'Good - Almost there!';
+                } else if (state.hasPassword && state.metCount === 7) {
+                    strengthClass = 'strong';
+                    strengthLabel = 'Strong password!';
+                }
+
+                strengthFill.className = `strength-fill ${strengthClass}`.trim();
+                strengthText.textContent = strengthLabel;
+
+                const controller = sectionControllers.get('password');
+                if (controller?.saveButton) {
+                    controller.saveButton.disabled = controller.editing ? !state.allMet : false;
+                }
+            }
+
+            function updateProfilePhotoControls(controller) {
+                const hasPreviewImage = Boolean(profilePhotoPreview?.querySelector('img'));
+                if (removePhotoBtn) {
+                    removePhotoBtn.hidden = !(controller.editing && hasPreviewImage);
+                }
+            }
+
+            function parseResponse(response) {
+                return response.text().then((text) => {
+                    if (!text) {
+                        return {};
+                    }
 
                     try {
-                        const formData = new FormData(this);
-                        const data = Object.fromEntries(formData);
-
-                        console.log('Password form data:', data);
-
-                        const response = await fetch('{{ route("admin.settings.update-password") }}', {
-                            method: 'PUT',
-                            body: JSON.stringify(data),
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json',
-                            }
-                        });
-
-                        console.log('Password response status:', response.status);
-
-                        const responseText = await response.text();
-                        console.log('Password response text:', responseText);
-                        
-                        let responseData;
-                        try {
-                            responseData = JSON.parse(responseText);
-                        } catch (parseError) {
-                            console.error('JSON parse error:', parseError);
-                            showToast('Error: Invalid response from server', 'error');
-                            return;
-                        }
-
-                        console.log('Password update response:', responseData);
-
-                        if (response.ok && responseData.success) {
-                            showToast('Password updated successfully!', 'success');
-                            passwordForm.reset();
-                            
-                            // Disable form and hide bottom buttons
-                            disableFormFields('passwordForm');
-                            
-                            // Show inline edit button
-                            document.getElementById('editPasswordBtn').style.display = 'flex';
-                            
-                            // Hide bottom button group
-                            const buttonGroup = document.querySelector('#passwordForm .button-group');
-                            if (buttonGroup) {
-                                buttonGroup.style.display = 'none';
-                            }
-                        } else {
-                            // Show validation errors if they exist
-                            if (responseData.errors) {
-                                const errorMessages = Object.values(responseData.errors).flat().join(', ');
-                                showToast(errorMessages, 'error');
-                            } else {
-                                showToast(responseData.message || 'Failed to update password', 'error');
-                            }
-                        }
+                        return JSON.parse(text);
                     } catch (error) {
-                        showToast('Error updating password: ' + error.message, 'error');
-                        console.error('Error:', error);
+                        throw new Error('Invalid server response.');
                     }
                 });
             }
 
-            // Handle library settings form submission
-            const librarySettingsForm = document.getElementById('librarySettingsForm');
-            if (librarySettingsForm) {
-                librarySettingsForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
+            function setButtonLoading(button, loading, label = 'Saving...') {
+                if (!button) {
+                    return;
+                }
 
-                    try {
-                        const formData = new FormData(this);
-                        const data = Object.fromEntries(formData);
+                if (loading) {
+                    button.dataset.originalHtml = button.innerHTML;
+                    button.disabled = true;
+                    button.innerHTML = `<span style="width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:currentColor;border-radius:999px;display:inline-block;animation:spin .8s linear infinite;"></span><span>${label}</span>`;
+                    return;
+                }
 
-                        console.log('Library settings form data:', data);
+                if (button.dataset.originalHtml) {
+                    button.innerHTML = button.dataset.originalHtml;
+                }
 
-                        const response = await fetch('{{ route("admin.settings.update-library") }}', {
-                            method: 'PUT',
-                            body: JSON.stringify(data),
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json',
-                            }
-                        });
-
-                        console.log('Library settings response status:', response.status);
-
-                        const responseText = await response.text();
-                        console.log('Library settings response text:', responseText);
-                        
-                        let responseData;
-                        try {
-                            responseData = JSON.parse(responseText);
-                        } catch (parseError) {
-                            console.error('JSON parse error:', parseError);
-                            showToast('Error: Invalid response from server', 'error');
-                            return;
-                        }
-
-                        console.log('Library settings update response:', responseData);
-
-                        if (response.ok && responseData.success) {
-                            showToast('Library settings updated successfully!', 'success');
-                            
-                            // Disable form and hide bottom buttons
-                            disableFormFields('librarySettingsForm');
-                            
-                            // Show inline edit button
-                            document.getElementById('editLibraryBtn').style.display = 'flex';
-                            
-                            // Hide bottom button group
-                            const buttonGroup = document.querySelector('#librarySettingsForm .button-group');
-                            if (buttonGroup) {
-                                buttonGroup.style.display = 'none';
-                            }
-                        } else {
-                            // Show validation errors if they exist
-                            if (responseData.errors) {
-                                const errorMessages = Object.values(responseData.errors).flat().join(', ');
-                                showToast(errorMessages, 'error');
-                            } else {
-                                showToast(responseData.message || 'Failed to update library settings', 'error');
-                            }
-                        }
-                    } catch (error) {
-                        showToast('Error updating library settings: ' + error.message, 'error');
-                        console.error('Error:', error);
-                    }
-                });
+                button.disabled = false;
+                lucide.createIcons();
             }
 
-            // Theme compatibility - ensure icons update on theme change
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.attributeName === 'class') {
-                        // Recreate icons when theme changes
-                        setTimeout(() => lucide.createIcons(), 100);
-                    }
-                });
-            });
+            function initializeToastSystem() {
+                if (document.getElementById('toast-container')) {
+                    return;
+                }
 
-            observer.observe(document.body, {
-                attributes: true,
-                attributeFilter: ['class']
-            });
+                const container = document.createElement('div');
+                container.id = 'toast-container';
+                container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;';
+                document.body.appendChild(container);
 
-            // Handle remove photo button
-            const removePhotoBtn = document.getElementById('removePhotoBtn');
-            if (removePhotoBtn) {
-                removePhotoBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    if (confirm('Are you sure you want to remove your profile photo?')) {
-                        fetch('{{ route("admin.settings.remove-photo") }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                showToast('Profile photo removed successfully!', 'success');
-                                // Update preview to show default icon
-                                document.getElementById('profilePhotoPreview').innerHTML = '<i data-lucide="user" width="48" height="48"></i>';
-                                // Remove the button
-                                removePhotoBtn.remove();
-                                // Recreate icons
-                                setTimeout(() => lucide.createIcons(), 100);
-                            } else {
-                                showToast(data.message || 'Failed to remove photo', 'error');
-                            }
-                        })
-                        .catch(error => {
-                            showToast('Error: ' + error.message, 'error');
-                            console.error('Error:', error);
-                        });
-                    }
-                });
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideInToast { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                    @keyframes slideOutToast { from { transform: translateX(0); opacity: 1; } to { transform: translateX(24px); opacity: 0; } }
+                `;
+                document.head.appendChild(style);
+            }
+
+            function showToast(message, type = 'info', duration = 4200) {
+                const icons = {
+                    success: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+                    error: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+                    info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+                };
+
+                const colors = { success: '#10b981', error: '#ef4444', info: '#3b82f6' };
+                const container = document.getElementById('toast-container');
+
+                if (!container) {
+                    return;
+                }
+
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    min-width:280px;max-width:360px;padding:14px 16px;border-radius:14px;
+                    background:${colors[type] ?? colors.info};color:white;display:flex;align-items:center;gap:10px;
+                    box-shadow:0 16px 28px -18px rgba(15,23,42,.6);font-size:.9rem;pointer-events:auto;
+                    animation:slideInToast .2s ease-out forwards;
+                `;
+
+                toast.innerHTML = `
+                    ${icons[type] ?? icons.info}
+                    <span style="flex:1;">${message}</span>
+                    <button type="button" style="border:none;background:transparent;color:inherit;cursor:pointer;font-size:1rem;line-height:1;">×</button>
+                `;
+
+                toast.querySelector('button')?.addEventListener('click', () => toast.remove());
+                container.appendChild(toast);
+
+                if (duration > 0) {
+                    window.setTimeout(() => {
+                        toast.style.animation = 'slideOutToast .2s ease-in forwards';
+                        window.setTimeout(() => toast.remove(), 220);
+                    }, duration);
+                }
             }
         });
     </script>

@@ -21,6 +21,8 @@ return new class extends Migration
             $table->decimal('fair_condition_penalty', 10, 2)->default(50.00);
             $table->integer('issue_duration_days')->default(14);
             $table->integer('max_books_per_student')->default(5);
+            $table->integer('renewal_limit')->default(2);
+            $table->integer('renewal_duration_days')->default(7);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

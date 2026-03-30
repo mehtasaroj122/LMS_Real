@@ -89,7 +89,7 @@ class ReturnBookController extends Controller
             $student->load('privileges');
             
             $fineCalculator = new FineCalculator();
-            $fineSetting = FineSetting::where('is_active', true)->first();
+            $fineSetting = FineSetting::resolveActive();
             
             foreach ($request->issued_book_ids as $issuedBookId) {
                 $issuedBook = IssuedBook::findOrFail($issuedBookId);

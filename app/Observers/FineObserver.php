@@ -86,8 +86,6 @@ class FineObserver
             return (float) $fine->student->privileges->per_day_fine;
         }
 
-        $fineSetting = FineSetting::where('is_active', true)->first() ?? FineSetting::first();
-
-        return (float) ($fineSetting?->per_day_fine ?? 5);
+        return (float) FineSetting::resolveActive()->per_day_fine;
     }
 }

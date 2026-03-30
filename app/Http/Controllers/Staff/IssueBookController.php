@@ -33,8 +33,8 @@ class IssueBookController extends Controller
     {
         Gate::authorize('access-staff');
         $query = $request->input('query', '');
-        $fineSetting = FineSetting::where('is_active', true)->first() ?? FineSetting::first();
-        $defaultMaxBooks = $fineSetting->max_books_per_student ?? 5;
+        $fineSetting = FineSetting::resolveActive();
+        $defaultMaxBooks = $fineSetting->max_books_per_student;
 
         $students = Student::selectRaw('DISTINCT students.*')
             ->with('user', 'department', 'privileges')
@@ -265,8 +265,7 @@ class IssueBookController extends Controller
         }
 
         // Fall back to global fine settings
-        $fineSetting = FineSetting::where('is_active', true)->first();
-        return $fineSetting->issue_duration_days ?? 14;
+        return FineSetting::resolveActive()->issue_duration_days;
     }
 
     /**
