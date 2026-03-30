@@ -58,19 +58,25 @@
                     bookPageInfo: document.getElementById('studentBookPageInfo'),
                     bookPagination: document.getElementById('studentBookPagination'),
                     booksPanel: document.querySelector('.student-books-table-panel'),
+                    bookTableScroller: document.querySelector('.student-books-table-scroller'),
                     booksBody: document.getElementById('studentBooksTableBody'),
                     booksEmpty: document.getElementById('studentBooksEmptyState'),
                     fineEntries: document.getElementById('studentFineEntries'),
                     fineSummary: document.getElementById('studentFineSummary'),
                     finePageInfo: document.getElementById('studentFinePageInfo'),
                     finePagination: document.getElementById('studentFinePagination'),
+                    finesPanel: document.querySelector('.student-fines-table-panel'),
+                    fineTableScroller: document.querySelector('.student-fine-table-scroller'),
                     finesBody: document.getElementById('studentFinesTableBody'),
                     finesEmpty: document.getElementById('studentFinesEmptyState'),
+                    activityPanel: document.querySelector('.student-pane-scroll-activity'),
                     activityList: document.getElementById('studentActivityTimeline'),
                     activityEmpty: document.getElementById('studentActivityEmptyState'),
                     activitySummary: document.getElementById('studentActivitySummary'),
                     activityShowMore: document.getElementById('studentActivityShowMoreBtn'),
                     requestEntries: document.getElementById('studentRequestEntries'),
+                    requestPanel: document.querySelector('.student-request-table-panel'),
+                    requestTableScroller: document.querySelector('.student-request-table-scroller'),
                     requestBody: document.getElementById('studentRequestTableBody'),
                     requestEmpty: document.getElementById('studentRequestEmptyState'),
                     requestSummary: document.getElementById('studentRequestSummary'),
@@ -212,7 +218,8 @@
 
                 if (!totalBooks) {
                     this.elements.booksBody.innerHTML = '';
-                    if (this.elements.booksPanel) this.elements.booksPanel.hidden = true;
+                    if (this.elements.booksPanel) this.elements.booksPanel.hidden = false;
+                    if (this.elements.bookTableScroller) this.elements.bookTableScroller.hidden = true;
                     this.elements.booksEmpty.hidden = false;
                     if (this.elements.bookSummary) this.elements.bookSummary.textContent = 'Showing 0 books';
                     if (this.elements.bookPageInfo) this.elements.bookPageInfo.textContent = 'Page 0 of 0';
@@ -225,6 +232,7 @@
                 const pageItems = sortedBooks.slice(startIndex, endIndex);
 
                 if (this.elements.booksPanel) this.elements.booksPanel.hidden = false;
+                if (this.elements.bookTableScroller) this.elements.bookTableScroller.hidden = false;
                 this.elements.booksEmpty.hidden = true;
                 this.elements.booksBody.innerHTML = pageItems.map((book) => `
                     <tr>
@@ -269,6 +277,8 @@
 
                 if (!totalFines) {
                     this.elements.finesBody.innerHTML = '';
+                    if (this.elements.finesPanel) this.elements.finesPanel.hidden = false;
+                    if (this.elements.fineTableScroller) this.elements.fineTableScroller.hidden = true;
                     this.elements.finesEmpty.hidden = false;
                     if (this.elements.fineSummary) this.elements.fineSummary.textContent = 'Showing 0 fines';
                     if (this.elements.finePageInfo) this.elements.finePageInfo.textContent = 'Page 0 of 0';
@@ -281,6 +291,8 @@
                 const endIndex = Math.min(startIndex + this.finePerPage, totalFines);
                 const pageItems = this.fines.slice(startIndex, endIndex);
 
+                if (this.elements.finesPanel) this.elements.finesPanel.hidden = false;
+                if (this.elements.fineTableScroller) this.elements.fineTableScroller.hidden = false;
                 this.elements.finesEmpty.hidden = true;
                 this.elements.finesBody.innerHTML = pageItems.map((fine) => this.buildFineRow(fine)).join('');
                 if (this.elements.fineSummary) {
@@ -452,6 +464,8 @@
 
                 if (!totalRequests) {
                     if (this.elements.requestBody) this.elements.requestBody.innerHTML = '';
+                    if (this.elements.requestPanel) this.elements.requestPanel.hidden = false;
+                    if (this.elements.requestTableScroller) this.elements.requestTableScroller.hidden = true;
                     if (this.elements.requestEmpty) this.elements.requestEmpty.hidden = false;
                     if (this.elements.requestSummary) this.elements.requestSummary.textContent = 'Showing 0 requests';
                     if (this.elements.requestPageInfo) this.elements.requestPageInfo.textContent = 'Page 0 of 0';
@@ -463,6 +477,8 @@
                 const endIndex = Math.min(startIndex + this.requestPerPage, totalRequests);
                 const pageItems = this.requests.slice(startIndex, endIndex);
 
+                if (this.elements.requestPanel) this.elements.requestPanel.hidden = false;
+                if (this.elements.requestTableScroller) this.elements.requestTableScroller.hidden = false;
                 if (this.elements.requestEmpty) this.elements.requestEmpty.hidden = true;
                 if (this.elements.requestBody) {
                     this.elements.requestBody.innerHTML = pageItems.map((request) => `
@@ -492,11 +508,16 @@
             renderActivities() {
                 if (!this.activities.length) {
                     this.elements.activityList.innerHTML = '';
+                    if (this.elements.activityPanel) this.elements.activityPanel.hidden = false;
+                    if (this.elements.activityList) this.elements.activityList.hidden = true;
                     this.elements.activityEmpty.hidden = false;
                     if (this.elements.activitySummary) this.elements.activitySummary.textContent = 'Showing 0 activities';
                     if (this.elements.activityShowMore) this.elements.activityShowMore.hidden = true;
                     return;
                 }
+
+                if (this.elements.activityPanel) this.elements.activityPanel.hidden = false;
+                if (this.elements.activityList) this.elements.activityList.hidden = false;
                 this.elements.activityEmpty.hidden = true;
                 const visibleActivities = this.activities.slice(0, this.activityVisibleCount);
                 this.elements.activityList.innerHTML = visibleActivities.map((activity, index) => {

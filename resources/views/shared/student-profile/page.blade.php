@@ -159,7 +159,7 @@
                 </div>
 
                 <div class="student-pane-scroll student-pane-scroll-table student-books-table-panel">
-                    <div class="student-table-scroller">
+                    <div class="student-table-scroller student-books-table-scroller">
                         <table class="student-data-table student-books-table">
                             <thead>
                                 <tr>
@@ -175,11 +175,10 @@
                             <tbody id="studentBooksTableBody"></tbody>
                         </table>
                     </div>
-                </div>
-
-                <div id="studentBooksEmptyState" class="student-empty-card" hidden>
-                    <h3>No issued books found</h3>
-                    <p>Try adjusting the search or status filter to locate a different borrowing record.</p>
+                    <div id="studentBooksEmptyState" class="student-empty-card student-pane-empty" hidden>
+                        <h3>No issued books found</h3>
+                        <p>Try adjusting the search or status filter to locate a different borrowing record.</p>
+                    </div>
                 </div>
 
                 <div class="student-pane-footer">
@@ -237,11 +236,10 @@
                         <tbody id="studentFinesTableBody"></tbody>
                     </table>
                 </div>
-            </div>
-
-            <div id="studentFinesEmptyState" class="student-empty-card" hidden>
-                <h3>No fines recorded</h3>
-                <p>This student does not have any fine history right now.</p>
+                <div id="studentFinesEmptyState" class="student-empty-card student-pane-empty" hidden>
+                    <h3>No fines recorded</h3>
+                    <p>This student does not have any fine history right now.</p>
+                </div>
             </div>
 
             <div class="student-pane-footer">
@@ -283,18 +281,19 @@
 
             <div class="student-pane-scroll student-pane-scroll-activity">
                 <div class="student-activity-list" id="studentActivityTimeline"></div>
+                <div class="student-activity-more-row">
+                    <button type="button" class="student-pane-action-btn student-activity-more-btn" id="studentActivityShowMoreBtn" hidden>
+                        Show More
+                    </button>
+                </div>
+                <div id="studentActivityEmptyState" class="student-empty-card student-pane-empty" hidden>
+                    <h3>No activity yet</h3>
+                    <p>Activity entries will appear here as this student's account is updated or used in the library workflow.</p>
+                </div>
             </div>
 
             <div class="student-pane-footer">
                 <span class="student-pane-meta" id="studentActivitySummary">Showing 0 activities</span>
-                <button type="button" class="student-pane-action-btn" id="studentActivityShowMoreBtn" hidden>
-                    Show More
-                </button>
-            </div>
-
-            <div id="studentActivityEmptyState" class="student-empty-card" hidden>
-                <h3>No activity yet</h3>
-                <p>Activity entries will appear here as this student's account is updated or used in the library workflow.</p>
             </div>
         </section>
 
@@ -319,8 +318,8 @@
                 <span class="student-pane-meta" id="studentRequestSummary">Showing 0 requests</span>
             </div>
 
-            <div class="student-pane-scroll student-pane-scroll-table">
-                <div class="student-table-scroller">
+            <div class="student-pane-scroll student-pane-scroll-table student-request-table-panel">
+                <div class="student-table-scroller student-request-table-scroller">
                     <table class="student-data-table student-request-table">
                         <thead>
                             <tr>
@@ -332,11 +331,10 @@
                         <tbody id="studentRequestTableBody"></tbody>
                     </table>
                 </div>
-            </div>
-
-            <div id="studentRequestEmptyState" class="student-empty-card" hidden>
-                <h3>No book requests</h3>
-                <p>This student has not submitted any book requests yet.</p>
+                <div id="studentRequestEmptyState" class="student-empty-card student-pane-empty" hidden>
+                    <h3>No book requests</h3>
+                    <p>This student has not submitted any book requests yet.</p>
+                </div>
             </div>
 
             <div class="student-pane-footer">

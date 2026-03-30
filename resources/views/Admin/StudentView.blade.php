@@ -126,6 +126,7 @@
             display: grid;
             grid-template-columns: 320px 1fr;
             gap: 20px;
+            align-items: start;
         }
 
         /* Profile Column */
@@ -346,6 +347,9 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
+            min-height: 0;
+            align-self: start;
+            overflow: hidden;
         }
 
         /* Summary Cards Grid */
@@ -428,6 +432,7 @@
             flex: 1 1 auto;
             min-height: 0;
             max-height: none;
+            overflow: hidden;
         }
 
         body.light-theme .issued-books-section {
@@ -550,6 +555,7 @@
             flex: 1 1 auto;
             min-height: 0;
             max-height: none;
+            height: 100%;
         }
 
         .fines-management-card .paginated-table {
@@ -4782,7 +4788,7 @@
         <div class="main-grid">
             <!-- Left Column - Student Profile -->
             <div class="profile-column">
-                <div class="profile-card">
+                <div class="profile-card" id="adminStudentProfileCard">
                             <div class="avatar-container">
                                 @if(optional($student->user)->profile_photo)
                                     <div class="student-avatar">
@@ -4868,7 +4874,7 @@
             </div>
 
             <!-- Right Column - Main Content -->
-            <div class="content-column">
+            <div class="content-column" id="adminStudentTopContent">
                 <!-- Summary Cards -->
                 <div class="summary-cards-grid">
                     <div class="summary-card">
@@ -4934,7 +4940,7 @@
                 </div>
 
                 <!-- Issued Books Section -->
-                <div class="issued-books-section">
+                <div class="issued-books-section" id="adminIssuedBooksSection">
                     <div class="section-header">
                         <h3>Issued Books</h3>
                         <div class="section-controls">
@@ -5625,15 +5631,46 @@
         const finesTableSummary = document.getElementById('finesTableSummary');
         const finesTablePageInfo = document.getElementById('finesTablePageInfo');
         const finesTablePagination = document.getElementById('finesTablePagination');
+        const adminStudentProfileCard = document.getElementById('adminStudentProfileCard');
+        const adminStudentTopContent = document.getElementById('adminStudentTopContent');
         const sendNotificationBtn = document.getElementById('sendNotificationBtn');
         const printReportBtn = document.getElementById('printReportBtn');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            syncAdminStudentTopLayout();
             renderBooksTable();
             setupEventListeners();
             setupKeyboardNavigation();
         });
+
+        window.addEventListener('load', syncAdminStudentTopLayout);
+        window.addEventListener('resize', syncAdminStudentTopLayout);
+
+        if (window.ResizeObserver && adminStudentProfileCard) {
+            const adminStudentTopLayoutObserver = new ResizeObserver(() => {
+                syncAdminStudentTopLayout();
+            });
+
+            adminStudentTopLayoutObserver.observe(adminStudentProfileCard);
+        }
+
+        function syncAdminStudentTopLayout() {
+            if (!adminStudentProfileCard || !adminStudentTopContent) return;
+
+            if (window.innerWidth <= 1200) {
+                adminStudentTopContent.style.height = '';
+                adminStudentTopContent.style.maxHeight = '';
+                return;
+            }
+
+            const profileHeight = adminStudentProfileCard.offsetHeight;
+
+            if (profileHeight > 0) {
+                adminStudentTopContent.style.height = `${profileHeight}px`;
+                adminStudentTopContent.style.maxHeight = `${profileHeight}px`;
+            }
+        }
 
         // Setup event listeners
         function setupEventListeners() {

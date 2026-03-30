@@ -378,6 +378,8 @@
     }
 
     .student-pane-scroll-activity {
+        display: flex;
+        flex-direction: column;
         flex: 1 1 auto;
     }
 
@@ -386,6 +388,20 @@
         border: 1px solid var(--profile-border);
         border-radius: 10px;
         background: var(--profile-surface-muted);
+    }
+
+    .student-books-table-panel,
+    .student-fines-table-panel,
+    .student-request-table-panel {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .student-books-table-scroller,
+    .student-fine-table-scroller,
+    .student-request-table-scroller {
+        flex: 1 1 auto;
+        min-height: 0;
     }
 
     .student-pane-scroll::-webkit-scrollbar {
@@ -915,6 +931,16 @@
         gap: 12px;
     }
 
+    .student-activity-more-row {
+        display: flex;
+        justify-content: center;
+        padding-top: 4px;
+    }
+
+    .student-activity-more-btn {
+        min-width: 124px;
+    }
+
     .student-activity-entry {
         --activity-accent: #475569;
         --activity-soft: rgba(148, 163, 184, 0.16);
@@ -1169,6 +1195,16 @@
         padding: 20px 16px;
         text-align: center;
         color: var(--profile-text-muted);
+    }
+
+    .student-pane-empty {
+        display: flex;
+        flex: 1 1 auto;
+        min-height: 100%;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        margin: 0;
     }
 
     .student-empty-card p {
