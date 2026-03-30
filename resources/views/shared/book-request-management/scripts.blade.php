@@ -425,13 +425,16 @@
                 const pending = Number(stats.pendingCount || 0);
                 const approved = Number(stats.approvedCount || 0);
                 const rejected = Number(stats.rejectedCount || 0);
+                const pendingMeta = String(stats.pendingMeta || (pending > 0 ? 'Queue details available' : 'No requests waiting in this view'));
+                const approvedMeta = String(stats.approvedMeta || (approved > 0 ? 'Approval details available' : 'No approved requests in this view'));
+                const rejectedMeta = String(stats.rejectedMeta || (rejected > 0 ? 'Rejection details available' : 'No rejected requests in this view'));
 
                 this.setText('pendingRequestCount', pending);
                 this.setText('approvedRequestCount', approved);
                 this.setText('rejectedRequestCount', rejected);
-                this.setText('pendingRequestMeta', `${pending} waiting for review`);
-                this.setText('approvedRequestMeta', `${approved} accepted ${approved === 1 ? 'request' : 'requests'}`);
-                this.setText('rejectedRequestMeta', `${rejected} rejected ${rejected === 1 ? 'request' : 'requests'}`);
+                this.setText('pendingRequestMeta', pendingMeta);
+                this.setText('approvedRequestMeta', approvedMeta);
+                this.setText('rejectedRequestMeta', rejectedMeta);
                 this.setText('requestTotalCount', total);
             }
 

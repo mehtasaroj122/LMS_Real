@@ -9,10 +9,6 @@
                 <div class="page-title">
                     <div class="page-title-row">
                         <h1>{{ $config['labels']['pageTitle'] ?? 'Fines Records' }}</h1>
-                        <span class="live-pill" aria-label="Live updates enabled">
-                            <span class="live-pill-dot" aria-hidden="true"></span>
-                            <span>{{ $config['labels']['liveLabel'] ?? 'Live updates on' }}</span>
-                        </span>
                     </div>
                     <p class="text-secondary">{{ $config['labels']['pageDescription'] ?? 'Manage and update fines for overdue books' }}</p>
                 </div>

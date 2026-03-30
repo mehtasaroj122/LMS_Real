@@ -215,6 +215,7 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::get('/activity-logs', [StaffActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/settings', [StaffSettingController::class, 'index'])->name('settings.index');
         Route::put('/settings', [StaffSettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/check-email', [StaffSettingController::class, 'checkEmail'])->name('settings.check-email');
         Route::match(['post','put'], '/settings/photo', [StaffSettingController::class, 'photo'])->name('settings.photo');
         Route::put('/settings/password', [StaffSettingController::class, 'password'])->name('settings.password');
         Route::post('/settings/remove-photo', [StaffSettingController::class, 'removePhoto'])->name('settings.remove-photo');

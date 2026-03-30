@@ -54,7 +54,6 @@
     .fine-page .page-title-row {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
         flex-wrap: wrap;
     }
 
@@ -69,48 +68,6 @@
         font-size: 0.75rem;
     }
 
-    .fine-page .live-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.45rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.01em;
-        border: 1px solid var(--fine-border-color);
-        background: rgba(37, 99, 235, 0.08);
-        color: var(--fine-info);
-    }
-
-    body.dark-theme .fine-page .live-pill {
-        background: rgba(59, 130, 246, 0.15);
-        color: #93c5fd;
-    }
-
-    .fine-page .live-pill-dot {
-        width: 0.55rem;
-        height: 0.55rem;
-        border-radius: 9999px;
-        background: currentColor;
-        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45);
-        animation: finePulse 1.8s infinite;
-    }
-
-    @keyframes finePulse {
-        0% {
-            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45);
-        }
-
-        70% {
-            box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
-        }
-
-        100% {
-            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
-        }
-    }
-
     .fine-page .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -123,7 +80,6 @@
         border-radius: 0.5rem;
         transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         border: 1px solid var(--fine-border-color);
-        border-left: 3px solid;
         background: var(--fine-bg-secondary);
         min-height: 122px;
     }
@@ -135,22 +91,6 @@
 
     body.dark-theme .fine-page .stat-card:hover {
         box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35);
-    }
-
-    .fine-page .stat-card.total-fines {
-        border-left-color: #2563eb;
-    }
-
-    .fine-page .stat-card.collected {
-        border-left-color: #f59e0b;
-    }
-
-    .fine-page .stat-card.pending {
-        border-left-color: #ef4444;
-    }
-
-    .fine-page .stat-card.waived {
-        border-left-color: #10b981;
     }
 
     .fine-page .stat-header {

@@ -5,7 +5,9 @@ namespace App\Services\BookRequestManagement;
 use App\Models\Book;
 use App\Models\BookRequest;
 use App\Models\Student;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class BookRequestManagementDataService
 {
@@ -194,11 +196,104 @@ class BookRequestManagementDataService
         $statsQuery = $this->baseQuery();
         $this->applyFilters($statsQuery, $filters);
 
+        $pendingQuery = (clone $statsQuery)->where('status', 'pending');
+        $approvedQuery = (clone $statsQuery)->where('status', 'approved');
+        $rejectedQuery = (clone $statsQuery)->where('status', 'rejected');
+
+        $totalCount = (clone $statsQuery)->count();
+        $pendingCount = (clone $pendingQuery)->count();
+        $approvedCount = (clone $approvedQuery)->count();
+        $rejectedCount = (clone $rejectedQuery)->count();
+
         return [
-            'totalCount' => (clone $statsQuery)->count(),
-            'pendingCount' => (clone $statsQuery)->where('status', 'pending')->count(),
-            'approvedCount' => (clone $statsQuery)->where('status', 'approved')->count(),
-            'rejectedCount' => (clone $statsQuery)->where('status', 'rejected')->count(),
+            'totalCount' => $totalCount,
+            'pendingCount' => $pendingCount,
+            'approvedCount' => $approvedCount,
+            'rejectedCount' => $rejectedCount,
+            'pendingMeta' => $this->buildPendingMeta($pendingQuery, $pendingCount),
+            'approvedMeta' => $this->buildApprovedMeta($approvedQuery, $approvedCount),
+            'rejectedMeta' => $this->buildRejectedMeta($rejectedQuery, $rejectedCount),
         ];
+    }
+
+    protected function buildPendingMeta(Builder $query, int $count): string
+    {
+        if ($count === 0) {
+            return 'No requests waiting in this view';
+        }
+
+        $oldestRequestDate = (clone $query)->orderBy('request_date')->value('request_date');
+        $studentCount = (clone $query)->select('student_id')->distinct()->count('student_id');
+
+        $parts = [];
+
+        if ($oldestRequestDate) {
+            $parts[] = 'Oldest from ' . $this->formatStatDate($oldestRequestDate);
+        }
+
+        if ($studentCount > 0) {
+            $parts[] = $studentCount . ' ' . Str::plural('student', $studentCount) . ' in queue';
+        }
+
+        return implode(' • ', $parts);
+    }
+
+    protected function buildApprovedMeta(Builder $query, int $count): string
+    {
+        if ($count === 0) {
+            return 'No approved requests in this view';
+        }
+
+        $studentCount = (clone $query)->select('student_id')->distinct()->count('student_id');
+        $weekCount = (clone $query)->where('processed_date', '>=', now()->startOfWeek())->count();
+        $latestProcessedDate = (clone $query)->orderByDesc('processed_date')->value('processed_date');
+
+        $parts = [];
+
+        if ($studentCount > 0) {
+            $parts[] = 'Approved for ' . $studentCount . ' ' . Str::plural('student', $studentCount);
+        }
+
+        if ($weekCount > 0) {
+            $parts[] = $weekCount . ' this week';
+        } elseif ($latestProcessedDate) {
+            $parts[] = 'Latest on ' . $this->formatStatDate($latestProcessedDate);
+        }
+
+        return implode(' • ', $parts);
+    }
+
+    protected function buildRejectedMeta(Builder $query, int $count): string
+    {
+        if ($count === 0) {
+            return 'No rejected requests in this view';
+        }
+
+        $titleCount = (clone $query)->select('book_id')->distinct()->count('book_id');
+        $weekCount = (clone $query)->where('processed_date', '>=', now()->startOfWeek())->count();
+        $latestProcessedDate = (clone $query)->orderByDesc('processed_date')->value('processed_date');
+
+        $parts = [];
+
+        if ($titleCount > 0) {
+            $parts[] = 'Across ' . $titleCount . ' ' . Str::plural('title', $titleCount);
+        }
+
+        if ($weekCount > 0) {
+            $parts[] = $weekCount . ' this week';
+        } elseif ($latestProcessedDate) {
+            $parts[] = 'Latest on ' . $this->formatStatDate($latestProcessedDate);
+        }
+
+        return implode(' • ', $parts);
+    }
+
+    protected function formatStatDate(mixed $value): string
+    {
+        if ($value instanceof Carbon) {
+            return $value->format('M j');
+        }
+
+        return Carbon::parse($value)->format('M j');
     }
 }

@@ -20,7 +20,6 @@
         'labels' => [
             'pageTitle' => 'Fines Records',
             'pageDescription' => 'Manage and update fines for overdue books',
-            'liveLabel' => 'Live updates on',
             'exportButton' => 'Export CSV',
             'searchPlaceholder' => 'Search by user, book title, amount, or reason...',
             'stats' => [

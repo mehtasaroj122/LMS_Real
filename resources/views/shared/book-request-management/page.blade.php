@@ -23,7 +23,7 @@
                     </div>
                 </div>
                 <p class="request-stat-value loading-line" id="pendingRequestCount">0</p>
-                <div class="request-stat-meta" id="pendingRequestMeta">Pending approvals</div>
+                <div class="request-stat-meta" id="pendingRequestMeta">Queue details loading...</div>
             </div>
 
             <div class="request-stat-card approved is-loading" data-stat-card="approved">
@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <p class="request-stat-value loading-line" id="approvedRequestCount">0</p>
-                <div class="request-stat-meta" id="approvedRequestMeta">Approved requests</div>
+                <div class="request-stat-meta" id="approvedRequestMeta">Approval details loading...</div>
             </div>
 
             <div class="request-stat-card rejected is-loading" data-stat-card="rejected">
@@ -50,7 +50,7 @@
                     </div>
                 </div>
                 <p class="request-stat-value loading-line" id="rejectedRequestCount">0</p>
-                <div class="request-stat-meta" id="rejectedRequestMeta">Rejected requests</div>
+                <div class="request-stat-meta" id="rejectedRequestMeta">Rejection details loading...</div>
             </div>
         </div>
 

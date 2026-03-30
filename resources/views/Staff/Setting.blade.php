@@ -256,7 +256,18 @@
 
         /* Profile Section Header */
         .section-header {
-            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section-header-main {
+            flex: 1;
+            min-width: 0;
         }
 
         .section-header h2 {
@@ -273,6 +284,45 @@
 
         body.dark-theme .section-header p {
             color: #94a3b8;
+        }
+
+        body.dark-theme .section-header {
+            border-bottom-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .section-header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+        }
+
+        .section-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.45rem 0.8rem;
+            border-radius: 999px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        body.dark-theme .section-status {
+            background: rgba(15, 23, 42, 0.72);
+            color: #94a3b8;
+        }
+
+        .section-status.editing {
+            background: rgba(59, 130, 246, 0.12);
+            color: #2563eb;
+        }
+
+        body.dark-theme .section-status.editing {
+            background: rgba(96, 165, 250, 0.18);
+            color: #93c5fd;
         }
 
         /* Form Styles */
@@ -338,6 +388,10 @@
         .form-input:disabled {
             background-color: #f9fafb;
             cursor: not-allowed;
+        }
+
+        #department.form-input:disabled {
+            cursor: default;
         }
 
         body.dark-theme .form-input:disabled {
@@ -592,6 +646,54 @@
             padding: 0.5rem 0;
         }
 
+        .password-intro {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            text-align: center;
+            padding: 2.75rem 1rem 1.25rem;
+        }
+
+        .password-intro-icon {
+            width: 84px;
+            height: 84px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e293b;
+            color: #cbd5e1;
+            font-size: 2rem;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+        }
+
+        body.dark-theme .password-intro-icon {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .password-intro-copy {
+            max-width: 34rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        body.dark-theme .password-intro-copy {
+            color: #94a3b8;
+        }
+
+        .password-intro-action {
+            min-width: 210px;
+            justify-content: center;
+            padding: 0.9rem 1.65rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
         .password-requirements {
             margin-top: 1.5rem;
             padding: 1.25rem;
@@ -640,18 +742,127 @@
             color: #ef4444;
         }
 
+        .field-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-top: 0.375rem;
+        }
+
+        .char-counter {
+            font-size: 0.75rem;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        body.dark-theme .char-counter {
+            color: #94a3b8;
+        }
+
+        .char-counter.is-limit {
+            color: #ef4444;
+        }
+
+        .form-input.is-invalid {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .form-input.is-valid {
+            border-color: #10b981 !important;
+            background-color: #f0fdf4 !important;
+        }
+
+        body.dark-theme .form-input.is-invalid {
+            background-color: rgba(127, 29, 29, 0.25) !important;
+        }
+
+        body.dark-theme .form-input.is-valid {
+            background-color: rgba(6, 95, 70, 0.22) !important;
+        }
+
         .field-error {
             color: #ef4444;
             font-size: 0.75rem;
             margin-top: 0.375rem;
-            min-height: 1rem;
+            display: none;
         }
 
-        /* Top Edit Button */
+        .field-error.visible {
+            display: block;
+        }
+
+        .form-input.validating {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%233b82f6' stroke-linecap='round' stroke-width='2'%3E%3Cpath stroke-opacity='.25' d='M12 3a9 9 0 1 0 9 9'/%3E%3Cpath d='M21 12A9 9 0 0 0 12 3'%3E%3CanimateTransform attributeName='transform' attributeType='XML' dur='0.8s' from='0 12 12' repeatCount='indefinite' to='360 12 12' type='rotate'/%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 35px center;
+            background-size: 18px 18px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .top-edit-button {
             display: flex;
             justify-content: flex-end;
             margin-bottom: 1.25rem;
+        }
+
+        .settings-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.875rem 1.25rem;
+            border-radius: 10px;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 0.875rem;
+            z-index: 1100;
+            max-width: 320px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+            animation: staffSettingsSlideIn 0.25s ease;
+        }
+
+        .settings-toast.success {
+            background-color: #10b981;
+        }
+
+        .settings-toast.error {
+            background-color: #ef4444;
+        }
+
+        .settings-toast.info {
+            background-color: #3b82f6;
+        }
+
+        @keyframes staffSettingsSlideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes staffSettingsSlideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
         }
 
         /* Responsive Adjustments */
@@ -687,6 +898,20 @@
                 padding: 1.25rem;
             }
 
+            .field-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .section-header {
+                flex-direction: column;
+            }
+
+            .section-header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
             .action-buttons {
                 flex-direction: column;
             }
@@ -699,36 +924,51 @@
             .top-edit-button .btn {
                 width: auto;
             }
+
+            .settings-toast {
+                left: 16px;
+                right: 16px;
+                max-width: none;
+            }
         }
     </style>
 @endpush
 
 @section('content')
-    <div class="settings-container">
-        <!-- Settings Header -->
+    @php
+        $profileFields = ['name', 'email', 'phone', 'address'];
+        $securityFields = ['current_password', 'password', 'password_confirmation'];
+        $profileHasErrors = $errors->hasAny($profileFields);
+        $photoHasErrors = $errors->has('profile_photo');
+        $securityHasErrors = $errors->hasAny($securityFields);
+        $activeTab = $securityHasErrors ? 'security' : ($photoHasErrors ? 'photo' : 'profile');
+        $profilePhotoUrl = isset($user) && $user->profile_photo
+            ? (str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset($user->profile_photo))
+            : null;
+        $departmentName = old('department', $user->staff?->department?->name ?? '');
+        $usernameValue = $user->username ?? (($user->email ?? null) ? explode('@', $user->email)[0] : 'staff1');
+        $lastLoginValue = optional($user->last_login_at)->format('n/j/Y') ?? now()->format('n/j/Y');
+        $addressValue = old('address', $user->address ?? '');
+        $initials = collect(preg_split('/\s+/', trim($user->name ?? '')) ?: [])
+            ->filter()
+            ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+            ->implode('');
+        $initials = $initials !== '' ? $initials : 'JL';
+    @endphp
+
+    <div class="settings-container" id="staffSettingsPage">
         <div class="settings-header">
             <h1>Settings</h1>
             <p>Manage your account settings and preferences</p>
         </div>
 
-        <!-- Two Column Layout -->
         <div class="settings-grid">
-            <!-- Left Profile Card -->
             <div class="profile-card">
                 <div class="profile-card-content">
-                    <div class="profile-avatar" id="profileAvatar">
-                        @if(isset($user) && $user->profile_photo)
-                            <img src="{{ str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset($user->profile_photo) }}" alt="Profile Photo" id="avatarImage">
+                    <div class="profile-avatar" id="profileAvatar" data-default-initials="{{ $initials }}">
+                        @if ($profilePhotoUrl)
+                            <img src="{{ $profilePhotoUrl }}" alt="Profile Photo" id="avatarImage">
                         @else
-                            @php
-                                $initials = '';
-                                if(isset($user) && $user->name) {
-                                    $parts = explode(' ', $user->name);
-                                    foreach($parts as $p) { $initials .= strtoupper(substr($p,0,1)); }
-                                } else {
-                                    $initials = 'JL';
-                                }
-                            @endphp
                             <div class="avatar-placeholder">{{ $initials }}</div>
                         @endif
                     </div>
@@ -742,7 +982,7 @@
                     <div class="profile-stats">
                         <div class="stat-item">
                             <div class="stat-label">Username</div>
-                                <div class="stat-value" id="username">{{ $user->username ?? ($user->email ? explode('@',$user->email)[0] : 'staff1') }}</div>
+                            <div class="stat-value" id="username">{{ $usernameValue }}</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Member Since</div>
@@ -750,123 +990,130 @@
                         </div>
                         <div class="stat-item">
                             <div class="stat-label">Last Login</div>
-                            <div class="stat-value" id="lastLogin">{{ optional($user->last_login)->format('n/j/Y') ?? now()->format('n/j/Y') }}</div>
+                            <div class="stat-value" id="lastLogin">{{ $lastLoginValue }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Settings Card -->
             <div class="settings-card">
                 <div class="settings-card-content">
-                    <!-- Tabs Navigation -->
-                    <div class="settings-tabs">
-                        <button class="tab-btn active" data-tab="profile">
+                    <div class="settings-tabs" role="tablist" aria-label="Settings sections">
+                        <button type="button" class="tab-btn {{ $activeTab === 'profile' ? 'active' : '' }}" data-tab="profile" role="tab" aria-selected="{{ $activeTab === 'profile' ? 'true' : 'false' }}">
                             <i class="fas fa-user"></i> Profile
                         </button>
-                        <button class="tab-btn" data-tab="photo">
+                        <button type="button" class="tab-btn {{ $activeTab === 'photo' ? 'active' : '' }}" data-tab="photo" role="tab" aria-selected="{{ $activeTab === 'photo' ? 'true' : 'false' }}">
                             <i class="fas fa-camera"></i> Photo
                         </button>
-                        <button class="tab-btn" data-tab="security">
+                        <button type="button" class="tab-btn {{ $activeTab === 'security' ? 'active' : '' }}" data-tab="security" role="tab" aria-selected="{{ $activeTab === 'security' ? 'true' : 'false' }}">
                             <i class="fas fa-lock"></i> Security
                         </button>
                     </div>
 
-                    <!-- Profile Tab Content -->
-                    <div class="tab-content active" id="profileTab">
-                        <div class="top-edit-button">
-                            <button type="button" class="btn btn-primary" id="editProfileBtn">
-                                <i class="fas fa-edit"></i> Edit Profile
-                            </button>
-                        </div>
-
+                    <div class="tab-content {{ $activeTab === 'profile' ? 'active' : '' }}" id="profileTab" role="tabpanel">
                         <div class="section-header">
-                            <h2>Personal Information</h2>
-                            <p>Update your personal details</p>
+                            <div class="section-header-main">
+                                <h2>Personal Information</h2>
+                                <p>Update your personal details</p>
+                            </div>
+                            <div class="section-header-actions">
+                                <span class="section-status" id="profileSectionStatus">Read only</span>
+                                <button type="button" class="btn btn-secondary" id="editProfileBtn">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button type="button" class="btn btn-outline" id="cancelProfileBtn" hidden>
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="saveProfileBtn" form="profileForm" hidden>
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                            </div>
                         </div>
 
-                        <form id="profileForm" class="settings-form" method="POST" action="{{ route('staff.settings.update') }}" enctype="multipart/form-data">
+                        <form id="profileForm" class="settings-form" method="POST" action="{{ route('staff.settings.update') }}" enctype="multipart/form-data" novalidate data-check-email-url="{{ route('staff.settings.check-email') }}">
                             @csrf
                             @method('PUT')
+
                             <div class="form-group">
-                                <label for="fullName" class="form-label required">Full Name</label>
-                                <input type="text" id="fullName" name="name" class="form-input" value="{{ old('name', $user->name ?? '') }}" disabled>
+                                <label for="name" class="form-label required">Full Name</label>
+                                <input type="text" id="name" name="name" data-validate="name" class="form-input @error('name') is-invalid @enderror" value="{{ old('name', $user->name ?? '') }}" aria-describedby="error_name" aria-invalid="{{ $errors->has('name') ? 'true' : 'false' }}">
                                 <div class="form-hint">Your full name as it appears in the system</div>
+                                <div class="field-error @error('name') visible @enderror" id="error_name" aria-live="polite">@error('name'){{ $message }}@enderror</div>
                             </div>
 
                             <div class="form-group">
                                 <label for="email" class="form-label required">Email</label>
-                                <input type="email" id="email" name="email" class="form-input" value="{{ old('email', $user->email ?? '') }}" disabled>
+                                <input type="email" id="email" name="email" data-validate="email" class="form-input @error('email') is-invalid @enderror" value="{{ old('email', $user->email ?? '') }}" aria-describedby="error_email" aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}">
                                 <div class="form-hint">This is your login email</div>
+                                <div class="field-error @error('email') visible @enderror" id="error_email" aria-live="polite">@error('email'){{ $message }}@enderror</div>
                             </div>
 
                             <div class="form-group">
                                 <label for="phone" class="form-label">Phone Number</label>
-                                <input type="tel" id="phone" name="phone" class="form-input" value="{{ old('phone', $user->phone ?? '') }}" disabled>
+                                <input type="tel" id="phone" name="phone" data-validate="phone" class="form-input @error('phone') is-invalid @enderror" value="{{ old('phone', $user->phone ?? '') }}" aria-describedby="error_phone" aria-invalid="{{ $errors->has('phone') ? 'true' : 'false' }}">
                                 <div class="form-hint">Your contact phone number</div>
+                                <div class="field-error @error('phone') visible @enderror" id="error_phone" aria-live="polite">@error('phone'){{ $message }}@enderror</div>
                             </div>
 
                             <div class="form-group">
                                 <label for="department" class="form-label">Department</label>
-                                <input type="text" id="department" name="department" class="form-input" value="{{ old('department', $user->department ?? 'Library Services') }}" disabled>
+                                <input type="text" id="department" class="form-input" value="{{ $departmentName }}">
+                                <div class="form-hint">Department is assigned by admin and cannot be edited here</div>
                             </div>
 
                             <div class="form-group">
                                 <label for="address" class="form-label">Address</label>
-                                <textarea id="address" name="address" class="form-input" rows="3" disabled>{{ old('address', $user->address ?? '') }}</textarea>
-                            </div>
-
-                            <div class="action-buttons">
-                                <button type="submit" class="btn btn-secondary" id="saveProfileBtn" style="display: none;">
-                                    <i class="fas fa-save"></i> Save Changes
-                                </button>
-                                <button type="button" class="btn btn-outline" id="cancelProfileBtn" style="display: none;">
-                                    <i class="fas fa-times"></i> Cancel
-                                </button>
+                                <textarea id="address" name="address" data-validate="address" class="form-input @error('address') is-invalid @enderror" rows="4" maxlength="500" aria-describedby="error_address" aria-invalid="{{ $errors->has('address') ? 'true' : 'false' }}">{{ $addressValue }}</textarea>
+                                <div class="field-meta">
+                                    <div class="form-hint">Your mailing address</div>
+                                    <div class="char-counter" id="addressCounter" aria-live="polite"><span id="addressCount">{{ mb_strlen((string) $addressValue) }}</span>/500</div>
+                                </div>
+                                <div class="field-error @error('address') visible @enderror" id="error_address" aria-live="polite">@error('address'){{ $message }}@enderror</div>
                             </div>
                         </form>
                     </div>
 
-                    <!-- Photo Tab Content -->
-                    <div class="tab-content" id="photoTab" style="display: none;">
+                    <div class="tab-content {{ $activeTab === 'photo' ? 'active' : '' }}" id="photoTab" role="tabpanel">
                         <div class="photo-upload-container">
                             <div class="section-header">
                                 <h2>Profile Photo</h2>
                                 <p>Upload and manage your profile photo</p>
                             </div>
 
-                            <form id="photoForm" action="{{ route('staff.settings.photo') }}" method="POST" enctype="multipart/form-data">
+                            <form id="photoForm" action="{{ route('staff.settings.photo') }}" method="POST" enctype="multipart/form-data" novalidate>
                                 @csrf
 
                                 <div class="photo-preview" id="photoPreview">
-                                    @if(isset($user) && $user->profile_photo)
-                                        <img src="{{ str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset($user->profile_photo) }}" alt="Preview" id="photoPreviewImg">
+                                    @if ($profilePhotoUrl)
+                                        <img src="{{ $profilePhotoUrl }}" alt="Preview" id="photoPreviewImg">
                                     @else
-                                        <div class="photo-upload-icon">
+                                        <div class="photo-upload-icon" id="photoFallbackIcon">
                                             <i class="fas fa-user-circle"></i>
                                         </div>
-                                        <img src="" alt="Preview" id="photoPreviewImg" style="display:none;">
+                                        <img src="" alt="Preview" id="photoPreviewImg" style="display: none;">
                                     @endif
                                 </div>
 
                                 <div class="file-input-wrapper">
-                                    <input type="file" id="photoUpload" name="profile_photo" class="file-input" accept="image/*">
+                                    <input type="file" id="photoUpload" name="profile_photo" class="file-input" accept="image/*" aria-describedby="error_profile_photo">
                                     <label for="photoUpload" class="file-input-label">
                                         <i class="fas fa-cloud-upload-alt"></i> Choose File
                                     </label>
                                     <span id="fileName">No file chosen</span>
                                 </div>
 
-                            <div class="upload-requirements">
-                                <h4>Recommended:</h4>
-                                <p>Square image, at least 200x200px, max 2MB</p>
-                            </div>
+                                <div class="field-error @error('profile_photo') visible @enderror" id="error_profile_photo" aria-live="polite">@error('profile_photo'){{ $message }}@enderror</div>
+
+                                <div class="upload-requirements">
+                                    <h4>Recommended:</h4>
+                                    <p>Square image, at least 200x200px, max 2MB</p>
+                                </div>
 
                                 <div class="action-buttons">
                                     <button type="submit" class="btn btn-primary" id="uploadPhotoBtn" disabled>
                                         <i class="fas fa-upload"></i> Upload Photo
                                     </button>
-                                    <button type="button" class="btn btn-secondary" id="removePhotoBtn" {{ isset($user) && $user->profile_photo ? '' : 'disabled' }}>
+                                    <button type="button" class="btn btn-secondary" id="removePhotoBtn" {{ $profilePhotoUrl ? '' : 'disabled' }}>
                                         <i class="fas fa-trash"></i> Remove
                                     </button>
                                 </div>
@@ -874,75 +1121,80 @@
                         </div>
                     </div>
 
-                    <!-- Security Tab Content -->
-                    <div class="tab-content" id="securityTab" style="display: none;">
+                    <div class="tab-content {{ $activeTab === 'security' ? 'active' : '' }}" id="securityTab" role="tabpanel">
                         <div class="security-section">
                             <div class="section-header">
-                                <h2>Change Password</h2>
-                                <p>Update your account password</p>
+                                <div class="section-header-main">
+                                    <h2>Change Password</h2>
+                                    <p>Update your account password</p>
+                                </div>
+                                <div class="section-header-actions">
+                                    <span class="section-status" id="passwordSectionStatus">Read only</span>
+                                    <button type="button" class="btn btn-outline" id="cancelPasswordBtn" hidden>
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="updatePasswordBtn" form="passwordForm" hidden>
+                                        <i class="fas fa-save"></i> Save
+                                    </button>
+                                </div>
                             </div>
 
-                            <form id="passwordForm" class="settings-form" method="POST" action="{{ route('staff.settings.password') }}">
+                            <div class="password-intro" id="passwordIntro" {{ $securityHasErrors ? 'hidden' : '' }}>
+                                <div class="password-intro-icon" aria-hidden="true">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <p class="password-intro-copy">Click "Change Password" to update your account password</p>
+                                <button type="button" class="btn btn-primary password-intro-action" id="showPasswordFormBtn" aria-controls="passwordForm" aria-expanded="{{ $securityHasErrors ? 'true' : 'false' }}">
+                                    Change Password
+                                </button>
+                            </div>
+
+                            <form id="passwordForm" class="settings-form" method="POST" action="{{ route('staff.settings.password') }}" novalidate {{ $securityHasErrors ? '' : 'hidden' }}>
                                 @csrf
                                 @method('PUT')
                                 <div class="form-group">
-                                    <label for="currentPassword" class="form-label">Current Password</label>
+                                    <label for="currentPassword" class="form-label required">Current Password</label>
                                     <div class="input-with-icon">
-                                        <input type="password" id="currentPassword" name="current_password" class="form-input"
-                                            placeholder="Enter current password">
-                                        <button type="button" class="pwd-toggle" data-target="currentPassword" aria-label="Toggle password visibility">
+                                        <input type="password" id="currentPassword" name="current_password" class="form-input @error('current_password') is-invalid @enderror" placeholder="Enter current password" aria-describedby="error_current_password" aria-invalid="{{ $errors->has('current_password') ? 'true' : 'false' }}" autocomplete="current-password">
+                                        <button type="button" class="pwd-toggle" data-target="currentPassword" aria-label="Toggle current password visibility">
                                             <i data-lucide="eye"></i>
                                         </button>
                                     </div>
-                                    <div class="field-error" id="error_current_password"></div>
+                                    <div class="field-error @error('current_password') visible @enderror" id="error_current_password" aria-live="polite">@error('current_password'){{ $message }}@enderror</div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="newPassword" class="form-label">New Password</label>
+                                    <label for="newPassword" class="form-label required">New Password</label>
                                     <div class="input-with-icon">
-                                        <input type="password" id="newPassword" name="password" class="form-input"
-                                            placeholder="Enter new password (min. 6 characters)">
-                                        <button type="button" class="pwd-toggle" data-target="newPassword" aria-label="Toggle password visibility">
+                                        <input type="password" id="newPassword" name="password" class="form-input @error('password') is-invalid @enderror" placeholder="Enter new password" aria-describedby="error_password" aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}" autocomplete="new-password">
+                                        <button type="button" class="pwd-toggle" data-target="newPassword" aria-label="Toggle new password visibility">
                                             <i data-lucide="eye"></i>
                                         </button>
                                     </div>
-                                    <div class="field-error" id="error_password"></div>
+                                    <div class="field-error @error('password') visible @enderror" id="error_password" aria-live="polite">@error('password'){{ $message }}@enderror</div>
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                    <label for="confirmPassword" class="form-label required">Confirm New Password</label>
                                     <div class="input-with-icon">
-                                        <input type="password" id="confirmPassword" name="password_confirmation" class="form-input"
-                                            placeholder="Confirm new password">
-                                        <button type="button" class="pwd-toggle" data-target="confirmPassword" aria-label="Toggle password visibility">
+                                        <input type="password" id="confirmPassword" name="password_confirmation" class="form-input @error('password_confirmation') is-invalid @enderror" placeholder="Confirm new password" aria-describedby="error_password_confirmation" aria-invalid="{{ $errors->has('password_confirmation') ? 'true' : 'false' }}" autocomplete="new-password">
+                                        <button type="button" class="pwd-toggle" data-target="confirmPassword" aria-label="Toggle confirmation password visibility">
                                             <i data-lucide="eye"></i>
                                         </button>
                                     </div>
-                                    <div class="field-error" id="error_password_confirmation"></div>
+                                    <div class="field-error @error('password_confirmation') visible @enderror" id="error_password_confirmation" aria-live="polite">@error('password_confirmation'){{ $message }}@enderror</div>
                                 </div>
 
                                 <div class="password-requirements">
                                     <h4>Password Requirements:</h4>
                                     <ul class="requirement-list">
-                                        <li id="reqLength" class="invalid">
-                                            <i data-lucide="circle"></i> Minimum 6 characters
-                                        </li>
-                                        <li id="reqMatch" class="invalid">
-                                            <i data-lucide="circle"></i> Must match confirmation
-                                        </li>
-                                        <li id="reqDifferent" class="invalid">
-                                            <i data-lucide="circle"></i> Different from current password
-                                        </li>
+                                        <li id="reqLength" class="invalid"><i class="far fa-circle"></i> At least 8 characters</li>
+                                        <li id="reqUppercase" class="invalid"><i class="far fa-circle"></i> At least one uppercase letter</li>
+                                        <li id="reqLowercase" class="invalid"><i class="far fa-circle"></i> At least one lowercase letter</li>
+                                        <li id="reqNumber" class="invalid"><i class="far fa-circle"></i> At least one number</li>
+                                        <li id="reqMatch" class="invalid"><i class="far fa-circle"></i> Password and confirmation must match</li>
+                                        <li id="reqDifferent" class="invalid"><i class="far fa-circle"></i> New password must be different from current</li>
                                     </ul>
-                                </div>
-
-                                <div class="action-buttons">
-                                    <button type="submit" class="btn btn-primary" id="updatePasswordBtn" disabled>
-                                        <i class="fas fa-key"></i> Update Password
-                                    </button>
-                                    <button type="button" class="btn btn-outline" id="cancelPasswordBtn">
-                                        <i class="fas fa-times"></i> Cancel
-                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -955,421 +1207,701 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tab switching functionality
-            const tabButtons = document.querySelectorAll('.tab-btn');
-            const tabContents = document.querySelectorAll('.tab-content');
+        const StaffSettings = (() => {
+            const state = {
+                profileEditing: false,
+                profileSubmitting: false,
+                passwordSubmitting: false,
+                emailPending: false,
+                emailTimer: null,
+                emailAbort: null,
+                fieldTimers: {},
+                profileErrors: {},
+                passwordErrors: {},
+                originalProfile: {},
+                flashSuccess: @json(session('success')),
+                flashError: @json(session('error')),
+                startProfileEditing: @json($profileHasErrors),
+                startPasswordEditing: @json($securityHasErrors),
+            };
+            const profileFields = ['name', 'email', 'phone', 'address'];
+            const passwordFields = ['current_password', 'password', 'password_confirmation'];
+            const requirementText = {
+                reqLength: 'At least 8 characters',
+                reqUppercase: 'At least one uppercase letter',
+                reqLowercase: 'At least one lowercase letter',
+                reqNumber: 'At least one number',
+                reqMatch: 'Password and confirmation must match',
+                reqDifferent: 'New password must be different from current',
+            };
+            const validators = {
+                name: (value) => !text(value) ? 'Full name is required' : text(value).length < 2 ? 'Name must be at least 2 characters' : !/^[a-zA-Z\s'-]+$/.test(text(value)) ? 'Name can only contain letters, spaces, hyphens and apostrophes' : text(value).length > 255 ? 'Name must be 255 characters or fewer' : null,
+                email: (value) => !String(value || '').trim() ? 'Email address is required' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim()) ? 'Please enter a valid email address' : String(value || '').trim().length > 255 ? 'Email address must be 255 characters or fewer' : null,
+                phone: (value) => phone(value) && !/^\+?\d{10,20}$/.test(phone(value)) ? 'Please enter a valid phone number' : null,
+                address: (value) => String(value || '').trim().length > 500 ? 'Address must be 500 characters or fewer' : null,
+                current_password: (value) => String(value || '').trim() ? null : 'Enter your current password',
+                password: (value) => !value ? 'Enter a new password' : value.length < 8 ? 'Password must be at least 8 characters' : !/[A-Z]/.test(value) ? 'Password must contain at least one uppercase letter' : !/[a-z]/.test(value) ? 'Password must contain at least one lowercase letter' : !/\d/.test(value) ? 'Password must contain at least one number' : els.currentPassword?.value && value === els.currentPassword.value ? 'New password must be different from your current password' : null,
+                password_confirmation: (value) => !value ? 'Confirm your new password' : value.length < 8 ? 'Password confirmation must be at least 8 characters' : els.newPassword?.value && value !== els.newPassword.value ? 'Passwords do not match' : null,
+            };
+            const els = {};
 
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
+            function init() {
+                cache();
+                if (!els.page) return;
+                state.originalProfile = snapshot();
+                hydrateErrors();
+                bindTabs();
+                bindProfile();
+                bindPassword();
+                bindPhoto();
+                bindToggles();
+                updateCounter();
+                updatePasswordRequirements();
+                state.startProfileEditing ? enterEdit() : cancelEdit();
+                state.startPasswordEditing ? enterPasswordEdit(true) : setPasswordMode(false);
+                flash();
+                refreshIcons();
+            }
 
-                    // Update active tab button
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
+            function cache() {
+                els.page = document.getElementById('staffSettingsPage');
+                els.tabButtons = [...document.querySelectorAll('.tab-btn')];
+                els.panels = [...document.querySelectorAll('.tab-content')];
+                els.profileForm = document.getElementById('profileForm');
+                els.photoForm = document.getElementById('photoForm');
+                els.passwordForm = document.getElementById('passwordForm');
+                els.editProfileBtn = document.getElementById('editProfileBtn');
+                els.saveProfileBtn = document.getElementById('saveProfileBtn');
+                els.cancelProfileBtn = document.getElementById('cancelProfileBtn');
+                els.profileSectionStatus = document.getElementById('profileSectionStatus');
+                els.profileInputs = profileFields.map((field) => document.getElementById(field)).filter(Boolean);
+                els.department = document.getElementById('department');
+                els.address = document.getElementById('address');
+                els.addressCount = document.getElementById('addressCount');
+                els.addressCounter = document.getElementById('addressCounter');
+                els.currentPassword = document.getElementById('currentPassword');
+                els.newPassword = document.getElementById('newPassword');
+                els.confirmPassword = document.getElementById('confirmPassword');
+                els.passwordIntro = document.getElementById('passwordIntro');
+                els.showPasswordFormBtn = document.getElementById('showPasswordFormBtn');
+                els.editPasswordBtn = document.getElementById('editPasswordBtn');
+                els.updatePasswordBtn = document.getElementById('updatePasswordBtn');
+                els.cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+                els.passwordSectionStatus = document.getElementById('passwordSectionStatus');
+                els.passwordToggles = [...document.querySelectorAll('#passwordForm .pwd-toggle')];
+                els.photoUpload = document.getElementById('photoUpload');
+                els.photoPreview = document.getElementById('photoPreview');
+                els.photoPreviewImg = document.getElementById('photoPreviewImg');
+                els.fileName = document.getElementById('fileName');
+                els.uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+                els.removePhotoBtn = document.getElementById('removePhotoBtn');
+                els.profileAvatar = document.getElementById('profileAvatar');
+                els.userName = document.getElementById('userName');
+                els.userEmail = document.getElementById('userEmail');
+                els.username = document.getElementById('username');
+            }
 
-                    // Show corresponding tab content
-                    tabContents.forEach(content => {
-                        content.style.display = 'none';
-                        content.classList.remove('active');
+            function hydrateErrors() {
+                [...profileFields, ...passwordFields, 'profile_photo'].forEach((field) => {
+                    const message = errorEl(field)?.textContent.trim();
+                    if (!message) return;
+                    if (profileFields.includes(field)) state.profileErrors[field] = message;
+                    if (passwordFields.includes(field)) state.passwordErrors[field] = message;
+                });
+            }
+
+            function bindTabs() {
+                els.tabButtons.forEach((button) => button.addEventListener('click', () => switchTab(button.dataset.tab)));
+            }
+
+            function switchTab(name) {
+                els.tabButtons.forEach((button) => {
+                    const active = button.dataset.tab === name;
+                    button.classList.toggle('active', active);
+                    button.setAttribute('aria-selected', active ? 'true' : 'false');
+                });
+                els.panels.forEach((panel) => panel.classList.toggle('active', panel.id === `${name}Tab`));
+            }
+
+            function bindProfile() {
+                els.editProfileBtn?.addEventListener('click', enterEdit);
+                els.cancelProfileBtn?.addEventListener('click', cancelEdit);
+                els.profileForm?.addEventListener('submit', submitProfile);
+                els.profileInputs.forEach((input) => {
+                    const field = input.dataset.validate;
+                    input.addEventListener('input', () => {
+                        if (!state.profileEditing) return;
+                        if (field === 'address') updateCounter();
+                        clearTimeout(state.fieldTimers[field]);
+                        state.fieldTimers[field] = setTimeout(() => validateProfileField(field, true, true), 300);
                     });
-
-                    const activeTab = document.getElementById(`${tabId}Tab`);
-                    if (activeTab) {
-                        activeTab.style.display = 'block';
-                        activeTab.classList.add('active');
-                    }
+                    input.addEventListener('blur', () => {
+                        if (!state.profileEditing) return;
+                        clearTimeout(state.fieldTimers[field]);
+                        validateProfileField(field, true, true, true);
+                    });
                 });
-            });
+            }
 
-            // Profile editing functionality
-            const editProfileBtn = document.getElementById('editProfileBtn');
-            const saveProfileBtn = document.getElementById('saveProfileBtn');
-            const cancelProfileBtn = document.getElementById('cancelProfileBtn');
-            const profileInputs = document.querySelectorAll('#profileForm input, #profileForm textarea');
+            function enterEdit() {
+                state.profileEditing = true;
+                els.profileInputs.forEach((input) => input.disabled = false);
+                if (els.department) {
+                    els.department.disabled = true;
+                    els.department.setAttribute('aria-disabled', 'true');
+                }
+                els.editProfileBtn.hidden = true;
+                els.saveProfileBtn.hidden = false;
+                els.cancelProfileBtn.hidden = false;
+                els.profileSectionStatus?.classList.add('editing');
+                if (els.profileSectionStatus) els.profileSectionStatus.textContent = 'Editing';
+                updateCounter();
+                updateProfileSave();
+                els.profileInputs[0]?.focus();
+            }
 
-            let originalValues = {};
-
-            editProfileBtn.addEventListener('click', function() {
-                // Store original values
-                profileInputs.forEach(input => {
-                    originalValues[input.id] = input.value;
-                    input.disabled = false;
+            function cancelEdit() {
+                state.profileEditing = false;
+                state.profileErrors = {};
+                if (state.emailAbort) state.emailAbort.abort();
+                clearTimeout(state.emailTimer);
+                state.emailPending = false;
+                Object.entries(state.originalProfile).forEach(([field, value]) => {
+                    const input = document.getElementById(field);
+                    if (input) input.value = value;
                 });
-
-                // Switch button states
-                editProfileBtn.style.display = 'none';
-                saveProfileBtn.style.display = 'inline-flex';
-                cancelProfileBtn.style.display = 'inline-flex';
-            });
-
-            cancelProfileBtn.addEventListener('click', function() {
-                // Restore original values
-                profileInputs.forEach(input => {
-                    if (originalValues[input.id]) {
-                        input.value = originalValues[input.id];
-                    }
+                els.profileInputs.forEach((input) => {
                     input.disabled = true;
+                    setError(input.id, null);
+                    paint(input, 'default');
                 });
-
-                // Switch button states
-                editProfileBtn.style.display = 'inline-flex';
-                saveProfileBtn.style.display = 'none';
-                cancelProfileBtn.style.display = 'none';
-            });
-
-            // Submit profile form to server with basic validation
-            const profileForm = document.getElementById('profileForm');
-            if (profileForm) {
-                profileForm.addEventListener('submit', function(e) {
-                    const fullName = document.getElementById('fullName').value.trim();
-                    const email = document.getElementById('email').value.trim();
-                    if (!fullName || !email) {
-                        e.preventDefault();
-                        alert('Please fill in all required fields (marked with *)');
-                        return;
-                    }
-                    // let the form submit normally to server (will redirect back)
-                });
+                if (els.department) {
+                    els.department.disabled = true;
+                    els.department.setAttribute('aria-disabled', 'true');
+                    paint(els.department, 'default');
+                }
+                els.editProfileBtn.hidden = false;
+                els.saveProfileBtn.hidden = true;
+                els.cancelProfileBtn.hidden = true;
+                els.saveProfileBtn.disabled = true;
+                els.profileSectionStatus?.classList.remove('editing');
+                if (els.profileSectionStatus) els.profileSectionStatus.textContent = 'Read only';
+                updateCounter();
             }
 
-            // Photo upload functionality
-            const photoUpload = document.getElementById('photoUpload');
-            const photoPreviewImg = document.getElementById('photoPreviewImg');
-            const photoPreview = document.getElementById('photoPreview');
-            const fileName = document.getElementById('fileName');
-            const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
-            const removePhotoBtn = document.getElementById('removePhotoBtn');
-            const avatarImage = document.getElementById('avatarImage');
-            const profileAvatar = document.getElementById('profileAvatar');
-
-            photoUpload.addEventListener('change', function() {
-                if (this.files && this.files[0]) {
-                    const file = this.files[0];
-                    fileName.textContent = file.name;
-
-                    // Validate file size (2MB max)
-                    if (file.size > 2 * 1024 * 1024) {
-                        alert('File size must be less than 2MB');
-                        this.value = '';
-                        fileName.textContent = 'No file chosen';
-                        return;
-                    }
-
-                    // Validate file type
-                    if (!file.type.match('image.*')) {
-                        alert('Please select an image file');
-                        this.value = '';
-                        fileName.textContent = 'No file chosen';
-                        return;
-                    }
-
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        photoPreviewImg.src = e.target.result;
-                        photoPreviewImg.style.display = 'block';
-                        const _icon = photoPreview.querySelector('.photo-upload-icon');
-                        if (_icon) _icon.style.display = 'none';
-                        uploadPhotoBtn.disabled = false;
-                        removePhotoBtn.disabled = false;
-                    };
-
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Photo upload: preview only; upload handled by photoForm submit
-            const photoForm = document.getElementById('photoForm');
-            uploadPhotoBtn.addEventListener('click', function() {
-                // allow submit to proceed (button is submit)
-            });
-
-            removePhotoBtn.addEventListener('click', function() {
-                if (!confirm('Are you sure you want to remove your profile photo?')) return;
-                fetch('{{ route("staff.settings.remove-photo") }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                    }
-                }).then(res => res.json()).then(data => {
-                    if (data.success) {
-                        showNotification('Profile photo removed', 'success');
-                        setTimeout(() => location.reload(), 800);
-                    } else {
-                        showNotification(data.message || 'Failed to remove photo', 'error');
-                    }
-                }).catch(err => {
-                    console.error(err);
-                    showNotification('Failed to remove photo', 'error');
-                });
-            });
-
-            // Password change functionality
-            const currentPassword = document.getElementById('currentPassword');
-            const newPassword = document.getElementById('newPassword');
-            const confirmPassword = document.getElementById('confirmPassword');
-            const updatePasswordBtn = document.getElementById('updatePasswordBtn');
-            const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
-
-            const reqLength = document.getElementById('reqLength');
-            const reqMatch = document.getElementById('reqMatch');
-            const reqDifferent = document.getElementById('reqDifferent');
-
-            function validatePassword() {
-                const currentPass = currentPassword.value;
-                const newPass = newPassword.value;
-                const confirmPass = confirmPassword.value;
-
-                let isValid = true;
-
-                // Check length
-                if (newPass.length >= 6) {
-                    reqLength.classList.remove('invalid');
-                    reqLength.classList.add('valid');
-                    reqLength.innerHTML = '<i data-lucide="check-circle"></i> Minimum 6 characters';
+            function validateProfileField(field, show = true, asyncEmail = true, immediate = false) {
+                const input = document.getElementById(field);
+                const message = validators[field] ? validators[field](input?.value) : null;
+                state.profileErrors[field] = message;
+                if (show) setError(field, message);
+                if (field === 'email') {
+                    if (message) finishEmail();
+                    else if (asyncEmail) queueEmail(immediate);
                 } else {
-                    reqLength.classList.remove('valid');
-                    reqLength.classList.add('invalid');
-                    reqLength.innerHTML = '<i data-lucide="circle"></i> Minimum 6 characters';
-                    isValid = false;
+                    paint(input, message ? 'invalid' : input?.value.trim() ? 'valid' : 'default');
                 }
-
-                // Check match
-                if (newPass === confirmPass && newPass.length > 0) {
-                    reqMatch.classList.remove('invalid');
-                    reqMatch.classList.add('valid');
-                    reqMatch.innerHTML = '<i data-lucide="check-circle"></i> Must match confirmation';
-                } else {
-                    reqMatch.classList.remove('valid');
-                    reqMatch.classList.add('invalid');
-                    reqMatch.innerHTML = '<i data-lucide="circle"></i> Must match confirmation';
-                    isValid = false;
-                }
-
-                // Check if different
-                if (newPass !== currentPass && newPass.length > 0) {
-                    reqDifferent.classList.remove('invalid');
-                    reqDifferent.classList.add('valid');
-                    reqDifferent.innerHTML = '<i data-lucide="check-circle"></i> Different from current password';
-                } else {
-                    reqDifferent.classList.remove('valid');
-                    reqDifferent.classList.add('invalid');
-                    reqDifferent.innerHTML = '<i data-lucide="circle"></i> Different from current password';
-                    isValid = false;
-                }
-
-                if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
-
-                updatePasswordBtn.disabled = !isValid;
-
-                return isValid;
+                updateProfileSave();
+                return message;
             }
 
-            currentPassword.addEventListener('input', validatePassword);
-            newPassword.addEventListener('input', validatePassword);
-            confirmPassword.addEventListener('input', validatePassword);
+            function validateProfileForm(show = true) {
+                return profileFields.every((field) => !validateProfileField(field, show, false));
+            }
 
-            // Password form submit: validate then submit via AJAX for better UX
-            const pwForm = document.getElementById('passwordForm');
-            if (pwForm) {
-                pwForm.addEventListener('submit', function(e) {
-                    if (!validatePassword()) {
-                        e.preventDefault();
-                        return;
-                    }
+            function queueEmail(immediate = false) {
+                const value = String(document.getElementById('email')?.value || '').trim().toLowerCase();
+                if (!value || value === String(state.originalProfile.email || '').trim().toLowerCase()) {
+                    state.profileErrors.email = null;
+                    setError('email', null);
+                    paint(document.getElementById('email'), value ? 'valid' : 'default');
+                    finishEmail();
+                    updateProfileSave();
+                    return;
+                }
+                clearTimeout(state.emailTimer);
+                state.emailTimer = setTimeout(() => runEmailCheck(value), immediate ? 0 : 500);
+            }
 
-                    e.preventDefault();
-
-                    const submitBtn = document.getElementById('updatePasswordBtn');
-                    if (submitBtn) submitBtn.disabled = true;
-
-                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    const url = pwForm.action;
-
-                    const formData = new FormData(pwForm);
-
-                    // Use POST with _method=PUT when sending FormData — some servers do not parse multipart PUT bodies
-                    formData.append('_method', 'PUT');
-                    fetch(url, {
+            async function runEmailCheck(value) {
+                const input = document.getElementById('email');
+                if (!input) return true;
+                if (state.emailAbort) state.emailAbort.abort();
+                state.emailAbort = new AbortController();
+                state.emailPending = true;
+                paint(input, 'validating');
+                updateProfileSave();
+                try {
+                    const response = await fetch(els.profileForm.dataset.checkEmailUrl, {
                         method: 'POST',
-                        credentials: 'same-origin',
-                        headers: {
-                            'X-CSRF-TOKEN': token,
-                            'Accept': 'application/json'
-                        },
-                        body: formData
-                    })
-                    .then(async res => {
-                        // Attempt JSON parse if possible
-                        let data = null;
-                        const contentType = res.headers.get('content-type') || '';
-                        if (contentType.indexOf('application/json') !== -1) {
-                            data = await res.json().catch(() => null);
-                        }
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() },
+                        body: JSON.stringify({ email: value }),
+                        signal: state.emailAbort.signal,
+                    });
+                    const payload = await response.json().catch(() => ({}));
+                    if (String(input.value || '').trim().toLowerCase() !== value) return false;
+                    if (!response.ok || !payload.available) {
+                        state.profileErrors.email = payload?.errors?.email?.[0] || 'This email address is already in use';
+                        setError('email', state.profileErrors.email);
+                        paint(input, 'invalid');
+                        return false;
+                    }
+                    state.profileErrors.email = null;
+                    setError('email', null);
+                    paint(input, 'valid');
+                    return true;
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        state.profileErrors.email = 'Unable to verify email availability right now';
+                        setError('email', state.profileErrors.email);
+                        paint(input, 'invalid');
+                    }
+                    return false;
+                } finally {
+                    finishEmail();
+                    updateProfileSave();
+                }
+            }
 
-                        // clear previous inline errors
-                        document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+            function finishEmail() {
+                state.emailPending = false;
+                document.getElementById('email')?.classList.remove('validating');
+            }
 
-                        if (res.ok) {
-                            // Success
-                            showNotification((data && data.message) ? data.message : 'Password updated', 'success');
-                            // clear fields
-                            pwForm.reset();
-                            if (submitBtn) submitBtn.disabled = true;
-                            return;
-                        }
+            async function submitProfile(event) {
+                event.preventDefault();
+                if (!state.profileEditing || state.profileSubmitting) return;
+                if (!validateProfileForm(true)) return focusFirstError(els.profileForm);
+                const email = String(document.getElementById('email')?.value || '').trim().toLowerCase();
+                const changedEmail = email !== String(state.originalProfile.email || '').trim().toLowerCase();
+                if (changedEmail && !(await runEmailCheck(email))) return focusFirstError(els.profileForm);
+                if (!profileChanged()) return showToast('Make a change before saving your profile.', 'info');
+                state.profileSubmitting = true;
+                els.saveProfileBtn.disabled = true;
+                const oldLabel = els.saveProfileBtn.innerHTML;
+                els.saveProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                const formData = new FormData(els.profileForm);
+                formData.set('_method', 'PUT');
+                try {
+                    const response = await fetch(els.profileForm.action, { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() }, body: formData });
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok) return serverErrors(payload, 'profile');
+                    applyProfile(payload.user || {});
+                    state.originalProfile = snapshot();
+                    cancelEdit();
+                    showToast(payload.message || 'Profile updated successfully.', 'success');
+                } catch (error) {
+                    console.error(error);
+                    showToast('Unable to save your profile right now.', 'error');
+                } finally {
+                    state.profileSubmitting = false;
+                    els.saveProfileBtn.innerHTML = oldLabel;
+                    updateProfileSave();
+                }
+            }
 
-                        // Handle validation errors (422) or other errors
-                        if (res.status === 422 && data && data.errors) {
-                            // set inline errors where available, otherwise show first in toast
-                            const fieldMap = {
-                                'current_password': 'error_current_password',
-                                'password': 'error_password',
-                                'password_confirmation': 'error_password_confirmation'
-                            };
-                            let shown = false;
-                            Object.keys(data.errors).forEach(field => {
-                                const elId = fieldMap[field] || `error_${field}`;
-                                const el = document.getElementById(elId);
-                                const msg = Array.isArray(data.errors[field]) ? data.errors[field][0] : data.errors[field];
-                                if (el) {
-                                    el.textContent = msg;
-                                    shown = true;
-                                }
-                            });
-                            if (!shown) {
-                                const firstField = Object.keys(data.errors)[0];
-                                const msg = data.errors[firstField][0];
-                                showNotification(msg, 'error');
-                            }
-                        } else if (data && data.message) {
-                            showNotification(data.message, 'error');
-                        } else {
-                            const text = await res.text().catch(() => 'Unexpected server response');
-                            showNotification(`Error: ${res.status} - ${text}`, 'error');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Password update failed', err);
-                        showNotification('Network error while updating password', 'error');
-                    })
-                    .finally(() => {
-                        if (submitBtn) submitBtn.disabled = false;
+            function applyProfile(user) {
+                if ('name' in user) { document.getElementById('name').value = user.name || ''; if (els.userName) els.userName.textContent = user.name || ''; }
+                if ('email' in user) { document.getElementById('email').value = user.email || ''; if (els.userEmail) els.userEmail.textContent = user.email || ''; }
+                if ('phone' in user) document.getElementById('phone').value = user.phone || '';
+                if ('department' in user) document.getElementById('department').value = user.department || '';
+                if ('address' in user) document.getElementById('address').value = user.address || '';
+                if (els.username) els.username.textContent = user.username || username(user.email || '');
+                if ('profile_photo_url' in user) {
+                    renderPhoto(user.profile_photo_url || '');
+                    renderAvatar(user.profile_photo_url || '', user.name || els.userName?.textContent || '');
+                }
+                updateCounter();
+            }
+
+            function bindPhoto() {
+                els.photoUpload?.addEventListener('change', previewPhoto);
+                els.photoForm?.addEventListener('submit', submitPhoto);
+                els.removePhotoBtn?.addEventListener('click', removePhoto);
+            }
+
+            function previewPhoto() {
+                setError('profile_photo', null);
+                const file = els.photoUpload?.files?.[0];
+                if (!file) {
+                    els.fileName.textContent = 'No file chosen';
+                    els.uploadPhotoBtn.disabled = true;
+                    return;
+                }
+                if (!file.type.startsWith('image/')) return failPhoto('Please select a valid image file');
+                if (file.size > 2 * 1024 * 1024) return failPhoto('Profile photo must not exceed 2MB');
+                els.fileName.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = (loadEvent) => {
+                    renderPhoto(loadEvent.target?.result || '');
+                    els.uploadPhotoBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            async function submitPhoto(event) {
+                event.preventDefault();
+                if (!els.photoUpload?.files?.[0]) return failPhoto('Choose a photo before uploading');
+                const oldLabel = els.uploadPhotoBtn.innerHTML;
+                els.uploadPhotoBtn.disabled = true;
+                els.uploadPhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                try {
+                    const response = await fetch(els.photoForm.action, { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() }, body: new FormData(els.photoForm) });
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok) return serverErrors(payload, 'photo');
+                    const photoUrl = payload?.user?.profile_photo_url || '';
+                    renderPhoto(photoUrl);
+                    renderAvatar(photoUrl, els.userName?.textContent || '');
+                    els.photoForm.reset();
+                    els.fileName.textContent = 'No file chosen';
+                    els.removePhotoBtn.disabled = !photoUrl;
+                    showToast(payload.message || 'Photo uploaded successfully.', 'success');
+                } catch (error) {
+                    console.error(error);
+                    showToast('Unable to upload your photo right now.', 'error');
+                } finally {
+                    els.uploadPhotoBtn.innerHTML = oldLabel;
+                    els.uploadPhotoBtn.disabled = true;
+                }
+            }
+
+            async function removePhoto() {
+                if (els.removePhotoBtn?.disabled) return;
+                if (!window.confirm('Are you sure you want to remove your profile photo?')) return;
+                try {
+                    const response = await fetch('{{ route("staff.settings.remove-photo") }}', { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() } });
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok) return showToast(payload.message || 'Unable to remove your photo right now.', 'error');
+                    renderPhoto('');
+                    renderAvatar('', els.userName?.textContent || '');
+                    els.photoForm.reset();
+                    els.fileName.textContent = 'No file chosen';
+                    els.uploadPhotoBtn.disabled = true;
+                    els.removePhotoBtn.disabled = true;
+                    showToast(payload.message || 'Profile photo removed successfully.', 'success');
+                } catch (error) {
+                    console.error(error);
+                    showToast('Unable to remove your photo right now.', 'error');
+                }
+            }
+
+            function failPhoto(message) {
+                setError('profile_photo', message);
+                if (els.photoUpload) els.photoUpload.value = '';
+                if (els.fileName) els.fileName.textContent = 'No file chosen';
+                if (els.uploadPhotoBtn) els.uploadPhotoBtn.disabled = true;
+            }
+
+            function renderPhoto(src) {
+                if (!els.photoPreview) return;
+                let img = els.photoPreviewImg;
+                if (!img) {
+                    img = document.createElement('img');
+                    img.id = 'photoPreviewImg';
+                    img.alt = 'Preview';
+                    els.photoPreview.appendChild(img);
+                    els.photoPreviewImg = img;
+                }
+                let icon = document.getElementById('photoFallbackIcon');
+                if (src) {
+                    img.src = src;
+                    img.style.display = 'block';
+                    if (icon) icon.style.display = 'none';
+                } else {
+                    img.removeAttribute('src');
+                    img.style.display = 'none';
+                    if (!icon) {
+                        icon = document.createElement('div');
+                        icon.id = 'photoFallbackIcon';
+                        icon.className = 'photo-upload-icon';
+                        icon.innerHTML = '<i class="fas fa-user-circle"></i>';
+                        els.photoPreview.prepend(icon);
+                    }
+                    icon.style.display = 'flex';
+                }
+            }
+
+            function renderAvatar(src, name) {
+                if (!els.profileAvatar) return;
+                els.profileAvatar.innerHTML = '';
+                if (src) {
+                    const img = document.createElement('img');
+                    img.id = 'avatarImage';
+                    img.alt = 'Profile Photo';
+                    img.src = src;
+                    els.profileAvatar.appendChild(img);
+                    return;
+                }
+                const node = document.createElement('div');
+                node.className = 'avatar-placeholder';
+                node.textContent = initials(name);
+                els.profileAvatar.appendChild(node);
+            }
+
+            function bindPassword() {
+                els.showPasswordFormBtn?.addEventListener('click', () => enterPasswordEdit());
+                els.editPasswordBtn?.addEventListener('click', enterPasswordEdit);
+                [els.currentPassword, els.newPassword, els.confirmPassword].filter(Boolean).forEach((input) => {
+                    input.addEventListener('input', () => {
+                        if (!isPasswordEditing()) return;
+                        validatePasswordField(input.name, true);
+                        if (input.name !== 'password_confirmation') validatePasswordField('password_confirmation', false);
+                        updatePasswordRequirements();
+                        updatePasswordSave();
+                    });
+                    input.addEventListener('blur', () => {
+                        if (!isPasswordEditing()) return;
+                        validatePasswordField(input.name, true);
+                        updatePasswordRequirements();
+                        updatePasswordSave();
+                    });
+                });
+                els.passwordForm?.addEventListener('submit', submitPassword);
+                els.cancelPasswordBtn?.addEventListener('click', () => {
+                    resetPassword();
+                    setPasswordMode(false);
+                });
+            }
+
+            function enterPasswordEdit(preserveState = false) {
+                if (!isPasswordEditing() && !preserveState) {
+                    resetPassword();
+                }
+                setPasswordMode(true);
+                els.currentPassword?.focus();
+            }
+
+            function setPasswordMode(editing) {
+                [els.currentPassword, els.newPassword, els.confirmPassword].filter(Boolean).forEach((input) => {
+                    input.disabled = !editing;
+                });
+                (els.passwordToggles || []).forEach((button) => {
+                    button.disabled = !editing;
+                });
+                if (els.passwordIntro) els.passwordIntro.hidden = editing;
+                if (els.passwordForm) els.passwordForm.hidden = !editing;
+                if (els.showPasswordFormBtn) els.showPasswordFormBtn.setAttribute('aria-expanded', editing ? 'true' : 'false');
+                if (els.editPasswordBtn) els.editPasswordBtn.hidden = true;
+                if (els.cancelPasswordBtn) els.cancelPasswordBtn.hidden = !editing;
+                if (els.updatePasswordBtn) {
+                    els.updatePasswordBtn.hidden = !editing;
+                }
+                if (els.passwordSectionStatus) {
+                    els.passwordSectionStatus.classList.toggle('editing', editing);
+                    els.passwordSectionStatus.textContent = editing ? 'Editing' : 'Read only';
+                }
+                if (!editing) {
+                    state.passwordSubmitting = false;
+                }
+                updatePasswordRequirements();
+                updatePasswordSave();
+            }
+
+            function isPasswordEditing() {
+                return !(els.currentPassword?.disabled ?? true);
+            }
+
+            function validatePasswordField(field, show = true) {
+                const input = pwd(field);
+                const message = validators[field] ? validators[field](input?.value || '') : null;
+                state.passwordErrors[field] = message;
+                if (show) setError(field, message);
+                paint(input, message ? 'invalid' : input?.value ? 'valid' : 'default');
+                return message;
+            }
+
+            function updatePasswordRequirements() {
+                const current = els.currentPassword?.value || '';
+                const next = els.newPassword?.value || '';
+                const confirm = els.confirmPassword?.value || '';
+                const checks = {
+                    reqLength: next.length >= 8,
+                    reqUppercase: /[A-Z]/.test(next),
+                    reqLowercase: /[a-z]/.test(next),
+                    reqNumber: /\d/.test(next),
+                    reqMatch: next.length > 0 && next === confirm,
+                    reqDifferent: next.length > 0 && next !== current,
+                };
+                Object.entries(checks).forEach(([id, ok]) => {
+                    const item = document.getElementById(id);
+                    if (!item) return;
+                    item.classList.toggle('valid', ok);
+                    item.classList.toggle('invalid', !ok);
+                    item.innerHTML = `<i class="${ok ? 'fas fa-check-circle' : 'far fa-circle'}"></i> ${requirementText[id]}`;
+                });
+            }
+
+            function updatePasswordSave() {
+                const hasValue = passwordFields.some((field) => Boolean(pwd(field)?.value));
+                const invalid = passwordFields.some((field) => Boolean(state.passwordErrors[field] || validatePasswordField(field, false)));
+                if (els.updatePasswordBtn) els.updatePasswordBtn.disabled = !isPasswordEditing() || !hasValue || invalid || state.passwordSubmitting;
+            }
+
+            async function submitPassword(event) {
+                event.preventDefault();
+                if (state.passwordSubmitting) return;
+                const invalid = passwordFields.some((field) => Boolean(validatePasswordField(field, true)));
+                updatePasswordRequirements();
+                updatePasswordSave();
+                if (invalid) return focusFirstError(els.passwordForm);
+                state.passwordSubmitting = true;
+                els.updatePasswordBtn.disabled = true;
+                const oldLabel = els.updatePasswordBtn.innerHTML;
+                els.updatePasswordBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                const formData = new FormData(els.passwordForm);
+                formData.set('_method', 'PUT');
+                try {
+                    const response = await fetch(els.passwordForm.action, { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() }, body: formData });
+                    const payload = await response.json().catch(() => ({}));
+                    if (!response.ok) return serverErrors(payload, 'password');
+                    showToast(payload.message || 'Password updated successfully.', 'success');
+                    resetPassword();
+                    setPasswordMode(false);
+                } catch (error) {
+                    console.error(error);
+                    showToast('Unable to update your password right now.', 'error');
+                } finally {
+                    state.passwordSubmitting = false;
+                    els.updatePasswordBtn.innerHTML = oldLabel;
+                    updatePasswordSave();
+                    refreshIcons();
+                }
+            }
+
+            function resetPassword() {
+                els.passwordForm?.reset();
+                state.passwordErrors = {};
+                passwordFields.forEach((field) => {
+                    setError(field, null);
+                    paint(pwd(field), 'default');
+                });
+                updatePasswordRequirements();
+                updatePasswordSave();
+            }
+
+            function bindToggles() {
+                document.querySelectorAll('.pwd-toggle').forEach((button) => {
+                    button.addEventListener('click', () => {
+                        const input = document.getElementById(button.dataset.target);
+                        if (!input) return;
+                        const hidden = input.type === 'password';
+                        input.type = hidden ? 'text' : 'password';
+                        button.innerHTML = `<i data-lucide="${hidden ? 'eye-off' : 'eye'}"></i>`;
+                        refreshIcons();
                     });
                 });
             }
 
-            // Password show/hide toggles (uses Lucide icons)
-            document.querySelectorAll('.pwd-toggle').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const targetId = btn.getAttribute('data-target');
-                    const input = document.getElementById(targetId);
-                    if (!input) return;
-
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        // Replace inner HTML with a lucide placeholder so createIcons() will render the new icon
-                        btn.innerHTML = '<i data-lucide="eye-off"></i>';
-                        if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
-                    } else {
-                        input.type = 'password';
-                        btn.innerHTML = '<i data-lucide="eye"></i>';
-                        if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
-                    }
-                });
-            });
-
-            cancelPasswordBtn.addEventListener('click', function() {
-                // Clear the form
-                currentPassword.value = '';
-                newPassword.value = '';
-                confirmPassword.value = '';
-
-                // Reset validation
-                reqLength.classList.remove('valid');
-                reqLength.classList.add('invalid');
-                reqLength.innerHTML = '<i data-lucide="circle"></i> Minimum 6 characters';
-
-                reqMatch.classList.remove('valid');
-                reqMatch.classList.add('invalid');
-                reqMatch.innerHTML = '<i data-lucide="circle"></i> Must match confirmation';
-
-                reqDifferent.classList.remove('valid');
-                reqDifferent.classList.add('invalid');
-                reqDifferent.innerHTML = '<i data-lucide="circle"></i> Different from current password';
-
-                updatePasswordBtn.disabled = true;
-            });
-
-            // Notification function
-            function showNotification(message, type = 'info') {
-                // Create notification element
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-                notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 0.875rem 1.25rem;
-            border-radius: 6px;
-            color: white;
-            font-weight: 500;
-            font-size: 0.875rem;
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-            max-width: 300px;
-        `;
-
-                if (type === 'success') {
-                    notification.style.backgroundColor = '#10b981';
-                } else if (type === 'error') {
-                    notification.style.backgroundColor = '#ef4444';
-                } else {
-                    notification.style.backgroundColor = '#3b82f6';
+            function serverErrors(payload, kind) {
+                const errors = payload?.errors || {};
+                const firstField = Object.keys(errors)[0];
+                if (kind === 'profile') {
+                    if (!state.profileEditing) enterEdit();
+                    Object.entries(errors).forEach(([field, messages]) => {
+                        state.profileErrors[field] = messages[0];
+                        setError(field, messages[0]);
+                        paint(document.getElementById(field), 'invalid');
+                    });
+                    switchTab('profile');
+                    return firstField ? focusFirstError(els.profileForm) : showToast(payload?.message || 'Please review the highlighted profile fields.', 'error');
                 }
+                if (kind === 'password') {
+                    if (!isPasswordEditing()) enterPasswordEdit();
+                    Object.entries(errors).forEach(([field, messages]) => {
+                        state.passwordErrors[field] = messages[0];
+                        setError(field, messages[0]);
+                        paint(pwd(field), 'invalid');
+                    });
+                    switchTab('security');
+                    return firstField ? focusFirstError(els.passwordForm) : showToast(payload?.message || 'Please review the highlighted password fields.', 'error');
+                }
+                setError('profile_photo', errors.profile_photo?.[0] || payload?.message || 'Please review the selected photo.');
+                switchTab('photo');
+                focusFirstError(els.photoForm);
+            }
 
-                notification.textContent = message;
+            function setError(field, message) {
+                const el = errorEl(field);
+                const input = document.getElementById(field) || pwd(field);
+                if (!el) return;
+                el.textContent = message || '';
+                el.classList.toggle('visible', Boolean(message));
+                if (input) input.setAttribute('aria-invalid', message ? 'true' : 'false');
+            }
 
-                document.body.appendChild(notification);
+            function paint(input, stateName) {
+                if (!input) return;
+                input.classList.remove('is-invalid', 'is-valid', 'validating');
+                if (stateName === 'invalid') input.classList.add('is-invalid');
+                if (stateName === 'valid') input.classList.add('is-valid');
+                if (stateName === 'validating') input.classList.add('validating');
+            }
 
-                // Remove notification after 3 seconds
+            function updateCounter() {
+                if (!els.address || !els.addressCount || !els.addressCounter) return;
+                const size = els.address.value.length;
+                els.addressCount.textContent = String(size);
+                els.addressCounter.classList.toggle('is-limit', size >= 500);
+            }
+
+            function updateProfileSave() {
+                const invalid = profileFields.some((field) => Boolean(state.profileErrors[field] || validators[field](document.getElementById(field)?.value || '')));
+                if (els.saveProfileBtn) els.saveProfileBtn.disabled = !state.profileEditing || state.profileSubmitting || state.emailPending || invalid || !profileChanged();
+            }
+
+            function profileChanged() {
+                const current = snapshot();
+                return profileFields.some((field) => current[field] !== state.originalProfile[field]);
+            }
+
+            function snapshot() {
+                return {
+                    name: text(document.getElementById('name')?.value || ''),
+                    email: String(document.getElementById('email')?.value || '').trim().toLowerCase(),
+                    phone: phone(document.getElementById('phone')?.value || ''),
+                    address: String(document.getElementById('address')?.value || '').trim(),
+                };
+            }
+
+            function focusFirstError(container) {
+                const error = container?.querySelector('.field-error.visible');
+                if (!error) return;
+                const field = error.id.replace(/^error_/, '');
+                const target = document.getElementById(field) || pwd(field) || (field === 'profile_photo' ? els.photoUpload : null);
+                error.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => target?.focus(), 150);
+            }
+
+            function flash() {
+                if (state.flashSuccess) showToast(state.flashSuccess, 'success');
+                if (state.flashError) showToast(state.flashError, 'error');
+            }
+
+            function showToast(message, type = 'info') {
+                if (!message) return;
+                const toast = document.createElement('div');
+                toast.className = `settings-toast ${type}`;
+                toast.setAttribute('role', 'status');
+                toast.setAttribute('aria-live', 'polite');
+                toast.textContent = message;
+                document.body.appendChild(toast);
                 setTimeout(() => {
-                    notification.style.animation = 'slideOut 0.3s ease';
-                    setTimeout(() => {
-                        if (notification.parentNode) {
-                            notification.parentNode.removeChild(notification);
-                        }
-                    }, 300);
-                }, 3000);
+                    toast.style.animation = 'staffSettingsSlideOut 0.25s ease forwards';
+                    setTimeout(() => toast.remove(), 250);
+                }, 3200);
             }
 
-            // Add CSS for notifications
-            const style = document.createElement('style');
-            style.textContent = `
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-    `;
-            document.head.appendChild(style);
-        });
+            function errorEl(field) { return document.getElementById(`error_${field}`); }
+            function pwd(field) { return { current_password: els.currentPassword, password: els.newPassword, password_confirmation: els.confirmPassword }[field] || null; }
+            function text(value) { return String(value || '').replace(/\s+/g, ' ').trim(); }
+            function phone(value) { return String(value || '').trim().replace(/[^\d+]/g, '').replace(/(?!^)\+/g, ''); }
+            function username(email) { return String(email || '').split('@')[0] || 'staff1'; }
+            function initials(name) { return text(name).split(' ').filter(Boolean).map((part) => part[0]?.toUpperCase() || '').join('') || 'JL'; }
+            function csrf() { return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''; }
+            function refreshIcons() { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); }
+
+            return { init };
+        })();
+
+        document.addEventListener('DOMContentLoaded', StaffSettings.init);
     </script>
 @endpush

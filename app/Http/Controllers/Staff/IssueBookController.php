@@ -160,7 +160,7 @@ class IssueBookController extends Controller
         Gate::authorize('access-staff');
         $request->validate([
             'student_id' => 'required|exists:students,id',
-            'book_ids' => 'required|array|min:1|max:5',
+            'book_ids' => 'required|array|min:1|max:50',
             'book_ids.*' => 'exists:books,id',
         ]);
         try {
