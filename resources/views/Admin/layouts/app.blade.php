@@ -48,7 +48,7 @@
                 <i data-lucide="file-text" class="w-5 h-5"></i><span class="text-sm font-medium">Transactions</span>
             </a>
             <a href="{{ route('admin.fines.index') }}" class="sidebar-item {{ request()->routeIs('admin.fines.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
-                <i data-lucide="dollar-sign" class="w-5 h-5"></i><span class="text-sm font-medium">Fines</span>
+                <i data-lucide="indian-rupee" class="w-5 h-5"></i><span class="text-sm font-medium">Fines</span>
             </a>
             <a href="{{ route('admin.book-requests.index') }}" class="sidebar-item {{ request()->routeIs('admin.book-requests.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-sm font-medium">Book Requests</span>

@@ -106,7 +106,7 @@ class Notification extends Model
         return match($this->type) {
             'book.overdue' => 'alert-circle',
             'book.due_soon' => 'clock',
-            'fine.created' => 'dollar-sign',
+            'fine.created' => 'indian-rupee',
             'fine.reminder' => 'alert-circle',
             'request.approved' => 'check-circle',
             'request.rejected' => 'x-circle',

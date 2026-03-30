@@ -56,7 +56,7 @@
             
             {{-- Fines --}}
             <a href="{{ route('staff.fines.index') }}" class="sidebar-item {{ request()->routeIs('staff.fines.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
-                <i data-lucide="dollar-sign" class="w-5 h-5"></i><span class="text-sm font-medium">Fines</span>
+                <i data-lucide="indian-rupee" class="w-5 h-5"></i><span class="text-sm font-medium">Fines</span>
             </a>
             
             {{-- Book Requests --}}

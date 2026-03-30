@@ -174,7 +174,7 @@ function getIconName(type) {
     const icons = {
         'book.overdue': 'alert-circle',
         'book.due_soon': 'clock',
-        'fine.created': 'dollar-sign',
+        'fine.created': 'indian-rupee',
         'fine.reminder': 'alert-triangle',
         'request.approved': 'check-circle',
         'request.rejected': 'x-circle',
