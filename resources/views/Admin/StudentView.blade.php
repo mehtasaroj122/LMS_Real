@@ -6,9 +6,11 @@
     <style>
         /* Student Details Page */
         .student-details-page {
-            padding: 16px;
-            max-width: 1600px;
-            margin: 0 auto;
+            padding: 14px;
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            box-sizing: border-box;
         }
 
         /* Header Row */
@@ -16,8 +18,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            padding: 12px 0;
+            margin-bottom: 16px;
+            padding: 10px 0;
             border-bottom: 1px solid;
         }
 
@@ -32,7 +34,7 @@
         .header-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
         }
 
         .back-link {
@@ -40,9 +42,9 @@
             align-items: center;
             gap: 6px;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 6px;
             transition: all 0.2s ease;
         }
@@ -64,24 +66,24 @@
         }
 
         .page-title {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
             margin: 0;
         }
 
         .header-right {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
         /* Buttons */
         .btn {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
+            gap: 7px;
+            padding: 7px 14px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             border: 1px solid;
@@ -125,7 +127,7 @@
         .main-grid {
             display: grid;
             grid-template-columns: 320px 1fr;
-            gap: 20px;
+            gap: 16px;
             align-items: start;
         }
 
@@ -133,7 +135,7 @@
         .profile-card {
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 16px;
+            padding: 14px;
             border: 1px solid;
         }
 
@@ -150,17 +152,17 @@
         .avatar-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .student-avatar {
-            width: 80px;
-            height: 80px;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 600;
         }
 
@@ -184,18 +186,18 @@
 
         .student-info {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .student-name {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             margin: 0 0 4px 0;
         }
 
         .student-id {
-            font-size: 14px;
-            margin: 0 0 12px 0;
+            font-size: 13px;
+            margin: 0 0 10px 0;
         }
 
         body.light-theme .student-id {
@@ -209,15 +211,15 @@
         /* Status Badges */
         .status-badges {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .badge {
-            padding: 4px 10px;
+            padding: 4px 9px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.02em;
@@ -257,14 +259,14 @@
         .info-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .info-item {
             display: flex;
             align-items: flex-start;
-            gap: 10px;
-            font-size: 14px;
+            gap: 8px;
+            font-size: 13px;
         }
 
         .info-item svg {
@@ -286,8 +288,8 @@
 
         /* System Info */
         .system-info {
-            margin-top: 20px;
-            padding-top: 16px;
+            margin-top: 16px;
+            padding-top: 14px;
             border-top: 1px solid;
         }
 
@@ -300,9 +302,9 @@
         }
 
         .system-info h4 {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            margin: 0 0 12px 0;
+            margin: 0 0 10px 0;
         }
 
         body.light-theme .system-info h4 {
@@ -315,7 +317,7 @@
 
         .info-grid {
             display: grid;
-            gap: 8px;
+            gap: 6px;
         }
 
         .info-grid .info-item {
@@ -325,7 +327,7 @@
         }
 
         .info-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
         }
 
@@ -338,7 +340,7 @@
         }
 
         .info-value {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
         }
 
@@ -346,7 +348,7 @@
         .content-column {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
             min-height: 0;
             align-self: start;
             overflow: hidden;
@@ -356,15 +358,15 @@
         .summary-cards-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
+            gap: 10px;
         }
 
         .summary-card {
             border-radius: 8px;
-            padding: 16px;
+            padding: 14px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             border: 1px solid;
         }
 
@@ -379,8 +381,8 @@
         }
 
         .summary-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -404,7 +406,7 @@
         }
 
         .summary-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             margin-bottom: 4px;
         }
@@ -418,14 +420,14 @@
         }
 
         .summary-value {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
         }
 
         /* Issued Books Section */
         .issued-books-section {
             border-radius: 8px;
-            padding: 16px;
+            padding: 14px;
             border: 1px solid;
             display: flex;
             flex-direction: column;
@@ -449,24 +451,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .section-header h3 {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             margin: 0;
         }
 
         .section-controls {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
         }
 
         .search-container {
             position: relative;
-            width: 200px;
+            width: 188px;
         }
 
         .search-container svg {
@@ -488,9 +490,9 @@
 
         #bookSearch {
             width: 100%;
-            padding: 8px 10px 8px 32px;
+            padding: 7px 10px 7px 30px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             border: 1px solid;
         }
 
@@ -520,9 +522,9 @@
         }
 
         .status-filter {
-            padding: 8px 12px;
+            padding: 7px 11px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             border: 1px solid;
             background-color: transparent;
         }
@@ -592,13 +594,13 @@
         .books-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 800px;
+            min-width: 760px;
         }
 
         .books-table th {
-            padding: 6px 8px;
+            padding: 5px 7px;
             text-align: left;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -620,10 +622,10 @@
         }
 
         .books-table td {
-            padding: 6px 8px;
+            padding: 5px 7px;
             border-bottom: 1px solid;
             vertical-align: middle;
-            font-size: 13px;
+            font-size: 12.5px;
             transition: border-color 0.3s, color 0.3s;
         }
 
@@ -658,22 +660,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .table-meta-toolbar {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .table-pagination-footer {
-            margin-top: 12px;
+            margin-top: 10px;
         }
 
         .table-footer-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             flex-wrap: wrap;
             justify-content: flex-end;
         }
@@ -681,8 +683,8 @@
         .table-entries-control {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-size: 13px;
+            gap: 6px;
+            font-size: 12px;
             font-weight: 600;
         }
 
@@ -699,10 +701,10 @@
         }
 
         .table-entries-select {
-            min-width: 80px;
-            padding: 8px 12px;
+            min-width: 74px;
+            padding: 7px 10px;
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 12px;
             border: 1px solid;
         }
 
@@ -721,17 +723,17 @@
         .table-pagination {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
             justify-content: flex-end;
         }
 
         .table-pagination-btn {
-            min-height: 34px;
-            padding: 0.45rem 0.75rem;
+            min-height: 32px;
+            padding: 0.38rem 0.68rem;
             border-radius: 8px;
             border: 1px solid;
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: 700;
             cursor: pointer;
             transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
@@ -797,9 +799,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 4px 10px;
+            padding: 3px 9px;
             border-radius: 16px;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 600;
             gap: 4px;
             transition: background 0.3s, color 0.3s;
@@ -901,11 +903,11 @@
 
         /* Legacy view-btn support */
         .view-btn {
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 6px;
             border: 1px solid;
             background: none;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -1014,21 +1016,21 @@
 
         /* Part 2 Styles */
         .details-section-part2 {
-            margin-top: 24px;
+            margin-top: 20px;
         }
 
         /* Main Grid for Part 2 */
         .main-grid-part2 {
             display: grid;
             grid-template-columns: 280px 1fr;
-            gap: 20px;
-            margin-bottom: 24px;
+            gap: 16px;
+            margin-bottom: 20px;
         }
 
         /* Account Management Card */
         .account-management-card {
             border-radius: 8px;
-            padding: 16px;
+            padding: 14px;
             border: 1px solid;
         }
 
@@ -1045,9 +1047,9 @@
         .account-management-card .card-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 1px solid;
         }
 
@@ -1060,8 +1062,8 @@
         }
 
         .header-icon {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -1079,7 +1081,7 @@
         }
 
         .account-management-card h3 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             margin: 0;
         }
@@ -1088,16 +1090,16 @@
         .account-actions {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .account-btn {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 16px;
+            gap: 8px;
+            padding: 10px 14px;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             border: 1px solid;
@@ -1184,7 +1186,7 @@
         }
 
         .role-option {
-            padding: 16px;
+            padding: 14px;
             border: 2px solid;
             border-radius: 8px;
             cursor: pointer;
@@ -1882,7 +1884,7 @@
         }
 
         .fine-form-group {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .fine-form-label {
@@ -2092,7 +2094,7 @@
         }
 
         .fine-history-book-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             margin: 0 0 4px;
         }
@@ -3182,10 +3184,10 @@
         .generate-receipt-btn {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
+            gap: 6px;
+            padding: 7px 14px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             border: none;
@@ -3205,9 +3207,9 @@
         }
 
         .fines-table th {
-            padding: 6px 8px;
+            padding: 5px 7px;
             text-align: left;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -3229,10 +3231,10 @@
         }
 
         .fines-table td {
-            padding: 6px 8px;
+            padding: 5px 7px;
             border-bottom: 1px solid;
             vertical-align: middle;
-            font-size: 13px;
+            font-size: 12.5px;
             transition: border-color 0.3s, color 0.3s;
         }
 
@@ -3267,9 +3269,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 4px 10px;
+            padding: 3px 9px;
             border-radius: 16px;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 600;
             gap: 4px;
             transition: background 0.3s, color 0.3s;
@@ -3314,14 +3316,14 @@
         /* Fine Actions */
         .fine-actions {
             display: flex;
-            gap: 6px;
+            gap: 5px;
             flex-wrap: wrap;
         }
 
         .action-btn-small {
-            padding: 4px 10px;
+            padding: 3px 9px;
             border-radius: 6px;
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 500;
             cursor: pointer;
             border: 1px solid;
@@ -3421,13 +3423,13 @@
         .bottom-row-part2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 16px;
         }
 
         /* Privilege Settings Card */
         .privilege-settings-card {
             border-radius: 8px;
-            padding: 16px;
+            padding: 14px;
             border: 1px solid;
         }
 
@@ -3442,8 +3444,8 @@
         }
 
         .privilege-settings-card .card-header {
-            margin-bottom: 16px;
-            padding-bottom: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 1px solid;
         }
 
@@ -3456,7 +3458,7 @@
         }
 
         .privilege-settings-card h3 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             margin: 0;
         }
@@ -3465,17 +3467,17 @@
         .settings-form {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
 
         .form-group label {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
         }
 
@@ -3489,9 +3491,9 @@
 
         .form-group input,
         .form-group select {
-            padding: 10px 12px;
+            padding: 9px 11px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             border: 1px solid;
             background-color: transparent;
         }
@@ -3518,10 +3520,10 @@
         }
 
         .save-changes-btn {
-            margin-top: 8px;
-            padding: 12px 16px;
+            margin-top: 6px;
+            padding: 10px 14px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
             border: none;
@@ -3538,7 +3540,7 @@
         /* Activity Logs Card */
         .activity-logs-card {
             border-radius: 8px;
-            padding: 16px;
+            padding: 14px;
             border: 1px solid;
         }
 
@@ -3553,8 +3555,8 @@
         }
 
         .activity-logs-card .card-header {
-            margin-bottom: 16px;
-            padding-bottom: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
             border-bottom: 1px solid;
         }
 
@@ -3567,7 +3569,7 @@
         }
 
         .activity-logs-card h3 {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             margin: 0;
         }
@@ -3575,10 +3577,10 @@
         .activity-timeline {
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            max-height: 560px;
+            gap: 14px;
+            max-height: 520px;
             overflow-y: auto;
-            padding-right: 8px;
+            padding-right: 6px;
         }
 
         .activity-timeline::-webkit-scrollbar {
@@ -3611,8 +3613,8 @@
             --activity-soft: #e2e8f0;
             --activity-border: rgba(148, 163, 184, 0.35);
             display: grid;
-            grid-template-columns: 22px minmax(0, 1fr);
-            gap: 14px;
+            grid-template-columns: 20px minmax(0, 1fr);
+            gap: 12px;
             align-items: flex-start;
         }
 

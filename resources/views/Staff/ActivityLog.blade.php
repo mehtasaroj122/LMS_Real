@@ -812,26 +812,26 @@
     <!-- Statistics Cards -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-value">{{ $allActivities ?? 0 }}</div>
             <div class="stat-label">Total Activities</div>
+            <div class="stat-value">{{ $allActivities ?? 0 }}</div>
             <div class="stat-description">All time records</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-value">{{ $adminActions ?? 0 }}</div>
             <div class="stat-label">Admin Actions</div>
+            <div class="stat-value">{{ $adminActions ?? 0 }}</div>
             <div class="stat-description">By administrators</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-value">{{ $staffActions ?? 0 }}</div>
             <div class="stat-label">Staff Actions</div>
+            <div class="stat-value">{{ $staffActions ?? 0 }}</div>
             <div class="stat-description">By staff members</div>
         </div>
 
         <div class="stat-card">
-            <div class="stat-value">{{ $studentActions ?? 0 }}</div>
             <div class="stat-label">Student Actions</div>
+            <div class="stat-value">{{ $studentActions ?? 0 }}</div>    
             <div class="stat-description">By students</div>
         </div>
     </div>
