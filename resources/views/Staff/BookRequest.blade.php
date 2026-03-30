@@ -612,6 +612,231 @@
     .text-red-500 {
         color: #ef4444;
     }
+
+    /* Action Confirmation Modal Styles */
+    .action-confirmation-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .action-confirmation-modal.active {
+        display: flex;
+    }
+
+    .action-confirmation-content {
+        width: 100%;
+        max-width: 420px;
+        margin: 0 1rem;
+        border-radius: 1rem;
+        overflow: hidden;
+    }
+
+    body.light-theme .action-confirmation-content {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+    }
+
+    body.dark-theme .action-confirmation-content {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+    }
+
+    .action-confirmation-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .action-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 32px;
+    }
+
+    .action-icon.accept {
+        background-color: #dcfce7;
+        color: #16a34a;
+    }
+
+    body.dark-theme .action-icon.accept {
+        background-color: #14532d;
+        color: #4ade80;
+    }
+
+    .action-icon.reject {
+        background-color: #fee2e2;
+        color: #dc2626;
+    }
+
+    body.dark-theme .action-icon.reject {
+        background-color: #7f1d1d;
+        color: #f87171;
+    }
+
+    .action-confirmation-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    body.light-theme .action-confirmation-title {
+        color: #1e293b;
+    }
+
+    body.dark-theme .action-confirmation-title {
+        color: #f1f5f9;
+    }
+
+    .action-confirmation-description {
+        font-size: 0.875rem;
+        margin-bottom: 0;
+    }
+
+    body.light-theme .action-confirmation-description {
+        color: #64748b;
+    }
+
+    body.dark-theme .action-confirmation-description {
+        color: #cbd5e1;
+    }
+
+    .action-details {
+        padding: 1.5rem;
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    body.dark-theme .action-details {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .action-detail-item {
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .action-detail-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .action-detail-label {
+        font-weight: 500;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    body.light-theme .action-detail-label {
+        color: #475569;
+    }
+
+    body.dark-theme .action-detail-label {
+        color: #cbd5e1;
+    }
+
+    .action-detail-value {
+        display: block;
+    }
+
+    body.light-theme .action-detail-value {
+        color: #1e293b;
+    }
+
+    body.dark-theme .action-detail-value {
+        color: #f1f5f9;
+    }
+
+    .action-confirmation-footer {
+        padding: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        border-top: 1px solid;
+    }
+
+    body.light-theme .action-confirmation-footer {
+        border-color: #e2e8f0;
+    }
+
+    body.dark-theme .action-confirmation-footer {
+        border-color: #334155;
+    }
+
+    .action-btn-cancel {
+        padding: 0.5rem 1rem;
+        border: 1px solid;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+
+    body.light-theme .action-btn-cancel {
+        background-color: #f8fafc;
+        border-color: #cbd5e1;
+        color: #1e293b;
+    }
+
+    body.light-theme .action-btn-cancel:hover {
+        background-color: #f1f5f9;
+        border-color: #94a3b8;
+    }
+
+    body.dark-theme .action-btn-cancel {
+        background-color: #334155;
+        border-color: #475569;
+        color: #f1f5f9;
+    }
+
+    body.dark-theme .action-btn-cancel:hover {
+        background-color: #475569;
+        border-color: #64748b;
+    }
+
+    .action-btn-confirm {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+    }
+
+    .action-btn-confirm.accept {
+        background-color: #16a34a;
+    }
+
+    .action-btn-confirm.accept:hover {
+        background-color: #15803d;
+        box-shadow: 0 4px 6px rgba(22, 163, 74, 0.2);
+    }
+
+    .action-btn-confirm.reject {
+        background-color: #dc2626;
+    }
+
+    .action-btn-confirm.reject:hover {
+        background-color: #b91c1c;
+        box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
+    }
+
+    .action-btn-confirm:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 </style>
 @endpush
 
@@ -818,6 +1043,76 @@
                 <p class="mb-4 text-xs text-secondary">The book request has been successfully created.</p>
                 <button id="closeConfirmationModal" class="px-3 py-1 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
                     OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accept Confirmation Modal -->
+    <div id="acceptModal" class="action-confirmation-modal">
+        <div class="action-confirmation-content">
+            <div class="action-confirmation-header">
+                <div class="action-icon accept">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3 class="action-confirmation-title">Accept Request</h3>
+                <p class="action-confirmation-description">Are you sure you want to accept this book request?</p>
+            </div>
+            <div class="action-details">
+                <div class="action-detail-item">
+                    <span class="action-detail-label">Student:</span>
+                    <span class="action-detail-value" id="acceptStudentName">-</span>
+                </div>
+                <div class="action-detail-item">
+                    <span class="action-detail-label">Book Title:</span>
+                    <span class="action-detail-value" id="acceptBookTitle">-</span>
+                </div>
+                <div class="action-detail-item">
+                    <span class="action-detail-label">Request ID:</span>
+                    <span class="action-detail-value" id="acceptRequestId">-</span>
+                </div>
+            </div>
+            <div class="action-confirmation-footer">
+                <button type="button" class="action-btn-cancel" onclick="cancelAction()">
+                    Cancel
+                </button>
+                <button type="button" class="action-btn-confirm accept" onclick="confirmAccept()">
+                    <i class="fas fa-check"></i> Confirm Accept
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Confirmation Modal -->
+    <div id="rejectModal" class="action-confirmation-modal">
+        <div class="action-confirmation-content">
+            <div class="action-confirmation-header">
+                <div class="action-icon reject">
+                    <i class="fas fa-times"></i>
+                </div>
+                <h3 class="action-confirmation-title">Reject Request</h3>
+                <p class="action-confirmation-description">Are you sure you want to reject this book request?</p>
+            </div>
+            <div class="action-details">
+                <div class="action-detail-item">
+                    <span class="action-detail-label">Student:</span>
+                    <span class="action-detail-value" id="rejectStudentName">-</span>
+                </div>
+                <div class="action-detail-item">
+                    <span class="action-detail-label">Book Title:</span>
+                    <span class="action-detail-value" id="rejectBookTitle">-</span>
+                </div>
+                <div class="action-detail-item">
+                    <span class="action-detail-label">Request ID:</span>
+                    <span class="action-detail-value" id="rejectRequestId">-</span>
+                </div>
+            </div>
+            <div class="action-confirmation-footer">
+                <button type="button" class="action-btn-cancel" onclick="cancelAction()">
+                    Cancel
+                </button>
+                <button type="button" class="action-btn-confirm reject" onclick="confirmReject()">
+                    <i class="fas fa-times"></i> Confirm Reject
                 </button>
             </div>
         </div>
@@ -1310,8 +1605,56 @@
 
         // Make processRequest globally available
         window.processRequest = function(requestId, action) {
-            if (!confirm(`Are you sure you want to ${action} this request?`)) return;
+            // Get the row data
+            const row = document.querySelector(`tr[data-request-id="${requestId}"]`);
+            if (!row) {
+                alert('Could not find request details');
+                return;
+            }
 
+            // Extract student name and book title from the row
+            const studentName = row.querySelector('td:nth-child(1) span:nth-child(1)')?.textContent || 'Unknown';
+            const bookTitle = row.querySelector('td:nth-child(2)')?.textContent || 'Unknown';
+
+            // Store request details for confirmation
+            window.pendingRequestId = requestId;
+            window.pendingAction = action;
+
+            if (action === 'approved') {
+                // Show accept modal
+                document.getElementById('acceptStudentName').textContent = studentName;
+                document.getElementById('acceptBookTitle').textContent = bookTitle;
+                document.getElementById('acceptRequestId').textContent = requestId;
+                document.getElementById('acceptModal').classList.add('active');
+            } else if (action === 'rejected') {
+                // Show reject modal
+                document.getElementById('rejectStudentName').textContent = studentName;
+                document.getElementById('rejectBookTitle').textContent = bookTitle;
+                document.getElementById('rejectRequestId').textContent = requestId;
+                document.getElementById('rejectModal').classList.add('active');
+            }
+        };
+
+        window.cancelAction = function() {
+            document.getElementById('acceptModal').classList.remove('active');
+            document.getElementById('rejectModal').classList.remove('active');
+            window.pendingRequestId = null;
+            window.pendingAction = null;
+        };
+
+        window.confirmAccept = function() {
+            if (!window.pendingRequestId) return;
+            performAction(window.pendingRequestId, 'approved');
+            cancelAction();
+        };
+
+        window.confirmReject = function() {
+            if (!window.pendingRequestId) return;
+            performAction(window.pendingRequestId, 'rejected');
+            cancelAction();
+        };
+
+        function performAction(requestId, action) {
             const formData = new FormData();
             formData.append('status', action);
             formData.append('_method', 'PUT');
@@ -1340,7 +1683,16 @@
                 console.error('Error:', error);
                 alert('Error updating request');
             });
-        };
+        }
+
+        // Close modals on overlay click
+        document.getElementById('acceptModal').addEventListener('click', (e) => {
+            if (e.target.id === 'acceptModal') cancelAction();
+        });
+
+        document.getElementById('rejectModal').addEventListener('click', (e) => {
+            if (e.target.id === 'rejectModal') cancelAction();
+        });
 
         let manager;
         document.addEventListener('DOMContentLoaded', () => {

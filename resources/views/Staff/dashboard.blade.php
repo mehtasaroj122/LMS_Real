@@ -587,6 +587,409 @@
         .toast.error {
             background: #ef4444;
         }
+
+        /* ================== */
+        /* REQUEST MODAL      */
+        /* ================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-dialog {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        body.dark-theme .modal-dialog {
+            background-color: #1e293b;
+        }
+
+        .modal-overlay.active .modal-dialog {
+            transform: scale(1) translateY(0);
+        }
+
+        /* Modal Header */
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .modal-header {
+            border-bottom-color: #334155;
+        }
+
+        .modal-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .modal-icon.approve {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+
+        body.dark-theme .modal-icon.approve {
+            background-color: #14532d;
+            color: #4ade80;
+        }
+
+        .modal-icon.reject {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        body.dark-theme .modal-icon.reject {
+            background-color: #7f1d1d;
+            color: #f87171;
+        }
+
+        .modal-icon svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .modal-title-group {
+            flex: 1;
+        }
+
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.25rem;
+        }
+
+        body.dark-theme .modal-title {
+            color: #f1f5f9;
+        }
+
+        .modal-subtitle {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        body.dark-theme .modal-subtitle {
+            color: #94a3b8;
+        }
+
+        .modal-close {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background-color: transparent;
+            color: #64748b;
+        }
+
+        .modal-close:hover {
+            background-color: #f1f5f9;
+        }
+
+        body.dark-theme .modal-close:hover {
+            background-color: #334155;
+        }
+
+        /* Modal Body */
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .request-summary {
+            background-color: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        body.dark-theme .request-summary {
+            background-color: #0f172a;
+        }
+
+        .request-summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .request-summary-item:not(:last-child) {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .request-summary-item:not(:last-child) {
+            border-bottom-color: #334155;
+        }
+
+        .request-summary-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .request-summary-item:first-child {
+            padding-top: 0;
+        }
+
+        .request-summary-label {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        body.dark-theme .request-summary-label {
+            color: #94a3b8;
+        }
+
+        .request-summary-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        body.dark-theme .request-summary-value {
+            color: #f1f5f9;
+        }
+
+        .request-summary-value.book-title {
+            max-width: 200px;
+            text-align: right;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Warning Box */
+        .modal-warning {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.875rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-warning.reject {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        body.dark-theme .modal-warning.reject {
+            background-color: #450a0a;
+            border-color: #7f1d1d;
+        }
+
+        .modal-warning-icon {
+            flex-shrink: 0;
+            color: #dc2626;
+        }
+
+        body.dark-theme .modal-warning-icon {
+            color: #f87171;
+        }
+
+        .modal-warning-text {
+            font-size: 0.875rem;
+            color: #991b1b;
+            line-height: 1.5;
+        }
+
+        body.dark-theme .modal-warning-text {
+            color: #fca5a5;
+        }
+
+        /* Form Group */
+        .modal-form-group {
+            margin-bottom: 1rem;
+        }
+
+        .modal-form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        body.dark-theme .modal-form-label {
+            color: #f1f5f9;
+        }
+
+        .modal-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+            background-color: #ffffff;
+            color: #0f172a;
+            transition: border-color 0.2s ease;
+        }
+
+        body.dark-theme .modal-textarea {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: #f1f5f9;
+        }
+
+        .modal-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .modal-textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        .modal-hint {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.375rem;
+        }
+
+        body.dark-theme .modal-hint {
+            color: #94a3b8;
+        }
+
+        /* Modal Footer */
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            background-color: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        body.dark-theme .modal-footer {
+            background-color: #0f172a;
+            border-top-color: #334155;
+        }
+
+        .modal-btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-btn-cancel {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        body.dark-theme .modal-btn-cancel {
+            background-color: #334155;
+            color: #cbd5e1;
+        }
+
+        .modal-btn-cancel:hover {
+            background-color: #e2e8f0;
+        }
+
+        body.dark-theme .modal-btn-cancel:hover {
+            background-color: #475569;
+        }
+
+        .modal-btn-approve {
+            background-color: #16a34a;
+            color: #ffffff;
+        }
+
+        .modal-btn-approve:hover {
+            background-color: #15803d;
+        }
+
+        .modal-btn-reject {
+            background-color: #dc2626;
+            color: #ffffff;
+        }
+
+        .modal-btn-reject:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Loading State */
+        .modal-btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .modal-btn.loading svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Approve confirmation styling */
+        .modal-warning.approve {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        body.dark-theme .modal-warning.approve {
+            background-color: #14532d;
+            border-color: #166534;
+        }
+
+        .modal-warning.approve .modal-warning-icon {
+            color: #16a34a;
+        }
+
+        body.dark-theme .modal-warning.approve .modal-warning-icon {
+            color: #4ade80;
+        }
+
+        .modal-warning.approve .modal-warning-text {
+            color: #166534;
+        }
+
+        body.dark-theme .modal-warning.approve .modal-warning-text {
+            color: #86efac;
+        }
     </style>
 @endpush
 
@@ -854,6 +1257,78 @@
                 @endif
             </div>
         </div>
+
+        <!-- Request Action Modal -->
+        <div class="modal-overlay" id="requestModal">
+            <div class="modal-dialog">
+                <div class="modal-header">
+                    <div class="modal-icon" id="modalIcon">
+                        <!-- Icon will be set by JS -->
+                    </div>
+                    <div class="modal-title-group">
+                        <h3 class="modal-title" id="modalTitle">Confirm Action</h3>
+                        <p class="modal-subtitle" id="modalSubtitle">Review the details below</p>
+                    </div>
+                    <button class="modal-close" onclick="closeRequestModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="request-summary" id="requestSummary">
+                        <div class="request-summary-item">
+                            <span class="request-summary-label">Book</span>
+                            <span class="request-summary-value book-title" id="summaryBook">-</span>
+                        </div>
+                        <div class="request-summary-item">
+                            <span class="request-summary-label">Student</span>
+                            <span class="request-summary-value" id="summaryStudent">-</span>
+                        </div>
+                        <div class="request-summary-item">
+                            <span class="request-summary-label">Request Date</span>
+                            <span class="request-summary-value" id="summaryDate">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-warning" id="modalWarning">
+                        <div class="modal-warning-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                <line x1="12" y1="9" x2="12" y2="13"></line>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </div>
+                        <p class="modal-warning-text" id="warningText">Please review the request details carefully.</p>
+                    </div>
+                    
+                    <div class="modal-form-group">
+                        <label class="modal-form-label" for="modalMessage">Message (Optional)</label>
+                        <textarea class="modal-textarea" id="modalMessage" placeholder="Add a note for the student..."></textarea>
+                        <p class="modal-hint">This message will be sent to the student with the notification.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn modal-btn-cancel" onclick="closeRequestModal()">
+                        Cancel
+                    </button>
+                    <button class="modal-btn" id="modalConfirmBtn" onclick="confirmRequestAction()">
+                        <span id="confirmBtnText">Confirm</span>
+                        <svg id="confirmBtnSpinner" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                            <line x1="12" y1="2" x2="12" y2="6"></line>
+                            <line x1="12" y1="18" x2="12" y2="22"></line>
+                            <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                            <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                            <line x1="2" y1="12" x2="6" y2="12"></line>
+                            <line x1="18" y1="12" x2="22" y2="12"></line>
+                            <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                            <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -1115,17 +1590,95 @@
                 });
         }
 
-        async function processBookRequest(requestId, status) {
-            const actionLabel = status === 'approved' ? 'accept' : 'reject';
-            if (!confirm(`Are you sure you want to ${actionLabel} this request?`)) {
-                return;
+        // Modal state
+        let currentRequestId = null;
+        let currentRequestStatus = null;
+
+        // Open request modal
+        function openRequestModal(requestId, status, bookTitle, studentName, requestDate) {
+            currentRequestId = requestId;
+            currentRequestStatus = status;
+            
+            const modal = document.getElementById('requestModal');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalSubtitle = document.getElementById('modalSubtitle');
+            const modalWarning = document.getElementById('modalWarning');
+            const warningText = document.getElementById('warningText');
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            const confirmBtnText = document.getElementById('confirmBtnText');
+            const modalMessage = document.getElementById('modalMessage');
+            
+            // Set summary values
+            document.getElementById('summaryBook').textContent = bookTitle || 'Untitled';
+            document.getElementById('summaryStudent').textContent = studentName || 'Unknown';
+            document.getElementById('summaryDate').textContent = requestDate || '-';
+            
+            // Clear previous message
+            modalMessage.value = '';
+            
+            if (status === 'approved') {
+                modalIcon.className = 'modal-icon approve';
+                modalIcon.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                `;
+                modalTitle.textContent = 'Approve Book Request';
+                modalSubtitle.textContent = 'This will notify the student that their request has been approved.';
+                modalWarning.className = 'modal-warning approve';
+                warningText.textContent = 'Once approved, the book will be marked as available for the student to pick up. The student will receive a notification.';
+                confirmBtn.className = 'modal-btn modal-btn-approve';
+                confirmBtnText.textContent = 'Approve Request';
+            } else {
+                modalIcon.className = 'modal-icon reject';
+                modalIcon.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                `;
+                modalTitle.textContent = 'Reject Book Request';
+                modalSubtitle.textContent = 'Please provide a reason for rejecting this request.';
+                modalWarning.className = 'modal-warning reject';
+                warningText.textContent = 'This action will reject the request and notify the student. Please provide a reason (optional) to help the student understand.';
+                confirmBtn.className = 'modal-btn modal-btn-reject';
+                confirmBtnText.textContent = 'Reject Request';
             }
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
 
-            const requestElement = document.getElementById(`request-${requestId}`);
+        // Close request modal
+        function closeRequestModal() {
+            const modal = document.getElementById('requestModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            currentRequestId = null;
+            currentRequestStatus = null;
+        }
+
+        // Confirm request action
+        async function confirmRequestAction() {
+            if (!currentRequestId || !currentRequestStatus) return;
+            
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            const confirmBtnText = document.getElementById('confirmBtnText');
+            const confirmBtnSpinner = document.getElementById('confirmBtnSpinner');
+            const modalMessage = document.getElementById('modalMessage');
+            
+            // Show loading state
+            confirmBtn.classList.add('loading');
+            confirmBtnText.textContent = currentRequestStatus === 'approved' ? 'Approving...' : 'Rejecting...';
+            confirmBtnSpinner.style.display = 'inline';
+            
+            const requestElement = document.getElementById(`request-${currentRequestId}`);
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
+            const message = modalMessage.value.trim();
+            
             try {
-                const response = await fetch(`{{ url('staff/book-requests') }}/${requestId}`, {
+                const response = await fetch(`{{ url('staff/book-requests') }}/${currentRequestId}`, {
                     method: 'PUT',
                     credentials: 'same-origin',
                     headers: {
@@ -1135,7 +1688,8 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: JSON.stringify({
-                        status: status
+                        status: currentRequestStatus,
+                        staff_message: message
                     })
                 });
 
@@ -1153,26 +1707,56 @@
                         button.disabled = true;
                     });
 
-                    const activeButton = requestElement.querySelector(status === 'approved' ? '.btn-accept' : '.btn-reject');
+                    const activeButton = requestElement.querySelector(currentRequestStatus === 'approved' ? '.btn-accept' : '.btn-reject');
                     if (activeButton) {
-                        activeButton.textContent = status === 'approved' ? 'Approved' : 'Rejected';
+                        activeButton.textContent = currentRequestStatus === 'approved' ? 'Approved' : 'Rejected';
                     }
                 }
 
                 updatePendingRequestsCount(-1);
-                showToast(status === 'approved' ? 'Request approved' : 'Request rejected', 'success');
+                showToast(currentRequestStatus === 'approved' ? 'Request approved successfully' : 'Request rejected', 'success');
 
                 setTimeout(() => {
+                    closeRequestModal();
                     if (requestElement) {
                         requestElement.remove();
                     }
-
                     fetchNextPending();
-                }, 1200);
+                }, 500);
             } catch (error) {
                 console.error('Network or JavaScript error while updating request', error);
                 showToast('Error updating request. Please try again.', 'error');
+            } finally {
+                confirmBtn.classList.remove('loading');
+                confirmBtnText.textContent = currentRequestStatus === 'approved' ? 'Approve Request' : 'Reject Request';
+                confirmBtnSpinner.style.display = 'none';
             }
         }
+
+        // Updated processBookRequest function to use modal
+        async function processBookRequest(requestId, status) {
+            const requestElement = document.getElementById(`request-${requestId}`);
+            if (!requestElement) return;
+            
+            const bookTitle = requestElement.querySelector('.table-item-title')?.textContent || 'Untitled';
+            const studentName = requestElement.querySelector('.table-item-subtitle')?.textContent || 'Unknown';
+            const requestDate = requestElement.querySelector('.table-item-meta')?.textContent || '-';
+            
+            openRequestModal(requestId, status, bookTitle, studentName, requestDate);
+        }
+
+        // Close modal on overlay click
+        document.getElementById('requestModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRequestModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeRequestModal();
+            }
+        });
     </script>
 @endpush

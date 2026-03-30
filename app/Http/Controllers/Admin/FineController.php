@@ -3,119 +3,33 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\InteractsWithFineRecords;
+use App\Http\Requests\FineManagement\ListFinesRequest;
+use App\Http\Requests\FineManagement\WaiveFineRequest;
 use App\Models\ActivityLog;
 use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\Notification;
 use App\Models\User;
-use App\Jobs\SendFineEmail;
+use App\Services\FineManagement\FineManagementDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use App\Helpers\ActivityLogger;
 use Throwable;
 
 class FineController extends Controller
 {
+    use InteractsWithFineRecords;
+
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
         Gate::authorize('access-admin');
-        
-        // Get search, status, and pagination parameters
-        $search = $request->get('search', '');
-        $status = $request->get('status', 'all');
-        $page = $request->get('page', 1);
-        $perPage = 10;
 
-        // Build query
-        $query = \App\Models\Fine::with(['student.user', 'issuedBook.book'])
-            ->whereHas('student.user', function($q) {
-                $q->where('role', 'student');
-            })
-            ->orderBy('created_at', 'desc');
-
-        $this->applyFineSearch($query, $search);
-
-        // Status filter
-        if ($status !== 'all') {
-            if (strtolower($status) === 'overdue') {
-                $query->whereHas('issuedBook', function($q) {
-                    $q->where('due_date', '<', now())->whereNull('return_date');
-                });
-            } else {
-                $query->where('status', strtolower($status));
-            }
-        }
-
-        // Paginate results
-        $fines = $query->paginate($perPage, ['*'], 'page', $page);
-
-        // Transform fines data for the AdminDataTable component
-        $finesTableData = $fines->getCollection()->map(function($fine) {
-            $dueDate = $fine->issuedBook && $fine->issuedBook->due_date
-                ? $fine->issuedBook->due_date->format('M d, Y')
-                : 'N/A';
-            $profilePhoto = $fine->student && $fine->student->user
-                ? $fine->student->user->profile_photo
-                : null;
-            $studentAvatar = !empty($profilePhoto)
-                ? (str_starts_with($profilePhoto, 'http') ? $profilePhoto : asset('storage/' . $profilePhoto))
-                : null;
-
-            // Map camelCase keys to snake_case for component
-            return [
-                'id' => $fine->id,
-                'student_id' => $fine->student ? $fine->student->roll_no : 'N/A',
-                'student_name' => $fine->student && $fine->student->user
-                    ? $fine->student->user->name
-                    : 'Unknown',
-                'book_title' => $fine->issuedBook && $fine->issuedBook->book
-                    ? $fine->issuedBook->book->title
-                    : 'Unknown',
-                'due_date' => $dueDate,
-                'days_overdue' => (int)$fine->days_late,
-                'fine_amount' => '₹' . number_format((float)$fine->amount, 2),
-                'status' => ucfirst($fine->status),
-                'created_at' => $fine->created_at->format('M d, Y'),
-                'remarks' => $fine->remarks ?? '',
-                'student_avatar' => $studentAvatar,
-            ];
-        })->toArray();
-
-        // Calculate statistics (for all matching records, not just current page)
-        $statsQuery = \App\Models\Fine::whereHas('student.user', function($q) {
-            $q->where('role', 'student');
-        });
-        
-        $this->applyFineSearch($statsQuery, $search);
-        
-        if ($status !== 'all') {
-            if (strtolower($status) === 'overdue') {
-                $statsQuery->whereHas('issuedBook', function($q) {
-                    $q->where('due_date', '<', now())->whereNull('return_date');
-                });
-            } else {
-                $statsQuery->where('status', strtolower($status));
-            }
-        }
-        
-        $allFines = $statsQuery->get();
-        
-        return view('Admin.Fines', [
-            'finesTableData' => $finesTableData,
-            'fines' => $fines,
-            'stats' => [
-                'total' => $allFines->sum('amount'),
-                'collected' => $allFines->where('status', 'paid')->sum('amount'),
-                'pending' => $allFines->filter(function($fine) {
-                    return strtolower($fine->status) === 'pending';
-                })->sum('amount'),
-                'waived' => $allFines->where('status', 'waived')->sum('amount'),
-            ]
-        ]);
+        return view('Admin.Fines');
     }
 
     /**
@@ -174,7 +88,8 @@ class FineController extends Controller
         try {
             Gate::authorize('access-admin');
 
-            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book'])->findOrFail($id);
+            $fine = $this->loadFineRecord($id);
+            $this->ensureFineIsActionable($fine);
             $fine->update([
                 'status' => 'paid',
                 'paid_on' => now()
@@ -216,6 +131,11 @@ class FineController extends Controller
                 'success' => true,
                 'message' => 'Fine marked as paid'
             ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->errors()['fine'][0] ?? 'Only pending fines can be updated.',
+            ], 422);
         } catch (\Exception $e) {
             \Log::error('Error marking fine as paid: ' . $e->getMessage());
             return response()->json([
@@ -228,19 +148,14 @@ class FineController extends Controller
     /**
      * Waive fine
      */
-    public function waive(Request $request, string $id)
+    public function waive(WaiveFineRequest $request, string $id)
     {
         try {
             Gate::authorize('access-admin');
 
-            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book'])->findOrFail($id);
-            
-            // Get reason from either 'reason' or 'remarks' field (frontend sends 'reason')
-            $reason = trim($request->get('reason') ?? $request->get('remarks') ?? '');
-            
-            if (empty($reason)) {
-                $reason = 'Fine waived by admin';
-            }
+            $fine = $this->loadFineRecord($id);
+            $this->ensureFineIsActionable($fine);
+            $reason = $request->waiverReason();
             
             $fine->update([
                 'status' => 'waived',
@@ -285,6 +200,12 @@ class FineController extends Controller
                 'message' => 'Fine waived successfully',
                 'data' => $fine->fresh()
             ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->errors()['fine'][0] ?? $e->errors()['reason'][0] ?? 'Unable to waive this fine.',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             \Log::error('Error waiving fine: ' . $e->getMessage());
             return response()->json([
@@ -302,7 +223,7 @@ class FineController extends Controller
         try {
             Gate::authorize('access-admin');
 
-            $fine = \App\Models\Fine::findOrFail($id);
+            $fine = $this->loadFineRecord($id);
 
             // Check if student and email exist
             if (!$fine->student || !$fine->student->user || !$fine->student->user->email) {
@@ -315,7 +236,7 @@ class FineController extends Controller
             $studentEmail = $fine->student->user->email;
             $studentName = $fine->student->user->name;
             $fineAmount = $fine->amount;
-            $status = strtolower($fine->status);
+            $status = strtolower((string) $fine->status);
 
             // Dispatch appropriate email based on status
             // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
@@ -346,123 +267,16 @@ class FineController extends Controller
     /**
      * Get all fines data (AJAX)
      */
-    public function getFinesData(Request $request)
+    public function getFinesData(ListFinesRequest $request, FineManagementDataService $fineManagementDataService)
     {
         try {
             Gate::authorize('access-admin');
 
-            $search = $request->get('search', '');
-            $status = $request->get('status', 'all');
-            $sort = $request->get('sort', 'date-desc');
-            $perPage = $request->get('per_page', 10);
-            $page = $request->get('page', 1);
-
-            $query = \App\Models\Fine::with(['student.user', 'issuedBook.book'])
-                ->whereHas('student.user', function($q) {
-                    $q->where('role', 'student');
-                });
-
-            // Apply sorting
-            switch ($sort) {
-                case 'date-asc':
-                    $query->orderBy('created_at', 'asc');
-                    break;
-                case 'date-desc':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-                case 'amount-asc':
-                    $query->orderBy('amount', 'asc');
-                    break;
-                case 'amount-desc':
-                    $query->orderBy('amount', 'desc');
-                    break;
-                default:
-                    $query->orderBy('created_at', 'desc');
-            }
-
-            $this->applyFineSearch($query, $search);
-
-            // Status filter
-            if ($status !== 'all') {
-                if (strtolower($status) === 'overdue') {
-                    $query->whereHas('issuedBook', function($q) {
-                        $q->where('due_date', '<', now())->whereNull('return_date');
-                    });
-                } else {
-                    $query->where('status', strtolower($status));
-                }
-            }
-
-            $paginated = $query->paginate($perPage, ['*'], 'page', $page);
-
-            $fines = $paginated->getCollection()->map(function($fine) {
-                $dueDate = $fine->issuedBook && $fine->issuedBook->due_date
-                    ? $fine->issuedBook->due_date->format('M d, Y')
-                    : 'N/A';
-                $profilePhoto = $fine->student && $fine->student->user
-                    ? $fine->student->user->profile_photo
-                    : null;
-                $studentAvatar = !empty($profilePhoto)
-                    ? (str_starts_with($profilePhoto, 'http') ? $profilePhoto : asset('storage/' . $profilePhoto))
-                    : null;
-                return [
-                    'id' => $fine->id,
-                    'fineId' => 'FN-' . str_pad($fine->id, 6, '0', STR_PAD_LEFT),
-                    'studentId' => $fine->student ? $fine->student->roll_no : 'N/A',
-                    'studentName' => $fine->student && $fine->student->user
-                        ? $fine->student->user->name
-                        : 'Unknown',
-                    'studentAvatar' => $studentAvatar,
-                    'bookTitle' => $fine->issuedBook && $fine->issuedBook->book
-                        ? $fine->issuedBook->book->title
-                        : 'Unknown',
-                    'dueDate' => $dueDate,
-                    'daysOverdue' => (int)$fine->days_late,
-                    'fineAmount' => (float)$fine->amount,
-                    'status' => $fine->status,
-                    'createdAt' => $fine->created_at->format('M d, Y'),
-                    'remarks' => $fine->remarks ?? ''
-                ];
-            })->values();
-
-            // Stats: always reflect real DB values (not just current page)
-            $statsQuery = \App\Models\Fine::whereHas('student.user', function($q) {
-                $q->where('role', 'student');
-            });
-            $this->applyFineSearch($statsQuery, $search);
-            if ($status !== 'all') {
-                if (strtolower($status) === 'overdue') {
-                    $statsQuery->whereHas('issuedBook', function($q) {
-                        $q->where('due_date', '<', now())->whereNull('return_date');
-                    });
-                } else {
-                    $statsQuery->where('status', strtolower($status));
-                }
-            }
-            $allFines = $statsQuery->get();
-            $totalFines = $allFines->sum('amount');
-            $collectedFines = $allFines->where('status', 'paid')->sum('amount');
-            $pendingFines = $allFines->filter(function($fine) {
-                return strtolower($fine->status) === 'pending';
-            })->sum('amount');
-            $waivedFines = $allFines->where('status', 'waived')->sum('amount');
+            $listing = $fineManagementDataService->getListingData($request->validated());
 
             return response()->json([
                 'success' => true,
-                'fines' => $fines,
-                'pagination' => [
-                    'current_page' => $paginated->currentPage(),
-                    'last_page' => $paginated->lastPage(),
-                    'per_page' => $paginated->perPage(),
-                    'total' => $paginated->total(),
-                ],
-                'stats' => [
-                    'total' => $totalFines,
-                    'collected' => $collectedFines,
-                    'pending' => $pendingFines,
-                    'waived' => $waivedFines,
-                    'count' => $allFines->count(),
-                ]
+                ...$listing,
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in getFinesData: ' . $e->getMessage());
@@ -471,31 +285,6 @@ class FineController extends Controller
                 'message' => 'Error loading fines: ' . $e->getMessage()
             ], 500);
         }
-    }
-
-    private function applyFineSearch($query, ?string $search): void
-    {
-        $search = trim((string) ($search ?? ''));
-
-        if ($search === '') {
-            return;
-        }
-
-        $query->where(function($q) use ($search) {
-            $q->whereHas('student.user', function($sq) use ($search) {
-                $sq->where('name', 'like', "%{$search}%")
-                   ->orWhere('email', 'like', "%{$search}%");
-            })
-            ->orWhereHas('student', function($sq) use ($search) {
-                $sq->where('roll_no', 'like', "%{$search}%");
-            })
-            ->orWhereHas('issuedBook.book', function($sq) use ($search) {
-                $sq->where('title', 'like', "%{$search}%");
-            })
-            ->orWhere('remarks', 'like', "%{$search}%")
-            ->orWhere('amount', 'like', "%{$search}%")
-            ->orWhere('status', 'like', "%{$search}%");
-        });
     }
 
     /**
@@ -624,21 +413,6 @@ class FineController extends Controller
                 'message' => 'Error loading fine history: ' . $e->getMessage()
             ], 500);
         }
-    }
-
-    protected function buildFineHistoryMetadata(Fine $fine, array $overrides = []): array
-    {
-        $book = $fine->issuedBook?->book;
-
-        return array_filter([
-            'fine_id' => $fine->id,
-            'issued_book_id' => $fine->issued_book_id,
-            'book_title' => $book?->title,
-            'isbn' => $book?->isbn,
-            'days_late' => (int) ($fine->days_late ?? 0),
-            'status' => strtolower((string) $fine->status),
-            ...$overrides,
-        ], fn ($value) => $value !== null && $value !== '');
     }
 
     protected function resolveFinePerDayRate(Fine $fine): float
