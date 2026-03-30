@@ -6,8 +6,9 @@
     <style>
         /* Settings Page Specific Styles */
         .settings-container {
-            max-width: 1200px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: none;
+            margin: 0;
             padding: 1rem;
         }
 
@@ -29,9 +30,10 @@
         /* Two Column Layout */
         .settings-grid {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
             gap: 20px;
             align-items: start;
+            width: 100%;
         }
 
         /* Left Profile Card */
@@ -168,6 +170,7 @@
         .settings-card {
             border-radius: 12px;
             transition: background-color 0.3s ease, color 0.3s ease;
+            min-width: 0;
         }
 
         body.light-theme .settings-card {

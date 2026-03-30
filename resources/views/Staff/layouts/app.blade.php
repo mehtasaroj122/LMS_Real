@@ -69,11 +69,6 @@
                 <i data-lucide="users" class="w-5 h-5"></i><span class="text-sm font-medium">Students</span>
             </a>
             
-            {{-- Activity Log --}}
-            <a href="{{ route('staff.activity-logs.index') }}" class="sidebar-item {{ request()->routeIs('staff.activity-logs.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
-                <i data-lucide="file-text" class="w-5 h-5"></i><span class="text-sm font-medium">Activity Log</span>
-            </a>
-            
             {{-- Setting --}}
             <a href="{{ route('staff.settings.index') }}" class="sidebar-item {{ request()->routeIs('staff.settings.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="settings" class="w-5 h-5"></i><span class="text-sm font-medium">Setting</span>
