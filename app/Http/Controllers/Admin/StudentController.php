@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use App\Models\Student;
 use App\Models\User;
-use App\Models\Department;
 use App\Models\Notification;
 use App\Models\ActivityLog;
 use App\Helpers\ActivityLogger;
 use App\Mail\PasswordResetEmail;
+use App\Services\StudentManagement\StudentManagementDataService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -26,10 +26,10 @@ class StudentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(StudentManagementDataService $dataService)
     {
         Gate::authorize('access-admin');
-        $departments = Department::all();
+        $departments = $dataService->getDepartments();
         return view('admin.Students', compact('departments'));
     }
 
@@ -45,49 +45,25 @@ class StudentController extends Controller
     /**
      * Get students data with search, filter and pagination for AJAX requests
      */
-    public function getStudentsData(Request $request)
+    public function getStudentsData(Request $request, StudentManagementDataService $dataService)
     {
         Gate::authorize('access-admin');
 
         $search = $request->get('search', '');
         $department = $request->get('department', 'all');
         $status = $request->get('status', 'all');
+        $sort = $request->get('sort', 'created-desc');
         $page = $request->get('page', 1);
         $perPage = 10;
 
-        // Build query
-        $query = Student::with(['user', 'department']);
-
-        // Filter to show only students with 'student' role
-        $query->whereHas('user', function($q) {
-            $q->where('role', 'student');
-        });
-
-        // Search filter
-        if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->whereHas('user', function($sq) use ($search) {
-                    $sq->where('name', 'like', '%' . $search . '%')
-                      ->orWhere('email', 'like', '%' . $search . '%');
-                })
-                ->orWhere('roll_no', 'like', '%' . $search . '%');
-            });
-        }
-
-        // Department filter
-        if ($department !== 'all') {
-            $query->where('department_id', $department);
-        }
-
-        // Status filter
-        if ($status !== 'all') {
-            $query->whereHas('user', function($q) use ($status) {
-                $q->where('status', $status);
-            });
-        }
-
-        // Paginate
-        $students = $query->paginate($perPage, ['*'], 'page', $page);
+        $students = $dataService->getPaginatedStudents([
+            'search' => $search,
+            'department' => $department,
+            'status' => $status,
+            'sort' => $sort,
+            'page' => $page,
+            'per_page' => $perPage,
+        ]);
 
         // Generate table rows HTML
         $tableRows = '';
@@ -157,27 +133,15 @@ class StudentController extends Controller
     /**
      * Get students statistics
      */
-    public function getStudentsStats(Request $request = null)
+    public function getStudentsStats(Request $request = null, StudentManagementDataService $dataService)
     {
         Gate::authorize('access-admin');
 
-        // Only count students with 'student' role
-        $totalStudents = Student::whereHas('user', function($q) {
-            $q->where('role', 'student');
-        })->count();
-        
-        $activeStudents = Student::whereHas('user', function($q) {
-            $q->where('role', 'student')
-              ->where('status', 'active');
-        })->count();
-        
-        $inactiveStudents = $totalStudents - $activeStudents;
-
-        $stats = [
-            'totalStudents' => $totalStudents,
-            'activeStudents' => $activeStudents,
-            'inactiveStudents' => $inactiveStudents,
-        ];
+        $stats = $dataService->getStats([
+            'search' => $request?->get('search', ''),
+            'department' => $request?->get('department', 'all'),
+            'status' => $request?->get('status', 'all'),
+        ]);
 
         // Return JSON if AJAX request
         if ($request && $request->expectsJson()) {

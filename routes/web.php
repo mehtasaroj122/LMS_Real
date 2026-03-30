@@ -208,11 +208,9 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::get('/students', [StaffStudentsController::class, 'index'])->name('students.index');
         Route::get('/students/data', [StaffStudentsController::class, 'getStudentsData'])->name('students.data');
         Route::get('/students/stats', [StaffStudentsController::class, 'getStudentsStats'])->name('students.stats');
-        Route::post('/students/{student}/reset-password', [StaffStudentsController::class, 'resetPassword'])->name('students.reset-password');
         Route::post('/students/{student}/deactivate', [StaffStudentsController::class, 'deactivate'])->name('students.deactivate');
         Route::post('/students/{student}/activate', [StaffStudentsController::class, 'activate'])->name('students.activate');
-        Route::post('/students/{student}/change-role', [StaffStudentsController::class, 'changeRole'])->name('students.change-role');
-        Route::resource('students', StaffStudentsController::class)->only(['show', 'store', 'destroy']);
+        Route::resource('students', StaffStudentsController::class)->only(['show', 'store']);
         
         Route::get('/activity-logs', [StaffActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/settings', [StaffSettingController::class, 'index'])->name('settings.index');

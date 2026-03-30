@@ -9,7 +9,7 @@
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid;
-            margin-top: 12px;
+            margin-top: 0;
             transition: background-color 0.3s, border-color 0.3s;
         }
 
@@ -364,7 +364,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.75rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             padding: 1rem;
             border-radius: 0.5rem;
             align-items: center;
@@ -470,6 +470,124 @@
         body.dark-theme .reset-btn:hover {
             border-color: #3b82f6;
             color: #93c5fd;
+        }
+
+        .student-toolbar-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.9rem;
+            padding: 0 0.1rem;
+            font-size: 0.75rem;
+        }
+
+        body.light-theme .student-toolbar-meta {
+            color: #64748b;
+        }
+
+        body.dark-theme .student-toolbar-meta {
+            color: #94a3b8;
+        }
+
+        .student-toolbar-meta strong {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .student-toolbar-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .student-stat-card {
+            min-height: 90px;
+        }
+
+        .student-stat-copy {
+            display: block;
+        }
+
+        .student-stat-loading-lines {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .student-stat-card.is-loading .student-stat-copy {
+            display: none;
+        }
+
+        .student-stat-card.is-loading .student-stat-loading-lines {
+            display: flex;
+        }
+
+        .student-stat-loading-line,
+        .student-table-loading .student-skeleton-line {
+            display: block;
+            height: 13px;
+            border-radius: 999px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .student-stat-loading-line.short,
+        .student-table-loading .student-skeleton-line.short {
+            width: 64px;
+        }
+
+        .student-table-loading .student-skeleton-line.short {
+            width: 58%;
+        }
+
+        .student-stat-loading-line.long {
+            width: 148px;
+            height: 12px;
+        }
+
+        .student-table-loading .student-skeleton-line.medium {
+            width: 72%;
+        }
+
+        .student-table-loading .student-skeleton-line.long {
+            width: 90%;
+        }
+
+        body.light-theme .student-stat-loading-line,
+        body.light-theme .student-table-loading .student-skeleton-line {
+            background-color: #e2e8f0;
+        }
+
+        body.dark-theme .student-stat-loading-line,
+        body.dark-theme .student-table-loading .student-skeleton-line {
+            background-color: #334155;
+        }
+
+        .student-stat-loading-line::after,
+        .student-table-loading .student-skeleton-line::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
+            animation: studentTableShimmer 1.2s infinite;
+        }
+
+        body.dark-theme .student-stat-loading-line::after,
+        body.dark-theme .student-table-loading .student-skeleton-line::after {
+            background: linear-gradient(90deg, transparent 0%, rgba(148, 163, 184, 0.18) 50%, transparent 100%);
+        }
+
+        .student-table-loading .student-skeleton-line {
+            width: 100%;
+        }
+
+        @keyframes studentTableShimmer {
+            100% {
+                transform: translateX(100%);
+            }
         }
 
         /* Add Student Modal Theme Support */
@@ -894,12 +1012,20 @@
         <div class="mb-3">
             <h1 class="text-xl font-bold text-primary">Students</h1>
             <p class="mt-0.5 text-xs text-secondary">Manage student records</p>
+        </div>
         <div class="grid grid-cols-1 gap-3 mb-3 md:grid-cols-3">
-            <div class="p-3 card">
+            <div class="p-3 card student-stat-card is-loading" data-stat-card="total">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs font-medium text-secondary">Total Students</p>
-                        <h3 class="mt-1 text-2xl font-bold text-primary" id="totalCount">0</h3>
+                        <div class="student-stat-copy">
+                            <h3 class="mt-1 text-2xl font-bold text-primary" id="totalCount">0</h3>
+                            <p class="mt-1 text-xs text-secondary" id="totalMeta">Live overview across all departments and batches</p>
+                        </div>
+                        <div class="student-stat-loading-lines" aria-hidden="true">
+                            <span class="student-stat-loading-line short"></span>
+                            <span class="student-stat-loading-line long"></span>
+                        </div>
                     </div>
                     <div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-lg dark:bg-blue-900">
                         <i data-lucide="users" class="w-6 h-6 text-blue-600 dark:text-blue-400"></i>
@@ -907,11 +1033,18 @@
                 </div>
             </div>
 
-            <div class="p-3 card">
+            <div class="p-3 card student-stat-card is-loading" data-stat-card="active">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs font-medium text-secondary">Active</p>
-                        <h3 class="mt-1 text-2xl font-bold text-primary" id="activeCount">0</h3>
+                        <div class="student-stat-copy">
+                            <h3 class="mt-1 text-2xl font-bold text-primary" id="activeCount">0</h3>
+                            <p class="mt-1 text-xs text-secondary" id="activeMeta">Student accounts currently ready to borrow books</p>
+                        </div>
+                        <div class="student-stat-loading-lines" aria-hidden="true">
+                            <span class="student-stat-loading-line short"></span>
+                            <span class="student-stat-loading-line long"></span>
+                        </div>
                     </div>
                     <div class="flex items-center justify-center w-10 h-10 bg-green-100 rounded-lg dark:bg-green-900">
                         <i data-lucide="check-circle" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
@@ -919,11 +1052,18 @@
                 </div>
             </div>
 
-            <div class="p-3 card">
+            <div class="p-3 card student-stat-card is-loading" data-stat-card="inactive">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-xs font-medium text-secondary">Inactive</p>
-                        <h3 class="mt-1 text-2xl font-bold text-primary" id="inactiveCount">0</h3>
+                        <div class="student-stat-copy">
+                            <h3 class="mt-1 text-2xl font-bold text-primary" id="inactiveCount">0</h3>
+                            <p class="mt-1 text-xs text-secondary" id="inactiveMeta">Accounts currently paused from circulation activity</p>
+                        </div>
+                        <div class="student-stat-loading-lines" aria-hidden="true">
+                            <span class="student-stat-loading-line short"></span>
+                            <span class="student-stat-loading-line long"></span>
+                        </div>
                     </div>
                     <div class="flex items-center justify-center w-10 h-10 bg-red-100 rounded-lg dark:bg-red-900">
                         <i data-lucide="x-circle" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
@@ -960,6 +1100,13 @@
                     @endforeach
                 </select>
 
+                <select class="filter-select" id="sortFilter">
+                    <option value="created-desc">Newest First</option>
+                    <option value="created-asc">Oldest First</option>
+                    <option value="name-asc">Alphabetical A-Z</option>
+                    <option value="name-desc">Alphabetical Z-A</option>
+                </select>
+
                 <button id="resetFiltersBtn" class="reset-btn" title="Reset all filters">
                     <i class="fas fa-redo"></i>
                     Reset
@@ -972,9 +1119,14 @@
             </button>
         </div>
 
+        <div class="student-toolbar-meta">
+            <div id="studentFilterSummary">Sort: Newest first • <strong>0</strong> matching students</div>
+            <div id="studentLastUpdated">Waiting for data...</div>
+        </div>
+
         <!-- Students Table -->
-        <div class="table-container">
-            <div class="table-wrapper">
+        <div class="table-container" id="studentTableShell">
+            <div class="table-wrapper" id="studentTableWrapper" aria-busy="true">
                 <table class="students-table">
                     <thead>
                         <tr>
@@ -987,8 +1139,18 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="studentsTableBody">
-                        <!-- Data will be populated by JavaScript -->
+                    <tbody id="studentsTableBody" class="student-table-loading">
+                        @for ($i = 0; $i < 5; $i++)
+                            <tr>
+                                <td><span class="student-skeleton-line long"></span></td>
+                                <td><span class="student-skeleton-line medium"></span></td>
+                                <td><span class="student-skeleton-line short"></span></td>
+                                <td><span class="student-skeleton-line medium"></span></td>
+                                <td><span class="student-skeleton-line short"></span></td>
+                                <td><span class="student-skeleton-line short"></span></td>
+                                <td><span class="student-skeleton-line long"></span></td>
+                            </tr>
+                        @endfor
                     </tbody>
                 </table>
             </div>
@@ -1251,11 +1413,14 @@
             constructor() {
                 this.currentDepartment = 'all';
                 this.currentStatus = 'all';
+                this.currentSort = 'created-desc';
                 this.searchDebounceTimer = null;
                 this.selectedRowIndex = -1;
                 this.currentPage = 1;
                 this.totalRows = 0;
                 this.rowsPerPage = 10;
+                this.lastUpdatedAt = null;
+                this.statCards = document.querySelectorAll('[data-stat-card]');
                 this.init();
             }
 
@@ -1264,6 +1429,7 @@
                 const searchInput = document.getElementById('searchInput');
                 const departmentFilter = document.getElementById('departmentFilter');
                 const statusFilter = document.getElementById('statusFilter');
+                const sortFilter = document.getElementById('sortFilter');
                 const resetBtn = document.getElementById('resetFiltersBtn');
 
                 if (searchInput) {
@@ -1271,7 +1437,8 @@
                         clearTimeout(this.searchDebounceTimer);
                         this.searchDebounceTimer = setTimeout(() => {
                             this.selectedRowIndex = -1;
-                            this.fetchStudents();
+                            this.currentPage = 1;
+                            this.reloadStudents();
                         }, 300);
                     });
                 }
@@ -1280,7 +1447,8 @@
                     departmentFilter.addEventListener('change', (e) => {
                         this.currentDepartment = e.target.value;
                         this.selectedRowIndex = -1;
-                        this.fetchStudents();
+                        this.currentPage = 1;
+                        this.reloadStudents();
                     });
                 }
 
@@ -1288,7 +1456,17 @@
                     statusFilter.addEventListener('change', (e) => {
                         this.currentStatus = e.target.value;
                         this.selectedRowIndex = -1;
-                        this.fetchStudents();
+                        this.currentPage = 1;
+                        this.reloadStudents();
+                    });
+                }
+
+                if (sortFilter) {
+                    sortFilter.addEventListener('change', (e) => {
+                        this.currentSort = e.target.value;
+                        this.selectedRowIndex = -1;
+                        this.currentPage = 1;
+                        this.reloadStudents();
                     });
                 }
 
@@ -1313,8 +1491,7 @@
                 this.setupKeyboardShortcuts();
 
                 // Load initial data
-                this.fetchStudents();
-                this.refreshStats();
+                this.reloadStudents();
             }
 
             setupKeyboardShortcuts() {
@@ -1328,7 +1505,8 @@
                     else if (e.key === 'Escape' && document.activeElement.id === 'searchInput') {
                         if (document.getElementById('searchInput').value !== '') {
                             document.getElementById('searchInput').value = '';
-                            this.fetchStudents();
+                            this.currentPage = 1;
+                            this.reloadStudents();
                         } else {
                             document.getElementById('searchInput').blur();
                         }
@@ -1340,18 +1518,23 @@
                 document.getElementById('searchInput').value = '';
                 document.getElementById('statusFilter').value = 'all';
                 document.getElementById('departmentFilter').value = 'all';
+                document.getElementById('sortFilter').value = 'created-desc';
                 this.currentStatus = 'all';
                 this.currentDepartment = 'all';
-                this.fetchStudents();
+                this.currentSort = 'created-desc';
+                this.currentPage = 1;
+                this.reloadStudents();
             }
 
             fetchStudents(page = 1) {
                 this.currentPage = page;
-                const searchTerm = document.getElementById('searchInput')?.value || '';
-                const department = this.currentDepartment;
-                const status = this.currentStatus;
+                const { search, department, status, sort } = this.getCurrentFilters();
+                this.currentDepartment = department;
+                this.currentStatus = status;
+                this.currentSort = sort;
+                this.setTableLoading(true);
 
-                fetch(`{{ route('admin.students.data') }}?search=${encodeURIComponent(searchTerm)}&department=${department}&status=${status}&page=${page}`, {
+                fetch(`{{ route('admin.students.data') }}?search=${encodeURIComponent(search)}&department=${department}&status=${status}&sort=${sort}&page=${page}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
@@ -1363,6 +1546,7 @@
                     })
                     .then(data => {
                         if (data.success) {
+                            this.lastUpdatedAt = new Date();
                             if (data.total === 0) {
                                 document.getElementById('studentsTableBody').innerHTML = `
                         <tr>
@@ -1382,12 +1566,18 @@
                                 this.attachEventListeners();
                                 this.updateRowAccessibility();
                             }
+                            this.renderToolbarMeta();
                         } else {
                             console.error('Error loading students');
+                            this.renderTableError();
                         }
                     })
                     .catch(error => {
                         console.error('Error fetching students:', error);
+                        this.renderTableError();
+                    })
+                    .finally(() => {
+                        this.setTableLoading(false);
                     });
             }
 
@@ -1556,7 +1746,11 @@
             }
 
             refreshStats() {
-                fetch(`{{ route('admin.students.stats') }}`, {
+                const filters = this.getCurrentFilters();
+                const params = new URLSearchParams(filters);
+                this.setStatsLoading(true);
+
+                fetch(`{{ route('admin.students.stats') }}?${params.toString()}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
@@ -1564,11 +1758,186 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        document.getElementById('totalCount').textContent = data.totalStudents;
-                        document.getElementById('activeCount').textContent = data.activeStudents;
-                        document.getElementById('inactiveCount').textContent = data.inactiveStudents;
+                        this.renderStats(data, filters);
                     })
-                    .catch(error => console.error('Error fetching stats:', error));
+                    .catch(error => console.error('Error fetching stats:', error))
+                    .finally(() => {
+                        this.setStatsLoading(false);
+                    });
+            }
+
+            reloadStudents(page = 1) {
+                this.fetchStudents(page);
+                this.refreshStats();
+            }
+
+            getCurrentFilters() {
+                return {
+                    search: document.getElementById('searchInput')?.value.trim() || '',
+                    department: document.getElementById('departmentFilter')?.value || this.currentDepartment,
+                    status: document.getElementById('statusFilter')?.value || this.currentStatus,
+                    sort: document.getElementById('sortFilter')?.value || this.currentSort,
+                };
+            }
+
+            hasActiveFilters(filters = this.getCurrentFilters()) {
+                return filters.search !== '' || filters.department !== 'all' || filters.status !== 'all';
+            }
+
+            formatNumber(value) {
+                return new Intl.NumberFormat().format(Number(value || 0));
+            }
+
+            formatTimeRelative(date) {
+                const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+
+                if (seconds < 5) return 'just now';
+                if (seconds < 60) return `${seconds}s ago`;
+
+                const minutes = Math.floor(seconds / 60);
+                if (minutes < 60) return `${minutes}m ago`;
+
+                const hours = Math.floor(minutes / 60);
+                if (hours < 24) return `${hours}h ago`;
+
+                return `${Math.floor(hours / 24)}d ago`;
+            }
+
+            getDepartmentLabel() {
+                return document.getElementById('departmentFilter')?.selectedOptions?.[0]?.textContent?.trim() || 'Selected department';
+            }
+
+            getSortLabel(sort) {
+                const labels = {
+                    'created-desc': 'Newest first',
+                    'created-asc': 'Oldest first',
+                    'name-asc': 'Alphabetical A-Z',
+                    'name-desc': 'Alphabetical Z-A',
+                };
+
+                return labels[sort] || 'Newest first';
+            }
+
+            capitalize(value) {
+                const input = String(value || '');
+                return input ? input.charAt(0).toUpperCase() + input.slice(1) : '';
+            }
+
+            escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            renderToolbarMeta() {
+                const segments = [];
+                const total = Number(this.totalRows || 0);
+                const search = document.getElementById('searchInput')?.value.trim() || '';
+
+                if (search) {
+                    segments.push(`Search: "${search}"`);
+                }
+
+                if (this.currentStatus !== 'all') {
+                    segments.push(`Status: ${this.capitalize(this.currentStatus)}`);
+                }
+
+                if (this.currentDepartment !== 'all') {
+                    segments.push(`Department: ${this.getDepartmentLabel()}`);
+                }
+
+                segments.push(`Sort: ${this.getSortLabel(this.currentSort)}`);
+
+                const filterSummary = document.getElementById('studentFilterSummary');
+                const lastUpdated = document.getElementById('studentLastUpdated');
+
+                if (filterSummary) {
+                    filterSummary.innerHTML = `${this.escapeHtml(segments.join(' • '))} • <strong>${this.formatNumber(total)}</strong> matching ${total === 1 ? 'student' : 'students'}`;
+                }
+
+                if (lastUpdated) {
+                    lastUpdated.textContent = this.lastUpdatedAt
+                        ? `Updated ${this.formatTimeRelative(this.lastUpdatedAt)}`
+                        : 'Waiting for data...';
+                }
+            }
+
+            renderStats(data, filters = this.getCurrentFilters()) {
+                const totalStudents = Number(data.totalStudents || 0);
+                const activeStudents = Number(data.activeStudents || 0);
+                const inactiveStudents = Number(data.inactiveStudents || 0);
+                const hasFilters = this.hasActiveFilters(filters);
+
+                document.getElementById('totalCount').textContent = this.formatNumber(totalStudents);
+                document.getElementById('activeCount').textContent = this.formatNumber(activeStudents);
+                document.getElementById('inactiveCount').textContent = this.formatNumber(inactiveStudents);
+                document.getElementById('totalMeta').textContent = hasFilters
+                    ? 'Matches the current search and filter selection'
+                    : 'Live overview across all departments and batches';
+                document.getElementById('activeMeta').textContent = totalStudents > 0
+                    ? `${Math.round((activeStudents / totalStudents) * 100)}% of visible students are active`
+                    : 'No active student accounts in this view';
+                document.getElementById('inactiveMeta').textContent = totalStudents > 0
+                    ? `${Math.round((inactiveStudents / totalStudents) * 100)}% of visible students are inactive`
+                    : 'No inactive student accounts in this view';
+            }
+
+            setStatsLoading(isLoading) {
+                this.statCards.forEach(card => card.classList.toggle('is-loading', isLoading));
+            }
+
+            setTableLoading(isLoading) {
+                const tableWrapper = document.getElementById('studentTableWrapper');
+                const tableBody = document.getElementById('studentsTableBody');
+                const pagination = document.getElementById('paginationContainer');
+
+                tableWrapper?.setAttribute('aria-busy', String(isLoading));
+
+                if (!tableBody) {
+                    return;
+                }
+
+                if (isLoading) {
+                    tableBody.classList.add('student-table-loading');
+                    tableBody.innerHTML = this.tableSkeletonMarkup();
+                    if (pagination) {
+                        pagination.innerHTML = '';
+                    }
+                    return;
+                }
+
+                tableBody.classList.remove('student-table-loading');
+            }
+
+            renderTableError() {
+                document.getElementById('studentsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #6b7280;">
+                            <i class="fas fa-triangle-exclamation" style="font-size: 40px; margin-bottom: 16px; opacity: 0.6; display: block;"></i>
+                            <p style="font-size: 16px; margin: 0; font-weight: 500;">Unable to load students</p>
+                            <p style="font-size: 14px; margin-top: 8px; color: #9ca3af;">Please try again in a moment.</p>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('paginationContainer').innerHTML = '';
+                this.totalRows = 0;
+            }
+
+            tableSkeletonMarkup(rows = 5) {
+                return Array.from({ length: rows }, () => `
+                    <tr>
+                        <td><span class="student-skeleton-line long"></span></td>
+                        <td><span class="student-skeleton-line medium"></span></td>
+                        <td><span class="student-skeleton-line short"></span></td>
+                        <td><span class="student-skeleton-line medium"></span></td>
+                        <td><span class="student-skeleton-line short"></span></td>
+                        <td><span class="student-skeleton-line short"></span></td>
+                        <td><span class="student-skeleton-line long"></span></td>
+                    </tr>
+                `).join('');
             }
         }
 

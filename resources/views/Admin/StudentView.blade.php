@@ -423,6 +423,11 @@
             border-radius: 8px;
             padding: 16px;
             border: 1px solid;
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: none;
         }
 
         body.light-theme .issued-books-section {
@@ -537,6 +542,38 @@
             transition: background-color 0.3s, border-color 0.3s;
         }
 
+        .paginated-table {
+            overflow-y: auto;
+        }
+
+        .issued-books-section .paginated-table {
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: none;
+        }
+
+        .fines-management-card .paginated-table {
+            max-height: 360px;
+        }
+
+        .paginated-table::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .paginated-table::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .paginated-table::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.42);
+            border-radius: 999px;
+        }
+
+        body.dark-theme .paginated-table::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.55);
+        }
+
         body.light-theme .table-container {
             background-color: #ffffff;
             border-color: #e5e7eb;
@@ -608,6 +645,145 @@
 
         body.dark-theme .books-table tbody tr:hover {
             background-color: #2d3748;
+        }
+
+        .table-meta-toolbar,
+        .table-pagination-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .table-meta-toolbar {
+            margin-bottom: 12px;
+        }
+
+        .table-pagination-footer {
+            margin-top: 12px;
+        }
+
+        .table-footer-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .table-entries-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        body.light-theme .table-entries-control,
+        body.light-theme .table-meta-summary,
+        body.light-theme .table-page-info {
+            color: #64748b;
+        }
+
+        body.dark-theme .table-entries-control,
+        body.dark-theme .table-meta-summary,
+        body.dark-theme .table-page-info {
+            color: #94a3b8;
+        }
+
+        .table-entries-select {
+            min-width: 80px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            border: 1px solid;
+        }
+
+        body.light-theme .table-entries-select {
+            background-color: #ffffff;
+            border-color: #e5e7eb;
+            color: #0f172a;
+        }
+
+        body.dark-theme .table-entries-select {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+
+        .table-pagination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .table-pagination-btn {
+            min-height: 34px;
+            padding: 0.45rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+        }
+
+        body.light-theme .table-pagination-btn {
+            background-color: #ffffff;
+            border-color: #e5e7eb;
+            color: #334155;
+        }
+
+        body.dark-theme .table-pagination-btn {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+
+        .table-pagination-btn:hover {
+            border-color: #3b82f6;
+            color: #2563eb;
+        }
+
+        .table-pagination-btn.is-active {
+            background-color: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+        }
+
+        .table-pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .table-pagination-ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .paginated-table::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .paginated-table::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .paginated-table::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.42);
+            border-radius: 999px;
+        }
+
+        body.dark-theme .paginated-table::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.55);
         }
 
         /* Status Badges in Table */
@@ -4778,8 +4954,20 @@
                         </div>
                     </div>
 
+                    <div class="table-meta-toolbar">
+                        <label class="table-entries-control" for="booksEntriesSelect">
+                            <span>Show entries</span>
+                            <select id="booksEntriesSelect" class="table-entries-select" aria-label="Select issued book entries per page">
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </label>
+                    </div>
+
                     <!-- Books Table -->
-                    <div class="table-container">
+                    <div class="table-container paginated-table">
                         <table class="books-table">
                             <thead>
                             <tr>
@@ -4797,6 +4985,14 @@
                             <!-- Data will be populated here -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <div class="table-pagination-footer">
+                        <span class="table-page-info" id="booksTablePageInfo">Page 1 of 1</span>
+                        <div class="table-footer-actions">
+                            <span class="table-meta-summary" id="booksTableSummary">Showing 0 books</span>
+                            <div class="table-pagination" id="booksTablePagination" aria-label="Issued books pagination"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4888,7 +5084,19 @@
                         </button>
                     </div>
 
-                    <div class="table-container">
+                    <div class="table-meta-toolbar">
+                        <label class="table-entries-control" for="finesEntriesSelect">
+                            <span>Show entries</span>
+                            <select id="finesEntriesSelect" class="table-entries-select" aria-label="Select fine entries per page">
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="table-container paginated-table">
                         <table class="fines-table">
                             <thead>
                             <tr>
@@ -4903,6 +5111,14 @@
                             <!-- Data will be populated here -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <div class="table-pagination-footer">
+                        <span class="table-page-info" id="finesTablePageInfo">Page 1 of 1</span>
+                        <div class="table-footer-actions">
+                            <span class="table-meta-summary" id="finesTableSummary">Showing 0 fines</span>
+                            <div class="table-pagination" id="finesTablePagination" aria-label="Fines pagination"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -5401,6 +5617,14 @@
         const bookSearchInput = document.getElementById('bookSearch');
         const statusFilterSelect = document.getElementById('statusFilter');
         const booksTableBody = document.getElementById('booksTableBody');
+        const booksEntriesSelect = document.getElementById('booksEntriesSelect');
+        const booksTableSummary = document.getElementById('booksTableSummary');
+        const booksTablePageInfo = document.getElementById('booksTablePageInfo');
+        const booksTablePagination = document.getElementById('booksTablePagination');
+        const finesEntriesSelect = document.getElementById('finesEntriesSelect');
+        const finesTableSummary = document.getElementById('finesTableSummary');
+        const finesTablePageInfo = document.getElementById('finesTablePageInfo');
+        const finesTablePagination = document.getElementById('finesTablePagination');
         const sendNotificationBtn = document.getElementById('sendNotificationBtn');
         const printReportBtn = document.getElementById('printReportBtn');
 
@@ -5421,6 +5645,14 @@
             // Status filter
             if (statusFilterSelect) {
                 statusFilterSelect.addEventListener('change', handleStatusFilter);
+            }
+
+            if (booksEntriesSelect) {
+                booksEntriesSelect.addEventListener('change', handleBooksPerPageChange);
+            }
+
+            if (finesEntriesSelect) {
+                finesEntriesSelect.addEventListener('change', handleFinesPerPageChange);
             }
 
             // Button actions
@@ -5468,6 +5700,10 @@
         let filteredBooks = [...booksData];
         let currentSearchTerm = '';
         let currentStatusFilter = 'all';
+        let currentBooksPage = 1;
+        let booksPerPage = 10;
+        let currentFinesPage = 1;
+        let finesPerPage = 10;
 
         function handleBookSearch() {
             currentSearchTerm = bookSearchInput.value.toLowerCase().trim();
@@ -5477,6 +5713,18 @@
         function handleStatusFilter() {
             currentStatusFilter = statusFilterSelect.value;
             applyFilters();
+        }
+
+        function handleBooksPerPageChange() {
+            booksPerPage = Number(booksEntriesSelect?.value || 10);
+            currentBooksPage = 1;
+            renderBooksTable();
+        }
+
+        function handleFinesPerPageChange() {
+            finesPerPage = Number(finesEntriesSelect?.value || 10);
+            currentFinesPage = 1;
+            renderFinesTable();
         }
 
         function applyFilters() {
@@ -5493,6 +5741,7 @@
                 return matchesSearch && matchesStatus;
             });
 
+            currentBooksPage = 1;
             renderBooksTable();
         }
 
@@ -5508,7 +5757,14 @@
 
             booksTableBody.innerHTML = '';
 
-            if (filteredBooks.length === 0) {
+            const totalBooks = filteredBooks.length;
+            const totalPages = Math.max(1, Math.ceil(totalBooks / booksPerPage));
+            currentBooksPage = Math.min(currentBooksPage, totalPages);
+
+            if (totalBooks === 0) {
+                if (booksTableSummary) booksTableSummary.textContent = 'Showing 0 books';
+                if (booksTablePageInfo) booksTablePageInfo.textContent = 'Page 0 of 0';
+                if (booksTablePagination) booksTablePagination.innerHTML = '';
                 const emptyRow = document.createElement('tr');
                 emptyRow.innerHTML = `
             <td colspan="8">
@@ -5525,7 +5781,11 @@
                 return;
             }
 
-            filteredBooks.forEach(book => {
+            const startIndex = (currentBooksPage - 1) * booksPerPage;
+            const endIndex = Math.min(startIndex + booksPerPage, totalBooks);
+            const pageBooks = filteredBooks.slice(startIndex, endIndex);
+
+            pageBooks.forEach(book => {
                 const row = document.createElement('tr');
 
                 // Get status badge class, text and icon
@@ -5575,6 +5835,19 @@
 
                 booksTableBody.appendChild(row);
             });
+
+            if (booksTableSummary) {
+                booksTableSummary.textContent = `Showing ${startIndex + 1}-${endIndex} of ${totalBooks} books`;
+            }
+
+            if (booksTablePageInfo) {
+                booksTablePageInfo.textContent = `Page ${currentBooksPage} of ${totalPages}`;
+            }
+
+            if (booksTablePagination) {
+                booksTablePagination.innerHTML = renderPaginationControls(currentBooksPage, totalPages, 'changeBooksPage');
+            }
+
         }
 
         // Action functions
@@ -5878,7 +6151,14 @@
 
             finesTableBody.innerHTML = '';
 
-            if (finesData.length === 0) {
+            const totalFines = finesData.length;
+            const totalPages = Math.max(1, Math.ceil(totalFines / finesPerPage));
+            currentFinesPage = Math.min(currentFinesPage, totalPages);
+
+            if (totalFines === 0) {
+                if (finesTableSummary) finesTableSummary.textContent = 'Showing 0 fines';
+                if (finesTablePageInfo) finesTablePageInfo.textContent = 'Page 0 of 0';
+                if (finesTablePagination) finesTablePagination.innerHTML = '';
                 const emptyRow = document.createElement('tr');
                 emptyRow.innerHTML = `
             <td colspan="5">
@@ -5896,7 +6176,11 @@
                 return;
             }
 
-            finesData.forEach(fine => {
+            const startIndex = (currentFinesPage - 1) * finesPerPage;
+            const endIndex = Math.min(startIndex + finesPerPage, totalFines);
+            const pageFines = finesData.slice(startIndex, endIndex);
+
+            pageFines.forEach(fine => {
                 const row = document.createElement('tr');
 
                 // Get payment status badge
@@ -5973,6 +6257,93 @@
 
                 finesTableBody.appendChild(row);
             });
+
+            if (finesTableSummary) {
+                finesTableSummary.textContent = `Showing ${startIndex + 1}-${endIndex} of ${totalFines} fines`;
+            }
+
+            if (finesTablePageInfo) {
+                finesTablePageInfo.textContent = `Page ${currentFinesPage} of ${totalPages}`;
+            }
+
+            if (finesTablePagination) {
+                finesTablePagination.innerHTML = renderPaginationControls(currentFinesPage, totalPages, 'changeFinesPage');
+            }
+
+        }
+
+        function changeBooksPage(page) {
+            const nextPage = Number(page || 1);
+            if (!nextPage) return;
+            currentBooksPage = nextPage;
+            renderBooksTable();
+        }
+
+        function changeFinesPage(page) {
+            const nextPage = Number(page || 1);
+            if (!nextPage) return;
+            currentFinesPage = nextPage;
+            renderFinesTable();
+        }
+
+        function getVisiblePaginationPages(currentPage, totalPages) {
+            if (totalPages <= 7) {
+                return Array.from({ length: totalPages }, (_, index) => index + 1);
+            }
+
+            const pages = [1];
+            const startPage = Math.max(2, currentPage - 1);
+            const endPage = Math.min(totalPages - 1, currentPage + 1);
+
+            if (startPage > 2) {
+                pages.push('ellipsis');
+            }
+
+            for (let page = startPage; page <= endPage; page += 1) {
+                pages.push(page);
+            }
+
+            if (endPage < totalPages - 1) {
+                pages.push('ellipsis');
+            }
+
+            pages.push(totalPages);
+
+            return pages;
+        }
+
+        function renderPaginationControls(currentPage, totalPages, changeHandlerName) {
+            if (totalPages <= 1) {
+                return '';
+            }
+
+            const controls = [];
+            controls.push(`
+                <button type="button" class="table-pagination-btn" onclick="${changeHandlerName}(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                    Prev
+                </button>
+            `);
+
+            getVisiblePaginationPages(currentPage, totalPages).forEach(page => {
+                if (page === 'ellipsis') {
+                    controls.push('<span class="table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
+                    return;
+                }
+
+                controls.push(`
+                    <button type="button" class="table-pagination-btn ${page === currentPage ? 'is-active' : ''}" onclick="${changeHandlerName}(${page})" ${page === currentPage ? 'aria-current="page"' : ''}>
+                        ${page}
+                    </button>
+                `);
+            });
+
+            controls.push(`
+                <button type="button" class="table-pagination-btn" onclick="${changeHandlerName}(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    Next
+                </button>
+            `);
+
+            return controls.join('');
         }
 
         let activityLogsIndex = 0;
