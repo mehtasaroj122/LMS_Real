@@ -109,7 +109,7 @@
                 </div>
                 <div class="student-summary-card">
                     <span class="student-summary-label">Pending Fine</span>
-                    <span class="student-summary-value" id="studentPendingFineValue">Rs. {{ number_format((float) ($studentSummary['pendingFineTotal'] ?? 0), 2) }}</span>
+                    <span class="student-summary-value" id="studentPendingFineValue">₹{{ number_format((float) ($studentSummary['pendingFineTotal'] ?? 0), 2) }}</span>
                 </div>
                 <div class="student-summary-card">
                     <span class="student-summary-label">Last Activity</span>

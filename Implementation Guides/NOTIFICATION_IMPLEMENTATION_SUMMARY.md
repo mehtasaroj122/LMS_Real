@@ -98,7 +98,7 @@ Columns: id, user_id (UNIQUE FK), 7 boolean preference flags,
 |------|------|-------|---------|
 | `book.overdue` | alert-circle | danger | Book is overdue |
 | `book.due_soon` | clock | warning | Due date approaching |
-| `fine.created` | dollar-sign | danger | New fine created |
+| `fine.created` | indian-rupee | danger | New fine created |
 | `fine.reminder` | alert-triangle | warning | Payment reminder |
 | `request.approved` | check-circle | success | Request approved |
 | `request.rejected` | x-circle | danger | Request rejected |

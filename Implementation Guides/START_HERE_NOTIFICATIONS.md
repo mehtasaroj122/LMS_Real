@@ -146,7 +146,7 @@ Available types with auto-assigned icons and colors:
 2. **book.due_soon** 🟡 Yellow/Clock
    - When a book is due in next few days
 
-3. **fine.created** 🔴 Red/Dollar-Sign
+3. **fine.created** 🔴 Red/Indian-Rupee
    - When a new fine is created
 
 4. **fine.reminder** 🟡 Yellow/Alert-Triangle

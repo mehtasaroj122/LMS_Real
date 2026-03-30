@@ -100,7 +100,7 @@ The layout now includes automatic:
 |------|------|-------|----------|
 | `book.overdue` | alert-circle | danger | Book is overdue |
 | `book.due_soon` | clock | warning | Book due date approaching |
-| `fine.created` | dollar-sign | danger | New fine created |
+| `fine.created` | indian-rupee | danger | New fine created |
 | `fine.reminder` | alert-triangle | warning | Fine payment reminder |
 | `request.approved` | check-circle | success | Book request approved |
 | `request.rejected` | x-circle | danger | Book request rejected |

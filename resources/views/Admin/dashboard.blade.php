@@ -493,7 +493,7 @@
                         <p class="text-xs font-medium text-muted">Pending Fines</p>
                         <h3 class="text-2xl font-bold">₹{{ number_format($pendingFines, 2) }}</h3>
                     </div>
-                    <i data-lucide="dollar-sign" class="w-5 h-5 text-muted"></i>
+                    <i data-lucide="indian-rupee" class="w-5 h-5 text-muted"></i>
                 </div>
                 <p class="text-xs text-muted">Unpaid fines</p>
             </div>
@@ -504,7 +504,7 @@
                         <p class="text-xs font-medium text-muted">Fines Collected</p>
                         <h3 class="text-2xl font-bold text-green-500">₹{{ number_format($collectedFines, 2) }}</h3>
                     </div>
-                    <i data-lucide="dollar-sign" class="w-5 h-5 text-green-500"></i>
+                    <i data-lucide="indian-rupee" class="w-5 h-5 text-green-500"></i>
                 </div>
                 <p class="text-xs text-muted">Total collected</p>
             </div>
@@ -915,7 +915,7 @@
                 const showTooltip = function (event) {
                     const segment = event.currentTarget;
                     label.textContent = segment.dataset.label || '';
-                    amount.textContent = `Rs. ${segment.dataset.amount || 0}`;
+                    amount.textContent = `₹${segment.dataset.amount || 0}`;
                     percentage.textContent = `${segment.dataset.percentage || 0}%`;
                     dot.style.backgroundColor = segment.dataset.color || '#ef4444';
                     tooltip.classList.add('is-visible');
@@ -959,7 +959,7 @@
                     const point = event.currentTarget;
                     series.textContent = point.dataset.trendSeries || '';
                     month.textContent = point.dataset.trendMonth || '';
-                    amount.textContent = `Rs. ${point.dataset.trendAmount || 0}`;
+                    amount.textContent = `₹${point.dataset.trendAmount || 0}`;
                     dot.style.backgroundColor = point.dataset.trendColor || '#ef4444';
                     tooltip.classList.add('is-visible');
                     moveTooltip(event);

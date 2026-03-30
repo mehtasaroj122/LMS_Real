@@ -75,7 +75,7 @@ POST   /student/notifications/delete-all-read (deleteAllRead)
 |------|------|-------|----------|
 | `book.overdue` | alert-circle | danger | Book is past due date |
 | `book.due_soon` | clock | warning | Book due within 3 days |
-| `fine.created` | dollar-sign | danger | Fine assessed on user |
+| `fine.created` | indian-rupee | danger | Fine assessed on user |
 | `fine.reminder` | alert-triangle | warning | Fine payment reminder |
 | `request.approved` | check-circle | success | Book request approved |
 | `request.rejected` | x-circle | danger | Book request rejected |
@@ -247,4 +247,3 @@ Echo.private(`notifications.${userId}`)
 - User must be authenticated to access their notifications
 - All routes protected with `auth` middleware and `access-student` gate
 - Consider adding rate limiting for production
-

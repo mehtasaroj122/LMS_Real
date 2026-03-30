@@ -852,7 +852,7 @@
                 <div class="pricing-grid">
                     <div class="price-card reveal-up">
                         <h3>Starter</h3>
-                        <div class="price">$0<span>/mo</span></div>
+                        <div class="price">₹0<span>/mo</span></div>
                         <ul class="price-features">
                             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                     <polyline points="20 6 9 17 4 12" />
@@ -866,7 +866,7 @@
                     <div class="delay-100 price-card featured reveal-up">
                         <div class="badge">POPULAR</div>
                         <h3>Institution</h3>
-                        <div class="price">$49<span>/mo</span></div>
+                        <div class="price">₹49<span>/mo</span></div>
                         <ul class="price-features">
                             <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                     <polyline points="20 6 9 17 4 12" />
