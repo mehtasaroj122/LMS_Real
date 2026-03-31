@@ -232,6 +232,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.75rem;
+            width: 100%;
             margin-bottom: 1rem;
             padding: 1rem;
             border-radius: 0.5rem;
@@ -249,8 +250,9 @@
         }
 
         .search-box {
-            flex: 1;
-            min-width: 200px;
+            flex: 0 1 350px;
+            width: min(100%, 430px);
+            min-width: 260px;
             position: relative;
         }
 
@@ -297,6 +299,35 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            width: min(100%, 760px);
+        }
+
+        .reset-filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        body.light-theme .reset-filter-btn {
+            background: #f8fafc;
+            border-color: #e5e7eb;
+            color: #0f172a;
+        }
+
+        body.dark-theme .reset-filter-btn {
+            background: #0f172a;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+
+        .reset-filter-btn:hover {
+            border-color: #3b82f6;
+            transform: translateY(-1px);
         }
 
         .filter-select {
@@ -632,6 +663,7 @@
             }
 
             .search-filter-container {
+                width: 100%;
                 flex-direction: column;
                 align-items: stretch;
                 padding: 0.75rem;
@@ -771,9 +803,6 @@
 
                 <select class="filter-select" id="categoryFilter">
                     <option value="all">All Categories</option>
-                    <option value="computer-science">Computer Science</option>
-                    <option value="data-structure">Data Structure</option>
-                    <option value="algorithm">Algorithm</option>
                 </select>
 
                 <select class="filter-select" id="sortFilter">
@@ -782,6 +811,8 @@
                     <option value="issue-date">Issue Date</option>
                     <option value="fine-amount">Fine Amount</option>
                 </select>
+
+                <button type="button" class="reset-filter-btn" id="resetFiltersBtn">Reset</button>
             </div>
         </div>
 
@@ -1052,18 +1083,29 @@
                 });
             }
 
+            function resetFilters() {
+                if (searchInput) searchInput.value = '';
+                if (statusFilter) statusFilter.value = 'all';
+                if (fineStatusFilter) fineStatusFilter.value = 'all';
+                if (categoryFilter) categoryFilter.value = 'all';
+                if (sortFilter) sortFilter.value = 'due-date-asc';
+                filterBooks();
+            }
+
             // Attach event listeners
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
             const fineStatusFilter = document.getElementById('fineStatusFilter');
             const categoryFilter = document.getElementById('categoryFilter');
             const sortFilter = document.getElementById('sortFilter');
+            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
 
             if (searchInput) searchInput.addEventListener('input', filterBooks);
             if (statusFilter) statusFilter.addEventListener('change', filterBooks);
             if (fineStatusFilter) fineStatusFilter.addEventListener('change', filterBooks);
             if (categoryFilter) categoryFilter.addEventListener('change', filterBooks);
             if (sortFilter) sortFilter.addEventListener('change', filterBooks);
+            if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetFilters);
 
             // Initial render
             populateCategories();

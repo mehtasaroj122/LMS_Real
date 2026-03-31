@@ -53,8 +53,10 @@ class MyRequestsController extends Controller
                 'author' => $bookRequest->book->author,
                 'isbn' => $bookRequest->book->isbn,
                 'category' => $bookRequest->book->category ? $bookRequest->book->category->name : 'uncategorized',
-                'requestDate' => $bookRequest->request_date->format('m/d/Y'),
-                'processedDate' => $bookRequest->processed_date ? $bookRequest->processed_date->format('m/d/Y') : 'N/A',
+                'requestDate' => $bookRequest->request_date->format('F d, Y'),
+                'requestDateRaw' => $bookRequest->request_date->toDateString(),
+                'processedDate' => $bookRequest->processed_date ? $bookRequest->processed_date->format('F d, Y') : 'N/A',
+                'processedDateRaw' => $bookRequest->processed_date ? $bookRequest->processed_date->toDateString() : null,
                 'status' => $bookRequest->status,
                 'processedBy' => $processedBy,
             ];

@@ -187,6 +187,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            width: 100%;
             margin-bottom: 0.75rem;
             padding: 0.75rem;
             border-radius: var(--radius);
@@ -196,8 +197,9 @@
         }
 
         .search-box {
-            flex: 1;
-            min-width: 200px;
+            flex: 0 1 440px;
+            width: min(100%, 440px);
+            min-width: 240px;
             position: relative;
         }
 
@@ -231,6 +233,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            width: min(100%, 420px);
         }
 
         .filter-select {
@@ -253,6 +256,24 @@
 
         body.dark-theme .filter-select {
             background: var(--body-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+        }
+
+        .reset-filter-btn {
+            padding: 0.375rem 0.875rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--body-bg);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .reset-filter-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
         }
 
         /* Section Header */
@@ -788,6 +809,8 @@
                 <option value="30">Last 30 days</option>
                 <option value="year">This year</option>
             </select>
+
+            <button type="button" class="reset-filter-btn" id="resetFiltersBtn">Reset</button>
         </div>
     </div>
 
@@ -867,6 +890,14 @@
         // Store the ID of the request being cancelled
         let currentRequestId = null;
 
+        function getRequestDisplayDate(request) {
+            return request.requestDate || 'N/A';
+        }
+
+        function getRequestDateValue(request) {
+            return request.requestDateRaw || request.requestDate || null;
+        }
+
         // Render requests table and mobile cards
         function renderRequests(requests) {
             const tableBody = document.getElementById('requestsTableBody');
@@ -891,7 +922,7 @@
                         <div class="book-author">${request.author}</div>
                     </div>
                 </td>
-                <td class="request-date">${request.requestDate}</td>
+                <td class="request-date">${getRequestDisplayDate(request)}</td>
                 <td>
                     <span class="status-badge status-${request.status}">
                         ${request.status === 'pending' ? 'Pending' : 
@@ -929,7 +960,7 @@
                 </div>
                 <div class="mobile-row">
                     <span class="mobile-label">Date</span>
-                    <div class="mobile-value request-date">${request.requestDate}</div>
+                    <div class="mobile-value request-date">${getRequestDisplayDate(request)}</div>
                 </div>
                 <div class="mobile-row">
                     <span class="mobile-label">Status</span>
@@ -1055,7 +1086,7 @@
                         <div class="book-author">${request.author}</div>
                     </div>
                 </td>
-                <td class="request-date">${request.requestDate}</td>
+                <td class="request-date">${getRequestDisplayDate(request)}</td>
                 <td>
                     <span class="status-badge status-${request.status}">
                         ${request.status === 'pending' ? 'Pending' : 
@@ -1092,7 +1123,7 @@
                 </div>
                 <div class="mobile-row">
                     <span class="mobile-label">Date</span>
-                    <div class="mobile-value request-date">${request.requestDate}</div>
+                    <div class="mobile-value request-date">${getRequestDisplayDate(request)}</div>
                 </div>
                 <div class="mobile-row">
                     <span class="mobile-label">Status</span>
@@ -1172,7 +1203,7 @@
                 // Date filter
                 let matchesDate = true;
                 if (dateFilter !== 'all') {
-                    const requestDate = parseDate(request.requestDate);
+                    const requestDate = parseDate(getRequestDateValue(request));
                     const today = new Date();
 
                     switch (dateFilter) {
@@ -1197,8 +1228,8 @@
 
             // Sort by request date (newest first)
             filteredRequests.sort((a, b) => {
-                const dateA = parseDate(a.requestDate);
-                const dateB = parseDate(b.requestDate);
+                const dateA = parseDate(getRequestDateValue(a));
+                const dateB = parseDate(getRequestDateValue(b));
                 return dateB - dateA;
             });
 
@@ -1206,15 +1237,40 @@
         }
 
         function parseDate(dateString) {
-            // Parse MM/DD/YYYY format
-            const [month, day, year] = dateString.split('/').map(Number);
+            if (!dateString) {
+                return new Date(0);
+            }
+
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+                return new Date(`${dateString}T00:00:00`);
+            }
+
+            const parsedDate = new Date(dateString);
+            if (!Number.isNaN(parsedDate.getTime())) {
+                return parsedDate;
+            }
+
+            const [month, day, year] = String(dateString).split('/').map(Number);
             return new Date(year, month - 1, day);
+        }
+
+        function resetFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const dateFilter = document.getElementById('dateFilter');
+
+            if (searchInput) searchInput.value = '';
+            if (statusFilter) statusFilter.value = 'all';
+            if (dateFilter) dateFilter.value = 'all';
+
+            filterRequests();
         }
 
         // Event listeners for filters
         document.getElementById('searchInput').addEventListener('input', filterRequests);
         document.getElementById('statusFilter').addEventListener('change', filterRequests);
         document.getElementById('dateFilter').addEventListener('change', filterRequests);
+        document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
 
         // Initial render
         renderRequests(requestsData);

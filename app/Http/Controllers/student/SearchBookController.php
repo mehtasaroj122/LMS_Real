@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\student;
 
 use App\Http\Controllers\Controller;
+use App\Models\book;
+use App\Models\category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 
 class SearchBookController extends Controller
 {
@@ -12,32 +15,47 @@ class SearchBookController extends Controller
     {
         Gate::authorize('access-student');
 
-        $query = $request->input('q');
+        $query = trim((string) $request->input('q', ''));
         $categoryId = $request->input('category');
+        $availability = $request->input('availability');
+        $condition = $request->input('condition');
+        $sort = $request->input('sort', 'title_asc');
 
-        $booksQuery = \App\Models\book::query()->with('category');
+        $booksQuery = book::query()->with('category');
         if ($query) {
-            $booksQuery->where(function($q) use ($query) {
+            $booksQuery->where(function ($q) use ($query) {
                 $q->where('title', 'like', "%$query%")
-                  ->orWhere('author', 'like', "%$query%")
-                  ->orWhere('isbn', 'like', "%$query%")
-                  ->orWhere('publisher', 'like', "%$query%")
-                  ->orWhere('description', 'like', "%$query%")
-                  ;
+                    ->orWhere('author', 'like', "%$query%")
+                    ->orWhere('isbn', 'like', "%$query%")
+                    ->orWhere('publisher', 'like', "%$query%")
+                    ->orWhere('shelf_no', 'like', "%$query%");
             });
         }
         if ($categoryId) {
             $booksQuery->where('category_id', $categoryId);
         }
-        $books = $booksQuery->orderBy('title')->get();
 
-        $categories = \App\Models\category::orderBy('name')->get();
+        if ($availability === 'available') {
+            $booksQuery->where('available_copies', '>', 0);
+        } elseif ($availability === 'unavailable') {
+            $booksQuery->where('available_copies', '<=', 0);
+        }
+
+        if (in_array($condition, ['new', 'good', 'damaged'], true)) {
+            $booksQuery->where('condition', $condition);
+        }
+
+        $this->applySort($booksQuery, $sort);
+
+        $books = $booksQuery->get();
+
+        $categories = category::orderBy('name')->get();
 
         // If AJAX request, return JSON
         if ($request->ajax()) {
-            $booksArray = $books->map(function($book) {
+            $booksArray = $books->map(function ($book) {
                 return [
-                    'id' => (int)$book->id,
+                    'id' => (int) $book->id,
                     'title' => $book->title,
                     'author' => $book->author,
                     'publisher' => $book->publisher,
@@ -46,6 +64,7 @@ class SearchBookController extends Controller
                     'available_copies' => $book->available_copies,
                     'condition' => $book->condition,
                     'description' => $book->description,
+                    'display_description' => $this->resolveCardDescription($book->description),
                     'cover_image' => $book->cover_image,
                     'shelf_no' => $book->shelf_no,
                     'status' => $book->status,
@@ -64,7 +83,49 @@ class SearchBookController extends Controller
             'categories' => $categories,
             'search' => $query,
             'selectedCategory' => $categoryId,
+            'selectedAvailability' => $availability,
+            'selectedCondition' => $condition,
+            'selectedSort' => $sort,
         ]);
+    }
+
+    protected function applySort($booksQuery, ?string $sort): void
+    {
+        switch ($sort) {
+            case 'title_desc':
+                $booksQuery->orderBy('title', 'desc');
+                break;
+            case 'author_asc':
+                $booksQuery->orderBy('author')->orderBy('title');
+                break;
+            case 'copies_desc':
+                $booksQuery->orderBy('available_copies', 'desc')->orderBy('title');
+                break;
+            case 'recent':
+                $booksQuery->latest();
+                break;
+            default:
+                $booksQuery->orderBy('title');
+                break;
+        }
+    }
+
+    protected function resolveCardDescription(?string $description): ?string
+    {
+        $normalized = trim(preg_replace('/\s+/', ' ', (string) $description));
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        if (in_array(Str::lower($normalized), [
+            'comprehensive learning resource',
+            'a comprehensive learning resource',
+        ], true)) {
+            return null;
+        }
+
+        return Str::limit($normalized, 120);
     }
 
     public function requestBook(Request $request)
@@ -117,4 +178,5 @@ class SearchBookController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error submitting request: ' . $e->getMessage()], 500);
         }
-    }}
+    }
+}

@@ -23,7 +23,8 @@
 
         /* Search Bar */
         .search-container {
-            padding: 0.75rem;
+            width: 100%;
+            padding: 1rem;
             border-radius: 0.5rem;
             background-color: var(--card-bg, #ffffff);
             border: 1px solid var(--border-color, #e5e7eb);
@@ -32,9 +33,16 @@
 
         .search-bar {
             display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 0.5rem;
-            align-items: center;
+            width: min(100%, 1040px);
+            grid-template-columns: minmax(260px, 2.2fr) repeat(4, minmax(140px, 1fr)) auto;
+            gap: 0.75rem;
+            align-items: end;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
         }
 
         .search-input-group {
@@ -65,17 +73,26 @@
             transform: translateY(-50%);
             color: var(--text-secondary, #64748b);
             pointer-events: none;
-            font-size: 0.95rem;
+            width: 1rem;
+            height: 1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-icon svg {
+            width: 1rem;
+            height: 1rem;
         }
 
         .filter-select {
+            width: 100%;
             padding: 0.5rem 1.75rem 0.5rem 0.75rem;
             border-radius: 0.375rem;
             border: 1px solid var(--border-color, #e5e7eb);
             background-color: var(--bg-input, #ffffff);
             color: var(--text-primary, #0f172a);
             font-size: 0.875rem;
-            min-width: 140px;
             appearance: none;
             cursor: pointer;
             transition: all 0.15s ease;
@@ -98,7 +115,46 @@
             transform: translateY(-50%);
             color: var(--text-secondary, #64748b);
             pointer-events: none;
-            font-size: 0.85rem;
+            width: 0.9rem;
+            height: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .select-arrow svg {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+
+        .filter-actions {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .reset-filters-btn {
+            height: 2.5rem;
+            padding: 0 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--border-color, #e5e7eb);
+            background-color: var(--soft-bg, #f8fafc);
+            color: var(--text-primary, #0f172a);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .reset-filters-btn:hover {
+            transform: translateY(-1px);
+            border-color: var(--primary-color, #3b82f6);
+        }
+
+        .dark-theme .reset-filters-btn {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: #f1f5f9;
         }
 
         /* Results Info */
@@ -123,6 +179,7 @@
             border: 1px solid var(--border-color, #e5e7eb);
             display: flex;
             flex-direction: column;
+            height: 100%;
             transition: all 0.15s ease;
         }
 
@@ -135,7 +192,12 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            gap: 0.75rem;
             margin-bottom: 0.5rem;
+        }
+
+        .book-header > div {
+            min-height: 3.75rem;
         }
 
         .book-title {
@@ -199,6 +261,10 @@
             color: var(--text-primary, #0f172a);
         }
 
+        .condition-value {
+            text-transform: capitalize;
+        }
+
         .category-badge {
             display: inline-flex;
             align-items: center;
@@ -218,11 +284,16 @@
             line-height: 1.4;
             margin-bottom: 0.75rem;
             flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         /* Action Button */
         .request-btn {
             width: 100%;
+            margin-top: auto;
             padding: 0.5rem 0.75rem;
             border-radius: 0.375rem;
             border: none;
@@ -317,8 +388,8 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .search-bar {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 0.65rem;
             }
 
             .books-grid {
@@ -335,11 +406,33 @@
             }
 
             .search-container {
-                padding: 0.5rem;
+                width: 100%;
+                padding: 0.75rem;
+            }
+
+            .filter-field:first-child {
+                grid-column: 1 / -1;
+            }
+
+            .filter-actions {
+                grid-column: 1 / -1;
+            }
+
+            .reset-filters-btn {
+                width: 100%;
             }
         }
 
         @media (max-width: 480px) {
+            .search-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-field:first-child,
+            .filter-actions {
+                grid-column: auto;
+            }
+
             .books-grid {
                 grid-template-columns: 1fr;
             }
@@ -492,22 +585,87 @@
 
         <!-- Search and Filter Bar -->
         <div class="search-container">
-            <form method="GET" action="{{ route('student.search') }}" id="searchForm"
-                style="width:100%; display:grid; grid-template-columns: 1fr auto; gap: 0.5rem; align-items: center;">
-                <div class="search-input-group">
-                    <span class="search-icon"></span>
+            <form method="GET" action="{{ route('student.search') }}" id="searchForm" class="search-bar">
+                <div class="filter-field">
+                    <div class="search-input-group">
+                        <span class="search-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <path d="m20 20-3.5-3.5"></path>
+                            </svg>
+                        </span>
                     <input type="text" name="q" class="search-input"
-                        placeholder="Search by title, author, or ISBN..." value="{{ $search }}" id="searchInput">
+                        placeholder="Search by title, author, ISBN, publisher, or shelf no..." value="{{ $search }}" id="searchInput">
+                    </div>
                 </div>
-                <div class="select-wrapper">
-                    <select name="category" class="filter-select" id="categoryFilter">
-                        <option value="">All Categories</option>
-                        @foreach ($categories as $cat)
-                            <option value="{{ $cat->id }}" {{ $selectedCategory == $cat->id ? 'selected' : '' }}>
-                                {{ $cat->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="select-arrow"></span>
+
+                <div class="filter-field">
+                    <div class="select-wrapper">
+                        <select name="category" class="filter-select" id="categoryFilter">
+                            <option value="">All Categories</option>
+                            @foreach ($categories as $cat)
+                                <option value="{{ $cat->id }}" {{ $selectedCategory == $cat->id ? 'selected' : '' }}>
+                                    {{ $cat->name }}</option>
+                            @endforeach
+                        </select>
+                        <span class="select-arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="filter-field">
+                    <div class="select-wrapper">
+                        <select name="availability" class="filter-select" id="availabilityFilter">
+                            <option value="">All Availability</option>
+                            <option value="available" {{ ($selectedAvailability ?? '') === 'available' ? 'selected' : '' }}>Available Only</option>
+                            <option value="unavailable" {{ ($selectedAvailability ?? '') === 'unavailable' ? 'selected' : '' }}>Unavailable Only</option>
+                        </select>
+                        <span class="select-arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="filter-field">
+                    <div class="select-wrapper">
+                        <select name="condition" class="filter-select" id="conditionFilter">
+                            <option value="">All Conditions</option>
+                            <option value="new" {{ ($selectedCondition ?? '') === 'new' ? 'selected' : '' }}>New</option>
+                            <option value="good" {{ ($selectedCondition ?? '') === 'good' ? 'selected' : '' }}>Good</option>
+                            <option value="damaged" {{ ($selectedCondition ?? '') === 'damaged' ? 'selected' : '' }}>Damaged</option>
+                        </select>
+                        <span class="select-arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="filter-field">
+                    <div class="select-wrapper">
+                        <select name="sort" class="filter-select" id="sortFilter">
+                            <option value="title_asc" {{ ($selectedSort ?? 'title_asc') === 'title_asc' ? 'selected' : '' }}>Title A-Z</option>
+                            <option value="title_desc" {{ ($selectedSort ?? '') === 'title_desc' ? 'selected' : '' }}>Title Z-A</option>
+                            <option value="author_asc" {{ ($selectedSort ?? '') === 'author_asc' ? 'selected' : '' }}>Author A-Z</option>
+                            <option value="copies_desc" {{ ($selectedSort ?? '') === 'copies_desc' ? 'selected' : '' }}>Most Available</option>
+                            <option value="recent" {{ ($selectedSort ?? '') === 'recent' ? 'selected' : '' }}>Recently Added</option>
+                        </select>
+                        <span class="select-arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m6 9 6 6 6-6"></path>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="button" class="reset-filters-btn" id="resetFiltersBtn">Reset</button>
                 </div>
             </form>
         </div>
@@ -518,6 +676,16 @@
         <!-- Books Grid -->
         <div class="books-grid" id="booksContainer">
             @forelse($books as $book)
+                @php
+                    $normalizedDescription = trim(preg_replace('/\s+/', ' ', (string) ($book->description ?? '')));
+                    $displayDescription = in_array(\Illuminate\Support\Str::lower($normalizedDescription), [
+                        '',
+                        'comprehensive learning resource',
+                        'a comprehensive learning resource',
+                    ], true)
+                        ? null
+                        : \Illuminate\Support\Str::limit($normalizedDescription, 120);
+                @endphp
                 <div class="book-card">
                     <div class="book-cover">
                         @if ($book->cover_image)
@@ -546,8 +714,8 @@
                             <span class="metadata-value">{{ $book->publisher }}</span>
                         </div>
                         <div class="metadata-item">
-                            <span class="metadata-label">Edition</span>
-                            <span class="metadata-value">{{ $book->edition ?? '-' }}</span>
+                            <span class="metadata-label">Condition</span>
+                            <span class="metadata-value condition-value">{{ $book->condition ?? '-' }}</span>
                         </div>
                         <div class="metadata-item">
                             <span class="metadata-label">ISBN</span>
@@ -562,7 +730,9 @@
                             <span class="metadata-value">{{ $book->available_copies }} / {{ $book->total_copies }}</span>
                         </div>
                     </div>
-                    <p class="book-description">{{ $book->description }}</p>
+                    @if ($displayDescription)
+                        <p class="book-description">{{ $displayDescription }}</p>
+                    @endif
                     <button class="request-btn" data-book-id="{{ $book->id }}">
                         <span>+</span>
                         <span>Request Book</span>
@@ -657,16 +827,120 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('searchForm');
             const searchInput = document.getElementById('searchInput');
             const categoryFilter = document.getElementById('categoryFilter');
+            const availabilityFilter = document.getElementById('availabilityFilter');
+            const conditionFilter = document.getElementById('conditionFilter');
+            const sortFilter = document.getElementById('sortFilter');
+            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
             const booksContainer = document.getElementById('booksContainer');
             const bookCount = document.getElementById('bookCount');
             const showMoreBtn = document.getElementById('showMoreBtn');
             const searchUrl = '{{ route('student.search') }}';
 
             const BOOKS_PER_PAGE = 12;
+            const genericDescriptions = [
+                'comprehensive learning resource',
+                'a comprehensive learning resource'
+            ];
             let allBooks = [];
             let displayedBooks = 0;
+
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function formatConditionLabel(condition) {
+                const normalized = String(condition ?? '').trim().toLowerCase();
+
+                if (!normalized) {
+                    return '-';
+                }
+
+                return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+            }
+
+            function getDisplayDescription(book) {
+                const rawDescription = String(book.display_description ?? book.description ?? '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+
+                if (!rawDescription || genericDescriptions.includes(rawDescription.toLowerCase())) {
+                    return '';
+                }
+
+                return rawDescription;
+            }
+
+            function getCurrentFilters() {
+                const params = new URLSearchParams();
+
+                if (searchInput.value.trim()) params.append('q', searchInput.value.trim());
+                if (categoryFilter.value) params.append('category', categoryFilter.value);
+                if (availabilityFilter.value) params.append('availability', availabilityFilter.value);
+                if (conditionFilter.value) params.append('condition', conditionFilter.value);
+                if (sortFilter.value && sortFilter.value !== 'title_asc') params.append('sort', sortFilter.value);
+
+                return params;
+            }
+
+            function syncBrowserUrl(params) {
+                const nextUrl = params.toString() ? `${searchUrl}?${params.toString()}` : searchUrl;
+                window.history.replaceState({}, '', nextUrl);
+            }
+
+            function renderBookCard(book) {
+                const description = getDisplayDescription(book);
+
+                return `
+                    <div class="book-card">
+                        <div class="book-header">
+                            <div>
+                                <h3 class="book-title">${escapeHtml(book.title)}</h3>
+                                <p class="book-author">${escapeHtml(book.author || 'Unknown author')}</p>
+                            </div>
+                            <span class="availability-badge ${book.status === 'available' ? 'available' : 'unavailable'}">${book.status === 'available' ? 'Available' : 'Unavailable'}</span>
+                        </div>
+                        <div class="book-metadata">
+                            <div class="metadata-item">
+                                <span class="metadata-label">Category</span>
+                                <span class="category-badge">${escapeHtml(book.category?.name || 'N/A')}</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">Publisher</span>
+                                <span class="metadata-value">${escapeHtml(book.publisher || '-')}</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">Condition</span>
+                                <span class="metadata-value condition-value">${escapeHtml(formatConditionLabel(book.condition))}</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">ISBN</span>
+                                <span class="metadata-value">${escapeHtml(book.isbn || '-')}</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">Location</span>
+                                <span class="metadata-value">${escapeHtml(book.shelf_no || '-')}</span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">Available Copies</span>
+                                <span class="metadata-value">${escapeHtml(book.available_copies)} / ${escapeHtml(book.total_copies)}</span>
+                            </div>
+                        </div>
+                        ${description ? `<p class="book-description">${escapeHtml(description)}</p>` : ''}
+                        <button class="request-btn" data-book-id="${escapeHtml(book.id)}">
+                            <span>+</span>
+                            <span>Request Book</span>
+                        </button>
+                    </div>
+                `;
+            }
 
             // Function to render paginated book cards
             function renderPaginatedBooks(booksToRender) {
@@ -676,48 +950,7 @@
                     return;
                 }
 
-                const booksHTML = booksToRender.map(book => `
-                    <div class="book-card">
-                        <div class="book-header">
-                            <div>
-                                <h3 class="book-title">${book.title}</h3>
-                                <p class="book-author">${book.author}</p>
-                            </div>
-                            <span class="availability-badge ${book.status === 'available' ? 'available' : 'unavailable'}">${book.status === 'available' ? 'Available' : 'Unavailable'}</span>
-                        </div>
-                        <div class="book-metadata">
-                            <div class="metadata-item">
-                                <span class="metadata-label">Category</span>
-                                <span class="category-badge">${book.category?.name || 'N/A'}</span>
-                            </div>
-                            <div class="metadata-item">
-                                <span class="metadata-label">Publisher</span>
-                                <span class="metadata-value">${book.publisher}</span>
-                            </div>
-                            <div class="metadata-item">
-                                <span class="metadata-label">Edition</span>
-                                <span class="metadata-value">${book.edition || '-'}</span>
-                            </div>
-                            <div class="metadata-item">
-                                <span class="metadata-label">ISBN</span>
-                                <span class="metadata-value">${book.isbn}</span>
-                            </div>
-                            <div class="metadata-item">
-                                <span class="metadata-label">Location</span>
-                                <span class="metadata-value">${book.shelf_no || '-'}</span>
-                            </div>
-                            <div class="metadata-item">
-                                <span class="metadata-label">Available Copies</span>
-                                <span class="metadata-value">${book.available_copies} / ${book.total_copies}</span>
-                            </div>
-                        </div>
-                        <p class="book-description">${book.description}</p>
-                        <button class="request-btn" data-book-id="${book.id}">
-                            <span>+</span>
-                            <span>Request Book</span>
-                        </button>
-                    </div>
-                `).join('');
+                const booksHTML = booksToRender.map(renderBookCard).join('');
 
                 booksContainer.innerHTML = booksHTML;
 
@@ -803,14 +1036,11 @@
 
             // Function to fetch and display filtered books
             function fetchBooks() {
-                const searchQuery = searchInput.value;
-                const categoryId = categoryFilter.value;
+                const params = getCurrentFilters();
+                syncBrowserUrl(params);
+                const requestUrl = params.toString() ? `${searchUrl}?${params.toString()}` : searchUrl;
 
-                const params = new URLSearchParams();
-                if (searchQuery) params.append('q', searchQuery);
-                if (categoryId) params.append('category', categoryId);
-
-                fetch(`${searchUrl}?${params.toString()}`, {
+                fetch(requestUrl, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest'
                         }
@@ -887,9 +1117,23 @@
                                 this.disabled = false;
                                 showErrorModal('Error submitting request. Please try again.');
                             });
-                    });
+                            });
                 });
             }
+
+            function resetFilters() {
+                searchInput.value = '';
+                categoryFilter.value = '';
+                availabilityFilter.value = '';
+                conditionFilter.value = '';
+                sortFilter.value = 'title_asc';
+                fetchBooks();
+            }
+
+            searchForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                fetchBooks();
+            });
 
             // Live search with debounce
             let searchTimeout;
@@ -903,6 +1147,22 @@
             // Live filter on category change
             categoryFilter.addEventListener('change', function() {
                 fetchBooks();
+            });
+
+            availabilityFilter.addEventListener('change', function() {
+                fetchBooks();
+            });
+
+            conditionFilter.addEventListener('change', function() {
+                fetchBooks();
+            });
+
+            sortFilter.addEventListener('change', function() {
+                fetchBooks();
+            });
+
+            resetFiltersBtn.addEventListener('click', function() {
+                resetFilters();
             });
 
             // Show More button click handler
