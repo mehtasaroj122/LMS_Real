@@ -19,7 +19,9 @@ class BookDeletionRequestController extends Controller
         Gate::authorize('access-staff');
 
         $validated = $request->validate([
-            'reason' => 'nullable|string|max:1000',
+            'reason' => 'required|string|max:1000',
+        ], [
+            'reason.required' => 'Please enter a reason for this deletion request.',
         ]);
 
         $book = book::find($bookId);

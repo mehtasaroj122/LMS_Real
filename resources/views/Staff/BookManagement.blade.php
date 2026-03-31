@@ -963,9 +963,26 @@
                 });
             };
             p.confirmDeleteBook = function() {
-                const reason = document.getElementById('deletionReason')?.value.trim() || '';
                 const confirmBtn = document.getElementById('confirmDeleteBook');
+                const reasonInput = document.getElementById('deletionReason');
+                const reasonError = document.getElementById('deletionReasonError');
+                const reason = reasonInput?.value.trim() || '';
+                if (reasonInput) reasonInput.classList.remove('has-error');
+                if (reasonError) {
+                    reasonError.hidden = true;
+                    reasonError.textContent = 'Please enter a reason for this deletion request.';
+                }
+                if (!confirmBtn || !this.currentBookId) return;
+                if (!reason) {
+                    if (reasonInput) {
+                        reasonInput.classList.add('has-error');
+                        reasonInput.focus();
+                    }
+                    if (reasonError) reasonError.hidden = false;
+                    return;
+                }
                 confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
                 fetch(`{{ url('staff/books') }}/${this.currentBookId}/request-deletion`, {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json', 'Content-Type': 'application/json' },
@@ -982,8 +999,14 @@
                 })
                 .catch((error) => {
                     console.error('Deletion request error:', error);
+                    if (reasonInput) reasonInput.classList.add('has-error');
+                    if (reasonError) {
+                        reasonError.hidden = false;
+                        reasonError.textContent = error.message || 'Error submitting deletion request';
+                    }
                     this.showNotification(error.message || 'Error submitting deletion request', 'error');
                     confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Request';
                 });
             };
         });
@@ -1113,10 +1136,25 @@
                 if (modalId === 'addBookModal') this.resetBookFormValidation(document.getElementById('addBookForm'));
                 if (modalId === 'editBookModal') this.resetBookFormValidation(document.getElementById('editBookForm'));
                 if (modalId === 'deleteBookModal') {
-                    const reason = document.getElementById('deletionReason');
-                    if (reason) reason.value = '';
+                    const title = document.getElementById('deleteBookModalTitle');
+                    const message = document.getElementById('deleteBookMessage');
+                    if (message) message.textContent = 'Staff accounts cannot permanently delete books. Send a deletion request to administrators for review.';
+                    if (title) title.textContent = 'Request Book Deletion';
+                    const reasonInput = document.getElementById('deletionReason');
+                    const reasonError = document.getElementById('deletionReasonError');
+                    if (reasonInput) {
+                        reasonInput.value = '';
+                        reasonInput.classList.remove('has-error');
+                    }
+                    if (reasonError) {
+                        reasonError.hidden = true;
+                        reasonError.textContent = 'Please enter a reason for this deletion request.';
+                    }
                     const confirmBtn = document.getElementById('confirmDeleteBook');
-                    if (confirmBtn) confirmBtn.disabled = false;
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Request';
+                    }
                 }
                 this.currentModal = null;
             };
@@ -1174,10 +1212,20 @@
                 this.openModal('editBookModal');
             };
             p.openDeleteModal = function() {
+                document.getElementById('deleteBookModalTitle').textContent = 'Request Book Deletion';
+                document.getElementById('deleteBookMessage').textContent = 'Staff accounts cannot permanently delete books. Send a deletion request to administrators for review.';
                 document.getElementById('deleteBookTitle').textContent = this.currentBookTitle || 'Unknown Book';
                 document.getElementById('deleteBookISBN').textContent = `ISBN: ${this.currentBookISBN || 'N/A'}`;
-                const reason = document.getElementById('deletionReason');
-                if (reason) reason.value = '';
+                const reasonInput = document.getElementById('deletionReason');
+                const reasonError = document.getElementById('deletionReasonError');
+                if (reasonInput) {
+                    reasonInput.value = '';
+                    reasonInput.classList.remove('has-error');
+                }
+                if (reasonError) {
+                    reasonError.hidden = true;
+                    reasonError.textContent = 'Please enter a reason for this deletion request.';
+                }
                 this.openModal('deleteBookModal');
             };
         });
@@ -1611,6 +1659,18 @@
                 document.getElementById('closeDeleteBookModal')?.addEventListener('click', () => this.closeModal('deleteBookModal'));
                 document.getElementById('cancelDeleteBook')?.addEventListener('click', () => this.closeModal('deleteBookModal'));
                 document.getElementById('confirmDeleteBook')?.addEventListener('click', () => this.confirmDeleteBook());
+                const deletionReasonInput = document.getElementById('deletionReason');
+                if (deletionReasonInput && !deletionReasonInput.dataset.listenerBound) {
+                    deletionReasonInput.addEventListener('input', () => {
+                        deletionReasonInput.classList.remove('has-error');
+                        const reasonError = document.getElementById('deletionReasonError');
+                        if (reasonError) {
+                            reasonError.hidden = true;
+                            reasonError.textContent = 'Please enter a reason for this deletion request.';
+                        }
+                    });
+                    deletionReasonInput.dataset.listenerBound = 'true';
+                }
                 document.querySelectorAll('.modal-overlay').forEach((overlay) => overlay.addEventListener('click', (e) => { if (e.target === overlay) this.closeCurrentModal(); }));
                 this.initFilters();
                 this.initSearch();
@@ -1939,6 +1999,134 @@
 
         .btn-confirm-danger:hover {
             background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+        }
+
+        #deleteBookModal .modal {
+            max-width: 500px;
+        }
+
+        #deleteBookModal .modal-header {
+            padding: 16px 18px;
+        }
+
+        #deleteBookModal .modal-body {
+            padding: 16px 18px 12px;
+        }
+
+        #deleteBookModal .modal-footer {
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 18px 18px;
+        }
+
+        #deleteBookModal .confirmation-popup {
+            text-align: left;
+            padding: 0;
+            display: grid;
+            gap: 12px;
+        }
+
+        .delete-modal-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        #deleteBookModal .confirmation-icon {
+            width: 52px;
+            height: 52px;
+            margin: 0;
+            font-size: 21px;
+            flex-shrink: 0;
+        }
+
+        .delete-modal-copy {
+            min-width: 0;
+        }
+
+        #deleteBookModal .confirmation-title {
+            font-size: 18px;
+            margin: 0 0 4px;
+        }
+
+        #deleteBookModal .confirmation-message {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        #deleteBookModal .confirmation-details {
+            margin-bottom: 0;
+            padding: 10px 12px;
+        }
+
+        #deleteBookModal .confirmation-details strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .delete-book-isbn {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        body.dark-theme .delete-book-isbn {
+            color: #94a3b8;
+        }
+
+        .delete-request-form {
+            text-align: left;
+            margin-top: 0;
+        }
+
+        .delete-request-form .form-label {
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .delete-request-textarea {
+            min-height: 84px;
+            resize: vertical;
+        }
+
+        #deleteBookModal .modal-footer .btn {
+            min-width: 108px;
+        }
+
+        #deleteBookModal .modal-footer .btn-confirm-danger {
+            min-width: 136px;
+        }
+
+        .delete-request-help {
+            margin-top: 6px;
+            margin-bottom: 0;
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.45;
+        }
+
+        body.dark-theme .delete-request-help {
+            color: #94a3b8;
+        }
+
+        .delete-request-error {
+            margin-top: 6px;
+            margin-bottom: 0;
+            font-size: 12px;
+            color: #dc2626;
+            font-weight: 500;
+        }
+
+        body.dark-theme .delete-request-error {
+            color: #fca5a5;
+        }
+
+        .delete-request-textarea.has-error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
         }
 
         @media (max-width: 768px) {
@@ -2445,34 +2633,40 @@
             </div>
             <div class="modal-body">
                 <div class="confirmation-popup">
-                    <div class="confirmation-icon warning">
-                        <i class="fas fa-exclamation-triangle"></i>
+                    <div class="delete-modal-header">
+                        <div class="confirmation-icon warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="delete-modal-copy">
+                            <h3 class="confirmation-title">Send Deletion Request?</h3>
+                            <p class="confirmation-message" id="deleteBookMessage">
+                                Staff accounts cannot permanently delete books. Send a deletion request to administrators for review.
+                            </p>
+                        </div>
                     </div>
-                    <h3 class="confirmation-title">Send Deletion Request?</h3>
-                    <p class="confirmation-message">
-                        Staff accounts cannot permanently delete books. This request will be sent to administrators for review.
-                    </p>
                     <div class="confirmation-details">
-                        <strong id="deleteBookTitle">Loading...</strong><br>
-                        <span id="deleteBookISBN" style="color: #6b7280; font-size: 12px;">loading...</span>
+                        <strong id="deleteBookTitle">Loading...</strong>
+                        <span id="deleteBookISBN" class="delete-book-isbn">loading...</span>
                     </div>
-                    <div id="deletionRequestForm" style="margin-top: 16px; text-align: left;">
-                        <label for="deletionReason" class="form-label">Reason for deletion (optional)</label>
-                        <textarea id="deletionReason" class="form-control" rows="4"
-                            placeholder="Describe why this book should be removed (e.g. duplicate entry, damaged beyond repair, incorrect record)"></textarea>
-                        <p style="font-size:12px; color:#6b7280; margin-top:8px;">Administrators will review the request before any book record is removed.</p>
-                    </div>
-                    <div class="confirmation-warning" style="margin-top: 12px;">
-                        <i class="fas fa-info-circle" style="margin-right: 6px; margin-top: 2px;"></i>
-                        <span>Submitting multiple duplicate requests in a short time will be blocked.</span>
+                    <div class="delete-request-form">
+                        <label for="deletionReason" class="form-label required">Reason for deletion</label>
+                        <textarea
+                            id="deletionReason"
+                            class="form-control delete-request-textarea"
+                            rows="4"
+                            maxlength="1000"
+                            placeholder="Explain why this book should be removed, for example duplicate record, wrong entry, or damaged beyond repair."
+                        ></textarea>
+                        <p class="delete-request-help">Required. The book record will stay unchanged until an administrator reviews your request.</p>
+                        <p class="delete-request-error" id="deletionReasonError" hidden>Please enter a reason for this deletion request.</p>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" style="justify-content: center; border-top: 1px solid #e5e7eb; padding-top: 16px;">
-                <button class="btn btn-outline" id="cancelDeleteBook" type="button" style="min-width: 100px;">Cancel</button>
-                <button class="btn btn-confirm-danger" id="confirmDeleteBook" type="button" style="min-width: 140px;">
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancelDeleteBook" type="button">Cancel</button>
+                <button class="btn btn-confirm-danger" id="confirmDeleteBook" type="button">
                     <i class="fas fa-paper-plane"></i>
-                    Submit Request
+                    Send Request
                 </button>
             </div>
         </div>
@@ -2486,6 +2680,7 @@
                 this.currentModal = null;
                 this.currentBookId = null;
                 this.currentBookTitle = null;
+                this.currentBookISBN = null;
                 this.currentConditionFilter = 'all';
                 this.searchDebounceTimer = null;
                 this.storageBase = '{{ asset('storage') }}';
@@ -2539,8 +2734,18 @@
                 document.getElementById('cancelDeleteBook').addEventListener('click', () => this.closeModal(
                     'deleteBookModal'));
                 document.getElementById('confirmDeleteBook').addEventListener('click', () => this.confirmDeleteBook());
-                const reqBtn = document.getElementById('requestDeletionBtn');
-                if (reqBtn) reqBtn.addEventListener('click', () => this.openDeletionRequestForm());
+                const deletionReasonInput = document.getElementById('deletionReason');
+                if (deletionReasonInput && !deletionReasonInput.dataset.listenerBound) {
+                    deletionReasonInput.addEventListener('input', () => {
+                        deletionReasonInput.classList.remove('has-error');
+                        const reasonError = document.getElementById('deletionReasonError');
+                        if (reasonError) {
+                            reasonError.hidden = true;
+                            reasonError.textContent = 'Please enter a reason for this deletion request.';
+                        }
+                    });
+                    deletionReasonInput.dataset.listenerBound = 'true';
+                }
 
                 // Close modals on overlay click
                 document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -2698,6 +2903,7 @@
                         const row = e.target.closest('tr');
                         this.currentBookId = row.dataset.bookId;
                         this.currentBookTitle = row.cells[1].querySelector('strong').textContent;
+                        this.currentBookISBN = row.cells[0].textContent || '';
                         this.openDeleteModal();
                     });
                 });
@@ -2807,14 +3013,23 @@
                     const message = document.getElementById('deleteBookMessage');
                     const confirmBtn = document.getElementById('confirmDeleteBook');
                     const cancelBtn = document.getElementById('cancelDeleteBook');
-                    const reqForm = document.getElementById('deletionRequestForm');
-                    const reqBtn = document.getElementById('requestDeletionBtn');
-                    if (title) title.textContent = 'Delete Book';
-                    if (message) message.textContent = 'Are you sure you want to delete this book?';
-                    if (confirmBtn) confirmBtn.style.display = '';
+                    const reasonInput = document.getElementById('deletionReason');
+                    const reasonError = document.getElementById('deletionReasonError');
+                    if (title) title.textContent = 'Request Book Deletion';
+                    if (message) message.textContent = 'Staff accounts cannot permanently delete books. Send a deletion request to administrators for review.';
+                    if (reasonInput) {
+                        reasonInput.value = '';
+                        reasonInput.classList.remove('has-error');
+                    }
+                    if (reasonError) {
+                        reasonError.hidden = true;
+                        reasonError.textContent = 'Please enter a reason for this deletion request.';
+                    }
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Request';
+                    }
                     if (cancelBtn) cancelBtn.textContent = 'Cancel';
-                    if (reqForm) reqForm.style.display = 'none';
-                    if (reqBtn) reqBtn.style.display = '';
                 }
             }
 
@@ -2887,29 +3102,6 @@
                 this.openModal('viewBookModal');
             }
 
-            openDeletionRequestForm() {
-                const reqForm = document.getElementById('deletionRequestForm');
-                const reqBtn = document.getElementById('requestDeletionBtn');
-                const cancelBtn = document.getElementById('cancelDeleteBook');
-                if (reqForm) reqForm.style.display = '';
-                if (reqBtn) reqBtn.style.display = 'none';
-                if (cancelBtn) cancelBtn.textContent = 'Cancel';
-
-                // Add submit listener dynamically
-                if (!this._deletionFormBound) {
-                    const submitBtn = document.createElement('button');
-                    submitBtn.className = 'btn btn-primary';
-                    submitBtn.id = 'submitDeletionRequest';
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
-                    submitBtn.style.marginLeft = '8px';
-                    const footer = document.querySelector('#deleteBookModal .modal-footer');
-                    if (footer) footer.insertBefore(submitBtn, footer.querySelector('#confirmDeleteBook'));
-
-                    submitBtn.addEventListener('click', () => this.submitDeletionRequest());
-                    this._deletionFormBound = true;
-                }
-            }
-
             openEditModal(row) {
                 const cells = row.cells;
                 const titleCell = cells[1];
@@ -2942,19 +3134,31 @@
             }
 
             openDeleteModal() {
-                // Show permission message for staff users instead of performing delete
-                document.getElementById('deleteBookModalTitle').textContent = 'Permission Required';
-                document.getElementById('deleteBookMessage').innerHTML =
-                    `You do not have permission to delete "<strong>${this.currentBookTitle}</strong>". Only administrators can delete books. If you believe this is an error, please contact your administrator or submit a deletion request.`;
-                // Hide the destructive confirm button (staff cannot delete) and reset request form
+                document.getElementById('deleteBookModalTitle').textContent = 'Request Book Deletion';
+                document.getElementById('deleteBookMessage').textContent =
+                    'Staff accounts cannot permanently delete books. Send a deletion request to administrators for review.';
+                document.getElementById('deleteBookTitle').textContent = this.currentBookTitle || 'Unknown Book';
+                const deleteBookIsbn = document.getElementById('deleteBookISBN');
+                const reasonInput = document.getElementById('deletionReason');
+                const reasonError = document.getElementById('deletionReasonError');
+                if (deleteBookIsbn) {
+                    deleteBookIsbn.textContent = this.currentBookISBN ? `ISBN: ${this.currentBookISBN}` : 'ISBN: N/A';
+                }
+                if (reasonInput) {
+                    reasonInput.value = '';
+                    reasonInput.classList.remove('has-error');
+                }
+                if (reasonError) {
+                    reasonError.hidden = true;
+                    reasonError.textContent = 'Please enter a reason for this deletion request.';
+                }
                 const confirmBtn = document.getElementById('confirmDeleteBook');
                 const cancelBtn = document.getElementById('cancelDeleteBook');
-                const reqForm = document.getElementById('deletionRequestForm');
-                const reqBtn = document.getElementById('requestDeletionBtn');
-                if (confirmBtn) confirmBtn.style.display = 'none';
-                if (cancelBtn) cancelBtn.textContent = 'Close';
-                if (reqForm) reqForm.style.display = 'none';
-                if (reqBtn) reqBtn.style.display = '';
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Request';
+                }
+                if (cancelBtn) cancelBtn.textContent = 'Cancel';
                 this.openModal('deleteBookModal');
             }
 
@@ -3157,15 +3361,35 @@
             }
 
             confirmDeleteBook() {
-                // Staff users cannot delete books. Show permission message instead.
-                this.showNotification(
-                    'You do not have permission to delete books. Only administrators can perform deletions.',
-                    'warning');
-                this.closeModal('deleteBookModal');
+                this.submitDeletionRequest();
             }
 
             submitDeletionRequest() {
-                const reason = document.getElementById('deletionReason').value.trim();
+                const confirmBtn = document.getElementById('confirmDeleteBook');
+                const reasonInput = document.getElementById('deletionReason');
+                const reasonError = document.getElementById('deletionReasonError');
+                const reason = reasonInput?.value.trim() || '';
+                if (!this.currentBookId || !confirmBtn) {
+                    return;
+                }
+
+                if (reasonInput) reasonInput.classList.remove('has-error');
+                if (reasonError) {
+                    reasonError.hidden = true;
+                    reasonError.textContent = 'Please enter a reason for this deletion request.';
+                }
+                if (!reason) {
+                    if (reasonInput) {
+                        reasonInput.classList.add('has-error');
+                        reasonInput.focus();
+                    }
+                    if (reasonError) reasonError.hidden = false;
+                    return;
+                }
+
+                confirmBtn.disabled = true;
+                confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
                 fetch(`{{ url('staff/books') }}/${this.currentBookId}/request-deletion`, {
                         method: 'POST',
                         headers: {
@@ -3177,18 +3401,38 @@
                             reason
                         })
                     })
-                    .then(response => response.json())
+                    .then(async response => {
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            throw new Error(data.message || 'Failed to submit deletion request');
+                        }
+                        return data;
+                    })
                     .then(data => {
                         if (data.success) {
                             this.showNotification('Deletion request submitted', 'success');
                             this.closeModal('deleteBookModal');
                         } else {
+                            if (reasonInput) reasonInput.classList.add('has-error');
+                            if (reasonError) {
+                                reasonError.hidden = false;
+                                reasonError.textContent = data.message || 'Failed to submit deletion request';
+                            }
                             this.showNotification(data.message || 'Failed to submit deletion request', 'error');
+                            confirmBtn.disabled = false;
+                            confirmBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Request';
                         }
                     })
                     .catch(err => {
                         console.error('Deletion request error:', err);
-                        this.showNotification('Error submitting deletion request', 'error');
+                        if (reasonInput) reasonInput.classList.add('has-error');
+                        if (reasonError) {
+                            reasonError.hidden = false;
+                            reasonError.textContent = err.message || 'Error submitting deletion request';
+                        }
+                        this.showNotification(err.message || 'Error submitting deletion request', 'error');
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Request';
                     });
             }
 
