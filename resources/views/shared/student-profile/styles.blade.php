@@ -360,9 +360,15 @@
     }
 
     .student-fines-pane {
-        height: 400px;
+        height: auto;
         min-height: 400px;
-        max-height: 400px;
+        max-height: none;
+    }
+
+    .student-privileges-pane {
+        height: auto;
+        min-height: 0;
+        max-height: none;
     }
 
     .student-pane-header {
@@ -500,8 +506,9 @@
 
     .student-table-filters {
         display: grid;
-        grid-template-columns: minmax(260px, 1fr) minmax(150px, 170px) minmax(150px, 170px) auto;
+        grid-template-columns: minmax(300px, 340px) minmax(160px, 190px) minmax(160px, 190px) auto;
         align-items: center;
+        justify-content: start;
         gap: 8px;
     }
 
@@ -563,6 +570,7 @@
     }
 
     .student-fine-table {
+        width: 100%;
         min-width: 0;
         table-layout: fixed;
     }
@@ -574,33 +582,35 @@
 
     .student-fine-table th:nth-child(1),
     .student-fine-table td:nth-child(1) {
-        width: 24%;
+        width: 23%;
         white-space: normal;
     }
 
     .student-fine-table th:nth-child(2),
     .student-fine-table td:nth-child(2) {
-        width: 14%;
+        width: 12%;
     }
 
     .student-fine-table th:nth-child(3),
     .student-fine-table td:nth-child(3) {
-        width: 12%;
+        width: 8%;
     }
 
     .student-fine-table th:nth-child(4),
     .student-fine-table td:nth-child(4) {
-        width: 14%;
+        width: 12%;
     }
 
     .student-fine-table th:nth-child(5),
     .student-fine-table td:nth-child(5) {
-        width: 12%;
+        width: 11%;
     }
 
     .student-fine-table th:nth-child(6),
     .student-fine-table td:nth-child(6) {
-        width: 24%;
+        width: 34%;
+        padding-left: 6px;
+        padding-right: 6px;
     }
 
     .student-data-table th,
@@ -724,8 +734,9 @@
     .student-fine-actions {
         display: flex;
         align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 4px;
+        flex-wrap: nowrap;
         white-space: nowrap;
     }
 
@@ -735,19 +746,25 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.35rem;
+        gap: 0.28rem;
         white-space: nowrap;
-        padding: 0.38rem 0.62rem;
-        border-radius: 7px;
-        font-size: 0.72rem;
+        padding: 0.34rem 0.52rem;
+        border-radius: 6px;
+        font-size: 0.68rem;
         font-weight: 700;
         transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease, opacity 0.16s ease;
     }
 
     .student-fine-action-btn svg {
-        width: 14px;
-        height: 14px;
+        width: 12px;
+        height: 12px;
         flex-shrink: 0;
+    }
+
+    .student-fine-table .student-status-pill {
+        padding: 0.2rem 0.42rem;
+        font-size: 0.6rem;
+        letter-spacing: 0.03em;
     }
 
     .student-fine-action-btn:hover {
@@ -887,11 +904,13 @@
     }
 
     .student-profile-lower-grid {
+        grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.7fr);
         grid-auto-rows: min-content;
+        align-items: stretch;
     }
 
-    .student-profile-lower-grid > .student-pane:not(.student-pane-fixed) {
-        align-self: start;
+    .student-profile-lower-grid > .student-pane {
+        align-self: stretch;
         height: auto;
         min-height: 0;
     }
@@ -904,6 +923,7 @@
 
     .student-privilege-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-content: start;
     }
 
     .student-privilege-card,

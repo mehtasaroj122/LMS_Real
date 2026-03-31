@@ -248,7 +248,7 @@
             </div>
         </section>
 
-        <section class="student-pane">
+        <section class="student-pane student-privileges-pane">
             <div class="student-pane-header">
                 <div>
                     <h3>Library Privileges</h3>
