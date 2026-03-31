@@ -551,7 +551,7 @@ class BookController extends Controller
         };
 
         if (array_key_exists('isbn', $data)) {
-            $data['isbn'] = preg_replace('/[-\s]/', '', (string) $data['isbn']);
+            $data['isbn'] = preg_replace('/[\/\-\s]/', '', (string) $data['isbn']);
         }
 
         foreach (['shelf_no', 'title', 'author', 'publisher', 'new_category', 'description'] as $field) {

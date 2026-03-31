@@ -14,7 +14,7 @@ class BookStoreRequest extends FormRequest
                 'bail',
                 'required',
                 'string',
-                'regex:/^[0-9]{10,13}$/',
+                'regex:/^[0-9]{5,13}$/',
                 Rule::unique('books', 'isbn')->ignore($bookId),
             ],
             'shelf_no' => [
@@ -96,7 +96,7 @@ class BookStoreRequest extends FormRequest
     {
         return [
             'isbn.required' => 'Enter the book ISBN.',
-            'isbn.regex' => 'ISBN must contain only 10 to 13 digits.',
+            'isbn.regex' => 'ISBN must contain 5 to 13 digits. You may use / or - as separators.',
             'isbn.unique' => 'This ISBN is already assigned to another book.',
 
             'shelf_no.required' => 'Enter the rack number.',
@@ -166,7 +166,7 @@ class BookStoreRequest extends FormRequest
         $normalized = [];
 
         if ($this->has('isbn')) {
-            $normalized['isbn'] = preg_replace('/[-\s]/', '', (string) $this->isbn);
+            $normalized['isbn'] = preg_replace('/[\/\-\s]/', '', (string) $this->isbn);
         }
 
         if ($this->has('shelf_no')) {

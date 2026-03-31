@@ -65,11 +65,11 @@ class BookRequestManagementDataService
     public function getNextPending(array $excludeIds = []): ?array
     {
         $bookRequest = $this->baseQuery()
-            ->where('status', 'pending')
+            ->where('book_requests.status', 'pending')
             ->when(!empty($excludeIds), function (Builder $query) use ($excludeIds) {
-                $query->whereNotIn('id', $excludeIds);
+                $query->whereNotIn('book_requests.id', $excludeIds);
             })
-            ->orderBy('request_date', 'desc')
+            ->orderBy('book_requests.request_date', 'desc')
             ->first();
 
         if (!$bookRequest) {
@@ -161,7 +161,7 @@ class BookRequestManagementDataService
             })->orWhereHas('book', function (Builder $bookQuery) use ($search) {
                 $bookQuery->where('title', 'like', "%{$search}%")
                     ->orWhere('author', 'like', "%{$search}%");
-            })->orWhere('request_date', 'like', "%{$search}%");
+            })->orWhere('book_requests.request_date', 'like', "%{$search}%");
         });
     }
 
@@ -171,7 +171,7 @@ class BookRequestManagementDataService
             return;
         }
 
-        $query->where('status', $status);
+        $query->where('book_requests.status', $status);
     }
 
     protected function applySorting(Builder $query, string $sort): void
@@ -196,9 +196,9 @@ class BookRequestManagementDataService
         $statsQuery = $this->baseQuery();
         $this->applyFilters($statsQuery, $filters);
 
-        $pendingQuery = (clone $statsQuery)->where('status', 'pending');
-        $approvedQuery = (clone $statsQuery)->where('status', 'approved');
-        $rejectedQuery = (clone $statsQuery)->where('status', 'rejected');
+        $pendingQuery = (clone $statsQuery)->where('book_requests.status', 'pending');
+        $approvedQuery = (clone $statsQuery)->where('book_requests.status', 'approved');
+        $rejectedQuery = (clone $statsQuery)->where('book_requests.status', 'rejected');
 
         $totalCount = (clone $statsQuery)->count();
         $pendingCount = (clone $pendingQuery)->count();
@@ -222,8 +222,8 @@ class BookRequestManagementDataService
             return 'No requests waiting in this view';
         }
 
-        $oldestRequestDate = (clone $query)->orderBy('request_date')->value('request_date');
-        $studentCount = (clone $query)->select('student_id')->distinct()->count('student_id');
+        $oldestRequestDate = (clone $query)->orderBy('book_requests.request_date')->value('book_requests.request_date');
+        $studentCount = (clone $query)->distinct('book_requests.student_id')->count('book_requests.student_id');
 
         $parts = [];
 
@@ -244,9 +244,9 @@ class BookRequestManagementDataService
             return 'No approved requests in this view';
         }
 
-        $studentCount = (clone $query)->select('student_id')->distinct()->count('student_id');
-        $weekCount = (clone $query)->where('processed_date', '>=', now()->startOfWeek())->count();
-        $latestProcessedDate = (clone $query)->orderByDesc('processed_date')->value('processed_date');
+        $studentCount = (clone $query)->distinct('book_requests.student_id')->count('book_requests.student_id');
+        $weekCount = (clone $query)->where('book_requests.processed_date', '>=', now()->startOfWeek())->count();
+        $latestProcessedDate = (clone $query)->orderByDesc('book_requests.processed_date')->value('book_requests.processed_date');
 
         $parts = [];
 
@@ -269,9 +269,9 @@ class BookRequestManagementDataService
             return 'No rejected requests in this view';
         }
 
-        $titleCount = (clone $query)->select('book_id')->distinct()->count('book_id');
-        $weekCount = (clone $query)->where('processed_date', '>=', now()->startOfWeek())->count();
-        $latestProcessedDate = (clone $query)->orderByDesc('processed_date')->value('processed_date');
+        $titleCount = (clone $query)->distinct('book_requests.book_id')->count('book_requests.book_id');
+        $weekCount = (clone $query)->where('book_requests.processed_date', '>=', now()->startOfWeek())->count();
+        $latestProcessedDate = (clone $query)->orderByDesc('book_requests.processed_date')->value('book_requests.processed_date');
 
         $parts = [];
 

@@ -1278,7 +1278,7 @@
                     form.querySelectorAll('input, select, textarea').forEach((input) => {
                         const triggerEvent = input.type === 'file' || input.tagName === 'SELECT' ? 'change' : 'input';
                         input.addEventListener(triggerEvent, () => {
-                            if (input.type !== 'file') {
+                            if (input.type !== 'file' && input.name !== 'isbn') {
                                 const normalizedValue = this.normalizeBookFieldValue(input.name, input.value);
                                 if (normalizedValue !== input.value) input.value = normalizedValue;
                             }
@@ -1324,7 +1324,7 @@
                 if (!form) return;
                 this.resetBookFormValidation(form);
                 form.querySelectorAll('input, select, textarea').forEach((input) => {
-                    if (input.type !== 'file') input.value = this.normalizeBookFieldValue(input.name, input.value);
+                    if (input.type !== 'file' && input.name !== 'isbn') input.value = this.normalizeBookFieldValue(input.name, input.value);
                     if (input.name === 'category_id' || input.name === 'new_category') this.validateCategoryState(form, { showErrors: false });
                     else this.validateSingleBookField(form, input, { showErrors: false, runRemote: false });
                 });
@@ -1389,17 +1389,30 @@
                     errorElement.style.display = 'none';
                 }
             };
-            p.focusBookField = function(input) { if (input) { input.focus({ preventScroll: true }); input.scrollIntoView({ behavior: 'smooth', block: 'center' }); } };
+            p.focusBookField = function(input) {
+                if (!input) return;
+                const target = input.closest('.form-group') ?? input;
+                const modal = input.closest('.modal');
+                if (modal) {
+                    const modalRect = modal.getBoundingClientRect();
+                    const targetRect = target.getBoundingClientRect();
+                    const nextScrollTop = modal.scrollTop + (targetRect.top - modalRect.top) - (modal.clientHeight / 2) + (targetRect.height / 2);
+                    modal.scrollTo({ top: Math.max(0, nextScrollTop), behavior: 'smooth' });
+                } else {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                input.focus({ preventScroll: true });
+            };
             p.normalizeBookFieldValue = function(fieldName, value) {
                 const raw = String(value ?? '');
-                if (fieldName === 'isbn') return raw.replace(/[-\s]/g, '');
+                if (fieldName === 'isbn') return raw.replace(/[\/\-\s]/g, '');
                 if (['title', 'author', 'publisher', 'new_category', 'description'].includes(fieldName)) return raw.replace(/\s+/g, ' ').trim();
                 if (fieldName === 'shelf_no') return raw.replace(/\s+/g, '').toUpperCase();
                 return raw.trim();
             };
             p.getBookFieldRules = function() {
                 return {
-                    isbn: { required: true, pattern: /^(?:\d{10}|\d{13})$/, requiredMessage: 'Enter the book ISBN.', patternMessage: 'ISBN must contain only 10 to 13 digits.' },
+                    isbn: { required: true, pattern: /^\d{5,13}$/, requiredMessage: 'Enter the book ISBN.', patternMessage: 'ISBN must contain 5 to 13 digits. You may use / or - as separators.' },
                     shelf_no: { required: true, pattern: /^[A-Za-z0-9]+[-]?[A-Za-z0-9]*$/, maxLength: 20, requiredMessage: 'Enter the rack number.', patternMessage: 'Rack number must contain only letters, numbers, and an optional dash like A-12.', maxLengthMessage: 'Rack number must be 20 characters or fewer.' },
                     title: { required: true, minLength: 2, maxLength: 255, pattern: /^[A-Za-z0-9\s\-:'.&()]+$/, requiredMessage: 'Enter the book title.', minLengthMessage: 'Book title must be at least 2 characters long.', maxLengthMessage: 'Book title must be 255 characters or fewer.', patternMessage: 'Title can only contain letters, numbers, spaces, and - : \' . & ( ).' },
                     author: { required: true, minLength: 2, maxLength: 255, pattern: /^[A-Za-z\s.]+$/, requiredMessage: 'Enter the author name.', minLengthMessage: 'Author name must be at least 2 characters long.', maxLengthMessage: 'Author name must be 255 characters or fewer.', patternMessage: 'Author name can only contain letters, spaces, and periods.' },
@@ -1464,7 +1477,7 @@
                 const form = input.closest('form');
                 const value = input.type === 'file' ? input.value : this.normalizeBookFieldValue(input.name, input.value);
                 const isRequired = input.hasAttribute('required');
-                if (input.type !== 'file') input.value = value;
+                if (input.type !== 'file' && input.name !== 'isbn') input.value = value;
                 if (!isRequired && value === '') return null;
                 if (rules.required && value === '') return rules.requiredMessage || 'This field is required.';
                 if (rules.minLength && value.length < rules.minLength) return rules.minLengthMessage;
@@ -3222,6 +3235,38 @@
                 });
             }
 
+            focusBookField(input) {
+                if (!input) {
+                    return;
+                }
+
+                const target = input.closest('.form-group') || input;
+                const modal = input.closest('.modal');
+
+                if (modal) {
+                    const modalRect = modal.getBoundingClientRect();
+                    const targetRect = target.getBoundingClientRect();
+                    const nextScrollTop = modal.scrollTop +
+                        (targetRect.top - modalRect.top) -
+                        (modal.clientHeight / 2) +
+                        (targetRect.height / 2);
+
+                    modal.scrollTo({
+                        top: Math.max(0, nextScrollTop),
+                        behavior: 'smooth'
+                    });
+                } else {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+
+                input.focus({
+                    preventScroll: true
+                });
+            }
+
             showFieldError(input, message) {
                 this.clearFieldError(input);
                 input.classList.add('error');
@@ -3231,11 +3276,7 @@
                 errorDiv.textContent = message;
 
                 input.parentElement.appendChild(errorDiv);
-                input.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-                input.focus();
+                this.focusBookField(input);
             }
 
             validateField(input, rules) {
@@ -3327,9 +3368,9 @@
                     isbn: {
                         required: true,
                         requiredMessage: 'ISBN is required',
-                        pattern: /^[0-9]{10,13}$/,
-                        patternMessage: 'ISBN must be 10-13 digits only (e.g., 9780134685991)',
-                        transform: (value) => value.replace(/[-\s]/g, '')
+                        pattern: /^[0-9]{5,13}$/,
+                        patternMessage: 'ISBN must be 5-13 digits only. You may use / or - as separators (e.g., 978/013-4685991)',
+                        transform: (value) => value.replace(/[\/\-\s]/g, '')
                     },
                     shelf_no: {
                         required: true,

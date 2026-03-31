@@ -1829,7 +1829,7 @@
                         const triggerEvent = input.type === 'file' || input.tagName === 'SELECT' ? 'change' : 'input';
 
                         input.addEventListener(triggerEvent, () => {
-                            if (input.type !== 'file') {
+                            if (input.type !== 'file' && input.name !== 'isbn') {
                                 const normalizedValue = this.normalizeBookFieldValue(input.name, input.value);
                                 if (normalizedValue !== input.value) {
                                     input.value = normalizedValue;
@@ -1970,8 +1970,26 @@
                     return;
                 }
 
+                const target = input.closest('.form-group') ?? input;
+                const modal = input.closest('.modal');
+
+                if (modal) {
+                    const modalRect = modal.getBoundingClientRect();
+                    const targetRect = target.getBoundingClientRect();
+                    const nextScrollTop = modal.scrollTop
+                        + (targetRect.top - modalRect.top)
+                        - (modal.clientHeight / 2)
+                        + (targetRect.height / 2);
+
+                    modal.scrollTo({
+                        top: Math.max(0, nextScrollTop),
+                        behavior: 'smooth',
+                    });
+                } else {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
                 input.focus({ preventScroll: true });
-                input.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
             normalizeBookFieldValue(fieldName, value) {
@@ -1979,7 +1997,7 @@
 
                 switch (fieldName) {
                     case 'isbn':
-                        return rawValue.replace(/[-\s]/g, '');
+                        return rawValue.replace(/[\/\-\s]/g, '');
                     case 'title':
                     case 'author':
                     case 'publisher':
@@ -1997,9 +2015,9 @@
                 return {
                     isbn: {
                         required: true,
-                        pattern: /^(?:\d{10}|\d{13})$/,
+                        pattern: /^\d{5,13}$/,
                         requiredMessage: 'Enter the book ISBN.',
-                        patternMessage: 'ISBN must contain only 10 to 13 digits.',
+                        patternMessage: 'ISBN must contain 5 to 13 digits. You may use / or - as separators.',
                     },
                     shelf_no: {
                         required: true,
@@ -2172,7 +2190,7 @@
                     : this.normalizeBookFieldValue(input.name, input.value);
                 const isRequired = input.hasAttribute('required');
 
-                if (input.type !== 'file') {
+                if (input.type !== 'file' && input.name !== 'isbn') {
                     input.value = value;
                 }
 
@@ -3202,7 +3220,7 @@
                 this.resetBookFormValidation(form);
 
                 form.querySelectorAll('input, select, textarea').forEach(input => {
-                    if (input.type !== 'file') {
+                    if (input.type !== 'file' && input.name !== 'isbn') {
                         input.value = this.normalizeBookFieldValue(input.name, input.value);
                     }
 
