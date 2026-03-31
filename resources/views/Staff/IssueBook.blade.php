@@ -1661,7 +1661,7 @@
 @endpush
 
 @section('content')
-<div class="p-6">
+<div>
     <div>
         <h1 class="section-title">Issue Book</h1>
         <p class="section-subtitle">Issue multiple books to a student (Max 5 books)</p>

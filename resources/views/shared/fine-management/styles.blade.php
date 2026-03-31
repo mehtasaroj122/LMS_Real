@@ -39,7 +39,7 @@
 
     .fine-page .main-content {
         flex: 1;
-        padding: 1rem;
+        padding: 0;
         overflow-y: auto;
     }
 
@@ -1122,7 +1122,7 @@
 
     @media (max-width: 768px) {
         .fine-page .main-content {
-            padding: 0.75rem;
+            padding: 0;
         }
 
         .fine-page .page-header,

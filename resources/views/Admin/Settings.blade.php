@@ -74,7 +74,7 @@
             --toggle-off: #475569;
         }
 
-        .settings-container { width: 100%; max-width: none; margin: 0; }
+        .settings-container { width: 100%; max-width: none; margin: -0.25rem 0 0; }
         .settings-header { margin-bottom: 1rem; }
         .settings-header h1 { margin: 0; font-size: 1.6rem; font-weight: 700; color: var(--text-primary); }
         .settings-header p { margin: 0.35rem 0 0; color: var(--text-secondary); }

@@ -8,8 +8,8 @@
         .settings-container {
             width: 100%;
             max-width: none;
-            margin: 0;
-            padding: 1rem;
+            margin: -0.25rem 0 0;
+            padding: 0;
         }
 
         .settings-header {
@@ -886,7 +886,7 @@
 
         @media (max-width: 640px) {
             .settings-container {
-                padding: 0.75rem;
+                padding: 0;
             }
 
             .settings-grid {

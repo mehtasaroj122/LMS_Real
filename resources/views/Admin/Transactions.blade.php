@@ -1544,7 +1544,7 @@
 @endpush
 
 @section('content')
-    <div class="p-6">
+    <div>
         <!-- Issue Book Section -->
         <div class="mb-8">
             <h1 class="mb-2 text-3xl font-bold text-primary">Issue Book</h1>

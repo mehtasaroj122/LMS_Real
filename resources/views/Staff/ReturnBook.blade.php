@@ -527,14 +527,21 @@
         /* Fine Settings Cards */
         .settings-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(2, minmax(0, 220px));
             gap: 1rem;
             margin-bottom: 1.5rem;
+            justify-content: start;
         }
 
         @media (min-width: 768px) {
             .settings-grid {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(4, minmax(0, 220px));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -1385,7 +1392,7 @@
 @endpush
 
 @section('content')
-    <div class="p-6">
+    <div>
         <div>
             <h1 class="section-title">Return Book</h1>
             <p class="section-subtitle">Process book returns and calculate fines</p>

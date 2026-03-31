@@ -8,7 +8,7 @@
     <style>
         /* User Management Styles */
         .user-management {
-            padding: 5px;
+            padding: 0;
         }
 
         /* Stats Cards - Single Row */
@@ -904,7 +904,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .user-management {
-                padding: 16px;
+                padding: 0;
             }
 
             .stats-row {

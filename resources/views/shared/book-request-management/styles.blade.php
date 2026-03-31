@@ -33,7 +33,7 @@
     }
 
     .book-request-page .request-content {
-        padding: 1rem;
+        padding: 0;
     }
 
     .book-request-page .request-page-header {
@@ -1197,7 +1197,7 @@
 
     @media (max-width: 768px) {
         .book-request-page .request-content {
-            padding: 0.75rem;
+            padding: 0;
         }
 
         .book-request-page .request-page-header,

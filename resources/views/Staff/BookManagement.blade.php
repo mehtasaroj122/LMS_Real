@@ -813,7 +813,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .book-management {
-                padding: 16px;
+                padding: 0;
             }
 
             .stats-row {
@@ -1687,7 +1687,7 @@
 @push('styles')
     <style>
         .book-management {
-            padding: 16px;
+            padding: 0;
         }
 
         .search-filter-container {

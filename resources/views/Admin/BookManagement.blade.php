@@ -9,7 +9,7 @@
     <style>
         /* Book Management Styles */
         .book-management {
-            padding: 16px;
+            padding: 0;
         }
 
         /* Stats Cards - Similar to User Management */
@@ -1446,7 +1446,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .book-management {
-                padding: 16px;
+                padding: 0;
             }
 
             .stats-row {
