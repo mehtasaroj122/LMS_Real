@@ -212,7 +212,7 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::get('/students/stats', [StaffStudentsController::class, 'getStudentsStats'])->name('students.stats');
         Route::post('/students/{student}/deactivate', [StaffStudentsController::class, 'deactivate'])->name('students.deactivate');
         Route::post('/students/{student}/activate', [StaffStudentsController::class, 'activate'])->name('students.activate');
-        Route::resource('students', StaffStudentsController::class)->only(['show', 'store']);
+        Route::resource('students', StaffStudentsController::class)->only(['show']);
         
         Route::get('/activity-logs', [StaffActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/settings', [StaffSettingController::class, 'index'])->name('settings.index');

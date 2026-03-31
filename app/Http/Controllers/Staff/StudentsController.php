@@ -4,11 +4,8 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentManagement\ListStudentsRequest;
-use App\Http\Requests\StudentManagement\StoreStudentRequest;
-use App\Services\StudentManagement\StudentManagementActionService;
 use App\Services\StudentManagement\StudentManagementDataService;
 use App\Services\StudentManagement\StudentProfileDataService;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -22,38 +19,6 @@ class StudentsController extends Controller
         return view('Staff.Students', [
             'departments' => $dataService->getDepartments(),
         ]);
-    }
-
-    public function store(
-        StoreStudentRequest $request,
-        StudentManagementActionService $actionService,
-        StudentManagementDataService $dataService
-    ) {
-        Gate::authorize('access-staff');
-
-        $validated = $request->validated();
-
-        try {
-            $student = $actionService->create($validated);
-        } catch (QueryException $exception) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $actionService->duplicateStudentErrors($exception, $validated),
-            ], 422);
-        }
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Student created successfully.',
-                'student' => $dataService->serializeStudent($student, ['can_toggle_status' => true]),
-            ]);
-        }
-
-        return redirect()
-            ->route('staff.students.index')
-            ->with('success', 'Student created successfully.');
     }
 
     public function getStudentsData(
