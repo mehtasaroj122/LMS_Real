@@ -30,17 +30,20 @@
     .fine-page {
         font-family: "Inter", sans-serif;
         color: var(--fine-text-primary);
+        min-height: 0;
     }
 
     .fine-page .dashboard-container {
         display: flex;
-        min-height: 100%;
+        min-height: 0;
     }
 
     .fine-page .main-content {
         flex: 1;
+        min-width: 0;
         padding: 0;
-        overflow-y: auto;
+        overflow: visible;
+        min-height: 0;
     }
 
     .fine-page .page-header {
