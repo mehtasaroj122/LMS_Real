@@ -44,6 +44,14 @@ class Student extends Model
         return $this->hasMany(Fine::class);
     }
 
+    /**
+     * Get the privilege settings for this student.
+     */
+    public function privilege()
+    {
+        return $this->hasOne(StudentPrivilege::class);
+    }
+
     public function privileges()
     {
         return $this->hasOne(StudentPrivilege::class);

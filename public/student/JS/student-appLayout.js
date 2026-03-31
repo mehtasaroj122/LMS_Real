@@ -35,6 +35,13 @@ const markAllReadBtn = document.getElementById("markAllReadBtn");
 
 let notifications = [];
 
+function buildNotificationUrl(template, notificationId) {
+    return String(template || '')
+        .replace('__ID__', String(notificationId))
+        .replace(':id', String(notificationId))
+        .replace('%3Aid', String(notificationId));
+}
+
 // Wait for window.notificationAPI to be defined, then initialize
 function initializeNotifications() {
     if (!window.notificationAPI) {
@@ -203,7 +210,11 @@ function getNotificationIconClass(type) {
 
 // Attach click handlers to notifications
 function attachNotificationHandlers() {
-    document.querySelectorAll('.notification-item').forEach(item => {
+    if (!notificationBody) {
+        return;
+    }
+
+    notificationBody.querySelectorAll('.notification-item').forEach(item => {
         item.addEventListener('click', async function(e) {
             // Don't mark as read if delete button was clicked
             if (e.target.closest('.notification-delete-btn')) {
@@ -217,7 +228,7 @@ function attachNotificationHandlers() {
     });
     
     // Attach delete button handlers
-    document.querySelectorAll('.notification-delete-btn').forEach(btn => {
+    notificationBody.querySelectorAll('.notification-delete-btn').forEach(btn => {
         btn.addEventListener('click', async function(e) {
             e.stopPropagation();
             const notificationId = this.dataset.id;
@@ -229,7 +240,7 @@ function attachNotificationHandlers() {
 // Mark single notification as read
 async function markNotificationAsRead(notificationId) {
     try {
-        const markReadUrl = window.notificationAPI.markRead.replace(':id', notificationId);
+        const markReadUrl = buildNotificationUrl(window.notificationAPI.markRead, notificationId);
         await fetch(markReadUrl, {
             method: 'POST',
             headers: {
@@ -284,7 +295,7 @@ async function deleteNotification(notificationId) {
             return;
         }
 
-        const deleteUrl = window.notificationAPI.delete.replace(':id', notificationId);
+        const deleteUrl = buildNotificationUrl(window.notificationAPI.delete, notificationId);
         console.log('🗑️ Deleting notification from:', deleteUrl);
 
         // Call backend to delete from database

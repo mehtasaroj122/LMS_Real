@@ -153,9 +153,9 @@
     window.notificationAPI = {
         index: '{{ route("student.notifications.index") }}',
         unreadCount: '{{ route("student.notifications.unread-count") }}',
-        markRead: '{{ route("student.notifications.mark-read", ":id") }}',
+        markRead: '{{ route("student.notifications.mark-read", "__ID__") }}',
         markAllRead: '{{ route("student.notifications.mark-all-read") }}',
-        delete: '{{ route("student.notifications.destroy", ":id") }}',
+        delete: '{{ route("student.notifications.destroy", "__ID__") }}',
         deleteAll: '{{ route("student.notifications.delete-all-read") }}'
     };
 </script>
