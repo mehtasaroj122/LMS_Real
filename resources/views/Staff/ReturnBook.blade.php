@@ -176,6 +176,60 @@
             background-color: #475569;
         }
 
+        .issued-books-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 8px;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background-color: #f8fafc;
+        }
+
+        body.dark-theme .issued-books-toolbar {
+            background-color: #0f172a;
+            border-color: #334155;
+        }
+
+        .issued-books-toolbar[hidden] {
+            display: none;
+        }
+
+        .bulk-select-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        body.dark-theme .bulk-select-label {
+            color: #e2e8f0;
+        }
+
+        .bulk-select-checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: #2563eb;
+            cursor: pointer;
+        }
+
+        .issued-books-selection-summary {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        body.dark-theme .issued-books-selection-summary {
+            color: #94a3b8;
+        }
+
         /* Book Checkbox Container */
         .book-checkbox-container {
             display: flex;
@@ -537,6 +591,497 @@
             color: #94a3b8;
         }
 
+        .return-alert-stack {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .return-alert {
+            position: relative;
+            width: min(360px, calc(100vw - 32px));
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            gap: 12px;
+            align-items: start;
+            padding: 14px 14px 16px;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            background-color: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.55);
+            opacity: 0;
+            transform: translateY(-8px) scale(0.98);
+            transition: opacity 0.22s ease, transform 0.22s ease;
+            overflow: hidden;
+            pointer-events: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        body.dark-theme .return-alert {
+            background-color: rgba(30, 41, 59, 0.98);
+            border-color: #334155;
+            box-shadow: 0 22px 48px -28px rgba(2, 6, 23, 0.72);
+        }
+
+        .return-alert.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .return-alert-icon {
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .return-alert-body {
+            min-width: 0;
+        }
+
+        .return-alert-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 0 0 0.2rem;
+            color: #0f172a;
+        }
+
+        body.dark-theme .return-alert-title {
+            color: #f8fafc;
+        }
+
+        .return-alert-message {
+            margin: 0;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            color: #64748b;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        body.dark-theme .return-alert-message {
+            color: #cbd5e1;
+        }
+
+        .return-alert-close {
+            width: 1.9rem;
+            height: 1.9rem;
+            border-radius: 9999px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            margin: -0.15rem -0.2rem 0 0;
+        }
+
+        .return-alert-close:hover {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        body.dark-theme .return-alert-close:hover {
+            background-color: #334155;
+            color: #e2e8f0;
+        }
+
+        .return-alert-progress {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3px;
+            transform-origin: left;
+            animation: returnAlertProgress linear forwards;
+        }
+
+        .return-alert.return-alert-success .return-alert-progress {
+            animation-duration: 3s;
+        }
+
+        .return-alert-success {
+            border-color: #bbf7d0;
+        }
+
+        body.dark-theme .return-alert-success {
+            border-color: rgba(34, 197, 94, 0.35);
+        }
+
+        .return-alert-success .return-alert-icon {
+            color: #059669;
+            background-color: #d1fae5;
+        }
+
+        body.dark-theme .return-alert-success .return-alert-icon {
+            color: #6ee7b7;
+            background-color: rgba(16, 185, 129, 0.18);
+        }
+
+        .return-alert-success .return-alert-title {
+            color: #059669;
+        }
+
+        body.dark-theme .return-alert-success .return-alert-title {
+            color: #6ee7b7;
+        }
+
+        .return-alert-success .return-alert-progress {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .return-alert-warning {
+            border-color: #fde68a;
+        }
+
+        body.dark-theme .return-alert-warning {
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+
+        .return-alert-warning .return-alert-icon {
+            color: #b45309;
+            background-color: #fef3c7;
+        }
+
+        body.dark-theme .return-alert-warning .return-alert-icon {
+            color: #fbbf24;
+            background-color: rgba(245, 158, 11, 0.16);
+        }
+
+        .return-alert-warning .return-alert-title {
+            color: #b45309;
+        }
+
+        body.dark-theme .return-alert-warning .return-alert-title {
+            color: #fbbf24;
+        }
+
+        .return-alert-error {
+            border-color: #fecaca;
+        }
+
+        body.dark-theme .return-alert-error {
+            border-color: rgba(239, 68, 68, 0.35);
+        }
+
+        .return-alert-error .return-alert-icon {
+            color: #dc2626;
+            background-color: #fee2e2;
+        }
+
+        body.dark-theme .return-alert-error .return-alert-icon {
+            color: #fca5a5;
+            background-color: rgba(239, 68, 68, 0.16);
+        }
+
+        .return-alert-error .return-alert-title {
+            color: #dc2626;
+        }
+
+        body.dark-theme .return-alert-error .return-alert-title {
+            color: #fca5a5;
+        }
+
+        .return-alert-info {
+            border-color: #bfdbfe;
+        }
+
+        body.dark-theme .return-alert-info {
+            border-color: rgba(59, 130, 246, 0.35);
+        }
+
+        .return-alert-info .return-alert-icon {
+            color: #2563eb;
+            background-color: #dbeafe;
+        }
+
+        body.dark-theme .return-alert-info .return-alert-icon {
+            color: #93c5fd;
+            background-color: rgba(59, 130, 246, 0.16);
+        }
+
+        .return-alert-info .return-alert-title {
+            color: #2563eb;
+        }
+
+        body.dark-theme .return-alert-info .return-alert-title {
+            color: #93c5fd;
+        }
+
+        @keyframes returnAlertProgress {
+            from {
+                transform: scaleX(1);
+            }
+
+            to {
+                transform: scaleX(0);
+            }
+        }
+
+        body.return-confirm-open {
+            overflow: hidden;
+        }
+
+        .return-confirm-modal[hidden] {
+            display: none;
+        }
+
+        .return-confirm-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .return-confirm-backdrop {
+            position: absolute;
+            inset: 0;
+            border: none;
+            background: rgba(15, 23, 42, 0.52);
+            backdrop-filter: blur(4px);
+            cursor: pointer;
+        }
+
+        .return-confirm-dialog {
+            position: relative;
+            width: min(460px, 100%);
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            box-shadow: 0 30px 70px -34px rgba(15, 23, 42, 0.58);
+            padding: 20px;
+            transform: translateY(10px) scale(0.97);
+            opacity: 0;
+            transition: transform 0.24s ease, opacity 0.24s ease;
+        }
+
+        .return-confirm-modal.show .return-confirm-dialog {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        body.dark-theme .return-confirm-dialog {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 30px 70px -34px rgba(2, 6, 23, 0.78);
+        }
+
+        .return-confirm-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .return-confirm-header-main {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .return-confirm-icon {
+            width: 2.7rem;
+            height: 2.7rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: #d97706;
+            background: #fef3c7;
+        }
+
+        body.dark-theme .return-confirm-icon {
+            color: #fbbf24;
+            background: rgba(245, 158, 11, 0.18);
+        }
+
+        .return-confirm-title {
+            margin: 0 0 4px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        body.dark-theme .return-confirm-title {
+            color: #f8fafc;
+        }
+
+        .return-confirm-subtitle {
+            margin: 0;
+            font-size: 0.83rem;
+            line-height: 1.5;
+            color: #64748b;
+        }
+
+        body.dark-theme .return-confirm-subtitle {
+            color: #94a3b8;
+        }
+
+        .return-confirm-close {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 9999px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .return-confirm-close:hover {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        body.dark-theme .return-confirm-close:hover {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .return-confirm-summary {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .return-confirm-stat {
+            border-radius: 14px;
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        body.dark-theme .return-confirm-stat {
+            border-color: #334155;
+            background: #0f172a;
+        }
+
+        .return-confirm-stat-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        body.dark-theme .return-confirm-stat-label {
+            color: #94a3b8;
+        }
+
+        .return-confirm-stat-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.35;
+            word-break: break-word;
+        }
+
+        body.dark-theme .return-confirm-stat-value {
+            color: #f8fafc;
+        }
+
+        .return-confirm-note {
+            margin: 0 0 16px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(37, 99, 235, 0.16);
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.12));
+            font-size: 13px;
+            line-height: 1.55;
+            color: #475569;
+        }
+
+        body.dark-theme .return-confirm-note {
+            color: #cbd5e1;
+            border-color: rgba(96, 165, 250, 0.25);
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.35), rgba(14, 116, 144, 0.28));
+        }
+
+        .return-confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .return-confirm-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 108px;
+        }
+
+        .return-confirm-btn.secondary {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .return-confirm-btn.secondary:hover {
+            background: #cbd5e1;
+        }
+
+        body.dark-theme .return-confirm-btn.secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .return-confirm-btn.secondary:hover {
+            background: #475569;
+        }
+
+        .return-confirm-btn.primary {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .return-confirm-btn.primary:hover {
+            background: #1d4ed8;
+        }
+
+        body.dark-theme .return-confirm-btn.primary {
+            background: #1e40af;
+        }
+
+        body.dark-theme .return-confirm-btn.primary:hover {
+            background: #1e3a8a;
+        }
+
+        .return-confirm-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         .policy-note,
         .return-total-summary {
             background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.12));
@@ -794,7 +1339,8 @@
             .return-student-header,
             .return-student-heading,
             .return-rules-heading,
-            .return-total-summary-row {
+            .return-total-summary-row,
+            .issued-books-toolbar {
                 flex-direction: column;
                 align-items: flex-start;
             }
@@ -807,6 +1353,32 @@
             .book-meta {
                 flex-direction: column;
                 gap: 4px;
+            }
+
+            .return-alert-stack {
+                left: 16px;
+                right: 16px;
+                top: 16px;
+            }
+
+            .return-alert {
+                width: 100%;
+            }
+
+            .return-confirm-modal {
+                padding: 16px;
+            }
+
+            .return-confirm-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .return-confirm-actions {
+                flex-direction: column-reverse;
+            }
+
+            .return-confirm-btn {
+                width: 100%;
             }
         }
     </style>
@@ -868,6 +1440,13 @@
                             <label class="form-label">
                                 Select Books to Return<span class="text-danger">*</span>
                             </label>
+                            <div class="issued-books-toolbar" id="issuedBooksToolbar" hidden>
+                                <label class="bulk-select-label" for="selectAllIssuedBooks">
+                                    <input type="checkbox" class="bulk-select-checkbox" id="selectAllIssuedBooks">
+                                    <span>Select all books</span>
+                                </label>
+                                <span class="issued-books-selection-summary" id="issuedBooksSelectionSummary">0 of 0 selected</span>
+                            </div>
                             <div class="scrollable-container" id="issuedBooksContainer"></div>
                         </div>
 
@@ -1040,6 +1619,58 @@
             </div>
         </div>
     </div>
+
+    <div id="returnConfirmModal" class="return-confirm-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="returnConfirmTitle">
+        <button type="button" class="return-confirm-backdrop" data-return-confirm-close aria-label="Close return confirmation"></button>
+        <div class="return-confirm-dialog">
+            <div class="return-confirm-header">
+                <div class="return-confirm-header-main">
+                    <div class="return-confirm-icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19 12-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 id="returnConfirmTitle" class="return-confirm-title">Confirm Return</h3>
+                        <p class="return-confirm-subtitle">Please review this return request before continuing.</p>
+                    </div>
+                </div>
+                <button type="button" class="return-confirm-close" data-return-confirm-close aria-label="Close return confirmation">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="return-confirm-summary">
+                <div class="return-confirm-stat">
+                    <div class="return-confirm-stat-label">Student</div>
+                    <div id="returnConfirmStudent" class="return-confirm-stat-value">-</div>
+                </div>
+                <div class="return-confirm-stat">
+                    <div class="return-confirm-stat-label">Books Selected</div>
+                    <div id="returnConfirmCount" class="return-confirm-stat-value">0 books</div>
+                </div>
+                <div class="return-confirm-stat">
+                    <div class="return-confirm-stat-label">Condition</div>
+                    <div id="returnConfirmCondition" class="return-confirm-stat-value">Not selected</div>
+                </div>
+                <div class="return-confirm-stat">
+                    <div class="return-confirm-stat-label">Total Fine</div>
+                    <div id="returnConfirmFine" class="return-confirm-stat-value">₹0.00</div>
+                </div>
+            </div>
+
+            <p id="returnConfirmNote" class="return-confirm-note">The selected books will be marked as returned and any applicable fine will be processed with this condition.</p>
+
+            <div class="return-confirm-actions">
+                <button type="button" class="return-confirm-btn secondary" data-return-confirm-close>Cancel</button>
+                <button type="button" id="returnConfirmSubmit" class="return-confirm-btn primary">OK, Process Return</button>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -1069,6 +1700,18 @@
         let finePolicySummary;
         let fineHelperText;
         let clearReturnStudentBtn;
+        let issuedBooksToolbar;
+        let selectAllIssuedBooksCheckbox;
+        let issuedBooksSelectionSummary;
+        let returnConfirmModal;
+        let returnConfirmStudent;
+        let returnConfirmCount;
+        let returnConfirmCondition;
+        let returnConfirmFine;
+        let returnConfirmNote;
+        let returnConfirmSubmit;
+        let returnConfirmCloseButtons;
+        let isReturnSubmitting = false;
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -1165,6 +1808,107 @@
             }
         }
 
+        function formatBookCount(count) {
+            const total = Number(count ?? 0);
+            return `${total} book${total === 1 ? '' : 's'}`;
+        }
+
+        function setReturnConfirmationLoading(isLoading) {
+            isReturnSubmitting = isLoading;
+            returnConfirmSubmit.disabled = isLoading;
+            returnConfirmSubmit.textContent = isLoading ? 'Processing...' : 'OK, Process Return';
+
+            returnConfirmCloseButtons.forEach(button => {
+                button.disabled = isLoading;
+            });
+        }
+
+        function closeReturnConfirmation(force = false) {
+            if (isReturnSubmitting && !force) {
+                return;
+            }
+
+            returnConfirmModal.classList.remove('show');
+            returnConfirmModal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('return-confirm-open');
+
+            window.setTimeout(() => {
+                if (!returnConfirmModal.classList.contains('show')) {
+                    returnConfirmModal.hidden = true;
+                }
+            }, 220);
+        }
+
+        function openReturnConfirmation() {
+            const studentLabel = selectedReturnStudent?.roll_no
+                ? `${selectedReturnStudent.name} (${selectedReturnStudent.roll_no})`
+                : (selectedReturnStudent?.name ?? 'Unknown');
+
+            returnConfirmStudent.textContent = studentLabel;
+            returnConfirmCount.textContent = formatBookCount(selectedIssuedBooks.length);
+            returnConfirmCondition.textContent = toTitleCase(selectedCondition);
+            returnConfirmFine.textContent = returnFormTotalFineElement?.textContent || '₹0.00';
+            returnConfirmNote.textContent =
+                `This will return ${formatBookCount(selectedIssuedBooks.length)} for ${selectedReturnStudent?.name ?? 'the selected student'} using the ${toTitleCase(selectedCondition)} condition.`;
+
+            setReturnConfirmationLoading(false);
+            returnConfirmModal.hidden = false;
+            returnConfirmModal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('return-confirm-open');
+
+            requestAnimationFrame(() => {
+                returnConfirmModal.classList.add('show');
+                returnConfirmSubmit.focus();
+            });
+        }
+
+        function submitReturnRequest() {
+            if (!selectedReturnStudent || selectedIssuedBooks.length === 0 || !selectedCondition || isReturnSubmitting) {
+                return;
+            }
+
+            const issuedBookIds = selectedIssuedBooks.map(book => book.id);
+            setReturnConfirmationLoading(true);
+
+            fetch('{{ route('staff.transactions.return') }}', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                    body: JSON.stringify({
+                        student_id: selectedReturnStudent.id,
+                        issued_book_ids: issuedBookIds,
+                        condition: selectedCondition,
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    closeReturnConfirmation(true);
+
+                    if (data.success) {
+                        const totalFine = data.total_fine || 0;
+                        const message = data.message + (totalFine > 0 ?
+                            `\n\nTotal Fine: ₹${totalFine.toLocaleString()}` : '');
+                        showCustomAlert('Books Returned Successfully', message, 'success');
+                        clearReturnStudentSelection();
+                    } else {
+                        const isFineError = data.message.toLowerCase().includes('fine') ||
+                                          data.message.toLowerCase().includes('overdue');
+                        showCustomAlert(isFineError ? 'Fine Notice' : 'Return Failed', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    closeReturnConfirmation(true);
+                    showCustomAlert('Transaction Error', 'Failed to return books: ' + error.message, 'error');
+                })
+                .finally(() => {
+                    setReturnConfirmationLoading(false);
+                });
+        }
+
         function renderReturnPrivilegeSummary() {
             const rules = getReturnRules();
 
@@ -1243,71 +1987,85 @@
 
         // Custom Alert Function
         window.showCustomAlert = function(title, message, type = 'info') {
-            const alertBox = document.createElement('div');
-            alertBox.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 24px;
-                border-radius: 12px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                z-index: 9999;
-                min-width: 400px;
-                max-width: 500px;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            `;
+            let alertStack = document.getElementById('returnAlertStack');
 
-            if (document.body.classList.contains('dark-theme')) {
-                alertBox.style.background = '#1e293b';
-                alertBox.style.color = '#f1f5f9';
+            if (!alertStack) {
+                alertStack = document.createElement('div');
+                alertStack.id = 'returnAlertStack';
+                alertStack.className = 'return-alert-stack';
+                document.body.appendChild(alertStack);
             }
 
-            let icon = '✓';
-            let borderColor = '#10b981';
-            let titleColor = '#059669';
-
-            if (type === 'error') {
-                icon = '✕';
-                borderColor = '#ef4444';
-                titleColor = '#dc2626';
-            } else if (type === 'warning') {
-                icon = '⚠';
-                borderColor = '#f59e0b';
-                titleColor = '#d97706';
-            }
-
-            alertBox.innerHTML = `
-                <div style="border-left: 4px solid ${borderColor}; padding-left: 16px;">
-                    <div style="font-size: 18px; font-weight: 700; color: ${titleColor}; margin-bottom: 8px;">
-                        ${icon} ${title}
-                    </div>
-                    <div style="font-size: 14px; color: #64748b; line-height: 1.6; white-space: pre-wrap;">
-                        ${message}
-                    </div>
-                    <button style="margin-top: 16px; padding: 8px 16px; background: ${borderColor}; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;" onclick="this.closest('div').parentElement.remove(); document.querySelector('div[style*=\"background: rgba\"]')?.remove();">OK</button>
-                </div>
-            `;
-
-            const overlay = document.createElement('div');
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                z-index: 9998;
-            `;
-
-            document.body.appendChild(overlay);
-            document.body.appendChild(alertBox);
-
-            alertBox.querySelector('button').onclick = () => {
-                alertBox.remove();
-                overlay.remove();
+            const alertType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '!',
+                info: 'i',
             };
+            const autoHideDelay = alertType === 'success' ? 3000 : 0;
+
+            const alertBox = document.createElement('div');
+            alertBox.className = `return-alert return-alert-${alertType}`;
+            alertBox.setAttribute('role', alertType === 'error' ? 'alert' : 'status');
+            alertBox.setAttribute('aria-live', alertType === 'error' ? 'assertive' : 'polite');
+            alertBox.innerHTML = `
+                <div class="return-alert-icon" aria-hidden="true">${icons[alertType]}</div>
+                <div class="return-alert-body">
+                    <div class="return-alert-title">${escapeHtml(title)}</div>
+                    <p class="return-alert-message">${escapeHtml(message)}</p>
+                </div>
+                ${alertType === 'success' ? '' : `
+                    <button type="button" class="return-alert-close" aria-label="Dismiss notification">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12" />
+                        </svg>
+                    </button>
+                `}
+                ${autoHideDelay ? '<div class="return-alert-progress" aria-hidden="true"></div>' : ''}
+            `;
+
+            alertStack.appendChild(alertBox);
+            requestAnimationFrame(() => {
+                alertBox.classList.add('show');
+            });
+
+            let timeoutId = null;
+
+            const close = () => {
+                if (!alertBox.isConnected) {
+                    return;
+                }
+
+                if (timeoutId) {
+                    window.clearTimeout(timeoutId);
+                }
+
+                alertBox.classList.remove('show');
+                window.setTimeout(() => {
+                    alertBox.remove();
+                }, 220);
+            };
+
+            const closeButton = alertBox.querySelector('.return-alert-close');
+            if (closeButton) {
+                closeButton.addEventListener('click', close);
+            }
+
+            if (autoHideDelay) {
+                timeoutId = window.setTimeout(close, autoHideDelay);
+
+                alertBox.addEventListener('mouseenter', () => {
+                    if (timeoutId) {
+                        window.clearTimeout(timeoutId);
+                    }
+                });
+
+                alertBox.addEventListener('mouseleave', () => {
+                    timeoutId = window.setTimeout(close, 1200);
+                });
+            }
         };
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1329,6 +2087,31 @@
             finePolicySummary = document.getElementById('finePolicySummary');
             fineHelperText = document.getElementById('fineHelperText');
             clearReturnStudentBtn = document.getElementById('clearReturnStudentBtn');
+            issuedBooksToolbar = document.getElementById('issuedBooksToolbar');
+            selectAllIssuedBooksCheckbox = document.getElementById('selectAllIssuedBooks');
+            issuedBooksSelectionSummary = document.getElementById('issuedBooksSelectionSummary');
+            returnConfirmModal = document.getElementById('returnConfirmModal');
+            returnConfirmStudent = document.getElementById('returnConfirmStudent');
+            returnConfirmCount = document.getElementById('returnConfirmCount');
+            returnConfirmCondition = document.getElementById('returnConfirmCondition');
+            returnConfirmFine = document.getElementById('returnConfirmFine');
+            returnConfirmNote = document.getElementById('returnConfirmNote');
+            returnConfirmSubmit = document.getElementById('returnConfirmSubmit');
+            returnConfirmCloseButtons = Array.from(document.querySelectorAll('[data-return-confirm-close]'));
+
+            selectAllIssuedBooksCheckbox.addEventListener('change', function() {
+                toggleAllIssuedBooks(this.checked);
+            });
+
+            returnConfirmSubmit.addEventListener('click', function() {
+                submitReturnRequest();
+            });
+
+            returnConfirmCloseButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    closeReturnConfirmation();
+                });
+            });
 
             // Search Students for Return
             searchReturnStudentInput.addEventListener('input', function() {
@@ -1494,40 +2277,7 @@
                     return;
                 }
 
-                // Submit to backend
-                const issuedBookIds = selectedIssuedBooks.map(book => book.id);
-
-                fetch('{{ route('staff.transactions.return') }}', {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        },
-                        body: JSON.stringify({
-                            student_id: selectedReturnStudent.id,
-                            issued_book_ids: issuedBookIds,
-                            condition: selectedCondition,
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const totalFine = data.total_fine || 0;
-                            const message = data.message + (totalFine > 0 ?
-                                `\n\nTotal Fine: ₹${totalFine.toLocaleString()}` : '');
-                            showCustomAlert('Books Returned Successfully', message, 'success');
-                            clearReturnStudentSelection();
-                        } else {
-                            const isFineError = data.message.toLowerCase().includes('fine') || 
-                                              data.message.toLowerCase().includes('overdue');
-                            showCustomAlert(isFineError ? 'Fine Notice' : 'Return Failed', data.message, 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showCustomAlert('Transaction Error', 'Failed to return books: ' + error.message, 'error');
-                    });
+                openReturnConfirmation();
             });
 
             // Close dropdown when clicking outside
@@ -1537,8 +2287,51 @@
                 }
             });
 
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && returnConfirmModal && !returnConfirmModal.hidden) {
+                    closeReturnConfirmation();
+                }
+            });
+
             resetReturnPrivilegeSummary();
         });
+
+        function getIssuedBookCheckboxes() {
+            return Array.from(issuedBooksContainer.querySelectorAll('.book-checkbox'));
+        }
+
+        function syncIssuedBooksBulkState() {
+            const checkboxes = getIssuedBookCheckboxes();
+            const total = checkboxes.length;
+            const selected = checkboxes.filter(checkbox => checkbox.checked).length;
+
+            if (issuedBooksToolbar) {
+                issuedBooksToolbar.hidden = total === 0;
+            }
+
+            if (selectAllIssuedBooksCheckbox) {
+                selectAllIssuedBooksCheckbox.disabled = total === 0;
+                selectAllIssuedBooksCheckbox.checked = total > 0 && selected === total;
+                selectAllIssuedBooksCheckbox.indeterminate = selected > 0 && selected < total;
+            }
+
+            if (issuedBooksSelectionSummary) {
+                issuedBooksSelectionSummary.textContent = `${selected} of ${total} selected`;
+            }
+        }
+
+        function toggleAllIssuedBooks(isChecked) {
+            getIssuedBookCheckboxes().forEach(checkbox => {
+                if (checkbox.checked === isChecked) {
+                    return;
+                }
+
+                checkbox.checked = isChecked;
+                toggleIssuedBookSelection(Number(checkbox.dataset.bookId), isChecked);
+            });
+
+            syncIssuedBooksBulkState();
+        }
 
         function selectStudentForReturn(student, issuedBooks) {
             selectedReturnStudent = student;
@@ -1596,6 +2389,9 @@
             issuedBooksContainer.innerHTML = '';
 
             if (issuedBooks.length === 0) {
+                if (issuedBooksToolbar) {
+                    issuedBooksToolbar.hidden = true;
+                }
                 issuedBooksContainer.innerHTML = '<div class="py-4 text-center text-secondary">No issued books found</div>';
                 return;
             }
@@ -1619,6 +2415,7 @@
                 bookItem.innerHTML = `
                 <input type="checkbox" class="book-checkbox" id="book-${issuedBook.id}"
                        onchange="toggleIssuedBookSelection(${issuedBook.id}, this.checked)"
+                       data-book-id="${issuedBook.id}"
                        data-overdue-days="${overdueDays}"
                        data-issue-date="${issueDateValue}"
                        data-due-date="${dueDateValue}">
@@ -1639,6 +2436,8 @@
             `;
                 issuedBooksContainer.appendChild(bookItem);
             });
+
+            syncIssuedBooksBulkState();
         }
 
         function toggleIssuedBookSelection(bookId, isChecked) {
@@ -1656,8 +2455,8 @@
                     overdueDays: overdueDays,
                     issueDate: checkbox.dataset.issueDate,
                     dueDate: checkbox.dataset.dueDate,
-                    condition: null,
-                    conditionFine: 0
+                    condition: selectedCondition,
+                    conditionFine: selectedCondition ? getConditionFine(selectedCondition) : 0
                 });
             } else {
                 selectedIssuedBooks = selectedIssuedBooks.filter(b => b.id !== bookId);
@@ -1674,6 +2473,7 @@
             renderReturnPrivilegeSummary();
             updateReturnButton();
             calculateTotalFine();
+            syncIssuedBooksBulkState();
         }
 
         function selectCondition(condition) {
@@ -1819,11 +2619,16 @@
             fineCalculationCard.style.display = 'none';
             selectedIssuedBooks = [];
             selectedCondition = null;
+            issuedBooksContainer.innerHTML = '';
+            if (issuedBooksToolbar) {
+                issuedBooksToolbar.hidden = true;
+            }
             resetConditionSelection();
             updateReturnButton();
             returnStudentResults.style.display = 'none';
             resetReturnPrivilegeSummary();
             document.getElementById('returnForm').reset();
+            syncIssuedBooksBulkState();
         }
     </script>
 @endpush

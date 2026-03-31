@@ -376,6 +376,411 @@
         border: 1px solid #334155;
     }
 
+    body.issue-modal-open {
+        overflow: hidden;
+    }
+
+    .issue-confirm-modal[hidden] {
+        display: none;
+    }
+
+    .issue-confirm-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9998;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+
+    .issue-confirm-backdrop {
+        position: absolute;
+        inset: 0;
+        border: none;
+        background: rgba(15, 23, 42, 0.58);
+        cursor: pointer;
+    }
+
+    .issue-confirm-dialog {
+        position: relative;
+        width: min(520px, 100%);
+        max-height: calc(100vh - 2.5rem);
+        overflow-y: auto;
+        border-radius: 1.05rem;
+        padding: 1.1rem 1.15rem;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 30px 70px rgba(15, 23, 42, 0.25);
+    }
+
+    body.light-theme .issue-confirm-dialog {
+        background-color: #ffffff;
+    }
+
+    body.dark-theme .issue-confirm-dialog {
+        background-color: #1e293b;
+        border-color: #334155;
+        box-shadow: 0 30px 70px rgba(2, 6, 23, 0.5);
+    }
+
+    .issue-confirm-topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.9rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .issue-confirm-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        flex: 1;
+    }
+
+    .issue-confirm-icon {
+        width: 2.65rem;
+        height: 2.65rem;
+        border-radius: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #2563eb;
+        background-color: #dbeafe;
+    }
+
+    body.dark-theme .issue-confirm-icon {
+        color: #93c5fd;
+        background-color: rgba(37, 99, 235, 0.2);
+    }
+
+    .issue-confirm-close {
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 9999px;
+        border: 1px solid #e5e7eb;
+        background-color: #ffffff;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .issue-confirm-close:hover {
+        color: #0f172a;
+        border-color: #cbd5e1;
+        background-color: #f8fafc;
+    }
+
+    body.dark-theme .issue-confirm-close {
+        background-color: #0f172a;
+        color: #94a3b8;
+        border-color: #334155;
+    }
+
+    body.dark-theme .issue-confirm-close:hover {
+        color: #f8fafc;
+        border-color: #475569;
+        background-color: #1e293b;
+    }
+
+    .issue-confirm-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0 0 0.15rem;
+    }
+
+    body.dark-theme .issue-confirm-title {
+        color: #f8fafc;
+    }
+
+    .issue-confirm-subtitle {
+        font-size: 0.82rem;
+        line-height: 1.45;
+        color: #64748b;
+        margin: 0;
+    }
+
+    body.dark-theme .issue-confirm-subtitle {
+        color: #94a3b8;
+    }
+
+    .issue-confirm-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
+        margin-bottom: 0.85rem;
+    }
+
+    .issue-confirm-stat {
+        border-radius: 0.8rem;
+        border: 1px solid #e5e7eb;
+        padding: 0.72rem 0.8rem;
+    }
+
+    .issue-confirm-stat.student {
+        grid-column: 1 / -1;
+    }
+
+    body.light-theme .issue-confirm-stat {
+        background-color: #f8fafc;
+    }
+
+    body.dark-theme .issue-confirm-stat {
+        background-color: #0f172a;
+        border-color: #334155;
+    }
+
+    .issue-confirm-stat-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.18rem;
+    }
+
+    body.dark-theme .issue-confirm-stat-label {
+        color: #94a3b8;
+    }
+
+    .issue-confirm-stat-value {
+        font-size: 0.9rem;
+        font-weight: 700;
+        line-height: 1.3;
+        color: #0f172a;
+        word-break: break-word;
+    }
+
+    body.dark-theme .issue-confirm-stat-value {
+        color: #f8fafc;
+    }
+
+    .issue-confirm-note {
+        border-radius: 0.8rem;
+        padding: 0.7rem 0.85rem;
+        margin-bottom: 0.85rem;
+        font-size: 0.79rem;
+        line-height: 1.5;
+        color: #475569;
+        background-color: #eff6ff;
+        border: 1px solid #bfdbfe;
+    }
+
+    body.dark-theme .issue-confirm-note {
+        color: #cbd5e1;
+        background-color: rgba(30, 64, 175, 0.16);
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .issue-confirm-books {
+        margin-bottom: 0.9rem;
+        border-radius: 0.9rem;
+        border: 1px solid #e5e7eb;
+        padding: 0.85rem;
+    }
+
+    body.light-theme .issue-confirm-books {
+        background-color: #f8fafc;
+    }
+
+    body.dark-theme .issue-confirm-books {
+        background-color: #0f172a;
+        border-color: #334155;
+    }
+
+    .issue-confirm-books-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.55rem;
+    }
+
+    .issue-confirm-books-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin: 0;
+    }
+
+    body.dark-theme .issue-confirm-books-title {
+        color: #f8fafc;
+    }
+
+    .issue-confirm-books-count {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #2563eb;
+    }
+
+    body.dark-theme .issue-confirm-books-count {
+        color: #93c5fd;
+    }
+
+    .issue-confirm-book-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        max-height: 160px;
+        overflow-y: auto;
+    }
+
+    .issue-confirm-book-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+    }
+
+    body.light-theme .issue-confirm-book-item {
+        background-color: #ffffff;
+    }
+
+    body.dark-theme .issue-confirm-book-item {
+        background-color: #0f172a;
+        border-color: #334155;
+    }
+
+    .issue-confirm-book-index {
+        width: 1.45rem;
+        height: 1.45rem;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #2563eb;
+        background-color: #dbeafe;
+        flex-shrink: 0;
+    }
+
+    body.dark-theme .issue-confirm-book-index {
+        color: #93c5fd;
+        background-color: rgba(37, 99, 235, 0.2);
+    }
+
+    .issue-confirm-book-copy {
+        min-width: 0;
+    }
+
+    .issue-confirm-book-name {
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-bottom: 0.15rem;
+    }
+
+    body.dark-theme .issue-confirm-book-name {
+        color: #f8fafc;
+    }
+
+    .issue-confirm-book-meta {
+        font-size: 0.73rem;
+        line-height: 1.4;
+        color: #64748b;
+    }
+
+    body.dark-theme .issue-confirm-book-meta {
+        color: #94a3b8;
+    }
+
+    .issue-confirm-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 0.1rem;
+    }
+
+    .issue-confirm-btn {
+        border: none;
+        border-radius: 0.7rem;
+        padding: 0.72rem 1rem;
+        font-size: 0.84rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+    }
+
+    .issue-confirm-btn.secondary {
+        background-color: #e2e8f0;
+        color: #334155;
+    }
+
+    .issue-confirm-btn.secondary:hover {
+        background-color: #cbd5e1;
+    }
+
+    body.dark-theme .issue-confirm-btn.secondary {
+        background-color: #334155;
+        color: #e2e8f0;
+    }
+
+    body.dark-theme .issue-confirm-btn.secondary:hover {
+        background-color: #475569;
+    }
+
+    .issue-confirm-btn.primary {
+        background-color: #2563eb;
+        color: #ffffff;
+        min-width: 128px;
+    }
+
+    .issue-confirm-btn.primary:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-1px);
+    }
+
+    body.dark-theme .issue-confirm-btn.primary {
+        background-color: #1e40af;
+    }
+
+    body.dark-theme .issue-confirm-btn.primary:hover {
+        background-color: #1e3a8a;
+    }
+
+    .issue-confirm-btn:disabled {
+        opacity: 0.72;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 640px) {
+        .issue-confirm-modal {
+            padding: 1rem;
+        }
+
+        .issue-confirm-topbar {
+            gap: 0.75rem;
+        }
+
+        .issue-confirm-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .issue-confirm-actions {
+            flex-direction: column-reverse;
+        }
+
+        .issue-confirm-btn {
+            width: 100%;
+        }
+    }
+
     /* Layout */
     .grid-container {
         display: grid;
@@ -974,6 +1379,241 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
+    .issue-alert-stack {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        pointer-events: none;
+    }
+
+    .issue-alert {
+        position: relative;
+        width: min(360px, calc(100vw - 32px));
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: start;
+        padding: 14px 14px 16px;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        background-color: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.55);
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+        transition: opacity 0.22s ease, transform 0.22s ease;
+        overflow: hidden;
+        pointer-events: auto;
+        backdrop-filter: blur(10px);
+    }
+
+    body.dark-theme .issue-alert {
+        background-color: rgba(30, 41, 59, 0.98);
+        border-color: #334155;
+        box-shadow: 0 22px 48px -28px rgba(2, 6, 23, 0.72);
+    }
+
+    .issue-alert.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    .issue-alert-icon {
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+
+    .issue-alert-body {
+        min-width: 0;
+    }
+
+    .issue-alert-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 0 0 0.2rem;
+        color: #0f172a;
+    }
+
+    body.dark-theme .issue-alert-title {
+        color: #f8fafc;
+    }
+
+    .issue-alert-message {
+        margin: 0;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: #64748b;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    body.dark-theme .issue-alert-message {
+        color: #cbd5e1;
+    }
+
+    .issue-alert-close {
+        width: 1.9rem;
+        height: 1.9rem;
+        border-radius: 9999px;
+        border: none;
+        background: transparent;
+        color: #94a3b8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s ease, color 0.2s ease;
+        margin: -0.15rem -0.2rem 0 0;
+    }
+
+    .issue-alert-close:hover {
+        background-color: #f1f5f9;
+        color: #475569;
+    }
+
+    body.dark-theme .issue-alert-close:hover {
+        background-color: #334155;
+        color: #e2e8f0;
+    }
+
+    .issue-alert-progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        transform-origin: left;
+        animation: issueAlertProgress linear forwards;
+    }
+
+    .issue-alert.issue-alert-success .issue-alert-progress {
+        animation-duration: 2s;
+    }
+
+    .issue-alert-success {
+        border-color: #bbf7d0;
+    }
+
+    body.dark-theme .issue-alert-success {
+        border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .issue-alert-success .issue-alert-icon {
+        color: #059669;
+        background-color: #d1fae5;
+    }
+
+    body.dark-theme .issue-alert-success .issue-alert-icon {
+        color: #6ee7b7;
+        background-color: rgba(16, 185, 129, 0.18);
+    }
+
+    .issue-alert-success .issue-alert-title {
+        color: #059669;
+    }
+
+    body.dark-theme .issue-alert-success .issue-alert-title {
+        color: #6ee7b7;
+    }
+
+    .issue-alert-success .issue-alert-progress {
+        background: linear-gradient(90deg, #10b981, #34d399);
+    }
+
+    .issue-alert-warning {
+        border-color: #fde68a;
+    }
+
+    body.dark-theme .issue-alert-warning {
+        border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .issue-alert-warning .issue-alert-icon {
+        color: #b45309;
+        background-color: #fef3c7;
+    }
+
+    body.dark-theme .issue-alert-warning .issue-alert-icon {
+        color: #fbbf24;
+        background-color: rgba(245, 158, 11, 0.16);
+    }
+
+    .issue-alert-warning .issue-alert-title {
+        color: #b45309;
+    }
+
+    body.dark-theme .issue-alert-warning .issue-alert-title {
+        color: #fbbf24;
+    }
+
+    .issue-alert-error {
+        border-color: #fecaca;
+    }
+
+    body.dark-theme .issue-alert-error {
+        border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .issue-alert-error .issue-alert-icon {
+        color: #dc2626;
+        background-color: #fee2e2;
+    }
+
+    body.dark-theme .issue-alert-error .issue-alert-icon {
+        color: #fca5a5;
+        background-color: rgba(239, 68, 68, 0.16);
+    }
+
+    .issue-alert-error .issue-alert-title {
+        color: #dc2626;
+    }
+
+    body.dark-theme .issue-alert-error .issue-alert-title {
+        color: #fca5a5;
+    }
+
+    .issue-alert-info {
+        border-color: #bfdbfe;
+    }
+
+    body.dark-theme .issue-alert-info {
+        border-color: rgba(59, 130, 246, 0.35);
+    }
+
+    .issue-alert-info .issue-alert-icon {
+        color: #2563eb;
+        background-color: #dbeafe;
+    }
+
+    body.dark-theme .issue-alert-info .issue-alert-icon {
+        color: #93c5fd;
+        background-color: rgba(59, 130, 246, 0.16);
+    }
+
+    .issue-alert-info .issue-alert-title {
+        color: #2563eb;
+    }
+
+    body.dark-theme .issue-alert-info .issue-alert-title {
+        color: #93c5fd;
+    }
+
+    @keyframes issueAlertProgress {
+        from { transform: scaleX(1); }
+        to { transform: scaleX(0); }
+    }
+
     @media (max-width: 1024px) {
         .privilege-stats-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1005,6 +1645,16 @@
         .privilege-toast {
             min-width: 0;
             max-width: none;
+        }
+
+        .issue-alert-stack {
+            left: 16px;
+            right: 16px;
+            top: 16px;
+        }
+
+        .issue-alert {
+            width: 100%;
         }
     }
 </style>
@@ -1231,6 +1881,69 @@
         </div>
     </div>
 </div>
+
+<div id="issueConfirmModal" class="issue-confirm-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="issueConfirmTitle">
+    <button type="button" class="issue-confirm-backdrop" data-issue-confirm-close aria-label="Close issue confirmation"></button>
+    <div class="issue-confirm-dialog">
+        <div class="issue-confirm-topbar">
+            <div class="issue-confirm-header">
+                <div class="issue-confirm-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 6.253v13" />
+                        <path d="M12 6.253C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" />
+                        <path d="M12 6.253C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 id="issueConfirmTitle" class="issue-confirm-title">Confirm Book Issue</h3>
+                    <p class="issue-confirm-subtitle">Make sure the selected student and books look right before creating the issue record.</p>
+                </div>
+            </div>
+            <button type="button" class="issue-confirm-close" data-issue-confirm-close aria-label="Close issue confirmation">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="issue-confirm-summary">
+            <div class="issue-confirm-stat student">
+                <div class="issue-confirm-stat-label">Student</div>
+                <div id="issueConfirmStudent" class="issue-confirm-stat-value">-</div>
+            </div>
+            <div class="issue-confirm-stat">
+                <div class="issue-confirm-stat-label">Books Selected</div>
+                <div id="issueConfirmCount" class="issue-confirm-stat-value">0 books</div>
+            </div>
+            <div class="issue-confirm-stat">
+                <div class="issue-confirm-stat-label">Due Back</div>
+                <div id="issueConfirmDueDate" class="issue-confirm-stat-value">-</div>
+            </div>
+            <div class="issue-confirm-stat">
+                <div class="issue-confirm-stat-label">Slots Left After Issue</div>
+                <div id="issueConfirmRemaining" class="issue-confirm-stat-value">-</div>
+            </div>
+        </div>
+
+        <div class="issue-confirm-note" id="issueConfirmNote">
+            This will immediately create the issue record using the student's current borrowing privileges.
+        </div>
+
+        <div class="issue-confirm-books">
+            <div class="issue-confirm-books-header">
+                <h4 class="issue-confirm-books-title">Selected Books</h4>
+                <span id="issueConfirmBooksCount" class="issue-confirm-books-count">0 items</span>
+            </div>
+            <ul id="issueConfirmBooks" class="issue-confirm-book-list"></ul>
+        </div>
+
+        <div class="issue-confirm-actions">
+            <button type="button" class="issue-confirm-btn secondary" data-issue-confirm-close>Cancel</button>
+            <button type="button" id="issueConfirmSubmit" class="issue-confirm-btn primary">Confirm Issue</button>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -1267,6 +1980,17 @@
     const privilegeDetailsPanel = document.getElementById('privilegeDetailsPanel');
     const privilegeDetailsToggle = document.getElementById('privilegeDetailsToggle');
     const privilegeDetailsLabel = document.getElementById('privilegeDetailsLabel');
+    const issueConfirmModal = document.getElementById('issueConfirmModal');
+    const issueConfirmStudent = document.getElementById('issueConfirmStudent');
+    const issueConfirmCount = document.getElementById('issueConfirmCount');
+    const issueConfirmDueDate = document.getElementById('issueConfirmDueDate');
+    const issueConfirmRemaining = document.getElementById('issueConfirmRemaining');
+    const issueConfirmNote = document.getElementById('issueConfirmNote');
+    const issueConfirmBooks = document.getElementById('issueConfirmBooks');
+    const issueConfirmBooksCount = document.getElementById('issueConfirmBooksCount');
+    const issueConfirmSubmit = document.getElementById('issueConfirmSubmit');
+    const issueConfirmCloseButtons = document.querySelectorAll('[data-issue-confirm-close]');
+    let isIssueSubmitting = false;
 
     function escapeHtml(value) {
         return String(value ?? '')
@@ -1301,6 +2025,122 @@
         date.setHours(0, 0, 0, 0);
         date.setDate(date.getDate() + Number(days ?? 0));
         return date;
+    }
+
+    function formatBookCount(count) {
+        const total = Number(count ?? 0);
+        return `${total} book${total === 1 ? '' : 's'}`;
+    }
+
+    function getIssueDueDatePreview(rules = getIssueRules()) {
+        if (!rules) return 'N/A';
+        return formatDate(addDaysFromToday(rules.issue_duration_days));
+    }
+
+    function getIssueConfirmationSubmitLabel(count = selectedBooks.length) {
+        const total = Number(count ?? 0);
+        return total === 1 ? 'Issue 1 Book' : `Issue ${total} Books`;
+    }
+
+    function setIssueConfirmationLoading(isLoading) {
+        isIssueSubmitting = isLoading;
+        issueConfirmSubmit.disabled = isLoading;
+        issueConfirmSubmit.textContent = isLoading ? 'Issuing...' : getIssueConfirmationSubmitLabel();
+
+        issueConfirmCloseButtons.forEach(button => {
+            button.disabled = isLoading;
+        });
+    }
+
+    function closeIssueConfirmation(force = false) {
+        if (isIssueSubmitting && !force) {
+            return;
+        }
+
+        issueConfirmModal.hidden = true;
+        issueConfirmModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('issue-modal-open');
+
+        if (!force) {
+            issueButton.focus();
+        }
+    }
+
+    function openIssueConfirmation() {
+        const rules = getIssueRules();
+
+        if (!selectedStudent || !selectedBooks.length || !rules) {
+            return;
+        }
+
+        const remainingAfterIssue = Math.max(0, getIssueCapacity(rules, selectedStudent) - selectedBooks.length);
+        const studentLabel = selectedStudent.roll_no
+            ? `${selectedStudent.name} (${selectedStudent.roll_no})`
+            : selectedStudent.name;
+
+        issueConfirmStudent.textContent = studentLabel;
+        issueConfirmCount.textContent = formatBookCount(selectedBooks.length);
+        issueConfirmDueDate.textContent = getIssueDueDatePreview(rules);
+        issueConfirmRemaining.textContent = `${remainingAfterIssue} slot${remainingAfterIssue === 1 ? '' : 's'} remaining`;
+        issueConfirmBooksCount.textContent = formatBookCount(selectedBooks.length);
+        issueConfirmNote.textContent = `All selected books will follow the current ${rules.issue_duration_days}-day borrowing rule and share the same due date.`;
+
+        issueConfirmBooks.innerHTML = selectedBooks.map((book, index) => `
+            <li class="issue-confirm-book-item">
+                <span class="issue-confirm-book-index">${index + 1}</span>
+                <div class="issue-confirm-book-copy">
+                    <div class="issue-confirm-book-name">${escapeHtml(book.title)}</div>
+                    <div class="issue-confirm-book-meta">${escapeHtml(book.author || 'Unknown author')} • ${escapeHtml(book.category || 'General')}</div>
+                </div>
+            </li>
+        `).join('');
+
+        setIssueConfirmationLoading(false);
+        issueConfirmModal.hidden = false;
+        issueConfirmModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('issue-modal-open');
+        requestAnimationFrame(() => issueConfirmSubmit.focus());
+    }
+
+    async function submitIssueRequest() {
+        if (!selectedStudent || selectedBooks.length === 0 || isIssueSubmitting) {
+            return;
+        }
+
+        setIssueConfirmationLoading(true);
+
+        try {
+            const response = await fetch('{{ route('staff.transactions.issue') }}', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify({
+                    student_id: selectedStudent.id,
+                    book_ids: selectedBooks.map(book => book.id),
+                })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            closeIssueConfirmation(true);
+
+            if (response.ok && data.success) {
+                showCustomAlert('Books Issued Successfully', data.message, 'success');
+                clearStudentSelection();
+            } else {
+                const message = data.message || 'Unable to issue books.';
+                const isPermError = message.toLowerCase().includes('borrow') || message.toLowerCase().includes('permission');
+                showCustomAlert(isPermError ? 'Permission Denied' : 'Issue Failed', message, 'error');
+            }
+        } catch (error) {
+            console.error('Issue submit error:', error);
+            closeIssueConfirmation(true);
+            showCustomAlert('Transaction Error', `Failed to issue books: ${error.message}`, 'error');
+        } finally {
+            setIssueConfirmationLoading(false);
+        }
     }
 
     function setPrivilegeStat(baseId, value, meta) {
@@ -1426,71 +2266,85 @@
     }
 
     window.showCustomAlert = function(title, message, type = 'info') {
+        let alertStack = document.getElementById('issueAlertStack');
+
+        if (!alertStack) {
+            alertStack = document.createElement('div');
+            alertStack.id = 'issueAlertStack';
+            alertStack.className = 'issue-alert-stack';
+            document.body.appendChild(alertStack);
+        }
+
+        const alertType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+        const icons = {
+            success: '✓',
+            error: '✕',
+            warning: '!',
+            info: 'i',
+        };
+        const autoHideDelay = alertType === 'success' ? 2000 : 0;
+
         const alertBox = document.createElement('div');
-        alertBox.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            z-index: 9999;
-            min-width: 360px;
-            max-width: 500px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        `;
-
-        if (document.body.classList.contains('dark-theme')) {
-            alertBox.style.background = '#1e293b';
-            alertBox.style.color = '#f1f5f9';
-        }
-
-        let icon = '✓';
-        let borderColor = '#10b981';
-        let titleColor = '#059669';
-
-        if (type === 'error') {
-            icon = '✕';
-            borderColor = '#ef4444';
-            titleColor = '#dc2626';
-        } else if (type === 'warning') {
-            icon = '⚠';
-            borderColor = '#f59e0b';
-            titleColor = '#d97706';
-        }
-
+        alertBox.className = `issue-alert issue-alert-${alertType}`;
+        alertBox.setAttribute('role', alertType === 'error' ? 'alert' : 'status');
+        alertBox.setAttribute('aria-live', alertType === 'error' ? 'assertive' : 'polite');
         alertBox.innerHTML = `
-            <div style="border-left: 4px solid ${borderColor}; padding-left: 16px;">
-                <div style="font-size: 18px; font-weight: 700; color: ${titleColor}; margin-bottom: 8px;">
-                    ${icon} ${title}
-                </div>
-                <div style="font-size: 14px; color: ${document.body.classList.contains('dark-theme') ? '#cbd5e1' : '#64748b'}; line-height: 1.6; white-space: pre-wrap;">
-                    ${message}
-                </div>
-                <button class="alert-close-btn" style="margin-top: 16px; padding: 8px 16px; background: ${borderColor}; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">OK</button>
+            <div class="issue-alert-icon" aria-hidden="true">${icons[alertType]}</div>
+            <div class="issue-alert-body">
+                <div class="issue-alert-title">${escapeHtml(title)}</div>
+                <p class="issue-alert-message">${escapeHtml(message)}</p>
             </div>
+            ${alertType === 'success' ? '' : `
+                <button type="button" class="issue-alert-close" aria-label="Dismiss notification">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12" />
+                    </svg>
+                </button>
+            `}
+            ${autoHideDelay ? '<div class="issue-alert-progress" aria-hidden="true"></div>' : ''}
         `;
 
-        const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 9998;
-        `;
+        alertStack.appendChild(alertBox);
+        requestAnimationFrame(() => {
+            alertBox.classList.add('show');
+        });
 
-        document.body.appendChild(overlay);
-        document.body.appendChild(alertBox);
+        let timeoutId = null;
 
         const close = () => {
-            alertBox.remove();
-            overlay.remove();
+            if (!alertBox.isConnected) {
+                return;
+            }
+
+            if (timeoutId) {
+                window.clearTimeout(timeoutId);
+            }
+
+            alertBox.classList.remove('show');
+            window.setTimeout(() => {
+                alertBox.remove();
+            }, 220);
         };
 
-        alertBox.querySelector('.alert-close-btn').addEventListener('click', close);
-        overlay.addEventListener('click', close);
+        const closeButton = alertBox.querySelector('.issue-alert-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', close);
+        }
+
+        if (autoHideDelay) {
+            timeoutId = window.setTimeout(close, autoHideDelay);
+
+            alertBox.addEventListener('mouseenter', () => {
+                if (timeoutId) {
+                    window.clearTimeout(timeoutId);
+                }
+            });
+
+            alertBox.addEventListener('mouseleave', () => {
+                timeoutId = window.setTimeout(close, 900);
+            });
+        }
     };
 
     window.showPrivilegeToast = function(message, type = 'info') {
@@ -1839,32 +2693,16 @@
                 return;
             }
 
-            fetch('{{ route('staff.transactions.issue') }}', {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify({
-                    student_id: selectedStudent.id,
-                    book_ids: selectedBooks.map(book => book.id),
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showCustomAlert('Books Issued Successfully', data.message, 'success');
-                    clearStudentSelection();
-                } else {
-                    const message = data.message || 'Unable to issue books.';
-                    const isPermError = message.toLowerCase().includes('borrow') || message.toLowerCase().includes('permission');
-                    showCustomAlert(isPermError ? 'Permission Denied' : 'Issue Failed', message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Issue submit error:', error);
-                showCustomAlert('Transaction Error', `Failed to issue books: ${error.message}`, 'error');
+            openIssueConfirmation();
+        });
+
+        issueConfirmSubmit.addEventListener('click', function() {
+            submitIssueRequest();
+        });
+
+        issueConfirmCloseButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                closeIssueConfirmation();
             });
         });
 
@@ -1872,6 +2710,12 @@
             if (!event.target.closest('.search-container')) {
                 studentResults.style.display = 'none';
                 bookResults.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && !issueConfirmModal.hidden) {
+                closeIssueConfirmation();
             }
         });
 

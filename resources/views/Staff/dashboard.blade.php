@@ -51,12 +51,14 @@
         }
 
         .stat-card {
+            position: relative;
             border-radius: 0.75rem;
-            padding: 1.25rem;
+            padding: 1rem;
             transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.15rem;
+            min-height: 120px;
         }
 
         body.light-theme .stat-card {
@@ -81,36 +83,62 @@
         }
 
         .stat-card-header {
+            display: block;
+            padding-right: 3.25rem;
+        }
+
+        .stat-card-body {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 0.15rem;
+            flex: 1;
         }
 
         .stat-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 0.75rem;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 0.7rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .stat-value {
-            font-size: 1.875rem;
+            font-size: 1.85rem;
             font-weight: 700;
-            line-height: 1;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
         }
 
         .stat-label {
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
         }
 
         body.light-theme .stat-label {
-            color: #64748b;
+            color: #475569;
         }
 
         body.dark-theme .stat-label {
+            color: #cbd5e1;
+        }
+
+        .stat-helper {
+            font-size: 0.72rem;
+            line-height: 1.35;
+            margin-top: 0;
+        }
+
+        body.light-theme .stat-helper {
+            color: #64748b;
+        }
+
+        body.dark-theme .stat-helper {
             color: #94a3b8;
         }
 
@@ -213,9 +241,25 @@
             color: #0f172a;
         }
 
+        .section-heading {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .section-description {
+            font-size: 0.75rem;
+            margin: 0;
+            color: #64748b;
+        }
+
         body.dark-theme .section-title,
         body.dark-theme .table-card-title {
             color: #e2e8f0;
+        }
+
+        body.dark-theme .section-description {
+            color: #94a3b8;
         }
 
         .section-count {
@@ -234,6 +278,16 @@
         body.dark-theme .count-red {
             background-color: #7f1d1d;
             color: #f87171;
+        }
+
+        .count-blue {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        body.dark-theme .count-blue {
+            background-color: #1e3a8a;
+            color: #93c5fd;
         }
 
         .charts-row {
@@ -262,10 +316,310 @@
             }
         }
 
+        .dashboard-bottom-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-bottom-row {
+                grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.45fr);
+                align-items: stretch;
+            }
+        }
+
+        .quick-actions-card {
+            min-height: 100%;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.875rem;
+        }
+
+        @media (min-width: 640px) {
+            .quick-actions-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .quick-actions-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .quick-action-btn {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.85rem;
+            padding: 1rem;
+            border-radius: 0.9rem;
+            border: 1px solid;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            overflow: hidden;
+        }
+
+        .quick-action-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 4px;
+            background-color: var(--quick-accent, #2563eb);
+        }
+
+        body.light-theme .quick-action-btn {
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), #ffffff);
+            border-color: #e5e7eb;
+        }
+
+        body.dark-theme .quick-action-btn {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.96));
+            border-color: #334155;
+        }
+
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            border-color: var(--quick-accent, #2563eb);
+        }
+
+        body.dark-theme .quick-action-btn:hover {
+            box-shadow: 0 12px 24px rgba(2, 6, 23, 0.32);
+        }
+
+        .quick-action-icon {
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--quick-accent, #2563eb);
+            flex-shrink: 0;
+        }
+
+        body.light-theme .quick-action-icon {
+            background-color: #eff6ff;
+        }
+
+        body.dark-theme .quick-action-icon {
+            background-color: #0f172a;
+        }
+
+        .quick-action-content {
+            min-width: 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .quick-action-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .quick-action-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        body.light-theme .quick-action-title {
+            color: #0f172a;
+        }
+
+        body.dark-theme .quick-action-title {
+            color: #e2e8f0;
+        }
+
+        .quick-action-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.2rem 0.55rem;
+            border-radius: 9999px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            white-space: nowrap;
+            color: var(--quick-accent, #2563eb);
+            border: 1px solid currentColor;
+        }
+
+        .quick-action-meta {
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        body.light-theme .quick-action-meta {
+            color: #64748b;
+        }
+
+        body.dark-theme .quick-action-meta {
+            color: #94a3b8;
+        }
+
+        .quick-action-arrow {
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--quick-accent, #2563eb);
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        body.light-theme .quick-action-arrow {
+            background-color: #f8fafc;
+        }
+
+        body.dark-theme .quick-action-arrow {
+            background-color: #0f172a;
+        }
+
         .chart-container {
             position: relative;
             height: 280px;
             padding: 0.25rem 0;
+        }
+
+        .circulation-panel,
+        .activity-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .circulation-insights,
+        .activity-insights {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 640px) {
+            .circulation-insights,
+            .activity-insights {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .circulation-insights,
+            .activity-insights {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
+        }
+
+        .circulation-insight,
+        .activity-insight {
+            border-radius: 0.85rem;
+            border: 1px solid;
+            border-top: 3px solid var(--accent-color, #cbd5e1);
+            padding: 0.9rem 1rem;
+        }
+
+        body.light-theme .circulation-insight,
+        body.light-theme .activity-insight {
+            background: linear-gradient(180deg, rgba(248, 250, 252, 0.95), #ffffff);
+            border-color: #e5e7eb;
+        }
+
+        body.dark-theme .circulation-insight,
+        body.dark-theme .activity-insight {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.96));
+            border-color: #334155;
+        }
+
+        .circulation-insight-top,
+        .circulation-insight-label-wrap,
+        .activity-insight-top,
+        .activity-insight-label-wrap {
+            display: flex;
+            align-items: center;
+        }
+
+        .circulation-insight-top,
+        .activity-insight-top {
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .circulation-insight-label-wrap,
+        .activity-insight-label-wrap {
+            gap: 0.5rem;
+            min-width: 0;
+        }
+
+        .circulation-dot,
+        .activity-dot {
+            width: 0.65rem;
+            height: 0.65rem;
+            border-radius: 9999px;
+            background-color: var(--accent-color, #cbd5e1);
+            flex-shrink: 0;
+        }
+
+        .circulation-insight-label,
+        .activity-insight-label,
+        .circulation-insight-share,
+        .activity-insight-badge,
+        .circulation-insight-meta,
+        .activity-insight-meta {
+            font-size: 0.75rem;
+        }
+
+        .circulation-insight-label,
+        .activity-insight-label {
+            font-weight: 600;
+            color: #475569;
+        }
+
+        body.dark-theme .circulation-insight-label,
+        body.dark-theme .activity-insight-label {
+            color: #cbd5e1;
+        }
+
+        .circulation-insight-share,
+        .activity-insight-badge {
+            font-weight: 700;
+            color: var(--accent-color, #475569);
+        }
+
+        .circulation-insight-value,
+        .activity-insight-value {
+            margin-top: 0.45rem;
+            font-size: 1.35rem;
+            font-weight: 700;
+            line-height: 1.1;
+            color: #0f172a;
+        }
+
+        body.dark-theme .circulation-insight-value,
+        body.dark-theme .activity-insight-value {
+            color: #f8fafc;
+        }
+
+        .circulation-insight-meta,
+        .activity-insight-meta {
+            margin-top: 0.35rem;
+            color: #64748b;
+        }
+
+        body.dark-theme .circulation-insight-meta,
+        body.dark-theme .activity-insight-meta {
+            color: #94a3b8;
         }
 
         .table-card {
@@ -287,6 +641,63 @@
 
         .table-card-link:hover {
             text-decoration: underline;
+        }
+
+        .list-show-more {
+            display: flex;
+            justify-content: center;
+            padding-top: 0.85rem;
+        }
+
+        .show-more-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            width: 100%;
+            padding: 0.7rem 0.95rem;
+            border-radius: 0.7rem;
+            border: 1px solid;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        body.light-theme .show-more-btn {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            color: #2563eb;
+        }
+
+        body.dark-theme .show-more-btn {
+            background-color: #0f172a;
+            border-color: #334155;
+            color: #93c5fd;
+        }
+
+        .show-more-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .show-more-btn:disabled {
+            cursor: wait;
+            opacity: 0.72;
+            transform: none;
+        }
+
+        body.light-theme .show-more-btn:hover {
+            background-color: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        body.dark-theme .show-more-btn:hover {
+            background-color: #172554;
+            border-color: #1d4ed8;
+        }
+
+        .show-more-btn svg {
+            flex-shrink: 0;
         }
 
         .table-card-count {
@@ -488,13 +899,15 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 0.25rem;
+            gap: 0.35rem;
+            flex-shrink: 0;
         }
 
         .overdue-date {
             font-size: 0.75rem;
             font-weight: 500;
             color: #dc2626;
+            line-height: 1.25;
         }
 
         body.dark-theme .overdue-date {
@@ -502,16 +915,35 @@
         }
 
         .overdue-days {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 0.75rem;
             font-weight: 600;
-            padding: 0.125rem 0.5rem;
+            line-height: 1;
+            padding: 0.3rem 0.7rem;
             border-radius: 9999px;
             background-color: #dc2626;
             color: #ffffff;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.01em;
         }
 
         body.dark-theme .overdue-days {
             background-color: #ef4444;
+        }
+
+        @media (max-width: 639px) {
+            .overdue-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .overdue-details {
+                width: 100%;
+                align-items: flex-start;
+            }
         }
 
         .action-btn {
@@ -613,7 +1045,7 @@
             background-color: #ffffff;
             border-radius: 1rem;
             width: 90%;
-            max-width: 480px;
+            max-width: 420px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             transform: scale(0.9) translateY(20px);
             transition: all 0.3s ease;
@@ -630,21 +1062,16 @@
 
         /* Modal Header */
         .modal-header {
-            padding: 1.25rem 1.5rem;
+            padding: 1rem 1.25rem 0.85rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        body.dark-theme .modal-header {
-            border-bottom-color: #334155;
+            gap: 0.85rem;
         }
 
         .modal-icon {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.8rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -681,10 +1108,10 @@
         }
 
         .modal-title {
-            font-size: 1.125rem;
+            font-size: 1rem;
             font-weight: 700;
             color: #0f172a;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.2rem;
         }
 
         body.dark-theme .modal-title {
@@ -692,7 +1119,8 @@
         }
 
         .modal-subtitle {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
+            line-height: 1.45;
             color: #64748b;
         }
 
@@ -724,7 +1152,18 @@
 
         /* Modal Body */
         .modal-body {
-            padding: 1.5rem;
+            padding: 0 1.25rem 1rem;
+        }
+
+        .modal-message {
+            font-size: 0.9rem;
+            line-height: 1.55;
+            color: #475569;
+            margin: 0;
+        }
+
+        body.dark-theme .modal-message {
+            color: #cbd5e1;
         }
 
         .request-summary {
@@ -1003,6 +1442,7 @@
         <div class="dashboard-grid">
             <div class="stat-card status-blue">
                 <div class="stat-card-header">
+                    <div class="stat-label">Currently Issued</div>
                     <div class="stat-icon status-blue">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -1010,13 +1450,16 @@
                             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
                         </svg>
                     </div>
-                    <div class="stat-value">{{ $currentlyIssued ?? 0 }}</div>
                 </div>
-                <div class="stat-label">Currently Issued</div>
+                <div class="stat-card-body">
+                    <div class="stat-value">{{ $currentlyIssued ?? 0 }}</div>
+                    <div class="stat-helper">{{ $overdueCount ?? 0 }} overdue and {{ $dueToday ?? 0 }} due today</div>
+                </div>
             </div>
 
             <div class="stat-card status-green">
                 <div class="stat-card-header">
+                    <div class="stat-label">Due Today</div>
                     <div class="stat-icon status-green">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -1027,13 +1470,18 @@
                             <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
                     </div>
-                    <div class="stat-value">{{ $dueToday ?? 0 }}</div>
                 </div>
-                <div class="stat-label">Due Today</div>
+                <div class="stat-card-body">
+                    <div class="stat-value">{{ $dueToday ?? 0 }}</div>
+                    <div class="stat-helper">
+                        {{ ($dueToday ?? 0) > 0 ? 'Returns expected before the day ends' : 'No returns scheduled for today' }}
+                    </div>
+                </div>
             </div>
 
             <div class="stat-card status-red">
                 <div class="stat-card-header">
+                    <div class="stat-label">Overdue</div>
                     <div class="stat-icon status-red">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -1042,13 +1490,18 @@
                             <polyline points="12 6 12 12 16 14" />
                         </svg>
                     </div>
-                    <div class="stat-value">{{ $overdueCount ?? 0 }}</div>
                 </div>
-                <div class="stat-label">Overdue</div>
+                <div class="stat-card-body">
+                    <div class="stat-value">{{ $overdueCount ?? 0 }}</div>
+                    <div class="stat-helper">
+                        {{ ($overdueCount ?? 0) > 0 ? 'Immediate follow-up recommended' : 'Nothing overdue right now' }}
+                    </div>
+                </div>
             </div>
 
             <div class="stat-card status-yellow">
                 <div class="stat-card-header">
+                    <div class="stat-label">Pending Requests</div>
                     <div class="stat-icon status-yellow">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -1059,43 +1512,170 @@
                             <line x1="9" y1="15" x2="15" y2="15" />
                         </svg>
                     </div>
-                    <div class="stat-value" data-pending-count-display>{{ $pendingRequestsCount ?? 0 }}</div>
                 </div>
-                <div class="stat-label">Pending Requests</div>
+                <div class="stat-card-body">
+                    <div class="stat-value" data-pending-count-display>{{ $pendingRequestsCount ?? 0 }}</div>
+                    <div class="stat-helper">
+                        {{ ($pendingRequestsCount ?? 0) > 0 ? 'Awaiting approval or rejection' : 'Request queue is clear' }}
+                    </div>
+                </div>
             </div>
 
             <div class="stat-card status-purple">
                 <div class="stat-card-header">
+                    <div class="stat-label">Pending Fines</div>
                     <div class="stat-icon status-purple">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round">
-                            <line x1="12" y1="1" x2="12" y2="23" />
-                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            <path d="M6 4h12" />
+                            <path d="M6 8h12" />
+                            <path d="M9 12h3a4 4 0 0 0 0-8" />
+                            <path d="m8 12 7 8" />
                         </svg>
                     </div>
-                    <div class="stat-value">₹{{ number_format($pendingFinesAmount ?? 0) }}</div>
                 </div>
-                <div class="stat-label">Pending Fines</div>
+                <div class="stat-card-body">
+                    <div class="stat-value">₹{{ number_format($pendingFinesAmount ?? 0) }}</div>
+                    <div class="stat-helper">
+                        {{ ($pendingFinesAmount ?? 0) > 0 ? 'Outstanding amount awaiting collection' : 'No unpaid fines at the moment' }}
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="charts-row">
             <div class="section-card">
+                @php
+                    $circulationTotal = (int) ($circulationOverview['total'] ?? 0);
+                    $circulationInsights = [
+                        [
+                            'label' => 'Available',
+                            'value' => (int) ($circulationOverview['available'] ?? 0),
+                            'meta' => (($circulationOverview['availabilityRate'] ?? 0)) . '% of the current pool',
+                            'color' => '#10b981',
+                        ],
+                        [
+                            'label' => 'Issued On Time',
+                            'value' => (int) ($circulationOverview['issuedOnTime'] ?? 0),
+                            'meta' => 'Borrowed and due after today',
+                            'color' => '#3b82f6',
+                        ],
+                        [
+                            'label' => 'Due Today',
+                            'value' => (int) ($circulationOverview['dueToday'] ?? 0),
+                            'meta' => 'Needs follow-up before closing',
+                            'color' => '#f59e0b',
+                        ],
+                        [
+                            'label' => 'Overdue',
+                            'value' => (int) ($circulationOverview['overdue'] ?? 0),
+                            'meta' => 'Immediate attention needed',
+                            'color' => '#ef4444',
+                        ],
+                    ];
+                @endphp
                 <div class="section-header">
-                    <h2 class="section-title">Book Circulation</h2>
+                    <div class="section-heading">
+                        <h2 class="section-title">Book Circulation</h2>
+                        <p class="section-description">
+                            {{ number_format($circulationOverview['issued'] ?? 0) }} active loans,
+                            {{ number_format($circulationOverview['attentionNeeded'] ?? 0) }} need attention today.
+                        </p>
+                    </div>
+                    <span class="section-count count-blue">{{ number_format($circulationTotal) }} tracked</span>
                 </div>
-                <div class="chart-container">
-                    <canvas id="circulationChart"></canvas>
+                <div class="circulation-panel">
+                    <div class="chart-container">
+                        <canvas id="circulationChart"></canvas>
+                    </div>
+                    <div class="circulation-insights">
+                        @foreach($circulationInsights as $insight)
+                            @php
+                                $share = $circulationTotal > 0
+                                    ? (int) round(($insight['value'] / $circulationTotal) * 100)
+                                    : 0;
+                            @endphp
+                            <div class="circulation-insight" style="--accent-color: {{ $insight['color'] }};">
+                                <div class="circulation-insight-top">
+                                    <div class="circulation-insight-label-wrap">
+                                        <span class="circulation-dot" aria-hidden="true"></span>
+                                        <span class="circulation-insight-label">{{ $insight['label'] }}</span>
+                                    </div>
+                                    <span class="circulation-insight-share">{{ $share }}%</span>
+                                </div>
+                                <div class="circulation-insight-value">{{ number_format($insight['value']) }}</div>
+                                <div class="circulation-insight-meta">{{ $insight['meta'] }}</div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 
             <div class="section-card">
+                @php
+                    $movementsTotal = (int) ($activityOverview['movementsTotal'] ?? 0);
+                    $issuedTotal = (int) ($activityOverview['issuedTotal'] ?? 0);
+                    $returnedTotal = (int) ($activityOverview['returnedTotal'] ?? 0);
+                    $activityInsights = [
+                        [
+                            'label' => 'Issued',
+                            'badge' => ($movementsTotal > 0 ? (int) round(($issuedTotal / $movementsTotal) * 100) : 0) . '%',
+                            'value' => number_format($issuedTotal),
+                            'meta' => 'Books issued during the last 7 days',
+                            'color' => '#6366f1',
+                        ],
+                        [
+                            'label' => 'Returned',
+                            'badge' => ($movementsTotal > 0 ? (int) round(($returnedTotal / $movementsTotal) * 100) : 0) . '%',
+                            'value' => number_format($returnedTotal),
+                            'meta' => 'Books returned during the last 7 days',
+                            'color' => '#f97316',
+                        ],
+                        [
+                            'label' => 'Peak Activity',
+                            'badge' => (string) ($activityOverview['peakDay']['label'] ?? '—'),
+                            'value' => number_format((int) ($activityOverview['peakDay']['count'] ?? 0)),
+                            'meta' => 'Highest combined issues and returns',
+                            'color' => '#8b5cf6',
+                        ],
+                        [
+                            'label' => 'Avg / Day',
+                            'badge' => '7d',
+                            'value' => number_format((float) ($activityOverview['averagePerDay'] ?? 0), 1),
+                            'meta' => 'Average daily movement volume',
+                            'color' => '#f59e0b',
+                        ],
+                    ];
+                @endphp
                 <div class="section-header">
-                    <h2 class="section-title">7-Day Activity</h2>
+                    <div class="section-heading">
+                        <h2 class="section-title">7-Day Activity</h2>
+                        <p class="section-description">
+                            {{ number_format($issuedTotal) }} issues and {{ number_format($returnedTotal) }} returns logged this week.
+                        </p>
+                    </div>
+                    <span class="section-count count-blue">{{ number_format($movementsTotal) }} movements</span>
                 </div>
-                <div class="chart-container">
-                    <canvas id="activityChart"></canvas>
+                <div class="activity-panel">
+                    <div class="chart-container">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                    <div class="activity-insights">
+                        @foreach($activityInsights as $insight)
+                            <div class="activity-insight" style="--accent-color: {{ $insight['color'] }};">
+                                <div class="activity-insight-top">
+                                    <div class="activity-insight-label-wrap">
+                                        <span class="activity-dot" aria-hidden="true"></span>
+                                        <span class="activity-insight-label">{{ $insight['label'] }}</span>
+                                    </div>
+                                    <span class="activity-insight-badge">{{ $insight['badge'] }}</span>
+                                </div>
+                                <div class="activity-insight-value">{{ $insight['value'] }}</div>
+                                <div class="activity-insight-meta">{{ $insight['meta'] }}</div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
         </div>
@@ -1110,10 +1690,10 @@
                     <span class="table-card-count" data-pending-count-display>{{ $pendingRequestsCount ?? 0 }}</span>
                 </div>
 
-                <div class="table-list pending-requests-list">
+                <div class="table-list pending-requests-list js-dashboard-list" data-list-type="pending_requests" data-total-count="{{ (int) ($pendingRequestsCount ?? 0) }}" data-limit="10">
                     @if(isset($pendingRequests) && $pendingRequests->count())
                         @foreach($pendingRequests as $req)
-                            <div class="table-item table-request-item" id="request-{{ $req->id }}" data-request-id="{{ $req->id }}">
+                            <div class="table-item table-request-item" id="request-{{ $req->id }}" data-request-id="{{ $req->id }}" data-list-item="true">
                                 <div class="table-item-top">
                                     <div>
                                         <div class="table-item-title">{{ optional($req->book)->title ?? 'Untitled' }}</div>
@@ -1130,6 +1710,16 @@
                                 </div>
                             </div>
                         @endforeach
+                        @if(($pendingRequestsCount ?? 0) > $pendingRequests->count())
+                            <div class="list-show-more" data-show-more-wrapper>
+                                <button type="button" class="show-more-btn" data-show-more-button data-list-type="pending_requests">
+                                    <span data-show-more-label>Show more</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                        @endif
                     @else
                         <div class="empty-state table-empty-state">
                             <div class="empty-icon">
@@ -1153,10 +1743,10 @@
                     <span class="table-card-count">{{ $dueToday ?? 0 }}</span>
                 </div>
 
-                <div class="table-list">
+                <div class="table-list js-dashboard-list" data-list-type="due_today" data-total-count="{{ (int) ($dueToday ?? 0) }}" data-limit="10">
                     @if(isset($dueTodayList) && $dueTodayList->count())
                         @foreach($dueTodayList as $item)
-                            <div class="table-item">
+                            <div class="table-item" data-list-item="true">
                                 <div class="table-item-top">
                                     <div>
                                         <div class="table-item-title">{{ optional($item->book)->title ?? 'Untitled' }}</div>
@@ -1167,6 +1757,16 @@
                                 <div class="table-item-meta">Due: {{ optional($item->due_date)->format('M d, Y') }}</div>
                             </div>
                         @endforeach
+                        @if(($dueToday ?? 0) > $dueTodayList->count())
+                            <div class="list-show-more" data-show-more-wrapper>
+                                <button type="button" class="show-more-btn" data-show-more-button data-list-type="due_today">
+                                    <span data-show-more-label>Show more</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                        @endif
                     @else
                         <div class="empty-state table-empty-state">
                             <div class="empty-icon">
@@ -1189,10 +1789,10 @@
                     <h3 class="table-card-title">Recent Issues</h3>
                 </div>
 
-                <div class="table-list">
+                <div class="table-list js-dashboard-list" data-list-type="recent_issues" data-total-count="{{ (int) ($recentlyIssuedCount ?? 0) }}" data-limit="10">
                     @if(isset($recentlyIssued) && $recentlyIssued->count())
                         @foreach($recentlyIssued as $item)
-                            <div class="table-item">
+                            <div class="table-item" data-list-item="true">
                                 <div class="table-item-top">
                                     <div>
                                         <div class="table-item-title">{{ optional($item->book)->title ?? 'Untitled' }}</div>
@@ -1203,6 +1803,16 @@
                                 <div class="table-item-meta">Issued on {{ optional($item->issue_date)->format('M d, Y') }}</div>
                             </div>
                         @endforeach
+                        @if(($recentlyIssuedCount ?? 0) > $recentlyIssued->count())
+                            <div class="list-show-more" data-show-more-wrapper>
+                                <button type="button" class="show-more-btn" data-show-more-button data-list-type="recent_issues">
+                                    <span data-show-more-label>Show more</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                        @endif
                     @else
                         <div class="empty-state table-empty-state">
                             <div class="empty-icon">
@@ -1221,40 +1831,158 @@
             </div>
         </div>
 
-        <div class="section-card">
-            <div class="section-header">
-                <h2 class="section-title">Overdue Books</h2>
-                <span class="section-count count-red">{{ $overdueCount ?? 0 }}</span>
+        <div class="dashboard-bottom-row">
+            <div class="section-card quick-actions-card">
+                <div class="section-header">
+                    <div class="section-heading">
+                        <h2 class="section-title">Quick Actions</h2>
+                        <p class="section-description">Open the staff tools you are most likely to use next.</p>
+                    </div>
+                    <span class="section-count count-blue">4 shortcuts</span>
+                </div>
+
+                <div class="quick-actions-grid">
+                    <a href="{{ route('staff.issue-book.index') }}" class="quick-action-btn" style="--quick-accent: #2563eb;">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 5v14" />
+                                <path d="M5 12h14" />
+                            </svg>
+                        </span>
+                        <span class="quick-action-content">
+                            <span class="quick-action-top">
+                                <span class="quick-action-title">Issue Book</span>
+                                <span class="quick-action-badge">{{ number_format((int) ($currentlyIssued ?? 0)) }} active</span>
+                            </span>
+                            <span class="quick-action-meta">Start a new loan and keep circulation moving.</span>
+                        </span>
+                        <span class="quick-action-arrow" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
+                            </svg>
+                        </span>
+                    </a>
+
+                    <a href="{{ route('staff.return-book.index') }}" class="quick-action-btn" style="--quick-accent: #f59e0b;">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 19V5" />
+                                <path d="m5 12 7 7 7-7" />
+                            </svg>
+                        </span>
+                        <span class="quick-action-content">
+                            <span class="quick-action-top">
+                                <span class="quick-action-title">Return Book</span>
+                                <span class="quick-action-badge">{{ number_format((int) ($dueToday ?? 0)) }} due today</span>
+                            </span>
+                            <span class="quick-action-meta">Process returns, condition checks, and late fees.</span>
+                        </span>
+                        <span class="quick-action-arrow" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
+                            </svg>
+                        </span>
+                    </a>
+
+                    <a href="{{ route('staff.book-requests.index') }}" class="quick-action-btn" style="--quick-accent: #8b5cf6;">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 12h6" />
+                                <path d="M12 9v6" />
+                                <path d="M19 21H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l6 6v10a2 2 0 0 1-2 2Z" />
+                                <path d="M14 3v6h6" />
+                            </svg>
+                        </span>
+                        <span class="quick-action-content">
+                            <span class="quick-action-top">
+                                <span class="quick-action-title">Review Requests</span>
+                                <span class="quick-action-badge">{{ number_format((int) ($pendingRequestsCount ?? 0)) }} pending</span>
+                            </span>
+                            <span class="quick-action-meta">Approve or reject pending student requests.</span>
+                        </span>
+                        <span class="quick-action-arrow" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
+                            </svg>
+                        </span>
+                    </a>
+
+                    <a href="{{ route('staff.fines.index') }}" class="quick-action-btn" style="--quick-accent: #dc2626;">
+                        <span class="quick-action-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1v22" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                            </svg>
+                        </span>
+                        <span class="quick-action-content">
+                            <span class="quick-action-top">
+                                <span class="quick-action-title">Manage Fines</span>
+                                <span class="quick-action-badge">₹{{ number_format((float) ($pendingFinesAmount ?? 0)) }}</span>
+                            </span>
+                            <span class="quick-action-meta">Collect, waive, or review pending fine records.</span>
+                        </span>
+                        <span class="quick-action-arrow" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
+                            </svg>
+                        </span>
+                    </a>
+                </div>
             </div>
 
-            <div class="overdue-list">
-                @if(isset($overdues) && $overdues->count())
-                    @foreach($overdues as $item)
-                        <div class="overdue-item">
-                            <div class="overdue-info">
-                                <div class="overdue-book">{{ optional($item->book)->title ?? 'Untitled' }}</div>
-                                <div class="overdue-student">{{ data_get($item, 'student.user.name', 'Unknown') }}</div>
-                            </div>
-                            <div class="overdue-details">
-                                <div class="overdue-date">Due: {{ optional($item->due_date)->format('M d, Y') }}</div>
-                                <div class="overdue-days">{{ optional($item->due_date)->diffInDays(now()) ?? 0 }}d</div>
-                            </div>
-                        </div>
-                    @endforeach
-                @else
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                <polyline points="22 4 12 14.01 9 11.01" />
-                            </svg>
-                        </div>
-                        <h3 class="empty-title">No overdue books</h3>
-                        <p class="empty-subtitle">Great, nothing is overdue right now.</p>
+            <div class="section-card">
+                <div class="section-header">
+                    <div class="section-heading">
+                        <h2 class="section-title">Overdue Books</h2>
+                        <p class="section-description">Books that already need follow-up or recovery.</p>
                     </div>
-                @endif
+                    <span class="section-count count-red">{{ $overdueCount ?? 0 }}</span>
+                </div>
+
+                <div class="overdue-list js-dashboard-list" data-list-type="overdue_books" data-total-count="{{ (int) ($overdueCount ?? 0) }}" data-limit="10">
+                    @if(isset($overdues) && $overdues->count())
+                        @foreach($overdues as $item)
+                            @php
+                                $overdueDays = (int) data_get($item, 'dashboard_overdue_days', 0);
+                            @endphp
+                            <div class="overdue-item" data-list-item="true">
+                                <div class="overdue-info">
+                                    <div class="overdue-book">{{ optional($item->book)->title ?? 'Untitled' }}</div>
+                                    <div class="overdue-student">{{ data_get($item, 'student.user.name', 'Unknown') }}</div>
+                                </div>
+                                <div class="overdue-details">
+                                    <div class="overdue-date">Due {{ optional($item->due_date)->format('M d, Y') }}</div>
+                                    <div class="overdue-days">
+                                        {{ number_format($overdueDays) }} {{ $overdueDays === 1 ? 'day' : 'days' }} overdue
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                        @if(($overdueCount ?? 0) > $overdues->count())
+                            <div class="list-show-more" data-show-more-wrapper>
+                                <button type="button" class="show-more-btn" data-show-more-button data-list-type="overdue_books">
+                                    <span data-show-more-label>Show more</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                        @endif
+                    @else
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                            </div>
+                            <h3 class="empty-title">No overdue books</h3>
+                            <p class="empty-subtitle">Great, nothing is overdue right now.</p>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
 
@@ -1277,37 +2005,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="request-summary" id="requestSummary">
-                        <div class="request-summary-item">
-                            <span class="request-summary-label">Book</span>
-                            <span class="request-summary-value book-title" id="summaryBook">-</span>
-                        </div>
-                        <div class="request-summary-item">
-                            <span class="request-summary-label">Student</span>
-                            <span class="request-summary-value" id="summaryStudent">-</span>
-                        </div>
-                        <div class="request-summary-item">
-                            <span class="request-summary-label">Request Date</span>
-                            <span class="request-summary-value" id="summaryDate">-</span>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-warning" id="modalWarning">
-                        <div class="modal-warning-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                                <line x1="12" y1="9" x2="12" y2="13"></line>
-                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                            </svg>
-                        </div>
-                        <p class="modal-warning-text" id="warningText">Please review the request details carefully.</p>
-                    </div>
-                    
-                    <div class="modal-form-group">
-                        <label class="modal-form-label" for="modalMessage">Message (Optional)</label>
-                        <textarea class="modal-textarea" id="modalMessage" placeholder="Add a note for the student..."></textarea>
-                        <p class="modal-hint">This message will be sent to the student with the notification.</p>
-                    </div>
+                    <p class="modal-message" id="modalMessageText">Are you sure you want to continue?</p>
                 </div>
                 <div class="modal-footer">
                     <button class="modal-btn modal-btn-cancel" onclick="closeRequestModal()">
@@ -1335,6 +2033,8 @@
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        const dashboardListDataUrl = @json(route('staff.dashboard.list-data'));
+
         document.addEventListener('DOMContentLoaded', function() {
             const statCards = document.querySelectorAll('.stat-card');
 
@@ -1349,6 +2049,7 @@
             });
 
             initializeDashboardCharts();
+            initializeDashboardLists();
         });
 
         function initializeDashboardCharts() {
@@ -1363,8 +2064,41 @@
                 text: isDark ? '#cbd5e1' : '#475569'
             };
 
+            const doughnutCenterText = {
+                id: 'doughnutCenterText',
+                afterDraw(chart, args, pluginOptions) {
+                    if (chart.config.type !== 'doughnut' || !pluginOptions || !pluginOptions.value) {
+                        return;
+                    }
+
+                    const {
+                        ctx,
+                        chartArea
+                    } = chart;
+
+                    if (!chartArea) {
+                        return;
+                    }
+
+                    const centerX = (chartArea.left + chartArea.right) / 2;
+                    const centerY = (chartArea.top + chartArea.bottom) / 2;
+
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = isDark ? '#f8fafc' : '#0f172a';
+                    ctx.font = '700 24px Inter, sans-serif';
+                    ctx.fillText(String(pluginOptions.value), centerX, centerY - 10);
+                    ctx.fillStyle = isDark ? '#94a3b8' : '#64748b';
+                    ctx.font = '500 11px Inter, sans-serif';
+                    ctx.fillText(String(pluginOptions.label || ''), centerX, centerY + 14);
+                    ctx.restore();
+                }
+            };
+
             Chart.defaults.color = palette.text;
             Chart.defaults.borderColor = palette.grid;
+            Chart.register(doughnutCenterText);
 
             const commonOptions = {
                 responsive: true,
@@ -1397,7 +2131,26 @@
                     },
                     options: {
                         ...commonOptions,
-                        cutout: '65%'
+                        cutout: '68%',
+                        plugins: {
+                            ...commonOptions.plugins,
+                            tooltip: {
+                                callbacks: {
+                                    label(context) {
+                                        const value = Number(context.raw || 0);
+                                        const series = Array.isArray(context.dataset.data) ? context.dataset.data : [];
+                                        const total = series.reduce((sum, item) => sum + Number(item || 0), 0);
+                                        const share = total > 0 ? Math.round((value / total) * 100) : 0;
+
+                                        return `${context.label}: ${value} (${share}%)`;
+                                    }
+                                }
+                            },
+                            doughnutCenterText: {
+                                value: '{{ number_format($circulationOverview['total'] ?? 0) }}',
+                                label: 'Trackable Copies'
+                            }
+                        }
                     }
                 });
             }
@@ -1411,8 +2164,8 @@
                         datasets: [{
                                 label: 'Issued',
                                 data: @json($activityData['issued'] ?? []),
-                                borderColor: '#3b82f6',
-                                backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                                borderColor: '#6366f1',
+                                backgroundColor: 'rgba(99, 102, 241, 0.14)',
                                 fill: true,
                                 tension: 0.4,
                                 pointRadius: 4,
@@ -1421,8 +2174,8 @@
                             {
                                 label: 'Returned',
                                 data: @json($activityData['returned'] ?? []),
-                                borderColor: '#10b981',
-                                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                                borderColor: '#f97316',
+                                backgroundColor: 'rgba(249, 115, 22, 0.14)',
                                 fill: true,
                                 tension: 0.4,
                                 pointRadius: 4,
@@ -1470,6 +2223,12 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function formatOverdueLabel(value) {
+            const days = Math.max(0, Number.parseInt(value ?? 0, 10) || 0);
+            const unit = days === 1 ? 'day' : 'days';
+            return `${days.toLocaleString()} ${unit} overdue`;
+        }
+
         function showToast(message, type = 'success') {
             let container = document.getElementById('toast-container');
             if (!container) {
@@ -1492,6 +2251,191 @@
             }, 3000);
         }
 
+        function initializeDashboardLists() {
+            document.querySelectorAll('.js-dashboard-list').forEach(container => {
+                syncDashboardListState(container);
+            });
+
+            document.querySelectorAll('[data-show-more-button]').forEach(button => {
+                button.addEventListener('click', function() {
+                    loadMoreDashboardList(this);
+                });
+            });
+        }
+
+        function getDashboardListRenderedCount(container) {
+            return container ? container.querySelectorAll('[data-list-item="true"]').length : 0;
+        }
+
+        function getDashboardListFooter(container) {
+            return container ? container.querySelector('[data-show-more-wrapper]') : null;
+        }
+
+        function insertDashboardListItem(container, item) {
+            if (!container || !item) {
+                return;
+            }
+
+            const footer = getDashboardListFooter(container);
+
+            if (footer) {
+                container.insertBefore(item, footer);
+                return;
+            }
+
+            container.appendChild(item);
+        }
+
+        function syncDashboardListState(container, totalCountOverride = null) {
+            if (!container) {
+                return;
+            }
+
+            if (totalCountOverride !== null) {
+                container.dataset.totalCount = String(Math.max(0, Number(totalCountOverride) || 0));
+            }
+
+            const footer = getDashboardListFooter(container);
+            const totalCount = Math.max(0, parseInt(container.dataset.totalCount || '0', 10) || 0);
+            const renderedCount = getDashboardListRenderedCount(container);
+
+            container.dataset.renderedCount = String(renderedCount);
+
+            if (footer) {
+                footer.hidden = renderedCount >= totalCount;
+            }
+        }
+
+        function setShowMoreButtonLoading(button, isLoading) {
+            if (!button) {
+                return;
+            }
+
+            const label = button.querySelector('[data-show-more-label]');
+            const defaultLabel = button.dataset.defaultLabel || (label ? label.textContent : 'Show more');
+
+            button.dataset.defaultLabel = defaultLabel;
+            button.disabled = isLoading;
+
+            if (label) {
+                label.textContent = isLoading ? 'Loading...' : defaultLabel;
+            }
+        }
+
+        function createDueTodayItem(item) {
+            const element = document.createElement('div');
+            element.className = 'table-item';
+            element.dataset.listItem = 'true';
+            element.innerHTML = `
+                <div class="table-item-top">
+                    <div>
+                        <div class="table-item-title">${escapeHtml(item.book_title || 'Untitled')}</div>
+                        <div class="table-item-subtitle">${escapeHtml(item.student_name || 'Unknown')}</div>
+                    </div>
+                    <div class="table-item-meta">${escapeHtml(item.due_badge || 'Due today')}</div>
+                </div>
+                <div class="table-item-meta">Due: ${escapeHtml(item.due_date || 'N/A')}</div>
+            `;
+
+            return element;
+        }
+
+        function createRecentIssueItem(item) {
+            const element = document.createElement('div');
+            element.className = 'table-item';
+            element.dataset.listItem = 'true';
+            element.innerHTML = `
+                <div class="table-item-top">
+                    <div>
+                        <div class="table-item-title">${escapeHtml(item.book_title || 'Untitled')}</div>
+                        <div class="table-item-subtitle">${escapeHtml(item.student_name || 'Unknown')}</div>
+                    </div>
+                    <div class="table-item-meta">${escapeHtml(item.time_ago || 'Recently')}</div>
+                </div>
+                <div class="table-item-meta">Issued on ${escapeHtml(item.issued_on || 'N/A')}</div>
+            `;
+
+            return element;
+        }
+
+        function createOverdueItem(item) {
+            const element = document.createElement('div');
+            element.className = 'overdue-item';
+            element.dataset.listItem = 'true';
+            element.innerHTML = `
+                <div class="overdue-info">
+                    <div class="overdue-book">${escapeHtml(item.book_title || 'Untitled')}</div>
+                    <div class="overdue-student">${escapeHtml(item.student_name || 'Unknown')}</div>
+                </div>
+                <div class="overdue-details">
+                    <div class="overdue-date">Due ${escapeHtml(item.due_date || 'N/A')}</div>
+                    <div class="overdue-days">${escapeHtml(formatOverdueLabel(item.days_overdue))}</div>
+                </div>
+            `;
+
+            return element;
+        }
+
+        function createDashboardListItem(type, item) {
+            switch (type) {
+                case 'pending_requests':
+                    return createPendingRequestItem(item);
+                case 'due_today':
+                    return createDueTodayItem(item);
+                case 'recent_issues':
+                    return createRecentIssueItem(item);
+                case 'overdue_books':
+                    return createOverdueItem(item);
+                default:
+                    return null;
+            }
+        }
+
+        async function loadMoreDashboardList(button) {
+            const listType = button?.dataset.listType;
+            const container = button?.closest('.js-dashboard-list');
+
+            if (!button || !container || !listType) {
+                return;
+            }
+
+            const offset = getDashboardListRenderedCount(container);
+            const limit = Math.max(1, parseInt(container.dataset.limit || '10', 10) || 10);
+
+            setShowMoreButtonLoading(button, true);
+
+            try {
+                const url = `${dashboardListDataUrl}?type=${encodeURIComponent(listType)}&offset=${offset}&limit=${limit}`;
+                const response = await fetch(url, {
+                    credentials: 'same-origin',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json().catch(() => null);
+
+                if (!response.ok || !data || data.success !== true) {
+                    throw new Error(data?.message || `Unable to load more items (HTTP ${response.status})`);
+                }
+
+                (data.items || []).forEach(item => {
+                    const element = createDashboardListItem(listType, item);
+                    if (element) {
+                        insertDashboardListItem(container, element);
+                    }
+                });
+
+                syncDashboardListState(container, data.total ?? container.dataset.totalCount);
+            } catch (error) {
+                console.error('Failed to load more dashboard items', error);
+                showToast('Unable to load more items right now.', 'error');
+            } finally {
+                setShowMoreButtonLoading(button, false);
+            }
+        }
+
         function updatePendingRequestsCount(delta) {
             const displays = document.querySelectorAll('[data-pending-count-display]');
             if (!displays.length) {
@@ -1504,6 +2448,11 @@
             displays.forEach(display => {
                 display.textContent = next.toString();
             });
+
+            const container = document.querySelector('.pending-requests-list');
+            if (container) {
+                container.dataset.totalCount = next.toString();
+            }
         }
 
         function createPendingRequestItem(request) {
@@ -1511,6 +2460,7 @@
             item.className = 'table-item table-request-item';
             item.id = `request-${request.id}`;
             item.dataset.requestId = request.id;
+            item.dataset.listItem = 'true';
             item.innerHTML = `
                 <div class="table-item-top">
                     <div>
@@ -1548,6 +2498,8 @@
                     <p class="empty-subtitle">You're all caught up for now.</p>
                 </div>
             `;
+
+            syncDashboardListState(container, 0);
         }
 
         function fetchNextPending() {
@@ -1577,13 +2529,17 @@
                             emptyState.remove();
                         }
 
-                        container.appendChild(createPendingRequestItem(data.request));
+                        insertDashboardListItem(container, createPendingRequestItem(data.request));
+                        syncDashboardListState(container);
                         return;
                     }
 
                     if (!container.querySelector('[data-request-id]')) {
                         renderPendingEmptyState(container);
+                        return;
                     }
+
+                    syncDashboardListState(container);
                 })
                 .catch(error => {
                     console.error('Failed to fetch next pending request', error);
@@ -1603,19 +2559,9 @@
             const modalIcon = document.getElementById('modalIcon');
             const modalTitle = document.getElementById('modalTitle');
             const modalSubtitle = document.getElementById('modalSubtitle');
-            const modalWarning = document.getElementById('modalWarning');
-            const warningText = document.getElementById('warningText');
+            const modalMessageText = document.getElementById('modalMessageText');
             const confirmBtn = document.getElementById('modalConfirmBtn');
             const confirmBtnText = document.getElementById('confirmBtnText');
-            const modalMessage = document.getElementById('modalMessage');
-            
-            // Set summary values
-            document.getElementById('summaryBook').textContent = bookTitle || 'Untitled';
-            document.getElementById('summaryStudent').textContent = studentName || 'Unknown';
-            document.getElementById('summaryDate').textContent = requestDate || '-';
-            
-            // Clear previous message
-            modalMessage.value = '';
             
             if (status === 'approved') {
                 modalIcon.className = 'modal-icon approve';
@@ -1624,12 +2570,11 @@
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                 `;
-                modalTitle.textContent = 'Approve Book Request';
-                modalSubtitle.textContent = 'This will notify the student that their request has been approved.';
-                modalWarning.className = 'modal-warning approve';
-                warningText.textContent = 'Once approved, the book will be marked as available for the student to pick up. The student will receive a notification.';
+                modalTitle.textContent = 'Approve request?';
+                modalSubtitle.textContent = requestDate ? `Requested on ${requestDate}` : 'Book request confirmation';
+                modalMessageText.textContent = `Approve "${bookTitle || 'Untitled'}" for ${studentName || 'Unknown'}?`;
                 confirmBtn.className = 'modal-btn modal-btn-approve';
-                confirmBtnText.textContent = 'Approve Request';
+                confirmBtnText.textContent = 'Approve';
             } else {
                 modalIcon.className = 'modal-icon reject';
                 modalIcon.innerHTML = `
@@ -1638,12 +2583,11 @@
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 `;
-                modalTitle.textContent = 'Reject Book Request';
-                modalSubtitle.textContent = 'Please provide a reason for rejecting this request.';
-                modalWarning.className = 'modal-warning reject';
-                warningText.textContent = 'This action will reject the request and notify the student. Please provide a reason (optional) to help the student understand.';
+                modalTitle.textContent = 'Reject request?';
+                modalSubtitle.textContent = requestDate ? `Requested on ${requestDate}` : 'Book request confirmation';
+                modalMessageText.textContent = `Reject "${bookTitle || 'Untitled'}" for ${studentName || 'Unknown'}?`;
                 confirmBtn.className = 'modal-btn modal-btn-reject';
-                confirmBtnText.textContent = 'Reject Request';
+                confirmBtnText.textContent = 'Reject';
             }
             
             modal.classList.add('active');
@@ -1666,7 +2610,6 @@
             const confirmBtn = document.getElementById('modalConfirmBtn');
             const confirmBtnText = document.getElementById('confirmBtnText');
             const confirmBtnSpinner = document.getElementById('confirmBtnSpinner');
-            const modalMessage = document.getElementById('modalMessage');
             
             // Show loading state
             confirmBtn.classList.add('loading');
@@ -1675,7 +2618,6 @@
             
             const requestElement = document.getElementById(`request-${currentRequestId}`);
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            const message = modalMessage.value.trim();
             
             try {
                 const response = await fetch(`{{ url('staff/book-requests') }}/${currentRequestId}`, {
@@ -1689,7 +2631,7 @@
                     },
                     body: JSON.stringify({
                         status: currentRequestStatus,
-                        staff_message: message
+                        staff_message: ''
                     })
                 });
 
@@ -1721,6 +2663,7 @@
                     if (requestElement) {
                         requestElement.remove();
                     }
+                    syncDashboardListState(document.querySelector('.pending-requests-list'));
                     fetchNextPending();
                 }, 500);
             } catch (error) {
@@ -1728,7 +2671,7 @@
                 showToast('Error updating request. Please try again.', 'error');
             } finally {
                 confirmBtn.classList.remove('loading');
-                confirmBtnText.textContent = currentRequestStatus === 'approved' ? 'Approve Request' : 'Reject Request';
+                confirmBtnText.textContent = currentRequestStatus === 'approved' ? 'Approve' : 'Reject';
                 confirmBtnSpinner.style.display = 'none';
             }
         }

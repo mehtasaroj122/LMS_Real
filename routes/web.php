@@ -168,6 +168,8 @@ Route::middleware(['auth', 'can:access-staff'])
     ->group(function () {
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])
             ->name('dashboard');
+        Route::get('/dashboard/list-data', [StaffDashboardController::class, 'loadMoreList'])
+            ->name('dashboard.list-data');
 
         Route::get('/book-management', [BookManagementController::class, 'index'])->name('book-management.index');
         // Book management AJAX and resource routes (staff)
