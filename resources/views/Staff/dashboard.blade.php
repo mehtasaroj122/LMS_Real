@@ -341,7 +341,8 @@
         .quick-actions-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 0.875rem;
+            gap: 1rem;
+            align-content: start;
         }
 
         @media (min-width: 640px) {
@@ -358,15 +359,19 @@
 
         .quick-action-btn {
             position: relative;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.85rem;
-            padding: 1rem;
-            border-radius: 0.9rem;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: start;
+            gap: 0.9rem;
+            min-height: 112px;
+            padding: 1rem 1rem 1rem 1.05rem;
+            border-radius: 1rem;
             border: 1px solid;
             text-decoration: none;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
             overflow: hidden;
+            cursor: pointer;
+            isolation: isolate;
         }
 
         .quick-action-btn::before {
@@ -374,46 +379,68 @@
             position: absolute;
             inset: 0 auto 0 0;
             width: 4px;
-            background-color: var(--quick-accent, #2563eb);
+            background: var(--quick-accent, #2563eb);
+            z-index: 0;
+        }
+
+        .quick-action-btn::after {
+            content: none;
         }
 
         body.light-theme .quick-action-btn {
-            background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), #ffffff);
-            border-color: #e5e7eb;
+            background-color: #ffffff;
+            border-color: var(--quick-border, rgba(148, 163, 184, 0.28));
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
         }
 
         body.dark-theme .quick-action-btn {
-            background: linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.96));
-            border-color: #334155;
+            background-color: #1e293b;
+            border-color: var(--quick-border, rgba(71, 85, 105, 0.65));
         }
 
         .quick-action-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
             border-color: var(--quick-accent, #2563eb);
         }
 
         body.dark-theme .quick-action-btn:hover {
-            box-shadow: 0 12px 24px rgba(2, 6, 23, 0.32);
+            box-shadow: 0 14px 28px rgba(2, 6, 23, 0.28);
+        }
+
+        .quick-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .quick-action-btn:focus-visible {
+            outline: none;
+            border-color: var(--quick-accent, #2563eb);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+        }
+
+        .quick-action-btn > * {
+            position: relative;
+            z-index: 1;
         }
 
         .quick-action-icon {
-            width: 2.75rem;
-            height: 2.75rem;
-            border-radius: 0.85rem;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.9rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             color: var(--quick-accent, #2563eb);
             flex-shrink: 0;
+            border: 1px solid var(--quick-border, rgba(148, 163, 184, 0.28));
         }
 
         body.light-theme .quick-action-icon {
-            background-color: #eff6ff;
+            background-color: var(--quick-soft, rgba(37, 99, 235, 0.12));
         }
 
         body.dark-theme .quick-action-icon {
-            background-color: #0f172a;
+            background-color: rgba(15, 23, 42, 0.68);
         }
 
         .quick-action-content {
@@ -421,21 +448,24 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 0.3rem;
+            justify-content: flex-start;
+            gap: 0.5rem;
+            padding-top: 0.05rem;
         }
 
         .quick-action-top {
             display: flex;
+            flex-direction: column;
             align-items: flex-start;
-            justify-content: space-between;
-            gap: 0.75rem;
-            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 0.45rem;
         }
 
         .quick-action-title {
-            font-size: 0.95rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             line-height: 1.2;
+            letter-spacing: -0.02em;
         }
 
         body.light-theme .quick-action-title {
@@ -450,18 +480,24 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.2rem 0.55rem;
+            padding: 0.26rem 0.65rem;
             border-radius: 9999px;
-            font-size: 0.72rem;
-            font-weight: 600;
+            font-size: 0.71rem;
+            font-weight: 700;
             white-space: nowrap;
             color: var(--quick-accent, #2563eb);
-            border: 1px solid currentColor;
+            border: 1px solid transparent;
+            background-color: var(--quick-soft, rgba(37, 99, 235, 0.12));
         }
 
         .quick-action-meta {
-            font-size: 0.78rem;
-            line-height: 1.45;
+            font-size: 0.79rem;
+            line-height: 1.42;
+            max-width: none;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         body.light-theme .quick-action-meta {
@@ -473,23 +509,39 @@
         }
 
         .quick-action-arrow {
-            width: 1.75rem;
-            height: 1.75rem;
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
             border-radius: 9999px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             color: var(--quick-accent, #2563eb);
             flex-shrink: 0;
-            margin-top: 0.1rem;
+            margin-left: auto;
+            align-self: start;
+            border: 1px solid var(--quick-border, rgba(148, 163, 184, 0.28));
+            background-color: transparent;
+            transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
         }
 
         body.light-theme .quick-action-arrow {
-            background-color: #f8fafc;
+            background-color: #ffffff;
         }
 
         body.dark-theme .quick-action-arrow {
             background-color: #0f172a;
+        }
+
+        .quick-action-btn:hover .quick-action-arrow {
+            transform: translateX(2px);
+            border-color: var(--quick-accent, #2563eb);
+            background-color: var(--quick-soft, rgba(37, 99, 235, 0.12));
+        }
+
+        .quick-action-arrow svg {
+            width: 0.9rem;
+            height: 0.9rem;
         }
 
         .chart-container {
@@ -1848,7 +1900,7 @@
                 </div>
 
                 <div class="quick-actions-grid">
-                    <a href="{{ route('staff.issue-book.index') }}" class="quick-action-btn" style="--quick-accent: #2563eb;">
+                    <a href="{{ route('staff.issue-book.index') }}" class="quick-action-btn" style="--quick-accent: #2563eb; --quick-accent-strong: #1d4ed8; --quick-soft: rgba(37, 99, 235, 0.16); --quick-border: rgba(37, 99, 235, 0.2);">
                         <span class="quick-action-icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 5v14" />
@@ -1869,7 +1921,7 @@
                         </span>
                     </a>
 
-                    <a href="{{ route('staff.return-book.index') }}" class="quick-action-btn" style="--quick-accent: #f59e0b;">
+                    <a href="{{ route('staff.return-book.index') }}" class="quick-action-btn" style="--quick-accent: #f59e0b; --quick-accent-strong: #d97706; --quick-soft: rgba(245, 158, 11, 0.17); --quick-border: rgba(245, 158, 11, 0.2);">
                         <span class="quick-action-icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 19V5" />
@@ -1890,7 +1942,7 @@
                         </span>
                     </a>
 
-                    <a href="{{ route('staff.book-requests.index') }}" class="quick-action-btn" style="--quick-accent: #8b5cf6;">
+                    <a href="{{ route('staff.book-requests.index') }}" class="quick-action-btn" style="--quick-accent: #8b5cf6; --quick-accent-strong: #7c3aed; --quick-soft: rgba(139, 92, 246, 0.16); --quick-border: rgba(139, 92, 246, 0.2);">
                         <span class="quick-action-icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M9 12h6" />
@@ -1913,7 +1965,7 @@
                         </span>
                     </a>
 
-                    <a href="{{ route('staff.fines.index') }}" class="quick-action-btn" style="--quick-accent: #dc2626;">
+                    <a href="{{ route('staff.fines.index') }}" class="quick-action-btn" style="--quick-accent: #dc2626; --quick-accent-strong: #b91c1c; --quick-soft: rgba(220, 38, 38, 0.16); --quick-border: rgba(220, 38, 38, 0.2);">
                         <span class="quick-action-icon" aria-hidden="true">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 1v22" />
@@ -2040,6 +2092,13 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const dashboardListDataUrl = @json(route('staff.dashboard.list-data'));
+        const dashboardCharts = {
+            circulation: null,
+            activity: null
+        };
+        let dashboardThemeMode = null;
+        let dashboardThemeObserverInitialized = false;
+        let doughnutCenterPluginRegistered = false;
 
         document.addEventListener('DOMContentLoaded', function() {
             const statCards = document.querySelectorAll('.stat-card');
@@ -2056,7 +2115,34 @@
 
             initializeDashboardCharts();
             initializeDashboardLists();
+            initializeDashboardThemeObserver();
         });
+
+        function initializeDashboardThemeObserver() {
+            if (dashboardThemeObserverInitialized || !document.body) {
+                return;
+            }
+
+            dashboardThemeMode = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+
+            const observer = new MutationObserver(() => {
+                const nextThemeMode = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+
+                if (nextThemeMode === dashboardThemeMode) {
+                    return;
+                }
+
+                dashboardThemeMode = nextThemeMode;
+                initializeDashboardCharts();
+            });
+
+            observer.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+
+            dashboardThemeObserverInitialized = true;
+        }
 
         function initializeDashboardCharts() {
             if (typeof Chart === 'undefined') {
@@ -2066,8 +2152,12 @@
             const isDark = document.body.classList.contains('dark-theme');
             const palette = {
                 surface: isDark ? '#1e293b' : '#ffffff',
-                grid: isDark ? '#334155' : '#e5e7eb',
-                text: isDark ? '#cbd5e1' : '#475569'
+                grid: isDark ? 'rgba(148, 163, 184, 0.18)' : '#e5e7eb',
+                text: isDark ? '#cbd5e1' : '#475569',
+                textStrong: isDark ? '#f8fafc' : '#0f172a',
+                textMuted: isDark ? '#94a3b8' : '#64748b',
+                tooltipBackground: isDark ? '#0f172a' : '#ffffff',
+                tooltipBorder: isDark ? '#334155' : '#dbe4f0'
             };
 
             const doughnutCenterText = {
@@ -2092,19 +2182,33 @@
                     ctx.save();
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillStyle = isDark ? '#f8fafc' : '#0f172a';
+                    ctx.fillStyle = pluginOptions.valueColor || palette.textStrong;
                     ctx.font = '700 24px Inter, sans-serif';
                     ctx.fillText(String(pluginOptions.value), centerX, centerY - 10);
-                    ctx.fillStyle = isDark ? '#94a3b8' : '#64748b';
+                    ctx.fillStyle = pluginOptions.labelColor || palette.textMuted;
                     ctx.font = '500 11px Inter, sans-serif';
                     ctx.fillText(String(pluginOptions.label || ''), centerX, centerY + 14);
                     ctx.restore();
                 }
             };
 
+            if (dashboardCharts.circulation) {
+                dashboardCharts.circulation.destroy();
+                dashboardCharts.circulation = null;
+            }
+
+            if (dashboardCharts.activity) {
+                dashboardCharts.activity.destroy();
+                dashboardCharts.activity = null;
+            }
+
             Chart.defaults.color = palette.text;
             Chart.defaults.borderColor = palette.grid;
-            Chart.register(doughnutCenterText);
+
+            if (!doughnutCenterPluginRegistered) {
+                Chart.register(doughnutCenterText);
+                doughnutCenterPluginRegistered = true;
+            }
 
             const commonOptions = {
                 responsive: true,
@@ -2112,19 +2216,29 @@
                 plugins: {
                     legend: {
                         labels: {
+                            color: palette.text,
                             usePointStyle: true,
                             padding: 15,
                             font: {
                                 size: 12
                             }
                         }
+                    },
+                    tooltip: {
+                        backgroundColor: palette.tooltipBackground,
+                        borderColor: palette.tooltipBorder,
+                        borderWidth: 1,
+                        titleColor: palette.textStrong,
+                        bodyColor: palette.text,
+                        padding: 10,
+                        displayColors: true
                     }
                 }
             };
 
             const circulationCanvas = document.getElementById('circulationChart');
             if (circulationCanvas) {
-                new Chart(circulationCanvas.getContext('2d'), {
+                dashboardCharts.circulation = new Chart(circulationCanvas.getContext('2d'), {
                     type: 'doughnut',
                     data: {
                         labels: @json($circulationData['labels'] ?? []),
@@ -2141,6 +2255,7 @@
                         plugins: {
                             ...commonOptions.plugins,
                             tooltip: {
+                                ...commonOptions.plugins.tooltip,
                                 callbacks: {
                                     label(context) {
                                         const value = Number(context.raw || 0);
@@ -2154,7 +2269,9 @@
                             },
                             doughnutCenterText: {
                                 value: '{{ number_format($circulationOverview['total'] ?? 0) }}',
-                                label: 'Trackable Copies'
+                                label: 'Trackable Copies',
+                                valueColor: palette.textStrong,
+                                labelColor: palette.textMuted
                             }
                         }
                     }
@@ -2163,7 +2280,7 @@
 
             const activityCanvas = document.getElementById('activityChart');
             if (activityCanvas) {
-                new Chart(activityCanvas.getContext('2d'), {
+                dashboardCharts.activity = new Chart(activityCanvas.getContext('2d'), {
                     type: 'line',
                     data: {
                         labels: @json($activityData['labels'] ?? []),
@@ -2175,7 +2292,10 @@
                                 fill: true,
                                 tension: 0.4,
                                 pointRadius: 4,
-                                pointHoverRadius: 6
+                                pointHoverRadius: 6,
+                                pointBackgroundColor: '#6366f1',
+                                pointBorderColor: palette.surface,
+                                pointBorderWidth: 2
                             },
                             {
                                 label: 'Returned',
@@ -2185,7 +2305,10 @@
                                 fill: true,
                                 tension: 0.4,
                                 pointRadius: 4,
-                                pointHoverRadius: 6
+                                pointHoverRadius: 6,
+                                pointBackgroundColor: '#f97316',
+                                pointBorderColor: palette.surface,
+                                pointBorderWidth: 2
                             }
                         ]
                     },
@@ -2195,17 +2318,21 @@
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    stepSize: 1,
+                                    color: palette.textMuted,
+                                    maxTicksLimit: 7,
+                                    precision: 0,
                                     font: {
                                         size: 11
                                     }
                                 },
                                 grid: {
-                                    color: palette.grid
+                                    color: palette.grid,
+                                    borderColor: palette.grid
                                 }
                             },
                             x: {
                                 ticks: {
+                                    color: palette.textMuted,
                                     font: {
                                         size: 11
                                     }
