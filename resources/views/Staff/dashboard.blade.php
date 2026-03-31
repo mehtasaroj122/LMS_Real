@@ -327,6 +327,11 @@
                 grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.45fr);
                 align-items: stretch;
             }
+
+            .dashboard-bottom-row > .section-card {
+                min-height: 520px;
+                max-height: 520px;
+            }
         }
 
         .quick-actions-card {
@@ -837,8 +842,10 @@
 
         .overdue-list {
             flex: 1;
+            min-height: 0;
             overflow-y: auto;
-            max-height: 340px;
+            padding-right: 4px;
+            padding-bottom: 0.35rem;
         }
 
         .overdue-item {
