@@ -27,9 +27,9 @@ class BookController extends Controller
 
         $initialBooksQuery = $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability);
         $this->applyBookSorting($initialBooksQuery, $sort);
+        $this->applyBookListingRelationships($initialBooksQuery);
 
         $initialBooks = $initialBooksQuery
-            ->with('category')
             ->paginate(15, ['*'], 'page', $page);
         $initialStats = $this->calculateBookStats(
             $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability)
@@ -59,12 +59,10 @@ class BookController extends Controller
 
         $query = $this->buildFilteredBooksQuery($search, $condition, $category, $availability);
         $this->applyBookSorting($query, $sort);
+        $this->applyBookListingRelationships($query);
 
         // Paginate
         $books = $query->paginate($perPage, ['*'], 'page', $page);
-
-        // Load relationships after pagination
-        $books->load('category');
 
         // Generate table rows HTML
         $tableRows = '';
@@ -72,6 +70,7 @@ class BookController extends Controller
             $conditionClass = $book->condition === 'new' ? 'condition-new' : ($book->condition === 'damaged' ? 'condition-damaged' : 'condition-good');
             $conditionIcon = $book->condition === 'new' ? 'fa-star' : ($book->condition === 'damaged' ? 'fa-exclamation-triangle' : 'fa-check-circle');
             $conditionText = ucfirst($book->condition);
+            $deletionGuard = $this->getBookDeletionGuardData($book);
             
             $tableRows .= '<tr'
                         . ' data-book-id="' . $book->id . '"'
@@ -85,6 +84,9 @@ class BookController extends Controller
                         . ' data-shelf="' . htmlspecialchars($book->shelf_no ?? '') . '"'
                         . ' data-total-copies="' . htmlspecialchars($book->total_copies ?? 0) . '"'
                         . ' data-available-copies="' . htmlspecialchars($book->available_copies ?? 0) . '"'
+                        . ' data-active-issued-copies="' . $deletionGuard['activeIssuedCopiesCount'] . '"'
+                        . ' data-unresolved-requests="' . $deletionGuard['unresolvedRequestsCount'] . '"'
+                        . ' data-delete-blocked="' . ($deletionGuard['blocked'] ? 'true' : 'false') . '"'
                         . '>';
             $tableRows .= '<td>' . htmlspecialchars($book->isbn) . '</td>';
             $tableRows .= '<td>';
@@ -128,9 +130,9 @@ class BookController extends Controller
             $tableRows .= '</td>';
             $tableRows .= '<td>';
             $tableRows .= '<div class="action-buttons">';
-            $tableRows .= '<button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>';
-            $tableRows .= '<button class="action-btn edit" title="Edit Book"><i class="fas fa-edit"></i></button>';
-            $tableRows .= '<button class="action-btn delete" title="Delete Book"><i class="fas fa-trash-alt"></i></button>';
+            $tableRows .= '<button class="action-btn view" type="button" title="View Details"><i class="fas fa-eye"></i></button>';
+            $tableRows .= '<button class="action-btn edit" type="button" title="Edit Book"><i class="fas fa-edit"></i></button>';
+            $tableRows .= '<button class="action-btn delete" type="button" title="Delete Book"><i class="fas fa-trash-alt"></i></button>';
             $tableRows .= '</div>';
             $tableRows .= '</td>';
             $tableRows .= '</tr>';
@@ -474,6 +476,24 @@ class BookController extends Controller
         Gate::authorize('access-admin');
 
         $book = book::findOrFail($id);
+        $deletionGuard = $this->getBookDeletionGuardData($book);
+
+        if ($deletionGuard['blocked']) {
+            $request = request();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $deletionGuard['message'],
+                    'blockers' => $deletionGuard['blockers'],
+                ], 422);
+            }
+
+            return redirect()
+                ->route('admin.books.index')
+                ->with('error', $deletionGuard['message']);
+        }
+
         $bookTitle = $book->title;
         $category = $book->category;
 
@@ -686,6 +706,19 @@ class BookController extends Controller
         return $query;
     }
 
+    private function applyBookListingRelationships($query): void
+    {
+        $query->with('category')
+            ->withCount([
+                'issuedBooks as active_issued_copies_count' => function ($issuedBooksQuery) {
+                    $issuedBooksQuery->whereNull('return_date');
+                },
+                'requests as unresolved_requests_count' => function ($requestsQuery) {
+                    $requestsQuery->whereIn('status', ['pending', 'approved']);
+                },
+            ]);
+    }
+
     private function calculateBookStats($query): array
     {
         $books = $query->with('category')->get();
@@ -720,4 +753,57 @@ class BookController extends Controller
             'conditionBreakdown' => $conditionBreakdown,
         ];
     }
+
+    private function getBookDeletionGuardData(book $book): array
+    {
+        $loadedAttributes = $book->getAttributes();
+
+        if (
+            !array_key_exists('active_issued_copies_count', $loadedAttributes)
+            || !array_key_exists('unresolved_requests_count', $loadedAttributes)
+        ) {
+            $book->loadCount([
+                'issuedBooks as active_issued_copies_count' => function ($issuedBooksQuery) {
+                    $issuedBooksQuery->whereNull('return_date');
+                },
+                'requests as unresolved_requests_count' => function ($requestsQuery) {
+                    $requestsQuery->whereIn('status', ['pending', 'approved']);
+                },
+            ]);
+        }
+
+        $activeIssuedCopiesCount = (int) ($book->active_issued_copies_count ?? 0);
+        $unresolvedRequestsCount = (int) ($book->unresolved_requests_count ?? 0);
+        $blockers = [];
+
+        if ($activeIssuedCopiesCount > 0) {
+            $blockers[] = [
+                'title' => $activeIssuedCopiesCount . ' issued ' . ($activeIssuedCopiesCount === 1 ? 'copy is' : 'copies are') . ' still active',
+                'message' => 'Delete is disabled until every issued copy is returned.',
+            ];
+        }
+
+        if ($unresolvedRequestsCount > 0) {
+            $blockers[] = [
+                'title' => $unresolvedRequestsCount . ' book ' . ($unresolvedRequestsCount === 1 ? 'request is' : 'requests are') . ' still open',
+                'message' => 'Delete is disabled until every pending or approved request is resolved.',
+            ];
+        }
+
+        $messageParts = [];
+        foreach ($blockers as $blocker) {
+            $messageParts[] = $blocker['title'] . '. ' . $blocker['message'];
+        }
+
+        return [
+            'blocked' => !empty($blockers),
+            'activeIssuedCopiesCount' => $activeIssuedCopiesCount,
+            'unresolvedRequestsCount' => $unresolvedRequestsCount,
+            'blockers' => $blockers,
+            'message' => empty($messageParts)
+                ? null
+                : implode(' ', $messageParts),
+        ];
+    }
+
 }

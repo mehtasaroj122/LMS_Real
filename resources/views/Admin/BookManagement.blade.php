@@ -598,6 +598,398 @@
             background: #7f1d1d;
         }
 
+        #deleteBookModal.modal-overlay {
+            background: rgba(15, 23, 42, 0.46);
+            backdrop-filter: blur(4px);
+        }
+
+        #deleteBookModal .delete-book-modal {
+            max-width: 640px;
+            border-radius: 16px;
+            max-height: 90vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid var(--delete-border);
+        }
+
+        body.light-theme #deleteBookModal .delete-book-modal {
+            background: #ffffff;
+            box-shadow: 0 20px 48px rgba(15, 23, 42, 0.16);
+            --delete-surface: #ffffff;
+            --delete-text: #0f172a;
+            --delete-muted: #64748b;
+            --delete-border: #e2e8f0;
+            --delete-soft-border: #e2e8f0;
+            --delete-hero-bg: #f8fafc;
+            --delete-card-bg: #ffffff;
+        }
+
+        body.dark-theme #deleteBookModal .delete-book-modal {
+            background: #0f172a;
+            box-shadow: 0 22px 52px rgba(2, 6, 23, 0.56);
+            --delete-surface: #0f172a;
+            --delete-text: #f8fafc;
+            --delete-muted: #94a3b8;
+            --delete-border: #334155;
+            --delete-soft-border: #334155;
+            --delete-hero-bg: #111c2e;
+            --delete-card-bg: #111827;
+        }
+
+        #deleteBookModal .delete-book-modal[data-delete-state="ready"] {
+            --delete-accent: #dc2626;
+            --delete-accent-rgb: 220, 38, 38;
+            --delete-accent-soft: rgba(220, 38, 38, 0.1);
+            --delete-status-bg: rgba(220, 38, 38, 0.08);
+        }
+
+        #deleteBookModal .delete-book-modal[data-delete-state="blocked"] {
+            --delete-accent: #b45309;
+            --delete-accent-rgb: 180, 83, 9;
+            --delete-accent-soft: rgba(180, 83, 9, 0.1);
+            --delete-status-bg: rgba(180, 83, 9, 0.08);
+        }
+
+        body.dark-theme #deleteBookModal .delete-book-modal[data-delete-state="ready"] {
+            --delete-accent-soft: rgba(248, 113, 113, 0.16);
+            --delete-status-bg: rgba(248, 113, 113, 0.14);
+        }
+
+        body.dark-theme #deleteBookModal .delete-book-modal[data-delete-state="blocked"] {
+            --delete-accent-soft: rgba(251, 191, 36, 0.16);
+            --delete-status-bg: rgba(251, 191, 36, 0.14);
+        }
+
+        #deleteBookModal .delete-modal-hero {
+            padding: 20px 24px 16px;
+            background: var(--delete-hero-bg);
+            border-bottom: 1px solid var(--delete-soft-border);
+        }
+
+        #deleteBookModal .delete-modal-topbar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        #deleteBookModal .delete-modal-heading,
+        #deleteBookModal .delete-modal-state-copy,
+        #deleteBookModal .delete-modal-book-copy,
+        #deleteBookModal .delete-modal-note-copy,
+        #deleteBookModal .delete-modal-blocker-copy {
+            min-width: 0;
+        }
+
+        #deleteBookModal .delete-modal-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--delete-status-bg);
+            color: var(--delete-accent);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        #deleteBookModal .delete-modal-title {
+            margin: 10px 0 4px;
+            font-size: 22px;
+            line-height: 1.2;
+            color: var(--delete-text);
+        }
+
+        #deleteBookModal .delete-modal-subtitle {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--delete-muted);
+            max-width: none;
+        }
+
+        #deleteBookModal .delete-modal-close {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            color: var(--delete-muted);
+        }
+
+        #deleteBookModal .delete-modal-state-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 14px;
+            align-items: flex-start;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--delete-soft-border);
+        }
+
+        #deleteBookModal .delete-modal-state-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--delete-accent);
+            background: var(--delete-accent-soft);
+            border: 1px solid rgba(var(--delete-accent-rgb), 0.12);
+            flex-shrink: 0;
+        }
+
+        #deleteBookModal .delete-modal-state-badge,
+        #deleteBookModal .delete-modal-panel-label,
+        #deleteBookModal .delete-modal-book-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: var(--delete-status-bg);
+            color: var(--delete-accent);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+        }
+
+        #deleteBookModal .delete-modal-state-title {
+            margin: 8px 0 6px;
+            font-size: 20px;
+            line-height: 1.3;
+            color: var(--delete-text);
+        }
+
+        #deleteBookModal .delete-modal-state-text,
+        #deleteBookModal .delete-modal-panel-text,
+        #deleteBookModal .delete-modal-note-text,
+        #deleteBookModal .delete-modal-blocker-text {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.55;
+            color: var(--delete-muted);
+        }
+
+        #deleteBookModal .delete-modal-body {
+            display: grid;
+            gap: 14px;
+            padding: 20px 24px;
+            background: var(--delete-surface);
+        }
+
+        #deleteBookModal .delete-modal-book-card,
+        #deleteBookModal .delete-modal-note,
+        #deleteBookModal .delete-modal-blocker-panel {
+            border-radius: 12px;
+            border: 1px solid var(--delete-soft-border);
+            background: var(--delete-card-bg);
+        }
+
+        #deleteBookModal .delete-modal-book-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+        }
+
+        #deleteBookModal .delete-modal-book-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--delete-accent);
+            background: var(--delete-accent-soft);
+            border: 1px solid rgba(var(--delete-accent-rgb), 0.12);
+            box-shadow: none;
+        }
+
+        #deleteBookModal .delete-modal-book-label {
+            display: inline-flex;
+            margin-bottom: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--delete-muted);
+        }
+
+        #deleteBookModal .delete-modal-book-title {
+            display: block;
+            font-size: 18px;
+            line-height: 1.35;
+            color: var(--delete-text);
+        }
+
+        #deleteBookModal .delete-modal-book-isbn {
+            display: block;
+            margin-top: 4px;
+            font-size: 13px;
+            color: var(--delete-muted);
+        }
+
+        #deleteBookModal .delete-modal-book-tag {
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        #deleteBookModal .delete-modal-note {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            padding: 14px 16px;
+        }
+
+        #deleteBookModal .delete-modal-note-icon,
+        #deleteBookModal .delete-modal-blocker-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 14px;
+            color: var(--delete-accent);
+            background: var(--delete-accent-soft);
+        }
+
+        #deleteBookModal .delete-modal-note-title,
+        #deleteBookModal .delete-modal-blocker-title {
+            display: block;
+            font-size: 14px;
+            line-height: 1.4;
+            font-weight: 600;
+            color: var(--delete-text);
+        }
+
+        #deleteBookModal .delete-modal-note-text,
+        #deleteBookModal .delete-modal-blocker-text {
+            margin-top: 2px;
+        }
+
+        #deleteBookModal .delete-modal-blocker-panel {
+            padding: 16px;
+        }
+
+        #deleteBookModal .delete-modal-panel-head {
+            margin-bottom: 12px;
+        }
+
+        #deleteBookModal .delete-modal-panel-label {
+            margin-bottom: 8px;
+        }
+
+        #deleteBookModal .delete-modal-blocker-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        #deleteBookModal .delete-modal-blocker-card {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--delete-soft-border);
+            background: var(--delete-surface);
+        }
+
+        #deleteBookModal .delete-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 16px 24px 20px;
+            border-top: 1px solid var(--delete-soft-border);
+            background: var(--delete-surface);
+        }
+
+        #deleteBookModal .delete-modal-secondary,
+        #deleteBookModal .delete-modal-primary {
+            min-width: 144px;
+            min-height: 44px;
+            padding: 0 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            justify-content: center;
+        }
+
+        #deleteBookModal .delete-modal-secondary {
+            background: transparent;
+        }
+
+        #deleteBookModal .delete-modal-primary {
+            color: #ffffff;
+            background: var(--delete-accent);
+            border: 1px solid var(--delete-accent);
+            box-shadow: none;
+        }
+
+        #deleteBookModal .delete-modal-primary:hover:not(:disabled) {
+            filter: brightness(0.95);
+            transform: none;
+        }
+
+        #deleteBookModal .delete-book-modal[data-delete-state="blocked"] .delete-modal-primary:disabled {
+            opacity: 1;
+            color: #334155;
+            background: #e2e8f0;
+            border-color: #e2e8f0;
+        }
+
+        body.dark-theme #deleteBookModal .delete-book-modal[data-delete-state="blocked"] .delete-modal-primary:disabled {
+            background: #475569;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        #deleteBookModal .delete-book-modal[data-delete-state="ready"] .delete-modal-primary:disabled {
+            opacity: 0.75;
+        }
+
+        @media (max-width: 640px) {
+            #deleteBookModal .delete-book-modal {
+                border-radius: 14px;
+            }
+
+            #deleteBookModal .delete-modal-hero,
+            #deleteBookModal .delete-modal-body,
+            #deleteBookModal .delete-modal-footer {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            #deleteBookModal .delete-modal-state-row,
+            #deleteBookModal .delete-modal-book-card {
+                grid-template-columns: 1fr;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            #deleteBookModal .delete-modal-book-tag {
+                width: 100%;
+                justify-content: center;
+            }
+
+            #deleteBookModal .delete-modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            #deleteBookModal .delete-modal-secondary,
+            #deleteBookModal .delete-modal-primary {
+                width: 100%;
+            }
+        }
+
         /* Modal Styles */
         .modal-overlay {
             display: none;
@@ -970,88 +1362,6 @@
             }
         }
 
-        /* ===== Confirmation Popup Styles ===== */
-        .confirmation-popup {
-            text-align: center;
-            padding: 8px 0;
-        }
-
-        .confirmation-icon {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 32px;
-        }
-
-        .confirmation-icon.danger {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #ef4444;
-        }
-
-        .confirmation-icon.warning {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            color: #f59e0b;
-        }
-
-        .confirmation-icon.info {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #3b82f6;
-        }
-
-        .confirmation-icon.success {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            color: #10b981;
-        }
-
-        .confirmation-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #0f172a;
-        }
-
-        body.dark-theme .confirmation-title {
-            color: #f3f4f6;
-        }
-
-        .confirmation-message {
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 12px;
-        }
-
-        .confirmation-details {
-            background: #f9fafb;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-
-        body.dark-theme .confirmation-details {
-            background: #334155;
-        }
-
-        .confirmation-warning {
-            display: flex;
-            align-items: flex-start;
-            background: #fef2f2;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #991b1b;
-            text-align: left;
-        }
-
-        body.dark-theme .confirmation-warning {
-            background: #450a0a;
-            color: #fca5a5;
-        }
-
         .btn-confirm-danger {
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             color: white;
@@ -1331,6 +1641,25 @@
                             @php
                                 $conditionClass = $book->condition === 'new' ? 'condition-new' : ($book->condition === 'damaged' ? 'condition-damaged' : 'condition-good');
                                 $conditionIcon = $book->condition === 'new' ? 'fa-star' : ($book->condition === 'damaged' ? 'fa-exclamation-triangle' : 'fa-check-circle');
+                                $activeIssuedCopiesCount = (int) ($book->active_issued_copies_count ?? 0);
+                                $unresolvedRequestsCount = (int) ($book->unresolved_requests_count ?? 0);
+                                $deleteBlockers = [];
+
+                                if ($activeIssuedCopiesCount > 0) {
+                                    $deleteBlockers[] = [
+                                        'title' => $activeIssuedCopiesCount . ' issued ' . ($activeIssuedCopiesCount === 1 ? 'copy is' : 'copies are') . ' still active',
+                                        'message' => 'Delete is disabled until every issued copy is returned.',
+                                    ];
+                                }
+
+                                if ($unresolvedRequestsCount > 0) {
+                                    $deleteBlockers[] = [
+                                        'title' => $unresolvedRequestsCount . ' book ' . ($unresolvedRequestsCount === 1 ? 'request is' : 'requests are') . ' still open',
+                                        'message' => 'Delete is disabled until every pending or approved request is resolved.',
+                                    ];
+                                }
+
+                                $deleteDisabled = !empty($deleteBlockers);
                             @endphp
                             <tr
                                 data-book-id="{{ $book->id }}"
@@ -1344,6 +1673,9 @@
                                 data-shelf="{{ $book->shelf_no ?? '' }}"
                                 data-total-copies="{{ $book->total_copies ?? 0 }}"
                                 data-available-copies="{{ $book->available_copies ?? 0 }}"
+                                data-active-issued-copies="{{ $activeIssuedCopiesCount }}"
+                                data-unresolved-requests="{{ $unresolvedRequestsCount }}"
+                                data-delete-blocked="{{ $deleteDisabled ? 'true' : 'false' }}"
                             >
                                 <td>{{ $book->isbn }}</td>
                                 <td>
@@ -1385,9 +1717,11 @@
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
-                                        <button class="action-btn edit" title="Edit Book"><i class="fas fa-edit"></i></button>
-                                        <button class="action-btn delete" title="Delete Book"><i class="fas fa-trash-alt"></i></button>
+                                        <button class="action-btn view" type="button" title="View Details"><i class="fas fa-eye"></i></button>
+                                        <button class="action-btn edit" type="button" title="Edit Book"><i class="fas fa-edit"></i></button>
+                                        <button class="action-btn delete" type="button" title="Delete Book">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -1663,39 +1997,68 @@
 
     <!-- Delete Book Modal -->
     <div id="deleteBookModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Delete Book</h3>
-                <button class="modal-close-btn" id="closeDeleteBookModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="confirmation-popup">
-                    <div class="confirmation-icon danger">
+        <div class="modal delete-book-modal" data-delete-state="ready">
+            <div class="delete-modal-hero">
+                <div class="delete-modal-topbar">
+                    <div class="delete-modal-heading">
+                        <span id="deleteBookEyebrow" class="delete-modal-eyebrow">Delete Book</span>
+                        <h3 class="modal-title delete-modal-title">Delete Book</h3>
+                        <p id="deleteBookHeroText" class="delete-modal-subtitle">Review the selected book before removing it from the catalog.</p>
+                    </div>
+                    <button class="modal-close-btn delete-modal-close" id="closeDeleteBookModal" type="button">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="delete-modal-state-row">
+                    <div id="deleteBookStateIcon" class="delete-modal-state-icon">
                         <i class="fas fa-trash-alt"></i>
                     </div>
-                    <h3 class="confirmation-title">Delete This Book?</h3>
-                    <p class="confirmation-message">
-                        You are about to permanently delete the following book:
-                    </p>
-                    <div class="confirmation-details">
-                        <strong id="deleteBookTitle">Loading...</strong><br>
-                        <span id="deleteBookISBN" style="color: #6b7280; font-size: 12px;">loading...</span>
-                    </div>
-                    <div class="confirmation-warning">
-                        <i class="fas fa-exclamation-triangle" style="margin-right: 6px; margin-top: 2px;"></i>
-                        <span>This action cannot be undone. All book data will be permanently deleted.</span>
+                    <div class="delete-modal-state-copy">
+                        <span id="deleteBookStateBadge" class="delete-modal-state-badge">Permanent</span>
+                        <h4 id="deleteBookStateTitle" class="delete-modal-state-title">Delete this book?</h4>
+                        <p id="deleteBookStateText" class="delete-modal-state-text">This action permanently removes the selected book from the catalog.</p>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" style="justify-content: center; border-top: 1px solid #e5e7eb; padding-top: 16px;">
-                <button class="btn btn-outline" id="cancelDeleteBook" style="min-width: 100px;">
-                    Cancel
+
+            <div class="modal-body delete-modal-body">
+                <div class="delete-modal-book-card">
+                    <div id="deleteBookInitial" class="delete-modal-book-avatar">B</div>
+                    <div class="delete-modal-book-copy">
+                        <span class="delete-modal-book-label">Selected Title</span>
+                        <strong id="deleteBookTitle" class="delete-modal-book-title">Loading...</strong>
+                        <span id="deleteBookISBN" class="delete-modal-book-isbn">ISBN: loading...</span>
+                    </div>
+                    <div id="deleteBookRecordTag" class="delete-modal-book-tag">Ready</div>
+                </div>
+
+                <div id="deleteBookBlockerPanel" class="delete-modal-blocker-panel" hidden>
+                    <div class="delete-modal-panel-head">
+                        <span class="delete-modal-panel-label">Open Dependencies</span>
+                        <p class="delete-modal-panel-text">This book still has related library activity. Resolve these items first.</p>
+                    </div>
+                    <div id="deleteBookBlockerAlert" class="delete-modal-blocker-list" role="alert"></div>
+                </div>
+
+                <div id="deleteBookAllowedNote" class="delete-modal-note">
+                    <div class="delete-modal-note-icon">
+                        <i class="fas fa-circle-info"></i>
+                    </div>
+                    <div class="delete-modal-note-copy">
+                        <span class="delete-modal-note-title">Before You Continue</span>
+                        <span class="delete-modal-note-text">Use delete only when this title should be removed from the catalog permanently.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer delete-modal-footer">
+                <button class="btn btn-outline delete-modal-secondary" id="cancelDeleteBook" type="button">
+                    Keep Book
                 </button>
-                <button class="btn btn-confirm-danger" id="confirmDeleteBook" style="min-width: 100px;">
+                <button class="btn btn-confirm-danger delete-modal-primary" id="confirmDeleteBook" type="button">
                     <i class="fas fa-trash-alt"></i>
-                    Delete Book
+                    <span>Delete Book</span>
                 </button>
             </div>
         </div>
@@ -1710,6 +2073,7 @@
                 this.currentBookId = null;
                 this.currentBookTitle = null;
                 this.currentBookISBN = null;
+                this.currentDeleteBlockers = [];
                 this.currentSearch = '';
                 this.currentConditionFilter = 'all';
                 this.currentCategoryFilter = 'all';
@@ -2693,9 +3057,85 @@
                         this.currentBookId = row.dataset.bookId;
                         this.currentBookTitle = row.cells[1].querySelector('strong')?.textContent || row.cells[1].textContent;
                         this.currentBookISBN = row.cells[0].textContent || '';
+                        this.currentDeleteBlockers = this.getDeleteBlockers(row);
                         this.openDeleteModal();
                     });
                 });
+            }
+
+            getDeleteBlockers(row) {
+                if (!row) {
+                    return [];
+                }
+
+                const activeIssuedCopies = Number(row.dataset.activeIssuedCopies || 0);
+                const unresolvedRequests = Number(row.dataset.unresolvedRequests || 0);
+                const blockers = [];
+
+                if (activeIssuedCopies > 0) {
+                    blockers.push({
+                        title: `${activeIssuedCopies} issued ${activeIssuedCopies === 1 ? 'copy is' : 'copies are'} still active`,
+                        message: 'Delete is disabled until every issued copy is returned.',
+                    });
+                }
+
+                if (unresolvedRequests > 0) {
+                    blockers.push({
+                        title: `${unresolvedRequests} book ${unresolvedRequests === 1 ? 'request is' : 'requests are'} still open`,
+                        message: 'Delete is disabled until every pending or approved request is resolved.',
+                    });
+                }
+
+                return blockers;
+            }
+
+            renderDeleteBlockers(blockers = []) {
+                if (!Array.isArray(blockers) || blockers.length === 0) {
+                    return '';
+                }
+
+                return blockers.map(blocker => `
+                    <div class="delete-modal-blocker-card">
+                        <div class="delete-modal-blocker-icon" aria-hidden="true">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="delete-modal-blocker-copy">
+                            <span class="delete-modal-blocker-title">${this.escapeHtml(blocker.title || '')}</span>
+                            <span class="delete-modal-blocker-text">${this.escapeHtml(blocker.message || '')}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            getDeleteBookInitial() {
+                const title = (this.currentBookTitle || '').trim();
+                return title ? title.charAt(0).toUpperCase() : '#';
+            }
+
+            updateDeleteConfirmButtonState() {
+                const confirmDeleteButton = document.getElementById('confirmDeleteBook');
+
+                if (!confirmDeleteButton) {
+                    return;
+                }
+
+                if (this.currentDeleteBlockers.length > 0) {
+                    confirmDeleteButton.disabled = true;
+                    confirmDeleteButton.innerHTML = '<i class="fas fa-ban"></i><span>Cannot Delete</span>';
+                    return;
+                }
+
+                confirmDeleteButton.disabled = false;
+                confirmDeleteButton.innerHTML = '<i class="fas fa-trash-alt"></i><span>Delete Book</span>';
+            }
+
+            escapeHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
             }
 
             updateStats(stats) {
@@ -2924,8 +3364,90 @@
             }
 
             openDeleteModal() {
-                document.getElementById('deleteBookTitle').textContent = this.currentBookTitle || 'Unknown Book';
-                document.getElementById('deleteBookISBN').textContent = `ISBN: ${this.currentBookISBN || 'N/A'}`;
+                const deleteModal = document.querySelector('#deleteBookModal .delete-book-modal');
+                const blockerAlert = document.getElementById('deleteBookBlockerAlert');
+                const blockerPanel = document.getElementById('deleteBookBlockerPanel');
+                const allowedNote = document.getElementById('deleteBookAllowedNote');
+                const eyebrow = document.getElementById('deleteBookEyebrow');
+                const heroText = document.getElementById('deleteBookHeroText');
+                const stateIcon = document.getElementById('deleteBookStateIcon');
+                const stateBadge = document.getElementById('deleteBookStateBadge');
+                const stateTitle = document.getElementById('deleteBookStateTitle');
+                const stateText = document.getElementById('deleteBookStateText');
+                const bookTitle = document.getElementById('deleteBookTitle');
+                const bookIsbn = document.getElementById('deleteBookISBN');
+                const bookInitial = document.getElementById('deleteBookInitial');
+                const bookRecordTag = document.getElementById('deleteBookRecordTag');
+                const isBlocked = this.currentDeleteBlockers.length > 0;
+
+                if (deleteModal) {
+                    deleteModal.dataset.deleteState = isBlocked ? 'blocked' : 'ready';
+                }
+
+                this.updateDeleteConfirmButtonState();
+
+                if (bookTitle) {
+                    bookTitle.textContent = this.currentBookTitle || 'Unknown Book';
+                }
+
+                if (bookIsbn) {
+                    bookIsbn.textContent = `ISBN: ${this.currentBookISBN || 'N/A'}`;
+                }
+
+                if (bookInitial) {
+                    bookInitial.textContent = this.getDeleteBookInitial();
+                }
+
+                if (bookRecordTag) {
+                    bookRecordTag.textContent = isBlocked ? 'Blocked' : 'Ready';
+                }
+
+                if (eyebrow) {
+                    eyebrow.textContent = isBlocked ? 'Delete Blocked' : 'Delete Book';
+                }
+
+                if (heroText) {
+                    heroText.textContent = isBlocked
+                        ? 'This book cannot be deleted yet because it still has active library records.'
+                        : 'Review the selected book before removing it from the catalog.';
+                }
+
+                if (stateIcon) {
+                    stateIcon.innerHTML = isBlocked
+                        ? '<i class="fas fa-ban"></i>'
+                        : '<i class="fas fa-trash-alt"></i>';
+                }
+
+                if (stateBadge) {
+                    stateBadge.textContent = isBlocked ? 'Blocked' : 'Permanent';
+                }
+
+                if (stateTitle) {
+                    stateTitle.textContent = isBlocked
+                        ? 'Delete unavailable'
+                        : 'Delete this book?';
+                }
+
+                if (stateText) {
+                    stateText.textContent = isBlocked
+                        ? 'Resolve the items below, then try again.'
+                        : 'This action permanently removes the selected book from the catalog.';
+                }
+
+                if (blockerPanel) {
+                    blockerPanel.hidden = !isBlocked;
+                }
+
+                if (allowedNote) {
+                    allowedNote.hidden = isBlocked;
+                }
+
+                if (blockerAlert) {
+                    blockerAlert.innerHTML = isBlocked
+                        ? this.renderDeleteBlockers(this.currentDeleteBlockers)
+                        : '';
+                }
+
                 this.openModal('deleteBookModal');
             }
 
@@ -3105,6 +3627,16 @@
             }
 
             confirmDeleteBook() {
+                if (this.currentDeleteBlockers.length > 0) {
+                    return;
+                }
+
+                const deleteButton = document.getElementById('confirmDeleteBook');
+                if (deleteButton) {
+                    deleteButton.disabled = true;
+                    deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Deleting...</span>';
+                }
+
                 fetch(`{{ url('admin/books') }}/${this.currentBookId}`, {
                     method: 'DELETE',
                     headers: {
@@ -3112,9 +3644,17 @@
                         'Accept': 'application/json',
                     }
                 })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
+                .then(async response => {
+                    const data = await response.json().catch(() => ({}));
+
+                    if (!response.ok) {
+                        const error = new Error(data.message || `HTTP error! status: ${response.status}`);
+                        error.response = response;
+                        error.data = data;
+                        throw error;
+                    }
+
+                    return data;
                 })
                 .then(data => {
                     if (data.success) {
@@ -3126,7 +3666,24 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    this.showNotification('Error deleting book', 'error');
+                    const isBlockedDelete = [409, 422].includes(error?.response?.status);
+                    this.showNotification(error?.data?.message || error.message || 'Error deleting book', isBlockedDelete ? 'warning' : 'error');
+
+                    if (isBlockedDelete) {
+                        this.currentDeleteBlockers = Array.isArray(error?.data?.blockers) && error.data.blockers.length > 0
+                            ? error.data.blockers
+                            : [{
+                                title: 'Deletion is still blocked',
+                                message: error?.data?.message || 'This book cannot be deleted right now. Refresh the data and resolve any active activity before trying again.',
+                            }];
+
+                        this.openDeleteModal();
+
+                        this.fetchBooksData(this.currentPage);
+                    }
+                })
+                .finally(() => {
+                    this.updateDeleteConfirmButtonState();
                 });
             }
 
