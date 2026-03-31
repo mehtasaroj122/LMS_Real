@@ -918,6 +918,11 @@
         transition: background-color 0.18s ease, border-color 0.18s ease;
     }
 
+    .book-request-page .request-selectbox-option[hidden],
+    .book-request-page .request-selectbox-empty[hidden] {
+        display: none !important;
+    }
+
     .book-request-page .request-selectbox-option:hover,
     .book-request-page .request-selectbox-option.is-active {
         background: color-mix(in srgb, var(--request-surface-muted) 88%, transparent);

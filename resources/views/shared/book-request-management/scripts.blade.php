@@ -29,7 +29,24 @@
 
             bindEvents() {
                 this.input?.addEventListener('focus', () => this.showDropdown());
-                this.input?.addEventListener('input', (event) => this.filterOptions(event.target.value));
+                this.input?.addEventListener('input', (event) => {
+                    const currentValue = String(event.target.value || '');
+                    const selectedLabel = String(this.selectedOption?.dataset.text || '');
+
+                    if (this.selectedOption && currentValue !== selectedLabel) {
+                        this.selectedOption.classList.remove('is-selected');
+                        this.selectedOption = null;
+
+                        if (this.hiddenInput) {
+                            this.hiddenInput.value = '';
+                        }
+
+                        this.onChange?.(this);
+                        this.hiddenInput?.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+
+                    this.filterOptions(currentValue);
+                });
                 this.input?.addEventListener('keydown', (event) => this.handleKeydown(event));
 
                 this.dropdown?.addEventListener('click', (event) => {
@@ -76,8 +93,12 @@
                 let visibleCount = 0;
 
                 this.options.forEach((option) => {
-                    const optionText = String(option.dataset.text || option.textContent || '').toLowerCase();
-                    const isVisible = optionText.includes(query);
+                    const optionSearchText = String(option.dataset.search || option.dataset.text || option.textContent || '').toLowerCase();
+                    const normalizedSearchText = optionSearchText.replace(/[\s\-()]+/g, '');
+                    const normalizedQuery = query.replace(/[\s\-()]+/g, '');
+                    const isVisible = query === ''
+                        || optionSearchText.includes(query)
+                        || (normalizedQuery !== '' && normalizedSearchText.includes(normalizedQuery));
                     option.hidden = !isVisible;
                     option.classList.remove('is-active');
                     if (isVisible) {
@@ -660,10 +681,10 @@
             }
 
             updateSelectionSummary() {
-                const studentText = this.studentSelect?.getText() || '';
-                const bookText = this.bookSelect?.getText() || '';
-                const hasStudent = studentText !== '';
-                const hasBook = bookText !== '';
+                const hasStudent = (this.studentSelect?.getValue() || '') !== '';
+                const hasBook = (this.bookSelect?.getValue() || '') !== '';
+                const studentText = hasStudent ? (this.studentSelect?.getText() || '') : '';
+                const bookText = hasBook ? (this.bookSelect?.getText() || '') : '';
 
                 this.elements.selectedStudentSummary.hidden = !hasStudent;
                 this.elements.selectedBookSummary.hidden = !hasBook;

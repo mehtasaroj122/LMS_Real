@@ -206,12 +206,33 @@
                                     <circle cx="12" cy="7" r="4" />
                                 </svg>
                             </span>
-                            <input type="text" id="studentSearch" class="request-selectbox-input searchable-select-input" placeholder="Search for a student..." autocomplete="off" role="combobox" aria-expanded="false" aria-controls="studentDropdown">
+                            <input type="text" id="studentSearch" class="request-selectbox-input searchable-select-input" placeholder="Search by name, ID, or email..." autocomplete="off" role="combobox" aria-expanded="false" aria-controls="studentDropdown">
                             <div id="studentDropdown" class="request-selectbox-dropdown searchable-select-dropdown" role="listbox">
                                 @foreach($students as $student)
-                                    <button type="button" class="request-selectbox-option searchable-select-option" data-value="{{ $student->id }}" data-text="{{ $student->user->name }} ({{ $student->roll_no }})" role="option">
-                                        <span class="request-primary-text">{{ $student->user->name }}</span>
-                                        <span class="request-secondary-text">{{ $student->roll_no }}</span>
+                                    @php
+                                        $studentName = $student->user->name ?? 'Unknown Student';
+                                        $studentIdentifier = $student->student_id ?: $student->roll_no ?: 'N/A';
+                                        $studentEmail = $student->user->email ?? '';
+                                        $studentSearchText = collect([
+                                            $studentName,
+                                            $student->student_id,
+                                            $student->roll_no,
+                                            $studentEmail,
+                                        ])->filter()->implode(' ');
+                                    @endphp
+                                    <button
+                                        type="button"
+                                        class="request-selectbox-option searchable-select-option"
+                                        data-value="{{ $student->id }}"
+                                        data-text="{{ $studentName }} ({{ $studentIdentifier }})"
+                                        data-search="{{ $studentSearchText }}"
+                                        role="option"
+                                    >
+                                        <span class="request-primary-text">{{ $studentName }}</span>
+                                        <span class="request-secondary-text">ID: {{ $studentIdentifier }}</span>
+                                        @if($studentEmail)
+                                            <span class="request-secondary-text">{{ $studentEmail }}</span>
+                                        @endif
                                     </button>
                                 @endforeach
                             </div>
@@ -231,12 +252,32 @@
                                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
                                 </svg>
                             </span>
-                            <input type="text" id="bookSearch" class="request-selectbox-input searchable-select-input" placeholder="Search for a book..." autocomplete="off" role="combobox" aria-expanded="false" aria-controls="bookDropdown">
+                            <input type="text" id="bookSearch" class="request-selectbox-input searchable-select-input" placeholder="Search by title, ISBN, or author..." autocomplete="off" role="combobox" aria-expanded="false" aria-controls="bookDropdown">
                             <div id="bookDropdown" class="request-selectbox-dropdown searchable-select-dropdown" role="listbox">
                                 @foreach($books as $book)
-                                    <button type="button" class="request-selectbox-option searchable-select-option" data-value="{{ $book->id }}" data-text="{{ $book->title }} - {{ $book->author }}" role="option">
-                                        <span class="request-primary-text">{{ $book->title }}</span>
-                                        <span class="request-secondary-text">{{ $book->author }}</span>
+                                    @php
+                                        $bookTitle = $book->title ?? 'Untitled';
+                                        $bookAuthor = $book->author ?? 'Unknown Author';
+                                        $bookIsbn = $book->isbn ?? '';
+                                        $bookSearchText = collect([
+                                            $bookTitle,
+                                            $bookAuthor,
+                                            $bookIsbn,
+                                        ])->filter()->implode(' ');
+                                    @endphp
+                                    <button
+                                        type="button"
+                                        class="request-selectbox-option searchable-select-option"
+                                        data-value="{{ $book->id }}"
+                                        data-text="{{ $bookTitle }} - {{ $bookAuthor }}"
+                                        data-search="{{ $bookSearchText }}"
+                                        role="option"
+                                    >
+                                        <span class="request-primary-text">{{ $bookTitle }}</span>
+                                        <span class="request-secondary-text">{{ $bookAuthor }}</span>
+                                        @if($bookIsbn)
+                                            <span class="request-secondary-text">ISBN: {{ $bookIsbn }}</span>
+                                        @endif
                                         <span class="request-secondary-text">{{ $book->available_copies > 0 ? 'Available: ' . $book->available_copies : 'Out of stock' }}</span>
                                     </button>
                                 @endforeach
