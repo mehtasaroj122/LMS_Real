@@ -76,12 +76,14 @@
     }
 
     .fine-page .stat-card {
-        padding: 1rem;
+        position: relative;
+        padding: 0.9rem 1rem;
+        padding-right: 3.8rem;
         border-radius: 0.5rem;
         transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         border: 1px solid var(--fine-border-color);
         background: var(--fine-bg-secondary);
-        min-height: 122px;
+        min-height: 102px;
     }
 
     .fine-page .stat-card:hover {
@@ -94,10 +96,8 @@
     }
 
     .fine-page .stat-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 0.5rem;
+        display: block;
+        margin-bottom: 0.15rem;
     }
 
     .fine-page .stat-title {
@@ -109,8 +109,12 @@
     }
 
     .fine-page .stat-icon {
+        position: absolute;
+        top: 0.9rem;
+        right: 1rem;
         width: 1.8rem;
         height: 1.8rem;
+        flex-shrink: 0;
         border-radius: 9999px;
         display: flex;
         align-items: center;
@@ -324,6 +328,10 @@
     .fine-page .reset-btn,
     .fine-page .toolbar-btn,
     .fine-page .modal-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
         padding: 0.5rem 1rem;
         border-radius: 0.375rem;
         border: 1px solid var(--fine-border-color);

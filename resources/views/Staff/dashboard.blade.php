@@ -53,12 +53,12 @@
         .stat-card {
             position: relative;
             border-radius: 0.75rem;
-            padding: 1rem;
+            padding: 0.9rem 1rem;
             transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
             gap: 0.15rem;
-            min-height: 120px;
+            min-height: 102px;
         }
 
         body.light-theme .stat-card {
@@ -91,7 +91,6 @@
             display: flex;
             flex-direction: column;
             gap: 0.15rem;
-            flex: 1;
         }
 
         .stat-icon {

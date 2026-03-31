@@ -66,8 +66,10 @@
     }
 
     .book-request-page .request-stat-card {
-        min-height: 122px;
-        padding: 1rem;
+        position: relative;
+        min-height: 102px;
+        padding: 0.9rem 1rem;
+        padding-right: 4.5rem;
         border: 1px solid var(--request-border-color);
         border-radius: 1rem;
         background: var(--request-bg-secondary);
@@ -86,11 +88,8 @@
     }
 
     .book-request-page .request-stat-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.5rem;
+        display: block;
+        margin-bottom: 0.15rem;
     }
 
     .book-request-page .request-stat-title {
@@ -103,8 +102,12 @@
     }
 
     .book-request-page .request-stat-icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
         width: 2.4rem;
         height: 2.4rem;
+        flex-shrink: 0;
         border-radius: 0.9rem;
         display: inline-flex;
         align-items: center;
@@ -223,9 +226,10 @@
 
     .book-request-page .request-search-box {
         position: relative;
-        flex: 1 1 240px;
-        min-width: 220px;
-        max-width: 320px;
+        flex: 0 0 auto;
+        width: 310px;
+        min-width: 240px;
+        max-width: 360px;
     }
 
     .book-request-page .request-search-icon {
@@ -276,12 +280,13 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 0.5rem;
-        flex: 1 1 280px;
+        flex: 0 0 auto;
     }
 
     .book-request-page .request-filter-field {
-        min-width: 150px;
-        flex: 1 1 150px;
+        width: 190px;
+        min-width: 190px;
+        flex: 0 0 auto;
     }
 
     .book-request-page .request-filter-select {

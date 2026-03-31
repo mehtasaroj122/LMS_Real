@@ -95,9 +95,6 @@
                         <option value="book-asc">Book (A-Z)</option>
                     </select>
                 </div>
-            </div>
-
-            <div class="request-toolbar-actions">
                 <button type="button" id="requestResetFiltersBtn" class="request-btn" aria-label="Reset all request filters">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 12a9 9 0 1 0 3-6.708L3 8" />
@@ -105,7 +102,9 @@
                     </svg>
                     <span>{{ $config['labels']['resetButton'] ?? 'Reset' }}</span>
                 </button>
+            </div>
 
+            <div class="request-toolbar-actions">
                 @if(($config['features']['create'] ?? true) === true)
                     <button type="button" id="createRequestBtn" class="request-btn primary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
