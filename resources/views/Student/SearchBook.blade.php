@@ -309,6 +309,12 @@
             transition: all 0.15s ease;
         }
 
+        .request-btn svg {
+            width: 0.95rem;
+            height: 0.95rem;
+            flex-shrink: 0;
+        }
+
         .request-btn:hover {
             background-color: #1e293b;
             transform: translateY(-1px);
@@ -497,12 +503,36 @@
         .modal-icon {
             width: 48px;
             height: 48px;
-            background-color: #fef3c7;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.75rem;
+            flex-shrink: 0;
+        }
+
+        .modal-icon svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .modal-icon-warning {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .modal-icon-success {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+
+        .modal-icon-info {
+            background-color: #dbeafe;
+            color: #0284c7;
+        }
+
+        .modal-icon-danger {
+            background-color: #fee2e2;
+            color: #dc2626;
         }
 
         .modal-title {
@@ -521,6 +551,11 @@
             color: #475569;
             line-height: 1.6;
             margin: 0;
+        }
+
+        .modal-book-title {
+            font-weight: 700;
+            color: #0f172a;
         }
 
         .modal-footer {
@@ -549,6 +584,38 @@
             transform: translateY(-1px);
         }
 
+        .modal-btn-success {
+            background-color: #059669;
+        }
+
+        .modal-btn-success:hover {
+            background-color: #047857;
+        }
+
+        .modal-btn-info {
+            background-color: #0284c7;
+        }
+
+        .modal-btn-info:hover {
+            background-color: #0369a1;
+        }
+
+        .modal-btn-warning {
+            background-color: #d97706;
+        }
+
+        .modal-btn-warning:hover {
+            background-color: #b45309;
+        }
+
+        .modal-btn-danger {
+            background-color: #dc2626;
+        }
+
+        .modal-btn-danger:hover {
+            background-color: #b91c1c;
+        }
+
         .modal-btn-ok:active {
             transform: translateY(0);
         }
@@ -571,6 +638,10 @@
 
         .dark-theme .modal-message {
             color: #cbd5e1;
+        }
+
+        .dark-theme .modal-book-title {
+            color: #f8fafc;
         }
     </style>
 @endpush
@@ -734,7 +805,9 @@
                         <p class="book-description">{{ $displayDescription }}</p>
                     @endif
                     <button class="request-btn" data-book-id="{{ $book->id }}">
-                        <span>+</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                        </svg>
                         <span>Request Book</span>
                     </button>
                 </div>
@@ -755,7 +828,12 @@
     <div id="unavailableModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-icon">📚</div>
+                <div class="modal-icon modal-icon-warning">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+                    </svg>
+                </div>
                 <h2 class="modal-title">Book Unavailable</h2>
             </div>
             <div class="modal-body">
@@ -773,34 +851,42 @@
     <div id="successModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-icon" style="background-color: #d1fae5; color: #059669;">✓</div>
+                <div class="modal-icon modal-icon-success">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5" />
+                    </svg>
+                </div>
                 <h2 class="modal-title">Request Submitted</h2>
             </div>
             <div class="modal-body">
-                <p class="modal-message">
-                    Your request for "<span id="bookTitleSuccess"></span>" has been submitted successfully! The library will notify you when the book becomes available.
+                <p class="modal-message" id="successMessage">
+                    Your request has been submitted successfully.
                 </p>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn modal-btn-ok" id="closeSuccessModalBtn" style="background-color: #059669;">OK</button>
+                <button class="modal-btn modal-btn-ok modal-btn-success" id="closeSuccessModalBtn">OK</button>
             </div>
         </div>
     </div>
 
-    <!-- Already Submitted Modal -->
-    <div id="alreadySubmittedModal" class="modal">
+    <!-- Request State Modal -->
+    <div id="requestStateModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-icon" style="background-color: #dbeafe; color: #0284c7;">ℹ</div>
-                <h2 class="modal-title">Request Already Submitted</h2>
+                <div class="modal-icon modal-icon-info" id="requestStateIcon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8h.01" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 12h1v4h1" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" />
+                    </svg>
+                </div>
+                <h2 class="modal-title" id="requestStateTitle">Request Update</h2>
             </div>
             <div class="modal-body">
-                <p class="modal-message">
-                    You have already submitted a request for "<span id="bookTitleAlready"></span>". Please wait for our notification when the book becomes available, or check your requests list for more details.
-                </p>
+                <p class="modal-message" id="requestStateMessage"></p>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn modal-btn-ok" id="closeAlreadyModalBtn" style="background-color: #0284c7;">OK</button>
+                <button class="modal-btn modal-btn-ok modal-btn-info" id="closeRequestStateModalBtn">OK</button>
             </div>
         </div>
     </div>
@@ -809,7 +895,13 @@
     <div id="errorModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-icon" style="background-color: #fee2e2; color: #dc2626;">⚠</div>
+                <div class="modal-icon modal-icon-danger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                    </svg>
+                </div>
                 <h2 class="modal-title">Request Error</h2>
             </div>
             <div class="modal-body">
@@ -818,7 +910,7 @@
                 </p>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn modal-btn-ok" id="closeErrorModalBtn" style="background-color: #dc2626;">OK</button>
+                <button class="modal-btn modal-btn-ok modal-btn-danger" id="closeErrorModalBtn">OK</button>
             </div>
         </div>
     </div>
@@ -878,6 +970,106 @@
                 return rawDescription;
             }
 
+            function getRequestButtonIconSvg(type) {
+                const icons = {
+                    plus: `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14" />
+                        </svg>
+                    `,
+                    check: `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5" />
+                        </svg>
+                    `
+                };
+
+                return icons[type] || icons.plus;
+            }
+
+            function getModalIconSvg(type) {
+                const icons = {
+                    info: `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8h.01" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 12h1v4h1" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" />
+                        </svg>
+                    `,
+                    pending: `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" />
+                        </svg>
+                    `,
+                    approved: `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m9 12 2 2 4-4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3 5 6v6c0 5 3.5 8 7 9 3.5-1 7-4 7-9V6l-7-3Z" />
+                        </svg>
+                    `,
+                    borrowed: `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+                        </svg>
+                    `,
+                    issued: `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14 4h4v4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 14 18 6" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6.5 2H12v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+                        </svg>
+                    `,
+                    error: `
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                        </svg>
+                    `
+                };
+
+                return icons[type] || icons.info;
+            }
+
+            function getRequestStateConfig(reason) {
+                const states = {
+                    already_borrowed: {
+                        title: 'Already Borrowed',
+                        tone: 'warning',
+                        icon: 'borrowed'
+                    },
+                    request_pending: {
+                        title: 'Request Pending',
+                        tone: 'info',
+                        icon: 'pending'
+                    },
+                    request_approved: {
+                        title: 'Request Approved',
+                        tone: 'success',
+                        icon: 'approved'
+                    },
+                    request_issued: {
+                        title: 'Already Issued',
+                        tone: 'warning',
+                        icon: 'issued'
+                    },
+                    request_exists: {
+                        title: 'Active Request Found',
+                        tone: 'info',
+                        icon: 'info'
+                    }
+                };
+
+                return states[reason] || {
+                    title: 'Request Update',
+                    tone: 'info',
+                    icon: 'info'
+                };
+            }
+
             function getCurrentFilters() {
                 const params = new URLSearchParams();
 
@@ -935,7 +1127,7 @@
                         </div>
                         ${description ? `<p class="book-description">${escapeHtml(description)}</p>` : ''}
                         <button class="request-btn" data-book-id="${escapeHtml(book.id)}">
-                            <span>+</span>
+                            ${getRequestButtonIconSvg('plus')}
                             <span>Request Book</span>
                         </button>
                     </div>
@@ -993,10 +1185,18 @@
             }
 
             // Function to show success modal
-            function showSuccessModal(bookTitle) {
+            function showSuccessModal(bookTitle, nextStep = '') {
                 const modal = document.getElementById('successModal');
-                const bookTitleSpan = document.getElementById('bookTitleSuccess');
-                bookTitleSpan.textContent = bookTitle;
+                const successMessage = document.getElementById('successMessage');
+                const messageParts = [
+                    `Your request for "<span class="modal-book-title">${escapeHtml(bookTitle)}</span>" has been submitted successfully.`
+                ];
+
+                if (nextStep) {
+                    messageParts.push(escapeHtml(nextStep));
+                }
+
+                successMessage.innerHTML = messageParts.join('<br>');
                 modal.classList.add('show');
             }
 
@@ -1006,17 +1206,28 @@
                 modal.classList.remove('show');
             }
 
-            // Function to show already submitted modal
-            function showAlreadySubmittedModal(bookTitle) {
-                const modal = document.getElementById('alreadySubmittedModal');
-                const bookTitleSpan = document.getElementById('bookTitleAlready');
-                bookTitleSpan.textContent = bookTitle;
+            function showRequestStateModal(bookTitle, reason, message) {
+                const modal = document.getElementById('requestStateModal');
+                const icon = document.getElementById('requestStateIcon');
+                const title = document.getElementById('requestStateTitle');
+                const messageElement = document.getElementById('requestStateMessage');
+                const closeButton = document.getElementById('closeRequestStateModalBtn');
+                const config = getRequestStateConfig(reason);
+
+                icon.className = `modal-icon modal-icon-${config.tone}`;
+                icon.innerHTML = getModalIconSvg(config.icon);
+                title.textContent = config.title;
+                closeButton.className = `modal-btn modal-btn-ok modal-btn-${config.tone}`;
+                messageElement.innerHTML = `
+                    <span class="modal-book-title">${escapeHtml(bookTitle)}</span><br>
+                    ${escapeHtml(message || 'This book already has an active request on your account.')}
+                `;
                 modal.classList.add('show');
             }
 
-            // Function to close already submitted modal
-            function closeAlreadySubmittedModal() {
-                const modal = document.getElementById('alreadySubmittedModal');
+            // Function to close request state modal
+            function closeRequestStateModal() {
+                const modal = document.getElementById('requestStateModal');
                 modal.classList.remove('show');
             }
 
@@ -1062,17 +1273,6 @@
                         const bookId = this.getAttribute('data-book-id');
                         const bookCard = this.closest('.book-card');
                         const bookTitle = bookCard.querySelector('.book-title').textContent;
-                        const availabilityBadge = bookCard.querySelector('.availability-badge').textContent.trim();
-                        const bookStatus = availabilityBadge.toLowerCase();
-
-                        // Check if book is unavailable
-                        if (bookStatus !== 'available') {
-                            showUnavailableModal(bookTitle);
-                            return;
-                        }
-
-                        // Debug: Log the book ID
-                        console.log('Requesting book with ID:', bookId, 'Title:', bookTitle);
 
                         // Disable button while processing
                         const originalText = this.innerHTML;
@@ -1094,16 +1294,24 @@
                             })
                             .then(response => response.json())
                             .then(data => {
-                                console.log('Response:', data);
                                 if (data.success) {
-                                    this.innerHTML = '<span>✓</span><span>Requested</span>';
+                                    this.innerHTML = `${getRequestButtonIconSvg('check')}<span>Requested</span>`;
                                     this.style.backgroundColor = '#10b981';
                                     this.disabled = true;
-                                    showSuccessModal(bookTitle);
+                                    showSuccessModal(bookTitle, data.next_step || '');
                                 } else {
-                                    // Check if it's an already submitted error
-                                    if (data.message && data.message.toLowerCase().includes('already')) {
-                                        showAlreadySubmittedModal(bookTitle);
+                                    if (data.reason === 'book_unavailable') {
+                                        showUnavailableModal(bookTitle);
+                                    } else if (data.reason === 'already_borrowed' ||
+                                        data.reason === 'request_pending' ||
+                                        data.reason === 'request_approved' ||
+                                        data.reason === 'request_issued' ||
+                                        data.reason === 'request_exists') {
+                                        showRequestStateModal(
+                                            bookTitle,
+                                            data.reason,
+                                            data.message || 'This book already has an active request on your account.'
+                                        );
                                     } else {
                                         showErrorModal(data.message || 'Error submitting request. Please try again.');
                                     }
@@ -1181,9 +1389,9 @@
                 closeSuccessModal();
             });
 
-            const closeAlreadyModalBtn = document.getElementById('closeAlreadyModalBtn');
-            closeAlreadyModalBtn.addEventListener('click', function() {
-                closeAlreadySubmittedModal();
+            const closeRequestStateModalBtn = document.getElementById('closeRequestStateModalBtn');
+            closeRequestStateModalBtn.addEventListener('click', function() {
+                closeRequestStateModal();
             });
 
             const closeErrorModalBtn = document.getElementById('closeErrorModalBtn');
@@ -1195,7 +1403,7 @@
             window.addEventListener('click', function(event) {
                 const unavailableModal = document.getElementById('unavailableModal');
                 const successModal = document.getElementById('successModal');
-                const alreadySubmittedModal = document.getElementById('alreadySubmittedModal');
+                const requestStateModal = document.getElementById('requestStateModal');
                 const errorModal = document.getElementById('errorModal');
 
                 if (event.target === unavailableModal) {
@@ -1204,8 +1412,8 @@
                 if (event.target === successModal) {
                     closeSuccessModal();
                 }
-                if (event.target === alreadySubmittedModal) {
-                    closeAlreadySubmittedModal();
+                if (event.target === requestStateModal) {
+                    closeRequestStateModal();
                 }
                 if (event.target === errorModal) {
                     closeErrorModal();

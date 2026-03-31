@@ -172,20 +172,26 @@
 
         /* ===== SEARCH & FILTER BAR - Consistent with other pages ===== */
         .search-filter-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
+            width: 100%;
             margin-bottom: 0.75rem;
             padding: 0.75rem;
             border-radius: var(--radius);
-            align-items: center;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
         }
 
+        .search-filter-inner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            width: min(100%, 1080px);
+            align-items: center;
+        }
+
         .search-box {
-            flex: 1;
-            min-width: 200px;
+            flex: 0 1 410px;
+            width: min(100%, 410px);
+            min-width: 260px;
             position: relative;
         }
 
@@ -219,6 +225,9 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            flex: 1 1 auto;
+            min-width: 0;
+            align-items: center;
         }
 
         .filter-select {
@@ -227,7 +236,7 @@
             font-size: 0.8rem;
             cursor: pointer;
             appearance: none;
-            min-width: 120px;
+            min-width: 130px;
             transition: all 0.3s ease;
             background: var(--body-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
             border: 1px solid var(--border-color);
@@ -241,6 +250,24 @@
 
         body.dark-theme .filter-select {
             background: var(--body-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+        }
+
+        .reset-filter-btn {
+            padding: 0.375rem 0.875rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--body-bg);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .reset-filter-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
         }
 
         /* Fines Table */
@@ -504,43 +531,6 @@
             cursor: not-allowed;
         }
 
-        /* Library Fine Policy */
-        .fine-policy {
-            padding: 0.75rem;
-            border-radius: var(--radius);
-            background: var(--body-bg);
-            border: 1px solid var(--border-color);
-            margin-top: 0.75rem;
-        }
-
-        .fine-policy h3 {
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .fine-policy p {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-            line-height: 1.5;
-        }
-
-        .policy-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .policy-link:hover {
-            opacity: 0.8;
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .page-header h1 {
@@ -552,9 +542,13 @@
             }
 
             .search-filter-container {
+                padding: 0.5rem;
+            }
+
+            .search-filter-inner {
                 flex-direction: column;
                 align-items: stretch;
-                padding: 0.5rem;
+                width: 100%;
                 gap: 0.5rem;
             }
 
@@ -664,40 +658,44 @@
 
         <!-- Search and Filters -->
         <div class="search-filter-container">
-            <div class="search-box">
-                <div class="search-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
+            <div class="search-filter-inner">
+                <div class="search-box">
+                    <div class="search-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by book title...">
                 </div>
-                <input type="text" class="search-input" id="searchInput" placeholder="Search by book title...">
-            </div>
 
-            <div class="filters-container">
-                <select class="filter-select" id="statusFilter">
-                    <option value="all">All Fines</option>
-                    <option value="unpaid">Unpaid</option>
-                    <option value="paid">Paid</option>
-                    <option value="waived">Waived</option>
-                </select>
+                <div class="filters-container">
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Fines</option>
+                        <option value="unpaid">Unpaid</option>
+                        <option value="paid">Paid</option>
+                        <option value="waived">Waived</option>
+                    </select>
 
-                <select class="filter-select" id="reasonFilter">
-                    <option value="all">All Reasons</option>
-                    <option value="overdue">Overdue</option>
-                    <option value="damage">Damage</option>
-                    <option value="fair">Fair Condition</option>
-                    <option value="lost">Lost</option>
-                </select>
+                    <select class="filter-select" id="reasonFilter">
+                        <option value="all">All Reasons</option>
+                        <option value="overdue">Overdue</option>
+                        <option value="damage">Damage</option>
+                        <option value="fair">Fair Condition</option>
+                        <option value="lost">Lost</option>
+                    </select>
 
-                <select class="filter-select" id="timeFilter">
-                    <option value="all">All Time</option>
-                    <option value="7">Last 7 days</option>
-                    <option value="30">Last 30 days</option>
-                    <option value="90">Last 90 days</option>
-                </select>
+                    <select class="filter-select" id="timeFilter">
+                        <option value="all">All Time</option>
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                    </select>
+
+                    <button type="button" class="reset-filter-btn" id="resetFiltersBtn">Reset</button>
+                </div>
             </div>
         </div>
 
@@ -752,20 +750,6 @@
             </div>
         </div>
 
-        <!-- Library Fine Policy -->
-        <div class="fine-policy">
-            <h3>Library Fine Policy</h3>
-            <p>Fines are calculated based on library rules. Please clear dues to continue borrowing books.</p>
-            <a href="#" class="policy-link">
-                <span>View Complete Policy</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M5 12h14"></path>
-                    <path d="m12 5 7 7-7 7"></path>
-                </svg>
-            </a>
-        </div>
     </div>
 @endsection
 
@@ -1023,11 +1007,26 @@
             return new Date(year, monthIndex, parseInt(day));
         }
 
+        function resetFilters() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const reasonFilter = document.getElementById('reasonFilter');
+            const timeFilter = document.getElementById('timeFilter');
+
+            if (searchInput) searchInput.value = '';
+            if (statusFilter) statusFilter.value = 'all';
+            if (reasonFilter) reasonFilter.value = 'all';
+            if (timeFilter) timeFilter.value = 'all';
+
+            filterFines();
+        }
+
         // Event listeners for filters
         document.getElementById('searchInput').addEventListener('input', filterFines);
         document.getElementById('statusFilter').addEventListener('change', filterFines);
         document.getElementById('reasonFilter').addEventListener('change', filterFines);
         document.getElementById('timeFilter').addEventListener('change', filterFines);
+        document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
 
         // Initial render
         renderFines(finesData);

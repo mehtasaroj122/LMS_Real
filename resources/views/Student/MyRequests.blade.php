@@ -434,6 +434,12 @@
             gap: 0.125rem;
         }
 
+        .cancel-btn svg {
+            width: 0.8rem;
+            height: 0.8rem;
+            flex-shrink: 0;
+        }
+
         .cancel-btn:hover:not(:disabled) {
             background: rgba(239, 68, 68, 0.1);
         }
@@ -585,22 +591,59 @@
         .modal {
             background: var(--card-bg);
             border-radius: var(--radius);
-            padding: 0.75rem;
-            max-width: 300px;
+            padding: 1rem;
+            max-width: 360px;
             width: 100%;
             border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .modal-icon svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .modal-icon-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning-color);
+        }
+
+        .modal-icon-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success-color);
+        }
+
+        .modal-icon-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger-color);
         }
 
         .modal h3 {
             font-size: 0.9rem;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 0.375rem;
+            margin: 0;
         }
 
         .modal p {
             color: var(--text-secondary);
-            margin-bottom: 0.75rem;
+            margin: 0 0 1rem;
             line-height: 1.4;
             font-size: 0.8rem;
         }
@@ -611,12 +654,21 @@
             justify-content: flex-end;
         }
 
+        .modal-actions.is-single-action {
+            justify-content: flex-end;
+        }
+
         .modal-btn {
             padding: 0.25rem 0.75rem;
             border-radius: var(--radius-sm);
             font-size: 0.8rem;
             font-weight: 500;
             cursor: pointer;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
         }
 
         .modal-btn.cancel {
@@ -625,10 +677,33 @@
             color: var(--text-primary);
         }
 
+        .modal-btn.cancel:hover {
+            border-color: var(--text-muted);
+        }
+
         .modal-btn.confirm {
             background: var(--danger-color);
             border: 1px solid var(--danger-color);
             color: white;
+        }
+
+        .modal-btn.confirm:hover {
+            filter: brightness(0.95);
+        }
+
+        .modal-btn.success {
+            background: var(--success-color);
+            border: 1px solid var(--success-color);
+            color: white;
+        }
+
+        .modal-btn.success:hover {
+            filter: brightness(0.95);
+        }
+
+        .modal-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
         }
 
         /* Responsive Design */
@@ -871,11 +946,20 @@
     <!-- Cancel Confirmation Modal -->
     <div id="cancelModal" class="modal-overlay">
         <div class="modal">
-            <h3>Cancel Request</h3>
-            <p>Are you sure you want to cancel this book request? This action cannot be undone.</p>
-            <div class="modal-actions">
-                <button class="modal-btn cancel" onclick="hideCancelModal()">No, Keep It</button>
-                <button class="modal-btn confirm" onclick="confirmCancel()">Yes, Cancel Request</button>
+            <div class="modal-header">
+                <div class="modal-icon modal-icon-warning" id="requestModalIcon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                    </svg>
+                </div>
+                <h3 id="requestModalTitle">Cancel Request</h3>
+            </div>
+            <p id="requestModalMessage">Are you sure you want to cancel this book request? This action cannot be undone.</p>
+            <div class="modal-actions" id="requestModalActions">
+                <button class="modal-btn cancel" id="requestModalSecondaryBtn">No, Keep It</button>
+                <button class="modal-btn confirm" id="requestModalPrimaryBtn">Yes, Cancel Request</button>
             </div>
         </div>
     </div>
@@ -885,10 +969,96 @@
     <script>
         // Requests data from backend
         const requestsData = {!! $requestsJson !!};
-        console.log('Requests data:', requestsData);
+        const currentUserName = @json(auth()->user()?->name ?? 'Student');
 
         // Store the ID of the request being cancelled
         let currentRequestId = null;
+        const requestModalState = {
+            primaryAction: null,
+            secondaryAction: null,
+        };
+
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getStatusLabel(status) {
+            if (status === 'pending') return 'Pending';
+            if (status === 'approved') return 'Approved';
+            if (status === 'issued') return 'Issued';
+            if (status === 'returned') return 'Returned';
+            if (status === 'cancelled') return 'Cancelled';
+            return 'Rejected';
+        }
+
+        function renderProcessedByValue(request) {
+            return request.processedBy !== 'N/A'
+                ? `<span class="processed-by">${escapeHtml(request.processedBy)}</span>`
+                : '<span class="processed-na">N/A</span>';
+        }
+
+        function getCancelButtonHtml(label) {
+            return `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 6V4h8v2" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 6l-1 14H6L5 6" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 11v6M14 11v6" />
+                </svg>
+                <span>${escapeHtml(label)}</span>
+            `;
+        }
+
+        function renderCancelButton(request, label = 'Cancel') {
+            if (request.status !== 'pending') {
+                return '<span class="processed-na">—</span>';
+            }
+
+            return `
+                <button class="cancel-btn" data-request-id="${request.id}" data-label="${escapeHtml(label)}" onclick="showCancelModal(${request.id})">
+                    ${getCancelButtonHtml(label)}
+                </button>
+            `;
+        }
+
+        function renderMobileAction(request) {
+            if (request.status !== 'pending') {
+                return '<span class="processed-na">No action required</span>';
+            }
+
+            return renderCancelButton(request, 'Cancel Request');
+        }
+
+        function getRequestModalIconSvg(type) {
+            const icons = {
+                warning: `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                    </svg>
+                `,
+                success: `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5" />
+                    </svg>
+                `,
+                danger: `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                    </svg>
+                `,
+            };
+
+            return icons[type] || icons.warning;
+        }
 
         function getRequestDisplayDate(request) {
             return request.requestDate || 'N/A';
@@ -925,25 +1095,14 @@
                 <td class="request-date">${getRequestDisplayDate(request)}</td>
                 <td>
                     <span class="status-badge status-${request.status}">
-                        ${request.status === 'pending' ? 'Pending' : 
-                          request.status === 'approved' ? 'Approved' : 
-                          request.status === 'issued' ? 'Issued' :
-                          request.status === 'returned' ? 'Returned' :
-                          request.status === 'cancelled' ? 'Cancelled' : 'Rejected'}
+                        ${getStatusLabel(request.status)}
                     </span>
                 </td>
                 <td>
-                    ${request.processedBy !== 'N/A' ? 
-                      `<span class="processed-by">${request.processedBy}</span>` : 
-                      '<span class="processed-na">N/A</span>'}
+                    ${renderProcessedByValue(request)}
                 </td>
                 <td>
-                    ${request.status === 'pending' ? 
-                      `<button class="cancel-btn" onclick="showCancelModal(${request.id})">
-                            <i class="fas fa-trash-alt"></i>
-                            Cancel
-                           </button>` : 
-                      '<span class="processed-na">—</span>'}
+                    ${renderCancelButton(request)}
                 </td>
             </tr>
         `).join('');
@@ -966,27 +1125,18 @@
                     <span class="mobile-label">Status</span>
                     <div class="mobile-value">
                         <span class="status-badge status-${request.status}">
-                            ${request.status === 'pending' ? 'Pending' : 
-                              request.status === 'approved' ? 'Approved' : 
-                              request.status === 'cancelled' ? 'Cancelled' : 'Rejected'}
+                            ${getStatusLabel(request.status)}
                         </span>
                     </div>
                 </div>
                 <div class="mobile-row">
                     <span class="mobile-label">Processed By</span>
                     <div class="mobile-value">
-                        ${request.processedBy !== 'N/A' ? 
-                          `<span class="processed-by">${request.processedBy}</span>` : 
-                          '<span class="processed-na">N/A</span>'}
+                        ${renderProcessedByValue(request)}
                     </div>
                 </div>
                 <div class="mobile-actions">
-                    ${request.status === 'pending' ? 
-                      `<button class="cancel-btn" onclick="showCancelModal(${request.id})">
-                            <i class="fas fa-trash-alt"></i>
-                            Cancel Request
-                           </button>` : 
-                      '<span class="processed-na">No action required</span>'}
+                    ${renderMobileAction(request)}
                 </div>
             </div>
         `).join('');
@@ -1089,25 +1239,14 @@
                 <td class="request-date">${getRequestDisplayDate(request)}</td>
                 <td>
                     <span class="status-badge status-${request.status}">
-                        ${request.status === 'pending' ? 'Pending' : 
-                          request.status === 'approved' ? 'Approved' : 
-                          request.status === 'issued' ? 'Issued' :
-                          request.status === 'returned' ? 'Returned' :
-                          request.status === 'cancelled' ? 'Cancelled' : 'Rejected'}
+                        ${getStatusLabel(request.status)}
                     </span>
                 </td>
                 <td>
-                    ${request.processedBy !== 'N/A' ? 
-                      `<span class="processed-by">${request.processedBy}</span>` : 
-                      '<span class="processed-na">N/A</span>'}
+                    ${renderProcessedByValue(request)}
                 </td>
                 <td>
-                    ${request.status === 'pending' ? 
-                      `<button class="cancel-btn" onclick="showCancelModal(${request.id})">
-                            <i class="fas fa-trash-alt"></i>
-                            Cancel
-                           </button>` : 
-                      '<span class="processed-na">—</span>'}
+                    ${renderCancelButton(request)}
                 </td>
             </tr>
         `).join('');
@@ -1129,27 +1268,18 @@
                     <span class="mobile-label">Status</span>
                     <div class="mobile-value">
                         <span class="status-badge status-${request.status}">
-                            ${request.status === 'pending' ? 'Pending' : 
-                              request.status === 'approved' ? 'Approved' : 
-                              request.status === 'cancelled' ? 'Cancelled' : 'Rejected'}
+                            ${getStatusLabel(request.status)}
                         </span>
                     </div>
                 </div>
                 <div class="mobile-row">
                     <span class="mobile-label">Processed By</span>
                     <div class="mobile-value">
-                        ${request.processedBy !== 'N/A' ? 
-                          `<span class="processed-by">${request.processedBy}</span>` : 
-                          '<span class="processed-na">N/A</span>'}
+                        ${renderProcessedByValue(request)}
                     </div>
                 </div>
                 <div class="mobile-actions">
-                    ${request.status === 'pending' ? 
-                      `<button class="cancel-btn" onclick="showCancelModal(${request.id})">
-                            <i class="fas fa-trash-alt"></i>
-                            Cancel Request
-                           </button>` : 
-                      '<span class="processed-na">No action required</span>'}
+                    ${renderMobileAction(request)}
                 </div>
             </div>
         `).join('');
@@ -1275,68 +1405,174 @@
         // Initial render
         renderRequests(requestsData);
 
+        function openRequestModal({
+            tone = 'warning',
+            title,
+            message,
+            primaryLabel = 'OK',
+            primaryClass = 'confirm',
+            onPrimary = hideCancelModal,
+            secondaryLabel = '',
+            onSecondary = hideCancelModal,
+        }) {
+            const modal = document.getElementById('cancelModal');
+            const icon = document.getElementById('requestModalIcon');
+            const titleElement = document.getElementById('requestModalTitle');
+            const messageElement = document.getElementById('requestModalMessage');
+            const actions = document.getElementById('requestModalActions');
+            const primaryButton = document.getElementById('requestModalPrimaryBtn');
+            const secondaryButton = document.getElementById('requestModalSecondaryBtn');
+
+            icon.className = `modal-icon modal-icon-${tone}`;
+            icon.innerHTML = getRequestModalIconSvg(tone);
+            titleElement.textContent = title;
+            messageElement.textContent = message;
+
+            primaryButton.className = `modal-btn ${primaryClass}`;
+            primaryButton.textContent = primaryLabel;
+            primaryButton.disabled = false;
+
+            if (secondaryLabel) {
+                secondaryButton.style.display = 'inline-flex';
+                secondaryButton.textContent = secondaryLabel;
+                secondaryButton.disabled = false;
+                actions.classList.remove('is-single-action');
+                requestModalState.secondaryAction = onSecondary;
+            } else {
+                secondaryButton.style.display = 'none';
+                secondaryButton.disabled = false;
+                actions.classList.add('is-single-action');
+                requestModalState.secondaryAction = null;
+            }
+
+            requestModalState.primaryAction = onPrimary;
+            modal.style.display = 'flex';
+        }
+
+        function setCancelButtonsLoading(requestId, isLoading) {
+            const cancelButtons = document.querySelectorAll(`.cancel-btn[data-request-id="${requestId}"]`);
+
+            cancelButtons.forEach(button => {
+                const label = button.dataset.label || 'Cancel';
+                button.disabled = isLoading;
+                button.innerHTML = isLoading ? '<span>Cancelling...</span>' : getCancelButtonHtml(label);
+            });
+        }
+
         function showCancelModal(requestId) {
             currentRequestId = requestId;
-            document.getElementById('cancelModal').style.display = 'flex';
+            openRequestModal({
+                tone: 'warning',
+                title: 'Cancel Request',
+                message: 'Are you sure you want to cancel this book request? This action cannot be undone.',
+                primaryLabel: 'Yes, Cancel Request',
+                primaryClass: 'confirm',
+                onPrimary: confirmCancel,
+                secondaryLabel: 'No, Keep It',
+                onSecondary: hideCancelModal,
+            });
         }
 
         function hideCancelModal() {
             document.getElementById('cancelModal').style.display = 'none';
+            requestModalState.primaryAction = null;
+            requestModalState.secondaryAction = null;
             currentRequestId = null;
         }
 
         function confirmCancel() {
             if (!currentRequestId) return;
 
-            // Find and disable the cancel button for this request
-            const cancelBtns = document.querySelectorAll(`.cancel-btn[onclick*="${currentRequestId}"]`);
-            cancelBtns.forEach(btn => {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
-            });
+            const requestId = currentRequestId;
+            const primaryButton = document.getElementById('requestModalPrimaryBtn');
+            const secondaryButton = document.getElementById('requestModalSecondaryBtn');
 
-            // Call backend API to cancel request
-            fetch(`/student/my-requests/${currentRequestId}/cancel`, {
+            setCancelButtonsLoading(requestId, true);
+            primaryButton.disabled = true;
+            primaryButton.textContent = 'Cancelling...';
+            secondaryButton.disabled = true;
+
+            fetch(`/student/my-requests/${requestId}/cancel`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 }
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok: ' + response.status);
+            .then(async response => {
+                let data = {};
+
+                try {
+                    data = await response.json();
+                } catch (error) {
+                    data = {
+                        success: false,
+                        message: 'Unable to process this request right now.',
+                    };
                 }
-                return response.json();
+
+                return {
+                    ok: response.ok,
+                    data,
+                };
             })
-            .then(data => {
-                if (data.success) {
-                    // Update request status in data
-                    const requestIndex = requestsData.findIndex(r => r.id === currentRequestId);
+            .then(({ ok, data }) => {
+                if (ok && data.success) {
+                    const requestIndex = requestsData.findIndex(r => r.id === requestId);
                     if (requestIndex !== -1) {
                         requestsData[requestIndex].status = 'cancelled';
-                        requestsData[requestIndex].processedBy = 'You (Cancelled)';
+                        requestsData[requestIndex].processedBy = data.processedBy || `${currentUserName} (you)`;
                     }
 
-                    // Re-render with updated data
                     filterRequests();
 
-                    // Hide modal
-                    hideCancelModal();
-
-                    // Show success message
-                    alert('Request cancelled successfully!');
+                    openRequestModal({
+                        tone: 'success',
+                        title: 'Request Cancelled',
+                        message: data.message || 'Your request has been cancelled successfully.',
+                        primaryLabel: 'OK',
+                        primaryClass: 'success',
+                        onPrimary: hideCancelModal,
+                    });
                 } else {
-                    alert('Error: ' + data.message);
-                    location.reload();
+                    setCancelButtonsLoading(requestId, false);
+                    openRequestModal({
+                        tone: 'danger',
+                        title: 'Unable to Cancel',
+                        message: data.message || 'An error occurred while cancelling the request.',
+                        primaryLabel: 'OK',
+                        primaryClass: 'confirm',
+                        onPrimary: hideCancelModal,
+                    });
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while cancelling the request');
-                location.reload();
+                setCancelButtonsLoading(requestId, false);
+                openRequestModal({
+                    tone: 'danger',
+                    title: 'Unable to Cancel',
+                    message: 'An error occurred while cancelling the request.',
+                    primaryLabel: 'OK',
+                    primaryClass: 'confirm',
+                    onPrimary: hideCancelModal,
+                });
             });
         }
+
+        document.getElementById('requestModalPrimaryBtn').addEventListener('click', function() {
+            if (typeof requestModalState.primaryAction === 'function') {
+                requestModalState.primaryAction();
+            }
+        });
+
+        document.getElementById('requestModalSecondaryBtn').addEventListener('click', function() {
+            if (typeof requestModalState.secondaryAction === 'function') {
+                requestModalState.secondaryAction();
+            } else {
+                hideCancelModal();
+            }
+        });
 
         // Close modal when clicking outside
         document.getElementById('cancelModal').addEventListener('click', function(e) {

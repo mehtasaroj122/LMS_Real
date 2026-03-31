@@ -43,9 +43,8 @@ class MyRequestsController extends Controller
         $rejectedRequests = $allRequests->where('status', 'rejected')->count();
 
         // Transform requests data for JavaScript
-        $requestsJson = json_encode($allRequests->map(function($bookRequest) {
-            // processed_by stores the staff name directly
-            $processedBy = !empty($bookRequest->processed_by) ? $bookRequest->processed_by : 'N/A';
+        $requestsJson = json_encode($allRequests->map(function($bookRequest) use ($user) {
+            $processedBy = $this->formatProcessedBy($bookRequest->processed_by, $user?->name);
 
             return [
                 'id' => $bookRequest->id,
@@ -103,10 +102,27 @@ class MyRequestsController extends Controller
             $bookRequest->processed_date = now();
             $bookRequest->save();
 
-            return response()->json(['success' => true, 'message' => 'Request cancelled successfully']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Request cancelled successfully.',
+                'processedBy' => $this->formatProcessedBy($cancelledBy, $user->name),
+            ]);
         } catch (\Exception $e) {
             \Log::error('Error cancelling request: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
         }
+    }
+
+    private function formatProcessedBy(?string $processedBy, ?string $currentUserName): string
+    {
+        if (empty($processedBy)) {
+            return 'N/A';
+        }
+
+        if (!empty($currentUserName) && strcasecmp($processedBy, $currentUserName) === 0) {
+            return $processedBy . ' (you)';
+        }
+
+        return $processedBy;
     }
 }

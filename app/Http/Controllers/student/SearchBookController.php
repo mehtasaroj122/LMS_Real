@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\student;
 
 use App\Http\Controllers\Controller;
+use App\Models\BookRequest;
 use App\Models\book;
 use App\Models\category;
 use Illuminate\Http\Request;
@@ -141,24 +142,56 @@ class SearchBookController extends Controller
         $book = \App\Models\book::find($bookId);
         if (!$book) {
             \Log::error('Book not found with ID: ' . $bookId);
-            return response()->json(['success' => false, 'message' => 'Book not found. ID: ' . $bookId], 404);
+            return response()->json([
+                'success' => false,
+                'reason' => 'book_not_found',
+                'message' => 'Book not found. ID: ' . $bookId,
+            ], 404);
         }
 
         // Get authenticated student
         $user = \Illuminate\Support\Facades\Auth::user();
         $student = $user ? $user->student : null;
         if (!$student) {
-            return response()->json(['success' => false, 'message' => 'Student profile not found.'], 400);
+            return response()->json([
+                'success' => false,
+                'reason' => 'student_not_found',
+                'message' => 'Student profile not found.',
+            ], 400);
         }
 
-        // Check if already requested and not yet returned
-        $existingRequest = \App\Models\BookRequest::where('student_id', $student->id)
+        $existingIssuedBook = $student->issuedBooks()
+            ->where('book_id', $bookId)
+            ->whereNull('return_date')
+            ->first();
+
+        if ($existingIssuedBook) {
+            return response()->json([
+                'success' => false,
+                'reason' => 'already_borrowed',
+                'message' => 'You already have this book with you. Return it first, then you can request it again.',
+            ], 409);
+        }
+
+        // Block duplicate active requests until the current one is closed.
+        $existingRequest = BookRequest::where('student_id', $student->id)
             ->where('book_id', $bookId)
             ->whereIn('status', ['pending', 'approved', 'issued'])
             ->first();
 
         if ($existingRequest) {
-            return response()->json(['success' => false, 'message' => 'You have already requested this book. Please wait until the book is returned before requesting again.'], 400);
+            return response()->json(
+                $this->buildExistingRequestResponse($existingRequest->status),
+                409
+            );
+        }
+
+        if ((int) $book->available_copies <= 0) {
+            return response()->json([
+                'success' => false,
+                'reason' => 'book_unavailable',
+                'message' => 'This book is currently unavailable. Please try again when a copy becomes available.',
+            ], 409);
         }
 
         // Create book request
@@ -172,11 +205,49 @@ class SearchBookController extends Controller
 
             return response()->json([
                 'success' => true,
+                'reason' => 'request_submitted',
                 'message' => 'Book request submitted successfully!',
+                'next_step' => 'You can track this request in My Requests and cancel it while it is still pending.',
                 'request' => $bookRequest,
             ]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error submitting request: ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'reason' => 'request_failed',
+                'message' => 'Error submitting request: ' . $e->getMessage(),
+            ], 500);
         }
+    }
+
+    private function buildExistingRequestResponse(string $status): array
+    {
+        $normalizedStatus = Str::lower($status);
+
+        return match ($normalizedStatus) {
+            'pending' => [
+                'success' => false,
+                'reason' => 'request_pending',
+                'request_status' => $normalizedStatus,
+                'message' => 'You already have a pending request for this book. You can request it again after this request is cancelled, rejected, or completed with a return.',
+            ],
+            'approved' => [
+                'success' => false,
+                'reason' => 'request_approved',
+                'request_status' => $normalizedStatus,
+                'message' => 'This book is already approved for you. You can request it again after the current request is closed or the book is returned.',
+            ],
+            'issued' => [
+                'success' => false,
+                'reason' => 'request_issued',
+                'request_status' => $normalizedStatus,
+                'message' => 'This book request has already been issued to you. Return the book first, then you can request it again.',
+            ],
+            default => [
+                'success' => false,
+                'reason' => 'request_exists',
+                'request_status' => $normalizedStatus,
+                'message' => 'You already have an active request for this book. Please finish or close the current request before submitting another one.',
+            ],
+        };
     }
 }
