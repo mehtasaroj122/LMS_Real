@@ -1018,7 +1018,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const p = BookManager.prototype;
             p.setupPaginationListeners = function() {
-                document.querySelectorAll('#paginationContainer a').forEach((link) => {
+                document.querySelectorAll('#paginationContainer .admin-table-pagination-link[href]').forEach((link) => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
                         const url = new URL(link.href);
@@ -1067,7 +1067,15 @@
                 const tableBody = document.getElementById('booksTableBody');
                 const emptyState = document.getElementById('emptyState');
                 const paginationContainer = document.getElementById('paginationContainer');
-                const params = new URLSearchParams({ search: this.currentSearch, condition: this.currentConditionFilter, category: this.currentCategoryFilter, availability: this.currentAvailabilityFilter, sort: this.currentSortFilter, page: requestedPage });
+                const params = new URLSearchParams({
+                    search: this.currentSearch,
+                    condition: this.currentConditionFilter,
+                    category: this.currentCategoryFilter,
+                    availability: this.currentAvailabilityFilter,
+                    sort: this.currentSortFilter,
+                    page: requestedPage,
+                    per_page: this.currentPerPage,
+                });
                 if (tableBody) tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
                 if (emptyState) emptyState.style.display = 'none';
                 if (paginationContainer) paginationContainer.style.display = 'none';
@@ -1077,23 +1085,31 @@
                         if (!data.success) { this.showNotification('Error loading books', 'error'); return; }
                         if (data.last_page > 0 && requestedPage > data.last_page) { this.fetchBooksData(data.last_page); return; }
                         this.currentPage = Number(data.current_page) || requestedPage;
+                        this.currentPerPage = this.normalizePerPage(data.per_page || this.currentPerPage);
+                        const entriesSelect = document.getElementById('bookEntriesSelect');
+                        if (entriesSelect) {
+                            entriesSelect.value = String(this.currentPerPage);
+                        }
                         if (data.total === 0) {
                             tableBody.innerHTML = '';
                             emptyState.style.display = 'block';
+                            paginationContainer.innerHTML = '';
                             paginationContainer.style.display = 'none';
                         } else {
                             tableBody.innerHTML = data.tableRows || '';
                             emptyState.style.display = 'none';
-                            if (data.pagination && Number(data.last_page) > 1) {
+                            if (data.pagination) {
                                 paginationContainer.innerHTML = data.pagination;
                                 paginationContainer.style.display = 'block';
                                 this.setupPaginationListeners();
                             } else {
+                                paginationContainer.innerHTML = '';
                                 paginationContainer.style.display = 'none';
                             }
                             this.attachTableEventListeners();
                         }
                         if (data.stats) this.updateStats(data.stats);
+                        this.updateBrowserUrl();
                     })
                     .catch((error) => { console.error('Error fetching books:', error); this.showNotification('Error loading books', 'error'); });
             };
@@ -1573,12 +1589,57 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const p = BookManager.prototype;
+            p.normalizePerPage = function(value) {
+                const allowedValues = [10, 20, 50, 100];
+                const perPage = Number(value);
+                return allowedValues.includes(perPage) ? perPage : 10;
+            };
             p.syncCurrentFiltersFromDom = function() {
                 this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
                 this.currentConditionFilter = document.getElementById('conditionFilter')?.value || 'all';
                 this.currentCategoryFilter = document.getElementById('categoryFilter')?.value || 'all';
                 this.currentAvailabilityFilter = document.getElementById('availabilityFilter')?.value || 'all';
                 this.currentSortFilter = document.getElementById('sortFilter')?.value || 'recently-added';
+                this.currentPerPage = this.normalizePerPage(document.getElementById('bookEntriesSelect')?.value || this.currentPerPage);
+            };
+            p.updateBrowserUrl = function() {
+                const params = new URLSearchParams();
+
+                if (this.currentSearch) params.set('search', this.currentSearch);
+                if (this.currentConditionFilter !== 'all') params.set('condition', this.currentConditionFilter);
+                if (this.currentCategoryFilter !== 'all') params.set('category', this.currentCategoryFilter);
+                if (this.currentAvailabilityFilter !== 'all') params.set('availability', this.currentAvailabilityFilter);
+                if (this.currentSortFilter !== 'recently-added') params.set('sort', this.currentSortFilter);
+                if ((Number(this.currentPage) || 1) > 1) params.set('page', String(this.currentPage));
+                if (this.normalizePerPage(this.currentPerPage) !== 10) params.set('per_page', String(this.currentPerPage));
+
+                const nextUrl = params.toString()
+                    ? `${window.location.pathname}?${params.toString()}`
+                    : window.location.pathname;
+
+                window.history.replaceState({ url: nextUrl }, '', nextUrl);
+            };
+            p.resetFilters = function() {
+                this.currentSearch = '';
+                this.currentConditionFilter = 'all';
+                this.currentCategoryFilter = 'all';
+                this.currentAvailabilityFilter = 'all';
+                this.currentSortFilter = 'recently-added';
+                this.currentPage = 1;
+
+                const searchInput = document.getElementById('searchInput');
+                const conditionFilter = document.getElementById('conditionFilter');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const availabilityFilter = document.getElementById('availabilityFilter');
+                const sortFilter = document.getElementById('sortFilter');
+
+                if (searchInput) searchInput.value = '';
+                if (conditionFilter) conditionFilter.value = 'all';
+                if (categoryFilter) categoryFilter.value = 'all';
+                if (availabilityFilter) availabilityFilter.value = 'all';
+                if (sortFilter) sortFilter.value = 'recently-added';
+
+                this.fetchBooksData(1);
             };
             p.initCoverPreviews = function() {
                 [['addCover', 'addCoverPreview', 'addCoverPlaceholder'], ['editCover', 'editCoverPreview', 'editCoverPlaceholder']].forEach(([inputId, previewId, placeholderId]) => {
@@ -1611,6 +1672,22 @@
                         this.fetchBooksData(1);
                     });
                 });
+
+                const entriesSelect = document.getElementById('bookEntriesSelect');
+                if (entriesSelect) {
+                    entriesSelect.addEventListener('change', (e) => {
+                        this.currentPerPage = this.normalizePerPage(e.target.value);
+                        this.currentPage = 1;
+                        this.fetchBooksData(1);
+                    });
+                }
+
+                const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+                if (resetFiltersBtn) {
+                    resetFiltersBtn.addEventListener('click', () => {
+                        this.resetFilters();
+                    });
+                }
             };
             p.initSearch = function() {
                 const input = document.getElementById('searchInput');
@@ -1642,7 +1719,11 @@
                 this.currentAvailabilityFilter = 'all';
                 this.currentSortFilter = 'recently-added';
                 this.currentPage = Number(new URLSearchParams(window.location.search).get('page')) || 1;
-                this.perPage = 15;
+                this.currentPerPage = this.normalizePerPage(document.getElementById('bookEntriesSelect')?.value || new URLSearchParams(window.location.search).get('per_page'));
+                const entriesSelect = document.getElementById('bookEntriesSelect');
+                if (entriesSelect) {
+                    entriesSelect.value = String(this.currentPerPage);
+                }
                 this.bookFormStates = {
                     addBookForm: { pending: new Set(), verified: {}, activeErrorField: null },
                     editBookForm: { pending: new Set(), verified: {}, activeErrorField: null },
@@ -1693,7 +1774,7 @@
         .search-filter-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
+            gap: 0.6rem;
             margin-bottom: 1rem;
             padding: 1rem;
             border-radius: 0.5rem;
@@ -1709,8 +1790,8 @@
 
         .search-box {
             flex: 0 0 auto;
-            min-width: 200px;
-            max-width: 250px;
+            min-width: 180px;
+            max-width: 220px;
             position: relative;
         }
 
@@ -1758,7 +1839,7 @@
         .filters-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.45rem;
         }
 
         .filter-select {
@@ -1767,11 +1848,27 @@
             font-size: 0.875rem;
             cursor: pointer;
             appearance: none;
-            min-width: 120px;
+            min-width: 108px;
             transition: all 0.3s ease;
             background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
             border: 1px solid #e5e7eb;
             color: #0f172a;
+        }
+
+        #conditionFilter {
+            width: 144px;
+        }
+
+        #categoryFilter {
+            width: 166px;
+        }
+
+        #availabilityFilter {
+            width: 132px;
+        }
+
+        #sortFilter {
+            width: 154px;
         }
 
         body.dark-theme .filter-select {
@@ -1787,7 +1884,7 @@
 
         .search-add-wrapper {
             display: flex;
-            gap: 8px;
+            gap: 0.6rem;
             align-items: center;
             margin-left: auto;
         }
@@ -2250,6 +2347,21 @@
                     </select>
                 </div>
 
+                <button class="btn btn-outline" id="resetFiltersBtn" type="button">
+                    <i class="fas fa-rotate-left"></i>
+                    Reset
+                </button>
+
+                <label class="admin-table-entries-control" for="bookEntriesSelect">
+                    <span>Show</span>
+                    <select id="bookEntriesSelect" class="admin-table-entries-select" aria-label="Show book entries">
+                        @foreach([10, 20, 50, 100] as $entryCount)
+                            <option value="{{ $entryCount }}" {{ (int) ($perPage ?? 10) === $entryCount ? 'selected' : '' }}>{{ $entryCount }}</option>
+                        @endforeach
+                    </select>
+                    <span>entries</span>
+                </label>
+
                 <div class="search-add-wrapper">
                     <button class="btn btn-primary" id="addBookBtn" type="button">
                         <i class="fas fa-plus"></i>
@@ -2355,8 +2467,8 @@
                     <p style="color: #64748b;">Try adjusting your search or filters</p>
                 </div>
 
-                <div id="paginationContainer" style="display: {{ $initialBooks->lastPage() > 1 ? 'block' : 'none' }};">
-                    {!! $initialBooks->links()->toHtml() !!}
+                <div id="paginationContainer" style="display: {{ $initialBooks->total() > 0 ? 'block' : 'none' }};">
+                    @include('shared.admin-table-pagination', ['paginator' => $initialBooks])
                 </div>
             </div>
         </div>

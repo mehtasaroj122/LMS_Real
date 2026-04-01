@@ -186,6 +186,7 @@
             gap: 8px;
             align-items: center;
             flex-wrap: wrap;
+            margin-left: auto;
         }
 
         .search-box {
@@ -1391,6 +1392,11 @@
                         <option value="name-desc" {{ ($sort ?? 'recently-added') === 'name-desc' ? 'selected' : '' }}>Name (Z-A)</option>
                     </select>
                 </div>
+
+                <button type="button" class="btn btn-outline" id="resetFiltersBtn">
+                    <i class="fas fa-rotate-left"></i>
+                    Reset
+                </button>
 
                 <label class="admin-table-entries-control" for="usersEntriesSelect">
                     <span>Show</span>
@@ -2645,6 +2651,13 @@
                         this.fetchUsersData(1);
                     });
                 }
+
+                const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+                if (resetFiltersBtn) {
+                    resetFiltersBtn.addEventListener('click', () => {
+                        this.resetFilters();
+                    });
+                }
             }
 
             /**
@@ -2873,6 +2886,16 @@
                     : window.location.pathname;
 
                 window.history.replaceState({ url: nextUrl }, '', nextUrl);
+            }
+
+            resetFilters() {
+                this.currentSearch = '';
+                this.currentRoleFilter = 'all';
+                this.currentStatusFilter = 'all';
+                this.currentSortFilter = 'recently-added';
+                this.currentPage = 1;
+                this.syncControlsFromState();
+                this.fetchUsersData(1);
             }
 
             normalizePerPage(value) {

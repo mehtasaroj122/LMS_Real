@@ -164,7 +164,7 @@
         .search-filter-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem;
+            gap: 0.6rem;
             margin-bottom: 1rem;
             padding: 1rem;
             border-radius: 0.5rem;
@@ -181,8 +181,8 @@
         /* SEARCH BOX – width reduced */
         .search-box {
             flex: 0 0 auto;
-            min-width: 200px;
-            max-width: 250px;
+            min-width: 180px;
+            max-width: 220px;
             position: relative;
         }
 
@@ -231,7 +231,7 @@
         .filters-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.45rem;
         }
 
         .filter-select {
@@ -240,11 +240,27 @@
             font-size: 0.875rem;
             cursor: pointer;
             appearance: none;
-            min-width: 120px;
+            min-width: 108px;
             transition: all 0.3s ease;
             background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
             border: 1px solid #e5e7eb;
             color: #0f172a;
+        }
+
+        #conditionFilter {
+            width: 144px;
+        }
+
+        #categoryFilter {
+            width: 166px;
+        }
+
+        #availabilityFilter {
+            width: 132px;
+        }
+
+        #sortFilter {
+            width: 154px;
         }
 
         body.dark-theme .filter-select {
@@ -260,7 +276,7 @@
 
         .search-add-wrapper {
             display: flex;
-            gap: 8px;
+            gap: 0.6rem;
             align-items: center;
             margin-left: auto;
         }
@@ -1611,6 +1627,11 @@
                     </select>
                 </div>
 
+                <button type="button" class="btn btn-outline" id="resetFiltersBtn">
+                    <i class="fas fa-rotate-left"></i>
+                    Reset
+                </button>
+
                 <label class="admin-table-entries-control" for="booksEntriesSelect">
                     <span>Show</span>
                     <select class="admin-table-entries-select" id="booksEntriesSelect" aria-label="Show book entries">
@@ -2936,6 +2957,13 @@
                         this.fetchBooksData(1);
                     });
                 }
+
+                const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+                if (resetFiltersBtn) {
+                    resetFiltersBtn.addEventListener('click', () => {
+                        this.resetFilters();
+                    });
+                }
             }
 
             initSearch() {
@@ -3073,6 +3101,29 @@
                     : window.location.pathname;
 
                 window.history.replaceState({ url: nextUrl }, '', nextUrl);
+            }
+
+            resetFilters() {
+                this.currentSearch = '';
+                this.currentConditionFilter = 'all';
+                this.currentCategoryFilter = 'all';
+                this.currentAvailabilityFilter = 'all';
+                this.currentSortFilter = 'recently-added';
+                this.currentPage = 1;
+
+                const searchInput = document.getElementById('searchInput');
+                const conditionFilter = document.getElementById('conditionFilter');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const availabilityFilter = document.getElementById('availabilityFilter');
+                const sortFilter = document.getElementById('sortFilter');
+
+                if (searchInput) searchInput.value = '';
+                if (conditionFilter) conditionFilter.value = 'all';
+                if (categoryFilter) categoryFilter.value = 'all';
+                if (availabilityFilter) availabilityFilter.value = 'all';
+                if (sortFilter) sortFilter.value = 'recently-added';
+
+                this.fetchBooksData(1);
             }
 
             normalizePerPage(value) {

@@ -20,7 +20,7 @@ class ListStudentsRequest extends FormRequest
             'status' => ['nullable', Rule::in(['all', 'active', 'inactive'])],
             'sort' => ['nullable', Rule::in(['created-desc', 'created-asc', 'name-asc', 'name-desc'])],
             'page' => ['nullable', 'integer', 'min:1'],
-            'per_page' => ['nullable', 'integer', 'between:5,50'],
+            'per_page' => ['nullable', 'integer', Rule::in(['10', '20', '50', '100'])],
         ];
     }
 }

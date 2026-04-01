@@ -178,7 +178,7 @@
 
         @media (min-width: 768px) {
             .filters-container {
-                grid-template-columns: 1fr auto auto;
+                grid-template-columns: minmax(0, 1fr) repeat(5, auto);
                 align-items: end;
             }
         }
@@ -254,6 +254,40 @@
 
         body.dark-theme .form-label {
             color: #d1d5db;
+        }
+
+        .activity-reset-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            min-height: 2.65rem;
+            padding: 0.72rem 0.95rem;
+            border-radius: 0.75rem;
+            border: 1px solid #dbe2ea;
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .activity-reset-btn:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+            background: rgba(37, 99, 235, 0.06);
+        }
+
+        body.dark-theme .activity-reset-btn {
+            border-color: #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .activity-reset-btn:hover {
+            border-color: #60a5fa;
+            color: #bfdbfe;
+            background: rgba(96, 165, 250, 0.08);
         }
 
         .form-select {
@@ -878,6 +912,25 @@
                     @endforeach
                 </select>
             </div>
+
+            <div class="form-group">
+                <button id="resetFiltersBtn" type="button" class="activity-reset-btn">
+                    <i class="fas fa-rotate-left"></i>
+                    Reset
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label class="admin-table-entries-control" for="per_page">
+                    <span>Show</span>
+                    <select id="per_page" name="per_page" class="admin-table-entries-select" aria-label="Show activity entries">
+                        @foreach([10, 20, 50, 100] as $entryCount)
+                            <option value="{{ $entryCount }}" {{ (int) request('per_page', 10) === $entryCount ? 'selected' : '' }}>{{ $entryCount }}</option>
+                        @endforeach
+                    </select>
+                    <span>entries</span>
+                </label>
+            </div>
         </form>
     </div>
 
@@ -961,12 +1014,7 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        @if($activities->hasPages())
-            <div class="pagination-container">
-                {{ $activities->links() }}
-            </div>
-        @endif
+        @include('shared.admin-table-pagination', ['paginator' => $activities])
     </div>
 
     <!-- Activity Summary Section -->
@@ -1013,6 +1061,15 @@
             document.getElementById('role').addEventListener('change', () => filtersForm.submit());
             document.getElementById('period').addEventListener('change', () => filtersForm.submit());
             document.getElementById('action_category').addEventListener('change', () => filtersForm.submit());
+            document.getElementById('per_page').addEventListener('change', () => filtersForm.submit());
+            document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+                const resetUrl = new URL(filtersForm.action, window.location.origin);
+                const perPageValue = document.getElementById('per_page')?.value || '10';
+                if (perPageValue !== '10') {
+                    resetUrl.searchParams.set('per_page', perPageValue);
+                }
+                window.location.href = resetUrl.toString();
+            });
 
             // Debounced search
             let searchTimeout;

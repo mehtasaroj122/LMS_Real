@@ -115,6 +115,16 @@
             </button>
         </div>
 
+        <label class="admin-table-entries-control student-entries-control" for="studentEntriesSelect">
+            <span>Show</span>
+            <select id="studentEntriesSelect" class="admin-table-entries-select" aria-label="Show student entries">
+                @foreach ([10, 20, 50, 100] as $entryCount)
+                    <option value="{{ $entryCount }}">{{ $entryCount }}</option>
+                @endforeach
+            </select>
+            <span>entries</span>
+        </label>
+
         @if(($config['features']['create'] ?? false) === true)
             <button id="studentCreateBtn" class="flex items-center gap-2 px-3 py-1 font-medium text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 hover:shadow-lg" style="margin-left: auto;">
                 <i class="fas fa-plus"></i>
@@ -163,8 +173,14 @@
             <p id="studentEmptyMessage">Try adjusting your search or filters.</p>
         </div>
 
-        <div id="paginationContainer">
-            <div class="student-pagination-buttons" id="studentPaginationButtons"></div>
+        <div id="studentPaginationContainer" class="admin-table-pagination" hidden>
+            <div class="admin-table-pagination-meta">
+                <div class="admin-table-pagination-summary">
+                    Showing <span id="studentRecordCount">0-0</span> of <span id="studentPaginationTotal">0</span> students
+                </div>
+                <div class="admin-table-pagination-page" id="studentPageInfo">Page 1 of 1</div>
+            </div>
+            <div class="admin-table-pagination-nav" id="studentPaginationButtons"></div>
         </div>
     </div>
 

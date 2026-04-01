@@ -16,6 +16,7 @@ class ActivityLogController extends Controller
     public function index(Request $request)
     {
         Gate::authorize('access-staff');
+        $perPage = $this->normalizeStaffPerPage($request->input('per_page', 10));
         
         $query = ActivityLog::with('user')->latest('created_at');
         
@@ -78,7 +79,7 @@ class ActivityLogController extends Controller
         $studentActions = ActivityLog::where('user_role', 'student')->count();
 
         // Paginate results
-        $activities = $query->paginate(15)->appends($request->query());
+        $activities = $query->paginate($perPage)->appends($request->query());
 
         // Get action categories for filter dropdown - only from staff and student activities
         $actionCategories = ActivityLog::whereIn('user_role', ['staff', 'student'])
@@ -105,5 +106,13 @@ class ActivityLogController extends Controller
             'actionCategories',
             'actionStats'
         ));
+    }
+
+    private function normalizeStaffPerPage($value): int
+    {
+        $allowedValues = [10, 20, 50, 100];
+        $perPage = (int) $value;
+
+        return in_array($perPage, $allowedValues, true) ? $perPage : 10;
     }
 }

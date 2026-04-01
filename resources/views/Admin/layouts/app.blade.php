@@ -133,6 +133,10 @@
             transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
         }
 
+        button.admin-table-pagination-link {
+            cursor: pointer;
+        }
+
         body.dark-theme .admin-table-pagination-link {
             border-color: #475569;
             background: #0f172a;

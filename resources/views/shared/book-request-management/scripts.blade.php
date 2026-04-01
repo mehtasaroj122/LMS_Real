@@ -256,8 +256,10 @@
                 this.elements.emptyMessage = document.getElementById('requestsEmptyMessage');
                 this.elements.filterSummary = document.getElementById('requestFilterSummary');
                 this.elements.lastUpdated = document.getElementById('requestLastUpdated');
+                this.elements.paginationContainer = document.getElementById('requestPaginationContainer');
                 this.elements.paginationButtons = document.getElementById('requestPaginationButtons');
-                this.elements.recordCount = document.getElementById('requestRecordCount');
+                this.elements.startCount = document.getElementById('requestStartCount');
+                this.elements.endCount = document.getElementById('requestEndCount');
                 this.elements.totalCount = document.getElementById('requestTotalCount');
                 this.elements.pageInfo = document.getElementById('requestPageInfo');
                 this.elements.statCards = Array.from(document.querySelectorAll('[data-stat-card]'));
@@ -625,34 +627,68 @@
 
                 const currentPage = Math.max(1, Number(this.state.pagination.current_page || this.state.currentPage || 1));
                 const lastPage = Math.max(1, Number(this.state.pagination.last_page || 1));
+                const total = Math.max(0, Number(this.state.pagination.total || this.state.stats.totalCount || 0));
                 this.elements.paginationButtons.innerHTML = '';
+                if (this.elements.paginationContainer) {
+                    this.elements.paginationContainer.style.display = total > 0 ? 'flex' : 'none';
+                }
                 if (this.elements.pageInfo) {
                     this.elements.pageInfo.textContent = `Page ${currentPage} of ${lastPage}`;
                 }
-
-                this.elements.paginationButtons.appendChild(this.buildPaginationButton(currentPage - 1, svgIcons.prev, currentPage === 1, 'Previous page'));
-
-                const pages = [];
-                for (let page = 1; page <= lastPage; page += 1) {
-                    if (page === 1 || page === lastPage || Math.abs(page - currentPage) <= 1) {
-                        pages.push(page);
-                    }
+                if (total === 0) {
+                    return;
                 }
 
-                let previousPage = 0;
-                pages.forEach((page) => {
-                    if (page - previousPage > 1) {
+                this.elements.paginationButtons.appendChild(this.buildPaginationButton(currentPage - 1, '&larr; Previous', currentPage === 1, 'Previous page'));
+
+                this.buildPaginationPages(currentPage, lastPage).forEach((page) => {
+                    if (page === null) {
                         const ellipsis = document.createElement('span');
                         ellipsis.className = 'request-pagination-ellipsis';
                         ellipsis.textContent = '...';
                         this.elements.paginationButtons.appendChild(ellipsis);
+                        return;
                     }
 
                     this.elements.paginationButtons.appendChild(this.buildPaginationButton(page, String(page), false, `Page ${page}`, page === currentPage));
-                    previousPage = page;
                 });
 
-                this.elements.paginationButtons.appendChild(this.buildPaginationButton(currentPage + 1, svgIcons.next, currentPage === lastPage, 'Next page'));
+                this.elements.paginationButtons.appendChild(this.buildPaginationButton(currentPage + 1, 'Next &rarr;', currentPage === lastPage, 'Next page'));
+            }
+
+            buildPaginationPages(currentPage, lastPage) {
+                if (lastPage <= 7) {
+                    return Array.from({ length: lastPage }, (_, index) => index + 1);
+                }
+
+                let startPage = Math.max(2, currentPage - 1);
+                let endPage = Math.min(lastPage - 1, currentPage + 1);
+
+                if (currentPage <= 3) {
+                    endPage = 4;
+                }
+
+                if (currentPage >= lastPage - 2) {
+                    startPage = lastPage - 3;
+                }
+
+                const pages = [1];
+
+                if (startPage > 2) {
+                    pages.push(null);
+                }
+
+                for (let page = startPage; page <= endPage; page += 1) {
+                    pages.push(page);
+                }
+
+                if (endPage < lastPage - 1) {
+                    pages.push(null);
+                }
+
+                pages.push(lastPage);
+
+                return pages;
             }
 
             buildPaginationButton(page, label, disabled = false, ariaLabel = '', isActive = false) {
@@ -915,8 +951,12 @@
             }
 
             setRecordRange(from, to, total) {
-                if (this.elements.recordCount) {
-                    this.elements.recordCount.textContent = `${from}-${to}`;
+                if (this.elements.startCount) {
+                    this.elements.startCount.textContent = String(from);
+                }
+
+                if (this.elements.endCount) {
+                    this.elements.endCount.textContent = String(to);
                 }
 
                 if (this.elements.totalCount) {

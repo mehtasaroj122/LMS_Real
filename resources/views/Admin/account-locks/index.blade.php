@@ -57,6 +57,7 @@
                                 <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control"
                                     placeholder="Search by user, email, role, or IP">
                             </div>
+                            <button type="button" id="accountLocksResetBtn" class="btn btn-outline-secondary btn-sm">Reset</button>
                             <label class="admin-table-entries-control" for="accountLocksPerPage">
                                 <span>Show</span>
                                 <select id="accountLocksPerPage" name="per_page" class="admin-table-entries-select" onchange="this.form.submit()">
@@ -66,10 +67,9 @@
                                 </select>
                                 <span>entries</span>
                             </label>
-                            <button type="submit" class="btn btn-primary btn-sm">Apply</button>
-                            @if (!empty($search))
-                                <a href="{{ route('admin.account-locks.index') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
-                            @endif
+                            <div class="account-lock-filter-actions">
+                                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                            </div>
                         </form>
 
                         @if ($lockedAccounts->total() > 0)
@@ -236,6 +236,26 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resetButton = document.getElementById('accountLocksResetBtn');
+            const filterForm = document.querySelector('.account-lock-filter-bar');
+
+            if (!resetButton || !filterForm) {
+                return;
+            }
+
+            resetButton.addEventListener('click', function() {
+                const resetUrl = new URL('{{ route('admin.account-locks.index') }}', window.location.origin);
+                const perPageValue = document.getElementById('accountLocksPerPage')?.value || '10';
+                if (perPageValue !== '10') {
+                    resetUrl.searchParams.set('per_page', perPageValue);
+                }
+                window.location.href = resetUrl.toString();
+            });
+        });
+    </script>
+
     <style>
         .account-lock-filter-bar {
             display: flex;
@@ -248,6 +268,13 @@
         .account-lock-search {
             flex: 1 1 260px;
             min-width: 220px;
+        }
+
+        .account-lock-filter-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: auto;
         }
 
         body.dark-theme .account-lock-search .form-control {

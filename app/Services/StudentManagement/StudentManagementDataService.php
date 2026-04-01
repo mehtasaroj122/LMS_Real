@@ -118,8 +118,16 @@ class StudentManagementDataService
             'status' => strtolower((string) ($filters['status'] ?? 'all')),
             'sort' => strtolower((string) ($filters['sort'] ?? 'created-desc')),
             'page' => max(1, (int) ($filters['page'] ?? 1)),
-            'per_page' => max(5, min(100, (int) ($filters['per_page'] ?? 10))),
+            'per_page' => $this->normalizePerPage($filters['per_page'] ?? 10),
         ];
+    }
+
+    protected function normalizePerPage($value): int
+    {
+        $allowedValues = [10, 20, 50, 100];
+        $perPage = (int) $value;
+
+        return in_array($perPage, $allowedValues, true) ? $perPage : 10;
     }
 
     protected function baseQuery(): Builder

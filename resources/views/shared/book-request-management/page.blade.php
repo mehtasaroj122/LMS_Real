@@ -182,7 +182,7 @@
         <div id="requestPaginationContainer" class="request-pagination">
             <div class="request-pagination-meta">
                 <div class="request-pagination-info">
-                    Showing <span id="requestRecordCount">0-0</span> of <span id="requestTotalCount">0</span> requests
+                    Showing <span id="requestStartCount">0</span> to <span id="requestEndCount">0</span> of <span id="requestTotalCount">0</span> results
                 </div>
                 <div class="request-pagination-page" id="requestPageInfo">Page 1 of 1</div>
             </div>

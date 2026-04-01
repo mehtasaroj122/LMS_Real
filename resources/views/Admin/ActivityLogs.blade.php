@@ -212,7 +212,7 @@
 
         .activity-filter-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)) auto;
+            grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)) auto auto;
             gap: 0.75rem;
             align-items: end;
         }
@@ -963,20 +963,22 @@
                     </select>
                 </div>
 
-                <div class="activity-filter-group">
-                    <select id="per_page" name="per_page" class="filter-select" aria-label="Show activity entries">
-                        @foreach ([10, 20, 50, 100] as $entryCount)
-                            <option value="{{ $entryCount }}" {{ (int) request('per_page', 10) === $entryCount ? 'selected' : '' }}>
-                                Show {{ $entryCount }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
                 <button id="resetFiltersBtn" type="button" class="activity-reset-btn">
                     <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                     <span>Reset</span>
                 </button>
+
+                <label class="admin-table-entries-control" for="per_page">
+                    <span>Show</span>
+                    <select id="per_page" name="per_page" class="admin-table-entries-select" aria-label="Show activity entries">
+                        @foreach ([10, 20, 50, 100] as $entryCount)
+                            <option value="{{ $entryCount }}" {{ (int) request('per_page', 10) === $entryCount ? 'selected' : '' }}>
+                                {{ $entryCount }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <span>entries</span>
+                </label>
             </div>
         </div>
 
@@ -1344,7 +1346,12 @@
                 if (resetButton) {
                     event.preventDefault();
                     clearTimeout(searchTimeout);
-                    fetchAndRender(window.location.pathname, {
+                    const resetUrl = new URL(window.location.pathname, window.location.origin);
+                    const perPageValue = document.getElementById('per_page')?.value || '10';
+                    if (perPageValue !== '10') {
+                        resetUrl.searchParams.set('per_page', perPageValue);
+                    }
+                    fetchAndRender(resetUrl.toString(), {
                         historyMode: 'push',
                     });
                     return;

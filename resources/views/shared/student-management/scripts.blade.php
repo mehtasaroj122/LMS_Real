@@ -24,6 +24,7 @@
                     status: document.getElementById('studentStatusFilter'),
                     department: document.getElementById('studentDepartmentFilter'),
                     sort: document.getElementById('studentSortFilter'),
+                    entriesSelect: document.getElementById('studentEntriesSelect'),
                     reset: document.getElementById('studentResetFiltersBtn'),
                     create: document.getElementById('studentCreateBtn'),
                     tableShell: document.getElementById('studentTableShell'),
@@ -31,7 +32,11 @@
                     tableBody: document.getElementById('studentTableBody'),
                     empty: document.getElementById('studentEmptyState'),
                     emptyMessage: document.getElementById('studentEmptyMessage'),
+                    paginationContainer: document.getElementById('studentPaginationContainer'),
                     paginationButtons: document.getElementById('studentPaginationButtons'),
+                    recordCount: document.getElementById('studentRecordCount'),
+                    paginationTotal: document.getElementById('studentPaginationTotal'),
+                    pageInfo: document.getElementById('studentPageInfo'),
                     filterSummary: document.getElementById('studentFilterSummary'),
                     lastUpdated: document.getElementById('studentLastUpdated'),
                     liveRegion: document.getElementById('studentLiveRegion'),
@@ -55,6 +60,8 @@
                     this.fetchStudents();
                 }, 320);
 
+                this.hydrateStateFromUrl();
+                this.syncControlsFromState();
                 this.bindEvents();
                 this.fetchStudents();
             }
@@ -79,6 +86,12 @@
 
                 this.elements.sort?.addEventListener('change', (event) => {
                     this.state.sort = event.target.value;
+                    this.state.page = 1;
+                    this.fetchStudents();
+                });
+
+                this.elements.entriesSelect?.addEventListener('change', (event) => {
+                    this.state.perPage = this.normalizePerPage(event.target.value);
                     this.state.page = 1;
                     this.fetchStudents();
                 });
@@ -140,8 +153,12 @@
 
                     this.state.students = Array.isArray(data.students) ? data.students : [];
                     this.state.pagination = data.pagination || null;
+                    this.state.page = Math.max(1, Number(this.state.pagination?.current_page || this.state.page || 1));
+                    this.state.perPage = this.normalizePerPage(this.state.pagination?.per_page || this.state.perPage);
                     this.state.stats = data.stats || null;
                     this.state.lastUpdatedAt = new Date();
+                    this.syncControlsFromState();
+                    this.updateBrowserUrl();
                     this.render();
                 } catch (error) {
                     console.error(error);
@@ -242,27 +259,58 @@
 
             renderPagination() {
                 const pagination = this.state.pagination;
+                const total = Number(pagination?.total || 0);
+                const currentPage = Math.max(1, Number(pagination?.current_page || this.state.page || 1));
+                const lastPage = Math.max(1, Number(pagination?.last_page || 1));
+                const from = Number(pagination?.from || 0);
+                const to = Number(pagination?.to || 0);
 
                 if (!pagination) {
                     this.elements.paginationButtons.innerHTML = '';
+                    if (this.elements.paginationContainer) {
+                        this.elements.paginationContainer.hidden = true;
+                    }
                     return;
+                }
+
+                if (this.elements.recordCount) {
+                    this.elements.recordCount.textContent = total > 0
+                        ? `${this.formatNumber(from)}-${this.formatNumber(to)}`
+                        : '0-0';
+                }
+
+                if (this.elements.paginationTotal) {
+                    this.elements.paginationTotal.textContent = this.formatNumber(total);
+                }
+
+                if (this.elements.pageInfo) {
+                    this.elements.pageInfo.textContent = `Page ${currentPage} of ${lastPage}`;
+                }
+
+                if (this.elements.paginationContainer) {
+                    this.elements.paginationContainer.hidden = total === 0;
                 }
 
                 this.elements.paginationButtons.innerHTML = '';
 
-                if (pagination.last_page <= 1) {
+                if (total === 0) {
                     return;
                 }
 
                 const buttons = [
-                    this.paginationButton('Prev', pagination.current_page - 1, pagination.current_page === 1),
+                    this.paginationButton('&larr; Previous', currentPage - 1, currentPage === 1, false, 'Previous page'),
                 ];
 
-                for (let page = 1; page <= pagination.last_page; page += 1) {
-                    buttons.push(this.paginationButton(page, page, false, page === pagination.current_page));
-                }
+                this.buildPaginationSequence(currentPage, lastPage).forEach((page) => {
+                    if (page === null) {
+                        buttons.push('<span class="admin-table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
+                        return;
+                    }
 
-                buttons.push(this.paginationButton('Next', pagination.current_page + 1, pagination.current_page === pagination.last_page));
+                    buttons.push(this.paginationButton(String(page), page, false, page === currentPage, `Page ${page}`));
+                });
+
+                buttons.push(this.paginationButton('Next &rarr;', currentPage + 1, currentPage === lastPage, false, 'Next page'));
                 this.elements.paginationButtons.innerHTML = buttons.join('');
 
                 this.elements.paginationButtons.querySelectorAll('[data-page]').forEach((button) => {
@@ -327,17 +375,53 @@
                 `;
             }
 
-            paginationButton(label, page, disabled = false, active = false) {
+            paginationButton(label, page, disabled = false, active = false, ariaLabel = '') {
                 return `
                     <button
                         type="button"
-                        class="student-page-btn${active ? ' active' : ''}"
+                        class="admin-table-pagination-link${active ? ' is-active' : ''}${disabled ? ' is-disabled' : ''}"
                         data-page="${page}"
-                        ${disabled ? 'disabled' : ''}
+                        aria-label="${this.escapeHtml(active ? `Current page, ${ariaLabel || label}` : (ariaLabel || `Page ${label}`))}"
+                        ${disabled ? 'disabled aria-disabled="true"' : ''}
+                        ${active ? 'aria-current="page"' : ''}
                     >
                         ${label}
                     </button>
                 `;
+            }
+
+            buildPaginationSequence(currentPage, lastPage) {
+                if (lastPage <= 7) {
+                    return Array.from({ length: lastPage }, (_, index) => index + 1);
+                }
+
+                const pages = [1];
+                let startPage = Math.max(2, currentPage - 1);
+                let endPage = Math.min(lastPage - 1, currentPage + 1);
+
+                if (currentPage <= 3) {
+                    endPage = 4;
+                }
+
+                if (currentPage >= lastPage - 2) {
+                    startPage = lastPage - 3;
+                }
+
+                if (startPage > 2) {
+                    pages.push(null);
+                }
+
+                for (let page = startPage; page <= endPage; page += 1) {
+                    pages.push(page);
+                }
+
+                if (endPage < lastPage - 1) {
+                    pages.push(null);
+                }
+
+                pages.push(lastPage);
+
+                return pages;
             }
 
             async handleStatusToggle(button) {
@@ -603,6 +687,61 @@
                 this.announce('Student filters reset.');
             }
 
+            hydrateStateFromUrl() {
+                const params = new URLSearchParams(window.location.search);
+                this.state.search = String(params.get('search') || '').trim();
+                this.state.status = String(params.get('status') || 'all').toLowerCase();
+                this.state.department = String(params.get('department') || 'all');
+                this.state.sort = String(params.get('sort') || 'created-desc').toLowerCase();
+                this.state.page = Math.max(1, Number(params.get('page')) || 1);
+                this.state.perPage = this.normalizePerPage(params.get('per_page'));
+            }
+
+            syncControlsFromState() {
+                if (this.elements.search) {
+                    this.elements.search.value = this.state.search;
+                }
+
+                if (this.elements.status) {
+                    this.elements.status.value = this.state.status;
+                }
+
+                if (this.elements.department) {
+                    this.elements.department.value = this.state.department;
+                }
+
+                if (this.elements.sort) {
+                    this.elements.sort.value = this.state.sort;
+                }
+
+                if (this.elements.entriesSelect) {
+                    this.elements.entriesSelect.value = String(this.state.perPage);
+                }
+            }
+
+            normalizePerPage(value) {
+                const allowedValues = [10, 20, 50, 100];
+                const perPage = Number(value);
+                return allowedValues.includes(perPage) ? perPage : 10;
+            }
+
+            updateBrowserUrl() {
+                const params = new URLSearchParams();
+
+                if (this.state.search) params.set('search', this.state.search);
+                if (this.state.status !== 'all') params.set('status', this.state.status);
+                if (this.state.department !== 'all') params.set('department', this.state.department);
+                if (this.state.sort !== 'created-desc') params.set('sort', this.state.sort);
+                if (this.state.page > 1) params.set('page', String(this.state.page));
+                if (this.state.perPage !== 10) params.set('per_page', String(this.state.perPage));
+
+                const nextUrl = params.toString()
+                    ? `${window.location.pathname}?${params.toString()}`
+                    : window.location.pathname;
+
+                window.history.replaceState({ url: nextUrl }, '', nextUrl);
+            }
+
             hasActiveFilters() {
                 return this.state.search !== '' || this.state.status !== 'all' || this.state.department !== 'all';
             }
@@ -621,6 +760,10 @@
                         this.elements.paginationButtons.innerHTML = '';
                     }
 
+                    if (this.elements.paginationContainer) {
+                        this.elements.paginationContainer.hidden = true;
+                    }
+
                     this.elements.tableBody?.classList.add('student-table-loading');
                     this.elements.tableBody.innerHTML = this.tableSkeletonMarkup();
                     return;
@@ -635,6 +778,9 @@
                 this.elements.empty.hidden = false;
                 this.elements.emptyMessage.textContent = 'We could not load students right now. Please try again.';
                 this.elements.paginationButtons.innerHTML = '';
+                if (this.elements.paginationContainer) {
+                    this.elements.paginationContainer.hidden = true;
+                }
             }
 
             showToast(message, type = 'info') {

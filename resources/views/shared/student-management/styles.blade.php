@@ -358,6 +358,10 @@
         align-items: center;
     }
 
+    .student-entries-control {
+        margin-left: auto;
+    }
+
     .filter-select {
         padding: 0.5rem 2rem 0.5rem 0.75rem;
         border-radius: 0.375rem;
@@ -532,67 +536,12 @@
         font-size: 13px;
     }
 
-    .student-pagination-buttons {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-end;
-        flex-wrap: wrap;
+    #studentPaginationContainer {
+        border-top: 1px solid #e2e8f0;
     }
 
-    .student-page-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 6px 12px;
-        border: 1px solid;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 13px;
-        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-        cursor: pointer;
-    }
-
-    body.light-theme .student-page-btn {
-        background-color: #ffffff;
-        border-color: #e2e8f0;
-        color: #3b82f6;
-    }
-
-    body.light-theme .student-page-btn:hover {
-        background-color: #f1f5f9;
-        border-color: #cbd5e1;
-    }
-
-    body.light-theme .student-page-btn.active {
-        background-color: #3b82f6;
-        color: #ffffff;
-        border-color: #3b82f6;
-    }
-
-    body.dark-theme .student-page-btn {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: #94a3b8;
-    }
-
-    body.dark-theme .student-page-btn:hover {
-        background-color: #334155;
-        color: #e2e8f0;
-    }
-
-    body.dark-theme .student-page-btn.active {
-        background-color: #3b82f6;
-        color: #ffffff;
-        border-color: #3b82f6;
-    }
-
-    .student-page-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    #paginationContainer {
-        padding: 16px;
+    body.dark-theme #studentPaginationContainer {
+        border-top-color: #334155;
     }
 
     #addStudentModal {
@@ -731,6 +680,10 @@
 
         .filters-container {
             width: 100%;
+        }
+
+        .student-entries-control {
+            margin-left: 0;
         }
 
         .student-toast-container {
