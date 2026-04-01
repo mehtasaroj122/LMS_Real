@@ -1,14 +1,37 @@
-<tr data-user-id="{{ $user->id }}" data-status="{{ $user->status }}" data-role="{{ $user->role }}">
+@php
+    $profilePhotoUrl = null;
+    if ($user->profile_photo) {
+        $profilePhotoUrl = str_starts_with($user->profile_photo, 'http')
+            ? $user->profile_photo
+            : asset(str_starts_with($user->profile_photo, 'storage/')
+                ? $user->profile_photo
+                : 'storage/' . ltrim($user->profile_photo, '/'));
+    }
+
+    $departmentName = data_get($user, 'student.department.name')
+        ?? data_get($user, 'staff.department.name')
+        ?? '';
+
+    $lastLoginLabel = $user->last_login_at
+        ? \Carbon\Carbon::parse($user->last_login_at)->format('d-M-Y')
+        : 'Never';
+@endphp
+
+<tr data-user-id="{{ $user->id }}"
+    data-status="{{ $user->status }}"
+    data-role="{{ $user->role }}"
+    data-name="{{ $user->name }}"
+    data-email="{{ $user->email }}"
+    data-phone="{{ $user->phone ?? '' }}"
+    data-department-name="{{ $departmentName }}"
+    data-student-roll-no="{{ data_get($user, 'student.roll_no', '') }}"
+    data-staff-designation="{{ data_get($user, 'staff.designation', '') }}"
+    data-profile-photo-url="{{ $profilePhotoUrl ?? '' }}"
+    data-last-login="{{ $lastLoginLabel }}"
+    data-is-current-user="{{ $user->id === auth()->id() ? '1' : '0' }}">
     <td>
         <div style="display: flex; align-items: center; gap: 12px;">
-            @if ($user->profile_photo)
-                @php
-                    $profilePhotoUrl = str_starts_with($user->profile_photo, 'http')
-                        ? $user->profile_photo
-                        : asset(str_starts_with($user->profile_photo, 'storage/')
-                            ? $user->profile_photo
-                            : 'storage/' . ltrim($user->profile_photo, '/'));
-                @endphp
+            @if ($profilePhotoUrl)
                 <img src="{{ $profilePhotoUrl }}" alt="{{ $user->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
             @else
                 <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">
@@ -65,6 +88,9 @@
     <td>{{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->format('d-M-Y') : 'Never' }}</td>
     <td>
         <div class="action-buttons">
+            <button type="button" class="action-btn view" title="View Details">
+                <i class="fas fa-eye"></i>
+            </button>
             <button type="button" class="action-btn edit" title="Edit User">
                 <i class="fas fa-edit"></i>
             </button>

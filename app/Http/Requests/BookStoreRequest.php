@@ -43,7 +43,7 @@ class BookStoreRequest extends FormRequest
             'publisher' => [
                 'nullable',
                 'string',
-                'max:255',
+                'max:150',
                 'regex:/^[A-Za-z0-9\s&.,\'-]+$/',
             ],
             'category_id' => [
@@ -83,10 +83,14 @@ class BookStoreRequest extends FormRequest
                 'string',
                 'max:2000',
             ],
+            'remove_cover_image' => [
+                'nullable',
+                'boolean',
+            ],
             'cover_image' => [
                 'nullable',
                 'image',
-                'mimes:jpeg,png,jpg,gif,svg',
+                'mimes:jpeg,png,jpg,gif',
                 'max:2048',
             ],
         ];
@@ -113,7 +117,7 @@ class BookStoreRequest extends FormRequest
             'author.max' => 'Author name must be 255 characters or fewer.',
             'author.regex' => 'Author name can only contain letters, spaces, and periods.',
 
-            'publisher.max' => 'Publisher name must be 255 characters or fewer.',
+            'publisher.max' => 'Publisher name must be 150 characters or fewer.',
             'publisher.regex' => 'Publisher name can only contain letters, numbers, spaces, and & . , \' -.',
 
             'category_id.exists' => 'Select a valid category.',
@@ -139,7 +143,7 @@ class BookStoreRequest extends FormRequest
             'description.max' => 'Description must be 2000 characters or fewer.',
 
             'cover_image.image' => 'Cover image must be an image file.',
-            'cover_image.mimes' => 'Cover image must be a JPEG, PNG, JPG, GIF, or SVG file.',
+            'cover_image.mimes' => 'Cover image must be a JPG, PNG, or GIF file.',
             'cover_image.max' => 'Cover image must not exceed 2MB.',
         ];
     }
@@ -177,6 +181,10 @@ class BookStoreRequest extends FormRequest
             if ($this->has($field)) {
                 $normalized[$field] = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $this->input($field))));
             }
+        }
+
+        if ($this->has('remove_cover_image')) {
+            $normalized['remove_cover_image'] = $this->boolean('remove_cover_image');
         }
 
         if (!empty($normalized)) {

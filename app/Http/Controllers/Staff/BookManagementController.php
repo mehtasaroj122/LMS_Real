@@ -242,6 +242,7 @@ class BookManagementController extends Controller
 
         try {
             $validated = $request->validated();
+            $removeCoverImage = (bool) ($validated['remove_cover_image'] ?? false);
 
             $categoryId = !empty($validated['category_id']) ? (int) $validated['category_id'] : null;
             $newCategoryName = !empty($validated['new_category']) ? trim($validated['new_category']) : null;
@@ -268,7 +269,7 @@ class BookManagementController extends Controller
             }
 
             $validated['category_id'] = $categoryId;
-            unset($validated['new_category']);
+            unset($validated['new_category'], $validated['cover_image'], $validated['remove_cover_image']);
 
             if (empty($validated['category_id'])) {
                 return response()->json([
@@ -279,7 +280,7 @@ class BookManagementController extends Controller
 
             $book = book::create($validated);
 
-            if ($request->hasFile('cover_image')) {
+            if ($request->hasFile('cover_image') && !$removeCoverImage) {
                 $path = $request->file('cover_image')->store('books/covers', 'public');
                 $book->cover_image = $path;
                 $book->save();
@@ -356,6 +357,7 @@ class BookManagementController extends Controller
         try {
             $book = book::findOrFail($id);
             $validated = $request->validated();
+            $removeCoverImage = (bool) ($validated['remove_cover_image'] ?? false);
 
             $categoryId = !empty($validated['category_id']) ? (int) $validated['category_id'] : null;
             $newCategoryName = !empty($validated['new_category']) ? trim($validated['new_category']) : null;
@@ -382,7 +384,7 @@ class BookManagementController extends Controller
             }
 
             $validated['category_id'] = $categoryId;
-            unset($validated['new_category']);
+            unset($validated['new_category'], $validated['cover_image'], $validated['remove_cover_image']);
 
             $oldCondition = $book->condition;
             $oldCopies = $book->available_copies;
@@ -396,6 +398,13 @@ class BookManagementController extends Controller
 
                 $path = $request->file('cover_image')->store('books/covers', 'public');
                 $book->cover_image = $path;
+                $book->save();
+            } elseif ($removeCoverImage && !empty($book->cover_image)) {
+                if (Storage::disk('public')->exists($book->cover_image)) {
+                    Storage::disk('public')->delete($book->cover_image);
+                }
+
+                $book->cover_image = null;
                 $book->save();
             }
 

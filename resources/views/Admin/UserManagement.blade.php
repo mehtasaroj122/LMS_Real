@@ -610,6 +610,15 @@
             background: #1e3a8a;
         }
 
+        .action-btn.view:hover {
+            color: #2563eb;
+            background: #dbeafe;
+        }
+
+        body.dark-theme .action-btn.view:hover {
+            background: #1e3a8a;
+        }
+
         .action-btn.password:hover {
             color: #10b981;
             background: #dcfce7;
@@ -1279,6 +1288,581 @@
         .btn-confirm-primary:hover {
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         }
+
+        .student-toast-container {
+            position: fixed;
+            top: 88px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: min(360px, calc(100vw - 32px));
+            z-index: 2100;
+            pointer-events: none;
+        }
+
+        .student-toast {
+            position: relative;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 14px;
+            padding: 16px 18px 18px;
+            border-radius: 18px;
+            overflow: hidden;
+            pointer-events: auto;
+            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(12px);
+            color: #ffffff;
+            animation: studentToastIn 0.24s ease;
+        }
+
+        .student-toast.is-leaving {
+            animation: studentToastOut 0.18s ease forwards;
+        }
+
+        .student-toast.success {
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.96), rgba(5, 150, 105, 0.94));
+        }
+
+        .student-toast.error {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.97), rgba(190, 24, 93, 0.94));
+        }
+
+        .student-toast.warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.97), rgba(217, 119, 6, 0.94));
+        }
+
+        .student-toast.info {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.97), rgba(79, 70, 229, 0.94));
+        }
+
+        .student-toast-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 18px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .student-toast-copy {
+            min-width: 0;
+        }
+
+        .student-toast-title {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .student-toast-message {
+            margin-top: 2px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.96);
+        }
+
+        .student-toast-detail {
+            margin-top: 6px;
+            font-size: 11px;
+            line-height: 1.4;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .student-toast-close {
+            appearance: none;
+            border: 0;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .student-toast-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .student-toast-progress {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .student-toast-progress::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.92);
+            transform-origin: left center;
+            animation: studentToastProgress 4.2s linear forwards;
+        }
+
+        .user-visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .role-confirm-overlay {
+            background: rgba(15, 23, 42, 0.58);
+            backdrop-filter: blur(8px);
+            z-index: 2050;
+        }
+
+        .role-confirm-card {
+            width: min(440px, 100%);
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid;
+            box-shadow: 0 28px 60px rgba(15, 23, 42, 0.26);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        body.light-theme .role-confirm-card {
+            background: rgba(255, 255, 255, 0.97);
+            border-color: rgba(226, 232, 240, 0.95);
+            color: #0f172a;
+        }
+
+        body.dark-theme .role-confirm-card {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(71, 85, 105, 0.88);
+            color: #e2e8f0;
+        }
+
+        .role-confirm-header {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .role-confirm-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 22px;
+        }
+
+        .role-confirm-icon.danger {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #b91c1c;
+        }
+
+        body.dark-theme .role-confirm-icon.danger {
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.85), rgba(127, 29, 29, 0.55));
+            color: #fca5a5;
+        }
+
+        .role-confirm-icon.primary {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1d4ed8;
+        }
+
+        body.dark-theme .role-confirm-icon.primary {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85), rgba(30, 64, 175, 0.55));
+            color: #bfdbfe;
+        }
+
+        .role-confirm-title {
+            margin: 2px 0 6px;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .role-confirm-copy p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        body.light-theme .role-confirm-copy p {
+            color: #475569;
+        }
+
+        body.dark-theme .role-confirm-copy p {
+            color: #94a3b8;
+        }
+
+        .role-confirm-detail {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        body.light-theme .role-confirm-detail {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        body.dark-theme .role-confirm-detail {
+            background: rgba(30, 41, 59, 0.85);
+            color: #cbd5e1;
+        }
+
+        .role-confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .role-confirm-btn {
+            appearance: none;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            min-width: 140px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .role-confirm-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .role-confirm-btn.secondary {
+            background: transparent;
+        }
+
+        body.light-theme .role-confirm-btn.secondary {
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+
+        body.dark-theme .role-confirm-btn.secondary {
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .role-confirm-btn.primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.24);
+        }
+
+        .role-confirm-btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(220, 38, 38, 0.24);
+        }
+
+        .role-confirm-btn:disabled {
+            opacity: 0.7;
+            cursor: wait;
+            transform: none;
+        }
+
+        .view-user-modal {
+            max-width: 720px;
+        }
+
+        .user-profile-sheet {
+            display: grid;
+            gap: 22px;
+        }
+
+        .user-profile-hero {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            padding: 18px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+            border: 1px solid #dbeafe;
+        }
+
+        body.dark-theme .user-profile-hero {
+            background: linear-gradient(135deg, #172554 0%, #111827 100%);
+            border-color: #1d4ed8;
+        }
+
+        .user-profile-avatar {
+            width: 84px;
+            height: 84px;
+            border-radius: 9999px;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            font-size: 30px;
+            font-weight: 700;
+            box-shadow: 0 18px 36px rgba(37, 99, 235, 0.22);
+        }
+
+        .user-profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .user-profile-avatar img[hidden] {
+            display: none !important;
+        }
+
+        .user-profile-avatar span {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .user-profile-avatar span[hidden] {
+            display: none !important;
+        }
+
+        .user-profile-meta {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .user-profile-name-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-profile-name {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #0f172a;
+        }
+
+        body.dark-theme .user-profile-name {
+            color: #f8fafc;
+        }
+
+        .user-profile-email {
+            margin-top: 4px;
+            font-size: 14px;
+            color: #475569;
+            word-break: break-word;
+        }
+
+        body.dark-theme .user-profile-email {
+            color: #cbd5e1;
+        }
+
+        .user-profile-chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .user-profile-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .user-profile-chip.role-admin {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .user-profile-chip.role-staff {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+
+        .user-profile-chip.role-student {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .user-profile-chip.status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .user-profile-chip.status-inactive {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        body.dark-theme .user-profile-chip.role-admin {
+            background: #1e3a8a;
+            color: #bfdbfe;
+        }
+
+        body.dark-theme .user-profile-chip.role-staff {
+            background: #581c87;
+            color: #e9d5ff;
+        }
+
+        body.dark-theme .user-profile-chip.role-student {
+            background: #14532d;
+            color: #bbf7d0;
+        }
+
+        body.dark-theme .user-profile-chip.status-active {
+            background: #14532d;
+            color: #bbf7d0;
+        }
+
+        body.dark-theme .user-profile-chip.status-inactive {
+            background: #7f1d1d;
+            color: #fecaca;
+        }
+
+        .user-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .user-detail-item {
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        body.dark-theme .user-detail-item {
+            border-color: #334155;
+            background: #0f172a;
+        }
+
+        .user-detail-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .user-detail-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        body.dark-theme .user-detail-label {
+            color: #94a3b8;
+        }
+
+        .user-detail-value {
+            margin-top: 6px;
+            font-size: 14px;
+            line-height: 1.55;
+            color: #0f172a;
+            word-break: break-word;
+        }
+
+        body.dark-theme .user-detail-value {
+            color: #f8fafc;
+        }
+
+        @keyframes studentToastIn {
+            from {
+                opacity: 0;
+                transform: translate3d(20px, -8px, 0) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+        }
+
+        @keyframes studentToastOut {
+            from {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translate3d(18px, -4px, 0) scale(0.98);
+            }
+        }
+
+        @keyframes studentToastProgress {
+            from {
+                transform: scaleX(1);
+            }
+
+            to {
+                transform: scaleX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .student-toast-container {
+                top: 76px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+            }
+
+            .user-profile-hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .user-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .role-confirm-actions,
+            .modal-footer {
+                flex-wrap: wrap;
+            }
+
+            .role-confirm-card {
+                padding: 22px;
+            }
+
+            .role-confirm-btn {
+                width: 100%;
+            }
+        }
     </style>
 @endpush
 
@@ -1689,81 +2273,138 @@
         </div>
     </div>
 
-    <!-- Reset Password Confirmation Modal -->
-    <div id="resetPasswordModal" class="modal-overlay">
-        <div class="modal">
+    <!-- View User Modal -->
+    <div id="viewUserModal" class="modal-overlay">
+        <div class="modal view-user-modal">
             <div class="modal-header">
-                <h3 class="modal-title">Reset Password</h3>
-                <button class="modal-close-btn" id="closeResetPasswordModal">
+                <h3 class="modal-title">User Details</h3>
+                <button type="button" class="modal-close-btn" id="closeViewUserModal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="confirmation-popup">
-                    <div class="confirmation-icon warning">
-                        <i class="fas fa-key"></i>
+                <div class="user-profile-sheet">
+                    <div class="user-profile-hero">
+                        <div class="user-profile-avatar" id="viewUserAvatar">
+                            <img id="viewUserAvatarImage" src="" alt="User profile photo" hidden>
+                            <span id="viewUserAvatarFallback">U</span>
+                        </div>
+                        <div class="user-profile-meta">
+                            <div class="user-profile-name-row">
+                                <h4 class="user-profile-name" id="viewUserName">Loading...</h4>
+                                <span class="user-profile-chip role-admin" id="viewUserSelfChip" hidden>
+                                    <i class="fas fa-user"></i>
+                                    You
+                                </span>
+                            </div>
+                            <div class="user-profile-email" id="viewUserEmail">loading@example.com</div>
+                            <div class="user-profile-chip-row">
+                                <span class="user-profile-chip role-admin" id="viewUserRoleChip">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Admin
+                                </span>
+                                <span class="user-profile-chip status-active" id="viewUserStatusChip">
+                                    <i class="fas fa-check-circle"></i>
+                                    Active
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="confirmation-title">Reset User Password?</h3>
-                    <p class="confirmation-message">
-                        You are about to reset the password for:
-                    </p>
-                    <div class="confirmation-details">
-                        <strong id="resetPasswordUserName">Loading...</strong><br>
-                        <span id="resetPasswordUserEmail" style="color: #6b7280; font-size: 12px;">loading...</span>
+
+                    <div class="user-detail-grid">
+                        <div class="user-detail-item">
+                            <div class="user-detail-label">Phone</div>
+                            <div class="user-detail-value" id="viewUserPhone">Not provided</div>
+                        </div>
+                        <div class="user-detail-item">
+                            <div class="user-detail-label">Department</div>
+                            <div class="user-detail-value" id="viewUserDepartment">Not assigned</div>
+                        </div>
+                        <div class="user-detail-item" id="viewUserDesignationItem" hidden>
+                            <div class="user-detail-label">Designation</div>
+                            <div class="user-detail-value" id="viewUserDesignation">-</div>
+                        </div>
+                        <div class="user-detail-item" id="viewUserJoinDateItem" hidden>
+                            <div class="user-detail-label">Join Date</div>
+                            <div class="user-detail-value" id="viewUserJoinDate">-</div>
+                        </div>
+                        <div class="user-detail-item" id="viewUserRollNoItem" hidden>
+                            <div class="user-detail-label">Roll Number</div>
+                            <div class="user-detail-value" id="viewUserRollNo">-</div>
+                        </div>
+                        <div class="user-detail-item" id="viewUserBatchItem" hidden>
+                            <div class="user-detail-label">Batch</div>
+                            <div class="user-detail-value" id="viewUserBatch">-</div>
+                        </div>
+                        <div class="user-detail-item" id="viewUserSemesterItem" hidden>
+                            <div class="user-detail-label">Semester</div>
+                            <div class="user-detail-value" id="viewUserSemester">-</div>
+                        </div>
+                        <div class="user-detail-item">
+                            <div class="user-detail-label">Last Login</div>
+                            <div class="user-detail-value" id="viewUserLastLogin">Never</div>
+                        </div>
+                        <div class="user-detail-item">
+                            <div class="user-detail-label">Created</div>
+                            <div class="user-detail-value" id="viewUserCreatedAt">Unknown</div>
+                        </div>
+                        <div class="user-detail-item full">
+                            <div class="user-detail-label">Address</div>
+                            <div class="user-detail-value" id="viewUserAddress">Not provided</div>
+                        </div>
                     </div>
-                    <p class="confirmation-message" style="margin-top: 16px;">
-                        A new temporary password will be generated and sent to the user's email address.
-                    </p>
                 </div>
             </div>
-            <div class="modal-footer" style="justify-content: center; border-top: 1px solid #e5e7eb; padding-top: 16px;">
-                <button class="btn btn-outline" id="cancelResetPassword" style="min-width: 100px;">
-                    Cancel
-                </button>
-                <button class="btn btn-confirm-warning" id="submitResetPassword" style="min-width: 100px;">
-                    <i class="fas fa-paper-plane"></i>
-                    Send Reset Link
-                </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" id="closeViewUserFooter">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Confirmation Modal -->
+    <div id="resetPasswordModal" class="modal-overlay role-confirm-overlay" aria-hidden="true">
+        <div class="role-confirm-card" role="dialog" aria-modal="true" aria-labelledby="resetPasswordModalTitle">
+            <div class="role-confirm-header">
+                <div class="role-confirm-icon primary" aria-hidden="true">
+                    <i class="fas fa-key"></i>
+                </div>
+                <div class="role-confirm-copy">
+                    <h3 id="resetPasswordModalTitle" class="role-confirm-title">Reset password</h3>
+                    <p id="resetPasswordModalMessage">Send a temporary password to this user?</p>
+                    <div id="resetPasswordModalDetail" class="role-confirm-detail">User account</div>
+                </div>
+            </div>
+
+            <div class="role-confirm-actions">
+                <button type="button" id="cancelResetPassword" class="role-confirm-btn secondary">Cancel</button>
+                <button type="button" id="submitResetPassword" class="role-confirm-btn primary">Reset Password</button>
             </div>
         </div>
     </div>
 
     <!-- Delete User Confirmation Modal -->
-    <div id="deleteUserModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Delete User</h3>
-                <button class="modal-close-btn" id="closeDeleteUserModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="confirmation-popup">
-                    <div class="confirmation-icon danger">
-                        <i class="fas fa-trash-alt"></i>
-                    </div>
-                    <h3 class="confirmation-title">Delete User?</h3>
-                    <p class="confirmation-message">This will permanently remove this user.</p>
-                    <div class="confirmation-user-card">
-                        <div class="confirmation-user-avatar" id="deleteUserAvatar">U</div>
-                        <div class="confirmation-user-meta">
-                            <div class="confirmation-user-name" id="deleteUserName">Loading...</div>
-                            <div class="confirmation-user-email" id="deleteUserEmail">loading...</div>
-                        </div>
-                    </div>
+    <div id="deleteUserModal" class="modal-overlay role-confirm-overlay" aria-hidden="true">
+        <div class="role-confirm-card" role="dialog" aria-modal="true" aria-labelledby="deleteUserModalTitle">
+            <div class="role-confirm-header">
+                <div class="role-confirm-icon danger" aria-hidden="true">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <div class="role-confirm-copy">
+                    <h3 id="deleteUserModalTitle" class="role-confirm-title">Delete user</h3>
+                    <p id="deleteUserModalMessage">This action cannot be undone.</p>
+                    <div id="deleteUserModalDetail" class="role-confirm-detail">User account</div>
                 </div>
             </div>
-            <div class="modal-footer" style="justify-content: center; border-top: 1px solid #e5e7eb; padding-top: 16px;">
-                <button type="button" class="btn btn-outline" id="cancelDeleteUser" style="min-width: 100px;">
-                    Cancel
-                </button>
-                <button type="button" class="btn btn-confirm-danger" id="confirmDeleteUser" style="min-width: 100px;">
-                    <i class="fas fa-trash-alt"></i>
-                    Delete User
-                </button>
+
+            <div class="role-confirm-actions">
+                <button type="button" id="cancelDeleteUser" class="role-confirm-btn secondary">Cancel</button>
+                <button type="button" id="confirmDeleteUser" class="role-confirm-btn danger">Delete User</button>
             </div>
         </div>
     </div>
+
+    <div id="userToastContainer" class="student-toast-container" aria-live="polite" aria-atomic="true"></div>
+    <div id="userLiveRegion" class="user-visually-hidden" aria-live="polite" aria-atomic="true"></div>
 @endsection
 
 @push('scripts')
@@ -1837,6 +2478,7 @@
                 this.pendingFields = new Set();
                 this.verifiedValues = {};
                 this.fieldState = {};
+                this.isSubmitting = false;
 
                 this.ensureFieldIcons();
                 this.attachListeners();
@@ -1951,6 +2593,36 @@
 
             clearAllVisualStates() {
                 Object.keys(this.fields).forEach((fieldName) => this.clearFieldVisualState(fieldName));
+            }
+
+            focusField(fieldName) {
+                const field = this.getFieldElement(fieldName) || this.getFieldElements(fieldName)[0];
+                const group = this.getFieldGroup(fieldName) || field;
+
+                if (!field || !group) {
+                    return;
+                }
+
+                const modal = field.closest('.modal');
+                if (modal) {
+                    const modalRect = modal.getBoundingClientRect();
+                    const groupRect = group.getBoundingClientRect();
+                    const nextScrollTop = modal.scrollTop
+                        + (groupRect.top - modalRect.top)
+                        - (modal.clientHeight / 2)
+                        + (groupRect.height / 2);
+
+                    modal.scrollTo({
+                        top: Math.max(0, nextScrollTop),
+                        behavior: 'smooth',
+                    });
+                } else {
+                    group.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                window.setTimeout(() => {
+                    field.focus({ preventScroll: true });
+                }, 160);
             }
 
             getRole() {
@@ -2331,11 +3003,15 @@
                 return true;
             }
 
-            async validateAll() {
+            async validateAll({ showFirstErrorOnly = false } = {}) {
                 const values = this.collectValues();
                 const activeFields = this.getActiveFields(values.role);
                 let firstInvalidField = null;
                 let allValid = true;
+
+                if (showFirstErrorOnly) {
+                    activeFields.forEach((fieldName) => this.clearFieldVisualState(fieldName));
+                }
 
                 for (const fieldName of activeFields) {
                     const isValid = await this.validateField(fieldName, { runUniqueCheck: true });
@@ -2343,13 +3019,15 @@
                         allValid = false;
                         if (!firstInvalidField) {
                             firstInvalidField = fieldName;
+                            if (showFirstErrorOnly) {
+                                break;
+                            }
                         }
                     }
                 }
 
                 if (!allValid && firstInvalidField) {
-                    const field = this.getFieldElement(firstInvalidField) || this.getFieldElements(firstInvalidField)[0];
-                    field?.focus();
+                    this.focusField(firstInvalidField);
                 }
 
                 return allValid;
@@ -2424,21 +3102,39 @@
                     return;
                 }
 
-                const activeFields = this.getActiveFields();
-                const hasPending = this.pendingFields.size > 0;
-                const hasInvalid = activeFields.some((fieldName) => !this.fieldState[fieldName]?.valid);
-                this.submitButton.disabled = hasPending || hasInvalid;
+                this.submitButton.disabled = this.isSubmitting;
             }
 
-            applyServerErrors(errors = {}) {
-                Object.entries(errors).forEach(([fieldName, fieldErrors]) => {
+            applyServerErrors(errors = {}, { showFirstErrorOnly = false } = {}) {
+                const entries = Object.entries(errors);
+                let firstFieldName = null;
+
+                if (showFirstErrorOnly) {
+                    this.clearAllVisualStates();
+                }
+
+                entries.forEach(([fieldName, fieldErrors]) => {
+                    if (showFirstErrorOnly && firstFieldName) {
+                        return;
+                    }
+
                     const message = Array.isArray(fieldErrors) ? fieldErrors[0] : fieldErrors;
                     if (!message || !this.fields[fieldName]) {
                         return;
                     }
 
                     this.setState(fieldName, 'invalid', message);
+                    firstFieldName = fieldName;
                 });
+
+                if (firstFieldName) {
+                    this.focusField(firstFieldName);
+                }
+            }
+
+            setSubmitting(isSubmitting) {
+                this.isSubmitting = Boolean(isSubmitting);
+                this.updateSubmitState();
             }
 
             toFormData() {
@@ -2485,6 +3181,85 @@
                     });
                 });
             }
+        }
+
+        const userToastIcons = {
+            success: 'fas fa-check-circle',
+            error: 'fas fa-circle-xmark',
+            warning: 'fas fa-triangle-exclamation',
+            info: 'fas fa-circle-info',
+        };
+
+        function escapeUserToastHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function dismissUserToast(toast) {
+            if (!toast) {
+                return;
+            }
+
+            toast.classList.add('is-leaving');
+            window.setTimeout(() => toast.remove(), 180);
+        }
+
+        function announceUserMessage(message) {
+            const liveRegion = document.getElementById('userLiveRegion');
+
+            if (liveRegion) {
+                liveRegion.textContent = message;
+            }
+        }
+
+        function showUserToast(message, type = 'info') {
+            const container = document.getElementById('userToastContainer');
+
+            if (!container) {
+                return;
+            }
+
+            const normalizedType = ['success', 'error', 'warning', 'info'].includes(type)
+                ? type
+                : 'info';
+            const payload = typeof message === 'object' && message !== null
+                ? message
+                : {
+                    title: normalizedType === 'error'
+                        ? 'Action Failed'
+                        : normalizedType === 'warning'
+                            ? 'Check Required'
+                            : normalizedType === 'success'
+                                ? 'Success'
+                                : 'Notice',
+                    message: String(message || ''),
+                };
+
+            const toast = document.createElement('div');
+            toast.className = `student-toast ${normalizedType}`;
+            toast.innerHTML = `
+                <div class="student-toast-icon" aria-hidden="true">
+                    <i class="${escapeUserToastHtml(payload.icon || userToastIcons[normalizedType] || userToastIcons.info)}"></i>
+                </div>
+                <div class="student-toast-copy">
+                    <div class="student-toast-title">${escapeUserToastHtml(payload.title || 'Notice')}</div>
+                    <div class="student-toast-message">${escapeUserToastHtml(payload.message || '')}</div>
+                    ${payload.detail ? `<div class="student-toast-detail">${escapeUserToastHtml(payload.detail)}</div>` : ''}
+                </div>
+                <button type="button" class="student-toast-close" aria-label="Dismiss notification">
+                    <i class="fas fa-times"></i>
+                </button>
+                <span class="student-toast-progress" aria-hidden="true"></span>
+            `;
+
+            container.appendChild(toast);
+            toast.querySelector('.student-toast-close')?.addEventListener('click', () => dismissUserToast(toast));
+            announceUserMessage(`${payload.title || 'Notice'}. ${payload.message || ''}`.trim());
+            window.setTimeout(() => dismissUserToast(toast), 4200);
         }
 
         /**
@@ -2691,7 +3466,7 @@
                 // Show loading state
                 const tableBody = document.getElementById('usersTableBody');
                 tableBody.innerHTML =
-                    '<tr><td colspan="8" style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+                    '<tr><td colspan="6" style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
 
                 const params = new URLSearchParams({
                     search: this.currentSearch,
@@ -2747,13 +3522,13 @@
                             this.initPagination();
                         } else {
                             tableBody.innerHTML =
-                                `<tr><td colspan="8" style="text-align: center; padding: 40px; color: #ef4444;">Error: ${data.message}</td></tr>`;
+                                `<tr><td colspan="6" style="text-align: center; padding: 40px; color: #ef4444;">Error: ${data.message}</td></tr>`;
                         }
                     })
                     .catch(error => {
                         console.error('Error fetching users:', error);
                         tableBody.innerHTML =
-                            '<tr><td colspan="8" style="text-align: center; padding: 40px; color: #ef4444;">Error loading users. Please try again.</td></tr>';
+                            '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #ef4444;">Error loading users. Please try again.</td></tr>';
                         this.showNotification('Error fetching users: ' + error.message, 'error');
                     });
             }
@@ -2976,14 +3751,23 @@
                     this.closeModal('editUserModal');
                 });
 
+                // View User Modal
+                if (document.getElementById('closeViewUserModal')) {
+                    document.getElementById('closeViewUserModal').addEventListener('click', () => {
+                        this.closeModal('viewUserModal');
+                    });
+                }
+
+                if (document.getElementById('closeViewUserFooter')) {
+                    document.getElementById('closeViewUserFooter').addEventListener('click', () => {
+                        this.closeModal('viewUserModal');
+                    });
+                }
+
                 // Delete User Modal
                 document.getElementById('confirmDeleteUser').addEventListener('click', () => {
                     console.log('Confirm delete clicked');
                     this.confirmDeleteUser();
-                });
-
-                document.getElementById('closeDeleteUserModal').addEventListener('click', () => {
-                    this.closeModal('deleteUserModal');
                 });
 
                 document.getElementById('cancelDeleteUser').addEventListener('click', () => {
@@ -2991,12 +3775,6 @@
                 });
 
                 // Reset Password Modal
-                if (document.getElementById('closeResetPasswordModal')) {
-                    document.getElementById('closeResetPasswordModal').addEventListener('click', () => {
-                        this.closeModal('resetPasswordModal');
-                    });
-                }
-
                 if (document.getElementById('cancelResetPassword')) {
                     document.getElementById('cancelResetPassword').addEventListener('click', () => {
                         this.closeModal('resetPasswordModal');
@@ -3031,9 +3809,30 @@
              */
             initTableActions() {
                 // Remove previous event listeners to avoid duplicates
+                document.querySelectorAll('.action-btn.view').forEach((btn) => {
+                    const newBtn = btn.cloneNode(true);
+                    btn.parentNode.replaceChild(newBtn, btn);
+                });
+
                 document.querySelectorAll('.action-btn.edit').forEach((btn) => {
                     const newBtn = btn.cloneNode(true);
                     btn.parentNode.replaceChild(newBtn, btn);
+                });
+
+                // View buttons
+                document.querySelectorAll('.action-btn.view').forEach((btn) => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const row = e.target.closest('tr');
+                        if (!row) {
+                            console.error('Could not find row');
+                            return;
+                        }
+                        this.currentUserId = row.dataset.userId;
+                        this.currentUserRow = row;
+                        this.openViewModal(row);
+                    });
                 });
 
                 // Edit buttons
@@ -3155,6 +3954,10 @@
                                 e.preventDefault();
                                 this.confirmDeleteUser();
                                 break;
+                            case 'resetPasswordModal':
+                                e.preventDefault();
+                                this.confirmResetPassword();
+                                break;
                         }
                     }
 
@@ -3187,6 +3990,7 @@
 
                 if (modal) {
                     modal.classList.add('active');
+                    modal.setAttribute('aria-hidden', 'false');
                     document.body.style.overflow = 'hidden';
 
                     if (modalId === 'addUserModal') {
@@ -3217,6 +4021,7 @@
 
                 if (modal) {
                     modal.classList.remove('active');
+                    modal.setAttribute('aria-hidden', 'true');
                     document.body.style.overflow = '';
                 }
 
@@ -3245,6 +4050,342 @@
                 }
             }
 
+            getRowUserMeta(row = this.currentUserRow) {
+                if (!row) {
+                    return {
+                        name: 'Unknown User',
+                        email: 'No email available',
+                        departmentName: '',
+                        studentRollNo: '',
+                        staffDesignation: '',
+                        initial: 'U',
+                        profilePhotoUrl: '',
+                        isCurrentUser: false,
+                    };
+                }
+
+                const name = row.dataset.name
+                    || row.querySelector('.user-name span')?.textContent?.trim()
+                    || 'Unknown User';
+                const email = row.dataset.email
+                    || row.querySelector('td:first-child .text-muted')?.textContent?.trim()
+                    || 'No email available';
+
+                return {
+                    name,
+                    email,
+                    phone: row.dataset.phone || '',
+                    departmentName: row.dataset.departmentName || '',
+                    studentRollNo: row.dataset.studentRollNo || '',
+                    staffDesignation: row.dataset.staffDesignation || '',
+                    profilePhotoUrl: row.dataset.profilePhotoUrl || '',
+                    initial: (name.charAt(0) || 'U').toUpperCase(),
+                    isCurrentUser: row.dataset.isCurrentUser === '1',
+                    role: row.dataset.role || '',
+                    status: row.dataset.status || '',
+                    lastLogin: row.dataset.lastLogin || 'Never',
+                };
+            }
+
+            fetchUserDetails(userId) {
+                return fetch(`/admin/users/${userId}/details`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`HTTP error! status: ${res.status}`);
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (!data.success || !data.user) {
+                            throw new Error(data.message || 'Invalid response format');
+                        }
+
+                        return data.user;
+                    });
+            }
+
+            getUserRoleMeta(role) {
+                switch (role) {
+                    case 'admin':
+                        return {
+                            label: 'Admin',
+                            icon: 'fas fa-shield-alt',
+                            className: 'role-admin',
+                        };
+                    case 'staff':
+                        return {
+                            label: 'Staff',
+                            icon: 'fas fa-user-tie',
+                            className: 'role-staff',
+                        };
+                    default:
+                        return {
+                            label: 'Student',
+                            icon: 'fas fa-graduation-cap',
+                            className: 'role-student',
+                        };
+                }
+            }
+
+            getUserStatusMeta(status) {
+                return status === 'active'
+                    ? {
+                        label: 'Active',
+                        icon: 'fas fa-check-circle',
+                        className: 'status-active',
+                    }
+                    : {
+                        label: 'Inactive',
+                        icon: 'fas fa-times-circle',
+                        className: 'status-inactive',
+                    };
+            }
+
+            getRoleConfirmDetail(userMeta) {
+                const role = userMeta.role || 'student';
+
+                if (role === 'student') {
+                    return userMeta.studentRollNo
+                        ? `Student ID ${userMeta.studentRollNo}`
+                        : userMeta.departmentName
+                            ? `Student • ${userMeta.departmentName}`
+                            : 'Student account';
+                }
+
+                if (role === 'staff') {
+                    return userMeta.staffDesignation
+                        ? `Staff • ${userMeta.staffDesignation}`
+                        : userMeta.departmentName
+                            ? `Staff • ${userMeta.departmentName}`
+                            : 'Staff account';
+                }
+
+                return 'Admin account';
+            }
+
+            getDeleteModalContent(userMeta) {
+                const roleLabel = this.getUserRoleMeta(userMeta.role).label;
+
+                return {
+                    title: `Delete ${userMeta.name}?`,
+                    message: `This will permanently remove ${userMeta.name} from the system and cannot be undone.`,
+                    detail: this.getRoleConfirmDetail(userMeta),
+                    confirmLabel: `Delete ${roleLabel}`,
+                };
+            }
+
+            getResetPasswordModalContent(userMeta) {
+                const roleLabel = this.getUserRoleMeta(userMeta.role).label;
+                const email = userMeta.email && userMeta.email !== 'No email available'
+                    ? userMeta.email
+                    : 'this account';
+
+                return {
+                    title: `Reset password for ${userMeta.name}?`,
+                    message: `A temporary password will be sent to ${email} and must be changed after the next sign in.`,
+                    detail: this.getRoleConfirmDetail(userMeta),
+                    confirmLabel: `Reset ${roleLabel} Password`,
+                };
+            }
+
+            showUserActionToast(action, data = {}) {
+                const name = data.name || 'the user';
+                const email = data.email || '';
+                const roleMeta = data.role ? this.getUserRoleMeta(data.role) : null;
+                const statusMeta = data.status ? this.getUserStatusMeta(data.status) : null;
+                let type = 'success';
+                let payload = {
+                    title: 'User Updated',
+                    message: `Saved changes for ${name}.`,
+                };
+
+                switch (action) {
+                    case 'create':
+                        payload = {
+                            title: 'User Added',
+                            message: `Created a new account for ${name}.`,
+                            detail: email || roleMeta?.label || '',
+                            icon: 'fas fa-user-plus',
+                        };
+                        type = 'success';
+                        break;
+                    case 'update':
+                        payload = {
+                            title: 'User Updated',
+                            message: `Saved changes for ${name}.`,
+                            detail: email || roleMeta?.label || '',
+                            icon: 'fas fa-user-pen',
+                        };
+                        type = 'info';
+                        break;
+                    case 'delete':
+                        payload = {
+                            title: 'User Deleted',
+                            message: `Removed ${name} from user management.`,
+                            detail: email || '',
+                            icon: 'fas fa-trash-alt',
+                        };
+                        type = 'error';
+                        break;
+                    case 'reset-password':
+                        payload = {
+                            title: 'Password Reset Sent',
+                            message: `Sent a temporary password to ${name}.`,
+                            detail: email || '',
+                            icon: 'fas fa-key',
+                        };
+                        type = 'success';
+                        break;
+                    case 'status': {
+                        const isActive = statusMeta?.label === 'Active';
+                        const subjectLabel = roleMeta?.label || 'User';
+                        payload = {
+                            title: isActive ? `${subjectLabel} Activated` : `${subjectLabel} Deactivated`,
+                            message: `${isActive ? 'Activated' : 'Deactivated'} ${name}.`,
+                            detail: email || '',
+                            icon: isActive ? 'fas fa-user-check' : 'fas fa-user-slash',
+                        };
+                        type = isActive ? 'success' : 'warning';
+                        break;
+                    }
+                    default:
+                        break;
+                }
+
+                this.showNotification(payload, type);
+            }
+
+            showUserValidationToast(message = 'Review the highlighted field before saving.') {
+                this.showNotification({
+                    title: 'Check Required Fields',
+                    message,
+                    detail: 'Only one field is highlighted at a time.',
+                    icon: 'fas fa-circle-exclamation',
+                }, 'warning');
+            }
+
+            formatSemesterLabel(semester) {
+                if (!semester) {
+                    return '';
+                }
+
+                const numericSemester = Number(semester);
+                if (!Number.isInteger(numericSemester) || numericSemester < 1 || numericSemester > 8) {
+                    return '';
+                }
+
+                const suffixMap = {
+                    1: 'st',
+                    2: 'nd',
+                    3: 'rd',
+                };
+                const suffix = suffixMap[numericSemester] || 'th';
+                return `${numericSemester}${suffix} Semester`;
+            }
+
+            setUserDetailItem(itemId, valueId, value, { placeholder = 'Not provided', hideWhenEmpty = false } = {}) {
+                const item = document.getElementById(itemId);
+                const valueElement = document.getElementById(valueId);
+
+                if (!valueElement) {
+                    return;
+                }
+
+                const hasValue = Boolean(value);
+                valueElement.textContent = hasValue ? value : placeholder;
+
+                if (item) {
+                    item.hidden = hideWhenEmpty && !hasValue;
+                }
+            }
+
+            populateViewModal(user) {
+                const roleMeta = this.getUserRoleMeta(user.role);
+                const statusMeta = this.getUserStatusMeta(user.status);
+                const avatarImage = document.getElementById('viewUserAvatarImage');
+                const avatarFallback = document.getElementById('viewUserAvatarFallback');
+                const roleChip = document.getElementById('viewUserRoleChip');
+                const statusChip = document.getElementById('viewUserStatusChip');
+                const selfChip = document.getElementById('viewUserSelfChip');
+                const departmentName = user.department_name
+                    || user.student?.department_name
+                    || user.staff?.department_name
+                    || '';
+
+                document.getElementById('viewUserName').textContent = user.name || 'Unknown User';
+                document.getElementById('viewUserEmail').textContent = user.email || 'No email available';
+
+                if (avatarImage && avatarFallback) {
+                    const avatarLetter = (user.initial || user.name?.trim()?.charAt(0) || 'U').toUpperCase();
+                    avatarFallback.textContent = avatarLetter;
+                    avatarFallback.hidden = false;
+                    avatarImage.hidden = true;
+                    avatarImage.onload = null;
+                    avatarImage.onerror = null;
+                    avatarImage.removeAttribute('src');
+
+                    if (user.profile_photo_url) {
+                        avatarImage.onload = () => {
+                            avatarImage.hidden = false;
+                            avatarFallback.hidden = true;
+                        };
+                        avatarImage.onerror = () => {
+                            avatarImage.hidden = true;
+                            avatarImage.removeAttribute('src');
+                            avatarImage.onload = null;
+                            avatarImage.hidden = true;
+                            avatarFallback.hidden = false;
+                        };
+                        avatarImage.src = user.profile_photo_url;
+                    }
+                }
+
+                if (selfChip) {
+                    selfChip.hidden = !user.is_current_user;
+                }
+
+                if (roleChip) {
+                    roleChip.className = `user-profile-chip ${roleMeta.className}`;
+                    roleChip.innerHTML = `<i class="${roleMeta.icon}"></i> ${roleMeta.label}`;
+                }
+
+                if (statusChip) {
+                    statusChip.className = `user-profile-chip ${statusMeta.className}`;
+                    statusChip.innerHTML = `<i class="${statusMeta.icon}"></i> ${statusMeta.label}`;
+                }
+
+                this.setUserDetailItem(null, 'viewUserPhone', user.phone, { placeholder: 'Not provided' });
+                this.setUserDetailItem(null, 'viewUserDepartment', departmentName, { placeholder: 'Not assigned' });
+                this.setUserDetailItem('viewUserDesignationItem', 'viewUserDesignation', user.staff?.designation, { hideWhenEmpty: true });
+                this.setUserDetailItem('viewUserJoinDateItem', 'viewUserJoinDate', user.staff?.join_date_label || user.staff?.join_date, { hideWhenEmpty: true });
+                this.setUserDetailItem('viewUserRollNoItem', 'viewUserRollNo', user.student?.roll_no, { hideWhenEmpty: true });
+                this.setUserDetailItem('viewUserBatchItem', 'viewUserBatch', user.student?.batch, { hideWhenEmpty: true });
+                this.setUserDetailItem('viewUserSemesterItem', 'viewUserSemester', this.formatSemesterLabel(user.student?.semester), { hideWhenEmpty: true });
+                this.setUserDetailItem(null, 'viewUserLastLogin', user.last_login_label || 'Never', { placeholder: 'Never' });
+                this.setUserDetailItem(null, 'viewUserCreatedAt', user.created_at_label || 'Unknown', { placeholder: 'Unknown' });
+                this.setUserDetailItem(null, 'viewUserAddress', user.address, { placeholder: 'Not provided' });
+            }
+
+            openViewModal(row) {
+                const userId = row.dataset.userId;
+                this.currentUserId = userId;
+
+                this.fetchUserDetails(userId)
+                    .then(user => {
+                        this.populateViewModal(user);
+                        this.openModal('viewUserModal');
+                    })
+                    .catch(error => {
+                        console.error('Error fetching user details:', error);
+                        this.showNotification('Error loading user details: ' + error.message, 'error');
+                    });
+            }
+
             /**
              * Open edit modal and populate with user data
              * @param {HTMLElement} row - Table row element
@@ -3257,77 +4398,61 @@
                 this.currentUserId = userId;
 
                 // Fetch user details via AJAX to get all data
-                fetch(`/admin/users/${userId}/details`, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
+                this.fetchUserDetails(userId)
+                    .then(user => {
+                        console.log('User details:', user);
+
+                        // Populate form with user data
+                        document.getElementById('editFullName').value = user.name || '';
+                        document.getElementById('editEmail').value = user.email || '';
+                        document.getElementById('editPhone').value = user.phone || '';
+                        document.getElementById('editAddress').value = user.address || '';
+
+                        // Set role
+                        const role = user.role;
+                        document.getElementById('editRole').value = role;
+
+                        // Show/hide student-specific fields based on role
+                        this.toggleStudentFields(role);
+
+                        document.getElementById('editDepartment').value = '';
+                        document.getElementById('editDesignation').value = '';
+                        document.getElementById('editJoinDate').value = '';
+                        document.getElementById('editRollNo').value = '';
+                        document.getElementById('editBatch').value = '';
+                        document.getElementById('editSemester').value = '';
+
+                        // Populate role-specific fields
+                        if (role === 'student' && user.student) {
+                            document.getElementById('editDepartment').value = user.student.department_id || '';
+                            document.getElementById('editRollNo').value = user.student.roll_no || '';
+                            document.getElementById('editBatch').value = user.student.batch || '';
+                            document.getElementById('editSemester').value = user.student.semester || '';
+                        } else if (role === 'staff' && user.staff) {
+                            document.getElementById('editDepartment').value = user.staff.department_id || '';
+                            document.getElementById('editDesignation').value = user.staff.designation || '';
+                            document.getElementById('editJoinDate').value = user.staff.join_date || '';
+                        } else if (role === 'staff') {
+                            document.getElementById('editDesignation').value = 'Staff Member';
+                            document.getElementById('editJoinDate').value = this.getTodayDate();
                         }
-                    })
-                    .then(res => {
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! status: ${res.status}`);
-                        }
-                        return res.json();
-                    })
-                    .then(data => {
-                        console.log('User details:', data);
-                        if (data.success) {
-                            const user = data.user;
 
-                            // Populate form with user data
-                            document.getElementById('editFullName').value = user.name || '';
-                            document.getElementById('editEmail').value = user.email || '';
-                            document.getElementById('editPhone').value = user.phone || '';
-                            document.getElementById('editAddress').value = user.address || '';
+                        this.editUserValidator?.seed({
+                            name: user.name || '',
+                            email: user.email || '',
+                            role: user.role || 'student',
+                            phone: user.phone || '',
+                            address: user.address || '',
+                            department_id: user.student?.department_id || user.staff?.department_id || '',
+                            designation: user.staff?.designation || '',
+                            join_date: user.staff?.join_date || '',
+                            roll_no: user.student?.roll_no || '',
+                            batch: user.student?.batch || '',
+                            semester: user.student?.semester || '',
+                        });
 
-                            // Set role
-                            const role = user.role;
-                            document.getElementById('editRole').value = role;
-
-                            // Show/hide student-specific fields based on role
-                            this.toggleStudentFields(role);
-
-                            document.getElementById('editDepartment').value = '';
-                            document.getElementById('editDesignation').value = '';
-                            document.getElementById('editJoinDate').value = '';
-                            document.getElementById('editRollNo').value = '';
-                            document.getElementById('editBatch').value = '';
-                            document.getElementById('editSemester').value = '';
-
-                            // Populate role-specific fields
-                            if (role === 'student' && user.student) {
-                                document.getElementById('editDepartment').value = user.student.department_id || '';
-                                document.getElementById('editRollNo').value = user.student.roll_no || '';
-                                document.getElementById('editBatch').value = user.student.batch || '';
-                                document.getElementById('editSemester').value = user.student.semester || '';
-                            } else if (role === 'staff' && user.staff) {
-                                document.getElementById('editDepartment').value = user.staff.department_id || '';
-                                document.getElementById('editDesignation').value = user.staff.designation || '';
-                                document.getElementById('editJoinDate').value = user.staff.join_date || '';
-                            } else if (role === 'staff') {
-                                document.getElementById('editDesignation').value = 'Staff Member';
-                                document.getElementById('editJoinDate').value = this.getTodayDate();
-                            }
-
-                            this.editUserValidator?.seed({
-                                name: user.name || '',
-                                email: user.email || '',
-                                role: user.role || 'student',
-                                phone: user.phone || '',
-                                address: user.address || '',
-                                department_id: user.student?.department_id || user.staff?.department_id || '',
-                                designation: user.staff?.designation || '',
-                                join_date: user.staff?.join_date || '',
-                                roll_no: user.student?.roll_no || '',
-                                batch: user.student?.batch || '',
-                                semester: user.student?.semester || '',
-                            });
-
-                            // Open the modal
-                            this.openModal('editUserModal');
-                        } else {
-                            throw new Error('Invalid response format');
-                        }
+                        // Open the modal
+                        this.openModal('editUserModal');
                     })
                     .catch(error => {
                         console.error('Error fetching user details:', error);
@@ -3421,30 +4546,30 @@
              * Open delete confirmation modal
              */
             openDeleteModal() {
-                const userName = this.currentUserRow.querySelector('.user-name span')?.textContent?.trim() || 'Unknown User';
-                const userEmail = this.currentUserRow.querySelector('td:first-child .text-muted')?.textContent?.trim() || 'No email available';
-                const userInitial = userName.charAt(0).toUpperCase() || 'U';
-                
-                // Update modal content
-                document.getElementById('deleteUserName').textContent = userName;
-                document.getElementById('deleteUserEmail').textContent = userEmail;
-                document.getElementById('deleteUserAvatar').textContent = userInitial;
-                
+                const userMeta = this.getRowUserMeta();
+                const modalCopy = this.getDeleteModalContent(userMeta);
+
+                document.getElementById('deleteUserModalTitle').textContent = modalCopy.title;
+                document.getElementById('deleteUserModalMessage').textContent = modalCopy.message;
+                document.getElementById('deleteUserModalDetail').textContent = modalCopy.detail;
+                document.getElementById('confirmDeleteUser').textContent = modalCopy.confirmLabel;
                 this.openModal('deleteUserModal');
+                document.getElementById('confirmDeleteUser')?.focus();
             }
 
             /**
              * Open reset password confirmation modal
              */
             openResetPasswordModal() {
-                const userName = this.currentUserRow.cells[0].textContent;
-                const userEmail = this.currentUserRow.dataset.email || '';
-                
-                // Update modal content
-                document.getElementById('resetPasswordUserName').textContent = userName;
-                document.getElementById('resetPasswordUserEmail').textContent = userEmail;
-                
+                const userMeta = this.getRowUserMeta();
+                const modalCopy = this.getResetPasswordModalContent(userMeta);
+
+                document.getElementById('resetPasswordModalTitle').textContent = modalCopy.title;
+                document.getElementById('resetPasswordModalMessage').textContent = modalCopy.message;
+                document.getElementById('resetPasswordModalDetail').textContent = modalCopy.detail;
+                document.getElementById('submitResetPassword').textContent = modalCopy.confirmLabel;
                 this.openModal('resetPasswordModal');
+                document.getElementById('submitResetPassword')?.focus();
             }
 
             /**
@@ -3463,43 +4588,7 @@
              */
             showNotification(message, type = 'info') {
                 console.log('Notification:', message, type);
-
-                // Remove existing notifications
-                document.querySelectorAll('.notification').forEach(n => n.remove());
-
-                // Create notification element
-                const notification = document.createElement('div');
-                notification.className = `notification ${type}`;
-
-                // Set icon based on type
-                const icons = {
-                    success: 'fa-check-circle',
-                    error: 'fa-exclamation-circle',
-                    warning: 'fa-exclamation-triangle',
-                    info: 'fa-info-circle'
-                };
-
-                notification.innerHTML = `
-            <i class="fas ${icons[type] || 'fa-info-circle'}"></i>
-            ${message}
-            <button class="notification-close">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-
-                document.body.appendChild(notification);
-
-                // Add close event
-                notification.querySelector('.notification-close').addEventListener('click', () => {
-                    notification.remove();
-                });
-
-                // Auto-remove after 5 seconds
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
-                    }
-                }, 5000);
+                showUserToast(message, type);
             }
 
             getUserRows() {
@@ -3525,7 +4614,7 @@
 
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="text-center py-8 text-gray-500">
+                        <td colspan="6" class="text-center py-8 text-gray-500">
                             <i class="fas fa-users fa-2x mb-4"></i>
                             <p>No users found</p>
                         </td>
@@ -3670,8 +4759,9 @@
             async submitAddUser() {
                 console.log('Submitting add user form');
                 const form = document.getElementById('addUserForm');
-                const isValid = await this.addUserValidator?.validateAll();
+                const isValid = await this.addUserValidator?.validateAll({ showFirstErrorOnly: true });
                 if (!isValid) {
+                    this.showUserValidationToast('Review the highlighted field before saving.');
                     return;
                 }
 
@@ -3974,6 +5064,7 @@
                 const submitBtn = document.getElementById('submitAddUser');
                 const originalText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                this.addUserValidator?.setSubmitting(true);
                 submitBtn.disabled = true;
 
                 // Submit form via AJAX
@@ -4005,7 +5096,11 @@
                     .then(data => {
                         console.log('Response data:', data);
                         if (data.success) {
-                            this.showNotification(data.message || 'User added successfully', 'success');
+                            this.showUserActionToast('create', {
+                                name: data.user?.name,
+                                email: data.user?.email,
+                                role: data.user?.role,
+                            });
                             this.closeModal('addUserModal');
 
                             // Immediately refresh stats for live update
@@ -4020,18 +5115,15 @@
                     .catch(error => {
                         console.error('Error:', error);
                         if (error.isValidationError && error.errors) {
-                            this.addUserValidator?.applyServerErrors(error.errors);
-                            const firstField = Object.keys(error.errors)[0];
-                            const firstFieldId = this.getAddUserFieldIdFromServerField(firstField);
-                            if (firstFieldId) {
-                                this.scrollToElement(firstFieldId);
-                            }
+                            this.addUserValidator?.applyServerErrors(error.errors, { showFirstErrorOnly: true });
+                            this.showUserValidationToast('Please correct the highlighted field and try again.');
                             return;
                         }
                         this.showNotification(error.message || 'Error adding user', 'error');
                     })
                     .finally(() => {
                         submitBtn.innerHTML = originalText;
+                        this.addUserValidator?.setSubmitting(false);
                         submitBtn.disabled = false;
                     });
             }
@@ -4041,8 +5133,9 @@
              */
             async submitEditUser() {
                 console.log('Submitting edit user form for user:', this.currentUserId);
-                const isValid = await this.editUserValidator?.validateAll();
+                const isValid = await this.editUserValidator?.validateAll({ showFirstErrorOnly: true });
                 if (!isValid) {
+                    this.showUserValidationToast('Review the highlighted field before saving.');
                     return;
                 }
 
@@ -4218,6 +5311,7 @@
                 const submitBtn = document.getElementById('submitEditUser');
                 const originalText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                this.editUserValidator?.setSubmitting(true);
                 submitBtn.disabled = true;
 
                 // Submit form via AJAX
@@ -4249,7 +5343,11 @@
                     .then(data => {
                         console.log('Response data:', data);
                         if (data.success) {
-                            this.showNotification(data.message || 'User updated successfully', 'success');
+                            this.showUserActionToast('update', {
+                                name: data.user?.name,
+                                email: data.user?.email,
+                                role: data.user?.role,
+                            });
                             this.closeModal('editUserModal');
 
                             // Immediately refresh stats for live update (role change may affect counts)
@@ -4264,18 +5362,15 @@
                     .catch(error => {
                         console.error('Error:', error);
                         if (error.isValidationError && error.errors) {
-                            this.editUserValidator?.applyServerErrors(error.errors);
-                            const firstField = Object.keys(error.errors)[0];
-                            const firstFieldId = this.getEditUserFieldIdFromServerField(firstField);
-                            if (firstFieldId) {
-                                this.scrollToElement(firstFieldId);
-                            }
+                            this.editUserValidator?.applyServerErrors(error.errors, { showFirstErrorOnly: true });
+                            this.showUserValidationToast('Please correct the highlighted field and try again.');
                             return;
                         }
                         this.showNotification(error.message || 'Error updating user', 'error');
                     })
                     .finally(() => {
                         submitBtn.innerHTML = originalText;
+                        this.editUserValidator?.setSubmitting(false);
                         submitBtn.disabled = false;
                     });
             }
@@ -4285,6 +5380,7 @@
              */
             confirmDeleteUser() {
                 console.log('Confirming delete for user:', this.currentUserId);
+                const userMeta = this.getRowUserMeta();
 
                 // Show loading state
                 const deleteBtn = document.getElementById('confirmDeleteUser');
@@ -4310,7 +5406,7 @@
                     .then(data => {
                         console.log('Response data:', data);
                         if (data.success) {
-                            this.showNotification(data.message || 'User deleted successfully', 'success');
+                            this.showUserActionToast('delete', userMeta);
                             this.closeModal('deleteUserModal');
 
                             // Immediately refresh stats for live update
@@ -4342,6 +5438,7 @@
              */
             confirmResetPassword() {
                 console.log('Confirming password reset for user:', this.currentUserId);
+                const userMeta = this.getRowUserMeta();
 
                 // Show loading state
                 const resetBtn = document.getElementById('submitResetPassword');
@@ -4367,7 +5464,7 @@
                     .then(data => {
                         console.log('Response data:', data);
                         if (data.success) {
-                            this.showNotification(data.message || 'Password reset email sent successfully', 'success');
+                            this.showUserActionToast('reset-password', userMeta);
                             this.closeModal('resetPasswordModal');
                         } else {
                             throw new Error(data.message || 'Error resetting password');
@@ -4417,7 +5514,10 @@
                     .then(data => {
                         console.log('Response data:', data);
                         if (data.success) {
-                            this.showNotification(data.message || 'Status updated successfully', 'success');
+                            this.showUserActionToast('status', {
+                                ...this.getRowUserMeta(row),
+                                status: data.status,
+                            });
                             this.closeModal('statusToggleModal');
 
                             this.applyStatusUpdateToRow(row, button, data.status);
@@ -4473,7 +5573,10 @@
                     .then(data => {
                         console.log('Response data:', data);
                         if (data.success) {
-                            this.showNotification(data.message || 'Status updated successfully', 'success');
+                            this.showUserActionToast('status', {
+                                ...this.getRowUserMeta(row),
+                                status: data.status,
+                            });
 
                             this.applyStatusUpdateToRow(row, button, data.status);
 
@@ -4523,7 +5626,7 @@
 
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="text-center py-8 text-gray-500">
+                        <td colspan="6" class="text-center py-8 text-gray-500">
                             <i class="fas fa-users fa-2x mb-4"></i>
                             <p>No users found</p>
                         </td>
@@ -4542,13 +5645,11 @@
                     return;
                 }
 
-                // Get user email and name from row
-                const userName = this.currentUserRow.cells[0].textContent.trim();
-                const userEmail = this.currentUserRow.cells[1].textContent.trim();
+                const userMeta = this.getRowUserMeta();
 
                 // Show confirmation
                 const confirmed = confirm(
-                    `Reset password for ${userName} (${userEmail})?\n\nA temporary password will be sent to their email address. They must change it upon first login.`
+                    `Reset password for ${userMeta.name} (${userMeta.email})?\n\nA temporary password will be sent to their email address. They must change it upon first login.`
                 );
 
                 if (!confirmed) {
@@ -4574,8 +5675,7 @@
                     .then(data => {
                         console.log('Response data:', data);
                         if (data.success) {
-                            this.showNotification(data.message || 'Password reset email sent successfully',
-                                'success');
+                            this.showUserActionToast('reset-password', userMeta);
                             // Refresh user list
                             this.fetchUsersData(1);
                         } else {
@@ -4600,15 +5700,10 @@
                 console.log('UserManager initialized successfully');
             } catch (error) {
                 console.error('Failed to initialize UserManager:', error);
-
-                // Show error notification
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'notification error';
-                errorDiv.innerHTML = `
-            <i class="fas fa-exclamation-circle"></i>
-            Failed to initialize page functionality. Please refresh the page.
-        `;
-                document.body.appendChild(errorDiv);
+                showUserToast({
+                    title: 'Action Failed',
+                    message: 'Failed to initialize page functionality. Please refresh the page.',
+                }, 'error');
             }
         });
     </script>

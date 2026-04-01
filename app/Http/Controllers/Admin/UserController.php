@@ -416,6 +416,15 @@ class UserController extends Controller
      */
     public function getDetails(User $user)
     {
+        $profilePhotoUrl = null;
+        if ($user->profile_photo) {
+            $profilePhotoUrl = str_starts_with($user->profile_photo, 'http')
+                ? $user->profile_photo
+                : asset(str_starts_with($user->profile_photo, 'storage/')
+                    ? $user->profile_photo
+                    : 'storage/' . ltrim($user->profile_photo, '/'));
+        }
+
         $data = [
             'id' => $user->id,
             'name' => $user->name,
@@ -424,20 +433,35 @@ class UserController extends Controller
             'address' => $user->address,
             'role' => $user->role,
             'status' => $user->status,
+            'profile_photo_url' => $profilePhotoUrl,
+            'initial' => strtoupper(substr($user->name, 0, 1)),
+            'is_current_user' => $user->id === auth()->id(),
+            'last_login_at' => $user->last_login_at?->toDateTimeString(),
+            'last_login_label' => $user->last_login_at?->format('M j, Y g:i A') ?? 'Never',
+            'created_at' => $user->created_at?->toDateTimeString(),
+            'created_at_label' => $user->created_at?->format('M j, Y g:i A') ?? 'Unknown',
+            'department_name' => null,
         ];
 
         if ($user->role === 'student' && $user->student) {
+            $data['department_name'] = data_get($user, 'student.department.name');
             $data['student'] = [
                 'department_id' => $user->student->department_id,
+                'department_name' => data_get($user, 'student.department.name'),
                 'roll_no' => $user->student->roll_no,
                 'batch' => $user->student->batch,
                 'semester' => $user->student->semester,
             ];
         } elseif ($user->role === 'staff' && $user->staff) {
+            $data['department_name'] = data_get($user, 'staff.department.name');
             $data['staff'] = [
                 'department_id' => $user->staff->department_id,
+                'department_name' => data_get($user, 'staff.department.name'),
                 'designation' => $user->staff->designation,
                 'join_date' => $user->staff->join_date,
+                'join_date_label' => $user->staff->join_date
+                    ? \Carbon\Carbon::parse($user->staff->join_date)->format('M j, Y')
+                    : null,
             ];
         }
 

@@ -714,61 +714,199 @@
         }
 
         /* Notification */
-        .notification {
+        .notification-container {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 16px 24px;
-            border-radius: 8px;
-            font-weight: 500;
-            z-index: 9999;
-            animation: slideIn 0.3s ease;
+            top: 88px;
+            right: 24px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: min(360px, calc(100vw - 32px));
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .notification {
+            --notification-title-color: #ffffff;
+            --notification-message-color: rgba(255, 255, 255, 0.96);
+            --notification-detail-color: rgba(255, 255, 255, 0.86);
+            --notification-close-bg: rgba(255, 255, 255, 0.12);
+            --notification-close-bg-hover: rgba(255, 255, 255, 0.2);
+            --notification-close-color: #ffffff;
+            --notification-progress-track: rgba(255, 255, 255, 0.18);
+            --notification-progress-fill: rgba(255, 255, 255, 0.92);
+            position: relative;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 14px;
+            padding: 16px 18px 18px;
+            border-radius: 18px;
+            overflow: hidden;
+            pointer-events: auto;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+            backdrop-filter: blur(12px);
+            color: #ffffff;
+            animation: notificationSlideIn 0.24s ease;
+        }
+
+        .notification.is-leaving {
+            animation: notificationSlideOut 0.18s ease forwards;
         }
 
         .notification.success {
-            background-color: #10b981;
-            color: white;
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.96), rgba(5, 150, 105, 0.94));
         }
 
         .notification.error {
-            background-color: #ef4444;
-            color: white;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.97), rgba(190, 24, 93, 0.94));
         }
 
         .notification.info {
-            background-color: #3b82f6;
-            color: white;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.97), rgba(79, 70, 229, 0.94));
         }
 
         .notification.warning {
-            background-color: #f59e0b;
-            color: white;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.97), rgba(217, 119, 6, 0.94));
+            --notification-message-color: rgba(255, 255, 255, 0.98);
+            --notification-detail-color: rgba(255, 255, 255, 0.9);
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
+        body.dark-theme .notification {
+            --notification-title-color: #ffffff;
+            --notification-message-color: #ffffff;
+            --notification-detail-color: rgba(255, 255, 255, 0.96);
+            --notification-close-color: #ffffff;
+        }
 
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        body.dark-theme .notification .notification-copy,
+        body.dark-theme .notification .notification-title,
+        body.dark-theme .notification .notification-message,
+        body.dark-theme .notification .notification-detail,
+        body.dark-theme .notification .notification-close {
+            color: #ffffff !important;
+            opacity: 1;
+        }
+
+        .notification-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 18px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .notification-copy {
+            min-width: 0;
+            color: var(--notification-title-color);
+        }
+
+        .notification-title {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--notification-title-color);
+        }
+
+        .notification-message {
+            margin-top: 2px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--notification-message-color);
+        }
+
+        .notification-detail {
+            margin-top: 6px;
+            font-size: 11px;
+            line-height: 1.4;
+            letter-spacing: 0.01em;
+            color: var(--notification-detail-color);
         }
 
         .notification-close {
-            background: transparent;
-            border: none;
-            color: white;
+            appearance: none;
+            border: 0;
+            background: var(--notification-close-bg);
+            color: var(--notification-close-color);
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            font-size: 20px;
-            padding: 0;
-            margin-left: 8px;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .notification-close:hover {
+            background: var(--notification-close-bg-hover);
+            transform: translateY(-1px);
+        }
+
+        .notification-progress {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 4px;
+            background: var(--notification-progress-track);
+        }
+
+        .notification-progress::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--notification-progress-fill);
+            transform-origin: left center;
+            animation: notificationProgress 4.2s linear forwards;
+        }
+
+        @keyframes notificationSlideIn {
+            from {
+                opacity: 0;
+                transform: translate3d(0, -10px, 0) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+        }
+
+        @keyframes notificationSlideOut {
+            from {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translate3d(0, -8px, 0) scale(0.98);
+            }
+        }
+
+        @keyframes notificationProgress {
+            from {
+                transform: scaleX(1);
+            }
+
+            to {
+                transform: scaleX(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .notification-container {
+                top: auto;
+                right: 12px;
+                bottom: 16px;
+                left: 12px;
+                width: auto;
+            }
         }
 
         /* Validation Error Styles */
@@ -873,8 +1011,16 @@
             p.submitAddBook = function() {
                 const form = document.getElementById('addBookForm');
                 const newCategoryInput = document.getElementById('addNewCategory');
-                this.validateBookForm(form, { showErrors: true }).then((isValid) => {
-                    if (!isValid) return;
+                this.validateBookForm(form, { showErrors: true, showFirstErrorOnly: true }).then((isValid) => {
+                    if (!isValid) {
+                        this.showNotification({
+                            title: 'Check Required Fields',
+                            message: 'Review the highlighted field before saving.',
+                            detail: 'Only one field is highlighted at a time.',
+                            icon: 'fas fa-circle-exclamation',
+                        }, 'warning');
+                        return;
+                    }
                     const newCategory = newCategoryInput.value.trim();
                     if (newCategory) { this.createNewCategory(newCategory, form); return; }
                     this.submitAddBookForm(form);
@@ -908,7 +1054,12 @@
                     document.getElementById('addNewCategory').value = '';
                     this.setBookFieldState(categorySelect, 'valid');
                     this.setBookFieldState(document.getElementById('addNewCategory'), 'valid');
-                    this.showNotification(`Category "${categoryName}" created successfully`, 'success');
+                    this.showNotification({
+                        title: 'Category Created',
+                        message: `Created the "${data.category.name}" category for this book.`,
+                        detail: 'The new category has been selected automatically.',
+                        icon: 'fas fa-tags',
+                    }, 'success');
                     setTimeout(() => this.submitAddBookForm(form), 300);
                 })
                 .catch((error) => {
@@ -927,9 +1078,25 @@
                 })
                 .then((response) => response.json().catch(() => { throw new Error('Invalid JSON response'); }))
                 .then((data) => {
-                    if (data.errors && Object.keys(data.errors).length > 0) { this.applyBookServerErrors(form, data.errors); return; }
+                    if (data.errors && Object.keys(data.errors).length > 0) {
+                        this.applyBookServerErrors(form, data.errors, { showFirstErrorOnly: true });
+                        this.showNotification({
+                            title: 'Check Required Fields',
+                            message: 'Please correct the highlighted field and try again.',
+                            detail: 'Only one field is highlighted at a time.',
+                            icon: 'fas fa-circle-exclamation',
+                        }, 'warning');
+                        return;
+                    }
                     if (!data.success) { this.showNotification(data.message || 'Error adding book', 'error'); return; }
-                    this.showNotification('Book added successfully', 'success');
+                    const bookTitle = form.querySelector('[name="title"]')?.value.trim() || 'the book';
+                    const isbn = this.normalizeBookFieldValue('isbn', form.querySelector('[name="isbn"]')?.value || '');
+                    this.showNotification({
+                        title: 'Book Added',
+                        message: `Added "${bookTitle}" to the catalog.`,
+                        detail: isbn ? `ISBN ${isbn}` : '',
+                        icon: 'fas fa-book',
+                    }, 'success');
                     this.closeModal('addBookModal');
                     form.reset();
                     document.getElementById('addNewCategory').value = '';
@@ -941,8 +1108,16 @@
             };
             p.submitEditBook = function() {
                 const form = document.getElementById('editBookForm');
-                this.validateBookForm(form, { showErrors: true }).then((isValid) => {
-                    if (!isValid) return;
+                this.validateBookForm(form, { showErrors: true, showFirstErrorOnly: true }).then((isValid) => {
+                    if (!isValid) {
+                        this.showNotification({
+                            title: 'Check Required Fields',
+                            message: 'Review the highlighted field before saving.',
+                            detail: 'Only one field is highlighted at a time.',
+                            icon: 'fas fa-circle-exclamation',
+                        }, 'warning');
+                        return;
+                    }
                     const formData = new FormData(form);
                     formData.append('_method', 'PUT');
                     fetch(`{{ url('staff/books') }}/${this.currentBookId}`, {
@@ -952,9 +1127,25 @@
                     })
                     .then((response) => response.json().catch(() => { throw new Error('Invalid JSON response'); }))
                     .then((data) => {
-                        if (data.errors && Object.keys(data.errors).length > 0) { this.applyBookServerErrors(form, data.errors); return; }
+                        if (data.errors && Object.keys(data.errors).length > 0) {
+                            this.applyBookServerErrors(form, data.errors, { showFirstErrorOnly: true });
+                            this.showNotification({
+                                title: 'Check Required Fields',
+                                message: 'Please correct the highlighted field and try again.',
+                                detail: 'Only one field is highlighted at a time.',
+                                icon: 'fas fa-circle-exclamation',
+                            }, 'warning');
+                            return;
+                        }
                         if (!data.success) { this.showNotification(data.message || 'Error updating book', 'error'); return; }
-                        this.showNotification('Book updated successfully', 'success');
+                        const bookTitle = form.querySelector('[name="title"]')?.value.trim() || this.currentBookTitle || 'the book';
+                        const isbn = this.normalizeBookFieldValue('isbn', form.querySelector('[name="isbn"]')?.value || '');
+                        this.showNotification({
+                            title: 'Book Updated',
+                            message: `Saved changes for "${bookTitle}".`,
+                            detail: isbn ? `ISBN ${isbn}` : '',
+                            icon: 'fas fa-pen-to-square',
+                        }, 'info');
                         this.closeModal('editBookModal');
                         this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
                         this.fetchBooksData(this.currentPage);
@@ -1141,7 +1332,12 @@
                 if (modalId === 'addBookModal') {
                     this.refreshCategoriesDropdown();
                     const form = document.getElementById('addBookForm');
-                    if (form) { form.reset(); this.resetBookFormValidation(form); this.seedBookFormValidation(form); }
+                    if (form) {
+                        form.reset();
+                        this.setBookCoverCurrentSource('addCover', '');
+                        this.resetBookFormValidation(form);
+                        this.seedBookFormValidation(form);
+                    }
                 }
                 const modal = document.getElementById(modalId);
                 modal.classList.add('active');
@@ -1219,11 +1415,8 @@
                 document.getElementById('editCondition').value = row.dataset.condition || 'good';
                 document.getElementById('editPublisher').value = row.dataset.publisher || '';
                 document.getElementById('editDescription').value = row.dataset.description || '';
-                const preview = document.getElementById('editCoverPreview');
-                const placeholder = document.getElementById('editCoverPlaceholder');
                 const coverUrl = this.resolveCoverUrl(row.dataset.cover || '');
-                if (coverUrl) { preview.src = coverUrl; preview.style.display = 'block'; if (placeholder) placeholder.style.display = 'none'; }
-                else { preview.src = ''; preview.style.display = 'none'; if (placeholder) placeholder.style.display = 'block'; }
+                this.setBookCoverCurrentSource('editCover', coverUrl);
                 this.seedBookFormValidation(document.getElementById('editBookForm'));
                 this.openModal('editBookModal');
             };
@@ -1296,21 +1489,37 @@
                 this.setBookFieldState(input, 'valid');
                 return true;
             };
-            p.validateBookForm = async function(form, { showErrors = true } = {}) {
+            p.clearBookFormDisplayedErrors = function(form) {
+                if (!form) return;
+                const state = this.getBookFormState(form);
+                if (state) state.activeErrorField = null;
+                form.querySelectorAll('input, select, textarea').forEach((input) => {
+                    this.clearFieldError(input, { clearValidityOnly: true });
+                });
+            };
+            p.validateBookForm = async function(form, { showErrors = true, showFirstErrorOnly = false } = {}) {
                 let isValid = true;
                 let firstInvalidInput = null;
+                if (showErrors && showFirstErrorOnly) this.clearBookFormDisplayedErrors(form);
                 for (const input of Array.from(form.querySelectorAll('input, select, textarea'))) {
-                    const result = await this.validateSingleBookField(form, input, { showErrors, runRemote: input.name === 'isbn' && input.type !== 'file', activeInput: input });
+                    const shouldShowErrors = showErrors && (!showFirstErrorOnly || !firstInvalidInput);
+                    const shouldRunRemote = input.type !== 'file' && input.name === 'isbn' && (!showFirstErrorOnly || !firstInvalidInput);
+                    const result = await this.validateSingleBookField(form, input, { showErrors: shouldShowErrors, runRemote: shouldRunRemote, activeInput: input });
                     isValid = result && isValid;
-                    if (!result && !firstInvalidInput) firstInvalidInput = input;
+                    if (!result && !firstInvalidInput) {
+                        firstInvalidInput = input;
+                        if (showFirstErrorOnly) break;
+                    }
                 }
                 if (!isValid && firstInvalidInput) this.focusBookField(firstInvalidInput);
                 return isValid;
             };
-            p.applyBookServerErrors = function(form, errors = {}) {
+            p.applyBookServerErrors = function(form, errors = {}, { showFirstErrorOnly = false } = {}) {
                 if (!form || !errors || Object.keys(errors).length === 0) return;
                 let firstInput = null;
+                this.clearBookFormDisplayedErrors(form);
                 Object.entries(errors).forEach(([fieldName, messages]) => {
+                    if (showFirstErrorOnly && firstInput) return;
                     const input = form.querySelector(`[name="${fieldName}"]`);
                     if (!input) return;
                     this.setBookFieldState(input, 'error', Array.isArray(messages) ? messages[0] : messages);
@@ -1323,16 +1532,9 @@
                 const button = this.getBookSubmitButton(form);
                 if (!button) return;
                 const state = this.getBookFormState(form);
-                const invalidInputs = Array.from(form.querySelectorAll('.form-control')).some((input) => {
-                    if (input.type === 'file') return input.files?.length ? input.dataset.valid !== 'true' : false;
-                    if (['publisher', 'description'].includes(input.name)) return input.value.trim() !== '' && input.dataset.valid !== 'true';
-                    if (input.name === 'new_category') {
-                        const categorySelected = form.querySelector('[name="category_id"]')?.value.trim();
-                        return input.dataset.valid !== 'true' && (!categorySelected || input.value.trim() !== '');
-                    }
-                    return input.dataset.valid !== 'true';
-                });
-                button.disabled = state.pending.size > 0 || invalidInputs;
+                button.disabled = false;
+                button.removeAttribute('disabled');
+                button.dataset.pendingValidation = state.pending.size > 0 ? 'true' : 'false';
             };
             p.initInputErrorListeners = function() {
                 ['addBookForm', 'editBookForm'].forEach((formId) => {
@@ -1342,6 +1544,10 @@
                     form.querySelectorAll('input, select, textarea').forEach((input) => {
                         const triggerEvent = input.type === 'file' || input.tagName === 'SELECT' ? 'change' : 'input';
                         input.addEventListener(triggerEvent, () => {
+                            if (input.type === 'file' && input.name === 'cover_image') {
+                                this.handleBookCoverInputChange(form, input);
+                                return;
+                            }
                             if (input.type !== 'file' && input.name !== 'isbn') {
                                 const normalizedValue = this.normalizeBookFieldValue(input.name, input.value);
                                 if (normalizedValue !== input.value) input.value = normalizedValue;
@@ -1374,14 +1580,14 @@
                     const errorElement = input.parentElement.querySelector('.field-error-message');
                     if (errorElement) { errorElement.innerHTML = ''; errorElement.style.display = 'none'; }
                 });
-                ['add', 'edit'].forEach((prefix) => {
-                    const preview = document.getElementById(`${prefix}CoverPreview`);
-                    const placeholder = document.getElementById(`${prefix}CoverPlaceholder`);
-                    if (preview) { preview.src = ''; preview.style.display = 'none'; }
-                    if (placeholder) placeholder.style.display = 'block';
+                form.querySelectorAll('input[name="cover_image"]').forEach((input) => {
+                    const cover = this.getBookCoverFieldElements(input);
+                    if (!cover) return;
+                    this.revokeBookCoverObjectUrl(input);
+                    input.value = '';
+                    if (cover.removeInput) cover.removeInput.value = '0';
+                    this.syncBookCoverField(input);
                 });
-                const coverInput = document.getElementById('editCover');
-                if (coverInput) coverInput.value = '';
                 this.updateBookSubmitState(form);
             };
             p.seedBookFormValidation = function(form) {
@@ -1419,6 +1625,131 @@
                 return errorElement;
             };
             p.getBookFieldIcon = function(input) { return this.getBookFieldGroup(input)?.querySelector('.field-validation-icon') ?? null; };
+            p.getBookCoverFieldElements = function(target) {
+                const input = typeof target === 'string' ? document.getElementById(target) : target;
+                if (!input) return null;
+                const prefix = input.id.replace('Cover', '');
+                return {
+                    input,
+                    prefix,
+                    preview: document.getElementById(`${prefix}CoverPreview`),
+                    placeholder: document.getElementById(`${prefix}CoverPlaceholder`),
+                    status: document.getElementById(`${prefix}CoverStatus`),
+                    removeButton: document.getElementById(`${prefix}CoverRemove`),
+                    triggerButton: document.querySelector(`[data-cover-trigger="${input.id}"]`),
+                    removeInput: document.getElementById(`${prefix}RemoveCoverImage`),
+                };
+            };
+            p.formatBookFileSize = function(size = 0) {
+                if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+                return `${Math.max(1, Math.round(size / 1024))} KB`;
+            };
+            p.revokeBookCoverObjectUrl = function(target) {
+                const cover = this.getBookCoverFieldElements(target);
+                const objectUrl = cover?.input?.dataset?.objectUrl;
+                if (!objectUrl) return;
+                URL.revokeObjectURL(objectUrl);
+                delete cover.input.dataset.objectUrl;
+            };
+            p.setBookCoverCurrentSource = function(target, source = '') {
+                const cover = this.getBookCoverFieldElements(target);
+                if (!cover) return;
+                cover.input.dataset.currentSrc = source || '';
+                if (cover.removeInput) cover.removeInput.value = '0';
+                this.revokeBookCoverObjectUrl(cover.input);
+                cover.input.value = '';
+                this.syncBookCoverField(cover.input);
+            };
+            p.syncBookCoverField = function(target) {
+                const cover = this.getBookCoverFieldElements(target);
+                if (!cover) return;
+                const currentSrc = cover.input.dataset.currentSrc || '';
+                const removeRequested = cover.removeInput?.value === '1';
+                const selectedFile = cover.input.files?.[0] ?? null;
+                const selectedSrc = cover.input.dataset.objectUrl || '';
+                const previewSrc = selectedFile && selectedSrc ? selectedSrc : (currentSrc && !removeRequested ? currentSrc : '');
+
+                if (cover.preview) {
+                    cover.preview.src = previewSrc || '';
+                    cover.preview.style.display = previewSrc ? 'block' : 'none';
+                }
+                if (cover.placeholder) {
+                    cover.placeholder.style.display = previewSrc ? 'none' : 'grid';
+                }
+                if (cover.status) {
+                    if (selectedFile) cover.status.textContent = `Selected: ${selectedFile.name} (${this.formatBookFileSize(selectedFile.size)})`;
+                    else if (currentSrc && removeRequested) cover.status.textContent = 'Current cover will be removed when you save.';
+                    else if (currentSrc) cover.status.textContent = 'Current cover image.';
+                    else cover.status.textContent = 'No file selected.';
+                }
+                if (cover.triggerButton) {
+                    cover.triggerButton.innerHTML = previewSrc
+                        ? '<i class="fas fa-arrows-rotate"></i><span>Change Image</span>'
+                        : '<i class="fas fa-upload"></i><span>Choose Image</span>';
+                }
+                if (cover.removeButton) {
+                    if (selectedFile) {
+                        cover.removeButton.hidden = false;
+                        cover.removeButton.dataset.mode = 'clear';
+                        cover.removeButton.innerHTML = '<i class="fas fa-trash-alt"></i><span>Remove</span>';
+                    } else if (currentSrc && removeRequested) {
+                        cover.removeButton.hidden = false;
+                        cover.removeButton.dataset.mode = 'undo';
+                        cover.removeButton.innerHTML = '<i class="fas fa-rotate-left"></i><span>Undo Remove</span>';
+                    } else if (currentSrc) {
+                        cover.removeButton.hidden = false;
+                        cover.removeButton.dataset.mode = 'remove-current';
+                        cover.removeButton.innerHTML = '<i class="fas fa-trash-alt"></i><span>Remove Current</span>';
+                    } else {
+                        cover.removeButton.hidden = true;
+                        cover.removeButton.dataset.mode = '';
+                    }
+                }
+            };
+            p.handleBookCoverInputChange = function(form, input) {
+                const cover = this.getBookCoverFieldElements(input);
+                if (!cover) return;
+                this.revokeBookCoverObjectUrl(input);
+                if (!input.files?.length) {
+                    this.syncBookCoverField(input);
+                    this.clearFieldError(input, { clearValidityOnly: true });
+                    input.dataset.valid = 'true';
+                    this.updateBookSubmitState(form);
+                    return;
+                }
+                const message = this.validateField(input, this.getBookFieldRules().cover_image);
+                if (message) {
+                    input.value = '';
+                    this.syncBookCoverField(input);
+                    this.setBookFieldState(input, 'error', message);
+                    return;
+                }
+                if (cover.removeInput) cover.removeInput.value = '0';
+                cover.input.dataset.objectUrl = URL.createObjectURL(input.files[0]);
+                this.syncBookCoverField(input);
+                this.clearFieldError(input, { clearValidityOnly: true });
+                input.dataset.valid = 'true';
+                this.updateBookSubmitState(form);
+            };
+            p.handleBookCoverRemove = function(input) {
+                const cover = this.getBookCoverFieldElements(input);
+                if (!cover) return;
+                const form = input.closest('form');
+                const mode = cover.removeButton?.dataset.mode || '';
+                if (mode === 'undo') {
+                    if (cover.removeInput) cover.removeInput.value = '0';
+                    this.syncBookCoverField(input);
+                } else {
+                    this.revokeBookCoverObjectUrl(input);
+                    input.value = '';
+                    if (mode === 'remove-current' && cover.removeInput) cover.removeInput.value = '1';
+                    else if (cover.removeInput) cover.removeInput.value = '0';
+                    this.syncBookCoverField(input);
+                }
+                this.clearFieldError(input, { clearValidityOnly: true });
+                input.dataset.valid = 'true';
+                this.updateBookSubmitState(form);
+            };
             p.ensureBookFieldIcons = function(form) {
                 form.querySelectorAll('input, select, textarea').forEach((input) => {
                     if (input.type === 'file') return;
@@ -1465,7 +1796,10 @@
                 } else {
                     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
-                input.focus({ preventScroll: true });
+                const focusTarget = input.type === 'file'
+                    ? this.getBookCoverFieldElements(input)?.triggerButton ?? input
+                    : input;
+                focusTarget.focus({ preventScroll: true });
             };
             p.normalizeBookFieldValue = function(fieldName, value) {
                 const raw = String(value ?? '');
@@ -1480,13 +1814,13 @@
                     shelf_no: { required: true, pattern: /^[A-Za-z0-9]+[-]?[A-Za-z0-9]*$/, maxLength: 20, requiredMessage: 'Enter the rack number.', patternMessage: 'Rack number must contain only letters, numbers, and an optional dash like A-12.', maxLengthMessage: 'Rack number must be 20 characters or fewer.' },
                     title: { required: true, minLength: 2, maxLength: 255, pattern: /^[A-Za-z0-9\s\-:'.&()]+$/, requiredMessage: 'Enter the book title.', minLengthMessage: 'Book title must be at least 2 characters long.', maxLengthMessage: 'Book title must be 255 characters or fewer.', patternMessage: 'Title can only contain letters, numbers, spaces, and - : \' . & ( ).' },
                     author: { required: true, minLength: 2, maxLength: 255, pattern: /^[A-Za-z\s.]+$/, requiredMessage: 'Enter the author name.', minLengthMessage: 'Author name must be at least 2 characters long.', maxLengthMessage: 'Author name must be 255 characters or fewer.', patternMessage: 'Author name can only contain letters, spaces, and periods.' },
-                    publisher: { maxLength: 255, pattern: /^[A-Za-z0-9\s&.,'-]+$/, maxLengthMessage: 'Publisher name must be 255 characters or fewer.', patternMessage: 'Publisher name can only contain letters, numbers, spaces, and & . , \' -.' },
+                    publisher: { maxLength: 150, pattern: /^[A-Za-z0-9\s&.,'-]+$/, maxLengthMessage: 'Publisher name must be 150 characters or fewer.', patternMessage: 'Publisher name can only contain letters, numbers, spaces, and & . , \' -.' },
                     new_category: { minLength: 2, maxLength: 50, pattern: /^[A-Za-z\s&]+$/, minLengthMessage: 'New category name must be at least 2 characters long.', maxLengthMessage: 'New category name must be 50 characters or fewer.', patternMessage: 'Category name can only contain letters, spaces, and &.' },
                     total_copies: { required: true, numeric: true, min: 1, max: 9999, requiredMessage: 'Enter the total number of copies.', numericMessage: 'Total copies must be a whole number.', minMessage: 'Total copies must be at least 1.', maxMessage: 'Total copies must not exceed 9999.' },
                     available_copies: { required: true, numeric: true, min: 0, max: 9999, requiredMessage: 'Enter the available number of copies.', numericMessage: 'Available copies must be a whole number.', minMessage: 'Available copies cannot be negative.', maxMessage: 'Available copies must not exceed 9999.' },
                     condition: { required: true, requiredMessage: 'Select the book condition.' },
                     description: { maxLength: 2000, maxLengthMessage: 'Description must be 2000 characters or fewer.' },
-                    cover_image: { accept: 'image/*', acceptMessage: 'Cover image must be an image file.', maxSize: 2, maxSizeMessage: 'Cover image must not exceed 2MB.' },
+                    cover_image: { accept: ['image/jpeg', 'image/png', 'image/gif'], acceptExtensions: ['.jpg', '.jpeg', '.png', '.gif'], acceptMessage: 'Cover image must be a JPG, PNG, or GIF file.', maxSize: 2, maxSizeMessage: 'Cover image must not exceed 2MB.' },
                 };
             };
             p.setBookFieldState = function(input, state = 'neutral', message = '') {
@@ -1554,7 +1888,15 @@
                     const total = Number(form.querySelector('[name="total_copies"]')?.value || 0);
                     if (value !== '' && total && Number(value) > total) return 'Available copies cannot exceed total copies.';
                 }
-                if (rules.accept && input.type === 'file' && input.files?.length && !input.files[0].type.startsWith('image/')) return rules.acceptMessage;
+                if (rules.accept && input.type === 'file' && input.files?.length) {
+                    const allowedTypes = Array.isArray(rules.accept) ? rules.accept : [rules.accept];
+                    const allowedExtensions = Array.isArray(rules.acceptExtensions) ? rules.acceptExtensions : [];
+                    const file = input.files[0];
+                    const fileName = (file?.name || '').toLowerCase();
+                    const matchesType = !!file?.type && allowedTypes.includes(file.type);
+                    const matchesExtension = allowedExtensions.some((extension) => fileName.endsWith(extension));
+                    if (!matchesType && !matchesExtension) return rules.acceptMessage;
+                }
                 if (rules.maxSize && input.type === 'file' && input.files?.length && input.files[0].size > rules.maxSize * 1024 * 1024) return rules.maxSizeMessage;
                 return null;
             };
@@ -1642,24 +1984,12 @@
                 this.fetchBooksData(1);
             };
             p.initCoverPreviews = function() {
-                [['addCover', 'addCoverPreview', 'addCoverPlaceholder'], ['editCover', 'editCoverPreview', 'editCoverPlaceholder']].forEach(([inputId, previewId, placeholderId]) => {
-                    const input = document.getElementById(inputId);
-                    if (!input) return;
-                    input.addEventListener('change', (e) => {
-                        const file = e.target.files[0];
-                        const preview = document.getElementById(previewId);
-                        const placeholder = document.getElementById(placeholderId);
-                        if (!preview || !placeholder) return;
-                        if (file) {
-                            preview.src = URL.createObjectURL(file);
-                            preview.style.display = 'block';
-                            placeholder.style.display = 'none';
-                        } else {
-                            preview.src = '';
-                            preview.style.display = 'none';
-                            placeholder.style.display = 'block';
-                        }
-                    });
+                ['addCover', 'editCover'].forEach((inputId) => {
+                    const cover = this.getBookCoverFieldElements(inputId);
+                    if (!cover) return;
+                    cover.triggerButton?.addEventListener('click', () => cover.input.click());
+                    cover.removeButton?.addEventListener('click', () => this.handleBookCoverRemove(cover.input));
+                    this.syncBookCoverField(cover.input);
                 });
             };
             p.initFilters = function() {
@@ -1702,15 +2032,62 @@
                 });
             };
             p.showNotification = function(message, type = 'info') {
-                document.querySelectorAll('.notification').forEach((n) => n.remove());
+                const payload = typeof message === 'object' && message !== null
+                    ? message
+                    : {
+                        title: type === 'error' ? 'Action Failed' : 'Update Complete',
+                        message: String(message || ''),
+                    };
+                const escapeText = (value) => String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+                const iconMap = {
+                    success: 'fas fa-check-circle',
+                    error: 'fas fa-circle-xmark',
+                    warning: 'fas fa-triangle-exclamation',
+                    info: 'fas fa-circle-info',
+                };
+                let container = document.querySelector('.notification-container');
+
+                if (!container) {
+                    container = document.createElement('div');
+                    container.className = 'notification-container';
+                    document.body.appendChild(container);
+                }
+
+                container.querySelectorAll('.notification').forEach((existingNotification) => {
+                    existingNotification.remove();
+                });
+
                 const notification = document.createElement('div');
                 notification.className = `notification ${type}`;
-                notification.innerHTML = `${message}<button class="notification-close" type="button"><i class="fas fa-times"></i></button>`;
-                document.body.appendChild(notification);
-                notification.querySelector('.notification-close').addEventListener('click', () => notification.remove());
-                setTimeout(() => {
-                    if (notification.parentNode) notification.remove();
-                }, 5000);
+                notification.innerHTML = `
+                    <div class="notification-icon" aria-hidden="true">
+                        <i class="${escapeText(payload.icon || iconMap[type] || iconMap.info)}"></i>
+                    </div>
+                    <div class="notification-copy">
+                        <div class="notification-title">${escapeText(payload.title || 'Notice')}</div>
+                        <div class="notification-message">${escapeText(payload.message || '')}</div>
+                        ${payload.detail ? `<div class="notification-detail">${escapeText(payload.detail)}</div>` : ''}
+                    </div>
+                    <button class="notification-close" type="button" aria-label="Dismiss notification">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <span class="notification-progress" aria-hidden="true"></span>
+                `;
+
+                const dismiss = () => {
+                    if (!notification.parentNode) return;
+                    notification.classList.add('is-leaving');
+                    window.setTimeout(() => notification.remove(), 180);
+                };
+
+                container.appendChild(notification);
+                notification.querySelector('.notification-close').addEventListener('click', dismiss);
+                window.setTimeout(dismiss, 4200);
             };
             p.init = function() {
                 this.currentBookISBN = null;
@@ -2020,6 +2397,156 @@
 
         body.dark-theme .form-group.has-pending .field-validation-icon {
             color: #60a5fa;
+        }
+
+        .cover-upload {
+            display: grid;
+            grid-template-columns: 120px minmax(0, 1fr);
+            gap: 16px;
+            align-items: start;
+        }
+
+        .cover-upload-preview-shell {
+            width: 120px;
+            height: 160px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px dashed #cbd5e1;
+            background: linear-gradient(180deg, #eef2ff 0%, #e0e7ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+
+        body.dark-theme .cover-upload-preview-shell {
+            border-color: #475569;
+            background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
+        }
+
+        .cover-upload-preview-shell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .cover-upload-placeholder {
+            padding: 16px;
+            text-align: center;
+            display: grid;
+            gap: 8px;
+            justify-items: center;
+            color: #4f46e5;
+            font-weight: 700;
+        }
+
+        body.dark-theme .cover-upload-placeholder {
+            color: #a5b4fc;
+        }
+
+        .cover-upload-placeholder i {
+            font-size: 22px;
+        }
+
+        .cover-upload-panel {
+            min-width: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .cover-upload-actions {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .cover-upload-trigger,
+        .cover-upload-remove {
+            min-height: 40px;
+            padding: 0 14px;
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        .cover-upload-remove[hidden] {
+            display: none !important;
+        }
+
+        .cover-upload-meta {
+            display: grid;
+            gap: 4px;
+        }
+
+        .cover-upload-status {
+            font-size: 13px;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        body.dark-theme .cover-upload-status {
+            color: #e2e8f0;
+        }
+
+        .cover-upload-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .upload-hint {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #64748b;
+        }
+
+        body.dark-theme .upload-hint {
+            color: #94a3b8;
+        }
+
+        .cover-upload-actions .field-error-message {
+            flex-basis: 100%;
+            margin-top: 0;
+        }
+
+        .form-group.has-invalid .cover-upload-preview-shell {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+        }
+
+        body.dark-theme .form-group.has-invalid .cover-upload-preview-shell {
+            border-color: #f87171;
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.18);
+        }
+
+        .form-group.has-valid .cover-upload-preview-shell {
+            border-color: #16a34a;
+        }
+
+        body.dark-theme .form-group.has-valid .cover-upload-preview-shell {
+            border-color: #22c55e;
+        }
+
+        @media (max-width: 640px) {
+            .cover-upload {
+                grid-template-columns: 1fr;
+            }
+
+            .cover-upload-preview-shell {
+                width: 100%;
+                max-width: 160px;
+            }
         }
 
         .confirmation-popup {
@@ -2515,7 +3042,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Publisher</label>
-                            <input type="text" name="publisher" class="form-control" placeholder="Publisher name">
+                            <input type="text" name="publisher" class="form-control" placeholder="Publisher name" maxlength="150">
                         </div>
                     </div>
 
@@ -2575,14 +3102,31 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Cover Image (optional)</label>
-                        <div style="display:flex;gap:12px;align-items:center;">
-                            <div style="width:100px; height:140px; border-radius:8px; overflow:hidden; background:linear-gradient(135deg,#eef2ff 0%,#e9d5ff 100%); display:flex;align-items:center;justify-content:center;">
-                                <img id="addCoverPreview" src="" alt="Cover preview" style="width:100%;height:100%;object-fit:cover;display:none;" />
-                                <div id="addCoverPlaceholder" style="font-weight:700;color:#4f46e5;font-size:20px;">No Image</div>
+                        <div class="cover-upload">
+                            <div class="cover-upload-preview-shell">
+                                <img id="addCoverPreview" src="" alt="Cover preview" />
+                                <div id="addCoverPlaceholder" class="cover-upload-placeholder">
+                                    <i class="fas fa-image"></i>
+                                    <span>No Image</span>
+                                </div>
                             </div>
-                            <div style="flex:1;">
-                                <input type="file" name="cover_image" id="addCover" accept="image/*" class="form-control" />
-                                <p class="upload-hint">Optional. JPEG/PNG/GIF. Max 2MB.</p>
+                            <div class="cover-upload-panel">
+                                <input type="hidden" name="remove_cover_image" id="addRemoveCoverImage" value="0">
+                                <div class="cover-upload-actions">
+                                    <input type="file" name="cover_image" id="addCover" accept=".jpg,.jpeg,.png,.gif" class="form-control cover-upload-input" />
+                                    <button type="button" class="btn btn-outline cover-upload-trigger" data-cover-trigger="addCover">
+                                        <i class="fas fa-upload"></i>
+                                        <span>Choose Image</span>
+                                    </button>
+                                    <button type="button" class="btn btn-outline cover-upload-remove" id="addCoverRemove" hidden>
+                                        <i class="fas fa-trash-alt"></i>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="cover-upload-meta">
+                                    <span id="addCoverStatus" class="cover-upload-status">No file selected.</span>
+                                    <p class="upload-hint">Optional. JPG, PNG, or GIF. Max 2MB.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2641,7 +3185,7 @@
                         <div class="form-group">
                             <label class="form-label">Publisher</label>
                             <input type="text" name="publisher" class="form-control" id="editPublisher"
-                                value="Prentice Hall">
+                                value="Prentice Hall" maxlength="150">
                         </div>
 
                         <div class="form-group">
@@ -2688,14 +3232,31 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Cover Image (optional)</label>
-                        <div style="display:flex;gap:12px;align-items:center;">
-                            <div style="width:100px; height:140px; border-radius:8px; overflow:hidden; background:linear-gradient(135deg,#eef2ff 0%,#e9d5ff 100%); display:flex;align-items:center;justify-content:center;">
-                                <img id="editCoverPreview" src="" alt="Cover preview" style="width:100%;height:100%;object-fit:cover;display:none;" />
-                                <div id="editCoverPlaceholder" style="font-weight:700;color:#4f46e5;font-size:20px;">No Image</div>
+                        <div class="cover-upload">
+                            <div class="cover-upload-preview-shell">
+                                <img id="editCoverPreview" src="" alt="Cover preview" />
+                                <div id="editCoverPlaceholder" class="cover-upload-placeholder">
+                                    <i class="fas fa-image"></i>
+                                    <span>No Image</span>
+                                </div>
                             </div>
-                            <div style="flex:1;">
-                                <input type="file" name="cover_image" id="editCover" accept="image/*" class="form-control" />
-                                <p class="upload-hint">Optional. Upload a new cover to replace existing one. JPEG/PNG/GIF. Max 2MB.</p>
+                            <div class="cover-upload-panel">
+                                <input type="hidden" name="remove_cover_image" id="editRemoveCoverImage" value="0">
+                                <div class="cover-upload-actions">
+                                    <input type="file" name="cover_image" id="editCover" accept=".jpg,.jpeg,.png,.gif" class="form-control cover-upload-input" />
+                                    <button type="button" class="btn btn-outline cover-upload-trigger" data-cover-trigger="editCover">
+                                        <i class="fas fa-upload"></i>
+                                        <span>Choose Image</span>
+                                    </button>
+                                    <button type="button" class="btn btn-outline cover-upload-remove" id="editCoverRemove" hidden>
+                                        <i class="fas fa-trash-alt"></i>
+                                        <span>Remove</span>
+                                    </button>
+                                </div>
+                                <div class="cover-upload-meta">
+                                    <span id="editCoverStatus" class="cover-upload-status">No file selected.</span>
+                                    <p class="upload-hint">Optional. Upload a JPG, PNG, or GIF cover. Max 2MB.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3156,7 +3717,7 @@
                 const titleCell = cells[1];
                 const dataset = row.dataset || {};
                 const cover = dataset.cover || '';
-                const publisher = titleCell.querySelector('div') ? titleCell.querySelector('div').textContent : '';
+                const publisher = dataset.publisher || '';
                 const coverUrl = cover ? `${this.storageBase}/${cover}` : '';
 
                 const detailsContent = `
@@ -3217,7 +3778,7 @@
             openEditModal(row) {
                 const cells = row.cells;
                 const titleCell = cells[1];
-                const publisher = titleCell.querySelector('div') ? titleCell.querySelector('div').textContent : '';
+                const publisher = row.dataset.publisher || '';
 
                 document.getElementById('editISBN').value = cells[0].textContent;
                 document.getElementById('editTitle').value = titleCell.querySelector('strong').textContent;
@@ -3757,8 +4318,8 @@
                         patternMessage: 'Author name can only contain letters, spaces, and periods'
                     },
                     publisher: {
-                        maxLength: 255,
-                        maxLengthMessage: 'Publisher name must not exceed 255 characters',
+                        maxLength: 150,
+                        maxLengthMessage: 'Publisher name must not exceed 150 characters',
                         pattern: /^[A-Za-z0-9\s&.,'-]*$/,
                         patternMessage: 'Publisher can only contain letters, numbers, spaces, and: & . , \' -'
                     },
@@ -3833,8 +4394,8 @@
                     cover_image: {
                         maxSize: 2,
                         maxSizeMessage: 'Cover image must not exceed 2MB',
-                        accept: '.jpeg,.jpg,.png,.gif,.svg',
-                        acceptMessage: 'Please select a valid image file (JPEG, PNG, JPG, GIF, SVG)'
+                        accept: '.jpeg,.jpg,.png,.gif',
+                        acceptMessage: 'Cover image must be a JPG, PNG, or GIF file.'
                     }
                 };
 
