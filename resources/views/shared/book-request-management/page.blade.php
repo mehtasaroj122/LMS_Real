@@ -104,6 +104,16 @@
                 </button>
             </div>
 
+            <label class="admin-table-entries-control request-entries-control" for="requestEntriesSelect">
+                <span>Show</span>
+                <select id="requestEntriesSelect" class="admin-table-entries-select" aria-label="Show request entries">
+                    @foreach ([10, 20, 50, 100] as $entryCount)
+                        <option value="{{ $entryCount }}">{{ $entryCount }}</option>
+                    @endforeach
+                </select>
+                <span>entries</span>
+            </label>
+
             <div class="request-toolbar-actions">
                 @if(($config['features']['create'] ?? true) === true)
                     <button type="button" id="createRequestBtn" class="request-btn primary">
@@ -170,8 +180,11 @@
         </div>
 
         <div id="requestPaginationContainer" class="request-pagination">
-            <div class="request-pagination-info">
-                Showing <span id="requestRecordCount">0-0</span> of <span id="requestTotalCount">0</span> requests
+            <div class="request-pagination-meta">
+                <div class="request-pagination-info">
+                    Showing <span id="requestRecordCount">0-0</span> of <span id="requestTotalCount">0</span> requests
+                </div>
+                <div class="request-pagination-page" id="requestPageInfo">Page 1 of 1</div>
             </div>
             <div id="requestPaginationButtons" class="request-pagination-buttons"></div>
         </div>

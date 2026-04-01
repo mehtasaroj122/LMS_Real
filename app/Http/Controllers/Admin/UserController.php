@@ -28,18 +28,24 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $currentUserId = auth()->id();
+        [
+            'search' => $search,
+            'status' => $status,
+            'role' => $role,
+            'sort' => $sort,
+            'per_page' => $perPage,
+        ] = $this->extractUserFilters($request);
 
-        $users = User::with([
+        $users = $this->buildUserQuery($search, $status, $role, $sort, $currentUserId)
+            ->with([
             'student.department',
             'staff.department'
         ])
-            ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$currentUserId])
-            ->orderByRaw("CASE WHEN role='admin' THEN 1 WHEN role='staff' THEN 2 WHEN role='student' THEN 3 END")
-            ->latest()
-            ->simplePaginate(15);
+            ->paginate($perPage)
+            ->appends($request->query());
 
         /* ===== Stats ===== */
         $totalUsers = User::count();
@@ -59,7 +65,12 @@ class UserController extends Controller
             'activeUsers',
             'inactiveUsers',
             'roleCounts',
-            'departments'
+            'departments',
+            'search',
+            'status',
+            'role',
+            'sort',
+            'perPage'
         ));
     }
 
@@ -70,53 +81,18 @@ class UserController extends Controller
     {
         try {
             $currentUserId = auth()->id();
-            $search = $request->input('search', '');
-            $status = $request->input('status', 'all');
-            $role = $request->input('role', 'all');
-            $sort = $request->input('sort', 'recently-added');
-            $page = $request->input('page', 1);
+            [
+                'search' => $search,
+                'status' => $status,
+                'role' => $role,
+                'sort' => $sort,
+                'page' => $page,
+                'per_page' => $perPage,
+            ] = $this->extractUserFilters($request);
 
-            // Build base query
-            $query = User::query();
-
-            // Apply search filter
-            if (!empty($search)) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                });
-            }
-
-            // Apply status filter
-            if ($status !== 'all') {
-                $query->where('status', $status);
-            }
-
-            // Apply role filter
-            if ($role !== 'all') {
-                $query->where('role', $role);
-            }
-
-            // Keep the signed-in user pinned to the top of the current result set.
-            $query->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$currentUserId]);
-
-            // Apply sorting
-            switch ($sort) {
-                case 'recently-added':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-                case 'name-asc':
-                    $query->orderBy('name', 'asc');
-                    break;
-                case 'name-desc':
-                    $query->orderBy('name', 'desc');
-                    break;
-                default:
-                    $query->orderBy('created_at', 'desc');
-            }
-
-            // Paginate results (15 users per page)
-            $users = $query->paginate(15, ['*'], 'page', $page);
+            $users = $this->buildUserQuery($search, $status, $role, $sort, $currentUserId)
+                ->paginate($perPage, ['*'], 'page', $page)
+                ->appends($request->query());
 
             // Load relationships for each user
             $users->load('student.department', 'staff.department');
@@ -131,7 +107,7 @@ class UserController extends Controller
             }
 
             // Prepare pagination HTML
-            $pagination = $users->links()->toHtml();
+            $pagination = view('shared.admin-table-pagination', ['paginator' => $users])->render();
 
             return response()->json([
                 'success' => true,
@@ -264,6 +240,64 @@ class UserController extends Controller
             'filteredActive' => $filteredQuery->clone()->where('status', 'active')->count(),
             'filteredInactive' => $filteredQuery->clone()->where('status', 'inactive')->count(),
         ];
+    }
+
+    private function extractUserFilters(Request $request): array
+    {
+        return [
+            'search' => trim((string) $request->input('search', '')),
+            'status' => (string) $request->input('status', 'all'),
+            'role' => (string) $request->input('role', 'all'),
+            'sort' => (string) $request->input('sort', 'recently-added'),
+            'page' => max(1, (int) $request->input('page', 1)),
+            'per_page' => $this->normalizeAdminPerPage($request->input('per_page', 10)),
+        ];
+    }
+
+    private function buildUserQuery(string $search, string $status, string $role, string $sort, int $currentUserId)
+    {
+        $query = User::query();
+
+        if ($search !== '') {
+            $query->where(function ($builder) use ($search) {
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if ($role !== 'all') {
+            $query->where('role', $role);
+        }
+
+        $query->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$currentUserId]);
+        $query->orderByRaw("CASE WHEN role='admin' THEN 1 WHEN role='staff' THEN 2 WHEN role='student' THEN 3 END");
+
+        switch ($sort) {
+            case 'name-asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name-desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'recently-added':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        return $query;
+    }
+
+    private function normalizeAdminPerPage($value): int
+    {
+        $allowedValues = [10, 20, 50, 100];
+        $perPage = (int) $value;
+
+        return in_array($perPage, $allowedValues, true) ? $perPage : 10;
     }
 
     public function validateField(Request $request)

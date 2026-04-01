@@ -1083,28 +1083,28 @@
                 <div class="search-icon">
                     <i class="fas fa-search"></i>
                 </div>
-                <input type="text" class="search-input" id="searchInput" placeholder="Search by name, email, or roll number..." autocomplete="off">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by name, email, or roll number..." autocomplete="off" value="{{ request('search', '') }}">
             </div>
 
             <div class="filters-container">
                 <select class="filter-select" id="statusFilter">
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="all" {{ request('status', 'all') === 'all' ? 'selected' : '' }}>All Status</option>
+                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
 
                 <select class="filter-select" id="departmentFilter">
-                    <option value="all">All Departments</option>
+                    <option value="all" {{ request('department', 'all') === 'all' ? 'selected' : '' }}>All Departments</option>
                     @foreach ($departments as $dept)
-                        <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                        <option value="{{ $dept->id }}" {{ (string) request('department') === (string) $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
                     @endforeach
                 </select>
 
                 <select class="filter-select" id="sortFilter">
-                    <option value="created-desc">Newest First</option>
-                    <option value="created-asc">Oldest First</option>
-                    <option value="name-asc">Alphabetical A-Z</option>
-                    <option value="name-desc">Alphabetical Z-A</option>
+                    <option value="created-desc" {{ request('sort', 'created-desc') === 'created-desc' ? 'selected' : '' }}>Newest First</option>
+                    <option value="created-asc" {{ request('sort') === 'created-asc' ? 'selected' : '' }}>Oldest First</option>
+                    <option value="name-asc" {{ request('sort') === 'name-asc' ? 'selected' : '' }}>Alphabetical A-Z</option>
+                    <option value="name-desc" {{ request('sort') === 'name-desc' ? 'selected' : '' }}>Alphabetical Z-A</option>
                 </select>
 
                 <button id="resetFiltersBtn" class="reset-btn" title="Reset all filters">
@@ -1112,6 +1112,16 @@
                     Reset
                 </button>
             </div>
+
+            <label class="admin-table-entries-control" for="studentsEntriesSelect">
+                <span>Show</span>
+                <select class="admin-table-entries-select" id="studentsEntriesSelect" aria-label="Show student entries">
+                    @foreach ([10, 20, 50, 100] as $entryCount)
+                        <option value="{{ $entryCount }}" {{ (int) request('per_page', 10) === $entryCount ? 'selected' : '' }}>{{ $entryCount }}</option>
+                    @endforeach
+                </select>
+                <span>entries</span>
+            </label>
 
             <button id="addStudentBtn" class="flex items-center gap-2 px-3 py-1 font-medium text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 hover:shadow-lg" style="margin-left: auto;">
                 <i class="fas fa-plus"></i>
@@ -1411,14 +1421,15 @@
     <script>
         class StudentManager {
             constructor() {
-                this.currentDepartment = 'all';
-                this.currentStatus = 'all';
-                this.currentSort = 'created-desc';
+                const searchParams = new URLSearchParams(window.location.search);
+                this.currentDepartment = searchParams.get('department') || 'all';
+                this.currentStatus = searchParams.get('status') || 'all';
+                this.currentSort = searchParams.get('sort') || 'created-desc';
                 this.searchDebounceTimer = null;
                 this.selectedRowIndex = -1;
-                this.currentPage = 1;
+                this.currentPage = Math.max(1, Number(searchParams.get('page')) || 1);
                 this.totalRows = 0;
-                this.rowsPerPage = 10;
+                this.rowsPerPage = this.normalizePerPage(searchParams.get('per_page'));
                 this.lastUpdatedAt = null;
                 this.statCards = document.querySelectorAll('[data-stat-card]');
                 this.init();
@@ -1430,7 +1441,24 @@
                 const departmentFilter = document.getElementById('departmentFilter');
                 const statusFilter = document.getElementById('statusFilter');
                 const sortFilter = document.getElementById('sortFilter');
+                const entriesSelect = document.getElementById('studentsEntriesSelect');
                 const resetBtn = document.getElementById('resetFiltersBtn');
+
+                if (searchInput) {
+                    searchInput.value = new URLSearchParams(window.location.search).get('search') || '';
+                }
+                if (departmentFilter) {
+                    departmentFilter.value = this.currentDepartment;
+                }
+                if (statusFilter) {
+                    statusFilter.value = this.currentStatus;
+                }
+                if (sortFilter) {
+                    sortFilter.value = this.currentSort;
+                }
+                if (entriesSelect) {
+                    entriesSelect.value = String(this.rowsPerPage);
+                }
 
                 if (searchInput) {
                     searchInput.addEventListener('input', (e) => {
@@ -1464,6 +1492,15 @@
                 if (sortFilter) {
                     sortFilter.addEventListener('change', (e) => {
                         this.currentSort = e.target.value;
+                        this.selectedRowIndex = -1;
+                        this.currentPage = 1;
+                        this.reloadStudents();
+                    });
+                }
+
+                if (entriesSelect) {
+                    entriesSelect.addEventListener('change', (e) => {
+                        this.rowsPerPage = this.normalizePerPage(e.target.value);
                         this.selectedRowIndex = -1;
                         this.currentPage = 1;
                         this.reloadStudents();
@@ -1534,7 +1571,7 @@
                 this.currentSort = sort;
                 this.setTableLoading(true);
 
-                fetch(`{{ route('admin.students.data') }}?search=${encodeURIComponent(search)}&department=${department}&status=${status}&sort=${sort}&page=${page}`, {
+                fetch(`{{ route('admin.students.data') }}?search=${encodeURIComponent(search)}&department=${department}&status=${status}&sort=${sort}&page=${page}&per_page=${this.rowsPerPage}`, {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
@@ -1547,6 +1584,12 @@
                     .then(data => {
                         if (data.success) {
                             this.lastUpdatedAt = new Date();
+                            if (Number(page) > Number(data.last_page || 1)) {
+                                this.fetchStudents(data.last_page || 1);
+                                return;
+                            }
+
+                            this.currentPage = Number(data.current_page || page) || 1;
                             if (data.total === 0) {
                                 document.getElementById('studentsTableBody').innerHTML = `
                         <tr>
@@ -1566,6 +1609,7 @@
                                 this.attachEventListeners();
                                 this.updateRowAccessibility();
                             }
+                            this.syncUrlState(search);
                             this.renderToolbarMeta();
                         } else {
                             console.error('Error loading students');
@@ -1924,6 +1968,29 @@
                 `;
                 document.getElementById('paginationContainer').innerHTML = '';
                 this.totalRows = 0;
+            }
+
+            normalizePerPage(value) {
+                const allowedValues = [10, 20, 50, 100];
+                const perPage = Number(value);
+                return allowedValues.includes(perPage) ? perPage : 10;
+            }
+
+            syncUrlState(search = document.getElementById('searchInput')?.value.trim() || '') {
+                const params = new URLSearchParams();
+
+                if (search) params.set('search', search);
+                if (this.currentDepartment !== 'all') params.set('department', this.currentDepartment);
+                if (this.currentStatus !== 'all') params.set('status', this.currentStatus);
+                if (this.currentSort !== 'created-desc') params.set('sort', this.currentSort);
+                if (this.currentPage > 1) params.set('page', String(this.currentPage));
+                if (this.rowsPerPage !== 10) params.set('per_page', String(this.rowsPerPage));
+
+                const nextUrl = params.toString()
+                    ? `${window.location.pathname}?${params.toString()}`
+                    : window.location.pathname;
+
+                window.history.replaceState({ url: nextUrl }, '', nextUrl);
             }
 
             tableSkeletonMarkup(rows = 5) {

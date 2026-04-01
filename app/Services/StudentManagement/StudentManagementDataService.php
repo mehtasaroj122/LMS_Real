@@ -118,7 +118,7 @@ class StudentManagementDataService
             'status' => strtolower((string) ($filters['status'] ?? 'all')),
             'sort' => strtolower((string) ($filters['sort'] ?? 'created-desc')),
             'page' => max(1, (int) ($filters['page'] ?? 1)),
-            'per_page' => max(5, min(50, (int) ($filters['per_page'] ?? 10))),
+            'per_page' => max(5, min(100, (int) ($filters['per_page'] ?? 10))),
         ];
     }
 

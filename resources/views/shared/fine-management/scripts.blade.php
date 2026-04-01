@@ -22,6 +22,7 @@
         const finesManager = {
             config: fineManagementConfig,
             state: {
+                initialSearchParams: new URLSearchParams(window.location.search),
                 instanceId: (window.crypto && typeof window.crypto.randomUUID === 'function')
                     ? window.crypto.randomUUID()
                     : `fine-${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -54,6 +55,8 @@
                     return;
                 }
 
+                this.hydrateStateFromUrl();
+                this.syncControlsFromState();
                 this.setupEventListeners();
                 this.setupRealtimeChannels();
                 this.loadFines();
@@ -66,6 +69,7 @@
                 this.elements.sortFilter = document.getElementById('sortFilter');
                 this.elements.minAmountFilter = document.getElementById('minAmountFilter');
                 this.elements.maxAmountFilter = document.getElementById('maxAmountFilter');
+                this.elements.entriesSelect = document.getElementById('fineEntriesSelect');
                 this.elements.exportButton = document.getElementById('exportFinesBtn');
                 this.elements.tbody = document.getElementById('finesTableBody');
                 this.elements.tableWrapper = document.getElementById('finesTableWrapper');
@@ -75,6 +79,7 @@
                 this.elements.paginationButtons = document.getElementById('paginationButtons');
                 this.elements.recordCount = document.getElementById('recordCount');
                 this.elements.totalCount = document.getElementById('totalCount');
+                this.elements.pageInfo = document.getElementById('pageInfo');
                 this.elements.filterSummary = document.getElementById('filterSummary');
                 this.elements.lastUpdatedLabel = document.getElementById('lastUpdatedLabel');
                 this.elements.toastContainer = document.getElementById('fineToastContainer');
@@ -105,6 +110,12 @@
 
                 this.elements.sortFilter?.addEventListener('change', (event) => {
                     this.state.sort = event.target.value;
+                    this.state.currentPage = 1;
+                    this.loadFines();
+                });
+
+                this.elements.entriesSelect?.addEventListener('change', (event) => {
+                    this.state.perPage = this.normalizePerPage(event.target.value);
                     this.state.currentPage = 1;
                     this.loadFines();
                 });
@@ -223,7 +234,19 @@
                     this.state.stats = data.stats || {};
                     this.state.pagination = data.pagination || {};
                     this.state.lastUpdatedAt = new Date();
+
+                    const lastPage = Math.max(1, Number(this.state.pagination.last_page || 1));
+                    if (this.state.currentPage > lastPage) {
+                        this.state.currentPage = lastPage;
+                        await this.loadFines({ silent: true });
+                        return;
+                    }
+
+                    this.state.currentPage = Math.max(1, Number(this.state.pagination.current_page || this.state.currentPage || 1));
+                    this.state.perPage = this.normalizePerPage(this.state.pagination.per_page || this.state.perPage);
                     this.renderAll();
+                    this.syncControlsFromState();
+                    this.updateBrowserUrl();
 
                     if (!silent) {
                         this.announce('Fine records updated.');
@@ -443,6 +466,7 @@
                 }
 
                 if (this.elements.totalCount) this.elements.totalCount.textContent = String(total);
+                if (this.elements.pageInfo) this.elements.pageInfo.textContent = `Page ${currentPage} of ${lastPage}`;
                 if (this.elements.paginationContainer) this.elements.paginationContainer.style.display = total > 0 ? 'flex' : 'none';
                 if (!this.elements.paginationButtons) return;
 
@@ -566,6 +590,50 @@
                 this.state.search = '';
                 this.state.currentPage = 1;
                 if (this.elements.searchInput) this.elements.searchInput.value = '';
+            },
+
+            hydrateStateFromUrl() {
+                const params = this.state.initialSearchParams;
+                this.state.currentPage = Math.max(1, Number(params.get('page')) || 1);
+                this.state.perPage = this.normalizePerPage(params.get('per_page'));
+                this.state.filter = String(params.get('status') || 'all').toLowerCase();
+                this.state.search = String(params.get('search') || '').trim();
+                this.state.sort = String(params.get('sort') || 'date-desc').toLowerCase();
+                this.state.minAmount = String(params.get('min_amount') || '').trim();
+                this.state.maxAmount = String(params.get('max_amount') || '').trim();
+            },
+
+            syncControlsFromState() {
+                if (this.elements.searchInput) this.elements.searchInput.value = this.state.search;
+                if (this.elements.statusFilter) this.elements.statusFilter.value = this.state.filter;
+                if (this.elements.sortFilter) this.elements.sortFilter.value = this.state.sort;
+                if (this.elements.minAmountFilter) this.elements.minAmountFilter.value = this.state.minAmount;
+                if (this.elements.maxAmountFilter) this.elements.maxAmountFilter.value = this.state.maxAmount;
+                if (this.elements.entriesSelect) this.elements.entriesSelect.value = String(this.state.perPage);
+            },
+
+            normalizePerPage(value) {
+                const allowedValues = [10, 20, 50, 100];
+                const parsed = Number(value);
+                return allowedValues.includes(parsed) ? parsed : 10;
+            },
+
+            updateBrowserUrl() {
+                const params = new URLSearchParams();
+
+                if (this.state.search) params.set('search', this.state.search);
+                if (this.state.filter !== 'all') params.set('status', this.state.filter);
+                if (this.state.sort !== 'date-desc') params.set('sort', this.state.sort);
+                if (this.state.minAmount) params.set('min_amount', this.state.minAmount);
+                if (this.state.maxAmount) params.set('max_amount', this.state.maxAmount);
+                if (this.state.currentPage > 1) params.set('page', String(this.state.currentPage));
+                if (this.state.perPage !== 10) params.set('per_page', String(this.state.perPage));
+
+                const nextUrl = params.toString()
+                    ? `${window.location.pathname}?${params.toString()}`
+                    : window.location.pathname;
+
+                window.history.replaceState({ url: nextUrl }, '', nextUrl);
             },
 
             markAsPaid(fineId) {

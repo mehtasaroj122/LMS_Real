@@ -54,7 +54,7 @@ class StudentController extends Controller
         $status = $request->get('status', 'all');
         $sort = $request->get('sort', 'created-desc');
         $page = $request->get('page', 1);
-        $perPage = 10;
+        $perPage = $this->normalizeAdminPerPage($request->get('per_page', 10));
 
         $students = $dataService->getPaginatedStudents([
             'search' => $search,
@@ -118,7 +118,7 @@ class StudentController extends Controller
         }
 
         // Generate pagination HTML
-        $paginationHtml = $students->links()->toHtml();
+        $paginationHtml = view('shared.admin-table-pagination', ['paginator' => $students])->render();
 
         return response()->json([
             'success' => true,
@@ -128,6 +128,14 @@ class StudentController extends Controller
             'current_page' => $students->currentPage(),
             'last_page' => $students->lastPage(),
         ]);
+    }
+
+    private function normalizeAdminPerPage($value): int
+    {
+        $allowedValues = [10, 20, 50, 100];
+        $perPage = (int) $value;
+
+        return in_array($perPage, $allowedValues, true) ? $perPage : 10;
     }
 
     /**

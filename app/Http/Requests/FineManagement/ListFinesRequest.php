@@ -53,7 +53,7 @@ class ListFinesRequest extends FormRequest
             'min_amount' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'max_amount' => ['nullable', 'numeric', 'min:0', 'max:999999.99', 'gte:min_amount'],
             'page' => ['nullable', 'integer', 'min:1'],
-            'per_page' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ];
     }
 

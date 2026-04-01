@@ -13,7 +13,7 @@
                 <p class="mt-2 text-muted">Manage locked accounts and rate limiting settings</p>
             </div>
             <div class="col-md-4 text-end">
-                @if (count($lockedAccounts) > 0)
+                @if ($lockedAccounts->total() > 0)
                     <form action="{{ route('admin.account-locks.unlock-all') }}" method="POST" class="d-inline">
                         @csrf
                         <input type="hidden" name="confirm" value="1">
@@ -48,11 +48,31 @@
                     <div class="card-header bg-light">
                         <h5 class="mb-0 card-title">
                             <i class="fas fa-lock-open text-danger"></i>
-                            Locked Accounts ({{ count($lockedAccounts) }})
+                            Locked Accounts ({{ $lockedAccounts->total() }})
                         </h5>
                     </div>
                     <div class="card-body">
-                        @if (count($lockedAccounts) > 0)
+                        <form method="GET" class="account-lock-filter-bar">
+                            <div class="account-lock-search">
+                                <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control"
+                                    placeholder="Search by user, email, role, or IP">
+                            </div>
+                            <label class="admin-table-entries-control" for="accountLocksPerPage">
+                                <span>Show</span>
+                                <select id="accountLocksPerPage" name="per_page" class="admin-table-entries-select" onchange="this.form.submit()">
+                                    @foreach ([10, 20, 50, 100] as $entryCount)
+                                        <option value="{{ $entryCount }}" {{ (int) ($perPage ?? 10) === $entryCount ? 'selected' : '' }}>{{ $entryCount }}</option>
+                                    @endforeach
+                                </select>
+                                <span>entries</span>
+                            </label>
+                            <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                            @if (!empty($search))
+                                <a href="{{ route('admin.account-locks.index') }}" class="btn btn-outline-secondary btn-sm">Reset</a>
+                            @endif
+                        </form>
+
+                        @if ($lockedAccounts->total() > 0)
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead class="table-light">
@@ -112,9 +132,13 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="mt-3">
+                                {!! view('shared.admin-table-pagination', ['paginator' => $lockedAccounts])->render() !!}
+                            </div>
                         @else
                             <div class="mb-0 alert alert-info">
-                                <i class="fas fa-check-circle"></i> No locked accounts at the moment. System is secure!
+                                <i class="fas fa-check-circle"></i>
+                                {{ !empty($search) ? 'No locked accounts match the current search.' : 'No locked accounts at the moment. System is secure!' }}
                             </div>
                         @endif
                     </div>
@@ -213,6 +237,29 @@
     </div>
 
     <style>
+        .account-lock-filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .account-lock-search {
+            flex: 1 1 260px;
+            min-width: 220px;
+        }
+
+        body.dark-theme .account-lock-search .form-control {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #f8fafc;
+        }
+
+        body.dark-theme .account-lock-search .form-control::placeholder {
+            color: #94a3b8;
+        }
+
         .table-hover tbody tr:hover {
             background-color: rgba(0, 0, 0, 0.02);
         }
@@ -222,6 +269,11 @@
             padding: 2px 6px;
             border-radius: 3px;
             color: #d63384;
+        }
+
+        body.dark-theme code {
+            background-color: #0f172a;
+            color: #f472b6;
         }
     </style>
 @endsection

@@ -9,21 +9,41 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class AccountLockController extends \App\Http\Controllers\Controller
 {
     /**
      * Show locked accounts list
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        // Get all locked accounts from cache table
+        $search = trim((string) $request->input('search', ''));
+        $perPage = $this->normalizeAdminPerPage($request->input('per_page', 10));
+        $page = max(1, (int) $request->input('page', 1));
+
         $lockedAccounts = $this->getLockedAccounts();
+        $lockedAccounts = $this->filterLockedAccounts($lockedAccounts, $search);
+        $totalLockedAccounts = count($lockedAccounts);
+        $offset = ($page - 1) * $perPage;
+
+        $lockedAccounts = new LengthAwarePaginator(
+            array_slice($lockedAccounts, $offset, $perPage),
+            $totalLockedAccounts,
+            $perPage,
+            $page,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
 
         return view('admin.account-locks.index', [
             'lockedAccounts' => $lockedAccounts,
             'lockoutDuration' => config('security.rate_limiting.lockout_duration', 60),
             'maxAttempts' => config('security.rate_limiting.max_attempts', 5),
+            'search' => $search,
+            'perPage' => $perPage,
         ]);
     }
 
@@ -179,6 +199,39 @@ class AccountLockController extends \App\Http\Controllers\Controller
         DB::table('cache')
             ->where('key', 'like', '%throttle|' . strtolower($email) . '%')
             ->delete();
+    }
+
+    protected function filterLockedAccounts(array $lockedAccounts, string $search): array
+    {
+        if ($search === '') {
+            return $lockedAccounts;
+        }
+
+        $needle = strtolower($search);
+
+        return array_values(array_filter($lockedAccounts, function (array $account) use ($needle) {
+            $ipAddresses = collect($account['ips'] ?? [])
+                ->pluck('ip')
+                ->filter()
+                ->implode(' ');
+
+            $haystack = strtolower(implode(' ', [
+                $account['email'] ?? '',
+                $account['user']?->name ?? '',
+                $account['user']?->role ?? '',
+                $ipAddresses,
+            ]));
+
+            return str_contains($haystack, $needle);
+        }));
+    }
+
+    protected function normalizeAdminPerPage($value): int
+    {
+        $allowedValues = [10, 20, 50, 100];
+        $perPage = (int) $value;
+
+        return in_array($perPage, $allowedValues, true) ? $perPage : 10;
     }
 
     /**

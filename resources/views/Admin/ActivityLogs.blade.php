@@ -963,6 +963,16 @@
                     </select>
                 </div>
 
+                <div class="activity-filter-group">
+                    <select id="per_page" name="per_page" class="filter-select" aria-label="Show activity entries">
+                        @foreach ([10, 20, 50, 100] as $entryCount)
+                            <option value="{{ $entryCount }}" {{ (int) request('per_page', 10) === $entryCount ? 'selected' : '' }}>
+                                Show {{ $entryCount }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <button id="resetFiltersBtn" type="button" class="activity-reset-btn">
                     <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                     <span>Reset</span>
@@ -1097,9 +1107,9 @@
                 </table>
             </div>
 
-            @if ($activities->hasPages())
+            @if ($activities->total() > 0)
                 <div class="pagination-container">
-                    {{ $activities->links() }}
+                    {!! view('shared.admin-table-pagination', ['paginator' => $activities])->render() !!}
                 </div>
             @endif
         </div>
@@ -1163,6 +1173,7 @@
                 roleFilter: asyncRoot.querySelector('#role'),
                 periodFilter: asyncRoot.querySelector('#period'),
                 actionCategoryFilter: asyncRoot.querySelector('#action_category'),
+                perPageFilter: asyncRoot.querySelector('#per_page'),
             });
 
             const buildFilterUrl = () => {
@@ -1170,7 +1181,8 @@
                     searchInput,
                     roleFilter,
                     periodFilter,
-                    actionCategoryFilter
+                    actionCategoryFilter,
+                    perPageFilter
                 } = getControls();
 
                 const params = new URLSearchParams();
@@ -1189,6 +1201,10 @@
 
                 if (actionCategoryFilter && actionCategoryFilter.value) {
                     params.set('action_category', actionCategoryFilter.value);
+                }
+
+                if (perPageFilter && perPageFilter.value) {
+                    params.set('per_page', perPageFilter.value);
                 }
 
                 const query = params.toString();
@@ -1314,7 +1330,7 @@
             });
 
             asyncRoot.addEventListener('change', function(event) {
-                if (!['role', 'period', 'action_category'].includes(event.target.id)) {
+                if (!['role', 'period', 'action_category', 'per_page'].includes(event.target.id)) {
                     return;
                 }
 
@@ -1334,7 +1350,7 @@
                     return;
                 }
 
-                const paginationLink = event.target.closest('.pagination a, nav[role="navigation"] a');
+                const paginationLink = event.target.closest('.admin-table-pagination a');
                 if (paginationLink && asyncRoot.contains(paginationLink)) {
                     event.preventDefault();
                     fetchAndRender(paginationLink.href, {

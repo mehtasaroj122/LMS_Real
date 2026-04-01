@@ -1368,29 +1368,39 @@
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search by name, email, username...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by name, email, username..." value="{{ $search ?? '' }}">
                 </div>
 
                 <div class="filters-container">
                     <select class="filter-select" id="roleFilter">
-                        <option value="all">All Roles</option>
-                        <option value="admin">Admin</option>
-                        <option value="staff">Staff</option>
-                        <option value="student">Student</option>
+                        <option value="all" {{ ($role ?? 'all') === 'all' ? 'selected' : '' }}>All Roles</option>
+                        <option value="admin" {{ ($role ?? 'all') === 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="staff" {{ ($role ?? 'all') === 'staff' ? 'selected' : '' }}>Staff</option>
+                        <option value="student" {{ ($role ?? 'all') === 'student' ? 'selected' : '' }}>Student</option>
                     </select>
 
                     <select class="filter-select" id="statusFilter">
-                        <option value="all">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
+                        <option value="all" {{ ($status ?? 'all') === 'all' ? 'selected' : '' }}>All Status</option>
+                        <option value="active" {{ ($status ?? 'all') === 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ ($status ?? 'all') === 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
 
                     <select class="filter-select" id="sortFilter">
-                        <option value="recently-added">Recently Added</option>
-                        <option value="name-asc">Name (A-Z)</option>
-                        <option value="name-desc">Name (Z-A)</option>
+                        <option value="recently-added" {{ ($sort ?? 'recently-added') === 'recently-added' ? 'selected' : '' }}>Recently Added</option>
+                        <option value="name-asc" {{ ($sort ?? 'recently-added') === 'name-asc' ? 'selected' : '' }}>Name (A-Z)</option>
+                        <option value="name-desc" {{ ($sort ?? 'recently-added') === 'name-desc' ? 'selected' : '' }}>Name (Z-A)</option>
                     </select>
                 </div>
+
+                <label class="admin-table-entries-control" for="usersEntriesSelect">
+                    <span>Show</span>
+                    <select class="admin-table-entries-select" id="usersEntriesSelect" aria-label="Show user entries">
+                        @foreach ([10, 20, 50, 100] as $entryCount)
+                            <option value="{{ $entryCount }}" {{ (int) ($perPage ?? 10) === $entryCount ? 'selected' : '' }}>{{ $entryCount }}</option>
+                        @endforeach
+                    </select>
+                    <span>entries</span>
+                </label>
 
                 <div class="search-add-wrapper">
                     <button class="btn btn-primary" id="addUserBtn">
@@ -1422,7 +1432,7 @@
                     </table>
                 </div>
                 <div id="paginationContainer" class="mt-4">
-                    {{ $users->links() }}
+                    {!! view('shared.admin-table-pagination', ['paginator' => $users])->render() !!}
                 </div>
             </div>
         </div>
@@ -2484,12 +2494,13 @@
                 this.currentUserId = null;
                 this.currentUserRow = null;
                 this.loggedInUserId = Number(userManagementRoot?.dataset.authUserId || 0);
-                this.perPage = 15;
+                const searchParams = new URLSearchParams(window.location.search);
+                this.perPage = this.normalizePerPage(searchParams.get('per_page'));
                 this.currentPage = Number(new URLSearchParams(window.location.search).get('page')) || 1;
-                this.currentStatusFilter = 'all';
-                this.currentRoleFilter = 'all';
-                this.currentSortFilter = 'recently-added';
-                this.currentSearch = '';
+                this.currentStatusFilter = searchParams.get('status') || 'all';
+                this.currentRoleFilter = searchParams.get('role') || 'all';
+                this.currentSortFilter = searchParams.get('sort') || 'recently-added';
+                this.currentSearch = searchParams.get('search') || '';
                 this.searchTimeout = null;
                 this.init();
             }
@@ -2510,6 +2521,8 @@
                 // Initialize filter tabs (AJAX-BASED)
                 this.initFilters();
 
+                this.syncControlsFromState();
+
                 // Initialize table action buttons
                 this.initTableActions();
 
@@ -2518,6 +2531,10 @@
 
                 // Initialize pagination click handlers
                 this.initPagination();
+
+                if (this.currentSearch || this.currentStatusFilter !== 'all' || this.currentRoleFilter !== 'all') {
+                    this.refreshStats();
+                }
             }
 
             initValidators() {
@@ -2619,6 +2636,15 @@
                         this.fetchUsersData(1);
                     });
                 }
+
+                const entriesSelect = document.getElementById('usersEntriesSelect');
+                if (entriesSelect) {
+                    entriesSelect.addEventListener('change', (e) => {
+                        this.perPage = this.normalizePerPage(e.target.value);
+                        this.currentPage = 1;
+                        this.fetchUsersData(1);
+                    });
+                }
             }
 
             /**
@@ -2659,7 +2685,8 @@
                     status: this.currentStatusFilter,
                     role: this.currentRoleFilter,
                     sort: this.currentSortFilter,
-                    page: page
+                    page: page,
+                    per_page: this.perPage
                 });
 
                 fetch(`/admin/users/data?${params.toString()}`, {
@@ -2677,6 +2704,13 @@
                         console.log('Users data received:', data);
 
                         if (data.success) {
+                            if (Number(page) > Number(data.last_page || 1)) {
+                                this.fetchUsersData(data.last_page || 1);
+                                return;
+                            }
+
+                            this.currentPage = Number(data.current_page || page) || 1;
+
                             // Update table rows
                             tableBody.innerHTML = data.tableRows;
 
@@ -2690,6 +2724,8 @@
                             if (data.stats) {
                                 this.updateStats(data.stats);
                             }
+
+                            this.syncUrlState();
 
                             // Re-initialize table actions for new rows
                             this.initTableActions();
@@ -2781,7 +2817,8 @@
                     status: this.currentStatusFilter,
                     role: this.currentRoleFilter,
                     sort: this.currentSortFilter,
-                    page: this.currentPage
+                    page: this.currentPage,
+                    per_page: this.perPage
                 });
 
                 fetch(`/admin/users/data?${params.toString()}`, {
@@ -2805,6 +2842,43 @@
                     .catch(error => {
                         console.error('Error refreshing pagination:', error);
                     });
+            }
+
+            syncControlsFromState() {
+                const searchInput = document.getElementById('searchInput');
+                const roleFilter = document.getElementById('roleFilter');
+                const statusFilter = document.getElementById('statusFilter');
+                const sortFilter = document.getElementById('sortFilter');
+                const entriesSelect = document.getElementById('usersEntriesSelect');
+
+                if (searchInput) searchInput.value = this.currentSearch;
+                if (roleFilter) roleFilter.value = this.currentRoleFilter;
+                if (statusFilter) statusFilter.value = this.currentStatusFilter;
+                if (sortFilter) sortFilter.value = this.currentSortFilter;
+                if (entriesSelect) entriesSelect.value = String(this.perPage);
+            }
+
+            syncUrlState() {
+                const params = new URLSearchParams();
+
+                if (this.currentSearch) params.set('search', this.currentSearch);
+                if (this.currentStatusFilter !== 'all') params.set('status', this.currentStatusFilter);
+                if (this.currentRoleFilter !== 'all') params.set('role', this.currentRoleFilter);
+                if (this.currentSortFilter !== 'recently-added') params.set('sort', this.currentSortFilter);
+                if (this.currentPage > 1) params.set('page', String(this.currentPage));
+                if (this.perPage !== 10) params.set('per_page', String(this.perPage));
+
+                const nextUrl = params.toString()
+                    ? `${window.location.pathname}?${params.toString()}`
+                    : window.location.pathname;
+
+                window.history.replaceState({ url: nextUrl }, '', nextUrl);
+            }
+
+            normalizePerPage(value) {
+                const allowedValues = [10, 20, 50, 100];
+                const perPage = Number(value);
+                return allowedValues.includes(perPage) ? perPage : 10;
             }
 
             /**

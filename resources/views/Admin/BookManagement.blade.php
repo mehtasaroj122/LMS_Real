@@ -1611,6 +1611,16 @@
                     </select>
                 </div>
 
+                <label class="admin-table-entries-control" for="booksEntriesSelect">
+                    <span>Show</span>
+                    <select class="admin-table-entries-select" id="booksEntriesSelect" aria-label="Show book entries">
+                        @foreach ([10, 20, 50, 100] as $entryCount)
+                            <option value="{{ $entryCount }}" {{ (int) ($perPage ?? 10) === $entryCount ? 'selected' : '' }}>{{ $entryCount }}</option>
+                        @endforeach
+                    </select>
+                    <span>entries</span>
+                </label>
+
                 <div class="search-add-wrapper">
                     <button class="btn btn-primary" id="addBookBtn">
                         <i class="fas fa-plus"></i>
@@ -1743,8 +1753,8 @@
                 </div>
 
                 <!-- Pagination Container -->
-                <div id="paginationContainer" style="display: {{ $initialBooks->lastPage() > 1 ? 'block' : 'none' }};">
-                    {!! $initialBooks->links()->toHtml() !!}
+                <div id="paginationContainer" style="display: {{ $initialBooks->total() > 0 ? 'block' : 'none' }};">
+                    {!! view('shared.admin-table-pagination', ['paginator' => $initialBooks])->render() !!}
                 </div>
             </div>
         </div>
@@ -2082,8 +2092,9 @@
                 this.searchDebounceTimer = null;
                 this.storageBase = '{{ asset('storage') }}';
                 this.allBooks = [];
-                this.currentPage = Number(new URLSearchParams(window.location.search).get('page')) || 1;
-                this.perPage = 15;
+                const searchParams = new URLSearchParams(window.location.search);
+                this.currentPage = Number(searchParams.get('page')) || 1;
+                this.perPage = this.normalizePerPage(searchParams.get('per_page'));
                 this.bookFormStates = {
                     addBookForm: { pending: new Set(), verified: {}, activeErrorField: null },
                     editBookForm: { pending: new Set(), verified: {}, activeErrorField: null },
@@ -2097,6 +2108,7 @@
                 this.currentCategoryFilter = document.getElementById('categoryFilter')?.value || 'all';
                 this.currentAvailabilityFilter = document.getElementById('availabilityFilter')?.value || 'all';
                 this.currentSortFilter = document.getElementById('sortFilter')?.value || 'recently-added';
+                this.perPage = this.normalizePerPage(document.getElementById('booksEntriesSelect')?.value || this.perPage);
             }
 
             init() {
@@ -2915,6 +2927,15 @@
                         this.fetchBooksData(1);
                     });
                 }
+
+                const entriesSelect = document.getElementById('booksEntriesSelect');
+                if (entriesSelect) {
+                    entriesSelect.addEventListener('change', (e) => {
+                        this.perPage = this.normalizePerPage(e.target.value);
+                        this.currentPage = 1;
+                        this.fetchBooksData(1);
+                    });
+                }
             }
 
             initSearch() {
@@ -2948,7 +2969,8 @@
                     category: category,
                     availability: availability,
                     sort: sort,
-                    page: requestedPage
+                    page: requestedPage,
+                    per_page: this.perPage
                 });
 
                 if (tableBody) {
@@ -2978,6 +3000,7 @@
                         }
 
                         this.currentPage = Number(data.current_page) || requestedPage;
+                        this.perPage = this.normalizePerPage(this.perPage);
 
                         try {
                             if (data.total === 0) {
@@ -2988,7 +3011,7 @@
                                 tableBody.innerHTML = data.tableRows || '';
                                 emptyState.style.display = 'none';
 
-                                if (data.pagination && Number(data.last_page) > 1) {
+                                if (data.pagination) {
                                     paginationContainer.innerHTML = data.pagination;
                                     paginationContainer.style.display = 'block';
                                     this.setupPaginationListeners();
@@ -3001,6 +3024,8 @@
                         } catch (renderError) {
                             console.error('Error rendering books table:', renderError);
                         }
+
+                        this.syncUrlState();
 
                         try {
                             if (data.stats) {
@@ -3030,6 +3055,30 @@
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     });
                 });
+            }
+
+            syncUrlState() {
+                const params = new URLSearchParams();
+
+                if (this.currentSearch) params.set('search', this.currentSearch);
+                if (this.currentConditionFilter !== 'all') params.set('condition', this.currentConditionFilter);
+                if (this.currentCategoryFilter !== 'all') params.set('category', this.currentCategoryFilter);
+                if (this.currentAvailabilityFilter !== 'all') params.set('availability', this.currentAvailabilityFilter);
+                if (this.currentSortFilter !== 'recently-added') params.set('sort', this.currentSortFilter);
+                if (this.currentPage > 1) params.set('page', String(this.currentPage));
+                if (this.perPage !== 10) params.set('per_page', String(this.perPage));
+
+                const nextUrl = params.toString()
+                    ? `${window.location.pathname}?${params.toString()}`
+                    : window.location.pathname;
+
+                window.history.replaceState({ url: nextUrl }, '', nextUrl);
+            }
+
+            normalizePerPage(value) {
+                const allowedValues = [10, 20, 50, 100];
+                const perPage = Number(value);
+                return allowedValues.includes(perPage) ? perPage : 10;
             }
 
             attachTableEventListeners() {

@@ -307,6 +307,7 @@
         gap: 0.5rem;
         margin-left: auto;
     }
+
     .book-request-page .request-btn,
     .book-request-page .request-action-btn,
     .book-request-page .request-modal-btn,
@@ -676,9 +677,22 @@
         padding: 0.1rem 0.1rem 0;
     }
 
+    .book-request-page .request-pagination-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+    }
+
     .book-request-page .request-pagination-info {
         font-size: 0.75rem;
         color: var(--request-text-secondary);
+    }
+
+    .book-request-page .request-pagination-page {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--request-text-primary);
     }
 
     .book-request-page .request-pagination-buttons {
@@ -1188,9 +1202,13 @@
             align-items: stretch;
         }
 
+        .book-request-page .request-entries-control,
         .book-request-page .request-toolbar-actions {
             margin-left: 0;
             width: 100%;
+        }
+
+        .book-request-page .request-toolbar-actions {
             justify-content: flex-end;
         }
     }

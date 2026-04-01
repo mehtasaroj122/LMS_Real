@@ -395,6 +395,10 @@
         font-weight: 600;
     }
 
+    .fine-page .fine-entries-control {
+        align-self: center;
+    }
+
     .fine-page .fines-table-container {
         border-radius: 8px;
         overflow: hidden;
@@ -783,10 +787,23 @@
         border-radius: 0.5rem;
     }
 
+    .fine-page .pagination-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex-wrap: wrap;
+    }
+
     .fine-page .pagination-info {
         font-size: 0.75rem;
         color: var(--fine-text-secondary);
         font-weight: 500;
+    }
+
+    .fine-page .pagination-page {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--fine-text-primary);
     }
 
     .fine-page .pagination-buttons {
@@ -833,6 +850,13 @@
     .fine-page .pagination-ellipsis {
         padding: 0.5rem 0.25rem;
         color: var(--fine-text-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .fine-page .pagination-container {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 
     .fine-page .modal-backdrop {

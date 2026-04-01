@@ -43,7 +43,7 @@ class FineManagementDataService
             'min_amount' => $this->normalizeNumericFilter($filters['min_amount'] ?? null),
             'max_amount' => $this->normalizeNumericFilter($filters['max_amount'] ?? null),
             'page' => max(1, (int) ($filters['page'] ?? 1)),
-            'per_page' => max(1, min(50, (int) ($filters['per_page'] ?? 10))),
+            'per_page' => max(1, min(100, (int) ($filters['per_page'] ?? 10))),
         ];
     }
 

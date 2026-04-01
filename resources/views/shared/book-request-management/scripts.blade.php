@@ -206,16 +206,17 @@
 
         class BookRequestManager {
             constructor(config) {
+                const searchParams = new URLSearchParams(window.location.search);
                 this.config = config;
                 this.elements = {};
                 this.studentSelect = null;
                 this.bookSelect = null;
                 this.state = {
-                    currentPage: 1,
-                    perPage: 10,
-                    search: '',
-                    status: 'all',
-                    sort: 'date-desc',
+                    currentPage: Math.max(1, Number(searchParams.get('page')) || 1),
+                    perPage: this.normalizePerPage(searchParams.get('per_page')),
+                    search: String(searchParams.get('search') || '').trim(),
+                    status: String(searchParams.get('status') || 'all').toLowerCase(),
+                    sort: String(searchParams.get('sort') || 'date-desc').toLowerCase(),
                     requests: [],
                     stats: {},
                     pagination: {},
@@ -246,6 +247,7 @@
                 this.elements.searchInput = document.getElementById('requestSearchInput');
                 this.elements.statusFilter = document.getElementById('requestStatusFilter');
                 this.elements.sortFilter = document.getElementById('requestSortFilter');
+                this.elements.entriesSelect = document.getElementById('requestEntriesSelect');
                 this.elements.resetButton = document.getElementById('requestResetFiltersBtn');
                 this.elements.createButton = document.getElementById('createRequestBtn');
                 this.elements.tableWrapper = document.getElementById('requestsTableWrapper');
@@ -257,6 +259,7 @@
                 this.elements.paginationButtons = document.getElementById('requestPaginationButtons');
                 this.elements.recordCount = document.getElementById('requestRecordCount');
                 this.elements.totalCount = document.getElementById('requestTotalCount');
+                this.elements.pageInfo = document.getElementById('requestPageInfo');
                 this.elements.statCards = Array.from(document.querySelectorAll('[data-stat-card]'));
                 this.elements.createModal = document.getElementById('createRequestModal');
                 this.elements.studentFieldError = document.getElementById('studentFieldError');
@@ -292,6 +295,8 @@
             }
 
             setupEventListeners() {
+                this.syncControlsFromState();
+
                 this.elements.searchInput?.addEventListener('input', (event) => {
                     this.state.search = event.target.value.trim();
                     this.state.currentPage = 1;
@@ -306,6 +311,12 @@
 
                 this.elements.sortFilter?.addEventListener('change', (event) => {
                     this.state.sort = event.target.value;
+                    this.state.currentPage = 1;
+                    this.loadRequests();
+                });
+
+                this.elements.entriesSelect?.addEventListener('change', (event) => {
+                    this.state.perPage = this.normalizePerPage(event.target.value);
                     this.state.currentPage = 1;
                     this.loadRequests();
                 });
@@ -409,7 +420,11 @@
                         return;
                     }
 
+                    this.state.currentPage = Math.max(1, Number(this.state.pagination.current_page || this.state.currentPage || 1));
+                    this.state.perPage = this.normalizePerPage(this.state.pagination.per_page || this.state.perPage);
                     this.renderAll();
+                    this.syncControlsFromState();
+                    this.updateBrowserUrl();
 
                     if (!silent) {
                         this.announce('Book requests updated.');
@@ -611,6 +626,9 @@
                 const currentPage = Math.max(1, Number(this.state.pagination.current_page || this.state.currentPage || 1));
                 const lastPage = Math.max(1, Number(this.state.pagination.last_page || 1));
                 this.elements.paginationButtons.innerHTML = '';
+                if (this.elements.pageInfo) {
+                    this.elements.pageInfo.textContent = `Page ${currentPage} of ${lastPage}`;
+                }
 
                 this.elements.paginationButtons.appendChild(this.buildPaginationButton(currentPage - 1, svgIcons.prev, currentPage === 1, 'Previous page'));
 
@@ -661,6 +679,35 @@
                 this.state.sort = 'date-desc';
                 this.state.currentPage = 1;
                 this.loadRequests();
+            }
+
+            syncControlsFromState() {
+                if (this.elements.searchInput) this.elements.searchInput.value = this.state.search;
+                if (this.elements.statusFilter) this.elements.statusFilter.value = this.state.status;
+                if (this.elements.sortFilter) this.elements.sortFilter.value = this.state.sort;
+                if (this.elements.entriesSelect) this.elements.entriesSelect.value = String(this.state.perPage);
+            }
+
+            normalizePerPage(value) {
+                const allowedValues = [10, 20, 50, 100];
+                const parsed = Number(value);
+                return allowedValues.includes(parsed) ? parsed : 10;
+            }
+
+            updateBrowserUrl() {
+                const params = new URLSearchParams();
+
+                if (this.state.search) params.set('search', this.state.search);
+                if (this.state.status !== 'all') params.set('status', this.state.status);
+                if (this.state.sort !== 'date-desc') params.set('sort', this.state.sort);
+                if (this.state.currentPage > 1) params.set('page', String(this.state.currentPage));
+                if (this.state.perPage !== 10) params.set('per_page', String(this.state.perPage));
+
+                const nextUrl = params.toString()
+                    ? `${window.location.pathname}?${params.toString()}`
+                    : window.location.pathname;
+
+                window.history.replaceState({ url: nextUrl }, '', nextUrl);
             }
 
             openCreateModal() {
