@@ -1379,6 +1379,382 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
+    .transaction-visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .transaction-toast-container {
+        position: fixed;
+        top: 88px;
+        right: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: min(360px, calc(100vw - 32px));
+        z-index: 2100;
+        pointer-events: none;
+    }
+
+    .transaction-toast {
+        position: relative;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 14px;
+        padding: 16px 18px 18px;
+        border-radius: 18px;
+        overflow: hidden;
+        pointer-events: auto;
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(12px);
+        color: #ffffff;
+        animation: transactionToastIn 0.24s ease;
+    }
+
+    .transaction-toast.is-leaving {
+        animation: transactionToastOut 0.18s ease forwards;
+    }
+
+    .transaction-toast.success {
+        background: linear-gradient(135deg, rgba(22, 163, 74, 0.96), rgba(5, 150, 105, 0.94));
+    }
+
+    .transaction-toast.error {
+        background: linear-gradient(135deg, rgba(220, 38, 38, 0.97), rgba(190, 24, 93, 0.94));
+    }
+
+    .transaction-toast.warning {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.97), rgba(217, 119, 6, 0.94));
+    }
+
+    .transaction-toast.info {
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.97), rgba(79, 70, 229, 0.94));
+    }
+
+    .transaction-toast-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.14);
+        font-size: 18px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    }
+
+    .transaction-toast-copy {
+        min-width: 0;
+    }
+
+    .transaction-toast-title {
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .transaction-toast-message {
+        margin-top: 2px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.96);
+    }
+
+    .transaction-toast-detail {
+        margin-top: 6px;
+        font-size: 11px;
+        line-height: 1.4;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.78);
+    }
+
+    .transaction-toast-close {
+        appearance: none;
+        border: 0;
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .transaction-toast-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+    }
+
+    .transaction-toast-progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.18);
+    }
+
+    .transaction-toast-progress::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.92);
+        transform-origin: left center;
+        animation: transactionToastProgress 4.2s linear forwards;
+    }
+
+    .transaction-confirm-overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.58);
+        backdrop-filter: blur(8px);
+        z-index: 2050;
+    }
+
+    .transaction-confirm-overlay.active {
+        display: flex;
+    }
+
+    .transaction-confirm-card {
+        width: min(440px, 100%);
+        padding: 24px;
+        border-radius: 24px;
+        border: 1px solid;
+        box-shadow: 0 28px 60px rgba(15, 23, 42, 0.26);
+        transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.light-theme .transaction-confirm-card {
+        background: rgba(255, 255, 255, 0.97);
+        border-color: rgba(226, 232, 240, 0.95);
+        color: #0f172a;
+    }
+
+    body.dark-theme .transaction-confirm-card {
+        background: rgba(15, 23, 42, 0.96);
+        border-color: rgba(71, 85, 105, 0.88);
+        color: #e2e8f0;
+    }
+
+    .transaction-confirm-header {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .transaction-confirm-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 22px;
+    }
+
+    .transaction-confirm-icon.primary {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1d4ed8;
+    }
+
+    body.dark-theme .transaction-confirm-icon.primary {
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.85), rgba(30, 64, 175, 0.55));
+        color: #bfdbfe;
+    }
+
+    .transaction-confirm-icon.success {
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        color: #166534;
+    }
+
+    body.dark-theme .transaction-confirm-icon.success {
+        background: linear-gradient(135deg, rgba(20, 83, 45, 0.85), rgba(21, 128, 61, 0.55));
+        color: #bbf7d0;
+    }
+
+    .transaction-confirm-icon.warning {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #b45309;
+    }
+
+    body.dark-theme .transaction-confirm-icon.warning {
+        background: linear-gradient(135deg, rgba(120, 53, 15, 0.85), rgba(180, 83, 9, 0.55));
+        color: #fcd34d;
+    }
+
+    .transaction-confirm-icon.danger {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #b91c1c;
+    }
+
+    body.dark-theme .transaction-confirm-icon.danger {
+        background: linear-gradient(135deg, rgba(127, 29, 29, 0.85), rgba(127, 29, 29, 0.55));
+        color: #fca5a5;
+    }
+
+    .transaction-confirm-title {
+        margin: 2px 0 6px;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .transaction-confirm-copy p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    body.light-theme .transaction-confirm-copy p {
+        color: #475569;
+    }
+
+    body.dark-theme .transaction-confirm-copy p {
+        color: #94a3b8;
+    }
+
+    .transaction-confirm-detail {
+        margin-top: 14px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+
+    body.light-theme .transaction-confirm-detail {
+        background: #f8fafc;
+        color: #475569;
+    }
+
+    body.dark-theme .transaction-confirm-detail {
+        background: rgba(30, 41, 59, 0.85);
+        color: #cbd5e1;
+    }
+
+    .transaction-confirm-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .transaction-confirm-btn {
+        appearance: none;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        min-width: 132px;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .transaction-confirm-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .transaction-confirm-btn.secondary {
+        background: transparent;
+    }
+
+    body.light-theme .transaction-confirm-btn.secondary {
+        border-color: #cbd5e1;
+        color: #334155;
+    }
+
+    body.dark-theme .transaction-confirm-btn.secondary {
+        border-color: #475569;
+        color: #e2e8f0;
+    }
+
+    .transaction-confirm-btn.primary {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #ffffff;
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.24);
+    }
+
+    .transaction-confirm-btn.success {
+        background: linear-gradient(135deg, #16a34a, #059669);
+        color: #ffffff;
+        box-shadow: 0 12px 24px rgba(22, 163, 74, 0.24);
+    }
+
+    .transaction-confirm-btn.warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+        box-shadow: 0 12px 24px rgba(217, 119, 6, 0.24);
+    }
+
+    .transaction-confirm-btn.danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: #ffffff;
+        box-shadow: 0 12px 24px rgba(220, 38, 38, 0.24);
+    }
+
+    .transaction-confirm-btn:disabled {
+        opacity: 0.7;
+        cursor: wait;
+        transform: none;
+    }
+
+    @keyframes transactionToastIn {
+        from {
+            opacity: 0;
+            transform: translate3d(20px, -8px, 0) scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+    }
+
+    @keyframes transactionToastOut {
+        from {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: translate3d(18px, -4px, 0) scale(0.98);
+        }
+    }
+
+    @keyframes transactionToastProgress {
+        from {
+            transform: scaleX(1);
+        }
+
+        to {
+            transform: scaleX(0);
+        }
+    }
+
     .issue-alert-stack {
         position: fixed;
         top: 24px;
@@ -1657,6 +2033,27 @@
             width: 100%;
         }
     }
+
+    @media (max-width: 1024px) {
+        .transaction-toast-container {
+            top: 76px;
+            right: 16px;
+            left: 16px;
+            width: auto;
+        }
+
+        .transaction-confirm-actions {
+            flex-wrap: wrap;
+        }
+
+        .transaction-confirm-card {
+            padding: 22px;
+        }
+
+        .transaction-confirm-btn {
+            width: 100%;
+        }
+    }
 </style>
 @endpush
 
@@ -1882,68 +2279,31 @@
     </div>
 </div>
 
-<div id="issueConfirmModal" class="issue-confirm-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="issueConfirmTitle">
-    <button type="button" class="issue-confirm-backdrop" data-issue-confirm-close aria-label="Close issue confirmation"></button>
-    <div class="issue-confirm-dialog">
-        <div class="issue-confirm-topbar">
-            <div class="issue-confirm-header">
-                <div class="issue-confirm-icon" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 6.253v13" />
-                        <path d="M12 6.253C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" />
-                        <path d="M12 6.253C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 id="issueConfirmTitle" class="issue-confirm-title">Confirm Book Issue</h3>
-                    <p class="issue-confirm-subtitle">Make sure the selected student and books look right before creating the issue record.</p>
-                </div>
+<div id="transactionConfirmModal" class="transaction-confirm-overlay" aria-hidden="true">
+    <div class="transaction-confirm-card" role="dialog" aria-modal="true" aria-labelledby="transactionConfirmTitle">
+        <div class="transaction-confirm-header">
+            <div id="transactionConfirmIconWrap" class="transaction-confirm-icon primary" aria-hidden="true">
+                <i id="transactionConfirmIcon" class="fas fa-check"></i>
             </div>
-            <button type="button" class="issue-confirm-close" data-issue-confirm-close aria-label="Close issue confirmation">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12" />
-                </svg>
+            <div class="transaction-confirm-copy">
+                <h3 id="transactionConfirmTitle" class="transaction-confirm-title">Confirm action</h3>
+                <p id="transactionConfirmMessage">Review this action before continuing.</p>
+                <div id="transactionConfirmDetail" class="transaction-confirm-detail">Details</div>
+            </div>
+        </div>
+
+        <div class="transaction-confirm-actions">
+            <button type="button" id="cancelTransactionConfirm" class="transaction-confirm-btn secondary">Cancel</button>
+            <button type="button" id="confirmTransactionConfirm" class="transaction-confirm-btn primary">
+                <i id="transactionConfirmButtonIcon" class="fas fa-check"></i>
+                <span id="transactionConfirmButtonText">Confirm</span>
             </button>
-        </div>
-
-        <div class="issue-confirm-summary">
-            <div class="issue-confirm-stat student">
-                <div class="issue-confirm-stat-label">Student</div>
-                <div id="issueConfirmStudent" class="issue-confirm-stat-value">-</div>
-            </div>
-            <div class="issue-confirm-stat">
-                <div class="issue-confirm-stat-label">Books Selected</div>
-                <div id="issueConfirmCount" class="issue-confirm-stat-value">0 books</div>
-            </div>
-            <div class="issue-confirm-stat">
-                <div class="issue-confirm-stat-label">Due Back</div>
-                <div id="issueConfirmDueDate" class="issue-confirm-stat-value">-</div>
-            </div>
-            <div class="issue-confirm-stat">
-                <div class="issue-confirm-stat-label">Slots Left After Issue</div>
-                <div id="issueConfirmRemaining" class="issue-confirm-stat-value">-</div>
-            </div>
-        </div>
-
-        <div class="issue-confirm-note" id="issueConfirmNote">
-            This will immediately create the issue record using the student's current borrowing privileges.
-        </div>
-
-        <div class="issue-confirm-books">
-            <div class="issue-confirm-books-header">
-                <h4 class="issue-confirm-books-title">Selected Books</h4>
-                <span id="issueConfirmBooksCount" class="issue-confirm-books-count">0 items</span>
-            </div>
-            <ul id="issueConfirmBooks" class="issue-confirm-book-list"></ul>
-        </div>
-
-        <div class="issue-confirm-actions">
-            <button type="button" class="issue-confirm-btn secondary" data-issue-confirm-close>Cancel</button>
-            <button type="button" id="issueConfirmSubmit" class="issue-confirm-btn primary">Confirm Issue</button>
         </div>
     </div>
 </div>
+
+<div id="transactionToastContainer" class="transaction-toast-container" aria-live="polite" aria-atomic="true"></div>
+<div id="transactionLiveRegion" class="transaction-visually-hidden" aria-live="polite" aria-atomic="true"></div>
 @endsection
 
 @push('scripts')
@@ -1980,16 +2340,27 @@
     const privilegeDetailsPanel = document.getElementById('privilegeDetailsPanel');
     const privilegeDetailsToggle = document.getElementById('privilegeDetailsToggle');
     const privilegeDetailsLabel = document.getElementById('privilegeDetailsLabel');
-    const issueConfirmModal = document.getElementById('issueConfirmModal');
-    const issueConfirmStudent = document.getElementById('issueConfirmStudent');
-    const issueConfirmCount = document.getElementById('issueConfirmCount');
-    const issueConfirmDueDate = document.getElementById('issueConfirmDueDate');
-    const issueConfirmRemaining = document.getElementById('issueConfirmRemaining');
-    const issueConfirmNote = document.getElementById('issueConfirmNote');
-    const issueConfirmBooks = document.getElementById('issueConfirmBooks');
-    const issueConfirmBooksCount = document.getElementById('issueConfirmBooksCount');
-    const issueConfirmSubmit = document.getElementById('issueConfirmSubmit');
-    const issueConfirmCloseButtons = document.querySelectorAll('[data-issue-confirm-close]');
+    const transactionToastIcons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-times-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle',
+    };
+
+    const transactionConfirmState = {
+        onConfirm: null,
+    };
+
+    const transactionConfirmModal = document.getElementById('transactionConfirmModal');
+    const transactionConfirmTitle = document.getElementById('transactionConfirmTitle');
+    const transactionConfirmMessage = document.getElementById('transactionConfirmMessage');
+    const transactionConfirmDetail = document.getElementById('transactionConfirmDetail');
+    const transactionConfirmIconWrap = document.getElementById('transactionConfirmIconWrap');
+    const transactionConfirmIcon = document.getElementById('transactionConfirmIcon');
+    const transactionConfirmButton = document.getElementById('confirmTransactionConfirm');
+    const transactionConfirmButtonIcon = document.getElementById('transactionConfirmButtonIcon');
+    const transactionConfirmButtonText = document.getElementById('transactionConfirmButtonText');
+    const cancelTransactionConfirm = document.getElementById('cancelTransactionConfirm');
     let isIssueSubmitting = false;
 
     function escapeHtml(value) {
@@ -2037,77 +2408,188 @@
         return formatDate(addDaysFromToday(rules.issue_duration_days));
     }
 
-    function getIssueConfirmationSubmitLabel(count = selectedBooks.length) {
-        const total = Number(count ?? 0);
-        return total === 1 ? 'Issue 1 Book' : `Issue ${total} Books`;
+    function escapeTransactionToastHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
-    function setIssueConfirmationLoading(isLoading) {
-        isIssueSubmitting = isLoading;
-        issueConfirmSubmit.disabled = isLoading;
-        issueConfirmSubmit.textContent = isLoading ? 'Issuing...' : getIssueConfirmationSubmitLabel();
+    function announceTransactionMessage(message) {
+        const liveRegion = document.getElementById('transactionLiveRegion');
 
-        issueConfirmCloseButtons.forEach(button => {
-            button.disabled = isLoading;
-        });
+        if (liveRegion) {
+            liveRegion.textContent = message;
+        }
     }
 
-    function closeIssueConfirmation(force = false) {
-        if (isIssueSubmitting && !force) {
+    function dismissTransactionToast(toast) {
+        if (!toast) {
             return;
         }
 
-        issueConfirmModal.hidden = true;
-        issueConfirmModal.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('issue-modal-open');
-
-        if (!force) {
-            issueButton.focus();
-        }
+        toast.classList.add('is-leaving');
+        window.setTimeout(() => toast.remove(), 180);
     }
 
-    function openIssueConfirmation() {
-        const rules = getIssueRules();
+    window.showTransactionToast = function(message, type = 'info') {
+        const container = document.getElementById('transactionToastContainer');
 
-        if (!selectedStudent || !selectedBooks.length || !rules) {
+        if (!container) {
             return;
         }
 
-        const remainingAfterIssue = Math.max(0, getIssueCapacity(rules, selectedStudent) - selectedBooks.length);
-        const studentLabel = selectedStudent.roll_no
-            ? `${selectedStudent.name} (${selectedStudent.roll_no})`
-            : selectedStudent.name;
+        const normalizedType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+        const payload = typeof message === 'object' && message !== null
+            ? message
+            : {
+                title: normalizedType === 'error'
+                    ? 'Action Failed'
+                    : normalizedType === 'warning'
+                        ? 'Check Required'
+                        : normalizedType === 'success'
+                            ? 'Success'
+                            : 'Notice',
+                message: String(message || ''),
+            };
 
-        issueConfirmStudent.textContent = studentLabel;
-        issueConfirmCount.textContent = formatBookCount(selectedBooks.length);
-        issueConfirmDueDate.textContent = getIssueDueDatePreview(rules);
-        issueConfirmRemaining.textContent = `${remainingAfterIssue} slot${remainingAfterIssue === 1 ? '' : 's'} remaining`;
-        issueConfirmBooksCount.textContent = formatBookCount(selectedBooks.length);
-        issueConfirmNote.textContent = `All selected books will follow the current ${rules.issue_duration_days}-day borrowing rule and share the same due date.`;
+        const toast = document.createElement('div');
+        toast.className = `transaction-toast ${normalizedType}`;
+        toast.innerHTML = `
+            <div class="transaction-toast-icon" aria-hidden="true">
+                <i class="${escapeTransactionToastHtml(payload.icon || transactionToastIcons[normalizedType] || transactionToastIcons.info)}"></i>
+            </div>
+            <div class="transaction-toast-copy">
+                <div class="transaction-toast-title">${escapeTransactionToastHtml(payload.title || 'Notice')}</div>
+                <div class="transaction-toast-message">${escapeTransactionToastHtml(payload.message || '')}</div>
+                ${payload.detail ? `<div class="transaction-toast-detail">${escapeTransactionToastHtml(payload.detail)}</div>` : ''}
+            </div>
+            <button type="button" class="transaction-toast-close" aria-label="Dismiss notification">
+                <i class="fas fa-times"></i>
+            </button>
+            <span class="transaction-toast-progress" aria-hidden="true"></span>
+        `;
 
-        issueConfirmBooks.innerHTML = selectedBooks.map((book, index) => `
-            <li class="issue-confirm-book-item">
-                <span class="issue-confirm-book-index">${index + 1}</span>
-                <div class="issue-confirm-book-copy">
-                    <div class="issue-confirm-book-name">${escapeHtml(book.title)}</div>
-                    <div class="issue-confirm-book-meta">${escapeHtml(book.author || 'Unknown author')} • ${escapeHtml(book.category || 'General')}</div>
-                </div>
-            </li>
-        `).join('');
+        container.appendChild(toast);
+        toast.querySelector('.transaction-toast-close')?.addEventListener('click', () => dismissTransactionToast(toast));
+        announceTransactionMessage(`${payload.title || 'Notice'}. ${payload.message || ''}`.trim());
+        window.setTimeout(() => dismissTransactionToast(toast), 4200);
+    };
 
-        setIssueConfirmationLoading(false);
-        issueConfirmModal.hidden = false;
-        issueConfirmModal.setAttribute('aria-hidden', 'false');
-        document.body.classList.add('issue-modal-open');
-        requestAnimationFrame(() => issueConfirmSubmit.focus());
+    function buildLegacyAlertPayload(title, message, type = 'info') {
+        const lines = String(message ?? '')
+            .replace(/\r/g, '')
+            .split('\n')
+            .map((line) => line.replace(/^•\s*/, '').trim())
+            .filter(Boolean);
+
+        return {
+            title: title || (type === 'error' ? 'Action Failed' : 'Notice'),
+            message: lines[0] || '',
+            detail: lines.length > 1 ? lines.slice(1).join(' • ') : '',
+            icon: transactionToastIcons[type] || transactionToastIcons.info,
+        };
     }
 
-    async function submitIssueRequest() {
-        if (!selectedStudent || selectedBooks.length === 0 || isIssueSubmitting) {
+    function closeTransactionConfirmModal() {
+        if (!transactionConfirmModal) {
             return;
         }
 
-        setIssueConfirmationLoading(true);
+        transactionConfirmModal.classList.remove('active');
+        transactionConfirmModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        transactionConfirmState.onConfirm = null;
+    }
+
+    function openTransactionConfirmModal({
+        title = 'Confirm action',
+        message = 'Review this action before continuing.',
+        detail = '',
+        icon = 'fas fa-check',
+        iconVariant = 'primary',
+        confirmLabel = 'Confirm',
+        confirmIcon = 'fas fa-check',
+        confirmVariant = 'primary',
+        onConfirm = null,
+    } = {}) {
+        if (!transactionConfirmModal || typeof onConfirm !== 'function') {
+            if (typeof onConfirm === 'function') {
+                onConfirm();
+            }
+            return;
+        }
+
+        transactionConfirmState.onConfirm = onConfirm;
+        transactionConfirmTitle.textContent = title;
+        transactionConfirmMessage.textContent = message;
+        transactionConfirmDetail.textContent = detail;
+        transactionConfirmDetail.hidden = !detail;
+        transactionConfirmIconWrap.className = `transaction-confirm-icon ${iconVariant}`;
+        transactionConfirmIcon.className = icon;
+        transactionConfirmButton.className = `transaction-confirm-btn ${confirmVariant}`;
+        transactionConfirmButtonIcon.className = confirmIcon;
+        transactionConfirmButtonText.textContent = confirmLabel;
+
+        transactionConfirmModal.classList.add('active');
+        transactionConfirmModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        window.setTimeout(() => transactionConfirmButton?.focus(), 60);
+    }
+
+    transactionConfirmButton?.addEventListener('click', () => {
+        const action = transactionConfirmState.onConfirm;
+        closeTransactionConfirmModal();
+        if (typeof action === 'function') {
+            action();
+        }
+    });
+
+    cancelTransactionConfirm?.addEventListener('click', () => {
+        closeTransactionConfirmModal();
+    });
+
+    transactionConfirmModal?.addEventListener('click', (event) => {
+        if (event.target === transactionConfirmModal) {
+            closeTransactionConfirmModal();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && transactionConfirmModal?.classList.contains('active')) {
+            closeTransactionConfirmModal();
+        }
+    });
+
+    function setIssueSubmitting(isSubmitting) {
+        isIssueSubmitting = isSubmitting;
+
+        if (isSubmitting) {
+            issueButton.disabled = true;
+            issueButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Issuing...';
+            return;
+        }
+
+        updateIssueButton();
+    }
+
+    async function executeIssueTransaction({
+        studentId,
+        studentName,
+        studentRollNo,
+        bookIds,
+        selectedCount,
+        dueDatePreview,
+        remainingAfterIssue,
+    }) {
+        if (isIssueSubmitting) {
+            return;
+        }
+
+        setIssueSubmitting(true);
 
         try {
             const response = await fetch('{{ route('staff.transactions.issue') }}', {
@@ -2118,28 +2600,41 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
                 body: JSON.stringify({
-                    student_id: selectedStudent.id,
-                    book_ids: selectedBooks.map(book => book.id),
+                    student_id: studentId,
+                    book_ids: bookIds,
                 })
             });
 
             const data = await response.json().catch(() => ({}));
-            closeIssueConfirmation(true);
 
             if (response.ok && data.success) {
-                showCustomAlert('Books Issued Successfully', data.message, 'success');
+                showTransactionToast({
+                    title: 'Books Issued',
+                    message: `Issued ${selectedCount} book${selectedCount === 1 ? '' : 's'} to ${studentName}.`,
+                    detail: `${studentRollNo || 'Student'} • Due ${dueDatePreview} • ${remainingAfterIssue} slot${remainingAfterIssue === 1 ? '' : 's'} left`,
+                    icon: 'fas fa-book-open',
+                }, 'success');
                 clearStudentSelection();
             } else {
                 const message = data.message || 'Unable to issue books.';
                 const isPermError = message.toLowerCase().includes('borrow') || message.toLowerCase().includes('permission');
-                showCustomAlert(isPermError ? 'Permission Denied' : 'Issue Failed', message, 'error');
+                showTransactionToast({
+                    title: isPermError ? 'Borrowing Permission Denied' : 'Issue Failed',
+                    message,
+                    detail: studentRollNo || '',
+                    icon: isPermError ? 'fas fa-user-lock' : 'fas fa-book',
+                }, 'error');
             }
         } catch (error) {
             console.error('Issue submit error:', error);
-            closeIssueConfirmation(true);
-            showCustomAlert('Transaction Error', `Failed to issue books: ${error.message}`, 'error');
+            showTransactionToast({
+                title: 'Transaction Error',
+                message: 'Failed to issue the selected books.',
+                detail: error.message,
+                icon: 'fas fa-exclamation-triangle',
+            }, 'error');
         } finally {
-            setIssueConfirmationLoading(false);
+            setIssueSubmitting(false);
         }
     }
 
@@ -2266,111 +2761,15 @@
     }
 
     window.showCustomAlert = function(title, message, type = 'info') {
-        let alertStack = document.getElementById('issueAlertStack');
-
-        if (!alertStack) {
-            alertStack = document.createElement('div');
-            alertStack.id = 'issueAlertStack';
-            alertStack.className = 'issue-alert-stack';
-            document.body.appendChild(alertStack);
-        }
-
-        const alertType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
-        const icons = {
-            success: '✓',
-            error: '✕',
-            warning: '!',
-            info: 'i',
-        };
-        const autoHideDelay = alertType === 'success' ? 2000 : 0;
-
-        const alertBox = document.createElement('div');
-        alertBox.className = `issue-alert issue-alert-${alertType}`;
-        alertBox.setAttribute('role', alertType === 'error' ? 'alert' : 'status');
-        alertBox.setAttribute('aria-live', alertType === 'error' ? 'assertive' : 'polite');
-        alertBox.innerHTML = `
-            <div class="issue-alert-icon" aria-hidden="true">${icons[alertType]}</div>
-            <div class="issue-alert-body">
-                <div class="issue-alert-title">${escapeHtml(title)}</div>
-                <p class="issue-alert-message">${escapeHtml(message)}</p>
-            </div>
-            ${alertType === 'success' ? '' : `
-                <button type="button" class="issue-alert-close" aria-label="Dismiss notification">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 6 6 18" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m6 6 12 12" />
-                    </svg>
-                </button>
-            `}
-            ${autoHideDelay ? '<div class="issue-alert-progress" aria-hidden="true"></div>' : ''}
-        `;
-
-        alertStack.appendChild(alertBox);
-        requestAnimationFrame(() => {
-            alertBox.classList.add('show');
-        });
-
-        let timeoutId = null;
-
-        const close = () => {
-            if (!alertBox.isConnected) {
-                return;
-            }
-
-            if (timeoutId) {
-                window.clearTimeout(timeoutId);
-            }
-
-            alertBox.classList.remove('show');
-            window.setTimeout(() => {
-                alertBox.remove();
-            }, 220);
-        };
-
-        const closeButton = alertBox.querySelector('.issue-alert-close');
-        if (closeButton) {
-            closeButton.addEventListener('click', close);
-        }
-
-        if (autoHideDelay) {
-            timeoutId = window.setTimeout(close, autoHideDelay);
-
-            alertBox.addEventListener('mouseenter', () => {
-                if (timeoutId) {
-                    window.clearTimeout(timeoutId);
-                }
-            });
-
-            alertBox.addEventListener('mouseleave', () => {
-                timeoutId = window.setTimeout(close, 900);
-            });
-        }
+        window.showTransactionToast(buildLegacyAlertPayload(title, message, type), type);
     };
 
     window.showPrivilegeToast = function(message, type = 'info') {
-        let toastContainer = document.getElementById('privilegeToastContainer');
-
-        if (!toastContainer) {
-            toastContainer = document.createElement('div');
-            toastContainer.id = 'privilegeToastContainer';
-            toastContainer.className = 'privilege-toast-container';
-            document.body.appendChild(toastContainer);
-        }
-
-        const toast = document.createElement('div');
-        toast.className = `privilege-toast ${type}`;
-        toast.setAttribute('role', 'status');
-        toast.setAttribute('aria-live', 'polite');
-        toast.textContent = message;
-
-        toastContainer.appendChild(toast);
-
-        window.setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(8px)';
-            toast.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-            window.setTimeout(() => toast.remove(), 220);
-        }, 2200);
+        window.showTransactionToast({
+            title: type === 'warning' ? 'Selection Warning' : 'Selection Updated',
+            message: String(message || ''),
+            icon: type === 'warning' ? 'fas fa-exclamation-triangle' : 'fas fa-book',
+        }, type);
     };
 
     window.togglePrivilegeDetails = function() {
@@ -2693,16 +3092,29 @@
                 return;
             }
 
-            openIssueConfirmation();
-        });
+            const selectedCount = selectedBooks.length;
+            const bookIds = selectedBooks.map(book => book.id);
+            const dueDatePreview = getIssueDueDatePreview(rules);
+            const remainingAfterIssue = Math.max(0, getIssueCapacity(rules, selectedStudent) - selectedCount);
 
-        issueConfirmSubmit.addEventListener('click', function() {
-            submitIssueRequest();
-        });
-
-        issueConfirmCloseButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                closeIssueConfirmation();
+            openTransactionConfirmModal({
+                title: `Issue ${selectedCount} book${selectedCount === 1 ? '' : 's'} to ${selectedStudent.name}?`,
+                message: 'This will issue the selected books using the student\'s effective borrowing rules.',
+                detail: `${selectedStudent.roll_no || 'Student'} • Due ${dueDatePreview}`,
+                icon: 'fas fa-book-open',
+                iconVariant: 'primary',
+                confirmLabel: 'Issue Books',
+                confirmIcon: 'fas fa-book-open',
+                confirmVariant: 'primary',
+                onConfirm: () => executeIssueTransaction({
+                    studentId: selectedStudent.id,
+                    studentName: selectedStudent.name,
+                    studentRollNo: selectedStudent.roll_no,
+                    bookIds,
+                    selectedCount,
+                    dueDatePreview,
+                    remainingAfterIssue,
+                }),
             });
         });
 
@@ -2710,12 +3122,6 @@
             if (!event.target.closest('.search-container')) {
                 studentResults.style.display = 'none';
                 bookResults.style.display = 'none';
-            }
-        });
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && !issueConfirmModal.hidden) {
-                closeIssueConfirmation();
             }
         });
 
@@ -2816,10 +3222,12 @@
         updateIssueButton();
         updateAvailableBooksInfo();
         const remainingCount = getRemainingIssueCapacity(rules, selectedStudent);
-        showPrivilegeToast(
-            `${book.title} added. ${remainingCount} issue slot${remainingCount === 1 ? '' : 's'} remaining.`,
-            'info'
-        );
+        showTransactionToast({
+            title: 'Book Added',
+            message: `Added ${book.title} to the issue selection.`,
+            detail: `${remainingCount} issue slot${remainingCount === 1 ? '' : 's'} remaining`,
+            icon: 'fas fa-book',
+        }, 'info');
     };
 
     window.removeBookFromSelection = function(bookId) {

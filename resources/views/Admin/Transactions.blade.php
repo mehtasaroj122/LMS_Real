@@ -67,6 +67,181 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
+        .search-input-clearable {
+            padding-right: 76px;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 4px 12px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1.2;
+            color: #334155;
+            white-space: nowrap;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+        }
+
+        .clear-btn:hover {
+            background-color: #e2e8f0;
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
+
+        .clear-btn:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+        }
+
+        body.dark-theme .clear-btn {
+            background-color: #334155;
+            border-color: #475569;
+            color: #cbd5e1;
+        }
+
+        body.dark-theme .clear-btn:hover {
+            background-color: #475569;
+            border-color: #64748b;
+            color: #f8fafc;
+        }
+
+        .issued-books-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 8px;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background-color: #f8fafc;
+            transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        body.dark-theme .issued-books-toolbar {
+            background-color: #0f172a;
+            border-color: #334155;
+        }
+
+        .issued-books-toolbar.is-active {
+            border-color: rgba(37, 99, 235, 0.32);
+            background-color: #eff6ff;
+        }
+
+        body.dark-theme .issued-books-toolbar.is-active {
+            border-color: rgba(96, 165, 250, 0.72);
+            background-color: rgba(30, 41, 59, 0.96);
+            box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.28);
+        }
+
+        .issued-books-toolbar[hidden] {
+            display: none;
+        }
+
+        .bulk-select-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #0f172a;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        body.dark-theme .bulk-select-label {
+            color: #e2e8f0;
+        }
+
+        .bulk-select-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            background-color: #ffffff;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .bulk-select-checkbox:hover {
+            border-color: #93c5fd;
+        }
+
+        .bulk-select-checkbox:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+        }
+
+        .bulk-select-checkbox:checked {
+            border-color: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        .bulk-select-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 0px;
+            width: 5px;
+            height: 9px;
+            border: solid #ffffff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        .bulk-select-checkbox:indeterminate {
+            border-color: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        .bulk-select-checkbox:indeterminate::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 6px;
+            width: 8px;
+            height: 2px;
+            border-radius: 9999px;
+            background: #ffffff;
+        }
+
+        body.dark-theme .bulk-select-checkbox {
+            border-color: #64748b;
+            background-color: #0f172a;
+        }
+
+        body.dark-theme .bulk-select-checkbox:hover {
+            border-color: #93c5fd;
+        }
+
+        body.dark-theme .bulk-select-checkbox:checked,
+        body.dark-theme .bulk-select-checkbox:indeterminate {
+            border-color: #60a5fa;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .issued-books-selection-summary {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        body.dark-theme .issued-books-selection-summary {
+            color: #94a3b8;
+        }
+
         .search-icon {
             position: absolute;
             left: 10px;
@@ -357,6 +532,7 @@
             border-radius: 8px;
             margin-bottom: 8px;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
 
         body.dark-theme .book-checkbox-container {
@@ -371,9 +547,73 @@
             background-color: #2d3748;
         }
 
+        .book-checkbox-container.is-selected {
+            border-color: rgba(37, 99, 235, 0.32);
+            background-color: #eff6ff;
+        }
+
+        body.dark-theme .book-checkbox-container.is-selected {
+            border-color: rgba(96, 165, 250, 0.72);
+            background-color: rgba(30, 41, 59, 0.96);
+            box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.28);
+        }
+
         .book-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
             margin-right: 12px;
             margin-top: 2px;
+            flex-shrink: 0;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            background-color: #ffffff;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .book-checkbox:hover {
+            border-color: #93c5fd;
+        }
+
+        .book-checkbox:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+        }
+
+        .book-checkbox:checked {
+            border-color: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        .book-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 1px;
+            width: 5px;
+            height: 10px;
+            border: solid #ffffff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        body.dark-theme .book-checkbox {
+            border-color: #64748b;
+            background-color: #0f172a;
+        }
+
+        body.dark-theme .book-checkbox:hover {
+            border-color: #93c5fd;
+        }
+
+        body.dark-theme .book-checkbox:checked {
+            border-color: #60a5fa;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
         .book-info-full {
@@ -1098,6 +1338,19 @@
             gap: 12px;
         }
 
+        .transaction-policy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 220px));
+            gap: 16px;
+            margin-bottom: 24px;
+            justify-content: flex-start;
+        }
+
+        .transaction-policy-card {
+            width: 100%;
+            max-width: 220px;
+        }
+
         .privilege-stat {
             padding: 14px;
             border-radius: 14px;
@@ -1431,6 +1684,348 @@
             color: #cbd5e1;
         }
 
+        .transaction-visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .transaction-toast-container {
+            position: fixed;
+            top: 88px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: min(360px, calc(100vw - 32px));
+            z-index: 2100;
+            pointer-events: none;
+        }
+
+        .transaction-toast {
+            position: relative;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 14px;
+            padding: 16px 18px 18px;
+            border-radius: 18px;
+            overflow: hidden;
+            pointer-events: auto;
+            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(12px);
+            color: #ffffff;
+            animation: transactionToastIn 0.24s ease;
+        }
+
+        .transaction-toast.is-leaving {
+            animation: transactionToastOut 0.18s ease forwards;
+        }
+
+        .transaction-toast.success {
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.96), rgba(5, 150, 105, 0.94));
+        }
+
+        .transaction-toast.error {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.97), rgba(190, 24, 93, 0.94));
+        }
+
+        .transaction-toast.warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.97), rgba(217, 119, 6, 0.94));
+        }
+
+        .transaction-toast.info {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.97), rgba(79, 70, 229, 0.94));
+        }
+
+        .transaction-toast-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 18px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .transaction-toast-copy {
+            min-width: 0;
+        }
+
+        .transaction-toast-title {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .transaction-toast-message {
+            margin-top: 2px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.96);
+        }
+
+        .transaction-toast-detail {
+            margin-top: 6px;
+            font-size: 11px;
+            line-height: 1.4;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .transaction-toast-close {
+            appearance: none;
+            border: 0;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .transaction-toast-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .transaction-toast-progress {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .transaction-toast-progress::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.92);
+            transform-origin: left center;
+            animation: transactionToastProgress 4.2s linear forwards;
+        }
+
+        .transaction-confirm-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.58);
+            backdrop-filter: blur(8px);
+            z-index: 2050;
+        }
+
+        .transaction-confirm-overlay.active {
+            display: flex;
+        }
+
+        .transaction-confirm-card {
+            width: min(440px, 100%);
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid;
+            box-shadow: 0 28px 60px rgba(15, 23, 42, 0.26);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.light-theme .transaction-confirm-card {
+            background: rgba(255, 255, 255, 0.97);
+            border-color: rgba(226, 232, 240, 0.95);
+            color: #0f172a;
+        }
+
+        body.dark-theme .transaction-confirm-card {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(71, 85, 105, 0.88);
+            color: #e2e8f0;
+        }
+
+        .transaction-confirm-header {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .transaction-confirm-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 22px;
+        }
+
+        .transaction-confirm-icon.primary {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            color: #1d4ed8;
+        }
+
+        body.dark-theme .transaction-confirm-icon.primary {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.85), rgba(30, 64, 175, 0.55));
+            color: #bfdbfe;
+        }
+
+        .transaction-confirm-icon.success {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            color: #166534;
+        }
+
+        body.dark-theme .transaction-confirm-icon.success {
+            background: linear-gradient(135deg, rgba(20, 83, 45, 0.85), rgba(21, 128, 61, 0.55));
+            color: #bbf7d0;
+        }
+
+        .transaction-confirm-icon.warning {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #b45309;
+        }
+
+        body.dark-theme .transaction-confirm-icon.warning {
+            background: linear-gradient(135deg, rgba(120, 53, 15, 0.85), rgba(180, 83, 9, 0.55));
+            color: #fcd34d;
+        }
+
+        .transaction-confirm-icon.danger {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #b91c1c;
+        }
+
+        body.dark-theme .transaction-confirm-icon.danger {
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.85), rgba(127, 29, 29, 0.55));
+            color: #fca5a5;
+        }
+
+        .transaction-confirm-title {
+            margin: 2px 0 6px;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .transaction-confirm-copy p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        body.light-theme .transaction-confirm-copy p {
+            color: #475569;
+        }
+
+        body.dark-theme .transaction-confirm-copy p {
+            color: #94a3b8;
+        }
+
+        .transaction-confirm-detail {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        body.light-theme .transaction-confirm-detail {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        body.dark-theme .transaction-confirm-detail {
+            background: rgba(30, 41, 59, 0.85);
+            color: #cbd5e1;
+        }
+
+        .transaction-confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .transaction-confirm-btn {
+            appearance: none;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            min-width: 132px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .transaction-confirm-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .transaction-confirm-btn.secondary {
+            background: transparent;
+        }
+
+        body.light-theme .transaction-confirm-btn.secondary {
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+
+        body.dark-theme .transaction-confirm-btn.secondary {
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .transaction-confirm-btn.primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.24);
+        }
+
+        .transaction-confirm-btn.success {
+            background: linear-gradient(135deg, #16a34a, #059669);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(22, 163, 74, 0.24);
+        }
+
+        .transaction-confirm-btn.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(217, 119, 6, 0.24);
+        }
+
+        .transaction-confirm-btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(220, 38, 38, 0.24);
+        }
+
+        .transaction-confirm-btn:disabled {
+            opacity: 0.7;
+            cursor: wait;
+            transform: none;
+        }
+
         .privilege-toast-container {
             position: fixed;
             right: 24px;
@@ -1507,6 +2102,40 @@
             }
         }
 
+        @keyframes transactionToastIn {
+            from {
+                opacity: 0;
+                transform: translate3d(20px, -8px, 0) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+        }
+
+        @keyframes transactionToastOut {
+            from {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: translate3d(18px, -4px, 0) scale(0.98);
+            }
+        }
+
+        @keyframes transactionToastProgress {
+            from {
+                transform: scaleX(1);
+            }
+
+            to {
+                transform: scaleX(0);
+            }
+        }
+
         @media (max-width: 1024px) {
             .privilege-stats-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1529,6 +2158,14 @@
                 grid-template-columns: 1fr;
             }
 
+            .transaction-policy-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .transaction-policy-card {
+                max-width: none;
+            }
+
             .privilege-toast-container {
                 left: 16px;
                 right: 16px;
@@ -1538,6 +2175,25 @@
             .privilege-toast {
                 min-width: 0;
                 max-width: none;
+            }
+
+            .transaction-toast-container {
+                top: 76px;
+                right: 16px;
+                left: 16px;
+                width: auto;
+            }
+
+            .transaction-confirm-actions {
+                flex-wrap: wrap;
+            }
+
+            .transaction-confirm-card {
+                padding: 22px;
+            }
+
+            .transaction-confirm-btn {
+                width: 100%;
             }
         }
     </style>
@@ -1555,7 +2211,7 @@
                 <div class="p-6 card">
                     <h2 class="mb-6 text-lg font-semibold text-primary">Issue Form</h2>
 
-                    <form id="issueForm">
+                    <form id="issueForm" autocomplete="off">
                         <!-- Search Student -->
                         <div class="mb-5">
                             <label class="form-label">
@@ -1566,11 +2222,10 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
-                                <input type="text" id="searchStudent" class="search-input"
-                                    placeholder="Search by name, student ID, or email..." required>
+                                <input type="text" id="searchStudent" class="search-input search-input-clearable"
+                                    placeholder="Search by name, student ID, or email..." autocomplete="off" required>
                                 <button type="button" id="clearStudentBtn" class="clear-btn"
-                                    onclick="clearStudentSelection()"
-                                    style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); padding: 0.2rem 0.5rem; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 0.375rem; cursor: pointer; font-size: 0.75rem; white-space: nowrap;">Clear</button>
+                                    onclick="clearStudentSelection()" style="display: none;">Clear</button>
                                 <div class="search-results" id="studentResults"></div>
                             </div>
                             <input type="hidden" id="selectedStudentId">
@@ -1587,7 +2242,7 @@
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                                 <input type="text" id="searchBook" class="search-input"
-                                    placeholder="Select a student first..." disabled>
+                                    placeholder="Select a student first..." autocomplete="off" disabled>
                                 <div class="search-results" id="bookResults"></div>
                             </div>
                         </div>
@@ -1781,20 +2436,20 @@
             <p class="mb-6 text-secondary">Process book returns and calculate fines</p>
 
             <!-- Info Cards -->
-            <div class="grid grid-cols-1 gap-4 mb-6 md:grid-cols-4">
-                <div class="p-6 text-center card">
+            <div class="transaction-policy-grid">
+                <div class="p-6 text-center card transaction-policy-card">
                     <div class="mb-2 text-2xl font-bold text-primary">{{ $fineSettings->issue_duration_days }} days</div>
                     <div class="text-sm text-secondary">Issue Duration</div>
                 </div>
-                <div class="p-6 text-center card">
+                <div class="p-6 text-center card transaction-policy-card">
                     <div class="mb-2 text-2xl font-bold text-primary">₹{{ $fineSettings->per_day_fine }}/day</div>
                     <div class="text-sm text-secondary">Late Fine</div>
                 </div>
-                <div class="p-6 text-center card">
+                <div class="p-6 text-center card transaction-policy-card">
                     <div class="mb-2 text-2xl font-bold text-primary">₹{{ $fineSettings->lost_book_penalty }}</div>
                     <div class="text-sm text-secondary">Lost Book Fine</div>
                 </div>
-                <div class="p-6 text-center card">
+                <div class="p-6 text-center card transaction-policy-card">
                     <div class="mb-2 text-2xl font-bold text-primary">₹{{ $fineSettings->damaged_book_penalty }}</div>
                     <div class="text-sm text-secondary">Damaged Book Fine</div>
                 </div>
@@ -1805,7 +2460,7 @@
                 <div class="p-6 card">
                     <h2 class="mb-6 text-lg font-semibold text-primary">Return Form</h2>
 
-                    <form id="returnForm">
+                    <form id="returnForm" autocomplete="off">
                         <!-- Search Student -->
                         <div class="mb-5">
                             <label class="form-label">
@@ -1816,11 +2471,10 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
-                                <input type="text" id="searchReturnStudent" class="search-input"
-                                    placeholder="Search by name, student ID, or email..." required>
+                                <input type="text" id="searchReturnStudent" class="search-input search-input-clearable"
+                                    placeholder="Search by name, student ID, or email..." autocomplete="off" required>
                                 <button type="button" id="clearReturnStudentBtn" class="clear-btn"
-                                    onclick="clearReturnStudentSelection()"
-                                    style="display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); padding: 0.2rem 0.5rem; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 0.375rem; cursor: pointer; font-size: 0.75rem; white-space: nowrap;">Clear</button>
+                                    onclick="clearReturnStudentSelection()" style="display: none;">Clear</button>
                                 <div class="search-results" id="returnStudentResults"></div>
                             </div>
                             <input type="hidden" id="selectedReturnStudentId">
@@ -1831,6 +2485,13 @@
                             <label class="form-label">
                                 Select Books to Return<span class="text-danger">*</span>
                             </label>
+                            <div class="issued-books-toolbar" id="issuedBooksToolbar" hidden>
+                                <label class="bulk-select-label" for="selectAllIssuedBooks">
+                                    <input type="checkbox" class="bulk-select-checkbox" id="selectAllIssuedBooks">
+                                    <span>Select all books</span>
+                                </label>
+                                <span class="issued-books-selection-summary" id="issuedBooksSelectionSummary">0 of 0 selected</span>
+                            </div>
                             <div class="scrollable-container" id="issuedBooksContainer"></div>
                         </div>
 
@@ -2002,6 +2663,32 @@
             </div>
         </div>
     </div>
+
+    <div id="transactionConfirmModal" class="transaction-confirm-overlay" aria-hidden="true">
+        <div class="transaction-confirm-card" role="dialog" aria-modal="true" aria-labelledby="transactionConfirmTitle">
+            <div class="transaction-confirm-header">
+                <div id="transactionConfirmIconWrap" class="transaction-confirm-icon primary" aria-hidden="true">
+                    <i id="transactionConfirmIcon" class="fas fa-check"></i>
+                </div>
+                <div class="transaction-confirm-copy">
+                    <h3 id="transactionConfirmTitle" class="transaction-confirm-title">Confirm action</h3>
+                    <p id="transactionConfirmMessage">Review this action before continuing.</p>
+                    <div id="transactionConfirmDetail" class="transaction-confirm-detail">Details</div>
+                </div>
+            </div>
+
+            <div class="transaction-confirm-actions">
+                <button type="button" id="cancelTransactionConfirm" class="transaction-confirm-btn secondary">Cancel</button>
+                <button type="button" id="confirmTransactionConfirm" class="transaction-confirm-btn primary">
+                    <i id="transactionConfirmButtonIcon" class="fas fa-check"></i>
+                    <span id="transactionConfirmButtonText">Confirm</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="transactionToastContainer" class="transaction-toast-container" aria-live="polite" aria-atomic="true"></div>
+    <div id="transactionLiveRegion" class="transaction-visually-hidden" aria-live="polite" aria-atomic="true"></div>
 @endsection
 
 @push('scripts')
@@ -2034,145 +2721,196 @@
                 'color: green; font-weight: bold; font-size: 14px'
             );
 
-            // Custom Alert Function for better user experience
-            window.showCustomAlert = function(title, message, type = 'info') {
-                // Create alert container
-                const alertBox = document.createElement('div');
-                alertBox.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: white;
-                    padding: 24px;
-                    border-radius: 12px;
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                    z-index: 9999;
-                    min-width: 400px;
-                    max-width: 500px;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                `;
+            const transactionToastIcons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-times-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle',
+            };
 
-                // Dark theme support
-                if (document.body.classList.contains('dark-theme')) {
-                    alertBox.style.background = '#1e293b';
-                    alertBox.style.color = '#f1f5f9';
+            const transactionConfirmState = {
+                onConfirm: null,
+            };
+
+            const transactionConfirmModal = document.getElementById('transactionConfirmModal');
+            const transactionConfirmTitle = document.getElementById('transactionConfirmTitle');
+            const transactionConfirmMessage = document.getElementById('transactionConfirmMessage');
+            const transactionConfirmDetail = document.getElementById('transactionConfirmDetail');
+            const transactionConfirmIconWrap = document.getElementById('transactionConfirmIconWrap');
+            const transactionConfirmIcon = document.getElementById('transactionConfirmIcon');
+            const transactionConfirmButton = document.getElementById('confirmTransactionConfirm');
+            const transactionConfirmButtonIcon = document.getElementById('transactionConfirmButtonIcon');
+            const transactionConfirmButtonText = document.getElementById('transactionConfirmButtonText');
+            const cancelTransactionConfirm = document.getElementById('cancelTransactionConfirm');
+
+            function escapeTransactionToastHtml(value) {
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function announceTransactionMessage(message) {
+                const liveRegion = document.getElementById('transactionLiveRegion');
+
+                if (liveRegion) {
+                    liveRegion.textContent = message;
+                }
+            }
+
+            function dismissTransactionToast(toast) {
+                if (!toast) {
+                    return;
                 }
 
-                // Determine icon and colors based on type
-                let icon = '✓';
-                let borderColor = '#10b981';
-                let bgColor = '#f0fdf4';
-                let titleColor = '#059669';
+                toast.classList.add('is-leaving');
+                window.setTimeout(() => toast.remove(), 180);
+            }
 
-                if (type === 'error') {
-                    icon = '✕';
-                    borderColor = '#ef4444';
-                    bgColor = '#fef2f2';
-                    titleColor = '#dc2626';
-                } else if (type === 'warning') {
-                    icon = '⚠';
-                    borderColor = '#f59e0b';
-                    bgColor = '#fffbeb';
-                    titleColor = '#d97706';
+            window.showTransactionToast = function(message, type = 'info') {
+                const container = document.getElementById('transactionToastContainer');
+
+                if (!container) {
+                    return;
                 }
 
-                if (document.body.classList.contains('dark-theme')) {
-                    if (type === 'error') {
-                        bgColor = '#7f1d1d';
-                        titleColor = '#fca5a5';
-                    } else if (type === 'warning') {
-                        bgColor = '#78350f';
-                        titleColor = '#fbbf24';
-                    } else {
-                        bgColor = '#1e3a8a';
-                        titleColor = '#93c5fd';
-                    }
-                }
+                const normalizedType = ['success', 'error', 'warning', 'info'].includes(type)
+                    ? type
+                    : 'info';
+                const payload = typeof message === 'object' && message !== null
+                    ? message
+                    : {
+                        title: normalizedType === 'error'
+                            ? 'Action Failed'
+                            : normalizedType === 'warning'
+                                ? 'Check Required'
+                                : normalizedType === 'success'
+                                    ? 'Success'
+                                    : 'Notice',
+                        message: String(message || ''),
+                    };
 
-                alertBox.innerHTML = `
-                    <div style="border-left: 4px solid ${borderColor}; padding-left: 16px;">
-                        <div style="font-size: 18px; font-weight: 700; color: ${titleColor}; margin-bottom: 8px;">
-                            ${icon} ${title}
-                        </div>
-                        <div style="font-size: 14px; color: ${document.body.classList.contains('dark-theme') ? '#cbd5e1' : '#64748b'}; line-height: 1.6; white-space: pre-wrap;">
-                            ${message}
-                        </div>
-                        <button class="alert-close-btn" style="
-                            margin-top: 16px;
-                            padding: 8px 16px;
-                            background: ${borderColor};
-                            color: white;
-                            border: none;
-                            border-radius: 6px;
-                            cursor: pointer;
-                            font-weight: 600;
-                            font-size: 14px;
-                        ">OK</button>
+                const toast = document.createElement('div');
+                toast.className = `transaction-toast ${normalizedType}`;
+                toast.innerHTML = `
+                    <div class="transaction-toast-icon" aria-hidden="true">
+                        <i class="${escapeTransactionToastHtml(payload.icon || transactionToastIcons[normalizedType] || transactionToastIcons.info)}"></i>
                     </div>
+                    <div class="transaction-toast-copy">
+                        <div class="transaction-toast-title">${escapeTransactionToastHtml(payload.title || 'Notice')}</div>
+                        <div class="transaction-toast-message">${escapeTransactionToastHtml(payload.message || '')}</div>
+                        ${payload.detail ? `<div class="transaction-toast-detail">${escapeTransactionToastHtml(payload.detail)}</div>` : ''}
+                    </div>
+                    <button type="button" class="transaction-toast-close" aria-label="Dismiss notification">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <span class="transaction-toast-progress" aria-hidden="true"></span>
                 `;
 
-                // Create overlay
-                const overlay = document.createElement('div');
-                overlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.5);
-                    z-index: 9998;
-                `;
+                container.appendChild(toast);
+                toast.querySelector('.transaction-toast-close')?.addEventListener('click', () => dismissTransactionToast(toast));
+                announceTransactionMessage(`${payload.title || 'Notice'}. ${payload.message || ''}`.trim());
+                window.setTimeout(() => dismissTransactionToast(toast), 4200);
+            };
 
-                document.body.appendChild(overlay);
-                document.body.appendChild(alertBox);
+            function buildLegacyAlertPayload(title, message, type = 'info') {
+                const lines = String(message ?? '')
+                    .replace(/\r/g, '')
+                    .split('\n')
+                    .map((line) => line.replace(/^•\s*/, '').trim())
+                    .filter(Boolean);
 
-                // Close button handler
-                const closeBtn = alertBox.querySelector('.alert-close-btn');
-                closeBtn.addEventListener('click', function() {
-                    alertBox.remove();
-                    overlay.remove();
-                });
+                return {
+                    title: title || (type === 'error' ? 'Action Failed' : 'Notice'),
+                    message: lines[0] || '',
+                    detail: lines.length > 1 ? lines.slice(1).join(' • ') : '',
+                    icon: transactionToastIcons[type] || transactionToastIcons.info,
+                };
+            }
 
-                // Close on overlay click
-                overlay.addEventListener('click', function() {
-                    alertBox.remove();
-                    overlay.remove();
-                });
+            function closeTransactionConfirmModal() {
+                if (!transactionConfirmModal) {
+                    return;
+                }
 
-                // Close on Escape key
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        alertBox.remove();
-                        overlay.remove();
+                transactionConfirmModal.classList.remove('active');
+                transactionConfirmModal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                transactionConfirmState.onConfirm = null;
+            }
+
+            function openTransactionConfirmModal({
+                title = 'Confirm action',
+                message = 'Review this action before continuing.',
+                detail = '',
+                icon = 'fas fa-check',
+                iconVariant = 'primary',
+                confirmLabel = 'Confirm',
+                confirmIcon = 'fas fa-check',
+                confirmVariant = 'primary',
+                onConfirm = null,
+            } = {}) {
+                if (!transactionConfirmModal || typeof onConfirm !== 'function') {
+                    if (typeof onConfirm === 'function') {
+                        onConfirm();
                     }
-                });
+                    return;
+                }
+
+                transactionConfirmState.onConfirm = onConfirm;
+                transactionConfirmTitle.textContent = title;
+                transactionConfirmMessage.textContent = message;
+                transactionConfirmDetail.textContent = detail;
+                transactionConfirmDetail.hidden = !detail;
+                transactionConfirmIconWrap.className = `transaction-confirm-icon ${iconVariant}`;
+                transactionConfirmIcon.className = icon;
+                transactionConfirmButton.className = `transaction-confirm-btn ${confirmVariant}`;
+                transactionConfirmButtonIcon.className = confirmIcon;
+                transactionConfirmButtonText.textContent = confirmLabel;
+
+                transactionConfirmModal.classList.add('active');
+                transactionConfirmModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+
+                window.setTimeout(() => transactionConfirmButton?.focus(), 60);
+            }
+
+            transactionConfirmButton?.addEventListener('click', () => {
+                const action = transactionConfirmState.onConfirm;
+                closeTransactionConfirmModal();
+                if (typeof action === 'function') {
+                    action();
+                }
+            });
+
+            cancelTransactionConfirm?.addEventListener('click', () => {
+                closeTransactionConfirmModal();
+            });
+
+            transactionConfirmModal?.addEventListener('click', (event) => {
+                if (event.target === transactionConfirmModal) {
+                    closeTransactionConfirmModal();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && transactionConfirmModal?.classList.contains('active')) {
+                    closeTransactionConfirmModal();
+                }
+            });
+
+            window.showCustomAlert = function(title, message, type = 'info') {
+                window.showTransactionToast(buildLegacyAlertPayload(title, message, type), type);
             };
 
             window.showPrivilegeToast = function(message, type = 'info') {
-                let toastContainer = document.getElementById('privilegeToastContainer');
-
-                if (!toastContainer) {
-                    toastContainer = document.createElement('div');
-                    toastContainer.id = 'privilegeToastContainer';
-                    toastContainer.className = 'privilege-toast-container';
-                    document.body.appendChild(toastContainer);
-                }
-
-                const toast = document.createElement('div');
-                toast.className = `privilege-toast ${type}`;
-                toast.setAttribute('role', 'status');
-                toast.setAttribute('aria-live', 'polite');
-                toast.textContent = message;
-
-                toastContainer.appendChild(toast);
-
-                window.setTimeout(() => {
-                    toast.style.opacity = '0';
-                    toast.style.transform = 'translateY(8px)';
-                    toast.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-                    window.setTimeout(() => toast.remove(), 220);
-                }, 2200);
+                window.showTransactionToast({
+                    title: type === 'warning' ? 'Selection Warning' : 'Selection Updated',
+                    message: String(message || ''),
+                    icon: type === 'warning' ? 'fas fa-exclamation-triangle' : 'fas fa-book',
+                }, type);
             };
             // ========== ISSUE BOOK FUNCTIONALITY ==========
 
@@ -2204,7 +2942,10 @@
             const selectedReturnStudentId = document.getElementById('selectedReturnStudentId');
             const returnStudentCard = document.getElementById('returnStudentCard');
             const issuedBooksSection = document.getElementById('issuedBooksSection');
+            const issuedBooksToolbar = document.getElementById('issuedBooksToolbar');
             const issuedBooksContainer = document.getElementById('issuedBooksContainer');
+            const selectAllIssuedBooksCheckbox = document.getElementById('selectAllIssuedBooks');
+            const issuedBooksSelectionSummary = document.getElementById('issuedBooksSelectionSummary');
             const bookConditionSection = document.getElementById('bookConditionSection');
             const returnButton = document.getElementById('returnButton');
             const returnForm = document.getElementById('returnForm');
@@ -2733,6 +3474,10 @@
                 console.error('✗ searchReturnStudentInput element not found!');
             }
 
+            selectAllIssuedBooksCheckbox?.addEventListener('change', function() {
+                toggleAllIssuedBooks(this.checked);
+            });
+
             // ========== ISSUE BOOK SEARCH FUNCTIONALITY ==========
 
             // Search Students for Issue
@@ -3052,7 +3797,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (!data.success) {
-                            showCustomAlert('Error', 'Failed to load student privileges');
+                            showCustomAlert('Privilege Load Failed', 'Failed to load student privileges.', 'error');
                             return;
                         }
 
@@ -3132,10 +3877,12 @@
                 updateIssueButton();
                 updateAvailableBooksInfo();
                 const remainingCount = getRemainingIssueCapacity(rules, selectedStudent);
-                showPrivilegeToast(
-                    `${book.title} added. ${remainingCount} issue slot${remainingCount === 1 ? '' : 's'} remaining.`,
-                    'info'
-                );
+                showTransactionToast({
+                    title: 'Book Added',
+                    message: `Added ${book.title} to the issue selection.`,
+                    detail: `${remainingCount} issue slot${remainingCount === 1 ? '' : 's'} remaining`,
+                    icon: 'fas fa-book',
+                }, 'info');
             };
 
             window.removeBookFromSelection = function(bookId) {
@@ -3271,6 +4018,7 @@
                         renderReturnPrivilegeSummary();
                         updateReturnButton();
                         calculateTotalFine();
+                        syncIssuedBooksBulkState();
                     })
                     .catch(error => {
                         console.error('Error fetching privileges:', error);
@@ -3294,6 +4042,7 @@
                         renderReturnPrivilegeSummary();
                         updateReturnButton();
                         calculateTotalFine();
+                        syncIssuedBooksBulkState();
                     });
             };
 
@@ -3301,6 +4050,9 @@
                 issuedBooksContainer.innerHTML = '';
 
                 if (issuedBooks.length === 0) {
+                    if (issuedBooksToolbar) {
+                        issuedBooksToolbar.hidden = true;
+                    }
                     issuedBooksContainer.innerHTML =
                         '<div class="py-4 text-center text-secondary">No issued books found</div>';
                     return;
@@ -3324,6 +4076,7 @@
                     bookItem.className = 'book-checkbox-container';
                     bookItem.innerHTML = `
                         <input type="checkbox" class="book-checkbox" id="book-${issuedBook.id}" 
+                               data-book-id="${issuedBook.id}"
                                onchange="toggleIssuedBookSelection(${issuedBook.id}, this.checked)"
                                data-overdue-days="${overdueDays}"
                                data-issue-date="${issuedBook.issueDate}"
@@ -3343,17 +4096,64 @@
                             </div>
                         </div>
                     `;
+
+                    const checkbox = bookItem.querySelector('.book-checkbox');
+                    const toggleBookSelection = () => {
+                        if (!checkbox) {
+                            return;
+                        }
+
+                        checkbox.checked = !checkbox.checked;
+                        toggleIssuedBookSelection(issuedBook.id, checkbox.checked);
+                    };
+
+                    bookItem.setAttribute('tabindex', '0');
+                    bookItem.setAttribute('role', 'checkbox');
+                    bookItem.setAttribute('aria-checked', 'false');
+
+                    bookItem.addEventListener('click', (event) => {
+                        if (event.target === checkbox || event.target.closest('.book-checkbox')) {
+                            return;
+                        }
+
+                        toggleBookSelection();
+                    });
+
+                    bookItem.addEventListener('keydown', (event) => {
+                        if (event.key !== 'Enter' && event.key !== ' ') {
+                            return;
+                        }
+
+                        if (event.target === checkbox || event.target.closest('.book-checkbox')) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        toggleBookSelection();
+                    });
+
                     issuedBooksContainer.appendChild(bookItem);
                 });
+
+                syncIssuedBooksBulkState();
             }
 
             window.toggleIssuedBookSelection = function(bookId, isChecked) {
                 const checkbox = document.getElementById(`book-${bookId}`);
+                if (!checkbox) {
+                    return;
+                }
+
+                const bookElement = checkbox?.closest('.book-checkbox-container');
                 const overdueDays = parseInt(checkbox.dataset.overdueDays) || 0;
+
+                if (bookElement) {
+                    bookElement.classList.toggle('is-selected', isChecked);
+                    bookElement.setAttribute('aria-checked', isChecked ? 'true' : 'false');
+                }
 
                 if (isChecked) {
                     // Get the book title from the DOM
-                    const bookElement = checkbox.closest('.book-checkbox-container');
                     const bookTitle = bookElement.querySelector('.book-title').textContent;
 
                     selectedIssuedBooks.push({
@@ -3382,6 +4182,7 @@
                 renderReturnPrivilegeSummary();
                 window.updateReturnButton();
                 window.calculateTotalFine();
+                syncIssuedBooksBulkState();
             };
 
             window.selectCondition = function(condition) {
@@ -3532,6 +4333,9 @@
                 issuedBooksSection.style.display = 'none';
                 bookConditionSection.style.display = 'none';
                 fineCalculationCard.style.display = 'none';
+                if (issuedBooksToolbar) {
+                    issuedBooksToolbar.hidden = true;
+                }
                 selectedIssuedBooks = [];
                 selectedCondition = null;
                 resetConditionSelection();
@@ -3545,7 +4349,221 @@
 
                 searchReturnStudentInput.value = '';
                 returnStudentResults.style.display = 'none';
+                syncIssuedBooksBulkState();
             };
+
+            function resetTransactionPageState() {
+                issueForm?.reset();
+                returnForm?.reset();
+                clearStudentSelection();
+                clearReturnStudentSelection();
+                studentResults.innerHTML = '';
+                studentResults.style.display = 'none';
+                bookResults.innerHTML = '';
+                bookResults.style.display = 'none';
+                returnStudentResults.innerHTML = '';
+                returnStudentResults.style.display = 'none';
+            }
+
+            function getIssuedBookCheckboxes() {
+                return Array.from(issuedBooksContainer.querySelectorAll('.book-checkbox'));
+            }
+
+            function syncIssuedBooksBulkState() {
+                const checkboxes = getIssuedBookCheckboxes();
+                const total = checkboxes.length;
+                const selected = checkboxes.filter((checkbox) => checkbox.checked).length;
+
+                if (issuedBooksToolbar) {
+                    issuedBooksToolbar.hidden = total === 0;
+                    issuedBooksToolbar.classList.toggle('is-active', selected > 0);
+                }
+
+                if (selectAllIssuedBooksCheckbox) {
+                    selectAllIssuedBooksCheckbox.disabled = total === 0;
+                    selectAllIssuedBooksCheckbox.checked = total > 0 && selected === total;
+                    selectAllIssuedBooksCheckbox.indeterminate = selected > 0 && selected < total;
+                }
+
+                if (issuedBooksSelectionSummary) {
+                    issuedBooksSelectionSummary.textContent = `${selected} of ${total} selected`;
+                }
+            }
+
+            function toggleAllIssuedBooks(isChecked) {
+                getIssuedBookCheckboxes().forEach((checkbox) => {
+                    if (checkbox.checked === isChecked) {
+                        return;
+                    }
+
+                    checkbox.checked = isChecked;
+                    toggleIssuedBookSelection(Number(checkbox.dataset.bookId), isChecked);
+                });
+
+                syncIssuedBooksBulkState();
+            }
+
+            function setIssueSubmitting(isSubmitting) {
+                if (!issueButton) {
+                    return;
+                }
+
+                if (isSubmitting) {
+                    issueButton.disabled = true;
+                    issueButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Issuing...';
+                    return;
+                }
+
+                updateIssueButton();
+            }
+
+            function setReturnSubmitting(isSubmitting) {
+                if (!returnButton) {
+                    return;
+                }
+
+                if (isSubmitting) {
+                    returnButton.disabled = true;
+                    returnButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                    return;
+                }
+
+                updateReturnButton();
+            }
+
+            function executeIssueTransaction({
+                studentId,
+                studentName,
+                studentRollNo,
+                bookIds,
+                selectedCount,
+                dueDatePreview,
+                remainingAfterIssue,
+                rulesSnapshot,
+            }) {
+                setIssueSubmitting(true);
+
+                fetch('{{ route('admin.transactions.issue') }}', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        },
+                        body: JSON.stringify({
+                            student_id: studentId,
+                            book_ids: bookIds,
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showTransactionToast({
+                                title: 'Books Issued',
+                                message: `Issued ${selectedCount} book${selectedCount === 1 ? '' : 's'} to ${studentName}.`,
+                                detail: `${studentRollNo || 'Student'} • Due ${dueDatePreview} • ${remainingAfterIssue} slot${remainingAfterIssue === 1 ? '' : 's'} left`,
+                                icon: 'fas fa-book-open',
+                            }, 'success');
+
+                            issueForm.reset();
+                            clearStudentSelection();
+                            return;
+                        }
+
+                        const responseMessage = String(data.message || 'Unable to issue the selected books.');
+                        const isPermissionError = responseMessage.includes('allowed to borrow') || responseMessage.includes('permission');
+                        showTransactionToast({
+                            title: isPermissionError ? 'Borrowing Permission Denied' : 'Issue Failed',
+                            message: responseMessage,
+                            detail: studentRollNo || '',
+                            icon: isPermissionError ? 'fas fa-user-lock' : 'fas fa-book',
+                        }, 'error');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showTransactionToast({
+                            title: 'Transaction Error',
+                            message: 'Failed to issue the selected books.',
+                            detail: error.message,
+                            icon: 'fas fa-exclamation-triangle',
+                        }, 'error');
+                    })
+                    .finally(() => {
+                        setIssueSubmitting(false);
+                    });
+            }
+
+            function executeReturnTransaction({
+                studentId,
+                studentName,
+                studentRollNo,
+                issuedBookIds,
+                selectedCount,
+                condition,
+                conditionLabel,
+                totalFinePreview,
+                rulesSnapshot,
+            }) {
+                setReturnSubmitting(true);
+
+                fetch('{{ route('admin.transactions.return') }}', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        },
+                        body: JSON.stringify({
+                            student_id: studentId,
+                            issued_book_ids: issuedBookIds,
+                            condition,
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const totalFine = Number(data.total_fine ?? totalFinePreview ?? 0);
+                            const hasFine = totalFine > 0;
+
+                            showTransactionToast({
+                                title: hasFine ? 'Return Processed' : 'Books Returned',
+                                message: `Processed ${selectedCount} returned book${selectedCount === 1 ? '' : 's'} for ${studentName}.`,
+                                detail: `${studentRollNo || 'Student'} • ${conditionLabel} • Fine ${formatCurrency(totalFine)}`,
+                                icon: hasFine ? 'fas fa-coins' : 'fas fa-undo-alt',
+                            }, hasFine ? 'warning' : 'success');
+
+                            if (window.opener && !window.opener.closed) {
+                                window.opener.postMessage({
+                                    type: 'fines_updated',
+                                    studentId
+                                }, window.location.origin);
+                            }
+
+                            returnForm.reset();
+                            clearReturnStudentSelection();
+                            return;
+                        }
+
+                        showTransactionToast({
+                            title: 'Return Failed',
+                            message: String(data.message || 'Unable to process the selected returns.'),
+                            detail: studentRollNo || '',
+                            icon: 'fas fa-undo-alt',
+                        }, 'error');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showTransactionToast({
+                            title: 'Transaction Error',
+                            message: 'Failed to process the selected returns.',
+                            detail: error.message,
+                            icon: 'fas fa-exclamation-triangle',
+                        }, 'error');
+                    })
+                    .finally(() => {
+                        setReturnSubmitting(false);
+                    });
+            }
 
             // ========== FORM SUBMISSION ==========
 
@@ -3594,56 +4612,34 @@
                     return;
                 }
 
-                // Submit to backend
+                const selectedCount = selectedBooks.length;
                 const bookIds = selectedBooks.map(book => book.id);
+                const dueDatePreview = formatDate(addDaysFromToday(rules.issue_duration_days));
+                const remainingAfterIssue = Math.max(
+                    0,
+                    Number(rules.max_books ?? 0) - Number(selectedStudent.issued ?? 0) - selectedCount
+                );
 
-                fetch('{{ route('admin.transactions.issue') }}', {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                        },
-                        body: JSON.stringify({
-                            student_id: selectedStudent.id,
-                            book_ids: bookIds,
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const dueDatePreview = formatDate(addDaysFromToday(rules.issue_duration_days));
-                            const remainingAfterIssue = Math.max(
-                                0,
-                                Number(rules.max_books ?? 0) - Number(selectedStudent.issued ?? 0) - selectedBooks.length
-                            );
-                            showCustomAlert(
-                                'Books Issued Successfully',
-                                `${data.message}\n\nEffective due date: ${dueDatePreview}\nIssue duration: ${rules.issue_duration_days} day(s)\nLate fine rule: ${formatCurrency(rules.per_day_fine)}/day after ${rules.grace_period_days} grace day(s)\nRemaining borrowing capacity after issue: ${remainingAfterIssue}`,
-                                'success'
-                            );
-                            // Reset form
-                            issueForm.reset();
-                            clearStudentSelection();
-                        } else {
-                            // Check if it's a permission/privilege issue
-                            const isPermissionError = data.message.includes('allowed to borrow') || 
-                                                     data.message.includes('permission');
-                            showCustomAlert(
-                                isPermissionError ? 'Borrowing Permission Denied' : 'Issue Failed',
-                                data.message,
-                                'error'
-                            );
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showCustomAlert(
-                            'Transaction Error',
-                            'Failed to issue books: ' + error.message,
-                            'error'
-                        );
-                    });
+                openTransactionConfirmModal({
+                    title: `Issue ${selectedCount} book${selectedCount === 1 ? '' : 's'} to ${selectedStudent.name}?`,
+                    message: 'This will issue the selected books using the student\'s effective borrowing rules.',
+                    detail: `${selectedStudent.roll_no || 'Student'} • Due ${dueDatePreview}`,
+                    icon: 'fas fa-book-open',
+                    iconVariant: 'primary',
+                    confirmLabel: 'Issue Books',
+                    confirmIcon: 'fas fa-book-open',
+                    confirmVariant: 'primary',
+                    onConfirm: () => executeIssueTransaction({
+                        studentId: selectedStudent.id,
+                        studentName: selectedStudent.name,
+                        studentRollNo: selectedStudent.roll_no,
+                        bookIds,
+                        selectedCount,
+                        dueDatePreview,
+                        remainingAfterIssue,
+                        rulesSnapshot: rules,
+                    }),
+                });
             });
 
             // Return Book Form Submit
@@ -3662,61 +4658,35 @@
                     return;
                 }
 
-                // Submit to backend
                 const issuedBookIds = selectedIssuedBooks.map(book => book.id);
+                const selectedCount = selectedIssuedBooks.length;
+                const conditionLabel = toTitleCase(selectedCondition);
+                const totalFineLabel = document.getElementById('totalFine')?.textContent?.trim() || formatCurrency(0);
+                const totalFinePreview = Number(totalFineLabel.replace(/[^0-9.]/g, '')) || 0;
+                const confirmVariant = totalFinePreview > 0 || selectedCondition !== 'good' ? 'warning' : 'success';
+                const confirmIconVariant = confirmVariant === 'warning' ? 'warning' : 'success';
 
-                fetch('{{ route('admin.transactions.return') }}', {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                        },
-                        body: JSON.stringify({
-                            student_id: selectedReturnStudent.id,
-                            issued_book_ids: issuedBookIds,
-                            condition: selectedCondition,
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const rules = getReturnRules();
-                            const selectedCount = selectedIssuedBooks.length;
-                            const conditionLabel = toTitleCase(selectedCondition);
-                            showCustomAlert(
-                                'Books Returned Successfully',
-                                `${data.message}\n\nReturned books: ${selectedCount}\nCondition applied: ${conditionLabel}\nTotal fine charged: ${formatCurrency(data.total_fine)}\nLate fine rule used: ${formatCurrency(rules?.per_day_fine ?? fineSettings.per_day_fine)}/day after ${rules?.grace_period_days ?? fineSettings.grace_period_days} grace day(s)`,
-                                'success'
-                            );
-
-                            // Notify any open ViewStudent page to refresh fines
-                            if (window.opener && !window.opener.closed) {
-                                window.opener.postMessage({
-                                    type: 'fines_updated',
-                                    studentId: selectedReturnStudent.id
-                                }, window.location.origin);
-                            }
-
-                            // Reset form
-                            returnForm.reset();
-                            clearReturnStudentSelection();
-                        } else {
-                            showCustomAlert(
-                                'Return Failed',
-                                data.message,
-                                'error'
-                            );
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showCustomAlert(
-                            'Transaction Error',
-                            'Failed to return books: ' + error.message,
-                            'error'
-                        );
-                    });
+                openTransactionConfirmModal({
+                    title: `Process return for ${selectedReturnStudent.name}?`,
+                    message: 'This will return the selected books and apply the chosen condition and fine rules.',
+                    detail: `${selectedCount} book${selectedCount === 1 ? '' : 's'} • ${conditionLabel} • ${totalFineLabel}`,
+                    icon: confirmVariant === 'warning' ? 'fas fa-coins' : 'fas fa-undo-alt',
+                    iconVariant: confirmIconVariant,
+                    confirmLabel: 'Process Return',
+                    confirmIcon: confirmVariant === 'warning' ? 'fas fa-coins' : 'fas fa-undo-alt',
+                    confirmVariant,
+                    onConfirm: () => executeReturnTransaction({
+                        studentId: selectedReturnStudent.id,
+                        studentName: selectedReturnStudent.name,
+                        studentRollNo: selectedReturnStudent.roll_no,
+                        issuedBookIds,
+                        selectedCount,
+                        condition: selectedCondition,
+                        conditionLabel,
+                        totalFinePreview,
+                        rulesSnapshot: getReturnRules(),
+                    }),
+                });
             });
 
             // Listen for fine update messages from other windows
@@ -3727,6 +4697,13 @@
                     if (typeof loadStudentFines === 'function') {
                         loadStudentFines();
                     }
+                }
+            });
+
+            resetTransactionPageState();
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    resetTransactionPageState();
                 }
             });
 
