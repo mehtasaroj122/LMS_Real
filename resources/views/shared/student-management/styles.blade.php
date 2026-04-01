@@ -618,31 +618,138 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        pointer-events: none;
     }
 
     .student-toast {
-        padding: 12px 16px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        color: white;
+        position: relative;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 0.85rem;
+        align-items: start;
+        min-width: min(360px, calc(100vw - 40px));
+        max-width: 420px;
+        padding: 0.95rem 1rem 1rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+        overflow: hidden;
+        color: #ffffff;
+        pointer-events: auto;
+        opacity: 0;
+        transform: translateX(18px) scale(0.98);
+        animation: studentToastIn 0.24s ease forwards;
     }
 
     .student-toast.success {
-        background-color: #10b981;
+        background: linear-gradient(135deg, #047857 0%, #10b981 100%);
     }
 
     .student-toast.error {
-        background-color: #ef4444;
+        background: linear-gradient(135deg, #b91c1c 0%, #ef4444 100%);
     }
 
     .student-toast.warning {
-        background-color: #f59e0b;
+        background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%);
     }
 
     .student-toast.info {
-        background-color: #3b82f6;
+        background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+    }
+
+    .student-toast-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.18);
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .student-toast-copy {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.18rem;
+    }
+
+    .student-toast-title {
+        font-size: 0.92rem;
+        font-weight: 700;
+        line-height: 1.35;
+    }
+
+    .student-toast-message {
+        font-size: 0.83rem;
+        line-height: 1.45;
+        color: rgba(255, 255, 255, 0.95);
+    }
+
+    .student-toast-detail {
+        font-size: 0.76rem;
+        line-height: 1.4;
+        color: rgba(255, 255, 255, 0.78);
+    }
+
+    .student-toast-close {
+        width: 1.85rem;
+        height: 1.85rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+        color: rgba(255, 255, 255, 0.9);
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .student-toast-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.04);
+    }
+
+    .student-toast-progress {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.28);
+        transform-origin: left center;
+        animation: studentToastProgress 4.2s linear forwards;
+    }
+
+    .student-toast.is-leaving {
+        animation: studentToastOut 0.18s ease forwards;
+    }
+
+    @keyframes studentToastIn {
+        to {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    }
+
+    @keyframes studentToastOut {
+        to {
+            opacity: 0;
+            transform: translateX(12px) scale(0.96);
+        }
+    }
+
+    @keyframes studentToastProgress {
+        from {
+            transform: scaleX(1);
+        }
+
+        to {
+            transform: scaleX(0);
+        }
     }
 
     .sr-only {

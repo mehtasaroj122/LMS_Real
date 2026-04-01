@@ -1003,6 +1003,343 @@
             outline: 2px solid #3b82f6;
             outline-offset: 2px;
         }
+
+        .student-visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .student-toast-container {
+            position: fixed;
+            top: 88px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: min(360px, calc(100vw - 32px));
+            z-index: 2100;
+            pointer-events: none;
+        }
+
+        .student-toast {
+            position: relative;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 14px;
+            padding: 16px 18px 18px;
+            border-radius: 18px;
+            overflow: hidden;
+            pointer-events: auto;
+            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(12px);
+            color: #ffffff;
+            animation: studentToastIn 0.24s ease;
+        }
+
+        .student-toast.is-leaving {
+            animation: studentToastOut 0.18s ease forwards;
+        }
+
+        .student-toast.success {
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.96), rgba(5, 150, 105, 0.94));
+        }
+
+        .student-toast.error {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.97), rgba(190, 24, 93, 0.94));
+        }
+
+        .student-toast.warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.97), rgba(217, 119, 6, 0.94));
+        }
+
+        .student-toast.info {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.97), rgba(79, 70, 229, 0.94));
+        }
+
+        .student-toast-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 18px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        }
+
+        .student-toast-copy {
+            min-width: 0;
+        }
+
+        .student-toast-title {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .student-toast-message {
+            margin-top: 2px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.96);
+        }
+
+        .student-toast-detail {
+            margin-top: 6px;
+            font-size: 11px;
+            line-height: 1.4;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .student-toast-close {
+            appearance: none;
+            border: 0;
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .student-toast-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .student-toast-progress {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .student-toast-progress::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.92);
+            transform-origin: left center;
+            animation: studentToastProgress 4.2s linear forwards;
+        }
+
+        .student-confirm-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.58);
+            backdrop-filter: blur(8px);
+            z-index: 2050;
+        }
+
+        .student-confirm-card {
+            width: min(440px, 100%);
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid;
+            box-shadow: 0 28px 60px rgba(15, 23, 42, 0.26);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.light-theme .student-confirm-card {
+            background: rgba(255, 255, 255, 0.97);
+            border-color: rgba(226, 232, 240, 0.95);
+            color: #0f172a;
+        }
+
+        body.dark-theme .student-confirm-card {
+            background: rgba(15, 23, 42, 0.96);
+            border-color: rgba(71, 85, 105, 0.88);
+            color: #e2e8f0;
+        }
+
+        .student-confirm-header {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .student-confirm-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 22px;
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            color: #b91c1c;
+        }
+
+        body.dark-theme .student-confirm-icon {
+            background: linear-gradient(135deg, rgba(127, 29, 29, 0.85), rgba(127, 29, 29, 0.55));
+            color: #fca5a5;
+        }
+
+        .student-confirm-title {
+            margin: 2px 0 6px;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .student-confirm-copy p {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        body.light-theme .student-confirm-copy p {
+            color: #475569;
+        }
+
+        body.dark-theme .student-confirm-copy p {
+            color: #94a3b8;
+        }
+
+        .student-confirm-detail {
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        body.light-theme .student-confirm-detail {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        body.dark-theme .student-confirm-detail {
+            background: rgba(30, 41, 59, 0.85);
+            color: #cbd5e1;
+        }
+
+        .student-confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .student-confirm-btn {
+            appearance: none;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            min-width: 112px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .student-confirm-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .student-confirm-btn.secondary {
+            background: transparent;
+        }
+
+        body.light-theme .student-confirm-btn.secondary {
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+
+        body.dark-theme .student-confirm-btn.secondary {
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        .student-confirm-btn.danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            box-shadow: 0 12px 24px rgba(220, 38, 38, 0.24);
+        }
+
+        .student-confirm-btn:disabled {
+            opacity: 0.7;
+            cursor: wait;
+            transform: none;
+        }
+
+        @keyframes studentToastIn {
+            from {
+                opacity: 0;
+                transform: translate3d(0, -10px, 0) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+        }
+
+        @keyframes studentToastOut {
+            from {
+                opacity: 1;
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translate3d(0, -8px, 0) scale(0.98);
+            }
+        }
+
+        @keyframes studentToastProgress {
+            from {
+                transform: scaleX(1);
+            }
+            to {
+                transform: scaleX(0);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .student-toast-container {
+                top: auto;
+                right: 12px;
+                bottom: 16px;
+                left: 12px;
+                width: auto;
+            }
+
+            .student-confirm-card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .student-confirm-actions {
+                flex-direction: column-reverse;
+            }
+
+            .student-confirm-btn {
+                width: 100%;
+            }
+        }
     </style>
 @endpush
 
@@ -1414,6 +1751,29 @@
             </form>
         </div>
     </div>
+
+    <div id="deleteStudentModal" class="student-confirm-modal" aria-hidden="true">
+        <div class="student-confirm-card" role="dialog" aria-modal="true" aria-labelledby="deleteStudentModalTitle">
+            <div class="student-confirm-header">
+                <div class="student-confirm-icon" aria-hidden="true">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <div class="student-confirm-copy">
+                    <h2 id="deleteStudentModalTitle" class="student-confirm-title">Delete Student</h2>
+                    <p id="deleteStudentModalMessage">Are you sure you want to delete this student? This action cannot be undone.</p>
+                    <div id="deleteStudentModalDetail" class="student-confirm-detail">Student record</div>
+                </div>
+            </div>
+
+            <div class="student-confirm-actions">
+                <button type="button" id="deleteStudentCancelBtn" class="student-confirm-btn secondary">Cancel</button>
+                <button type="button" id="deleteStudentConfirmBtn" class="student-confirm-btn danger">Delete Student</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="studentToastContainer" class="student-toast-container" aria-live="polite" aria-atomic="true"></div>
+    <div id="studentLiveRegion" class="student-visually-hidden" aria-live="polite" aria-atomic="true"></div>
 
 @endsection
 
@@ -2087,6 +2447,1145 @@
                 });
         };
 
+        const studentToastIcons = {
+            success: 'fas fa-check-circle',
+            error: 'fas fa-circle-xmark',
+            warning: 'fas fa-triangle-exclamation',
+            info: 'fas fa-circle-info',
+        };
+
+        function dismissStudentToast(toast) {
+            if (!toast) {
+                return;
+            }
+
+            toast.classList.add('is-leaving');
+            window.setTimeout(() => toast.remove(), 180);
+        }
+
+        function announceStudentMessage(message) {
+            const liveRegion = document.getElementById('studentLiveRegion');
+
+            if (liveRegion) {
+                liveRegion.textContent = message;
+            }
+        }
+
+        function showStudentToast(message, type = 'info') {
+            const container = document.getElementById('studentToastContainer');
+
+            if (!container) {
+                return;
+            }
+
+            const payload = typeof message === 'object' && message !== null
+                ? message
+                : {
+                    title: type === 'error' ? 'Action Failed' : 'Update Complete',
+                    message: String(message || ''),
+                };
+
+            const toast = document.createElement('div');
+            toast.className = `student-toast ${type}`;
+            toast.innerHTML = `
+                <div class="student-toast-icon" aria-hidden="true">
+                    <i class="${payload.icon || studentToastIcons[type] || studentToastIcons.info}"></i>
+                </div>
+                <div class="student-toast-copy">
+                    <div class="student-toast-title">${payload.title || 'Notice'}</div>
+                    <div class="student-toast-message">${payload.message || ''}</div>
+                    ${payload.detail ? `<div class="student-toast-detail">${payload.detail}</div>` : ''}
+                </div>
+                <button type="button" class="student-toast-close" aria-label="Dismiss notification">
+                    <i class="fas fa-times"></i>
+                </button>
+                <span class="student-toast-progress" aria-hidden="true"></span>
+            `;
+
+            container.appendChild(toast);
+            toast.querySelector('.student-toast-close')?.addEventListener('click', () => dismissStudentToast(toast));
+            window.setTimeout(() => dismissStudentToast(toast), 4200);
+        }
+
+        Object.assign(StudentManager.prototype, {
+            init() {
+                this.students = [];
+                this.paginationData = this.createEmptyPaginationState();
+                this.statsData = null;
+                this.pendingDeleteStudent = null;
+                this.isDeletingStudent = false;
+                this.toastContainer = document.getElementById('studentToastContainer');
+                this.liveRegion = document.getElementById('studentLiveRegion');
+                this.deleteModal = document.getElementById('deleteStudentModal');
+                this.deleteConfirmButton = document.getElementById('deleteStudentConfirmBtn');
+                this.deleteCancelButton = document.getElementById('deleteStudentCancelBtn');
+                this.deleteModalTitle = document.getElementById('deleteStudentModalTitle');
+                this.deleteModalMessage = document.getElementById('deleteStudentModalMessage');
+                this.deleteModalDetail = document.getElementById('deleteStudentModalDetail');
+
+                const searchInput = document.getElementById('searchInput');
+                const departmentFilter = document.getElementById('departmentFilter');
+                const statusFilter = document.getElementById('statusFilter');
+                const sortFilter = document.getElementById('sortFilter');
+                const entriesSelect = document.getElementById('studentsEntriesSelect');
+                const resetBtn = document.getElementById('resetFiltersBtn');
+                const addBtn = document.getElementById('addStudentBtn');
+
+                if (searchInput) {
+                    searchInput.value = new URLSearchParams(window.location.search).get('search') || '';
+                    searchInput.addEventListener('input', () => {
+                        clearTimeout(this.searchDebounceTimer);
+                        this.searchDebounceTimer = setTimeout(() => {
+                            this.selectedRowIndex = -1;
+                            this.currentPage = 1;
+                            void this.reloadStudents();
+                        }, 300);
+                    });
+                }
+
+                if (departmentFilter) {
+                    departmentFilter.value = this.currentDepartment;
+                    departmentFilter.addEventListener('change', (event) => {
+                        this.currentDepartment = event.target.value;
+                        this.selectedRowIndex = -1;
+                        this.currentPage = 1;
+                        void this.reloadStudents();
+                    });
+                }
+
+                if (statusFilter) {
+                    statusFilter.value = this.currentStatus;
+                    statusFilter.addEventListener('change', (event) => {
+                        this.currentStatus = event.target.value;
+                        this.selectedRowIndex = -1;
+                        this.currentPage = 1;
+                        void this.reloadStudents();
+                    });
+                }
+
+                if (sortFilter) {
+                    sortFilter.value = this.currentSort;
+                    sortFilter.addEventListener('change', (event) => {
+                        this.currentSort = event.target.value;
+                        this.selectedRowIndex = -1;
+                        this.currentPage = 1;
+                        void this.reloadStudents();
+                    });
+                }
+
+                if (entriesSelect) {
+                    entriesSelect.value = String(this.rowsPerPage);
+                    entriesSelect.addEventListener('change', (event) => {
+                        this.rowsPerPage = this.normalizePerPage(event.target.value);
+                        this.selectedRowIndex = -1;
+                        this.currentPage = 1;
+                        void this.reloadStudents();
+                    });
+                }
+
+                resetBtn?.addEventListener('click', () => this.resetFilters());
+                addBtn?.addEventListener('click', () => openAddStudentModal());
+
+                this.bindDeleteModalEvents();
+                document.addEventListener('keydown', (event) => this.handleKeyboardNavigation(event));
+                this.setupKeyboardShortcuts();
+                void this.reloadStudents();
+            },
+
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (event) => {
+                    if (this.isDeleteModalVisible()) {
+                        return;
+                    }
+
+                    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+                        event.preventDefault();
+                        document.getElementById('searchInput')?.focus();
+                        return;
+                    }
+
+                    if (event.key === 'Escape' && document.activeElement?.id === 'searchInput') {
+                        const input = document.getElementById('searchInput');
+
+                        if (input?.value) {
+                            input.value = '';
+                            this.currentPage = 1;
+                            void this.reloadStudents();
+                        } else {
+                            input?.blur();
+                        }
+                    }
+                });
+            },
+
+            bindDeleteModalEvents() {
+                this.deleteCancelButton?.addEventListener('click', () => this.closeDeleteModal());
+                this.deleteConfirmButton?.addEventListener('click', () => {
+                    void this.confirmDeleteStudent();
+                });
+                this.deleteModal?.addEventListener('click', (event) => {
+                    if (event.target === this.deleteModal) {
+                        this.closeDeleteModal();
+                    }
+                });
+            },
+
+            isDeleteModalVisible() {
+                return this.deleteModal?.style.display === 'flex';
+            },
+
+            openDeleteModal(student) {
+                if (!student || !this.deleteModal) {
+                    return;
+                }
+
+                this.pendingDeleteStudent = student;
+                this.deleteModalTitle.textContent = `Delete ${student.name || 'Student'}?`;
+                this.deleteModalMessage.textContent = `This will permanently remove ${student.name || 'this student'} from the system and cannot be undone.`;
+                this.deleteModalDetail.textContent = student.rollNo ? `Student ID ${student.rollNo}` : 'Student record';
+                this.deleteModal.style.display = 'flex';
+                this.deleteModal.setAttribute('aria-hidden', 'false');
+                this.deleteConfirmButton?.focus();
+            },
+
+            closeDeleteModal(force = false) {
+                if (!force && this.isDeletingStudent) {
+                    return;
+                }
+
+                if (this.deleteModal) {
+                    this.deleteModal.style.display = 'none';
+                    this.deleteModal.setAttribute('aria-hidden', 'true');
+                }
+
+                this.pendingDeleteStudent = null;
+            },
+
+            requestDeleteStudent(studentId) {
+                const student = this.getStudentById(studentId);
+
+                if (!student) {
+                    this.showToast({
+                        title: 'Student Not Found',
+                        message: 'We could not find that student in the current list.',
+                        icon: 'fas fa-circle-info',
+                    }, 'warning');
+                    return;
+                }
+
+                this.openDeleteModal(student);
+            },
+
+            resetFilters() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('statusFilter').value = 'all';
+                document.getElementById('departmentFilter').value = 'all';
+                document.getElementById('sortFilter').value = 'created-desc';
+                this.currentStatus = 'all';
+                this.currentDepartment = 'all';
+                this.currentSort = 'created-desc';
+                this.currentPage = 1;
+                this.selectedRowIndex = -1;
+                void this.reloadStudents();
+            },
+
+            getCurrentFilters() {
+                return {
+                    search: document.getElementById('searchInput')?.value.trim() || '',
+                    department: document.getElementById('departmentFilter')?.value || this.currentDepartment,
+                    status: document.getElementById('statusFilter')?.value || this.currentStatus,
+                    sort: document.getElementById('sortFilter')?.value || this.currentSort,
+                };
+            },
+
+            buildListingParams({ includePage = true } = {}) {
+                const filters = this.getCurrentFilters();
+                const params = new URLSearchParams({
+                    search: filters.search,
+                    department: filters.department,
+                    status: filters.status,
+                    sort: filters.sort,
+                });
+
+                if (includePage) {
+                    params.set('page', String(this.currentPage));
+                    params.set('per_page', String(this.rowsPerPage));
+                }
+
+                return params;
+            },
+
+            buildMutationUrl(url) {
+                const params = this.buildListingParams({ includePage: false });
+                return `${url}${url.includes('?') ? '&' : '?'}${params.toString()}`;
+            },
+
+            createEmptyPaginationState(total = 0) {
+                return {
+                    current_page: this.currentPage,
+                    last_page: Math.max(1, Math.ceil(Number(total || 0) / this.rowsPerPage) || 1),
+                    per_page: this.rowsPerPage,
+                    total: Number(total || 0),
+                    from: 0,
+                    to: 0,
+                };
+            },
+
+            async fetchStudents(page = 1) {
+                this.currentPage = Math.max(1, Number(page) || 1);
+                const filters = this.getCurrentFilters();
+                this.currentDepartment = filters.department;
+                this.currentStatus = filters.status;
+                this.currentSort = filters.sort;
+                this.setStatsLoading(true);
+                this.setTableLoading(true);
+
+                try {
+                    const params = this.buildListingParams();
+                    const response = await fetch(`{{ route('admin.students.data') }}?${params.toString()}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Unable to load students.');
+                    }
+
+                    const pagination = data.paginationData || {
+                        current_page: Number(data.current_page || this.currentPage),
+                        last_page: Number(data.last_page || 1),
+                        per_page: this.rowsPerPage,
+                        total: Number(data.total || 0),
+                        from: 0,
+                        to: 0,
+                    };
+
+                    if (this.currentPage > Number(pagination.last_page || 1)) {
+                        await this.fetchStudents(Number(pagination.last_page || 1));
+                        return;
+                    }
+
+                    this.students = Array.isArray(data.students) ? data.students : [];
+                    this.paginationData = pagination;
+                    this.currentPage = Math.max(1, Number(pagination.current_page || this.currentPage || 1));
+                    this.rowsPerPage = this.normalizePerPage(pagination.per_page || this.rowsPerPage);
+                    this.statsData = data.stats || this.statsData;
+                    this.lastUpdatedAt = new Date();
+                    this.syncPaginationState(Number(this.statsData?.totalStudents ?? pagination.total ?? 0));
+                    this.syncUrlState(filters.search);
+                    this.renderAll(filters);
+                } catch (error) {
+                    console.error('Error fetching students:', error);
+                    this.showToast(error.message || 'Unable to load students right now.', 'error');
+                    this.renderTableError();
+                } finally {
+                    this.setTableLoading(false);
+                    this.setStatsLoading(false);
+                }
+            },
+
+            reloadStudents(page = 1) {
+                return this.fetchStudents(page);
+            },
+        });
+
+        Object.assign(StudentManager.prototype, {
+            renderAll(filters = this.getCurrentFilters()) {
+                this.renderTable();
+                this.renderPagination();
+                this.renderToolbarMeta();
+                this.renderStats(this.statsData || {}, filters);
+            },
+
+            renderTable() {
+                const tableBody = document.getElementById('studentsTableBody');
+
+                if (!tableBody) {
+                    return;
+                }
+
+                tableBody.classList.remove('student-table-loading');
+
+                if (!this.students.length) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 40px; color: #6b7280;">
+                                <i class="fas fa-search" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5; display: block;"></i>
+                                <p style="font-size: 16px; margin: 0; font-weight: 500;">No students found</p>
+                                <p style="font-size: 14px; margin-top: 8px; color: #9ca3af;">Try adjusting your search or filters.</p>
+                            </td>
+                        </tr>
+                    `;
+                    this.selectedRowIndex = -1;
+                    return;
+                }
+
+                tableBody.innerHTML = this.students.map((student) => this.studentRowMarkup(student)).join('');
+                this.attachEventListeners();
+                this.updateRowAccessibility();
+
+                if (this.selectedRowIndex >= 0) {
+                    this.selectRow(Math.min(this.selectedRowIndex, this.students.length - 1));
+                }
+            },
+
+            studentRowMarkup(student) {
+                const avatar = student.avatar
+                    ? `<div class="student-avatar"><img src="${this.escapeHtml(student.avatar)}" alt="${this.escapeHtml(student.name)}"></div>`
+                    : `<div class="student-avatar">${this.escapeHtml(student.initials || 'ST')}</div>`;
+                const statusClass = student.status === 'active' ? 'status-active' : 'status-inactive';
+                const statusIconMarkup = student.status === 'active'
+                    ? '<i class="fas fa-check-circle" style="font-size: 10px;"></i>'
+                    : '<i class="fas fa-times-circle" style="font-size: 10px;"></i>';
+                const toggleIcon = student.status === 'active' ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
+                const toggleTitle = student.status === 'active' ? 'Deactivate student' : 'Activate student';
+
+                return `
+                    <tr data-student-id="${student.id}" class="student-row">
+                        <td>
+                            <div class="student-cell">
+                                ${avatar}
+                                <div class="student-info">
+                                    <span class="student-name">${this.escapeHtml(student.name)}</span>
+                                    <div class="text-muted">${this.escapeHtml(student.rollNo)}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-muted">${this.escapeHtml(student.email)}</td>
+                        <td class="text-muted">${this.escapeHtml(student.phone)}</td>
+                        <td class="text-muted">${this.escapeHtml(student.department)}</td>
+                        <td class="text-muted">${this.escapeHtml(student.batch)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusIconMarkup} ${this.escapeHtml(student.statusLabel || this.capitalize(student.status))}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url('admin/students') }}/${student.id}" class="action-btn btn-view" title="View details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" class="action-btn btn-edit" onclick="openEditStudentModal(${student.id})" title="Edit student">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="action-btn"
+                                    data-action="toggle-status"
+                                    data-student-id="${student.id}"
+                                    title="${toggleTitle}"
+                                    onclick="toggleStudentStatus(${student.id})"
+                                >
+                                    <i class="${toggleIcon}"></i>
+                                </button>
+                                <button type="button" class="action-btn btn-delete" onclick="deleteStudent(${student.id})" title="Delete student">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            },
+
+            renderPagination() {
+                const pagination = document.getElementById('paginationContainer');
+
+                if (!pagination) {
+                    return;
+                }
+
+                const total = Number(this.paginationData?.total || 0);
+                const currentPage = Math.max(1, Number(this.paginationData?.current_page || this.currentPage || 1));
+                const lastPage = Math.max(1, Number(this.paginationData?.last_page || 1));
+                const from = Number(this.paginationData?.from || 0);
+                const to = Number(this.paginationData?.to || 0);
+
+                if (total === 0) {
+                    pagination.innerHTML = '';
+                    return;
+                }
+
+                const buttons = [
+                    this.paginationButton('&larr; Previous', currentPage - 1, currentPage === 1, false, 'Previous page'),
+                ];
+
+                this.buildPaginationSequence(currentPage, lastPage).forEach((page) => {
+                    if (page === null) {
+                        buttons.push('<span class="admin-table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
+                        return;
+                    }
+
+                    buttons.push(this.paginationButton(String(page), page, false, page === currentPage, `Page ${page}`));
+                });
+
+                buttons.push(this.paginationButton('Next &rarr;', currentPage + 1, currentPage === lastPage, false, 'Next page'));
+
+                pagination.innerHTML = `
+                    <div class="admin-table-pagination">
+                        <div class="admin-table-pagination-meta">
+                            <div class="admin-table-pagination-summary">Showing ${this.formatNumber(from)} to ${this.formatNumber(to)} of ${this.formatNumber(total)} results</div>
+                            <div class="admin-table-pagination-page">Page ${currentPage} of ${lastPage}</div>
+                        </div>
+                        <nav class="admin-table-pagination-nav" aria-label="Pagination navigation">
+                            ${buttons.join('')}
+                        </nav>
+                    </div>
+                `;
+
+                pagination.querySelectorAll('[data-page]').forEach((button) => {
+                    button.addEventListener('click', () => {
+                        const nextPage = Number(button.getAttribute('data-page'));
+
+                        if (!Number.isNaN(nextPage) && nextPage > 0 && nextPage !== this.currentPage) {
+                            this.selectedRowIndex = -1;
+                            void this.fetchStudents(nextPage);
+                        }
+                    });
+                });
+            },
+
+            paginationButton(label, page, disabled = false, active = false, ariaLabel = '') {
+                return `
+                    <button
+                        type="button"
+                        class="admin-table-pagination-link${active ? ' is-active' : ''}${disabled ? ' is-disabled' : ''}"
+                        data-page="${page}"
+                        aria-label="${this.escapeHtml(active ? `Current page, ${ariaLabel || label}` : (ariaLabel || `Page ${label}`))}"
+                        ${disabled ? 'disabled aria-disabled="true"' : ''}
+                        ${active ? 'aria-current="page"' : ''}
+                    >
+                        ${label}
+                    </button>
+                `;
+            },
+
+            buildPaginationSequence(currentPage, lastPage) {
+                if (lastPage <= 7) {
+                    return Array.from({ length: lastPage }, (_, index) => index + 1);
+                }
+
+                const pages = [1];
+                let startPage = Math.max(2, currentPage - 1);
+                let endPage = Math.min(lastPage - 1, currentPage + 1);
+
+                if (currentPage <= 3) {
+                    endPage = 4;
+                }
+
+                if (currentPage >= lastPage - 2) {
+                    startPage = lastPage - 3;
+                }
+
+                if (startPage > 2) {
+                    pages.push(null);
+                }
+
+                for (let page = startPage; page <= endPage; page += 1) {
+                    pages.push(page);
+                }
+
+                if (endPage < lastPage - 1) {
+                    pages.push(null);
+                }
+
+                pages.push(lastPage);
+                return pages;
+            },
+
+            attachEventListeners() {
+                document.querySelectorAll('#studentsTableBody tr[data-student-id]').forEach((row, index) => {
+                    row.setAttribute('tabindex', '0');
+                    row.classList.add('student-row');
+                    row.addEventListener('click', (event) => {
+                        if (event.target.closest('.action-btn')) {
+                            return;
+                        }
+
+                        this.selectRow(index);
+                        row.focus();
+                    });
+
+                    row.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            this.selectRow(index);
+                            row.querySelector('.btn-view')?.click();
+                        }
+                    });
+                });
+            },
+
+            updateRowAccessibility() {
+                document.querySelectorAll('#studentsTableBody tr[data-student-id]').forEach((row, index) => {
+                    const student = this.students[index];
+                    row.setAttribute('role', 'row');
+                    row.setAttribute('aria-label', student?.name ? `${student.name} student row` : `Student row ${index + 1}`);
+                    row.setAttribute('tabindex', '0');
+                });
+            },
+
+            selectRow(index) {
+                document.querySelectorAll('#studentsTableBody tr[data-student-id]').forEach((row) => {
+                    row.classList.remove('selected');
+                    row.removeAttribute('aria-selected');
+                });
+
+                const rows = document.querySelectorAll('#studentsTableBody tr[data-student-id]');
+
+                if (!rows[index]) {
+                    this.selectedRowIndex = -1;
+                    return;
+                }
+
+                rows[index].classList.add('selected');
+                rows[index].setAttribute('aria-selected', 'true');
+                this.selectedRowIndex = index;
+            },
+
+            handleKeyboardNavigation(event) {
+                if (this.isDeleteModalVisible()) {
+                    if (event.key === 'Escape') {
+                        event.preventDefault();
+                        this.closeDeleteModal();
+                    }
+                    return;
+                }
+
+                const rows = document.querySelectorAll('#studentsTableBody tr[data-student-id]');
+
+                if (!rows.length || ['INPUT', 'SELECT', 'TEXTAREA'].includes(event.target.tagName)) {
+                    return;
+                }
+
+                switch (event.key) {
+                    case 'ArrowDown':
+                        event.preventDefault();
+                        if (this.selectedRowIndex < rows.length - 1) {
+                            this.selectedRowIndex += 1;
+                        } else if (this.selectedRowIndex === -1) {
+                            this.selectedRowIndex = 0;
+                        }
+                        this.selectRow(this.selectedRowIndex);
+                        rows[this.selectedRowIndex]?.focus();
+                        break;
+
+                    case 'ArrowUp':
+                        event.preventDefault();
+                        if (this.selectedRowIndex > 0) {
+                            this.selectedRowIndex -= 1;
+                        } else if (this.selectedRowIndex === -1 && rows.length > 0) {
+                            this.selectedRowIndex = 0;
+                        }
+                        this.selectRow(this.selectedRowIndex);
+                        rows[this.selectedRowIndex]?.focus();
+                        break;
+
+                    case 'Home':
+                        event.preventDefault();
+                        this.selectRow(0);
+                        rows[0]?.focus();
+                        break;
+
+                    case 'End':
+                        event.preventDefault();
+                        this.selectRow(rows.length - 1);
+                        rows[rows.length - 1]?.focus();
+                        break;
+
+                    case 'Escape':
+                        this.selectedRowIndex = -1;
+                        document.querySelectorAll('#studentsTableBody tr[data-student-id]').forEach((row) => {
+                            row.classList.remove('selected');
+                            row.removeAttribute('aria-selected');
+                        });
+                        break;
+
+                    case '/':
+                        if (!event.ctrlKey && !event.metaKey) {
+                            event.preventDefault();
+                            document.getElementById('searchInput')?.focus();
+                            document.getElementById('searchInput')?.select();
+                        }
+                        break;
+
+                    case 'n':
+                    case 'N':
+                        if (event.ctrlKey || event.metaKey) {
+                            event.preventDefault();
+                            openAddStudentModal();
+                        }
+                        break;
+
+                    case 'Delete':
+                        if (this.selectedRowIndex >= 0) {
+                            const studentId = rows[this.selectedRowIndex]?.dataset.studentId;
+
+                            if (studentId) {
+                                deleteStudent(studentId);
+                            }
+                        }
+                        break;
+
+                    case 'Enter':
+                        if (this.selectedRowIndex >= 0 && !event.shiftKey) {
+                            const viewBtn = rows[this.selectedRowIndex]?.querySelector('.btn-view');
+
+                            if (viewBtn) {
+                                event.preventDefault();
+                                viewBtn.click();
+                            }
+                        }
+                        break;
+                }
+            },
+
+            getStudentById(studentId) {
+                return this.students.find((student) => Number(student.id) === Number(studentId)) || null;
+            },
+
+            matchesCurrentFilters(student) {
+                if (!student) {
+                    return false;
+                }
+
+                const searchValue = (this.getCurrentFilters().search || '').toLowerCase();
+                const haystack = [
+                    student.name,
+                    student.email,
+                    student.phone,
+                    student.rollNo,
+                    student.department,
+                ].map((value) => String(value || '').toLowerCase()).join(' ');
+
+                if (searchValue && !haystack.includes(searchValue)) {
+                    return false;
+                }
+
+                if (this.currentDepartment !== 'all' && String(student.departmentId || '') !== String(this.currentDepartment)) {
+                    return false;
+                }
+
+                if (this.currentStatus !== 'all' && String(student.status || '').toLowerCase() !== this.currentStatus) {
+                    return false;
+                }
+
+                return true;
+            },
+
+            sortVisibleStudents() {
+                if (this.currentSort === 'name-asc' || this.currentSort === 'name-desc') {
+                    this.students.sort((left, right) => {
+                        const leftName = String(left.name || '').toLowerCase();
+                        const rightName = String(right.name || '').toLowerCase();
+
+                        return this.currentSort === 'name-asc'
+                            ? leftName.localeCompare(rightName)
+                            : rightName.localeCompare(leftName);
+                    });
+                }
+            },
+
+            syncPaginationState(totalOverride = null) {
+                const total = Math.max(0, Number(totalOverride ?? this.paginationData?.total ?? this.totalRows ?? 0));
+                const lastPage = Math.max(1, Math.ceil(total / this.rowsPerPage) || 1);
+
+                if (this.currentPage > lastPage) {
+                    this.currentPage = lastPage;
+
+                    if (total > 0) {
+                        return { requiresFetch: true, page: lastPage };
+                    }
+                }
+
+                this.paginationData = {
+                    ...this.paginationData,
+                    current_page: this.currentPage,
+                    last_page: lastPage,
+                    per_page: this.rowsPerPage,
+                    total,
+                    from: total === 0 ? 0 : ((this.currentPage - 1) * this.rowsPerPage) + 1,
+                    to: total === 0 ? 0 : Math.min((((this.currentPage - 1) * this.rowsPerPage) + this.students.length), total),
+                };
+                this.totalRows = total;
+
+                return { requiresFetch: false, page: this.currentPage };
+            },
+
+            applyLocalStudentCreate(student) {
+                const total = Number(this.statsData?.totalStudents ?? this.totalRows + 1);
+
+                if (student && this.matchesCurrentFilters(student) && this.currentPage === 1) {
+                    if (this.currentSort === 'created-desc' || total === 1) {
+                        this.students.unshift(student);
+                    } else if (this.currentSort === 'name-asc' || this.currentSort === 'name-desc') {
+                        this.students.push(student);
+                        this.sortVisibleStudents();
+                    } else if (total === 1) {
+                        this.students.unshift(student);
+                    }
+
+                    this.students = this.students.slice(0, this.rowsPerPage);
+                }
+
+                return this.syncPaginationState(total);
+            },
+
+            applyLocalStudentUpdate(student) {
+                const index = this.students.findIndex((item) => Number(item.id) === Number(student?.id));
+                const total = Number(this.statsData?.totalStudents ?? this.totalRows);
+
+                if (index === -1) {
+                    return this.syncPaginationState(total);
+                }
+
+                if (!this.matchesCurrentFilters(student)) {
+                    this.students.splice(index, 1);
+
+                    if (this.selectedRowIndex === index) {
+                        this.selectedRowIndex = -1;
+                    } else if (this.selectedRowIndex > index) {
+                        this.selectedRowIndex -= 1;
+                    }
+
+                    return this.syncPaginationState(total);
+                }
+
+                this.students.splice(index, 1, student);
+                this.sortVisibleStudents();
+                return this.syncPaginationState(total);
+            },
+
+            applyLocalStudentDelete(studentId) {
+                const index = this.students.findIndex((student) => Number(student.id) === Number(studentId));
+
+                if (index !== -1) {
+                    this.students.splice(index, 1);
+
+                    if (this.selectedRowIndex === index) {
+                        this.selectedRowIndex = -1;
+                    } else if (this.selectedRowIndex > index) {
+                        this.selectedRowIndex -= 1;
+                    }
+                }
+
+                return this.syncPaginationState(Number(this.statsData?.totalStudents ?? Math.max(0, this.totalRows - 1)));
+            },
+        });
+
+        Object.assign(StudentManager.prototype, {
+            async handleStudentMutation(action, payload) {
+                if (payload?.stats) {
+                    this.statsData = payload.stats;
+                }
+
+                let mutation = { requiresFetch: false, page: this.currentPage };
+
+                if (action === 'create' && payload?.student) {
+                    mutation = this.applyLocalStudentCreate(payload.student);
+                } else if (action === 'update' && payload?.student) {
+                    mutation = this.applyLocalStudentUpdate(payload.student);
+                }
+
+                this.lastUpdatedAt = new Date();
+
+                if (mutation.requiresFetch) {
+                    await this.fetchStudents(mutation.page);
+                    return;
+                }
+
+                this.renderAll();
+            },
+
+            async confirmDeleteStudent() {
+                if (!this.pendingDeleteStudent || this.isDeletingStudent) {
+                    return;
+                }
+
+                const confirmLabel = this.deleteConfirmButton?.innerHTML || 'Delete Student';
+                this.isDeletingStudent = true;
+
+                if (this.deleteConfirmButton) {
+                    this.deleteConfirmButton.disabled = true;
+                    this.deleteConfirmButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+                }
+
+                if (this.deleteCancelButton) {
+                    this.deleteCancelButton.disabled = true;
+                }
+
+                try {
+                    const response = await fetch(this.buildMutationUrl(`{{ url('admin/students') }}/${this.pendingDeleteStudent.id}`), {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Unable to delete the student.');
+                    }
+
+                    const deletedStudent = data.deletedStudent || this.pendingDeleteStudent;
+
+                    if (data.stats) {
+                        this.statsData = data.stats;
+                    }
+
+                    const mutation = this.applyLocalStudentDelete(deletedStudent.id);
+                    this.lastUpdatedAt = new Date();
+                    this.closeDeleteModal(true);
+
+                    if (mutation.requiresFetch) {
+                        await this.fetchStudents(mutation.page);
+                    } else {
+                        this.renderAll();
+                    }
+
+                    this.showToast({
+                        title: 'Student Deleted',
+                        message: `Deleted ${deletedStudent.name || 'the student'} from the roster.`,
+                        detail: deletedStudent.rollNo ? `Student ID ${deletedStudent.rollNo}` : '',
+                        icon: 'fas fa-trash-alt',
+                    }, 'error');
+                    this.announce(`${deletedStudent.name || 'Student'} deleted successfully.`);
+                } catch (error) {
+                    console.error('Error deleting student:', error);
+                    this.showToast(error.message || 'Unable to delete the student.', 'error');
+                } finally {
+                    this.isDeletingStudent = false;
+
+                    if (this.deleteConfirmButton) {
+                        this.deleteConfirmButton.disabled = false;
+                        this.deleteConfirmButton.innerHTML = confirmLabel;
+                    }
+
+                    if (this.deleteCancelButton) {
+                        this.deleteCancelButton.disabled = false;
+                    }
+                }
+            },
+
+            async performStatusToggle(studentId) {
+                const button = document.querySelector(`[data-action="toggle-status"][data-student-id="${studentId}"]`);
+                const originalMarkup = button?.innerHTML || '';
+                const currentStudent = this.getStudentById(studentId);
+
+                if (button) {
+                    button.disabled = true;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                }
+
+                try {
+                    const response = await fetch(this.buildMutationUrl(`{{ url('admin/students') }}/${studentId}/toggle-status`), {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({}),
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Unable to update the student status.');
+                    }
+
+                    if (data.stats) {
+                        this.statsData = data.stats;
+                    }
+
+                    const updatedStudent = data.student || currentStudent;
+                    const mutation = this.applyLocalStudentUpdate(updatedStudent);
+                    this.lastUpdatedAt = new Date();
+
+                    if (mutation.requiresFetch) {
+                        await this.fetchStudents(mutation.page);
+                    } else {
+                        this.renderAll();
+                    }
+
+                    const isActive = String(updatedStudent?.status || '').toLowerCase() === 'active';
+                    this.showToast({
+                        title: isActive ? 'Student Activated' : 'Student Deactivated',
+                        message: `${isActive ? 'Activated' : 'Deactivated'} ${updatedStudent?.name || 'the student'}${updatedStudent?.rollNo ? ` (${updatedStudent.rollNo})` : ''}.`,
+                        detail: updatedStudent?.department || '',
+                        icon: isActive ? 'fas fa-user-check' : 'fas fa-user-slash',
+                    }, isActive ? 'success' : 'warning');
+                    this.announce(`${updatedStudent?.name || 'Student'} has been ${isActive ? 'activated' : 'deactivated'}.`);
+                } catch (error) {
+                    console.error('Error updating student status:', error);
+                    this.showToast(error.message || 'Unable to update the student status.', 'error');
+
+                    if (button) {
+                        button.disabled = false;
+                        button.innerHTML = originalMarkup;
+                    }
+                }
+            },
+
+            refreshStats() {
+                this.renderStats(this.statsData || {}, this.getCurrentFilters());
+            },
+
+            hasActiveFilters(filters = this.getCurrentFilters()) {
+                return filters.search !== '' || filters.department !== 'all' || filters.status !== 'all';
+            },
+
+            renderToolbarMeta() {
+                const segments = [];
+                const total = Number(this.totalRows || 0);
+                const search = document.getElementById('searchInput')?.value.trim() || '';
+
+                if (search) {
+                    segments.push(`Search: "${search}"`);
+                }
+
+                if (this.currentStatus !== 'all') {
+                    segments.push(`Status: ${this.capitalize(this.currentStatus)}`);
+                }
+
+                if (this.currentDepartment !== 'all') {
+                    segments.push(`Department: ${this.getDepartmentLabel()}`);
+                }
+
+                segments.push(`Sort: ${this.getSortLabel(this.currentSort)}`);
+
+                const filterSummary = document.getElementById('studentFilterSummary');
+                const lastUpdated = document.getElementById('studentLastUpdated');
+
+                if (filterSummary) {
+                    filterSummary.innerHTML = `${this.escapeHtml(segments.join(' • '))} • <strong>${this.formatNumber(total)}</strong> matching ${total === 1 ? 'student' : 'students'}`;
+                }
+
+                if (lastUpdated) {
+                    lastUpdated.textContent = this.lastUpdatedAt
+                        ? `Updated ${this.formatTimeRelative(this.lastUpdatedAt)}`
+                        : 'Waiting for data...';
+                }
+            },
+
+            renderStats(data, filters = this.getCurrentFilters()) {
+                const totalStudents = Number(data.totalStudents || 0);
+                const activeStudents = Number(data.activeStudents || 0);
+                const inactiveStudents = Number(data.inactiveStudents || 0);
+                const hasFilters = this.hasActiveFilters(filters);
+
+                document.getElementById('totalCount').textContent = this.formatNumber(totalStudents);
+                document.getElementById('activeCount').textContent = this.formatNumber(activeStudents);
+                document.getElementById('inactiveCount').textContent = this.formatNumber(inactiveStudents);
+                document.getElementById('totalMeta').textContent = hasFilters
+                    ? 'Matches the current search and filter selection'
+                    : 'Live overview across all departments and batches';
+                document.getElementById('activeMeta').textContent = totalStudents > 0
+                    ? `${Math.round((activeStudents / totalStudents) * 100)}% of visible students are active`
+                    : 'No active student accounts in this view';
+                document.getElementById('inactiveMeta').textContent = totalStudents > 0
+                    ? `${Math.round((inactiveStudents / totalStudents) * 100)}% of visible students are inactive`
+                    : 'No inactive student accounts in this view';
+            },
+
+            setStatsLoading(isLoading) {
+                this.statCards.forEach((card) => card.classList.toggle('is-loading', isLoading));
+            },
+
+            setTableLoading(isLoading) {
+                const tableWrapper = document.getElementById('studentTableWrapper');
+                const tableBody = document.getElementById('studentsTableBody');
+                const pagination = document.getElementById('paginationContainer');
+
+                tableWrapper?.setAttribute('aria-busy', String(isLoading));
+
+                if (!tableBody) {
+                    return;
+                }
+
+                if (isLoading) {
+                    tableBody.classList.add('student-table-loading');
+                    tableBody.innerHTML = this.tableSkeletonMarkup();
+                    pagination.innerHTML = '';
+                    return;
+                }
+
+                tableBody.classList.remove('student-table-loading');
+            },
+
+            renderTableError() {
+                document.getElementById('studentsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: #6b7280;">
+                            <i class="fas fa-triangle-exclamation" style="font-size: 40px; margin-bottom: 16px; opacity: 0.6; display: block;"></i>
+                            <p style="font-size: 16px; margin: 0; font-weight: 500;">Unable to load students</p>
+                            <p style="font-size: 14px; margin-top: 8px; color: #9ca3af;">Please try again in a moment.</p>
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('paginationContainer').innerHTML = '';
+                this.students = [];
+                this.paginationData = this.createEmptyPaginationState();
+                this.totalRows = 0;
+            },
+
+            normalizePerPage(value) {
+                const allowedValues = [10, 20, 50, 100];
+                const perPage = Number(value);
+                return allowedValues.includes(perPage) ? perPage : 10;
+            },
+
+            syncUrlState(search = document.getElementById('searchInput')?.value.trim() || '') {
+                const params = new URLSearchParams();
+
+                if (search) params.set('search', search);
+                if (this.currentDepartment !== 'all') params.set('department', this.currentDepartment);
+                if (this.currentStatus !== 'all') params.set('status', this.currentStatus);
+                if (this.currentSort !== 'created-desc') params.set('sort', this.currentSort);
+                if (this.currentPage > 1) params.set('page', String(this.currentPage));
+                if (this.rowsPerPage !== 10) params.set('per_page', String(this.rowsPerPage));
+
+                const nextUrl = params.toString()
+                    ? `${window.location.pathname}?${params.toString()}`
+                    : window.location.pathname;
+
+                window.history.replaceState({ url: nextUrl }, '', nextUrl);
+            },
+
+            tableSkeletonMarkup(rows = 5) {
+                return Array.from({ length: rows }, () => `
+                    <tr>
+                        <td><span class="student-skeleton-line long"></span></td>
+                        <td><span class="student-skeleton-line medium"></span></td>
+                        <td><span class="student-skeleton-line short"></span></td>
+                        <td><span class="student-skeleton-line medium"></span></td>
+                        <td><span class="student-skeleton-line short"></span></td>
+                        <td><span class="student-skeleton-line short"></span></td>
+                        <td><span class="student-skeleton-line long"></span></td>
+                    </tr>
+                `).join('');
+            },
+
+            announce(message) {
+                announceStudentMessage(message);
+            },
+
+            showToast(message, type = 'info') {
+                showStudentToast(message, type);
+            },
+        });
+
+        window.deleteStudent = function(studentId) {
+            manager?.requestDeleteStudent(studentId);
+        };
+
+        window.toggleStudentStatus = function(studentId) {
+            void manager?.performStatusToggle(studentId);
+        };
+
         // Open Edit Student Modal
         window.openEditStudentModal = function(studentId) {
             // Get the modal
@@ -2497,24 +3996,42 @@
             return age;
         }
 
-        function showStudentToast(message, background = '#10b981') {
+        function showStudentToast(message, type = 'info') {
+            const container = document.getElementById('studentToastContainer');
+
+            if (!container) {
+                return;
+            }
+
+            const normalizedType = typeof type === 'string' && type.startsWith('#')
+                ? 'error'
+                : type;
+            const payload = typeof message === 'object' && message !== null
+                ? message
+                : {
+                    title: normalizedType === 'error' ? 'Action Failed' : 'Update Complete',
+                    message: String(message || ''),
+                };
             const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${background};
-                color: white;
-                padding: 12px 16px;
-                border-radius: 6px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                z-index: 2000;
-                font-size: 14px;
-                font-weight: 500;
+            toast.className = `student-toast ${normalizedType}`;
+            toast.innerHTML = `
+                <div class="student-toast-icon" aria-hidden="true">
+                    <i class="${payload.icon || studentToastIcons[normalizedType] || studentToastIcons.info}"></i>
+                </div>
+                <div class="student-toast-copy">
+                    <div class="student-toast-title">${payload.title || 'Notice'}</div>
+                    <div class="student-toast-message">${payload.message || ''}</div>
+                    ${payload.detail ? `<div class="student-toast-detail">${payload.detail}</div>` : ''}
+                </div>
+                <button type="button" class="student-toast-close" aria-label="Dismiss notification">
+                    <i class="fas fa-times"></i>
+                </button>
+                <span class="student-toast-progress" aria-hidden="true"></span>
             `;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+
+            container.appendChild(toast);
+            toast.querySelector('.student-toast-close')?.addEventListener('click', () => dismissStudentToast(toast));
+            setTimeout(() => dismissStudentToast(toast), 4200);
         }
 
         class LiveStudentFormValidator {
@@ -2922,15 +4439,19 @@
 
             async submit() {
                 const values = this.getValues();
+                const requestUrl = manager
+                    ? manager.buildMutationUrl(this.submitMethod === 'POST' ? this.submitUrl : this.form.action)
+                    : (this.submitMethod === 'POST' ? this.submitUrl : this.form.action);
 
                 try {
                     let response;
+                    let formData = null;
 
                     if (this.submitMethod === 'POST') {
-                        const formData = new FormData(this.form);
+                        formData = new FormData(this.form);
                         Object.entries(values).forEach(([fieldName, fieldValue]) => formData.set(fieldName, fieldValue));
 
-                        response = await fetch(this.submitUrl, {
+                        response = await fetch(requestUrl, {
                             method: 'POST',
                             body: formData,
                             headers: {
@@ -2939,8 +4460,10 @@
                             },
                             credentials: 'same-origin',
                         });
-                    } else {
-                        response = await fetch(this.form.action, {
+                    }
+
+                    if (this.submitMethod !== 'POST') {
+                        response = await fetch(requestUrl, {
                             method: this.submitMethod,
                             body: JSON.stringify(values),
                             headers: {
@@ -2966,12 +4489,21 @@
 
                     this.modal.style.display = 'none';
                     this.resetForm();
-                    showStudentToast(this.successMessage);
+                    const mutationType = this.submitMethod === 'POST' ? 'create' : 'update';
+                    const toastType = mutationType === 'create' ? 'success' : 'info';
+                    const toastPayload = {
+                        title: mutationType === 'create' ? 'Student Added' : 'Student Updated',
+                        message: `${mutationType === 'create' ? 'Created a new record for' : 'Saved changes for'} ${data.student?.name || 'the student'}.`,
+                        detail: data.student?.rollNo ? `Student ID ${data.student.rollNo}` : '',
+                        icon: mutationType === 'create' ? 'fas fa-user-plus' : 'fas fa-user-pen',
+                    };
 
                     if (manager) {
-                        manager.fetchStudents(manager.currentPage);
-                        manager.refreshStats();
+                        await manager.handleStudentMutation(mutationType, data);
                     }
+
+                    showStudentToast(toastPayload, toastType);
+                    announceStudentMessage(`${data.student?.name || 'Student'} ${mutationType === 'create' ? 'created' : 'updated'} successfully.`);
                 } catch (error) {
                     console.error('Student form submission failed:', error);
                     this.showSummary('Unable to save the student right now. Please try again.', true);
@@ -3008,7 +4540,11 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showStudentToast('Error loading student data', '#ef4444');
+                    showStudentToast({
+                        title: 'Unable to Load Student',
+                        message: 'We could not open the student editor right now.',
+                        icon: 'fas fa-circle-xmark',
+                    }, 'error');
                 });
         };
 

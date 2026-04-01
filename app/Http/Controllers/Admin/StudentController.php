@@ -124,6 +124,25 @@ class StudentController extends Controller
             'success' => true,
             'tableRows' => $tableRows,
             'pagination' => $paginationHtml,
+            'students' => $students->getCollection()
+                ->map(fn (Student $student) => $dataService->serializeStudent($student, ['can_toggle_status' => true]))
+                ->values()
+                ->all(),
+            'paginationData' => [
+                'current_page' => $students->currentPage(),
+                'last_page' => $students->lastPage(),
+                'per_page' => $students->perPage(),
+                'total' => $students->total(),
+                'from' => $students->firstItem() ?? 0,
+                'to' => $students->lastItem() ?? 0,
+            ],
+            'stats' => $dataService->getStats([
+                'search' => $search,
+                'department' => $department,
+                'status' => $status,
+                'sort' => $sort,
+                'per_page' => $perPage,
+            ]),
             'total' => $students->total(),
             'current_page' => $students->currentPage(),
             'last_page' => $students->lastPage(),
@@ -136,6 +155,16 @@ class StudentController extends Controller
         $perPage = (int) $value;
 
         return in_array($perPage, $allowedValues, true) ? $perPage : 10;
+    }
+
+    protected function currentStudentListingFilters(Request $request): array
+    {
+        return [
+            'search' => trim((string) $request->get('search', '')),
+            'department' => (string) $request->get('department', 'all'),
+            'status' => strtolower((string) $request->get('status', 'all')),
+            'sort' => strtolower((string) $request->get('sort', 'created-desc')),
+        ];
     }
 
     /**
@@ -424,7 +453,7 @@ class StudentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, StudentManagementDataService $dataService)
     {
         Gate::authorize('access-admin');
 
@@ -469,7 +498,8 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Student created successfully',
-                'student' => $student,
+                'student' => $dataService->serializeStudent($student->load(['user', 'department']), ['can_toggle_status' => true]),
+                'stats' => $dataService->getStats($this->currentStudentListingFilters($request)),
             ]);
         }
 
@@ -931,7 +961,7 @@ class StudentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id, StudentManagementDataService $dataService)
     {
         Gate::authorize('access-admin');
 
@@ -1010,7 +1040,8 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Student updated successfully',
-                'student' => $student,
+                'student' => $dataService->serializeStudent($student->load(['user', 'department']), ['can_toggle_status' => true]),
+                'stats' => $dataService->getStats($this->currentStudentListingFilters($request)),
             ]);
         }
 
@@ -1020,13 +1051,18 @@ class StudentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id, StudentManagementDataService $dataService)
     {
         Gate::authorize('access-admin');
 
         try {
             $student = Student::findOrFail($id);
             $user = $student->user;
+            $deletedStudent = [
+                'id' => $student->id,
+                'name' => $student->user?->name ?? 'Student',
+                'rollNo' => $student->roll_no ?? 'N/A',
+            ];
             
             // Log before deletion
             ActivityLogger::logAccountDeleted($student);
@@ -1038,6 +1074,8 @@ class StudentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Student deleted successfully',
+                'deletedStudent' => $deletedStudent,
+                'stats' => $dataService->getStats($this->currentStudentListingFilters($request)),
             ]);
         } catch (\Exception $e) {
             // Even if error occurs, return success since data was deleted
@@ -1178,7 +1216,7 @@ class StudentController extends Controller
     /**
      * Toggle student status (active/inactive)
      */
-    public function toggleStatus(string $id)
+    public function toggleStatus(Request $request, string $id, StudentManagementDataService $dataService)
     {
         try {
             Gate::authorize('access-admin');
@@ -1207,6 +1245,8 @@ class StudentController extends Controller
                 'success' => true,
                 'message' => 'Student status has been updated to ' . ucfirst($newStatus) . '.',
                 'status' => $newStatus,
+                'student' => $dataService->serializeStudent($student->load(['user', 'department']), ['can_toggle_status' => true]),
+                'stats' => $dataService->getStats($this->currentStudentListingFilters($request)),
             ]);
         } catch (\Exception $e) {
             \Log::error('Error toggling student status: ' . $e->getMessage(), [

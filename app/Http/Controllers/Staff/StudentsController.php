@@ -7,6 +7,7 @@ use App\Http\Requests\StudentManagement\ListStudentsRequest;
 use App\Services\StudentManagement\StudentManagementActionService;
 use App\Services\StudentManagement\StudentManagementDataService;
 use App\Services\StudentManagement\StudentProfileDataService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -75,26 +76,29 @@ class StudentsController extends Controller
     }
 
     public function deactivate(
+        Request $request,
         string $id,
         StudentManagementActionService $actionService,
         StudentManagementDataService $dataService
     ) {
         Gate::authorize('access-staff');
 
-        return $this->changeStatus($id, 'inactive', $actionService, $dataService);
+        return $this->changeStatus($request, $id, 'inactive', $actionService, $dataService);
     }
 
     public function activate(
+        Request $request,
         string $id,
         StudentManagementActionService $actionService,
         StudentManagementDataService $dataService
     ) {
         Gate::authorize('access-staff');
 
-        return $this->changeStatus($id, 'active', $actionService, $dataService);
+        return $this->changeStatus($request, $id, 'active', $actionService, $dataService);
     }
 
     protected function changeStatus(
+        Request $request,
         string $id,
         string $status,
         StudentManagementActionService $actionService,
@@ -110,7 +114,7 @@ class StudentsController extends Controller
                     ? 'Student account activated successfully.'
                     : 'Student account deactivated successfully.',
                 'student' => $dataService->serializeStudent($updatedStudent, ['can_toggle_status' => true]),
-                'stats' => $dataService->getStats(),
+                'stats' => $dataService->getStats($this->currentListingFilters($request)),
             ]);
         } catch (RuntimeException $exception) {
             return response()->json([
@@ -129,5 +133,15 @@ class StudentsController extends Controller
                 'message' => 'An error occurred while updating the student status.',
             ], 500);
         }
+    }
+
+    protected function currentListingFilters(Request $request): array
+    {
+        return [
+            'search' => trim((string) $request->get('search', '')),
+            'department' => (string) $request->get('department', 'all'),
+            'status' => strtolower((string) $request->get('status', 'all')),
+            'sort' => strtolower((string) $request->get('sort', 'created-desc')),
+        ];
     }
 }

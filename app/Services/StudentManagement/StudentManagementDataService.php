@@ -98,6 +98,7 @@ class StudentManagementDataService
             'rollNo' => $student->roll_no ?? 'N/A',
             'email' => $student->user?->email ?? 'N/A',
             'phone' => $student->user?->phone ?? 'N/A',
+            'departmentId' => $student->department_id,
             'department' => $student->department?->name ?? 'N/A',
             'batch' => $student->batch ?? 'N/A',
             'semester' => $student->semester ?? 'N/A',
