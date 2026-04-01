@@ -259,6 +259,9 @@ Route::middleware(['auth', 'can:access-student'])
         Route::post('/profile/update-personal-info', [StudentProfileController::class, 'updatePersonalInfo'])
             ->name('profile.update-personal-info');
 
+        Route::post('/profile/check-email', [StudentProfileController::class, 'checkEmail'])
+            ->name('profile.check-email');
+
         Route::post('/profile/upload-photo', [StudentProfileController::class, 'uploadPhoto'])
             ->name('profile.upload-photo');
 

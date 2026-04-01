@@ -527,10 +527,762 @@
         .password-toggle .hidden {
             display: none;
         }
+
+        .student-settings-shell {
+            min-width: 0;
+            padding: 1rem !important;
+        }
+
+        .student-settings-shell .settings-card-inner {
+            min-width: 0;
+        }
+
+        .student-settings-shell [hidden] {
+            display: none !important;
+        }
+
+        .student-settings-shell .settings-tabs {
+            display: flex;
+            gap: 0.25rem;
+            border-bottom: 1px solid;
+            margin-bottom: 1.25rem;
+        }
+
+        body.light-theme .student-settings-shell .settings-tabs {
+            border-color: #e5e7eb;
+        }
+
+        body.dark-theme .student-settings-shell .settings-tabs {
+            border-color: #334155;
+        }
+
+        .student-settings-shell .tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.1rem;
+            background: transparent;
+            border: none;
+            border-radius: 0.5rem 0.5rem 0 0;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            top: 1px;
+        }
+
+        body.light-theme .student-settings-shell .tab-btn {
+            color: #64748b;
+        }
+
+        body.dark-theme .student-settings-shell .tab-btn {
+            color: #94a3b8;
+        }
+
+        .student-settings-shell .tab-btn:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        body.dark-theme .student-settings-shell .tab-btn:hover {
+            background-color: rgba(96, 165, 250, 0.05);
+        }
+
+        .student-settings-shell .tab-btn.active {
+            background-color: #ffffff;
+            color: #1e40af;
+            border: 1px solid #e5e7eb;
+            border-bottom-color: transparent;
+        }
+
+        body.dark-theme .student-settings-shell .tab-btn.active {
+            background-color: #1e293b;
+            color: #60a5fa;
+            border-color: #334155;
+            border-bottom-color: #1e293b;
+        }
+
+        .student-settings-shell .tab-btn svg {
+            width: 0.95rem;
+            height: 0.95rem;
+        }
+
+        .student-settings-shell .tab-content {
+            display: none;
+        }
+
+        .student-settings-shell .tab-content.active {
+            display: block;
+        }
+
+        .student-settings-shell .section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        body.dark-theme .student-settings-shell .section-header {
+            border-bottom-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .student-settings-shell .section-header-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .student-settings-shell .section-header h2 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary, #0f172a);
+        }
+
+        .student-settings-shell .section-header p {
+            color: #64748b;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        body.dark-theme .student-settings-shell .section-header p {
+            color: #94a3b8;
+        }
+
+        .student-settings-shell .section-header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+        }
+
+        .student-settings-shell .section-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.45rem 0.8rem;
+            border-radius: 999px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        body.dark-theme .student-settings-shell .section-status {
+            background: rgba(15, 23, 42, 0.72);
+            color: #94a3b8;
+        }
+
+        .student-settings-shell .section-status.editing {
+            background: rgba(59, 130, 246, 0.12);
+            color: #2563eb;
+        }
+
+        body.dark-theme .student-settings-shell .section-status.editing {
+            background: rgba(96, 165, 250, 0.18);
+            color: #93c5fd;
+        }
+
+        .student-settings-shell .settings-form {
+            max-width: 100%;
+        }
+
+        .student-settings-shell .form-group {
+            margin-bottom: 1.15rem;
+        }
+
+        .student-settings-shell .form-label {
+            display: block;
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .student-settings-shell .required::after {
+            content: " *";
+            color: #ef4444;
+        }
+
+        .student-settings-shell .form-input {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            min-height: 42px;
+            line-height: 1.3;
+        }
+
+        body.light-theme .student-settings-shell .form-input {
+            background-color: #ffffff;
+            border-color: #d1d5db;
+            color: #111827;
+        }
+
+        body.dark-theme .student-settings-shell .form-input {
+            background-color: #0f172a;
+            border-color: #475569;
+            color: #f8fafc;
+        }
+
+        body.light-theme .student-settings-shell .form-input:disabled {
+            background-color: #f8fafc;
+            border-color: #e5e7eb;
+            color: #475569;
+            cursor: not-allowed;
+        }
+
+        body.light-theme .student-settings-shell .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        body.dark-theme .student-settings-shell .form-input:focus {
+            outline: none;
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.1);
+        }
+
+        body.dark-theme .student-settings-shell .form-input:disabled {
+            background-color: #1e293b;
+            border-color: #475569;
+            color: #cbd5e1;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .student-settings-shell #department:disabled {
+            cursor: default;
+        }
+
+        .student-settings-shell textarea.form-input {
+            min-height: 90px;
+            resize: vertical;
+            line-height: 1.45;
+        }
+
+        .student-settings-shell .form-hint {
+            font-size: 0.75rem;
+            margin-top: 0.375rem;
+            line-height: 1.3;
+            color: #6b7280;
+        }
+
+        body.dark-theme .student-settings-shell .form-hint {
+            color: #9ca3af;
+        }
+
+        .student-settings-shell .field-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-top: 0.375rem;
+        }
+
+        .student-settings-shell .char-counter {
+            font-size: 0.75rem;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        body.dark-theme .student-settings-shell .char-counter {
+            color: #94a3b8;
+        }
+
+        .student-settings-shell .char-counter.is-limit {
+            color: #ef4444;
+        }
+
+        .student-settings-shell .field-error {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.375rem;
+            display: none;
+        }
+
+        .student-settings-shell .field-error.visible {
+            display: block;
+        }
+
+        .student-settings-shell .form-input.is-invalid {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .student-settings-shell .form-input.is-valid {
+            border-color: #10b981 !important;
+            background-color: #f0fdf4 !important;
+        }
+
+        body.dark-theme .student-settings-shell .form-input.is-invalid {
+            background-color: rgba(127, 29, 29, 0.25) !important;
+        }
+
+        body.dark-theme .student-settings-shell .form-input.is-valid {
+            background-color: rgba(6, 95, 70, 0.22) !important;
+        }
+
+        .student-settings-shell .form-input.validating {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%233b82f6' stroke-linecap='round' stroke-width='2'%3E%3Cpath stroke-opacity='.25' d='M12 3a9 9 0 1 0 9 9'/%3E%3Cpath d='M21 12A9 9 0 0 0 12 3'%3E%3CanimateTransform attributeName='transform' attributeType='XML' dur='0.8s' from='0 12 12' repeatCount='indefinite' to='360 12 12' type='rotate'/%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 40px center;
+            background-size: 18px 18px;
+        }
+
+        .student-settings-shell .btn {
+            padding: 0.625rem 1.1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .student-settings-shell .btn svg {
+            width: 0.9rem;
+            height: 0.9rem;
+        }
+
+        .student-settings-shell .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .student-settings-shell .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .student-settings-shell .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .student-settings-shell .btn-secondary {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+
+        .student-settings-shell .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+
+        .student-settings-shell .btn-outline {
+            background-color: transparent;
+            border: 1px solid;
+        }
+
+        body.light-theme .student-settings-shell .btn-outline {
+            border-color: #d1d5db;
+            color: #374151;
+        }
+
+        body.dark-theme .student-settings-shell .btn-outline {
+            border-color: #475569;
+            color: #e5e7eb;
+        }
+
+        .student-settings-shell .btn-outline:hover {
+            background-color: #f9fafb;
+        }
+
+        body.dark-theme .student-settings-shell .btn-outline:hover {
+            background-color: #1e293b;
+        }
+
+        body.dark-theme .student-settings-shell .btn-secondary {
+            background-color: #334155;
+            color: #e5e7eb;
+        }
+
+        body.dark-theme .student-settings-shell .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .student-settings-shell .photo-upload-container,
+        .student-settings-shell .security-section {
+            padding: 0.25rem 0;
+        }
+
+        .student-settings-shell .photo-preview {
+            width: 180px;
+            height: 180px;
+            border-radius: 0.75rem;
+            margin: 0 auto 1.5rem;
+            overflow: hidden;
+            background-color: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        body.dark-theme .student-settings-shell .photo-preview {
+            background-color: #334155;
+        }
+
+        .student-settings-shell .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .student-settings-shell .photo-upload-icon {
+            color: #9ca3af;
+        }
+
+        .student-settings-shell .photo-upload-icon svg {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        .student-settings-shell .file-input-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .student-settings-shell .file-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .student-settings-shell .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.1rem;
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #1d4ed8;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .student-settings-shell .file-input-label:hover {
+            background-color: #dbeafe;
+            border-color: #93c5fd;
+        }
+
+        body.dark-theme .student-settings-shell .file-input-label {
+            background-color: #334155;
+            border: 1px solid #475569;
+            color: #e5e7eb;
+        }
+
+        body.dark-theme .student-settings-shell .file-input-label:hover {
+            background-color: #475569;
+        }
+
+        .student-settings-shell .file-input-wrapper:focus-within .file-input-label {
+            outline: 2px solid rgba(59, 130, 246, 0.18);
+            outline-offset: 2px;
+        }
+
+        .student-settings-shell #fileName {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        body.dark-theme .student-settings-shell #fileName {
+            color: #94a3b8;
+        }
+
+        .student-settings-shell .upload-requirements {
+            max-width: 420px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .student-settings-shell .upload-requirements h4 {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.375rem;
+        }
+
+        .student-settings-shell .upload-requirements p {
+            font-size: 0.8125rem;
+            line-height: 1.3;
+            color: #64748b;
+        }
+
+        body.dark-theme .student-settings-shell .upload-requirements p {
+            color: #94a3b8;
+        }
+
+        .student-settings-shell .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .student-settings-shell .password-intro {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.1rem;
+            text-align: center;
+            padding: 2.3rem 1rem 1rem;
+        }
+
+        .student-settings-shell .password-intro-icon {
+            width: 78px;
+            height: 78px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e293b;
+            color: #cbd5e1;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+        }
+
+        .student-settings-shell .password-intro-icon svg {
+            width: 1.9rem;
+            height: 1.9rem;
+        }
+
+        body.dark-theme .student-settings-shell .password-intro-icon {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .student-settings-shell .password-intro-copy {
+            max-width: 34rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        body.dark-theme .student-settings-shell .password-intro-copy {
+            color: #94a3b8;
+        }
+
+        .student-settings-shell .password-intro-action {
+            min-width: 210px;
+            justify-content: center;
+            padding: 0.9rem 1.65rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .student-settings-shell .input-with-icon {
+            position: relative;
+        }
+
+        .student-settings-shell .pwd-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #64748b;
+            font-size: 0.95rem;
+            padding: 4px;
+        }
+
+        .student-settings-shell .pwd-toggle svg {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .student-settings-shell .pwd-toggle:focus {
+            outline: none;
+        }
+
+        .student-settings-shell .password-requirements {
+            margin-top: 1.5rem;
+            padding: 1.15rem;
+            border-radius: 0.75rem;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        body.dark-theme .student-settings-shell .password-requirements {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+
+        .student-settings-shell .password-requirements h4 {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.875rem;
+        }
+
+        .student-settings-shell .requirement-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .student-settings-shell .requirement-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            margin-bottom: 0.625rem;
+            font-size: 0.8125rem;
+            line-height: 1.3;
+        }
+
+        .student-settings-shell .requirement-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .student-settings-shell .requirement-icon {
+            width: 0.95rem;
+            height: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .student-settings-shell .requirement-list li.valid .requirement-icon {
+            color: #10b981;
+        }
+
+        .student-settings-shell .requirement-list li.invalid .requirement-icon {
+            color: #ef4444;
+        }
+
+        .settings-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 0.875rem 1.25rem;
+            border-radius: 10px;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 0.875rem;
+            z-index: 1100;
+            max-width: 320px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+            animation: studentSettingsSlideIn 0.25s ease;
+        }
+
+        .settings-toast.success {
+            background-color: #10b981;
+        }
+
+        .settings-toast.error {
+            background-color: #ef4444;
+        }
+
+        .settings-toast.info {
+            background-color: #3b82f6;
+        }
+
+        @keyframes studentSettingsSlideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes studentSettingsSlideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .student-settings-shell {
+                padding: 0.9rem !important;
+            }
+
+            .student-settings-shell .section-header {
+                flex-direction: column;
+            }
+
+            .student-settings-shell .section-header-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .student-settings-shell .field-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .student-settings-shell .action-buttons {
+                flex-direction: column;
+            }
+
+            .student-settings-shell .action-buttons .btn,
+            .student-settings-shell .section-header-actions .btn,
+            .student-settings-shell .password-intro-action {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .student-settings-shell .settings-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
     </style>
 @endpush
 
 @section('content')
+    @php
+        $profilePhotoUrl = $user->profile_photo
+            ? (str_starts_with($user->profile_photo, 'http')
+                ? $user->profile_photo
+                : asset(str_starts_with($user->profile_photo, 'storage/')
+                    ? $user->profile_photo
+                    : 'storage/' . ltrim($user->profile_photo, '/')))
+            : null;
+        $departmentName = $student && $student->department ? $student->department->name : 'N/A';
+        $usernameValue = $user->email ? explode('@', $user->email)[0] : 'student';
+        $addressValue = $user->address ?? '';
+        $initials = collect(preg_split('/\s+/', trim($user->name ?? '')) ?: [])
+            ->filter()
+            ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+            ->implode('');
+        $initials = $initials !== '' ? $initials : 'ST';
+    @endphp
+
     <div class="container px-1 py-1 mx-auto profile-page">
         <!-- Page Header -->
         <div class="mb-8">
@@ -545,10 +1297,10 @@
                 <div class="sticky p-6 profile-card top-6">
                     <!-- Avatar -->
                     <div class="flex flex-col items-center mb-6">
-                        <div class="profile-avatar" id="leftProfileAvatar">
-                            <img src="{{ $user->profile_photo ? (str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset('storage/' . $user->profile_photo)) : '' }}" alt="Profile Photo" id="leftAvatarImage" style="display: {{ $user->profile_photo ? 'block' : 'none' }};">
-                            <span class="profile-avatar-initial" id="leftAvatarInitial" style="display: {{ $user->profile_photo ? 'none' : 'block' }};">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                        <div class="profile-avatar" id="leftProfileAvatar" data-default-initials="{{ $initials }}">
+                            <img src="{{ $profilePhotoUrl ?? '' }}" alt="Profile Photo" id="leftAvatarImage" style="display: {{ $profilePhotoUrl ? 'block' : 'none' }};">
+                            <span class="profile-avatar-initial" id="leftAvatarInitial" style="display: {{ $profilePhotoUrl ? 'none' : 'block' }};">
+                                {{ $initials }}
                             </span>
                             <div class="profile-avatar-upload" onclick="switchToPhotoTab()" title="Upload Profile Photo">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -560,8 +1312,8 @@
                                 </svg>
                             </div>
                         </div>
-                        <h2 class="mb-1 text-xl font-bold text-primary">{{ $user->name }}</h2>
-                        <p class="mb-3 text-secondary">{{ $user->email }}</p>
+                        <h2 class="mb-1 text-xl font-bold text-primary" id="leftUserName">{{ $user->name }}</h2>
+                        <p class="mb-3 text-secondary" id="leftUserEmail">{{ $user->email }}</p>
                         <span
                             class="px-4 py-1 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-200">
                             Student
@@ -582,7 +1334,7 @@
                             </svg>
                             <div>
                                 <p class="text-sm text-secondary">Username</p>
-                                <p class="font-medium text-primary">{{ $student ? substr($user->email, 0, strpos($user->email, '@')) : 'N/A' }}</p>
+                                <p class="font-medium text-primary" id="leftUsernameValue">{{ $student ? $usernameValue : 'N/A' }}</p>
                             </div>
                         </div>
 
@@ -612,7 +1364,7 @@
                             </svg>
                             <div>
                                 <p class="text-sm text-secondary">Department</p>
-                                <p class="font-medium text-primary">{{ $student && $student->department ? $student->department->name : 'N/A' }}</p>
+                                <p class="font-medium text-primary">{{ $departmentName }}</p>
                             </div>
                         </div>
 
@@ -691,263 +1443,14 @@
                 </div>
 
                 <!-- Profile & Settings -->
-                <div class="p-6 profile-card" id="profileSettings">
-                    <!-- Tabs -->
-                    <div class="flex mb-6 border-b border-border">
-                        <button id="personalTab" class="tab-button active">
-                            Personal Information
-                        </button>
-                        <button id="photoTab" class="tab-button">
-                            Upload Photo
-                        </button>
-                        <button id="securityTab" class="tab-button">
-                            Security
-                        </button>
-                    </div>
-
-                    <!-- Personal Information Tab -->
-                    <div id="personalContent">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-semibold text-primary">Personal Details</h3>
-                            <button id="editProfileBtn" class="primary-button">
-                                Edit Profile
-                            </button>
-                        </div>
-
-                        <div class="space-y-4">
-                            <!-- Full Name -->
-                            <div>
-                                <label class="block mb-1 text-sm font-medium text-primary">
-                                    Full Name <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="fullName" disabled class="profile-input"
-                                    value="{{ $user->name }}">
-                            </div>
-
-                            <!-- Email -->
-                            <div>
-                                <label class="block mb-1 text-sm font-medium text-primary">
-                                    Email <span class="text-red-500">*</span>
-                                </label>
-                                <input type="email" id="email" disabled class="profile-input"
-                                    value="{{ $user->email }}">
-                            </div>
-
-                            <!-- Phone Number -->
-                            <div>
-                                <label class="block mb-1 text-sm font-medium text-primary">
-                                    Phone Number
-                                </label>
-                                <input type="tel" id="phone" disabled class="profile-input"
-                                    value="{{ $user->phone ?? 'Not provided' }}">
-                            </div>
-
-                            <!-- Department -->
-                            <div>
-                                <label class="block mb-1 text-sm font-medium text-primary">
-                                    Department
-                                </label>
-                                <input type="text" id="department" disabled class="profile-input"
-                                    value="{{ $student && $student->department ? $student->department->name : 'N/A' }}">
-                            </div>
-
-                            <!-- Address -->
-                            <div>
-                                <label class="block mb-1 text-sm font-medium text-primary">
-                                    Address
-                                </label>
-                                <textarea id="address" disabled class="resize-none profile-input" rows="3">{{ $user->address ?? 'Not provided' }}</textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Upload Photo Tab (Hidden by default) -->
-                    <div id="photoContent" class="hidden">
-                        <div class="upload-photo-container">
-                            <div class="upload-preview" id="uploadPreview">
-                                <img src="{{ $user->profile_photo ? (str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset('storage/' . $user->profile_photo)) : '' }}" alt="Profile Photo Preview" id="previewImage"
-                                    style="display: {{ $user->profile_photo ? 'block' : 'none' }};">
-                                <span class="upload-preview-initial" id="previewInitial" style="display: {{ $user->profile_photo ? 'none' : 'block' }};">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                </span>
-                            </div>
-
-                            <div class="file-input-wrapper">
-                                <input type="file" id="photoUpload" accept="image/jpeg,image/png,image/gif"
-                                    style="display: none;">
-                                <label for="photoUpload" class="file-input-label">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                        <polyline points="17 8 12 3 7 8" />
-                                        <line x1="12" y1="3" x2="12" y2="15" />
-                                    </svg>
-                                    Choose Photo
-                                </label>
-                                <button type="button" id="removePhotoBtn" style="display: {{ $user->profile_photo ? 'inline-flex' : 'none' }}; margin-left: 0.5rem; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 0.375rem; cursor: pointer; transition: all 0.2s ease; font-size: 0.875rem; font-weight: 500;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M3 6h18" />
-                                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                        <path d="M10 11v6" />
-                                        <path d="M14 11v6" />
-                                        <path d="M5 6l1 14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-14" />
-                                    </svg>
-                                    <span>Remove Photo</span>
-                                </button>
-                            </div>
-
-                            <p class="mt-2 text-sm text-secondary">Choose a JPG, PNG or GIF image (Max 2MB)</p>
-
-                            <div class="upload-actions" id="uploadActions" style="display: none;">
-                                <button id="cancelUpload" class="secondary-button">
-                                    Cancel
-                                </button>
-                                <button id="savePhoto" class="primary-button">
-                                    Save Photo
-                                </button>
-                            </div>
-
-                            <div class="upload-instructions">
-                                <h4 class="font-medium text-primary">Photo Requirements:</h4>
-                                <ul>
-                                    <li>File size must be less than 2MB</li>
-                                    <li>Accepted formats: JPG, PNG, GIF</li>
-                                    <li>Recommended size: 400x400 pixels or larger</li>
-                                    <li>Image should be clear and well-lit</li>
-                                    <li>Your face should be clearly visible</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Security Tab (Hidden by default) -->
-                    <div id="securityContent" class="hidden">
-                        <div id="securityInitialView" class="py-8 text-center">
-                            <div
-                                class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full dark:bg-gray-800">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round" class="text-secondary">
-                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                                </svg>
-                            </div>
-                            <p class="mb-6 text-secondary">Click "Change Password" to update your account password</p>
-                            <button id="changePasswordBtn" class="primary-button">
-                                Change Password
-                            </button>
-                        </div>
-
-                        <!-- Password Change Form (Hidden by default) -->
-                        <div id="passwordForm" class="hidden">
-                            <h3 class="mb-6 text-lg font-semibold text-primary">Change Password</h3>
-
-                            <!-- Password Form -->
-                            <div class="mb-6 space-y-4">
-                                <div>
-                                    <label class="block mb-1 text-sm font-medium text-primary">
-                                        Current Password
-                                    </label>
-                                    <div class="password-input-wrapper">
-                                        <input type="password" id="currentPassword" class="profile-input"
-                                            placeholder="Enter current password" autocomplete="current-password">
-                                        <button type="button" class="password-toggle" onclick="togglePassword('currentPassword')" title="Show/Hide password">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                                <circle cx="12" cy="12" r="3"/>
-                                            </svg>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden eye-off-icon">
-                                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                                                <line x1="1" y1="1" x2="23" y2="23"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block mb-1 text-sm font-medium text-primary">
-                                        New Password
-                                    </label>
-                                    <div class="password-input-wrapper">
-                                        <input type="password" id="newPassword" class="profile-input"
-                                            placeholder="Enter new password" autocomplete="new-password">
-                                        <button type="button" class="password-toggle" onclick="togglePassword('newPassword')" title="Show/Hide password">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                                <circle cx="12" cy="12" r="3"/>
-                                            </svg>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden eye-off-icon">
-                                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                                                <line x1="1" y1="1" x2="23" y2="23"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block mb-1 text-sm font-medium text-primary">
-                                        Confirm New Password
-                                    </label>
-                                    <div class="password-input-wrapper">
-                                        <input type="password" id="confirmPassword" class="profile-input"
-                                            placeholder="Confirm new password" autocomplete="new-password">
-                                        <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')" title="Show/Hide password">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon">
-                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                                <circle cx="12" cy="12" r="3"/>
-                                            </svg>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden eye-off-icon">
-                                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                                                <line x1="1" y1="1" x2="23" y2="23"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Password Requirements -->
-                            <div class="mb-6 password-requirements">
-                                <h4 class="mb-2 font-medium text-primary">Password Requirements</h4>
-                                <ul class="space-y-1 text-sm text-secondary">
-                                    <li class="password-requirement-item">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        Minimum 6 characters
-                                    </li>
-                                    <li class="password-requirement-item">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        Must match confirmation
-                                    </li>
-                                    <li class="password-requirement-item">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="text-green-500">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        Must be different from current password
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="flex gap-2 button-group">
-                                <button id="cancelPasswordBtn" class="secondary-button">
-                                    Cancel
-                                </button>
-                                <button id="updatePasswordBtn" class="primary-button">
-                                    Update Password
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                <div class="p-6 profile-card student-settings-shell" id="profileSettings">
+                    @include('Student.partials.profile-settings-panel', [
+                        'user' => $user,
+                        'student' => $student,
+                        'profilePhotoUrl' => $profilePhotoUrl,
+                        'departmentName' => $departmentName,
+                        'addressValue' => $addressValue,
+                    ])
                 </div>
             </div>
         </div>
@@ -955,537 +1458,5 @@
 @endsection
 
 @push('scripts')
-    <script>
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
-        // Helper function to show messages
-        function showMessage(message, type = 'success') {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `p-4 mb-4 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`;
-            alertDiv.textContent = message;
-            
-            const container = document.getElementById('profileSettings');
-            container.insertBefore(alertDiv, container.firstChild);
-            
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 4000);
-        }
-
-        // Profile Settings JavaScript
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tab Switching
-            const personalTab = document.getElementById('personalTab');
-            const photoTab = document.getElementById('photoTab');
-            const securityTab = document.getElementById('securityTab');
-            const personalContent = document.getElementById('personalContent');
-            const photoContent = document.getElementById('photoContent');
-            const securityContent = document.getElementById('securityContent');
-
-            function switchToPersonalTab() {
-                personalTab.classList.add('active');
-                photoTab.classList.remove('active');
-                securityTab.classList.remove('active');
-                personalContent.classList.remove('hidden');
-                photoContent.classList.add('hidden');
-                securityContent.classList.add('hidden');
-            }
-
-            function switchToPhotoTab() {
-                photoTab.classList.add('active');
-                personalTab.classList.remove('active');
-                securityTab.classList.remove('active');
-                photoContent.classList.remove('hidden');
-                personalContent.classList.add('hidden');
-                securityContent.classList.add('hidden');
-            }
-
-            function switchToSecurityTab() {
-                securityTab.classList.add('active');
-                personalTab.classList.remove('active');
-                photoTab.classList.remove('active');
-                securityContent.classList.remove('hidden');
-                personalContent.classList.add('hidden');
-                photoContent.classList.add('hidden');
-            }
-
-            personalTab.addEventListener('click', switchToPersonalTab);
-            photoTab.addEventListener('click', switchToPhotoTab);
-            securityTab.addEventListener('click', switchToSecurityTab);
-
-            // Edit Profile Toggle
-            const editProfileBtn = document.getElementById('editProfileBtn');
-            const inputs = document.querySelectorAll('#personalContent input, #personalContent textarea');
-            let isEditing = false;
-
-            function enableEditing() {
-                if (!isEditing) {
-                    // Enable editing (but keep department disabled)
-                    inputs.forEach(input => {
-                        if (input.id !== 'department') {
-                            input.disabled = false;
-                        }
-                    });
-
-                    // Change button to Save/Cancel
-                    const buttonGroup = document.createElement('div');
-                    buttonGroup.className = 'button-group flex gap-2';
-                    buttonGroup.innerHTML = `
-                    <button id="cancelEditBtn" class="secondary-button" type="button">
-                        Cancel
-                    </button>
-                    <button id="saveEditBtn" class="primary-button" type="button">
-                        Save Changes
-                    </button>
-                `;
-
-                    editProfileBtn.parentNode.replaceChild(buttonGroup, editProfileBtn);
-
-                    isEditing = true;
-
-                    // Add event listeners for new buttons
-                    document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
-                    document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
-                }
-            }
-
-            function cancelEdit() {
-                // Disable inputs
-                inputs.forEach(input => {
-                    input.disabled = true;
-
-                    // Reset values to original
-                    if (input.id === 'fullName') input.value = '{{ $user->name }}';
-                    if (input.id === 'email') input.value = '{{ $user->email }}';
-                    if (input.id === 'phone') input.value = '{{ $user->phone ?? "Not provided" }}';
-                    if (input.id === 'department') input.value = '{{ $student && $student->department ? $student->department->name : "N/A" }}';
-                    if (input.id === 'address') input.value =
-                        '{{ $user->address ?? "Not provided" }}';
-                });
-
-                // Reset button
-                const newButton = document.createElement('button');
-                newButton.id = 'editProfileBtn';
-                newButton.className = 'primary-button';
-                newButton.textContent = 'Edit Profile';
-                newButton.type = 'button';
-
-                const buttonGroup = document.querySelector('#personalContent .button-group');
-                if (buttonGroup) {
-                    buttonGroup.parentNode.replaceChild(newButton, buttonGroup);
-                }
-
-                // Reattach event listener
-                document.getElementById('editProfileBtn').addEventListener('click', enableEditing);
-
-                isEditing = false;
-            }
-
-            function saveEdit() {
-                const fullName = document.getElementById('fullName').value;
-                const email = document.getElementById('email').value;
-                const phone = document.getElementById('phone').value;
-                const address = document.getElementById('address').value;
-
-                // Client-side validation
-                if (!fullName || fullName.trim() === '') {
-                    showMessage('Full name cannot be empty', 'error');
-                    return;
-                }
-
-                if (!email || email.trim() === '') {
-                    showMessage('Email cannot be empty', 'error');
-                    return;
-                }
-
-                // Simple email validation
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    showMessage('Please enter a valid email address', 'error');
-                    return;
-                }
-
-                // Show loading state
-                const saveBtn = document.getElementById('saveEditBtn');
-                saveBtn.disabled = true;
-                saveBtn.textContent = 'Saving...';
-
-                fetch('{{ route("student.profile.update-personal-info") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
-                    body: JSON.stringify({
-                        fullName: fullName,
-                        email: email,
-                        phone: phone,
-                        address: address,
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showMessage(data.message, 'success');
-
-                        // Disable inputs
-                        inputs.forEach(input => {
-                            input.disabled = true;
-                        });
-
-                        // Reset button
-                        const newButton = document.createElement('button');
-                        newButton.id = 'editProfileBtn';
-                        newButton.className = 'primary-button';
-                        newButton.textContent = 'Edit Profile';
-                        newButton.type = 'button';
-
-                        const buttonGroup = document.querySelector('#personalContent .button-group');
-                        if (buttonGroup) {
-                            buttonGroup.parentNode.replaceChild(newButton, buttonGroup);
-                        }
-
-                        document.getElementById('editProfileBtn').addEventListener('click', enableEditing);
-                        isEditing = false;
-                    } else {
-                        showMessage(data.message, 'error');
-                        saveBtn.disabled = false;
-                        saveBtn.textContent = 'Save Changes';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showMessage('Error updating profile. Please try again.', 'error');
-                    saveBtn.disabled = false;
-                    saveBtn.textContent = 'Save Changes';
-                });
-            }
-
-            editProfileBtn.addEventListener('click', enableEditing);
-
-            // Photo Upload Functionality
-            const photoUpload = document.getElementById('photoUpload');
-            const previewImage = document.getElementById('previewImage');
-            const previewInitial = document.getElementById('previewInitial');
-            const uploadActions = document.getElementById('uploadActions');
-            const cancelUpload = document.getElementById('cancelUpload');
-            const savePhoto = document.getElementById('savePhoto');
-            const removePhotoBtn = document.getElementById('removePhotoBtn');
-            let selectedFile = null;
-
-            photoUpload.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    // Check file size (max 2MB)
-                    if (file.size > 2 * 1024 * 1024) {
-                        showMessage('File size must be less than 2MB', 'error');
-                        this.value = '';
-                        return;
-                    }
-
-                    // Check file type
-                    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
-                    if (!validTypes.includes(file.type)) {
-                        showMessage('Only JPG, PNG and GIF files are allowed', 'error');
-                        this.value = '';
-                        return;
-                    }
-
-                    selectedFile = file;
-
-                    // Show preview
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        previewImage.src = event.target.result;
-                        previewImage.style.display = 'block';
-                        previewInitial.style.display = 'none';
-                        uploadActions.style.display = 'flex';
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            cancelUpload.addEventListener('click', function() {
-                photoUpload.value = '';
-                previewImage.style.display = 'none';
-                previewInitial.style.display = 'block';
-                uploadActions.style.display = 'none';
-                selectedFile = null;
-            });
-
-            removePhotoBtn.addEventListener('click', function() {
-                if (confirm('Are you sure you want to remove your profile photo?')) {
-                    removePhotoBtn.disabled = true;
-                    const originalText = removePhotoBtn.innerHTML;
-                    removePhotoBtn.innerHTML = 'Removing...';
-
-                    fetch('{{ route("student.profile.remove-photo") }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({})
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showMessage(data.message, 'success');
-
-                            // Update left profile avatar
-                            const leftAvatarImage = document.getElementById('leftAvatarImage');
-                            const leftAvatarInitial = document.getElementById('leftAvatarInitial');
-
-                            leftAvatarImage.style.display = 'none';
-                            leftAvatarInitial.style.display = 'block';
-
-                            // Update preview image in upload tab
-                            previewImage.style.display = 'none';
-                            previewInitial.style.display = 'block';
-
-                            // Hide remove photo button
-                            removePhotoBtn.style.display = 'none';
-                        } else {
-                            showMessage(data.message, 'error');
-                        }
-                        removePhotoBtn.disabled = false;
-                        removePhotoBtn.innerHTML = originalText;
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showMessage('Error removing photo. Please try again.', 'error');
-                        removePhotoBtn.disabled = false;
-                        removePhotoBtn.innerHTML = originalText;
-                    });
-                }
-            });
-
-            savePhoto.addEventListener('click', function() {
-                if (!selectedFile) {
-                    showMessage('Please select a photo first', 'error');
-                    return;
-                }
-
-                // Show loading state
-                savePhoto.disabled = true;
-                savePhoto.innerHTML = 'Uploading...';
-
-                const formData = new FormData();
-                formData.append('photo', selectedFile);
-
-                fetch('{{ route("student.profile.upload-photo") }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showMessage(data.message, 'success');
-
-                        // Update left profile avatar
-                        const leftAvatarImage = document.getElementById('leftAvatarImage');
-                        const leftAvatarInitial = document.getElementById('leftAvatarInitial');
-
-                        leftAvatarImage.src = data.photoUrl;
-                        leftAvatarImage.style.display = 'block';
-                        leftAvatarInitial.style.display = 'none';
-
-                        // Update preview image in upload tab
-                        previewImage.src = data.photoUrl;
-                        previewImage.style.display = 'block';
-                        previewInitial.style.display = 'none';
-
-                        // Show remove photo button
-                        removePhotoBtn.style.display = 'inline-block';
-
-                        // Reset upload state
-                        uploadActions.style.display = 'none';
-                        photoUpload.value = '';
-                        selectedFile = null;
-
-                        savePhoto.disabled = false;
-                        savePhoto.innerHTML = 'Save Photo';
-                    } else {
-                        showMessage(data.message, 'error');
-                        savePhoto.disabled = false;
-                        savePhoto.innerHTML = 'Save Photo';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showMessage('Error uploading photo. Please try again.', 'error');
-                    savePhoto.disabled = false;
-                    savePhoto.innerHTML = 'Save Photo';
-                });
-            });
-
-            // Password Change Toggle
-            const changePasswordBtn = document.getElementById('changePasswordBtn');
-            const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
-            const updatePasswordBtn = document.getElementById('updatePasswordBtn');
-            const securityInitialView = document.getElementById('securityInitialView');
-            const passwordForm = document.getElementById('passwordForm');
-
-            function showPasswordForm() {
-                if (securityInitialView && passwordForm) {
-                    securityInitialView.classList.add('hidden');
-                    passwordForm.classList.remove('hidden');
-                }
-            }
-
-            function hidePasswordForm() {
-                if (securityInitialView && passwordForm) {
-                    passwordForm.classList.add('hidden');
-                    securityInitialView.classList.remove('hidden');
-
-                    // Clear password fields
-                    if (document.getElementById('currentPassword')) {
-                        document.getElementById('currentPassword').value = '';
-                        document.getElementById('currentPassword').type = 'password';
-                    }
-                    if (document.getElementById('newPassword')) {
-                        document.getElementById('newPassword').value = '';
-                        document.getElementById('newPassword').type = 'password';
-                    }
-                    if (document.getElementById('confirmPassword')) {
-                        document.getElementById('confirmPassword').value = '';
-                        document.getElementById('confirmPassword').type = 'password';
-                    }
-
-                    // Reset all password toggle icons to show eye icon
-                    const toggleButtons = document.querySelectorAll('.password-toggle');
-                    toggleButtons.forEach(button => {
-                        const eyeIcon = button.querySelector('.eye-icon');
-                        const eyeOffIcon = button.querySelector('.eye-off-icon');
-                        if (eyeIcon) eyeIcon.classList.remove('hidden');
-                        if (eyeOffIcon) eyeOffIcon.classList.add('hidden');
-                    });
-                }
-            }
-
-            function togglePassword(fieldId) {
-                const field = document.getElementById(fieldId);
-                const wrapper = field.closest('.password-input-wrapper');
-                const button = wrapper.querySelector('.password-toggle');
-                const eyeIcon = button.querySelector('.eye-icon');
-                const eyeOffIcon = button.querySelector('.eye-off-icon');
-
-                if (field.type === 'password') {
-                    field.type = 'text';
-                    eyeIcon.classList.add('hidden');
-                    eyeOffIcon.classList.remove('hidden');
-                } else {
-                    field.type = 'password';
-                    eyeIcon.classList.remove('hidden');
-                    eyeOffIcon.classList.add('hidden');
-                }
-            }
-
-            function validatePasswordChange() {
-                const currentPass = document.getElementById('currentPassword').value;
-                const newPass = document.getElementById('newPassword').value;
-                const confirmPass = document.getElementById('confirmPassword').value;
-
-                if (!currentPass || !newPass || !confirmPass) {
-                    showMessage('Please fill in all password fields', 'error');
-                    return false;
-                }
-
-                if (newPass.length < 6) {
-                    showMessage('New password must be at least 6 characters', 'error');
-                    return false;
-                }
-
-                if (newPass !== confirmPass) {
-                    showMessage('New passwords do not match', 'error');
-                    return false;
-                }
-
-                if (currentPass === newPass) {
-                    showMessage('New password must be different from current password', 'error');
-                    return false;
-                }
-
-                return true;
-            }
-
-            function updatePassword() {
-                if (!validatePasswordChange()) {
-                    return;
-                }
-
-                const currentPass = document.getElementById('currentPassword').value;
-                const newPass = document.getElementById('newPassword').value;
-                const confirmPass = document.getElementById('confirmPassword').value;
-
-                // Show loading state
-                const updateBtn = document.getElementById('updatePasswordBtn');
-                updateBtn.disabled = true;
-                updateBtn.textContent = 'Updating...';
-
-                fetch('{{ route("student.profile.update-password") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                    },
-                    body: JSON.stringify({
-                        currentPassword: currentPass,
-                        newPassword: newPass,
-                        newPassword_confirmation: confirmPass,
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showMessage(data.message, 'success');
-                        hidePasswordForm();
-                    } else {
-                        showMessage(data.message, 'error');
-                    }
-                    updateBtn.disabled = false;
-                    updateBtn.textContent = 'Update Password';
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showMessage('Error updating password. Please try again.', 'error');
-                    updateBtn.disabled = false;
-                    updateBtn.textContent = 'Update Password';
-                });
-            }
-
-            // Attach event listeners if elements exist
-            if (changePasswordBtn) {
-                changePasswordBtn.addEventListener('click', showPasswordForm);
-            }
-
-            if (cancelPasswordBtn) {
-                cancelPasswordBtn.addEventListener('click', hidePasswordForm);
-            }
-
-            if (updatePasswordBtn) {
-                updatePasswordBtn.addEventListener('click', updatePassword);
-            }
-
-            // Make functions available globally for event handlers
-            window.enableEditing = enableEditing;
-            window.cancelEdit = cancelEdit;
-            window.saveEdit = saveEdit;
-            window.showPasswordForm = showPasswordForm;
-            window.hidePasswordForm = hidePasswordForm;
-            window.updatePassword = updatePassword;
-            window.switchToPersonalTab = switchToPersonalTab;
-            window.switchToPhotoTab = switchToPhotoTab;
-            window.switchToSecurityTab = switchToSecurityTab;
-            window.togglePassword = togglePassword;
-        });
-
-        // Global function to switch to photo tab
-        function switchToPhotoTab() {
-            document.getElementById('photoTab').click();
-        }
-    </script>
+    @include('Student.partials.profile-settings-script')
 @endpush

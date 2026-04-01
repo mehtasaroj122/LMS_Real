@@ -8,6 +8,7 @@ use App\Models\Fine;
 use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -76,28 +77,28 @@ class ProfileController extends Controller
         Gate::authorize('access-student');
 
         $user = Auth::user();
-        $student = Student::where('user_id', $user->id)->first();
 
-        // Validate input
+        if (!$request->has('name') && $request->has('fullName')) {
+            $request->merge(['name' => $request->input('fullName')]);
+        }
+
         $validated = $request->validate([
-            'fullName' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:500'],
         ]);
 
         try {
             $oldEmail = $user->email;
-            
-            // Update user
+
             $user->update([
-                'name' => $validated['fullName'],
+                'name' => $validated['name'],
                 'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'address' => $validated['address'],
+                'phone' => $validated['phone'] ?? null,
+                'address' => $validated['address'] ?? null,
             ]);
 
-            // Notify user of profile update
             Notification::notify(
                 user: $user,
                 type: 'account.profile_updated',
@@ -108,7 +109,6 @@ class ProfileController extends Controller
                 relatedId: $user->id
             );
 
-            // Notify of email change if applicable
             if ($oldEmail !== $validated['email']) {
                 Notification::notify(
                     user: $user,
@@ -121,14 +121,27 @@ class ProfileController extends Controller
                 );
             }
 
+            $freshUser = $user->fresh()->loadMissing('student.department');
+
             return response()->json([
                 'success' => true,
-                'message' => 'Personal information updated successfully!',
+                'message' => 'Profile updated successfully.',
+                'email_changed' => $oldEmail !== $validated['email'],
+                'user' => [
+                    'name' => $freshUser->name,
+                    'email' => $freshUser->email,
+                    'phone' => $freshUser->phone,
+                    'address' => $freshUser->address,
+                    'department' => $freshUser->student?->department?->name,
+                    'profile_photo' => $freshUser->profile_photo,
+                    'profile_photo_url' => $this->resolveProfilePhotoUrl($freshUser),
+                    'username' => $freshUser->email ? explode('@', $freshUser->email)[0] : 'student',
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating personal information. Please try again.',
+                'message' => 'Unable to update your profile right now.',
             ], 500);
         }
     }
@@ -139,40 +152,45 @@ class ProfileController extends Controller
 
         $user = Auth::user();
 
-        // Validate input
+        if (!$request->hasFile('profile_photo') && $request->hasFile('photo')) {
+            $request->files->set('profile_photo', $request->file('photo'));
+        }
+
         $validated = $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,gif|max:2048',
+            'profile_photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         try {
-            // Delete old photo if exists
             if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
                 Storage::disk('public')->delete($user->profile_photo);
             }
 
-            // Create directory if not exists
             if (!Storage::disk('public')->exists('Profile_pics')) {
                 Storage::disk('public')->makeDirectory('Profile_pics');
             }
 
-            // Store new photo
-            $fileName = 'user_' . $user->id . '_' . time() . '.' . $request->file('photo')->getClientOriginalExtension();
-            $path = $request->file('photo')->storeAs('Profile_pics', $fileName, 'public');
+            $fileName = 'user_' . $user->id . '_' . time() . '.' . $validated['profile_photo']->getClientOriginalExtension();
+            $path = $validated['profile_photo']->storeAs('Profile_pics', $fileName, 'public');
 
-            // Update user profile_photo column
             $user->update([
                 'profile_photo' => $path,
             ]);
 
+            $freshUser = $user->fresh();
+
             return response()->json([
                 'success' => true,
-                'message' => 'Profile photo uploaded successfully!',
+                'message' => 'Photo uploaded successfully.',
                 'photoUrl' => asset('storage/' . $path),
+                'user' => [
+                    'profile_photo' => $freshUser->profile_photo,
+                    'profile_photo_url' => $this->resolveProfilePhotoUrl($freshUser),
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error uploading photo. Please try again.',
+                'message' => 'Unable to upload your photo right now.',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -184,38 +202,51 @@ class ProfileController extends Controller
 
         $user = Auth::user();
 
-        // Validate input
+        if (!$request->has('current_password') && $request->has('currentPassword')) {
+            $request->merge(['current_password' => $request->input('currentPassword')]);
+        }
+
+        if (!$request->has('password') && $request->has('newPassword')) {
+            $request->merge([
+                'password' => $request->input('newPassword'),
+                'password_confirmation' => $request->input('newPassword_confirmation'),
+            ]);
+        }
+
         $validated = $request->validate([
-            'currentPassword' => 'required|string',
-            'newPassword' => 'required|string|min:6|confirmed',
-            'newPassword_confirmation' => 'required|string|min:6',
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/[A-Z]/', 'regex:/[a-z]/', 'regex:/\d/'],
+            'password_confirmation' => ['required', 'string', 'min:8'],
+        ], [
+            'password.min' => 'Password must be at least 8 characters.',
+            'password.regex' => 'Password must contain uppercase, lowercase, and a number.',
         ]);
 
         try {
-            // Check if current password matches
-            if (!Hash::check($validated['currentPassword'], $user->password)) {
+            if (!Hash::check($validated['current_password'], $user->password)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Current password is incorrect.',
-                    'field' => 'currentPassword',
+                    'errors' => [
+                        'current_password' => ['Current password is incorrect.'],
+                    ],
                 ], 422);
             }
 
-            // Check if new password is different from current
-            if (Hash::check($validated['newPassword'], $user->password)) {
+            if (Hash::check($validated['password'], $user->password)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'New password must be different from current password.',
-                    'field' => 'newPassword',
+                    'errors' => [
+                        'password' => ['New password must be different from your current password.'],
+                    ],
                 ], 422);
             }
 
-            // Update password
             $user->update([
-                'password' => Hash::make($validated['newPassword']),
+                'password' => Hash::make($validated['password']),
             ]);
 
-            // Notify user of password change
             Notification::notify(
                 user: $user,
                 type: 'account.password_changed',
@@ -228,12 +259,12 @@ class ProfileController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Password updated successfully!',
+                'message' => 'Password updated successfully.',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error updating password. Please try again.',
+                'message' => 'Unable to update your password right now.',
             ], 500);
         }
     }
@@ -245,12 +276,10 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         try {
-            // Delete the photo file if it exists
             if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
                 Storage::disk('public')->delete($user->profile_photo);
             }
 
-            // Update user to remove photo reference
             $user->update([
                 'profile_photo' => null,
             ]);
@@ -267,9 +296,40 @@ class ProfileController extends Controller
         }
     }
 
+    public function checkEmail(Request $request)
+    {
+        Gate::authorize('access-student');
+
+        $validated = $request->validate([
+            'email' => ['bail', 'required', 'email', 'max:255'],
+        ]);
+
+        $available = !User::query()
+            ->where('email', $validated['email'])
+            ->where('id', '!=', $request->user()->id)
+            ->exists();
+
+        return response()->json([
+            'available' => $available,
+        ]);
+    }
+
     public function edit()
     {
         Gate::authorize('access-student');
         return view('Student.Profile');
+    }
+
+    private function resolveProfilePhotoUrl(User $user): ?string
+    {
+        if (!$user->profile_photo) {
+            return null;
+        }
+
+        $path = ltrim($user->profile_photo, '/');
+
+        return str_starts_with($user->profile_photo, 'http')
+            ? $user->profile_photo
+            : asset(str_starts_with($path, 'storage/') ? $path : 'storage/' . $path);
     }
 }
