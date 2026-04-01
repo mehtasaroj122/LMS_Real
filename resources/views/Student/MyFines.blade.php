@@ -184,7 +184,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
-            width: min(100%, 1080px);
+            width: 100%;
             align-items: center;
         }
 
@@ -228,6 +228,27 @@
             flex: 1 1 auto;
             min-width: 0;
             align-items: center;
+        }
+
+        .entries-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            flex: 0 0 auto;
+            margin-left: auto;
+        }
+
+        .entries-label,
+        .entries-suffix,
+        .pagination-page-summary {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .entries-select {
+            min-width: 5.25rem;
         }
 
         .filter-select {
@@ -487,17 +508,30 @@
             padding: 0.75rem;
             border-top: 1px solid var(--border-color);
             margin-top: 0.75rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
         }
 
         .pagination-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
             font-size: 0.8rem;
             color: var(--text-secondary);
         }
 
         .pagination-controls {
             display: flex;
-            gap: 0.25rem;
+            gap: 0.5rem;
             align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #paginationNumbers {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .pagination-btn {
@@ -512,6 +546,15 @@
             transition: all 0.2s ease;
             min-width: 36px;
             text-align: center;
+        }
+
+        .pagination-btn.page-number {
+            min-width: 2.5rem;
+            padding-inline: 0.625rem;
+        }
+
+        .pagination-btn.nav-btn {
+            white-space: nowrap;
         }
 
         .pagination-btn:hover:not(:disabled) {
@@ -529,6 +572,16 @@
         .pagination-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .pagination-ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
         }
 
         /* Responsive Design */
@@ -553,12 +606,18 @@
             }
 
             .search-box,
-            .filters-container {
+            .filters-container,
+            .entries-control {
                 width: 100%;
             }
 
             .filter-select {
                 min-width: 100%;
+            }
+
+            .entries-control {
+                margin-left: 0;
+                justify-content: flex-start;
             }
 
             .fines-table {
@@ -574,6 +633,20 @@
             .mobile-row {
                 flex-direction: column;
                 gap: 0.125rem;
+            }
+
+            .pagination-container {
+                align-items: stretch;
+            }
+
+            .pagination-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            #paginationNumbers {
+                flex: 1;
+                justify-content: center;
             }
         }
 
@@ -696,6 +769,17 @@
 
                     <button type="button" class="reset-filter-btn" id="resetFiltersBtn">Reset</button>
                 </div>
+
+                <div class="entries-control">
+                    <label class="entries-label" for="entriesPerPage">Show</label>
+                    <select class="filter-select entries-select" id="entriesPerPage">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span class="entries-suffix">entries</span>
+                </div>
             </div>
         </div>
 
@@ -720,14 +804,15 @@
             <!-- Pagination -->
             <div class="pagination-container" id="paginationContainer" style="display: none;">
                 <div class="pagination-info">
-                    Showing <span id="paginationStart">1</span> to <span id="paginationEnd">10</span> of <span id="paginationTotal">0</span> results
+                    <span>Showing <span id="paginationStart">1</span> to <span id="paginationEnd">10</span> of <span id="paginationTotal">0</span> results</span>
+                    <span class="pagination-page-summary">Page <span id="paginationCurrentPage">1</span> of <span id="paginationTotalPages">1</span></span>
                 </div>
                 <div class="pagination-controls">
-                    <button class="pagination-btn" id="paginationPrev" onclick="previousPage()">
+                    <button type="button" class="pagination-btn nav-btn" id="paginationPrev" onclick="previousPage()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
                     <div id="paginationNumbers"></div>
-                    <button class="pagination-btn" id="paginationNext" onclick="nextPage()">
+                    <button type="button" class="pagination-btn nav-btn" id="paginationNext" onclick="nextPage()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
                 </div>
@@ -790,74 +875,175 @@
             }
         }
 
-        // Pagination variables
-        let currentPage = 1;
-        const itemsPerPage = 10;
+        const DEFAULT_ITEMS_PER_PAGE = 10;
+        const ALLOWED_PAGE_SIZES = [10, 20, 50, 100];
+        let currentPage = getInitialPage();
+        let itemsPerPage = getInitialItemsPerPage();
         let filteredFines = [];
 
+        function getInitialItemsPerPage() {
+            const perPage = Number(new URLSearchParams(window.location.search).get('per_page'));
+            return ALLOWED_PAGE_SIZES.includes(perPage) ? perPage : DEFAULT_ITEMS_PER_PAGE;
+        }
+
+        function getInitialPage() {
+            const page = Number(new URLSearchParams(window.location.search).get('page'));
+            return Number.isInteger(page) && page > 0 ? page : 1;
+        }
+
+        function getTotalPages() {
+            return Math.max(1, Math.ceil(filteredFines.length / itemsPerPage));
+        }
+
+        function syncPaginationState() {
+            const params = new URLSearchParams(window.location.search);
+            params.set('page', String(currentPage));
+            params.set('per_page', String(itemsPerPage));
+
+            const queryString = params.toString();
+            const nextUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+            window.history.replaceState({}, '', nextUrl);
+        }
+
+        function updatePaginationInfo(startRecord, endRecord, totalRecords, totalPages) {
+            document.getElementById('paginationStart').textContent = startRecord;
+            document.getElementById('paginationEnd').textContent = endRecord;
+            document.getElementById('paginationTotal').textContent = totalRecords;
+            document.getElementById('paginationCurrentPage').textContent = totalRecords === 0 ? 0 : currentPage;
+            document.getElementById('paginationTotalPages').textContent = totalRecords === 0 ? 0 : totalPages;
+        }
+
+        function getVisiblePageItems(totalPages, activePage) {
+            if (totalPages <= 7) {
+                return Array.from({ length: totalPages }, (_, index) => index + 1);
+            }
+
+            const pages = [1];
+            let start = Math.max(2, activePage - 1);
+            let end = Math.min(totalPages - 1, activePage + 1);
+
+            if (activePage <= 4) {
+                start = 2;
+                end = 5;
+            }
+
+            if (activePage >= totalPages - 3) {
+                start = totalPages - 4;
+                end = totalPages - 1;
+            }
+
+            if (start > 2) {
+                pages.push('ellipsis-start');
+            }
+
+            for (let page = start; page <= end; page++) {
+                pages.push(page);
+            }
+
+            if (end < totalPages - 1) {
+                pages.push('ellipsis-end');
+            }
+
+            pages.push(totalPages);
+
+            return pages;
+        }
+
+        function getNumericFineAmount(value) {
+            return parseFloat(String(value ?? '').replace(/[^\d.]/g, '')) || 0;
+        }
+
+        function formatCurrencyAmount(amount) {
+            const normalizedAmount = Number(amount) || 0;
+            return `₹${normalizedAmount.toFixed(2).replace(/\.00$/, '')}`;
+        }
+
         // Render fines table
-        function renderFines(fines) {
+        function renderFines(fines, { preservePage = false } = {}) {
             filteredFines = fines;
-            currentPage = 1;
+            const tableBody = document.getElementById('finesTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const paginationContainer = document.getElementById('paginationContainer');
+
+            if (!preservePage) {
+                currentPage = 1;
+            }
+
+            currentPage = Math.min(Math.max(currentPage, 1), getTotalPages());
+            updateStats(fines);
 
             if (fines.length === 0) {
-                document.getElementById('finesTableBody').innerHTML = '';
-                document.getElementById('emptyState').style.display = 'block';
-                document.getElementById('paginationContainer').style.display = 'none';
+                tableBody.innerHTML = '';
+                emptyState.style.display = 'block';
+                paginationContainer.style.display = 'none';
+                updatePaginationInfo(0, 0, 0, 0);
+                syncPaginationState();
                 return;
             }
 
-            document.getElementById('emptyState').style.display = 'none';
-
-            // Show pagination only if more than 10 items
-            if (fines.length > itemsPerPage) {
-                document.getElementById('paginationContainer').style.display = 'flex';
-                updatePagination(fines);
-            } else {
-                document.getElementById('paginationContainer').style.display = 'none';
-                renderPageFines(fines);
-            }
-
-            // Update stats
-            updateStats(fines);
+            emptyState.style.display = 'none';
+            paginationContainer.style.display = 'flex';
+            displayCurrentPage();
+            updatePagination();
         }
 
         // Update pagination display
-        function updatePagination(fines) {
-            const totalPages = Math.ceil(fines.length / itemsPerPage);
-            const start = (currentPage - 1) * itemsPerPage + 1;
-            const end = Math.min(currentPage * itemsPerPage, fines.length);
-
-            document.getElementById('paginationStart').textContent = start;
-            document.getElementById('paginationEnd').textContent = end;
-            document.getElementById('paginationTotal').textContent = fines.length;
-
-            // Generate page numbers
+        function updatePagination() {
+            const totalPages = getTotalPages();
+            const paginationContainer = document.getElementById('paginationContainer');
             const numbersContainer = document.getElementById('paginationNumbers');
+            const previousButton = document.getElementById('paginationPrev');
+            const nextButton = document.getElementById('paginationNext');
+
+            paginationContainer.style.display = filteredFines.length > 0 ? 'flex' : 'none';
+            previousButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage === totalPages;
+
             numbersContainer.innerHTML = '';
 
-            for (let i = 1; i <= totalPages; i++) {
+            getVisiblePageItems(totalPages, currentPage).forEach(item => {
+                if (typeof item === 'string') {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-ellipsis';
+                    ellipsis.textContent = '...';
+                    ellipsis.setAttribute('aria-hidden', 'true');
+                    numbersContainer.appendChild(ellipsis);
+                    return;
+                }
+
                 const btn = document.createElement('button');
-                btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
-                btn.textContent = i;
-                btn.onclick = () => goToPage(i);
+                btn.type = 'button';
+                btn.className = `pagination-btn page-number${item === currentPage ? ' active' : ''}`;
+                btn.textContent = item;
+                btn.onclick = () => goToPage(item);
                 numbersContainer.appendChild(btn);
+            });
+
+            syncPaginationState();
+        }
+
+        function handleEntriesPerPageChange(event) {
+            const nextPageSize = Number(event.target.value);
+
+            if (!ALLOWED_PAGE_SIZES.includes(nextPageSize) || nextPageSize === itemsPerPage) {
+                return;
             }
 
-            // Update prev/next buttons
-            document.getElementById('paginationPrev').disabled = currentPage === 1;
-            document.getElementById('paginationNext').disabled = currentPage === totalPages;
+            const firstVisibleIndex = filteredFines.length > 0 ? (currentPage - 1) * itemsPerPage : 0;
+            itemsPerPage = nextPageSize;
+            currentPage = Math.floor(firstVisibleIndex / itemsPerPage) + 1;
 
-            displayCurrentPage();
+            renderFines(filteredFines, { preservePage: true });
         }
 
         // Go to specific page
         function goToPage(page) {
-            const totalPages = Math.ceil(filteredFines.length / itemsPerPage);
+            const totalPages = getTotalPages();
             if (page < 1 || page > totalPages) return;
 
             currentPage = page;
             displayCurrentPage();
+            updatePagination();
         }
 
         // Display current page data
@@ -865,23 +1051,10 @@
             const start = (currentPage - 1) * itemsPerPage;
             const end = start + itemsPerPage;
             const pageFines = filteredFines.slice(start, end);
+            const totalPages = getTotalPages();
 
             renderPageFines(pageFines);
-
-            // Update pagination info
-            document.getElementById('paginationStart').textContent = start + 1;
-            document.getElementById('paginationEnd').textContent = Math.min(end, filteredFines.length);
-
-            // Update active page button
-            const allPageBtns = document.querySelectorAll('#paginationNumbers .pagination-btn');
-            allPageBtns.forEach((btn, index) => {
-                btn.classList.toggle('active', index + 1 === currentPage);
-            });
-
-            // Update prev/next buttons
-            const totalPages = Math.ceil(filteredFines.length / itemsPerPage);
-            document.getElementById('paginationPrev').disabled = currentPage === 1;
-            document.getElementById('paginationNext').disabled = currentPage === totalPages;
+            updatePaginationInfo(start + 1, Math.min(end, filteredFines.length), filteredFines.length, totalPages);
         }
 
         // Render specific page fines
@@ -911,10 +1084,11 @@
 
         // Next page
         function nextPage() {
-            const totalPages = Math.ceil(filteredFines.length / itemsPerPage);
+            const totalPages = getTotalPages();
             if (currentPage < totalPages) {
                 currentPage++;
                 displayCurrentPage();
+                updatePagination();
             }
         }
 
@@ -923,6 +1097,7 @@
             if (currentPage > 1) {
                 currentPage--;
                 displayCurrentPage();
+                updatePagination();
             }
         }
 
@@ -934,37 +1109,37 @@
             const overdueBooks = fines.filter(fine => fine.fineReason === 'overdue' && fine.status === 'unpaid');
 
             const outstandingAmount = outstandingFines.reduce((sum, fine) => {
-                return sum + parseInt(fine.fineAmount.replace('₹', ''));
+                return sum + getNumericFineAmount(fine.fineAmount);
             }, 0);
 
             const paidAmount = paidFines.reduce((sum, fine) => {
-                return sum + parseInt(fine.fineAmount.replace('₹', ''));
+                return sum + getNumericFineAmount(fine.fineAmount);
             }, 0);
 
             const waivedAmount = waivedFines.reduce((sum, fine) => {
-                return sum + parseInt(fine.fineAmount.replace('₹', ''));
+                return sum + getNumericFineAmount(fine.fineAmount);
             }, 0);
 
-            document.getElementById('outstandingAmount').textContent = `₹${outstandingAmount}`;
+            document.getElementById('outstandingAmount').textContent = formatCurrencyAmount(outstandingAmount);
             document.getElementById('outstandingLabel').textContent = `${outstandingFines.length} pending ${outstandingFines.length === 1 ? 'fine' : 'fines'}`;
             
-            document.getElementById('paidAmount').textContent = `₹${paidAmount}`;
+            document.getElementById('paidAmount').textContent = formatCurrencyAmount(paidAmount);
             document.getElementById('paidLabel').textContent = `${paidFines.length} paid ${paidFines.length === 1 ? 'fine' : 'fines'}`;
             
-            document.getElementById('waivedAmount').textContent = `₹${waivedAmount}`;
+            document.getElementById('waivedAmount').textContent = formatCurrencyAmount(waivedAmount);
             document.getElementById('waivedLabel').textContent = `${waivedFines.length} waived ${waivedFines.length === 1 ? 'fine' : 'fines'}`;
             
             document.getElementById('overdueCount').textContent = overdueBooks.length;
         }
 
         // Filter and search functionality
-        function filterFines() {
+        function filterFines({ preservePage = false } = {}) {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
             const reasonFilter = document.getElementById('reasonFilter').value;
             const timeFilter = document.getElementById('timeFilter').value;
 
-            let filteredFines = finesData.filter(fine => {
+            let nextFilteredFines = finesData.filter(fine => {
                 // Search filter
                 const matchesSearch = searchTerm === '' ||
                     fine.bookTitle.toLowerCase().includes(searchTerm);
@@ -990,20 +1165,34 @@
             });
 
             // Sort by due date (newest first)
-            filteredFines.sort((a, b) => {
+            nextFilteredFines.sort((a, b) => {
                 const dateA = parseDate(a.dueDate);
                 const dateB = parseDate(b.dueDate);
                 return dateB - dateA;
             });
 
-            renderFines(filteredFines);
+            renderFines(nextFilteredFines, { preservePage });
         }
 
         function parseDate(dateString) {
+            if (!dateString || dateString === 'N/A') {
+                return new Date(0);
+            }
+
+            const parsedDate = new Date(dateString);
+            if (!Number.isNaN(parsedDate.getTime())) {
+                return parsedDate;
+            }
+
             // Parse MMM DD, YYYY format
             const [month, day, year] = dateString.split(/[\s,]+/);
             const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             const monthIndex = monthNames.indexOf(month);
+
+            if (monthIndex === -1 || Number.isNaN(Number(day)) || Number.isNaN(Number(year))) {
+                return new Date(0);
+            }
+
             return new Date(year, monthIndex, parseInt(day));
         }
 
@@ -1021,14 +1210,25 @@
             filterFines();
         }
 
-        // Event listeners for filters
-        document.getElementById('searchInput').addEventListener('input', filterFines);
-        document.getElementById('statusFilter').addEventListener('change', filterFines);
-        document.getElementById('reasonFilter').addEventListener('change', filterFines);
-        document.getElementById('timeFilter').addEventListener('change', filterFines);
-        document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const reasonFilter = document.getElementById('reasonFilter');
+            const timeFilter = document.getElementById('timeFilter');
+            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+            const entriesPerPage = document.getElementById('entriesPerPage');
 
-        // Initial render
-        renderFines(finesData);
+            if (searchInput) searchInput.addEventListener('input', () => filterFines());
+            if (statusFilter) statusFilter.addEventListener('change', () => filterFines());
+            if (reasonFilter) reasonFilter.addEventListener('change', () => filterFines());
+            if (timeFilter) timeFilter.addEventListener('change', () => filterFines());
+            if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetFilters);
+            if (entriesPerPage) {
+                entriesPerPage.value = String(itemsPerPage);
+                entriesPerPage.addEventListener('change', handleEntriesPerPageChange);
+            }
+
+            renderFines(finesData, { preservePage: true });
+        });
     </script>
 @endpush

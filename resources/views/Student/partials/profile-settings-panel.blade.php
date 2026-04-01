@@ -218,4 +218,27 @@
             </form>
         </div>
     </div>
+
+    <div class="settings-modal-overlay" id="settingsConfirmModal" hidden aria-hidden="true">
+        <div class="settings-modal-card" role="dialog" aria-modal="true" aria-labelledby="settingsConfirmTitle" aria-describedby="settingsConfirmMessage">
+            <div class="settings-modal-header">
+                <div class="settings-modal-icon danger" id="settingsConfirmIcon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 6V4h8v2" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 6l-1 14H6L5 6" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 11v6M14 11v6" />
+                    </svg>
+                </div>
+                <div class="settings-modal-copy">
+                    <h3 class="settings-modal-title" id="settingsConfirmTitle">Remove profile photo?</h3>
+                    <p class="settings-modal-message" id="settingsConfirmMessage">Your current profile photo will be removed from your account.</p>
+                </div>
+            </div>
+            <div class="settings-modal-actions">
+                <button type="button" class="btn btn-outline" id="settingsConfirmCancelBtn">Keep Photo</button>
+                <button type="button" class="btn btn-danger" id="settingsConfirmActionBtn">Remove Photo</button>
+            </div>
+        </div>
+    </div>
 </div>

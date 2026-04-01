@@ -302,6 +302,26 @@
             width: min(100%, 760px);
         }
 
+        .entries-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-left: auto;
+        }
+
+        .entries-label,
+        .entries-suffix,
+        .pagination-page-summary {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .entries-select {
+            min-width: 5.25rem;
+        }
+
         .reset-filter-btn {
             padding: 0.5rem 1rem;
             border-radius: 0.375rem;
@@ -596,6 +616,9 @@
         }
 
         .pagination-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
             font-size: 0.75rem;
             color: var(--text-secondary);
             font-weight: 500;
@@ -608,6 +631,13 @@
             flex-wrap: wrap;
         }
 
+        #pageNumbers {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
         .pagination-btn {
             padding: 0.375rem 0.75rem;
             border-radius: 0.375rem;
@@ -616,6 +646,15 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
+        }
+
+        .pagination-btn.page-number {
+            min-width: 2.5rem;
+            padding-inline: 0.625rem;
+        }
+
+        .pagination-btn.nav-btn {
+            white-space: nowrap;
         }
 
         body.light-theme .pagination-btn {
@@ -646,6 +685,16 @@
             color: white;
         }
 
+        .pagination-ellipsis {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .stats-grid {
@@ -671,12 +720,18 @@
             }
 
             .search-box,
-            .filters-container {
+            .filters-container,
+            .entries-control {
                 width: 100%;
             }
 
             .filter-select {
                 min-width: 100%;
+            }
+
+            .entries-control {
+                margin-left: 0;
+                justify-content: flex-start;
             }
 
             .books-table {
@@ -693,6 +748,20 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.5rem;
+            }
+
+            .pagination-container {
+                align-items: stretch;
+            }
+
+            .pagination-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            #pageNumbers {
+                flex: 1;
+                justify-content: center;
             }
         }
     </style>
@@ -814,6 +883,17 @@
 
                 <button type="button" class="reset-filter-btn" id="resetFiltersBtn">Reset</button>
             </div>
+
+            <div class="entries-control">
+                <label class="entries-label" for="entriesPerPage">Show</label>
+                <select class="filter-select entries-select" id="entriesPerPage">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="entries-suffix">entries</span>
+            </div>
         </div>
 
         <!-- Books Table -->
@@ -850,12 +930,13 @@
             </div>
             <div id="paginationContainer" class="pagination-container" style="display: none;">
                 <div class="pagination-info">
-                    Showing <span id="startRecord">1</span> to <span id="endRecord">10</span> of <span id="totalRecords">0</span> results
+                    <span>Showing <span id="startRecord">1</span> to <span id="endRecord">10</span> of <span id="totalRecords">0</span> results</span>
+                    <span class="pagination-page-summary">Page <span id="currentPageLabel">1</span> of <span id="totalPagesLabel">1</span></span>
                 </div>
                 <div class="pagination-controls">
-                    <button class="pagination-btn" id="prevBtn" onclick="previousPage()">← Previous</button>
+                    <button type="button" class="pagination-btn nav-btn" id="prevBtn" onclick="previousPage()">← Previous</button>
                     <div id="pageNumbers"></div>
-                    <button class="pagination-btn" id="nextBtn" onclick="nextPage()">Next →</button>
+                    <button type="button" class="pagination-btn nav-btn" id="nextBtn" onclick="nextPage()">Next →</button>
                 </div>
             </div>
         </div>
@@ -868,23 +949,65 @@
     <script>
         // Book data from backend
         const booksData = {!! $issuedBooksJson !!};
-        const BOOKS_PER_PAGE = 10;
-        let currentPage = 1;
+        const DEFAULT_BOOKS_PER_PAGE = 10;
+        const ALLOWED_PAGE_SIZES = [10, 20, 50, 100];
+        let booksPerPage = getInitialBooksPerPage();
+        let currentPage = getInitialPage();
         let filteredBooks = [];
 
+        function getInitialBooksPerPage() {
+            const perPage = Number(new URLSearchParams(window.location.search).get('per_page'));
+            return ALLOWED_PAGE_SIZES.includes(perPage) ? perPage : DEFAULT_BOOKS_PER_PAGE;
+        }
+
+        function getInitialPage() {
+            const page = Number(new URLSearchParams(window.location.search).get('page'));
+            return Number.isInteger(page) && page > 0 ? page : 1;
+        }
+
+        function getTotalPages() {
+            return Math.max(1, Math.ceil(filteredBooks.length / booksPerPage));
+        }
+
+        function syncPaginationState() {
+            const params = new URLSearchParams(window.location.search);
+            params.set('page', String(currentPage));
+            params.set('per_page', String(booksPerPage));
+
+            const queryString = params.toString();
+            const nextUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+            window.history.replaceState({}, '', nextUrl);
+        }
+
+        function updatePaginationInfo(startRecord, endRecord, totalRecords, totalPages) {
+            document.getElementById('startRecord').textContent = startRecord;
+            document.getElementById('endRecord').textContent = endRecord;
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('currentPageLabel').textContent = totalRecords === 0 ? 0 : currentPage;
+            document.getElementById('totalPagesLabel').textContent = totalRecords === 0 ? 0 : totalPages;
+        }
+
         // Render books table with pagination
-        function renderBooks(books) {
+        function renderBooks(books, { preservePage = false } = {}) {
             const tableBody = document.getElementById('booksTableBody');
             const emptyState = document.getElementById('emptyState');
             const paginationContainer = document.getElementById('paginationContainer');
 
             filteredBooks = books;
-            currentPage = 1;
+
+            if (!preservePage) {
+                currentPage = 1;
+            }
+
+            currentPage = Math.min(Math.max(currentPage, 1), getTotalPages());
+            updateStats(books);
 
             if (books.length === 0) {
                 tableBody.innerHTML = '';
                 emptyState.style.display = 'block';
                 paginationContainer.style.display = 'none';
+                updatePaginationInfo(0, 0, 0, 0);
+                syncPaginationState();
                 return;
             }
 
@@ -893,23 +1016,16 @@
             // Display current page
             displayPage(currentPage);
 
-            // Show pagination if there's more than 10 items
-            if (books.length > BOOKS_PER_PAGE) {
-                paginationContainer.style.display = 'flex';
-                updatePagination();
-            } else {
-                paginationContainer.style.display = 'none';
-            }
-
-            // Update stats
-            updateStats(books);
+            paginationContainer.style.display = 'flex';
+            updatePagination();
         }
 
         // Display a specific page
         function displayPage(page) {
             const tableBody = document.getElementById('booksTableBody');
-            const start = (page - 1) * BOOKS_PER_PAGE;
-            const end = start + BOOKS_PER_PAGE;
+            const totalPages = getTotalPages();
+            const start = (page - 1) * booksPerPage;
+            const end = start + booksPerPage;
             const booksToShow = filteredBooks.slice(start, end);
 
             tableBody.innerHTML = booksToShow.map(book => `
@@ -947,14 +1063,48 @@
             // Update pagination info
             const startRecord = start + 1;
             const endRecord = Math.min(end, filteredBooks.length);
-            document.getElementById('startRecord').textContent = startRecord;
-            document.getElementById('endRecord').textContent = endRecord;
-            document.getElementById('totalRecords').textContent = filteredBooks.length;
+            updatePaginationInfo(startRecord, endRecord, filteredBooks.length, totalPages);
+        }
+
+        function getVisiblePageItems(totalPages, activePage) {
+            if (totalPages <= 7) {
+                return Array.from({ length: totalPages }, (_, index) => index + 1);
+            }
+
+            const pages = [1];
+            let start = Math.max(2, activePage - 1);
+            let end = Math.min(totalPages - 1, activePage + 1);
+
+            if (activePage <= 4) {
+                start = 2;
+                end = 5;
+            }
+
+            if (activePage >= totalPages - 3) {
+                start = totalPages - 4;
+                end = totalPages - 1;
+            }
+
+            if (start > 2) {
+                pages.push('ellipsis-start');
+            }
+
+            for (let page = start; page <= end; page++) {
+                pages.push(page);
+            }
+
+            if (end < totalPages - 1) {
+                pages.push('ellipsis-end');
+            }
+
+            pages.push(totalPages);
+
+            return pages;
         }
 
         // Update pagination controls
         function updatePagination() {
-            const totalPages = Math.ceil(filteredBooks.length / BOOKS_PER_PAGE);
+            const totalPages = getTotalPages();
             const pageNumbersContainer = document.getElementById('pageNumbers');
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
@@ -965,13 +1115,26 @@
 
             // Generate page numbers
             pageNumbersContainer.innerHTML = '';
-            for (let i = 1; i <= totalPages; i++) {
+
+            getVisiblePageItems(totalPages, currentPage).forEach(item => {
+                if (typeof item === 'string') {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-ellipsis';
+                    ellipsis.textContent = '...';
+                    ellipsis.setAttribute('aria-hidden', 'true');
+                    pageNumbersContainer.appendChild(ellipsis);
+                    return;
+                }
+
                 const btn = document.createElement('button');
-                btn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
-                btn.textContent = i;
-                btn.onclick = () => goToPage(i);
+                btn.type = 'button';
+                btn.className = 'pagination-btn page-number' + (item === currentPage ? ' active' : '');
+                btn.textContent = item;
+                btn.onclick = () => goToPage(item);
                 pageNumbersContainer.appendChild(btn);
-            }
+            });
+
+            syncPaginationState();
         }
 
         // Navigation functions
@@ -984,7 +1147,7 @@
         }
 
         function nextPage() {
-            const totalPages = Math.ceil(filteredBooks.length / BOOKS_PER_PAGE);
+            const totalPages = getTotalPages();
             if (currentPage < totalPages) {
                 currentPage++;
                 displayPage(currentPage);
@@ -998,6 +1161,33 @@
             updatePagination();
         }
 
+        function handleEntriesPerPageChange(event) {
+            const nextPageSize = Number(event.target.value);
+
+            if (!ALLOWED_PAGE_SIZES.includes(nextPageSize) || nextPageSize === booksPerPage) {
+                return;
+            }
+
+            const firstVisibleIndex = filteredBooks.length > 0 ? (currentPage - 1) * booksPerPage : 0;
+            booksPerPage = nextPageSize;
+            currentPage = Math.floor(firstVisibleIndex / booksPerPage) + 1;
+
+            renderBooks(filteredBooks, { preservePage: true });
+        }
+
+        function getNumericFineAmount(fineValue) {
+            if (!fineValue || fineValue === 'No Fine') {
+                return 0;
+            }
+
+            return parseFloat(String(fineValue).replace(/[^\d.]/g, '')) || 0;
+        }
+
+        function formatCurrencyAmount(amount) {
+            const normalizedAmount = Number(amount) || 0;
+            return `₹${normalizedAmount.toFixed(2).replace(/\.00$/, '')}`;
+        }
+
         // Update statistics based on filtered books
         function updateStats(books) {
             const totalIssued = booksData.length;
@@ -1005,7 +1195,7 @@
             const overdueBooks = books.filter(book => book.status === 'overdue').length;
             const totalFine = books.reduce((sum, book) => {
                 if (book.fine !== 'No Fine' && book.fineStatus === 'unpaid') {
-                    return sum + parseInt(book.fine.replace('₹', ''));
+                    return sum + getNumericFineAmount(book.fine);
                 }
                 return sum;
             }, 0);
@@ -1013,7 +1203,7 @@
             document.getElementById('totalIssued').textContent = totalIssued;
             document.getElementById('currentlyBorrowed').textContent = currentlyBorrowed;
             document.getElementById('overdueBooks').textContent = overdueBooks;
-            document.getElementById('totalFine').textContent = `₹${totalFine}`;
+            document.getElementById('totalFine').textContent = formatCurrencyAmount(totalFine);
         }
 
         // Filter and search functionality
@@ -1055,16 +1245,14 @@
                     case 'issue-date':
                         return new Date(b.issueDate || 0) - new Date(a.issueDate || 0);
                     case 'fine-amount':
-                        const fineA = a.fine === 'No Fine' ? 0 : parseInt((a.fine || '').replace(/[^\d]/g, '') || 0);
-                        const fineB = b.fine === 'No Fine' ? 0 : parseInt((b.fine || '').replace(/[^\d]/g, '') || 0);
+                        const fineA = getNumericFineAmount(a.fine);
+                        const fineB = getNumericFineAmount(b.fine);
                         return fineB - fineA;
                     default:
                         return 0;
                 }
             });
 
-            // Update the global filteredBooks and render
-            filteredBooks = results;
             renderBooks(results);
         }
 
@@ -1099,6 +1287,7 @@
             const categoryFilter = document.getElementById('categoryFilter');
             const sortFilter = document.getElementById('sortFilter');
             const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+            const entriesPerPage = document.getElementById('entriesPerPage');
 
             if (searchInput) searchInput.addEventListener('input', filterBooks);
             if (statusFilter) statusFilter.addEventListener('change', filterBooks);
@@ -1106,10 +1295,14 @@
             if (categoryFilter) categoryFilter.addEventListener('change', filterBooks);
             if (sortFilter) sortFilter.addEventListener('change', filterBooks);
             if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetFilters);
+            if (entriesPerPage) {
+                entriesPerPage.value = String(booksPerPage);
+                entriesPerPage.addEventListener('change', handleEntriesPerPageChange);
+            }
 
             // Initial render
             populateCategories();
-            renderBooks(booksData);
+            renderBooks(booksData, { preservePage: true });
         });
     </script>
 @endpush

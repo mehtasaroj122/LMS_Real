@@ -15,6 +15,8 @@
             flashError: @json(session('error')),
             startProfileEditing: false,
             startPasswordEditing: false,
+            confirmResolver: null,
+            confirmPreviousFocus: null,
         };
 
         const profileFields = ['name', 'email', 'phone', 'address'];
@@ -91,6 +93,7 @@
             bindPhoto();
             bindPassword();
             bindToggles();
+            bindConfirmModal();
             updateCounter();
             updatePasswordRequirements();
 
@@ -145,6 +148,11 @@
             els.leftUserName = document.getElementById('leftUserName');
             els.leftUserEmail = document.getElementById('leftUserEmail');
             els.leftUsernameValue = document.getElementById('leftUsernameValue');
+            els.settingsConfirmModal = document.getElementById('settingsConfirmModal');
+            els.settingsConfirmTitle = document.getElementById('settingsConfirmTitle');
+            els.settingsConfirmMessage = document.getElementById('settingsConfirmMessage');
+            els.settingsConfirmCancelBtn = document.getElementById('settingsConfirmCancelBtn');
+            els.settingsConfirmActionBtn = document.getElementById('settingsConfirmActionBtn');
         }
 
         function hydrateErrors() {
@@ -636,7 +644,14 @@
                 return;
             }
 
-            if (!window.confirm('Are you sure you want to remove your profile photo?')) {
+            const confirmed = await openConfirmModal({
+                title: 'Remove profile photo?',
+                message: 'Your current profile photo will be removed from your account. This action can be reversed later by uploading a new photo.',
+                confirmLabel: 'Remove Photo',
+                cancelLabel: 'Keep Photo',
+            });
+
+            if (!confirmed) {
                 return;
             }
 
@@ -990,6 +1005,80 @@
                     setPasswordToggleIcon(button, visible);
                 });
             });
+        }
+
+        function bindConfirmModal() {
+            els.settingsConfirmCancelBtn?.addEventListener('click', () => closeConfirmModal(false));
+            els.settingsConfirmActionBtn?.addEventListener('click', () => closeConfirmModal(true));
+            els.settingsConfirmModal?.addEventListener('click', (event) => {
+                if (event.target === els.settingsConfirmModal) {
+                    closeConfirmModal(false);
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !els.settingsConfirmModal?.hidden) {
+                    event.preventDefault();
+                    closeConfirmModal(false);
+                }
+            });
+        }
+
+        function openConfirmModal({
+            title = 'Are you sure?',
+            message = 'Please confirm this action.',
+            confirmLabel = 'Confirm',
+            cancelLabel = 'Cancel',
+        } = {}) {
+            if (!els.settingsConfirmModal || !els.settingsConfirmActionBtn || !els.settingsConfirmCancelBtn) {
+                return Promise.resolve(window.confirm(message));
+            }
+
+            if (typeof state.confirmResolver === 'function') {
+                closeConfirmModal(false);
+            }
+
+            if (els.settingsConfirmTitle) {
+                els.settingsConfirmTitle.textContent = title;
+            }
+
+            if (els.settingsConfirmMessage) {
+                els.settingsConfirmMessage.textContent = message;
+            }
+
+            els.settingsConfirmActionBtn.textContent = confirmLabel;
+            els.settingsConfirmCancelBtn.textContent = cancelLabel;
+            state.confirmPreviousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
+            els.settingsConfirmModal.hidden = false;
+            els.settingsConfirmModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+
+            return new Promise((resolve) => {
+                state.confirmResolver = resolve;
+                window.setTimeout(() => els.settingsConfirmCancelBtn?.focus(), 0);
+            });
+        }
+
+        function closeConfirmModal(confirmed = false) {
+            if (!els.settingsConfirmModal) {
+                return;
+            }
+
+            els.settingsConfirmModal.hidden = true;
+            els.settingsConfirmModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+
+            const resolver = state.confirmResolver;
+            state.confirmResolver = null;
+
+            if (typeof resolver === 'function') {
+                resolver(confirmed);
+            }
+
+            const previousFocus = state.confirmPreviousFocus;
+            state.confirmPreviousFocus = null;
+            window.setTimeout(() => previousFocus?.focus?.(), 0);
         }
 
         function setPasswordToggleIcon(button, visible) {

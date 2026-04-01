@@ -869,6 +869,15 @@
             background-color: #2563eb;
         }
 
+        .student-settings-shell .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .student-settings-shell .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
         .student-settings-shell .btn-secondary {
             background-color: #e5e7eb;
             color: #374151;
@@ -1202,6 +1211,101 @@
             background-color: #3b82f6;
         }
 
+        .student-settings-shell .settings-modal-overlay[hidden] {
+            display: none !important;
+        }
+
+        .student-settings-shell .settings-modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px);
+        }
+
+        .student-settings-shell .settings-modal-card {
+            width: min(100%, 430px);
+            border-radius: 1rem;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            padding: 1.4rem;
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.2);
+        }
+
+        body.dark-theme .student-settings-shell .settings-modal-card {
+            background: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 24px 48px rgba(2, 6, 23, 0.45);
+        }
+
+        .student-settings-shell .settings-modal-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .student-settings-shell .settings-modal-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .student-settings-shell .settings-modal-icon svg {
+            width: 1.4rem;
+            height: 1.4rem;
+        }
+
+        .student-settings-shell .settings-modal-icon.danger {
+            background: rgba(239, 68, 68, 0.12);
+            color: #dc2626;
+        }
+
+        body.dark-theme .student-settings-shell .settings-modal-icon.danger {
+            background: rgba(248, 113, 113, 0.16);
+            color: #fca5a5;
+        }
+
+        .student-settings-shell .settings-modal-copy {
+            min-width: 0;
+        }
+
+        .student-settings-shell .settings-modal-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        body.dark-theme .student-settings-shell .settings-modal-title {
+            color: #f8fafc;
+        }
+
+        .student-settings-shell .settings-modal-message {
+            margin: 0.5rem 0 0;
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            color: #64748b;
+        }
+
+        body.dark-theme .student-settings-shell .settings-modal-message {
+            color: #94a3b8;
+        }
+
+        .student-settings-shell .settings-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
         @keyframes studentSettingsSlideIn {
             from {
                 transform: translateX(100%);
@@ -1252,6 +1356,19 @@
             .student-settings-shell .action-buttons .btn,
             .student-settings-shell .section-header-actions .btn,
             .student-settings-shell .password-intro-action {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .student-settings-shell .settings-modal-header {
+                flex-direction: column;
+            }
+
+            .student-settings-shell .settings-modal-actions {
+                flex-direction: column-reverse;
+            }
+
+            .student-settings-shell .settings-modal-actions .btn {
                 width: 100%;
                 justify-content: center;
             }

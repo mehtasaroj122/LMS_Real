@@ -122,9 +122,9 @@ class DashboardController extends Controller
 
         $requestStatusMeta = collect([
             'pending' => ['label' => 'Pending', 'color' => '#f59e0b'],
-            'approved' => ['label' => 'Approved', 'color' => '#3b82f6'],
-            'issued' => ['label' => 'Issued', 'color' => '#8b5cf6'],
-            'returned' => ['label' => 'Returned', 'color' => '#10b981'],
+            'approved' => ['label' => 'Approved', 'color' => '#8b5cf6'],
+            'issued' => ['label' => 'Issued', 'color' => '#d946ef'],
+            'returned' => ['label' => 'Returned', 'color' => '#5bf707'],
             'rejected' => ['label' => 'Rejected', 'color' => '#ef4444'],
             'cancelled' => ['label' => 'Cancelled', 'color' => '#64748b'],
         ]);
