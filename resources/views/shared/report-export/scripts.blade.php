@@ -111,6 +111,8 @@
 
             cacheElements() {
                 this.elements.modal = document.getElementById(this.getModalId());
+                this.elements.panel = this.elements.modal?.querySelector('.report-export-panel') || null;
+                this.elements.closeBtn = this.elements.modal?.querySelector('.report-export-close-btn') || null;
                 this.elements.scopeInputs = Array.from(document.querySelectorAll(`input[name="${this.getScopeName()}"]`));
                 this.elements.badge = document.getElementById(this.getElementId('Badge'));
                 this.elements.headline = document.getElementById(this.getElementId('Headline'));
@@ -119,6 +121,7 @@
                 this.elements.previewCaption = document.getElementById(this.getElementId('PreviewCaption'));
                 this.elements.previewCount = document.getElementById(this.getElementId('PreviewCount'));
                 this.elements.documentTimestamp = document.getElementById(this.getElementId('DocumentTimestamp'));
+                this.elements.documentDetails = document.getElementById(this.getElementId('DocumentDetails'));
                 this.elements.previewTableBody = document.getElementById(this.getElementId('PreviewTableBody'));
                 this.elements.footerNote = document.getElementById(this.getElementId('FooterNote'));
                 this.elements.downloadBtn = document.getElementById(this.getElementId('DownloadBtn'));
@@ -155,7 +158,11 @@
                 } else if (this.elements.modal) {
                     this.elements.modal.classList.add('is-open');
                     this.elements.modal.setAttribute('aria-hidden', 'false');
-                    window.setTimeout(() => (this.elements.printBtn || this.elements.downloadBtn)?.focus(), 20);
+                    this.elements.modal.scrollTop = 0;
+                    this.elements.panel?.scrollTo?.({ top: 0, behavior: 'auto' });
+                    window.setTimeout(() => {
+                        this.focusModalStart();
+                    }, 20);
                 }
 
                 return true;
@@ -207,6 +214,24 @@
                 }
 
                 return scope === 'all' ? 'Entire filtered report' : 'Current page';
+            }
+
+            getDocumentDetails(context) {
+                if (typeof this.config.getDocumentDetails !== 'function') {
+                    return [];
+                }
+
+                const details = this.config.getDocumentDetails(context) || [];
+                if (!Array.isArray(details)) {
+                    return [];
+                }
+
+                return details
+                    .map((detail) => ({
+                        label: String(detail?.label ?? '').trim(),
+                        value: String(detail?.value ?? '').trim(),
+                    }))
+                    .filter((detail) => detail.label && detail.value);
             }
 
             describeContext(baseContext) {
@@ -290,11 +315,13 @@
                     generatedAt,
                     generatedAtLabel: `Generated on ${this.formatDateTime(generatedAt)}`,
                 };
+                const documentDetails = this.getDocumentDetails(baseContext);
 
                 const describedContext = this.describeContext(baseContext);
 
                 return {
                     ...baseContext,
+                    documentDetails,
                     badgeLabel: describedContext.badgeLabel || 'Current result set',
                     headline: describedContext.headline || `${rowsReady} records ready`,
                     subtext: describedContext.subtext || 'Review the report before printing or downloading it.',
@@ -342,6 +369,21 @@
 
                 if (this.elements.documentTimestamp) {
                     this.elements.documentTimestamp.textContent = context.generatedAtLabel;
+                }
+
+                if (this.elements.documentDetails) {
+                    if (context.documentDetails.length > 0) {
+                        this.elements.documentDetails.hidden = false;
+                        this.elements.documentDetails.innerHTML = this.buildDocumentDetailsMarkup(context.documentDetails, {
+                            includeWrapper: false,
+                            itemClass: 'report-export-document-detail',
+                            labelClass: 'report-export-document-detail-label',
+                            valueClass: 'report-export-document-detail-value',
+                        });
+                    } else {
+                        this.elements.documentDetails.hidden = true;
+                        this.elements.documentDetails.innerHTML = '';
+                    }
                 }
 
                 if (this.elements.footerNote) {
@@ -435,21 +477,49 @@
             }
 
             async loadAllRows() {
-                const route = this.config.routes?.exportData;
                 const messages = this.getMessages();
+                const getAllRows = typeof this.config.getAllRows === 'function' ? this.config.getAllRows : null;
+                const route = this.config.routes?.exportData;
+
+                const filterKey = this.getFilterKey();
+                if (this.state.allRowsFilterKey === filterKey && this.state.allRows.length > 0) {
+                    this.state.preparedAt = this.state.allRowsGeneratedAt || new Date();
+                    this.render();
+                    return;
+                }
+
+                if (getAllRows) {
+                    this.state.allRowsLoading = true;
+                    this.render();
+
+                    try {
+                        const payload = await Promise.resolve(getAllRows({
+                            filterKey,
+                            filters: this.buildFilterParams(),
+                        }));
+                        const normalizedPayload = this.normalizeAllRowsPayload(payload);
+                        this.state.allRows = normalizedPayload.rows.map((row) => this.mapRow(row));
+                        this.state.allRowsFilterKey = filterKey;
+                        this.state.allRowsGeneratedAt = this.toDateObject(normalizedPayload.generatedAt) || new Date();
+                        this.state.preparedAt = this.state.allRowsGeneratedAt;
+                    } catch (error) {
+                        console.error('[ReportExportWorkflow] Failed to build full report rows:', error);
+                        this.state.scope = 'page';
+                        this.syncScopeControls();
+                        this.showToast('error', messages.fullLoadFailedTitle, error?.message || messages.fullLoadFailedMessage);
+                    } finally {
+                        this.state.allRowsLoading = false;
+                        this.render();
+                    }
+
+                    return;
+                }
 
                 if (!route) {
                     this.state.scope = 'page';
                     this.syncScopeControls();
                     this.render();
                     this.showToast('error', messages.exportRouteMissingTitle, messages.exportRouteMissingMessage);
-                    return;
-                }
-
-                const filterKey = this.getFilterKey();
-                if (this.state.allRowsFilterKey === filterKey && this.state.allRows.length > 0) {
-                    this.state.preparedAt = this.state.allRowsGeneratedAt || new Date();
-                    this.render();
                     return;
                 }
 
@@ -496,6 +566,22 @@
                 }
             }
 
+            normalizeAllRowsPayload(payload) {
+                if (Array.isArray(payload)) {
+                    return {
+                        rows: payload,
+                        generatedAt: null,
+                    };
+                }
+
+                return {
+                    rows: Array.isArray(payload?.rows)
+                        ? payload.rows
+                        : (Array.isArray(payload?.data) ? payload.data : []),
+                    generatedAt: payload?.generatedAt || payload?.meta?.generated_at || null,
+                };
+            }
+
             extractAllRows(data) {
                 if (typeof this.config.extractAllRows === 'function') {
                     return this.config.extractAllRows(data) || [];
@@ -532,6 +618,19 @@
 
                 const method = type === 'error' ? 'error' : 'log';
                 console[method](`[${title}] ${message}`);
+            }
+
+            focusModalStart() {
+                const focusTarget = this.elements.closeBtn || this.elements.panel;
+                if (!focusTarget || typeof focusTarget.focus !== 'function') {
+                    return;
+                }
+
+                try {
+                    focusTarget.focus({ preventScroll: true });
+                } catch (error) {
+                    focusTarget.focus();
+                }
             }
 
             print() {
@@ -587,6 +686,12 @@
                 const documentConfig = this.getDocument();
                 const branding = this.getBranding();
                 const columns = this.getColumns();
+                const documentDetailsMarkup = this.buildDocumentDetailsMarkup(context.documentDetails, {
+                    wrapperClass: 'print-document-details',
+                    itemClass: 'print-document-detail',
+                    labelClass: 'print-document-detail-label',
+                    valueClass: 'print-document-detail-value',
+                });
                 const colgroup = columns.map((column) => `<col${column.width ? ` style="width:${this.escapeAttribute(String(column.width))}"` : ''}>`).join('');
                 const headerCells = columns.map((column) => `
                     <th scope="col" style="${this.escapeAttribute(this.buildColumnStyle(column, true))}">
@@ -640,7 +745,7 @@
 
         .print-branding-row {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             gap: 14px;
         }
@@ -711,6 +816,36 @@
             color: #64748b;
         }
 
+        .print-document-details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 16px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .print-document-detail {
+            display: grid;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .print-document-detail-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .print-document-detail-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: #0f172a;
+            word-break: break-word;
+        }
+
         .print-table {
             width: 100%;
             border-collapse: collapse;
@@ -774,6 +909,7 @@
                     <p class="print-system-title">${this.escapeHtml(documentConfig.systemTitle)}</p>
                     <p class="print-report-title">${this.escapeHtml(documentConfig.reportTitle)}</p>
                     <p class="print-report-meta">${this.escapeHtml(context.generatedAtLabel)}</p>
+                    ${documentDetailsMarkup}
                 </div>
             </div>
         </div>
@@ -855,11 +991,15 @@
                 const documentConfig = this.getDocument();
                 const branding = this.getBranding();
                 const logoRows = branding?.image_url ? [['Library Logo', branding.image_url], ['']] : [];
+                const detailRows = Array.isArray(context.documentDetails)
+                    ? context.documentDetails.map((detail) => [detail.label, detail.value])
+                    : [];
                 return [
                     [documentConfig.systemTitle],
                     [documentConfig.reportTitle],
                     [context.generatedAtLabel],
                     ...logoRows,
+                    ...detailRows,
                     ['Report Scope', context.scopeLabel],
                     ['Records Included', String(context.rows.length)],
                     [''],
@@ -933,6 +1073,28 @@
 
             escapeAttribute(value) {
                 return this.escapeHtml(value);
+            }
+
+            buildDocumentDetailsMarkup(details, classes = {}) {
+                if (!Array.isArray(details) || details.length === 0) {
+                    return '';
+                }
+
+                const includeWrapper = classes.includeWrapper !== false;
+                const wrapperClass = classes.wrapperClass || 'report-export-document-details';
+                const itemClass = classes.itemClass || 'report-export-document-detail';
+                const labelClass = classes.labelClass || 'report-export-document-detail-label';
+                const valueClass = classes.valueClass || 'report-export-document-detail-value';
+                const markup = details.map((detail) => `
+                    <div class="${this.escapeAttribute(itemClass)}">
+                        <span class="${this.escapeAttribute(labelClass)}">${this.escapeHtml(detail.label)}</span>
+                        <span class="${this.escapeAttribute(valueClass)}">${this.escapeHtml(detail.value)}</span>
+                    </div>
+                `).join('');
+
+                return includeWrapper
+                    ? `<div class="${this.escapeAttribute(wrapperClass)}">${markup}</div>`
+                    : markup;
             }
         }
 

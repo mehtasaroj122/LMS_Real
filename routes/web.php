@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\AccountLockController;
+use App\Http\Controllers\Admin\UiShowcaseController;
 use App\Http\Controllers\NotificationController;
 
 use App\Http\Controllers\Staff\StaffDashboardController;
@@ -129,6 +130,7 @@ Route::middleware(['auth', 'can:access-admin'])
 
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+        Route::get('/ui-showcase', [UiShowcaseController::class, 'index'])->name('ui-showcase.index');
         Route::get('/users/{user}/activity-logs', [UserController::class, 'userActivityLogs'])
             ->name('users.activity-logs');
 

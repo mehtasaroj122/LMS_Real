@@ -371,7 +371,7 @@
 
     .report-export-document-brand {
         display: inline-flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         gap: 0.85rem;
         width: 100%;
@@ -403,6 +403,36 @@
         font-size: 0.68rem;
         font-weight: 500;
         color: var(--report-export-text-secondary);
+    }
+
+    .report-export-document-details {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.45rem 1rem;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--report-export-border);
+    }
+
+    .report-export-document-detail {
+        display: grid;
+        gap: 0.12rem;
+        min-width: 0;
+    }
+
+    .report-export-document-detail-label {
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--report-export-text-secondary);
+    }
+
+    .report-export-document-detail-value {
+        font-size: 0.74rem;
+        font-weight: 600;
+        color: var(--report-export-text-primary);
+        word-break: break-word;
     }
 
     .report-export-preview-table-wrap {
@@ -466,11 +496,20 @@
 
     .report-export-footer {
         display: flex;
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
         justify-content: space-between;
         align-items: center;
         gap: 1rem;
         flex-wrap: wrap;
         border-top: 1px solid var(--report-export-border);
+        background: var(--report-export-bg);
+        box-shadow: 0 -12px 24px rgba(15, 23, 42, 0.06);
+    }
+
+    body.dark-theme .report-export-footer {
+        box-shadow: 0 -12px 24px rgba(2, 6, 23, 0.24);
     }
 
     .report-export-footer-note {
@@ -592,6 +631,10 @@
         .report-export-document-brand {
             align-items: flex-start;
             justify-content: flex-start;
+        }
+
+        .report-export-document-details {
+            grid-template-columns: minmax(0, 1fr);
         }
     }
 </style>

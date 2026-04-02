@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Models\Notification;
 use App\Models\User;
+use App\Support\AccountLockoutManager;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
@@ -37,11 +38,11 @@ class LogSuspiciousActivity
             }
 
             // Get the number of failed attempts
-            $throttleKey = 'login.attempts.' . $email . '|' . request()->ip();
-            $attempts = RateLimiter::attempts($throttleKey);
+            $throttleKey = AccountLockoutManager::throttleKey($email, (string) request()->ip());
+            $attempts = RateLimiter::attempts($throttleKey) + 1;
 
-            // Send notification after 3 failed attempts
-            if ($attempts >= 3) {
+            // Send a single early warning when the user reaches 3 failed attempts.
+            if ($attempts === 3) {
                 Notification::notify(
                     user: $user,
                     type: 'security.suspicious_activity',

@@ -200,7 +200,7 @@
 @include('shared.library-branding.bootstrap')
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="flex h-screen min-h-0 overflow-hidden">
-    <aside class="flex min-h-0 flex-col w-64 border-r sidebar shrink-0" id="sidebar">
+    <aside class="flex flex-col w-64 min-h-0 border-r sidebar shrink-0" id="sidebar">
         <div class="flex items-center justify-between p-4 logo-section">
             <button class="close-sidebar-btn" id="closeSidebarBtn" aria-label="Close menu">
                 <i data-lucide="x" class="w-6 h-6"></i>
@@ -243,13 +243,16 @@
             <a href="{{ route('admin.activity-logs.index') }}" class="sidebar-item {{ request()->routeIs('admin.activity-logs.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="history" class="w-5 h-5"></i><span class="text-sm font-medium">Activity Logs</span>
             </a>
+            {{-- <a href="{{ route('admin.account-locks.index') }}" class="sidebar-item {{ request()->routeIs('admin.account-locks.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
+                <i data-lucide="shield-alert" class="w-5 h-5"></i><span class="text-sm font-medium">Account Locks</span>
+            </a> --}}
             <a href="{{ route('admin.settings.index') }}" class="sidebar-item {{ request()->routeIs('admin.settings.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="settings" class="w-5 h-5"></i><span class="text-sm font-medium">Settings</span>
             </a>
         </nav>
     </aside>
 
-    <main class="flex min-h-0 flex-col flex-1 min-w-0 overflow-hidden">
+    <main class="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
         <header class="flex items-center justify-between px-3 border-b h-14 header md:px-4 shrink-0">
             <div class="flex items-center space-x-2">
                 <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">

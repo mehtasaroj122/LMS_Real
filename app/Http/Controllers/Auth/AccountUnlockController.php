@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
+use App\Notifications\AccountUnlockNotification;
+use App\Support\AccountLockoutManager;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\RedirectResponse;
 
@@ -28,13 +29,9 @@ class AccountUnlockController extends \App\Http\Controllers\Controller
         }
 
         if ($request->ip) {
-            $throttleKey = strtolower($user->email) . '|' . $request->ip;
-            RateLimiter::clear($throttleKey);
+            AccountLockoutManager::clearLock($user->email, $request->ip);
         } else {
-            // Clear all IPs
-            \DB::table('cache')
-                ->where('key', 'like', '%throttle|' . strtolower($user->email) . '%')
-                ->delete();
+            AccountLockoutManager::clearLocksForEmail($user->email);
         }
 
         Log::info('Account unlocked via email link', [
@@ -44,9 +41,9 @@ class AccountUnlockController extends \App\Http\Controllers\Controller
         ]);
 
         // Send notification to user
-        $user->notify(new \App\Notifications\AccountUnlockNotification($user, $request->ip));
+        $user->notify(new AccountUnlockNotification($request->ip));
 
         return redirect()->route('login')
-            ->with('success', '✅ Account unlocked successfully. You can now login with your password.');
+            ->with('success', 'Account unlocked successfully. You can now sign in again.');
     }
 }

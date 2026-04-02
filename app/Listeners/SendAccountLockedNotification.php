@@ -4,8 +4,13 @@ namespace App\Listeners;
 
 use App\Models\Notification;
 use App\Models\User;
+use App\Notifications\AccountLockedNotification;
+use App\Support\AccountLockoutManager;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class SendAccountLockedNotification
 {
@@ -23,31 +28,47 @@ class SendAccountLockedNotification
     public function handle(Lockout $event): void
     {
         try {
-            // Extract email from the request
-            $email = $event->request->email;
+            $email = (string) $event->request->input('email');
+            $ip = (string) $event->request->ip();
+
+            if ($email === '' || $ip === '') {
+                return;
+            }
+
+            $throttleKey = AccountLockoutManager::throttleKey($email, $ip);
+            $retryAfter = max(0, RateLimiter::availableIn($throttleKey));
+            $minutes = max(1, (int) ceil($retryAfter / 60));
+
+            if (! Cache::add(AccountLockoutManager::notificationMarkerKey($throttleKey), true, $retryAfter ?: AccountLockoutManager::decaySeconds())) {
+                return;
+            }
             
             // Find the user by email
             $user = User::where('email', $email)->first();
             
             if ($user) {
-                // Send account locked notification
                 Notification::notify(
                     user: $user,
                     type: 'security.account_locked',
                     title: 'Account Temporarily Locked',
-                    message: 'Your account has been temporarily locked due to too many failed login attempts. Please try again after 15 minutes.',
+                    message: 'Your account has been temporarily locked after repeated failed sign-in attempts.',
                     data: [
                         'reason' => 'Too many failed login attempts',
-                        'retry_after' => 900, // 15 minutes in seconds
-                        'ip' => $event->request->ip(),
-                        'timestamp' => now()
+                        'retry_after' => $retryAfter,
+                        'ip' => $ip,
+                        'minutes_remaining' => $minutes,
+                        'throttle_key' => $throttleKey,
+                        'timestamp' => now(),
                     ],
                     relatedModel: 'User',
                     relatedId: $user->id
                 );
 
-                // Log the security event
-                Log::warning('Account locked for user: ' . $email . ' from IP: ' . $event->request->ip());
+                if (AccountLockoutManager::emailUnlockEnabled()) {
+                    $user->notify(new AccountLockedNotification($ip, $retryAfter));
+                }
+
+                Log::warning('Account locked for user: ' . $email . ' from IP: ' . $ip . ' for ' . $minutes . ' ' . Str::plural('minute', $minutes));
             }
         } catch (\Exception $e) {
             Log::error('Error sending account locked notification: ' . $e->getMessage());

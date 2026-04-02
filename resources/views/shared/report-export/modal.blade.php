@@ -46,6 +46,7 @@
         'previewCaption' => $idPrefix . 'PreviewCaption',
         'previewCount' => $idPrefix . 'PreviewCount',
         'documentTimestamp' => $idPrefix . 'DocumentTimestamp',
+        'documentDetails' => $idPrefix . 'DocumentDetails',
         'previewTableBody' => $idPrefix . 'PreviewTableBody',
         'footerNote' => $idPrefix . 'FooterNote',
         'downloadBtn' => $idPrefix . 'DownloadBtn',
@@ -54,7 +55,7 @@
 @endphp
 
 <div id="{{ $modalId }}" class="report-export-modal" aria-hidden="true">
-    <div class="report-export-panel" role="dialog" aria-modal="true" aria-labelledby="{{ $ids['title'] }}" aria-describedby="{{ $ids['description'] }}">
+    <div class="report-export-panel" role="dialog" aria-modal="true" aria-labelledby="{{ $ids['title'] }}" aria-describedby="{{ $ids['description'] }}" tabindex="-1">
         <div class="report-export-header">
             <div class="report-export-header-copy">
                 <h3 id="{{ $ids['title'] }}">{{ $labels['title'] }}</h3>
@@ -128,6 +129,7 @@
                             <p class="report-export-document-system">{{ $document['systemTitle'] }}</p>
                             <p class="report-export-document-title">{{ $document['reportTitle'] }}</p>
                             <p class="report-export-document-meta" id="{{ $ids['documentTimestamp'] }}">Generated on --</p>
+                            <div class="report-export-document-details" id="{{ $ids['documentDetails'] }}" hidden></div>
                         </div>
                     </div>
                 </div>

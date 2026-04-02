@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\User;
+use App\Support\AccountLockoutManager;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -16,15 +16,18 @@ class AccountLockController extends \App\Http\Controllers\Controller
     /**
      * Show locked accounts list
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|JsonResponse
     {
         $search = trim((string) $request->input('search', ''));
         $perPage = $this->normalizeAdminPerPage($request->input('per_page', 10));
         $page = max(1, (int) $request->input('page', 1));
 
-        $lockedAccounts = $this->getLockedAccounts();
-        $lockedAccounts = $this->filterLockedAccounts($lockedAccounts, $search);
+        $allLockedAccounts = $this->getLockedAccounts();
+        $summary = $this->buildSummary($allLockedAccounts);
+        $lockedAccounts = $this->filterLockedAccounts($allLockedAccounts, $search);
         $totalLockedAccounts = count($lockedAccounts);
+        $lastPage = max(1, (int) ceil($totalLockedAccounts / $perPage));
+        $page = min($page, $lastPage);
         $offset = ($page - 1) * $perPage;
 
         $lockedAccounts = new LengthAwarePaginator(
@@ -38,19 +41,30 @@ class AccountLockController extends \App\Http\Controllers\Controller
             ]
         );
 
-        return view('admin.account-locks.index', [
+        $viewData = [
             'lockedAccounts' => $lockedAccounts,
-            'lockoutDuration' => config('security.rate_limiting.lockout_duration', 60),
-            'maxAttempts' => config('security.rate_limiting.max_attempts', 5),
+            'summary' => $summary,
+            'lockoutDuration' => AccountLockoutManager::decayMinutes(),
+            'maxAttempts' => AccountLockoutManager::maxAttempts(),
+            'rateLimitingEnabled' => AccountLockoutManager::rateLimitingEnabled(),
+            'emailUnlockEnabled' => AccountLockoutManager::emailUnlockEnabled(),
+            'supportsLiveMonitoring' => AccountLockoutManager::cacheStoreSupportsInspection(),
+            'cacheStore' => config('cache.default'),
             'search' => $search,
             'perPage' => $perPage,
-        ]);
+        ];
+
+        if ($this->shouldReturnJson($request)) {
+            return response()->json($this->buildIndexPayload($request, $viewData));
+        }
+
+        return view('Admin.account-locks.index', $viewData);
     }
 
     /**
      * Unlock a specific account
      */
-    public function unlock(Request $request): RedirectResponse
+    public function unlock(Request $request): RedirectResponse|JsonResponse
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
@@ -61,9 +75,7 @@ class AccountLockController extends \App\Http\Controllers\Controller
         $ip = $request->ip;
 
         if ($ip) {
-            // Unlock specific IP
-            $throttleKey = strtolower($email) . '|' . $ip;
-            RateLimiter::clear($throttleKey);
+            AccountLockoutManager::clearLock($email, $ip);
             
             Log::info('Account unlock - specific IP', [
                 'email' => $email,
@@ -72,64 +84,99 @@ class AccountLockController extends \App\Http\Controllers\Controller
                 'timestamp' => now(),
             ]);
 
+            $message = "Unlocked '{$email}' for IP '{$ip}'.";
+
+            if ($this->shouldReturnJson($request)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                ]);
+            }
+
             return redirect()->route('admin.account-locks.index')
-                ->with('success', "✅ Account '{$email}' unlocked for IP '{$ip}'");
+                ->with('success', $message);
         } else {
-            // Unlock all IPs for this email
-            $this->unlockAllIps($email);
+            $clearedLocks = AccountLockoutManager::clearLocksForEmail($email);
 
             Log::info('Account unlock - all IPs', [
                 'email' => $email,
+                'cleared_locks' => $clearedLocks,
                 'admin' => auth()->user()?->email,
                 'timestamp' => now(),
             ]);
 
+            $message = "Unlocked '{$email}' across {$clearedLocks} active lock point(s).";
+
+            if ($this->shouldReturnJson($request)) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                ]);
+            }
+
             return redirect()->route('admin.account-locks.index')
-                ->with('success', "✅ Account '{$email}' unlocked for all IP addresses");
+                ->with('success', $message);
         }
     }
 
     /**
      * Unlock all accounts
      */
-    public function unlockAll(Request $request): RedirectResponse
+    public function unlockAll(Request $request): RedirectResponse|JsonResponse
     {
-        if (!$request->has('confirm')) {
-            return redirect()->route('admin.account-locks.index')
-                ->with('error', '❌ Confirmation required');
-        }
+        $request->validate([
+            'confirm' => 'accepted',
+        ]);
 
-        DB::table('cache')
-            ->where('key', 'like', '%throttle%')
-            ->delete();
+        $clearedLocks = AccountLockoutManager::clearAllActiveLocks();
 
         Log::warning('All account locks cleared', [
+            'cleared_locks' => $clearedLocks,
             'admin' => auth()->user()?->email,
             'timestamp' => now(),
         ]);
 
+        $message = "Cleared {$clearedLocks} active lock point(s).";
+
+        if ($this->shouldReturnJson($request)) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+            ]);
+        }
+
         return redirect()->route('admin.account-locks.index')
-            ->with('success', '✅ All account locks cleared');
+            ->with('success', $message);
     }
 
     /**
      * Update rate limiting settings
      */
-    public function updateSettings(Request $request): RedirectResponse
+    public function updateSettings(Request $request): RedirectResponse|JsonResponse
     {
         $request->validate([
             'max_attempts' => 'required|integer|min:1|max:20',
             'lockout_duration' => 'required|integer|min:1|max:1440', // Max 24 hours
             'rate_limiting_enabled' => 'boolean',
             'email_unlock_enabled' => 'boolean',
+        ], [
+            'max_attempts.integer' => 'Max login attempts must be a whole number.',
+            'max_attempts.min' => 'Max login attempts must be at least 1.',
+            'max_attempts.max' => 'Max login attempts must be 20 or less.',
+            'lockout_duration.integer' => 'Lockout duration must be a whole number of minutes.',
+            'lockout_duration.min' => 'Lockout duration must be at least 1 minute.',
+            'lockout_duration.max' => 'Lockout duration must be 1440 minutes or less (24 hours).',
+        ], [
+            'max_attempts' => 'max login attempts',
+            'lockout_duration' => 'lockout duration',
         ]);
 
         // Update .env file
         $this->updateEnv([
             'SECURITY_MAX_LOGIN_ATTEMPTS' => $request->max_attempts,
             'SECURITY_LOCKOUT_DURATION' => $request->lockout_duration,
-            'SECURITY_RATE_LIMITING_ENABLED' => $request->has('rate_limiting_enabled') ? 'true' : 'false',
-            'SECURITY_EMAIL_UNLOCK_ENABLED' => $request->has('email_unlock_enabled') ? 'true' : 'false',
+            'SECURITY_RATE_LIMITING_ENABLED' => $request->boolean('rate_limiting_enabled') ? 'true' : 'false',
+            'SECURITY_EMAIL_UNLOCK_ENABLED' => $request->boolean('email_unlock_enabled') ? 'true' : 'false',
         ]);
 
         // Clear config cache
@@ -141,8 +188,23 @@ class AccountLockController extends \App\Http\Controllers\Controller
             'timestamp' => now(),
         ]);
 
+        $message = 'Security settings updated successfully. New lock windows apply to future failed login attempts.';
+
+        if ($this->shouldReturnJson($request)) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'settings' => [
+                    'max_attempts' => (int) $request->max_attempts,
+                    'lockout_duration' => (int) $request->lockout_duration,
+                    'rate_limiting_enabled' => $request->boolean('rate_limiting_enabled'),
+                    'email_unlock_enabled' => $request->boolean('email_unlock_enabled'),
+                ],
+            ]);
+        }
+
         return redirect()->route('admin.account-locks.index')
-            ->with('success', '✅ Security settings updated successfully');
+            ->with('success', $message);
     }
 
     /**
@@ -150,55 +212,159 @@ class AccountLockController extends \App\Http\Controllers\Controller
      */
     protected function getLockedAccounts(): array
     {
-        $lockedEntries = DB::table('cache')
-            ->where('key', 'like', '%throttle%')
-            ->where('expiration', '>', now()->timestamp)
-            ->get();
+        if (!AccountLockoutManager::cacheStoreSupportsInspection()) {
+            return [];
+        }
 
+        $lockedEntries = AccountLockoutManager::activeTimerEntries();
+
+        if ($lockedEntries->isEmpty()) {
+            return [];
+        }
+
+        $nowTimestamp = now()->timestamp;
+        $parsedEntries = [];
+        $emails = [];
         $lockedAccounts = [];
-        $maxAttempts = config('security.rate_limiting.max_attempts', 5);
 
         foreach ($lockedEntries as $entry) {
-            // Extract email and IP from key
-            // Key format: laravel_cache:throttle|email@example.com|192.168.1.1
-            $keyParts = explode('|', $entry->key);
-            if (count($keyParts) >= 3) {
-                $email = $keyParts[1];
-                $ip = $keyParts[2] ?? null;
+            $throttleKey = AccountLockoutManager::extractThrottleKeyFromCacheKey((string) $entry->key);
+            $parsedKey = $throttleKey ? AccountLockoutManager::parseThrottleKey($throttleKey) : null;
 
-                $user = User::where('email', $email)->first();
-                
-                $lockoutTime = $entry->expiration - now()->timestamp;
-                $minutesRemaining = ceil($lockoutTime / 60);
+            if (!$parsedKey) {
+                continue;
+            }
 
-                if (!isset($lockedAccounts[$email])) {
-                    $lockedAccounts[$email] = [
-                        'user' => $user,
-                        'email' => $email,
-                        'ips' => [],
-                        'locked_at' => now()->subMinutes($minutesRemaining + config('security.rate_limiting.lockout_duration', 60)),
-                    ];
-                }
+            $secondsRemaining = max(0, (int) $entry->expiration - $nowTimestamp);
 
-                $lockedAccounts[$email]['ips'][] = [
-                    'ip' => $ip,
-                    'minutes_remaining' => $minutesRemaining,
-                    'expires_at' => now()->addSeconds($lockoutTime),
+            if ($secondsRemaining === 0) {
+                continue;
+            }
+
+            $email = $parsedKey['email'];
+            $emails[$email] = $email;
+
+            $parsedEntries[] = [
+                'email' => $email,
+                'ip' => $parsedKey['ip'],
+                'seconds_remaining' => $secondsRemaining,
+                'expires_at' => now()->copy()->addSeconds($secondsRemaining),
+            ];
+        }
+
+        $usersByEmail = User::query()
+            ->whereIn('email', array_values($emails))
+            ->get()
+            ->keyBy(fn (User $user) => AccountLockoutManager::normalizeEmail($user->email));
+
+        foreach ($parsedEntries as $entry) {
+            $email = $entry['email'];
+            $minutesRemaining = max(1, (int) ceil($entry['seconds_remaining'] / 60));
+
+            if (!isset($lockedAccounts[$email])) {
+                $lockedAccounts[$email] = [
+                    'user' => $usersByEmail->get($email),
+                    'email' => $email,
+                    'ips' => [],
+                    'ip_count' => 0,
+                    'max_minutes_remaining' => 0,
+                    'latest_expires_at' => $entry['expires_at'],
                 ];
+            }
+
+            $lockedAccounts[$email]['ips'][] = [
+                'ip' => $entry['ip'],
+                'minutes_remaining' => $minutesRemaining,
+                'seconds_remaining' => $entry['seconds_remaining'],
+                'expires_at' => $entry['expires_at'],
+            ];
+
+            $lockedAccounts[$email]['ip_count']++;
+            $lockedAccounts[$email]['max_minutes_remaining'] = max(
+                $lockedAccounts[$email]['max_minutes_remaining'],
+                $minutesRemaining
+            );
+
+            if ($entry['expires_at']->gt($lockedAccounts[$email]['latest_expires_at'])) {
+                $lockedAccounts[$email]['latest_expires_at'] = $entry['expires_at'];
             }
         }
 
-        return array_values($lockedAccounts);
+        $accounts = array_values($lockedAccounts);
+
+        foreach ($accounts as &$account) {
+            usort($account['ips'], fn (array $left, array $right) => $right['seconds_remaining'] <=> $left['seconds_remaining']);
+        }
+
+        usort($accounts, function (array $left, array $right): int {
+            return $right['max_minutes_remaining'] <=> $left['max_minutes_remaining']
+                ?: strcmp($left['email'], $right['email']);
+        });
+
+        return $accounts;
     }
 
-    /**
-     * Unlock all IPs for a user
-     */
-    protected function unlockAllIps(string $email): void
+    protected function buildSummary(array $lockedAccounts): array
     {
-        DB::table('cache')
-            ->where('key', 'like', '%throttle|' . strtolower($email) . '%')
-            ->delete();
+        $ipLocks = collect($lockedAccounts)
+            ->pluck('ips')
+            ->flatten(1);
+
+        $latestExpiryTimestamp = $ipLocks
+            ->map(fn (array $lock) => $lock['expires_at']->timestamp ?? null)
+            ->filter()
+            ->max();
+
+        return [
+            'active_users' => count($lockedAccounts),
+            'active_ip_locks' => $ipLocks->count(),
+            'average_minutes_remaining' => $ipLocks->isNotEmpty()
+                ? (int) ceil((float) $ipLocks->avg('minutes_remaining'))
+                : 0,
+            'expiring_soon' => $ipLocks
+                ->filter(fn (array $lock) => ($lock['minutes_remaining'] ?? 0) <= 10)
+                ->count(),
+            'latest_expiry' => $latestExpiryTimestamp ? now()->copy()->setTimestamp($latestExpiryTimestamp) : null,
+        ];
+    }
+
+    protected function buildIndexPayload(Request $request, array $viewData): array
+    {
+        /** @var \Illuminate\Pagination\LengthAwarePaginator $lockedAccounts */
+        $lockedAccounts = $viewData['lockedAccounts'];
+
+        return [
+            'success' => true,
+            'filters' => [
+                'search' => $viewData['search'],
+                'per_page' => $viewData['perPage'],
+                'page' => $lockedAccounts->currentPage(),
+            ],
+            'config' => [
+                'max_attempts' => $viewData['maxAttempts'],
+                'lockout_duration' => $viewData['lockoutDuration'],
+                'rate_limiting_enabled' => $viewData['rateLimitingEnabled'],
+                'email_unlock_enabled' => $viewData['emailUnlockEnabled'],
+                'supports_live_monitoring' => $viewData['supportsLiveMonitoring'],
+                'cache_store' => $viewData['cacheStore'],
+            ],
+            'pagination' => [
+                'current_page' => $lockedAccounts->currentPage(),
+                'last_page' => $lockedAccounts->lastPage(),
+                'per_page' => $lockedAccounts->perPage(),
+                'total' => $lockedAccounts->total(),
+                'from' => $lockedAccounts->firstItem() ?? 0,
+                'to' => $lockedAccounts->lastItem() ?? 0,
+            ],
+            'fragments' => [
+                'header_meta' => view('Admin.account-locks.partials.header-meta', $viewData)->render(),
+                'summary' => view('Admin.account-locks.partials.summary', $viewData)->render(),
+                'monitoring' => view('Admin.account-locks.partials.monitoring', $viewData)->render(),
+                'feed' => view('Admin.account-locks.partials.feed', $viewData)->render(),
+                'bulk' => view('Admin.account-locks.partials.bulk', $viewData)->render(),
+            ],
+            'timestamp' => now()->toIso8601String(),
+        ];
     }
 
     protected function filterLockedAccounts(array $lockedAccounts, string $search): array
@@ -232,6 +398,13 @@ class AccountLockController extends \App\Http\Controllers\Controller
         $perPage = (int) $value;
 
         return in_array($perPage, $allowedValues, true) ? $perPage : 10;
+    }
+
+    protected function shouldReturnJson(Request $request): bool
+    {
+        return $request->expectsJson()
+            || $request->wantsJson()
+            || $request->ajax();
     }
 
     /**

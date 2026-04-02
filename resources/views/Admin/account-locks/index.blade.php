@@ -2,305 +2,280 @@
 
 @section('title', 'Account Lock Management')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('admin/CSS/account-locks.css') }}">
+    @include('shared.action-feedback.styles')
+@endpush
+
 @section('content')
-    <div class="py-4 container-fluid">
-        <!-- Header -->
-        <div class="mb-4 row">
-            <div class="col-md-8">
-                <h1 class="mb-0 h3">
-                    <i class="fas fa-lock"></i> Account Lock Management
-                </h1>
-                <p class="mt-2 text-muted">Manage locked accounts and rate limiting settings</p>
+    <div
+        class="lock-console"
+        id="accountLockManagementRoot"
+        data-index-url="{{ route('admin.account-locks.index') }}"
+        data-unlock-url="{{ route('admin.account-locks.unlock') }}"
+        data-unlock-all-url="{{ route('admin.account-locks.unlock-all') }}"
+        data-settings-url="{{ route('admin.account-locks.settings') }}"
+    >
+        <section class="card lock-pagebar">
+            <div class="lock-pagebar-head">
+                <div class="lock-pagebar-copy">
+                    <span class="lock-eyebrow">Security Console</span>
+                    <h1 class="lock-title">Account Lock Management</h1>
+                    <p class="lock-subtitle">Monitor lockouts, clear false positives, and tune policy without leaving the page.</p>
+                </div>
+
+                <div class="lock-pagebar-actions">
+                    <a href="{{ route('admin.activity-logs.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>Audit Trail</span>
+                    </a>
+                    <a href="#securitySettingsPanel" class="btn btn-primary btn-sm">
+                        <i class="fas fa-sliders"></i>
+                        <span>Update Policy</span>
+                    </a>
+                </div>
             </div>
-            <div class="col-md-4 text-end">
-                @if ($lockedAccounts->total() > 0)
-                    <form action="{{ route('admin.account-locks.unlock-all') }}" method="POST" class="d-inline">
+
+            <div id="accountLockHeaderMeta">
+                @include('Admin.account-locks.partials.header-meta')
+            </div>
+        </section>
+
+        <div id="accountLockSummaryContainer">
+            @include('Admin.account-locks.partials.summary')
+        </div>
+
+        <div id="accountLockMonitoringContainer">
+            @include('Admin.account-locks.partials.monitoring')
+        </div>
+
+        <div class="lock-main-grid">
+            <section class="card lock-panel">
+                <div class="lock-panel-head compact">
+                    <div>
+                        <h2 class="lock-panel-title">Live Lockout Feed</h2>
+                        <p class="lock-panel-copy">Search, paginate, and release specific lock points instantly.</p>
+                    </div>
+                </div>
+
+                <form id="accountLockFiltersForm" class="lock-filter-bar">
+                    <div class="lock-search-field">
+                        <label class="form-label" for="lockSearch">Search</label>
+                        <div class="lock-input-shell">
+                            <i class="fas fa-magnifying-glass"></i>
+                            <input
+                                id="lockSearch"
+                                type="text"
+                                name="search"
+                                value="{{ $search }}"
+                                class="form-control"
+                                placeholder="User, email, role, or IP"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="lock-filter-field">
+                        <label class="form-label" for="accountLocksPerPage">Rows</label>
+                        <select id="accountLocksPerPage" name="per_page" class="form-control filter-select">
+                            @foreach ([10, 20, 50, 100] as $entryCount)
+                                <option value="{{ $entryCount }}" {{ (int) ($perPage ?? 10) === $entryCount ? 'selected' : '' }}>{{ $entryCount }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="lock-filter-actions">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-filter"></i>
+                            <span>Apply</span>
+                        </button>
+                        <button type="button" id="accountLockResetBtn" class="btn btn-ghost btn-sm">
+                            <i class="fas fa-rotate-left"></i>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                </form>
+
+                <div id="accountLockFeedContainer">
+                    @include('Admin.account-locks.partials.feed')
+                </div>
+            </section>
+
+            <aside class="lock-sidebar">
+                <section class="card lock-panel" id="securitySettingsPanel">
+                    <div class="lock-panel-head compact">
+                        <div>
+                            <h2 class="lock-panel-title">Security Policy</h2>
+                            <p class="lock-panel-copy">Settings save live and future lockouts use the updated policy immediately.</p>
+                        </div>
+                    </div>
+
+                    <form action="{{ route('admin.account-locks.settings') }}" method="POST" class="lock-settings-form" id="accountLockSettingsForm" novalidate autocomplete="off">
                         @csrf
-                        <input type="hidden" name="confirm" value="1">
-                        <button type="submit" class="btn btn-danger"
-                            onclick="return confirm('Are you sure you want to unlock ALL accounts?')">
-                            <i class="fas fa-unlock"></i> Unlock All
+
+                        <div class="lock-field-grid">
+                            <div class="lock-field">
+                                <label for="max_attempts" class="form-label">Max Login Attempts</label>
+                                <input
+                                    id="max_attempts"
+                                    type="number"
+                                    name="max_attempts"
+                                    min="1"
+                                    max="20"
+                                    value="{{ $maxAttempts }}"
+                                    class="form-control"
+                                    autocomplete="off"
+                                    aria-describedby="maxAttemptsHint"
+                                    required
+                                >
+                                <p class="lock-field-copy" id="maxAttemptsHint">Allowed range: 1 to 20 failed attempts. Any value above 20 will be rejected.</p>
+                                <div class="invalid-feedback" data-error-for="max_attempts" hidden></div>
+                            </div>
+
+                            <div class="lock-field">
+                                <label for="lockout_duration" class="form-label">Lockout Duration (minutes)</label>
+                                <input
+                                    id="lockout_duration"
+                                    type="number"
+                                    name="lockout_duration"
+                                    min="1"
+                                    max="1440"
+                                    value="{{ $lockoutDuration }}"
+                                    class="form-control"
+                                    autocomplete="off"
+                                    aria-describedby="lockoutDurationHint"
+                                    required
+                                >
+                                <p class="lock-field-copy" id="lockoutDurationHint">This value is in minutes. Example: 1 = 1 minute, 60 = 1 hour.</p>
+                                <div class="invalid-feedback" data-error-for="lockout_duration" hidden></div>
+                            </div>
+                        </div>
+
+                        <div class="lock-choice-group">
+                            <label class="lock-choice-card" for="rate_limiting_enabled">
+                                <div class="lock-choice-copy">
+                                    <span class="lock-choice-title">Enable Rate Limiting</span>
+                                    <span class="lock-choice-text">Keep repeated sign-in attempts under control.</span>
+                                </div>
+                                <input
+                                    id="rate_limiting_enabled"
+                                    type="checkbox"
+                                    name="rate_limiting_enabled"
+                                    value="1"
+                                    class="form-check-input"
+                                    {{ $rateLimitingEnabled ? 'checked' : '' }}
+                                >
+                            </label>
+
+                            <label class="lock-choice-card" for="email_unlock_enabled">
+                                <div class="lock-choice-copy">
+                                    <span class="lock-choice-title">Enable Email Unlock Links</span>
+                                    <span class="lock-choice-text">Allow signed unlock links for legitimate users.</span>
+                                </div>
+                                <input
+                                    id="email_unlock_enabled"
+                                    type="checkbox"
+                                    name="email_unlock_enabled"
+                                    value="1"
+                                    class="form-check-input"
+                                    {{ $emailUnlockEnabled ? 'checked' : '' }}
+                                >
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary lock-submit-btn" id="accountLockSettingsSubmitBtn">
+                            <i class="fas fa-floppy-disk"></i>
+                            <span>Save Policy</span>
                         </button>
                     </form>
-                @endif
-            </div>
-        </div>
+                </section>
 
-        <!-- Success Message -->
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {!! session('success') !!}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {!! session('error') !!}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        <div class="row">
-            <!-- Locked Accounts Card -->
-            <div class="mb-4 col-lg-8">
-                <div class="shadow-sm card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0 card-title">
-                            <i class="fas fa-lock-open text-danger"></i>
-                            Locked Accounts ({{ $lockedAccounts->total() }})
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <form method="GET" class="account-lock-filter-bar">
-                            <div class="account-lock-search">
-                                <input type="text" name="search" value="{{ $search ?? '' }}" class="form-control"
-                                    placeholder="Search by user, email, role, or IP">
-                            </div>
-                            <button type="button" id="accountLocksResetBtn" class="btn btn-outline-secondary btn-sm">Reset</button>
-                            <label class="admin-table-entries-control" for="accountLocksPerPage">
-                                <span>Show</span>
-                                <select id="accountLocksPerPage" name="per_page" class="admin-table-entries-select" onchange="this.form.submit()">
-                                    @foreach ([10, 20, 50, 100] as $entryCount)
-                                        <option value="{{ $entryCount }}" {{ (int) ($perPage ?? 10) === $entryCount ? 'selected' : '' }}>{{ $entryCount }}</option>
-                                    @endforeach
-                                </select>
-                                <span>entries</span>
-                            </label>
-                            <div class="account-lock-filter-actions">
-                                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
-                            </div>
-                        </form>
-
-                        @if ($lockedAccounts->total() > 0)
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>User</th>
-                                            <th>Email</th>
-                                            <th>IP Address</th>
-                                            <th>Minutes Remaining</th>
-                                            <th>Expires At</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($lockedAccounts as $account)
-                                            @foreach ($account['ips'] as $ip)
-                                                <tr>
-                                                    <td>
-                                                        @if ($account['user'])
-                                                            <strong>{{ $account['user']->name }}</strong>
-                                                            <br>
-                                                            <small class="text-muted">{{ $account['user']->role }}</small>
-                                                        @else
-                                                            <span class="text-muted">Unknown User</span>
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        <code>{{ $account['email'] }}</code>
-                                                    </td>
-                                                    <td>
-                                                        <code>{{ $ip['ip'] ?? 'Unknown' }}</code>
-                                                    </td>
-                                                    <td>
-                                                        <span class="badge bg-warning text-dark">
-                                                            {{ $ip['minutes_remaining'] }} min
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <small>{{ $ip['expires_at']->format('M d, Y H:i') }}</small>
-                                                    </td>
-                                                    <td>
-                                                        <form action="{{ route('admin.account-locks.unlock') }}"
-                                                            method="POST" class="d-inline">
-                                                            @csrf
-                                                            <input type="hidden" name="email"
-                                                                value="{{ $account['email'] }}">
-                                                            <input type="hidden" name="ip"
-                                                                value="{{ $ip['ip'] }}">
-                                                            <button type="submit" class="btn btn-sm btn-primary"
-                                                                title="Unlock this IP">
-                                                                <i class="fas fa-unlock"></i>
-                                                            </button>
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="mt-3">
-                                {!! view('shared.admin-table-pagination', ['paginator' => $lockedAccounts])->render() !!}
-                            </div>
-                        @else
-                            <div class="mb-0 alert alert-info">
-                                <i class="fas fa-check-circle"></i>
-                                {{ !empty($search) ? 'No locked accounts match the current search.' : 'No locked accounts at the moment. System is secure!' }}
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Card -->
-            <div class="mb-4 col-lg-4">
-                <div class="shadow-sm card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0 card-title">
-                            <i class="fas fa-cog text-primary"></i> Rate Limiting Settings
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <form action="{{ route('admin.account-locks.settings') }}" method="POST">
-                            @csrf
-
-                            <div class="mb-3">
-                                <label for="max_attempts" class="form-label">Max Login Attempts</label>
-                                <input type="number" class="form-control @error('max_attempts') is-invalid @enderror"
-                                    id="max_attempts" name="max_attempts" value="{{ old('max_attempts', $maxAttempts) }}"
-                                    min="1" max="20" required>
-                                <small class="form-text text-muted">Attempts before account lockout</small>
-                                @error('max_attempts')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="lockout_duration" class="form-label">Lockout Duration (minutes)</label>
-                                <input type="number" class="form-control @error('lockout_duration') is-invalid @enderror"
-                                    id="lockout_duration" name="lockout_duration"
-                                    value="{{ old('lockout_duration', $lockoutDuration) }}" min="1" max="1440"
-                                    required>
-                                <small class="form-text text-muted">How long the account stays locked (max 24 hours)</small>
-                                @error('lockout_duration')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="rate_limiting_enabled"
-                                        name="rate_limiting_enabled" value="1" checked>
-                                    <label class="form-check-label" for="rate_limiting_enabled">
-                                        Enable Rate Limiting
-                                    </label>
-                                </div>
-                                <small class="form-text text-muted">Disable to allow unlimited login attempts (not
-                                    recommended)</small>
-                            </div>
-
-                            <div class="mb-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="email_unlock_enabled"
-                                        name="email_unlock_enabled" value="1" checked>
-                                    <label class="form-check-label" for="email_unlock_enabled">
-                                        Enable Email Unlock Links
-                                    </label>
-                                </div>
-                                <small class="form-text text-muted">Allow users to unlock via email links</small>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-save"></i> Save Settings
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Info Card -->
-                <div class="mt-3 shadow-sm card">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0 card-title">
-                            <i class="fas fa-info-circle text-info"></i> System Info
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-2">
-                            <small class="text-muted">Current Settings:</small>
-                            <p class="mb-0">
-                                <strong>Max Attempts:</strong> {{ $maxAttempts }}<br>
-                                <strong>Lockout Duration:</strong> {{ $lockoutDuration }} minutes
-                            </p>
+                <section class="card lock-panel">
+                    <div class="lock-panel-head compact">
+                        <div>
+                            <h2 class="lock-panel-title">Bulk Recovery</h2>
+                            <p class="lock-panel-copy">Use only when you need a broad reset after testing or a false-positive event.</p>
                         </div>
-                        <hr>
-                        <small class="text-muted">CLI Command:</small>
-                        <p class="mb-0">
-                            <code>php artisan auth:unlock-account {email}</code>
-                        </p>
                     </div>
-                </div>
-            </div>
+
+                    <div id="accountLockBulkContainer">
+                        @include('Admin.account-locks.partials.bulk')
+                    </div>
+                </section>
+
+                <section class="card lock-panel">
+                    <div class="lock-panel-head compact">
+                        <div>
+                            <h2 class="lock-panel-title">Quick Notes</h2>
+                            <p class="lock-panel-copy">Shortcuts for support and incident response.</p>
+                        </div>
+                    </div>
+
+                    <div class="lock-note-stack">
+                        <div class="lock-note-card">
+                            <i class="fas fa-terminal"></i>
+                            <div>
+                                <strong>CLI fallback</strong>
+                                <p><code>php artisan auth:unlock-account user@example.com --all-ips</code></p>
+                            </div>
+                        </div>
+
+                        <div class="lock-note-card">
+                            <i class="fas fa-wave-square"></i>
+                            <div>
+                                <strong>Monitoring source</strong>
+                                <p>The live feed reads Laravel rate-limiter timers from the shared cache store.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </aside>
         </div>
+
+        @include('shared.action-feedback.markup', [
+            'actionFeedbackConfig' => [
+                'confirm' => [
+                    'modalId' => 'accountLockConfirmModal',
+                    'iconId' => 'accountLockConfirmIcon',
+                    'titleId' => 'accountLockConfirmTitle',
+                    'messageId' => 'accountLockConfirmMessage',
+                    'detailId' => 'accountLockConfirmDetail',
+                    'submitButtonId' => 'accountLockConfirmSubmitBtn',
+                    'cancelLabel' => 'Cancel',
+                    'confirmLabel' => 'Continue',
+                ],
+                'toast' => [
+                    'containerId' => 'accountLockToastContainer',
+                    'liveRegionId' => 'accountLockLiveRegion',
+                ],
+            ],
+        ])
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const resetButton = document.getElementById('accountLocksResetBtn');
-            const filterForm = document.querySelector('.account-lock-filter-bar');
-
-            if (!resetButton || !filterForm) {
-                return;
-            }
-
-            resetButton.addEventListener('click', function() {
-                const resetUrl = new URL('{{ route('admin.account-locks.index') }}', window.location.origin);
-                const perPageValue = document.getElementById('accountLocksPerPage')?.value || '10';
-                if (perPageValue !== '10') {
-                    resetUrl.searchParams.set('per_page', perPageValue);
-                }
-                window.location.href = resetUrl.toString();
-            });
-        });
-    </script>
-
-    <style>
-        .account-lock-filter-bar {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .account-lock-search {
-            flex: 1 1 260px;
-            min-width: 220px;
-        }
-
-        .account-lock-filter-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-left: auto;
-        }
-
-        body.dark-theme .account-lock-search .form-control {
-            background-color: #1e293b;
-            border-color: #475569;
-            color: #f8fafc;
-        }
-
-        body.dark-theme .account-lock-search .form-control::placeholder {
-            color: #94a3b8;
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: rgba(0, 0, 0, 0.02);
-        }
-
-        code {
-            background-color: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 3px;
-            color: #d63384;
-        }
-
-        body.dark-theme code {
-            background-color: #0f172a;
-            color: #f472b6;
-        }
-    </style>
 @endsection
+
+@push('scripts')
+    @include('shared.action-feedback.scripts')
+    <script>
+        window.accountLockManagementConfig = {
+            routes: {
+                index: @json(route('admin.account-locks.index')),
+            },
+            state: {
+                search: @json($search),
+                perPage: @json($perPage),
+                page: @json($lockedAccounts->currentPage()),
+            },
+            settings: {
+                max_attempts: @json($maxAttempts),
+                lockout_duration: @json($lockoutDuration),
+                rate_limiting_enabled: @json($rateLimitingEnabled),
+                email_unlock_enabled: @json($emailUnlockEnabled),
+            },
+            flash: {
+                success: @json(session('success')),
+                error: @json(session('error')),
+            },
+        };
+    </script>
+    <script src="{{ asset('admin/JS/account-locks.js') }}"></script>
+@endpush

@@ -3,6 +3,8 @@
 @section('title', 'Student Details')
 
 @push('styles')
+    @include('shared.report-export.styles')
+    @include('shared.action-feedback.styles')
     <style>
         /* Student Details Page */
         .student-details-page {
@@ -460,85 +462,146 @@
             margin: 0;
         }
 
-        .section-controls {
+        .search-filter-container {
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-theme .search-filter-container {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .student-table-toolbar {
+            margin-bottom: 12px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 0 1 240px;
+            min-width: 220px;
+            max-width: 280px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+        }
+
+        body.dark-theme .search-icon {
+            color: #64748b;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.25rem;
+            border-radius: 0.375rem;
+            font-size: 13px;
+            border: 1px solid #e5e7eb;
+            background-color: #f8fafc;
+            color: #0f172a;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-theme .search-input {
+            background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+
+        body.light-theme .search-input::placeholder {
+            color: #94a3b8;
+        }
+
+        body.dark-theme .search-input::placeholder {
+            color: #64748b;
+        }
+
+        .search-input:focus,
+        .filter-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             align-items: center;
         }
 
-        .search-container {
-            position: relative;
-            width: 188px;
-        }
-
-        .search-container svg {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-        }
-
-        body.light-theme .search-container svg {
-            color: #94a3b8;
-        }
-
-        body.dark-theme .search-container svg {
-            color: #64748b;
-        }
-
-        #bookSearch {
-            width: 100%;
-            padding: 7px 10px 7px 30px;
-            border-radius: 6px;
+        .filter-select {
+            min-width: 132px;
+            padding: 0.5rem 2rem 0.5rem 0.75rem;
+            border-radius: 0.375rem;
             font-size: 13px;
-            border: 1px solid;
-        }
-
-        body.light-theme #bookSearch {
-            background-color: #ffffff;
-            border-color: #e5e7eb;
+            cursor: pointer;
+            appearance: none;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
             color: #0f172a;
+            transition: all 0.3s ease;
         }
 
-        body.dark-theme #bookSearch {
-            background-color: #0f172a;
-            border-color: #334155;
+        body.dark-theme .filter-select {
+            background: #334155 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
+            border-color: #475569;
             color: #e2e8f0;
         }
 
-        body.light-theme #bookSearch::placeholder {
-            color: #94a3b8;
+        .student-toolbar-reset {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.5rem 0.95rem;
+            border-radius: 0.375rem;
+            border: 1px solid #dbe2ea;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
         }
 
-        body.dark-theme #bookSearch::placeholder {
-            color: #64748b;
+        body.dark-theme .student-toolbar-reset {
+            border-color: #475569;
+            background: #0f172a;
+            color: #e2e8f0;
         }
 
-        #bookSearch:focus {
-            outline: none;
+        .student-toolbar-reset:hover {
             border-color: #3b82f6;
+            color: #2563eb;
+            background: #eff6ff;
+            transform: translateY(-1px);
         }
 
-        .status-filter {
-            padding: 7px 11px;
-            border-radius: 6px;
-            font-size: 13px;
-            border: 1px solid;
-            background-color: transparent;
+        body.dark-theme .student-toolbar-reset:hover {
+            border-color: #60a5fa;
+            color: #bfdbfe;
+            background: #1e3a8a;
         }
 
-        body.light-theme .status-filter {
-            color: #0f172a;
-            border-color: #e5e7eb;
-            background-color: #ffffff;
+        .student-table-toolbar .admin-table-entries-control {
+            margin-left: auto;
         }
 
-        body.dark-theme .status-filter {
-            color: #e2e8f0;
-            border-color: #334155;
-            background-color: #0f172a;
+        .student-table-pagination {
+            margin-top: 10px;
         }
 
         /* Books Table */
@@ -653,127 +716,6 @@
 
         body.dark-theme .books-table tbody tr:hover {
             background-color: #2d3748;
-        }
-
-        .table-meta-toolbar,
-        .table-pagination-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .table-meta-toolbar {
-            margin-bottom: 10px;
-        }
-
-        .table-pagination-footer {
-            margin-top: 10px;
-        }
-
-        .table-footer-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        .table-entries-control {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        body.light-theme .table-entries-control,
-        body.light-theme .table-meta-summary,
-        body.light-theme .table-page-info {
-            color: #64748b;
-        }
-
-        body.dark-theme .table-entries-control,
-        body.dark-theme .table-meta-summary,
-        body.dark-theme .table-page-info {
-            color: #94a3b8;
-        }
-
-        .table-entries-select {
-            min-width: 74px;
-            padding: 7px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            border: 1px solid;
-        }
-
-        body.light-theme .table-entries-select {
-            background-color: #ffffff;
-            border-color: #e5e7eb;
-            color: #0f172a;
-        }
-
-        body.dark-theme .table-entries-select {
-            background-color: #0f172a;
-            border-color: #334155;
-            color: #e2e8f0;
-        }
-
-        .table-pagination {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
-
-        .table-pagination-btn {
-            min-height: 32px;
-            padding: 0.38rem 0.68rem;
-            border-radius: 8px;
-            border: 1px solid;
-            font-size: 11.5px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
-        }
-
-        body.light-theme .table-pagination-btn {
-            background-color: #ffffff;
-            border-color: #e5e7eb;
-            color: #334155;
-        }
-
-        body.dark-theme .table-pagination-btn {
-            background-color: #0f172a;
-            border-color: #334155;
-            color: #e2e8f0;
-        }
-
-        .table-pagination-btn:hover {
-            border-color: #3b82f6;
-            color: #2563eb;
-        }
-
-        .table-pagination-btn.is-active {
-            background-color: #2563eb;
-            border-color: #2563eb;
-            color: #ffffff;
-        }
-
-        .table-pagination-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .table-pagination-ellipsis {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 24px;
-            font-size: 13px;
-            font-weight: 700;
         }
 
         .paginated-table::-webkit-scrollbar {
@@ -977,18 +919,29 @@
                 gap: 12px;
             }
 
-            .section-controls {
+            .student-table-toolbar {
                 width: 100%;
-                flex-direction: column;
                 align-items: stretch;
             }
 
-            .search-container {
+            .search-box {
+                width: 100%;
+                max-width: none;
+            }
+
+            .filters-container {
                 width: 100%;
             }
 
-            .status-filter {
+            .filter-select,
+            .student-toolbar-reset {
                 width: 100%;
+            }
+
+            .student-table-toolbar .admin-table-entries-control {
+                width: 100%;
+                margin-left: 0;
+                justify-content: space-between;
             }
         }
 
@@ -4945,32 +4898,40 @@
                 <div class="issued-books-section" id="adminIssuedBooksSection">
                     <div class="section-header">
                         <h3>Issued Books</h3>
-                        <div class="section-controls">
-                            <div class="search-container">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="11" cy="11" r="8"/>
-                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                                </svg>
-                                <input type="text" id="bookSearch" placeholder="Search books...">
-                            </div>
-                            <select id="statusFilter" class="status-filter">
+                    </div>
+
+                    <div class="search-filter-container student-table-toolbar" aria-label="Issued books search and filters">
+                        <div class="search-box">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" class="search-input" id="bookSearch" placeholder="Search by title, author, or ISBN...">
+                        </div>
+
+                        <div class="filters-container">
+                            <select id="statusFilter" class="filter-select" aria-label="Filter issued books by status">
                                 <option value="all">All Status</option>
                                 <option value="issued">Issued</option>
                                 <option value="overdue">Overdue</option>
                                 <option value="returned">Returned</option>
                             </select>
                         </div>
-                    </div>
 
-                    <div class="table-meta-toolbar">
-                        <label class="table-entries-control" for="booksEntriesSelect">
-                            <span>Show entries</span>
-                            <select id="booksEntriesSelect" class="table-entries-select" aria-label="Select issued book entries per page">
+                        <button type="button" class="student-toolbar-reset" id="bookResetFiltersBtn" aria-label="Reset issued books filters">
+                            <i class="fas fa-rotate-left"></i>
+                            Reset
+                        </button>
+
+                        <label class="admin-table-entries-control" for="booksEntriesSelect">
+                            <span>Show</span>
+                            <select id="booksEntriesSelect" class="admin-table-entries-select" aria-label="Select issued book entries per page">
                                 <option value="10" selected>10</option>
                                 <option value="20">20</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                             </select>
+                            <span>entries</span>
                         </label>
                     </div>
 
@@ -4995,12 +4956,12 @@
                         </table>
                     </div>
 
-                    <div class="table-pagination-footer">
-                        <span class="table-page-info" id="booksTablePageInfo">Page 1 of 1</span>
-                        <div class="table-footer-actions">
-                            <span class="table-meta-summary" id="booksTableSummary">Showing 0 books</span>
-                            <div class="table-pagination" id="booksTablePagination" aria-label="Issued books pagination"></div>
+                    <div class="admin-table-pagination student-table-pagination" id="booksPaginationContainer">
+                        <div class="admin-table-pagination-meta">
+                            <div class="admin-table-pagination-summary" id="booksTableSummary">Showing 0 books</div>
+                            <div class="admin-table-pagination-page" id="booksTablePageInfo">Page 1 of 1</div>
                         </div>
+                        <div class="admin-table-pagination-nav" id="booksTablePagination" aria-label="Issued books pagination"></div>
                     </div>
                 </div>
             </div>
@@ -5092,15 +5053,38 @@
                         </button>
                     </div>
 
-                    <div class="table-meta-toolbar">
-                        <label class="table-entries-control" for="finesEntriesSelect">
-                            <span>Show entries</span>
-                            <select id="finesEntriesSelect" class="table-entries-select" aria-label="Select fine entries per page">
+                    <div class="search-filter-container student-table-toolbar" aria-label="Fine and payment search and filters">
+                        <div class="search-box">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" class="search-input" id="fineSearchInput" placeholder="Search by book, amount, status, or days overdue...">
+                        </div>
+
+                        <div class="filters-container">
+                            <select id="fineStatusFilter" class="filter-select" aria-label="Filter fines by status">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="paid">Paid</option>
+                                <option value="waived">Waived</option>
+                            </select>
+                        </div>
+
+                        <button type="button" class="student-toolbar-reset" id="fineResetFiltersBtn" aria-label="Reset fine filters">
+                            <i class="fas fa-rotate-left"></i>
+                            Reset
+                        </button>
+
+                        <label class="admin-table-entries-control" for="finesEntriesSelect">
+                            <span>Show</span>
+                            <select id="finesEntriesSelect" class="admin-table-entries-select" aria-label="Select fine entries per page">
                                 <option value="10" selected>10</option>
                                 <option value="20">20</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                             </select>
+                            <span>entries</span>
                         </label>
                     </div>
 
@@ -5121,12 +5105,12 @@
                         </table>
                     </div>
 
-                    <div class="table-pagination-footer">
-                        <span class="table-page-info" id="finesTablePageInfo">Page 1 of 1</span>
-                        <div class="table-footer-actions">
-                            <span class="table-meta-summary" id="finesTableSummary">Showing 0 fines</span>
-                            <div class="table-pagination" id="finesTablePagination" aria-label="Fines pagination"></div>
+                    <div class="admin-table-pagination student-table-pagination" id="finesPaginationContainer">
+                        <div class="admin-table-pagination-meta">
+                            <div class="admin-table-pagination-summary" id="finesTableSummary">Showing 0 fines</div>
+                            <div class="admin-table-pagination-page" id="finesTablePageInfo">Page 1 of 1</div>
                         </div>
+                        <div class="admin-table-pagination-nav" id="finesTablePagination" aria-label="Fines pagination"></div>
                     </div>
                 </div>
             </div>
@@ -5316,29 +5300,6 @@
         </div>
     </div>
 
-    <!-- Fine Action Success Popup -->
-    <div class="fine-popup-overlay" id="fineSuccessPopup">
-        <div class="fine-popup">
-            <div class="fine-popup-icon" id="finePopupIcon">
-                <!-- Icon will be set dynamically -->
-            </div>
-            <h2 class="fine-popup-title" id="finePopupTitle">Success!</h2>
-            <p class="fine-popup-message" id="finePopupMessage">Operation completed successfully.</p>
-            <div class="fine-popup-details" id="finePopupDetails">
-                <!-- Details will be set dynamically -->
-            </div>
-            <div class="fine-popup-email-indicator" id="finePopupEmailIndicator" style="display: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect width="20" height="16" x="2" y="4" rx="2"/>
-                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-                </svg>
-                <span id="finePopupEmailText">Sending email notification...</span>
-            </div>
-            <button class="fine-popup-btn primary" id="finePopupBtn" onclick="closeFinePopup()">Done</button>
-            <p class="fine-popup-footer" id="finePopupFooter"></p>
-        </div>
-    </div>
-
     <!-- Fine Action Modals -->
     <!-- Adjust Fine Modal -->
     <div class="fine-modal-overlay" id="adjustFineOverlay">
@@ -5384,29 +5345,6 @@
             <div class="fine-modal-actions">
                 <button class="fine-modal-btn fine-modal-btn-cancel" onclick="closeFineModal('waive')">Cancel</button>
                 <button class="fine-modal-btn fine-modal-btn-action" id="waiveFineSubmitBtn" onclick="submitWaiveFine()">Waive Fine</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mark as Paid Modal -->
-    <div class="fine-modal-overlay" id="markPaidOverlay">
-        <div class="fine-modal">
-            <div class="fine-modal-header">
-                <h2>Mark Fine as Paid</h2>
-                <button class="fine-modal-close" onclick="closeFineModal('paid')">&times;</button>
-            </div>
-            <div class="fine-modal-body">
-                <div class="fine-info-box">
-                    <div class="fine-info-label">Fine Amount</div>
-                    <div class="fine-info-value" id="paidAmount">₹0</div>
-                </div>
-                <p style="margin: 0; padding: 12px; background-color: #f0fdf4; border-radius: 6px; border-left: 4px solid #10b981; color: #065f46; font-size: 14px;">
-                    ⓘ Please ensure payment has been received before marking this fine as paid.
-                </p>
-            </div>
-            <div class="fine-modal-actions">
-                <button class="fine-modal-btn fine-modal-btn-cancel" onclick="closeFineModal('paid')">Cancel</button>
-                <button class="fine-modal-btn fine-modal-btn-action" id="markPaidSubmitBtn" onclick="submitMarkAsPaid()" style="background-color: #10b981; border-color: #10b981;">Mark as Paid</button>
             </div>
         </div>
     </div>
@@ -5475,28 +5413,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Confirmation Modal -->
-    <div class="confirmation-modal-overlay" id="confirmationModalOverlay">
-        <div class="confirmation-modal" role="dialog" aria-modal="true" aria-labelledby="confirmationModalTitle">
-            <div class="confirmation-modal-header">
-                <div class="confirmation-modal-icon" id="confirmationModalIcon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="confirmation-modal-content">
-                    <h3 class="confirmation-modal-title" id="confirmationModalTitle">Confirm Action</h3>
-                    <p class="confirmation-modal-message" id="confirmationModalMessage">Are you sure you want to proceed with this action?</p>
-                </div>
-            </div>
-            <div class="confirmation-modal-body" id="confirmationModalBody">
-                <!-- Dynamic details will be inserted here -->
-            </div>
-            <div class="confirmation-modal-actions">
-                <button class="confirmation-modal-btn confirmation-modal-btn-cancel" id="confirmationCancelBtn" onclick="closeConfirmationModal()">Cancel</button>
-                <button class="confirmation-modal-btn confirmation-modal-btn-confirm" id="confirmationConfirmBtn" onclick="confirmAction()">Confirm</button>
             </div>
         </div>
     </div>
@@ -5605,13 +5521,124 @@
         </div>
     </div>
 
-    <!-- Toast Notification Container -->
-    <div id="toastContainer" class="toast-container"></div>
+    @php
+        $issuedBooksReportStudent = [
+            'name' => $student->user->name ?? 'N/A',
+            'rollNo' => $student->roll_no ?? 'N/A',
+            'email' => $student->user->email ?? 'N/A',
+            'department' => $student->department->name ?? 'N/A',
+            'semester' => $student->semester ?? 'N/A',
+            'batch' => $student->batch ? 'Batch ' . $student->batch : 'N/A',
+        ];
+
+        $issuedBooksReportExportConfig = [
+            'modalId' => 'issuedBooksExportModal',
+            'idPrefix' => 'issuedBooksExport',
+            'scopeName' => 'issuedBooksExportScope',
+            'labels' => [
+                'title' => 'Issued Books Report',
+                'description' => 'Print or download the issued books report for this student.',
+                'scopeTitle' => 'Scope',
+                'scopeHint' => 'Use this page or all issued books matching the current filters.',
+                'pageOptionTitle' => 'Current page',
+                'pageOptionDescription' => 'Only rows visible in the table now.',
+                'allOptionTitle' => 'Filtered report',
+                'allOptionDescription' => 'All issued books matching the current search and status filter.',
+                'badge' => 'Current page',
+                'headline' => '0 issued books ready',
+                'subtext' => 'Review the issued books report before printing or downloading it.',
+                'previewTitle' => 'Preview',
+                'previewDescription' => 'Rows included in the issued books report.',
+                'previewCount' => '0 rows',
+                'emptyPreview' => 'No issued books selected for preview.',
+                'footerNote' => 'Using the current page for export.',
+                'cancelButton' => 'Cancel',
+                'downloadButton' => 'Download CSV',
+                'printButton' => 'Print Report',
+            ],
+            'document' => [
+                'systemTitle' => $libraryBranding['name'] ?? 'Library Management System',
+                'reportTitle' => 'Issued Books Report',
+            ],
+            'columns' => [
+                ['key' => 'title', 'label' => 'Book Title', 'width' => '28%', 'emphasis' => true],
+                ['key' => 'isbn', 'label' => 'ISBN', 'width' => '14%', 'nowrap' => true],
+                ['key' => 'issueDate', 'label' => 'Issue Date', 'width' => '12%', 'nowrap' => true],
+                ['key' => 'dueDate', 'label' => 'Due Date', 'width' => '12%', 'nowrap' => true],
+                ['key' => 'returnDate', 'label' => 'Return Date', 'width' => '12%', 'nowrap' => true],
+                ['key' => 'status', 'label' => 'Status', 'width' => '10%', 'align' => 'center', 'nowrap' => true],
+                ['key' => 'fineAmount', 'label' => 'Fine Amount', 'width' => '12%', 'align' => 'right', 'nowrap' => true],
+            ],
+        ];
+
+        $fineReceiptReportExportConfig = [
+            'modalId' => 'fineReceiptExportModal',
+            'idPrefix' => 'fineReceiptExport',
+            'scopeName' => 'fineReceiptExportScope',
+            'labels' => [
+                'title' => 'Fine Receipt',
+                'description' => 'Print or download the fine and payment receipt for this student.',
+                'scopeTitle' => 'Scope',
+                'scopeHint' => 'Use this page or all fines matching the current filters.',
+                'pageOptionTitle' => 'Current page',
+                'pageOptionDescription' => 'Only fine rows visible in the table now.',
+                'allOptionTitle' => 'Filtered receipt',
+                'allOptionDescription' => 'All fine rows matching the current search and status filter.',
+                'badge' => 'Current page',
+                'headline' => '0 fine records ready',
+                'subtext' => 'Review the fine receipt before printing or downloading it.',
+                'previewTitle' => 'Preview',
+                'previewDescription' => 'Fine rows included in the receipt.',
+                'previewCount' => '0 rows',
+                'emptyPreview' => 'No fine rows selected for preview.',
+                'footerNote' => 'Using the current page for receipt output.',
+                'cancelButton' => 'Cancel',
+                'downloadButton' => 'Download CSV',
+                'printButton' => 'Print Receipt',
+            ],
+            'document' => [
+                'systemTitle' => $libraryBranding['name'] ?? 'Library Management System',
+                'reportTitle' => 'Fine Receipt',
+            ],
+            'columns' => [
+                ['key' => 'bookName', 'label' => 'Book Name', 'width' => '40%', 'emphasis' => true],
+                ['key' => 'daysOverdue', 'label' => 'Days Overdue', 'width' => '16%', 'align' => 'center', 'nowrap' => true],
+                ['key' => 'fineAmount', 'label' => 'Fine Amount', 'width' => '18%', 'align' => 'right', 'nowrap' => true],
+                ['key' => 'paymentStatus', 'label' => 'Payment Status', 'width' => '26%', 'align' => 'center', 'nowrap' => true],
+            ],
+        ];
+    @endphp
+
+    @include('shared.report-export.modal', ['reportExportConfig' => $issuedBooksReportExportConfig])
+    @include('shared.report-export.modal', ['reportExportConfig' => $fineReceiptReportExportConfig])
+
+    @include('shared.action-feedback.markup', [
+        'actionFeedbackConfig' => [
+            'confirm' => [
+                'modalId' => 'confirmActionModal',
+                'iconId' => 'confirmActionIcon',
+                'titleId' => 'confirmActionTitle',
+                'messageId' => 'confirmActionMessage',
+                'detailId' => 'confirmActionDetail',
+                'submitButtonId' => 'confirmActionSubmitBtn',
+                'cancelLabel' => 'Cancel',
+                'confirmLabel' => 'Continue',
+                'defaultTitle' => 'Confirm Action',
+                'defaultMessage' => 'Are you sure you want to continue?',
+            ],
+            'toast' => [
+                'containerId' => 'fineToastContainer',
+                'liveRegionId' => 'fineLiveRegion',
+            ],
+        ],
+    ])
 @endsection
 
 
 
 @push('scripts')
+    @include('shared.report-export.scripts')
+    @include('shared.action-feedback.scripts')
     <script>
         // Data provided by server (transformed in controller)
         const booksData = @json($booksData ?? []);
@@ -5619,16 +5646,25 @@
         const activityLogs = @json($activityLogs ?? []);
         const remainingActivityLogs = @json($remainingActivityLogs ?? []);
         const studentId = @json($student->id);
-        let studentStatus = '@json($student->user->status ?? 'active')';
+        let studentStatus = @json($student->user->status ?? 'active');
+        const issuedBooksReportStudent = @json($issuedBooksReportStudent);
+        const issuedBooksReportBranding = window.LibraryBranding?.normalize
+            ? window.LibraryBranding.normalize(window.__LIBRARY_BRANDING__ ?? {})
+            : (window.__LIBRARY_BRANDING__ ?? {});
+        const issuedBooksReportSystemTitle = issuedBooksReportBranding?.name || 'Library Management System';
 
         // DOM Elements
         const bookSearchInput = document.getElementById('bookSearch');
         const statusFilterSelect = document.getElementById('statusFilter');
+        const bookResetFiltersBtn = document.getElementById('bookResetFiltersBtn');
         const booksTableBody = document.getElementById('booksTableBody');
         const booksEntriesSelect = document.getElementById('booksEntriesSelect');
         const booksTableSummary = document.getElementById('booksTableSummary');
         const booksTablePageInfo = document.getElementById('booksTablePageInfo');
         const booksTablePagination = document.getElementById('booksTablePagination');
+        const fineSearchInput = document.getElementById('fineSearchInput');
+        const fineStatusFilterSelect = document.getElementById('fineStatusFilter');
+        const fineResetFiltersBtn = document.getElementById('fineResetFiltersBtn');
         const finesEntriesSelect = document.getElementById('finesEntriesSelect');
         const finesTableSummary = document.getElementById('finesTableSummary');
         const finesTablePageInfo = document.getElementById('finesTablePageInfo');
@@ -5637,6 +5673,43 @@
         const adminStudentTopContent = document.getElementById('adminStudentTopContent');
         const sendNotificationBtn = document.getElementById('sendNotificationBtn');
         const printReportBtn = document.getElementById('printReportBtn');
+        const issuedBooksExportModal = document.getElementById('issuedBooksExportModal');
+        const fineReceiptExportModal = document.getElementById('fineReceiptExportModal');
+        const actionFeedbackConfirmModal = document.getElementById('confirmActionModal');
+        const actionFeedbackConfirmSubmitBtn = document.getElementById('confirmActionSubmitBtn');
+        let pendingConfirmationAction = null;
+        let issuedBooksExportWorkflow = null;
+        let issuedBooksExportLastTrigger = null;
+        let fineReceiptExportWorkflow = null;
+        let fineReceiptExportLastTrigger = null;
+
+        function setFeedbackButtonBusy(button, isBusy, label) {
+            if (!button) return;
+
+            button.disabled = Boolean(isBusy);
+            if (label) {
+                button.textContent = label;
+            }
+        }
+
+        const feedbackUI = typeof window.ActionFeedbackUI === 'function'
+            ? new window.ActionFeedbackUI({
+                confirm: {
+                    modalId: 'confirmActionModal',
+                    iconId: 'confirmActionIcon',
+                    titleId: 'confirmActionTitle',
+                    messageId: 'confirmActionMessage',
+                    detailId: 'confirmActionDetail',
+                    submitButtonId: 'confirmActionSubmitBtn',
+                    confirmLabel: 'Continue',
+                },
+                toast: {
+                    containerId: 'fineToastContainer',
+                    liveRegionId: 'fineLiveRegion',
+                },
+                setButtonBusy: setFeedbackButtonBusy,
+            })
+            : null;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -5644,6 +5717,9 @@
             renderBooksTable();
             setupEventListeners();
             setupKeyboardNavigation();
+            setupActionFeedback();
+            setupIssuedBooksExportWorkflow();
+            setupFineReceiptExportWorkflow();
         });
 
         window.addEventListener('load', syncAdminStudentTopLayout);
@@ -5655,6 +5731,50 @@
             });
 
             adminStudentTopLayoutObserver.observe(adminStudentProfileCard);
+        }
+
+        function setupActionFeedback() {
+            actionFeedbackConfirmSubmitBtn?.addEventListener('click', handleConfirmationSubmit);
+
+            document.addEventListener('click', function(event) {
+                const closeButton = event.target.closest('[data-modal-close]');
+                if (!closeButton) {
+                    return;
+                }
+
+                const modalId = closeButton.getAttribute('data-modal-close');
+                if (modalId === 'confirmActionModal') {
+                    closeConfirmationModal();
+                    return;
+                }
+
+                if (modalId === 'issuedBooksExportModal') {
+                    closeIssuedBooksExportModal(modalId);
+                    return;
+                }
+
+                if (modalId === 'fineReceiptExportModal') {
+                    closeFineReceiptExportModal(modalId);
+                }
+            });
+
+            actionFeedbackConfirmModal?.addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeConfirmationModal();
+                }
+            });
+
+            issuedBooksExportModal?.addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeIssuedBooksExportModal();
+                }
+            });
+
+            fineReceiptExportModal?.addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeFineReceiptExportModal();
+                }
+            });
         }
 
         function syncAdminStudentTopLayout() {
@@ -5684,6 +5804,22 @@
             // Status filter
             if (statusFilterSelect) {
                 statusFilterSelect.addEventListener('change', handleStatusFilter);
+            }
+
+            if (bookResetFiltersBtn) {
+                bookResetFiltersBtn.addEventListener('click', resetBookFilters);
+            }
+
+            if (fineSearchInput) {
+                fineSearchInput.addEventListener('input', handleFineSearch);
+            }
+
+            if (fineStatusFilterSelect) {
+                fineStatusFilterSelect.addEventListener('change', handleFineStatusFilter);
+            }
+
+            if (fineResetFiltersBtn) {
+                fineResetFiltersBtn.addEventListener('click', resetFineFilters);
             }
 
             if (booksEntriesSelect) {
@@ -5716,9 +5852,29 @@
                     }
                 }
 
+                if (e.key === 'Escape' && issuedBooksExportModal?.classList.contains('is-open')) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    closeIssuedBooksExportModal();
+                    return;
+                }
+
+                if (e.key === 'Escape' && fineReceiptExportModal?.classList.contains('is-open')) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    closeFineReceiptExportModal();
+                    return;
+                }
+
                 // Escape to clear search
                 if (e.key === 'Escape' && document.activeElement === bookSearchInput) {
                     clearBookSearch();
+                }
+
+                if (e.key === 'Escape' && actionFeedbackConfirmModal?.classList.contains('is-open')) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    closeConfirmationModal();
                 }
 
                 // Ctrl+P for print
@@ -5741,6 +5897,8 @@
         let currentStatusFilter = 'all';
         let currentBooksPage = 1;
         let booksPerPage = 10;
+        let currentFineSearchTerm = '';
+        let currentFineStatusFilter = 'all';
         let currentFinesPage = 1;
         let finesPerPage = 10;
 
@@ -5760,6 +5918,20 @@
             renderBooksTable();
         }
 
+        function handleFineSearch() {
+            currentFineSearchTerm = fineSearchInput?.value.toLowerCase().trim() || '';
+            currentFinesPage = 1;
+            fineReceiptExportWorkflow?.clearCache({ resetScope: false });
+            renderFinesTable();
+        }
+
+        function handleFineStatusFilter() {
+            currentFineStatusFilter = fineStatusFilterSelect?.value || 'all';
+            currentFinesPage = 1;
+            fineReceiptExportWorkflow?.clearCache({ resetScope: false });
+            renderFinesTable();
+        }
+
         function handleFinesPerPageChange() {
             finesPerPage = Number(finesEntriesSelect?.value || 10);
             currentFinesPage = 1;
@@ -5771,6 +5943,7 @@
                 // Apply search filter
                 const matchesSearch = !currentSearchTerm ||
                     book.title.toLowerCase().includes(currentSearchTerm) ||
+                    (book.author || '').toLowerCase().includes(currentSearchTerm) ||
                     book.isbn.toLowerCase().includes(currentSearchTerm);
 
                 // Apply status filter
@@ -5781,6 +5954,7 @@
             });
 
             currentBooksPage = 1;
+            issuedBooksExportWorkflow?.clearCache({ resetScope: false });
             renderBooksTable();
         }
 
@@ -5788,6 +5962,42 @@
             bookSearchInput.value = '';
             currentSearchTerm = '';
             applyFilters();
+        }
+
+        function resetBookFilters() {
+            if (bookSearchInput) bookSearchInput.value = '';
+            if (statusFilterSelect) statusFilterSelect.value = 'all';
+            currentSearchTerm = '';
+            currentStatusFilter = 'all';
+            currentBooksPage = 1;
+            applyFilters();
+        }
+
+        function resetFineFilters() {
+            if (fineSearchInput) fineSearchInput.value = '';
+            if (fineStatusFilterSelect) fineStatusFilterSelect.value = 'all';
+            currentFineSearchTerm = '';
+            currentFineStatusFilter = 'all';
+            currentFinesPage = 1;
+            fineReceiptExportWorkflow?.clearCache({ resetScope: false });
+            renderFinesTable();
+        }
+
+        function getFilteredFines() {
+            return finesData.filter(fine => {
+                const normalizedStatus = String(fine.paymentStatus || 'pending').toLowerCase();
+                const matchesStatus = currentFineStatusFilter === 'all' || normalizedStatus === currentFineStatusFilter;
+                const searchHaystack = [
+                    fine.bookName || '',
+                    normalizedStatus,
+                    normalizedStatus === 'pending' ? 'unpaid pending' : '',
+                    String(fine.fineAmount ?? ''),
+                    String(fine.daysOverdue ?? '')
+                ].join(' ').toLowerCase();
+                const matchesSearch = !currentFineSearchTerm || searchHaystack.includes(currentFineSearchTerm);
+
+                return matchesStatus && matchesSearch;
+            });
         }
 
         // Render books table
@@ -5817,6 +6027,9 @@
             </td>
         `;
                 booksTableBody.appendChild(emptyRow);
+                if (issuedBooksExportModal?.classList.contains('is-open')) {
+                    issuedBooksExportWorkflow?.render();
+                }
                 return;
             }
 
@@ -5887,6 +6100,466 @@
                 booksTablePagination.innerHTML = renderPaginationControls(currentBooksPage, totalPages, 'changeBooksPage');
             }
 
+            if (issuedBooksExportModal?.classList.contains('is-open')) {
+                issuedBooksExportWorkflow?.render();
+            }
+
+        }
+
+        function setupIssuedBooksExportWorkflow() {
+            if (typeof window.ReportExportWorkflow !== 'function') {
+                return;
+            }
+
+            issuedBooksExportWorkflow = new window.ReportExportWorkflow({
+                modalId: 'issuedBooksExportModal',
+                idPrefix: 'issuedBooksExport',
+                scopeName: 'issuedBooksExportScope',
+                document: {
+                    systemTitle: issuedBooksReportSystemTitle,
+                    reportTitle: 'Issued Books Report',
+                },
+                labels: {
+                    printButton: 'Print Report',
+                    allScopePrintButton: 'Print Full Report',
+                    downloadButton: 'Download CSV',
+                    allScopeDownloadButton: 'Download Full CSV',
+                },
+                messages: {
+                    emptyMessage: 'There are no issued books in the current result set.',
+                    preparingMessage: 'Preparing the full issued books report. Please wait.',
+                    printReadyMessage: 'The print dialog will open in a new window for the current issued books page.',
+                    fullPrintReadyMessage: 'The print dialog will open in a new window for the full filtered issued books report.',
+                    exportReadyMessage: 'The current issued books page has been exported to CSV.',
+                    fullExportReadyMessage: 'The full filtered issued books report has been exported to CSV.',
+                    exportRouteMissingMessage: 'The full issued books report is not available right now.',
+                    fullLoadFailedMessage: 'Something went wrong while preparing the issued books report.',
+                },
+                columns: [
+                    { key: 'title', label: 'Book Title', width: '28%', emphasis: true },
+                    { key: 'isbn', label: 'ISBN', width: '14%', nowrap: true },
+                    { key: 'issueDate', label: 'Issue Date', width: '12%', nowrap: true },
+                    { key: 'dueDate', label: 'Due Date', width: '12%', nowrap: true },
+                    { key: 'returnDate', label: 'Return Date', width: '12%', nowrap: true },
+                    { key: 'status', label: 'Status', width: '10%', align: 'center', nowrap: true },
+                    { key: 'fineAmount', label: 'Fine Amount', width: '12%', align: 'right', nowrap: true },
+                ],
+                openModal: (modalId, focusTarget) => openIssuedBooksExportModal(modalId, focusTarget),
+                closeModal: (modalId) => closeIssuedBooksExportModal(modalId),
+                showToast: (type, title, message, timeout) => showToast(message, type, { title, timeout }),
+                getCurrentRows: () => getCurrentBooksPageRows(),
+                getAllRows: () => ({
+                    rows: filteredBooks,
+                    generatedAt: new Date().toISOString(),
+                }),
+                mapRow: (book) => mapIssuedBookToExportRow(book),
+                buildFilterParams: () => {
+                    const params = new URLSearchParams();
+                    const searchValue = bookSearchInput?.value?.trim();
+
+                    if (searchValue) {
+                        params.set('search', searchValue);
+                    }
+
+                    if (currentStatusFilter && currentStatusFilter !== 'all') {
+                        params.set('status', currentStatusFilter);
+                    }
+
+                    return params;
+                },
+                getListingState: () => ({
+                    total: filteredBooks.length,
+                    currentPage: Math.max(1, currentBooksPage),
+                    lastPage: Math.max(1, Math.ceil(filteredBooks.length / booksPerPage)),
+                    perPage: Math.max(1, booksPerPage),
+                }),
+                getScopeLabel: (scope) => scope === 'all' ? 'Entire filtered issued books list' : 'Current page',
+                getFilename: (context) => buildIssuedBooksExportFilename(context),
+                getDocumentDetails: () => getIssuedBooksDocumentDetails(),
+                getCsvMetaRows: (context) => buildIssuedBooksCsvMetaRows(context),
+                describeContext: (context) => describeIssuedBooksExportContext(context),
+            }).init();
+        }
+
+        function openIssuedBooksExportModal(modalId, focusTarget) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            const panel = modal.querySelector('.report-export-panel');
+            const closeButton = modal.querySelector('.report-export-close-btn');
+
+            const activeElement = document.activeElement;
+            issuedBooksExportLastTrigger = activeElement && !modal.contains(activeElement)
+                ? activeElement
+                : focusTarget;
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            modal.scrollTop = 0;
+            panel?.scrollTo?.({ top: 0, behavior: 'auto' });
+
+            window.setTimeout(() => {
+                const nextFocusTarget = closeButton || panel || focusTarget;
+
+                if (typeof nextFocusTarget?.focus === 'function') {
+                    try {
+                        nextFocusTarget.focus({ preventScroll: true });
+                    } catch (error) {
+                        nextFocusTarget.focus();
+                    }
+                }
+            }, 20);
+        }
+
+        function closeIssuedBooksExportModal(modalId = 'issuedBooksExportModal') {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            issuedBooksExportWorkflow?.handleModalClosed?.();
+
+            const focusTarget = issuedBooksExportLastTrigger;
+            issuedBooksExportLastTrigger = null;
+
+            if (typeof focusTarget?.focus === 'function') {
+                window.setTimeout(() => focusTarget.focus(), 20);
+            }
+        }
+
+        function setupFineReceiptExportWorkflow() {
+            if (typeof window.ReportExportWorkflow !== 'function') {
+                return;
+            }
+
+            fineReceiptExportWorkflow = new window.ReportExportWorkflow({
+                modalId: 'fineReceiptExportModal',
+                idPrefix: 'fineReceiptExport',
+                scopeName: 'fineReceiptExportScope',
+                document: {
+                    systemTitle: issuedBooksReportSystemTitle,
+                    reportTitle: 'Fine Receipt',
+                },
+                labels: {
+                    printButton: 'Print Receipt',
+                    allScopePrintButton: 'Print Full Receipt',
+                    downloadButton: 'Download CSV',
+                    allScopeDownloadButton: 'Download Full CSV',
+                },
+                messages: {
+                    emptyMessage: 'There are no fine records in the current result set.',
+                    preparingMessage: 'Preparing the full fine receipt. Please wait.',
+                    printReadyMessage: 'The print dialog will open in a new window for the current fine receipt page.',
+                    fullPrintReadyMessage: 'The print dialog will open in a new window for the full filtered fine receipt.',
+                    exportReadyMessage: 'The current fine receipt page has been exported to CSV.',
+                    fullExportReadyMessage: 'The full filtered fine receipt has been exported to CSV.',
+                    exportRouteMissingMessage: 'The full fine receipt is not available right now.',
+                    fullLoadFailedMessage: 'Something went wrong while preparing the fine receipt.',
+                },
+                columns: [
+                    { key: 'bookName', label: 'Book Name', width: '40%', emphasis: true },
+                    { key: 'daysOverdue', label: 'Days Overdue', width: '16%', align: 'center', nowrap: true },
+                    { key: 'fineAmount', label: 'Fine Amount', width: '18%', align: 'right', nowrap: true },
+                    { key: 'paymentStatus', label: 'Payment Status', width: '26%', align: 'center', nowrap: true },
+                ],
+                openModal: (modalId, focusTarget) => openFineReceiptExportModal(modalId, focusTarget),
+                closeModal: (modalId) => closeFineReceiptExportModal(modalId),
+                showToast: (type, title, message, timeout) => showToast(message, type, { title, timeout }),
+                getCurrentRows: () => getCurrentFinesPageRows(),
+                getAllRows: () => ({
+                    rows: getFilteredFines(),
+                    generatedAt: new Date().toISOString(),
+                }),
+                mapRow: (fine) => mapFineToReceiptRow(fine),
+                buildFilterParams: () => {
+                    const params = new URLSearchParams();
+                    const searchValue = fineSearchInput?.value?.trim();
+
+                    if (searchValue) {
+                        params.set('search', searchValue);
+                    }
+
+                    if (currentFineStatusFilter && currentFineStatusFilter !== 'all') {
+                        params.set('status', currentFineStatusFilter);
+                    }
+
+                    return params;
+                },
+                getListingState: () => ({
+                    total: getFilteredFines().length,
+                    currentPage: Math.max(1, currentFinesPage),
+                    lastPage: Math.max(1, Math.ceil(getFilteredFines().length / finesPerPage)),
+                    perPage: Math.max(1, finesPerPage),
+                }),
+                getScopeLabel: (scope) => scope === 'all' ? 'Entire filtered fine receipt' : 'Current page',
+                getFilename: (context) => buildFineReceiptExportFilename(context),
+                getDocumentDetails: () => getIssuedBooksDocumentDetails(),
+                getCsvMetaRows: (context) => buildFineReceiptCsvMetaRows(context),
+                describeContext: (context) => describeFineReceiptExportContext(context),
+            }).init();
+        }
+
+        function openFineReceiptExportModal(modalId, focusTarget) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            const panel = modal.querySelector('.report-export-panel');
+            const closeButton = modal.querySelector('.report-export-close-btn');
+
+            const activeElement = document.activeElement;
+            fineReceiptExportLastTrigger = activeElement && !modal.contains(activeElement)
+                ? activeElement
+                : focusTarget;
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            modal.scrollTop = 0;
+            panel?.scrollTo?.({ top: 0, behavior: 'auto' });
+
+            window.setTimeout(() => {
+                const nextFocusTarget = closeButton || panel || focusTarget;
+
+                if (typeof nextFocusTarget?.focus === 'function') {
+                    try {
+                        nextFocusTarget.focus({ preventScroll: true });
+                    } catch (error) {
+                        nextFocusTarget.focus();
+                    }
+                }
+            }, 20);
+        }
+
+        function closeFineReceiptExportModal(modalId = 'fineReceiptExportModal') {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            fineReceiptExportWorkflow?.handleModalClosed?.();
+
+            const focusTarget = fineReceiptExportLastTrigger;
+            fineReceiptExportLastTrigger = null;
+
+            if (typeof focusTarget?.focus === 'function') {
+                window.setTimeout(() => focusTarget.focus(), 20);
+            }
+        }
+
+        function getCurrentBooksPageRows() {
+            const startIndex = Math.max(0, (currentBooksPage - 1) * booksPerPage);
+            return filteredBooks.slice(startIndex, startIndex + booksPerPage);
+        }
+
+        function getCurrentFinesPageRows() {
+            const filteredFines = getFilteredFines();
+            const startIndex = Math.max(0, (currentFinesPage - 1) * finesPerPage);
+            return filteredFines.slice(startIndex, startIndex + finesPerPage);
+        }
+
+        function mapIssuedBookToExportRow(book) {
+            return {
+                title: book?.title || 'N/A',
+                isbn: book?.isbn || 'N/A',
+                issueDate: book?.issueDate || 'N/A',
+                dueDate: book?.dueDate || 'N/A',
+                returnDate: book?.returnDate || '-',
+                status: formatDisplayLabel(book?.status, 'N/A'),
+                fineAmount: formatCurrency(book?.fine),
+            };
+        }
+
+        function getIssuedBooksFilterSummary() {
+            const searchValue = bookSearchInput?.value?.trim() || '';
+            const selectedStatusLabel = statusFilterSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
+
+            return {
+                search: searchValue || 'All books',
+                status: currentStatusFilter === 'all'
+                    ? 'All statuses'
+                    : (selectedStatusLabel || formatDisplayLabel(currentStatusFilter, 'All statuses')),
+            };
+        }
+
+        function getIssuedBooksDocumentDetails() {
+            return [
+                { label: 'Student Name', value: issuedBooksReportStudent.name },
+                { label: 'Roll No', value: issuedBooksReportStudent.rollNo },
+                { label: 'Email', value: issuedBooksReportStudent.email },
+                { label: 'Department', value: issuedBooksReportStudent.department },
+                { label: 'Semester', value: String(issuedBooksReportStudent.semester || 'N/A') },
+                { label: 'Batch', value: issuedBooksReportStudent.batch },
+            ];
+        }
+
+        function buildIssuedBooksCsvMetaRows(context) {
+            const filters = getIssuedBooksFilterSummary();
+
+            return [
+                [issuedBooksReportSystemTitle],
+                ['Issued Books Report'],
+                [context.generatedAtLabel],
+                ...(issuedBooksReportBranding?.image_url ? [['Library Logo', issuedBooksReportBranding.image_url], ['']] : []),
+                ...getIssuedBooksDocumentDetails().map((detail) => [detail.label, detail.value]),
+                ['Search', filters.search],
+                ['Status Filter', filters.status],
+                ['Report Scope', context.scopeLabel],
+                ['Records Included', String(context.rows.length)],
+                [''],
+            ];
+        }
+
+        function buildIssuedBooksExportFilename(context) {
+            const generatedAt = context?.generatedAt instanceof Date
+                ? context.generatedAt
+                : new Date(context?.generatedAt || Date.now());
+            const dateStamp = Number.isNaN(generatedAt.getTime())
+                ? new Date().toISOString().slice(0, 10)
+                : generatedAt.toISOString().slice(0, 10);
+            const scopeLabel = context?.isAllScope ? 'full' : 'page';
+            const studentSlug = String(issuedBooksReportStudent.rollNo || issuedBooksReportStudent.name || 'student')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'student';
+
+            return `issued-books-${studentSlug}-${scopeLabel}-${dateStamp}.csv`;
+        }
+
+        function mapFineToReceiptRow(fine) {
+            const statusMeta = getFineStatusMeta(fine?.paymentStatus);
+
+            return {
+                bookName: fine?.bookName || 'Unknown',
+                daysOverdue: fine?.daysOverdue || '0 days',
+                fineAmount: formatCurrency(fine?.fineAmount),
+                paymentStatus: statusMeta.label,
+            };
+        }
+
+        function getFineReceiptFilterSummary() {
+            const searchValue = fineSearchInput?.value?.trim() || '';
+            const selectedStatusLabel = fineStatusFilterSelect?.selectedOptions?.[0]?.textContent?.trim() || '';
+
+            return {
+                search: searchValue || 'All fines',
+                status: currentFineStatusFilter === 'all'
+                    ? 'All statuses'
+                    : (selectedStatusLabel || formatDisplayLabel(currentFineStatusFilter, 'All statuses')),
+            };
+        }
+
+        function getFineReceiptTotals(fines = getFilteredFines()) {
+            return fines.reduce((summary, fine) => {
+                const amountValue = fine?.fineAmount;
+                const amount = typeof amountValue === 'string'
+                    ? Number(String(amountValue).replace(/[^0-9.-]+/g, ''))
+                    : Number(amountValue || 0);
+                const safeAmount = Number.isFinite(amount) ? amount : 0;
+                const statusKey = getFineStatusMeta(fine?.paymentStatus).key;
+
+                summary.totalAmount += safeAmount;
+
+                if (statusKey === 'pending') {
+                    summary.pendingAmount += safeAmount;
+                }
+
+                return summary;
+            }, {
+                totalAmount: 0,
+                pendingAmount: 0,
+            });
+        }
+
+        function buildFineReceiptCsvMetaRows(context) {
+            const filters = getFineReceiptFilterSummary();
+            const totals = getFineReceiptTotals(context.rows);
+
+            return [
+                [issuedBooksReportSystemTitle],
+                ['Fine Receipt'],
+                [context.generatedAtLabel],
+                ...(issuedBooksReportBranding?.image_url ? [['Library Logo', issuedBooksReportBranding.image_url], ['']] : []),
+                ...getIssuedBooksDocumentDetails().map((detail) => [detail.label, detail.value]),
+                ['Search', filters.search],
+                ['Status Filter', filters.status],
+                ['Receipt Total', formatCurrency(totals.totalAmount)],
+                ['Pending Total', formatCurrency(totals.pendingAmount)],
+                ['Report Scope', context.scopeLabel],
+                ['Records Included', String(context.rows.length)],
+                [''],
+            ];
+        }
+
+        function buildFineReceiptExportFilename(context) {
+            const generatedAt = context?.generatedAt instanceof Date
+                ? context.generatedAt
+                : new Date(context?.generatedAt || Date.now());
+            const dateStamp = Number.isNaN(generatedAt.getTime())
+                ? new Date().toISOString().slice(0, 10)
+                : generatedAt.toISOString().slice(0, 10);
+            const scopeLabel = context?.isAllScope ? 'full' : 'page';
+            const studentSlug = String(issuedBooksReportStudent.rollNo || issuedBooksReportStudent.name || 'student')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'student';
+
+            return `fine-receipt-${studentSlug}-${scopeLabel}-${dateStamp}.csv`;
+        }
+
+        function describeFineReceiptExportContext(context) {
+            const filters = getFineReceiptFilterSummary();
+            const totals = getFineReceiptTotals(context.rows);
+            const rowLabel = context.rowsReady === 1 ? 'fine record' : 'fine records';
+
+            return {
+                badgeLabel: context.isAllScope ? 'Filtered receipt' : 'Current page',
+                headline: `${context.rowsReady} ${rowLabel} ready`,
+                subtext: `Print or download the fine receipt for ${issuedBooksReportStudent.name}.`,
+                previewCaption: context.isAllScope
+                    ? 'Preview of the first rows from the full filtered fine receipt.'
+                    : 'Preview of the current fine page that will be printed or downloaded.',
+                previewCountText: `${context.rowsReady} ${context.rowsReady === 1 ? 'row' : 'rows'}`,
+                footerNote: `Filters applied: Search ${filters.search} | ${filters.status}.`,
+                emptyMessage: 'No fine records are available for this receipt.',
+                summaryItems: [
+                    { label: 'Student', value: issuedBooksReportStudent.name },
+                    { label: 'Scope', value: context.scopeLabel },
+                    { label: 'Rows included', value: `${context.rowsReady} ${rowLabel}` },
+                    { label: 'Receipt total', value: formatCurrency(totals.totalAmount) },
+                    { label: 'Pending total', value: formatCurrency(totals.pendingAmount) },
+                    { label: 'Status filter', value: filters.status },
+                ],
+            };
+        }
+
+        function describeIssuedBooksExportContext(context) {
+            const filters = getIssuedBooksFilterSummary();
+            const rowLabel = context.rowsReady === 1 ? 'book' : 'books';
+
+            return {
+                badgeLabel: context.isAllScope ? 'Filtered report' : 'Current page',
+                headline: `${context.rowsReady} issued ${rowLabel} ready`,
+                subtext: `Print or download the issued books report for ${issuedBooksReportStudent.name}.`,
+                previewCaption: context.isAllScope
+                    ? 'Preview of the first rows from the full filtered issued books report.'
+                    : 'Preview of the current issued books page that will be printed or downloaded.',
+                previewCountText: `${context.rowsReady} ${rowLabel}`,
+                footerNote: `Filters applied: Search ${filters.search} | ${filters.status}.`,
+                emptyMessage: 'No issued books are available for this report.',
+                summaryItems: [
+                    { label: 'Student', value: issuedBooksReportStudent.name },
+                    { label: 'Roll No', value: issuedBooksReportStudent.rollNo },
+                    { label: 'Scope', value: context.scopeLabel },
+                    { label: 'Rows included', value: `${context.rowsReady} ${rowLabel}` },
+                    { label: 'Search', value: filters.search },
+                    { label: 'Status filter', value: filters.status },
+                ],
+            };
         }
 
         // Action functions
@@ -5913,25 +6586,12 @@
         }
 
         function printReport() {
-            showConfirmationModal({
-                title: 'Generate Student Report',
-                message: 'A comprehensive report will be generated including student details, issued books, fines, and activity logs.',
-                iconType: 'info',
-                confirmText: 'Generate Report',
-                confirmClass: 'primary',
-                details: [
-                    { label: 'Action', value: 'Generate PDF Report' },
-                    { label: 'Contents', value: 'Student profile, books, fines, activity logs' },
-                    { label: 'Format', value: 'PDF document for printing' }
-                ],
-                onConfirm: () => {
-                    showToast('Generating report... Please wait.', 'info');
-                    // Simulate API call
-                    setTimeout(() => {
-                        showToast('Report generated successfully! Download will start automatically.', 'success');
-                    }, 2000);
-                }
-            });
+            if (!issuedBooksExportWorkflow) {
+                showToast('Issued books export is unavailable right now.', 'error');
+                return;
+            }
+
+            issuedBooksExportWorkflow.open();
         }
 
         function formatDisplayLabel(value, fallback = 'N/A') {
@@ -6052,6 +6712,45 @@
         // Back button functionality
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && document.activeElement.tagName !== 'INPUT') {
+                if (actionFeedbackConfirmModal?.classList.contains('is-open')) {
+                    closeConfirmationModal();
+                    return;
+                }
+
+                const roleOverlay = document.getElementById('roleModalOverlay');
+                if (roleOverlay?.classList.contains('show')) {
+                    closeRoleModal();
+                    return;
+                }
+
+                const adjustOverlay = document.getElementById('adjustFineOverlay');
+                if (adjustOverlay?.classList.contains('show')) {
+                    closeFineModal('adjust');
+                    return;
+                }
+
+                const waiveOverlay = document.getElementById('waiveFineOverlay');
+                if (waiveOverlay?.classList.contains('show')) {
+                    closeFineModal('waive');
+                    return;
+                }
+
+                const historyOverlay = document.getElementById('historyOverlay');
+                if (historyOverlay?.classList.contains('show')) {
+                    closeFineModal('history');
+                    return;
+                }
+
+                if (issuedBooksExportModal?.classList.contains('is-open')) {
+                    closeIssuedBooksExportModal();
+                    return;
+                }
+
+                if (fineReceiptExportModal?.classList.contains('is-open')) {
+                    closeFineReceiptExportModal();
+                    return;
+                }
+
                 const bookDetailsOverlay = document.getElementById('bookDetailsOverlay');
                 if (bookDetailsOverlay?.classList.contains('show')) {
                     closeBookDetailsModal();
@@ -6190,7 +6889,8 @@
 
             finesTableBody.innerHTML = '';
 
-            const totalFines = finesData.length;
+            const filteredFines = getFilteredFines();
+            const totalFines = filteredFines.length;
             const totalPages = Math.max(1, Math.ceil(totalFines / finesPerPage));
             currentFinesPage = Math.min(currentFinesPage, totalPages);
 
@@ -6207,37 +6907,43 @@
                         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                     </svg>
                     <h3>No Fines & Payments</h3>
-                    <p>No outstanding fines for this student. Fine records will appear here when applicable.</p>
+                    <p>${currentFineSearchTerm || currentFineStatusFilter !== 'all'
+                        ? 'Try adjusting the fine search or status filter.'
+                        : 'No outstanding fines for this student. Fine records will appear here when applicable.'}</p>
                 </div>
             </td>
         `;
                 finesTableBody.appendChild(emptyRow);
+                if (fineReceiptExportModal?.classList.contains('is-open')) {
+                    fineReceiptExportWorkflow?.render();
+                }
                 return;
             }
 
             const startIndex = (currentFinesPage - 1) * finesPerPage;
             const endIndex = Math.min(startIndex + finesPerPage, totalFines);
-            const pageFines = finesData.slice(startIndex, endIndex);
+            const pageFines = filteredFines.slice(startIndex, endIndex);
 
             pageFines.forEach(fine => {
                 const row = document.createElement('tr');
+                const normalizedPaymentStatus = String(fine.paymentStatus || 'pending').toLowerCase();
 
                 // Get payment status badge
                 let statusClass = '';
                 let statusText = '';
                 let statusIcon = '';
                 
-                if (fine.paymentStatus === 'paid') {
+                if (normalizedPaymentStatus === 'paid') {
                     statusClass = 'paid';
                     statusText = 'Paid';
                     statusIcon = 'fas fa-check-circle';
-                } else if (fine.paymentStatus === 'waived') {
+                } else if (normalizedPaymentStatus === 'waived') {
                     statusClass = 'waive';
                     statusText = 'Waived';
                     statusIcon = 'fas fa-ban';
                 } else {
                     statusClass = 'unpaid';
-                    statusText = 'Unpaid';
+                    statusText = 'Pending';
                     statusIcon = 'fas fa-times-circle';
                 }
 
@@ -6281,7 +6987,7 @@
                 row.innerHTML = `
             <td><strong>${fine.bookName}</strong></td>
             <td>${fine.daysOverdue}</td>
-            <td style="color: ${fine.paymentStatus === 'unpaid' ? '#dc2626' : fine.paymentStatus === 'waived' ? '#ea580c' : '#16a34a'}; font-weight: 600;">
+            <td style="color: ${normalizedPaymentStatus === 'pending' ? '#dc2626' : normalizedPaymentStatus === 'waived' ? '#ea580c' : '#16a34a'}; font-weight: 600;">
                 ₹${fine.fineAmount}
             </td>
             <td>
@@ -6307,6 +7013,10 @@
 
             if (finesTablePagination) {
                 finesTablePagination.innerHTML = renderPaginationControls(currentFinesPage, totalPages, 'changeFinesPage');
+            }
+
+            if (fineReceiptExportModal?.classList.contains('is-open')) {
+                fineReceiptExportWorkflow?.render();
             }
 
         }
@@ -6358,27 +7068,27 @@
 
             const controls = [];
             controls.push(`
-                <button type="button" class="table-pagination-btn" onclick="${changeHandlerName}(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
-                    Prev
+                <button type="button" class="admin-table-pagination-link${currentPage === 1 ? ' is-disabled' : ''}" onclick="${changeHandlerName}(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                    &larr; Previous
                 </button>
             `);
 
             getVisiblePaginationPages(currentPage, totalPages).forEach(page => {
                 if (page === 'ellipsis') {
-                    controls.push('<span class="table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
+                    controls.push('<span class="admin-table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
                     return;
                 }
 
                 controls.push(`
-                    <button type="button" class="table-pagination-btn ${page === currentPage ? 'is-active' : ''}" onclick="${changeHandlerName}(${page})" ${page === currentPage ? 'aria-current="page"' : ''}>
+                    <button type="button" class="admin-table-pagination-link ${page === currentPage ? 'is-active' : ''}" onclick="${changeHandlerName}(${page})" ${page === currentPage ? 'aria-current="page"' : ''}>
                         ${page}
                     </button>
                 `);
             });
 
             controls.push(`
-                <button type="button" class="table-pagination-btn" onclick="${changeHandlerName}(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
-                    Next
+                <button type="button" class="admin-table-pagination-link${currentPage === totalPages ? ' is-disabled' : ''}" onclick="${changeHandlerName}(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    Next &rarr;
                 </button>
             `);
 
@@ -6723,278 +7433,80 @@
         }
 
         // Toast notification system
-        function showToast(message, type = 'info') {
-            const toastContainer = document.getElementById('toastContainer');
-            if (!toastContainer) return;
+        function showToast(message, type = 'info', options = {}) {
+            if (!feedbackUI) return;
 
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-
-            let iconSVG = '';
-            switch(type) {
-                case 'success':
-                    iconSVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>`;
-                    break;
-                case 'error':
-                    iconSVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="15" y1="9" x2="9" y2="15"/>
-                <line x1="9" y1="9" x2="15" y2="15"/>
-            </svg>`;
-                    break;
-                case 'warning':
-                    iconSVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                <line x1="12" y1="9" x2="12" y2="13"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>`;
-                    break;
-                default:
-                    iconSVG = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" y1="16" x2="12" y2="12"/>
-                <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>`;
-            }
-
-            toast.innerHTML = `
-        <div class="toast-icon">${iconSVG}</div>
-        <div>${message}</div>
-    `;
-
-            toastContainer.appendChild(toast);
-
-            // Remove toast after animation
-            setTimeout(() => {
-                if (toast.parentNode === toastContainer) {
-                    toastContainer.removeChild(toast);
-                }
-            }, 3000);
-        }
-
-        // Fine Success Popup System
-        function showFineSuccessPopup(type, data = {}) {
-            const popup = document.getElementById('fineSuccessPopup');
-            const icon = document.getElementById('finePopupIcon');
-            const title = document.getElementById('finePopupTitle');
-            const message = document.getElementById('finePopupMessage');
-            const details = document.getElementById('finePopupDetails');
-            const emailIndicator = document.getElementById('finePopupEmailIndicator');
-            const emailText = document.getElementById('finePopupEmailText');
-            const btn = document.getElementById('finePopupBtn');
-            const footer = document.getElementById('finePopupFooter');
-
-            // Icon SVGs for different types
-            const icons = {
-                paid: `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>`,
-                waived: `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>`,
-                adjusted: `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 20h9"/>
-                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
-                </svg>`,
-                'email-sending': `<div class="spinner"></div>`
+            const titles = {
+                success: 'Success',
+                error: 'Action failed',
+                warning: 'Please review',
+                info: 'Notice',
             };
 
-            // Email icon
-            const emailIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="16" x="2" y="4" rx="2"/>
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-            </svg>`;
-
-            // Check icon for sent state
-            const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>`;
-
-            // Set content based on type
-            switch(type) {
-                case 'paid':
-                    icon.innerHTML = icons.paid;
-                    icon.className = 'fine-popup-icon paid';
-                    title.textContent = 'Payment Received!';
-                    message.textContent = 'The fine has been marked as paid successfully.';
-                    details.innerHTML = `
-                        <span class="detail-label">Fine Amount Paid</span>
-                        <span class="amount">₹${parseFloat(data.amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                    `;
-                    btn.className = 'fine-popup-btn success';
-                    btn.textContent = 'Excellent!';
-                    footer.textContent = 'Receipt email has been sent to the student.';
-                    break;
-
-                case 'waived':
-                    icon.innerHTML = icons.waived;
-                    icon.className = 'fine-popup-icon waived';
-                    title.textContent = 'Fine Waived!';
-                    message.textContent = `The fine has been waived successfully.${data.reason ? ' Reason: "' + data.reason + '"' : ''}`;
-                    details.innerHTML = `
-                        <span class="detail-label">Amount Waived</span>
-                        <span class="amount">₹${parseFloat(data.amount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                    `;
-                    btn.className = 'fine-popup-btn warning';
-                    btn.textContent = 'Got It';
-                    footer.textContent = 'Student has been notified about the waiver.';
-                    break;
-
-                case 'adjusted':
-                    icon.innerHTML = icons.adjusted;
-                    icon.className = 'fine-popup-icon adjusted';
-                    title.textContent = 'Fine Adjusted!';
-                    message.textContent = `The fine amount has been updated from ₹${parseFloat(data.oldAmount || 0).toLocaleString('en-IN')} to ₹${parseFloat(data.newAmount || 0).toLocaleString('en-IN')}.`;
-                    details.innerHTML = `
-                        <span class="detail-label">New Fine Amount</span>
-                        <span class="amount">₹${parseFloat(data.newAmount || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
-                    `;
-                    btn.className = 'fine-popup-btn purple';
-                    btn.textContent = 'Updated';
-                    footer.textContent = 'The fine record has been updated.';
-                    break;
-
-                case 'email-sending':
-                    icon.innerHTML = icons['email-sending'];
-                    icon.className = 'fine-popup-icon email-sending';
-                    title.textContent = 'Sending Email...';
-                    message.textContent = 'Notification email is being sent to the student.';
-                    details.innerHTML = `
-                        <span class="detail-label">Sending To</span>
-                        <span class="amount" style="font-size: 16px;">${data.email || 'student@email.com'}</span>
-                    `;
-                    btn.className = 'fine-popup-btn primary';
-                    btn.textContent = 'Sending...';
-                    btn.disabled = true;
-                    footer.textContent = 'Please wait...';
-                    break;
-
-                case 'email-sent':
-                    icon.innerHTML = icons.paid;
-                    icon.className = 'fine-popup-icon paid';
-                    title.textContent = 'Email Sent!';
-                    message.textContent = 'Notification has been successfully delivered to the student.';
-                    details.innerHTML = `
-                        <span class="detail-label">Sent To</span>
-                        <span class="amount" style="font-size: 16px;">${data.email || 'student@email.com'}</span>
-                    `;
-                    btn.className = 'fine-popup-btn success';
-                    btn.textContent = 'Done';
-                    btn.disabled = false;
-                    footer.textContent = '';
-                    break;
-            }
-
-            // Show email indicator for paid and waived (they send emails)
-            if (type === 'paid' || type === 'waived') {
-                emailIndicator.style.display = 'flex';
-                emailIndicator.className = 'fine-popup-email-indicator sending';
-                emailIndicator.innerHTML = `${emailIcon}<span id="finePopupEmailText">Sending notification email...</span>`;
-                
-                // Simulate email sent after 2 seconds
-                setTimeout(() => {
-                    emailIndicator.className = 'fine-popup-email-indicator sent';
-                    emailIndicator.innerHTML = `${checkIcon}<span id="finePopupEmailText">Email sent successfully!</span>`;
-                }, 2000);
-            } else if (type === 'adjusted') {
-                emailIndicator.style.display = 'flex';
-                emailIndicator.className = 'fine-popup-email-indicator';
-                emailIndicator.innerHTML = `${emailIcon}<span id="finePopupEmailText">Student will be notified of the adjustment.</span>`;
-            } else {
-                emailIndicator.style.display = 'none';
-            }
-
-            // Show popup
-            popup.classList.add('show');
-
-            // Auto close after some time if needed
-            // setTimeout(() => closeFinePopup(), 5000);
+            feedbackUI.showToast({
+                type,
+                title: options.title || titles[type] || titles.info,
+                message,
+                detail: options.detail || '',
+                timeout: options.timeout || 4200,
+            });
         }
 
-        function closeFinePopup() {
-            const popup = document.getElementById('fineSuccessPopup');
-            popup.classList.remove('show');
-        }
-
-        // Close popup on overlay click
-        document.getElementById('fineSuccessPopup')?.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeFinePopup();
+        function buildConfirmationDetail(details = []) {
+            if (!Array.isArray(details) || details.length === 0) {
+                return '';
             }
-        });
+
+            return details
+                .map(detail => `${detail.label}: ${detail.value}`)
+                .join(' | ');
+        }
 
         // Confirmation Modal Helper
         function showConfirmationModal(config) {
             const {
                 title = 'Confirm Action',
                 message = 'Are you sure you want to proceed with this action?',
-                iconType = 'warning', // 'warning', 'danger', 'info'
+                iconType = 'warning',
                 confirmText = 'Confirm',
-                confirmClass = 'primary', // 'primary', 'danger', 'warning', 'success'
+                confirmClass = 'primary',
                 details = null,
                 onConfirm = () => {}
             } = config;
 
-            const overlay = document.getElementById('confirmationModalOverlay');
-            const icon = document.getElementById('confirmationModalIcon');
-            const titleEl = document.getElementById('confirmationModalTitle');
-            const messageEl = document.getElementById('confirmationModalMessage');
-            const bodyEl = document.getElementById('confirmationModalBody');
-            const confirmBtn = document.getElementById('confirmationConfirmBtn');
+            pendingConfirmationAction = onConfirm;
 
-            // Set icon based on type
-            const iconMap = {
-                warning: '<i class="fas fa-exclamation-triangle"></i>',
-                danger: '<i class="fas fa-trash-alt"></i>',
-                info: '<i class="fas fa-info-circle"></i>'
-            };
-            icon.innerHTML = iconMap[iconType] || iconMap.warning;
-            icon.className = `confirmation-modal-icon ${iconType}`;
-
-            titleEl.textContent = title;
-            messageEl.textContent = message;
-
-            // Build details section if provided
-            if (details) {
-                bodyEl.innerHTML = `
-                    <div class="confirmation-modal-details">
-                        ${details.map(d => `
-                            <div class="confirmation-modal-detail-row">
-                                <span class="confirmation-modal-detail-label">${d.label}</span>
-                                <span class="confirmation-modal-detail-value">${d.value}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } else {
-                bodyEl.innerHTML = '';
+            if (!feedbackUI) {
+                return;
             }
 
-            confirmBtn.textContent = confirmText;
-            confirmBtn.className = `confirmation-modal-btn confirmation-modal-btn-confirm ${confirmClass}`;
-
-            // Store callback
-            window.confirmationCallback = onConfirm;
-
-            overlay.classList.add('show');
+            feedbackUI.openConfirm({
+                variant: iconType,
+                buttonVariant: confirmClass,
+                title,
+                message,
+                detail: buildConfirmationDetail(details),
+                confirmText,
+            });
         }
 
         function closeConfirmationModal() {
-            const overlay = document.getElementById('confirmationModalOverlay');
-            overlay.classList.remove('show');
-            window.confirmationCallback = null;
+            pendingConfirmationAction = null;
+            feedbackUI?.closeConfirm();
+        }
+
+        function handleConfirmationSubmit() {
+            const callback = pendingConfirmationAction;
+            pendingConfirmationAction = null;
+            feedbackUI?.closeConfirm();
+
+            if (typeof callback === 'function') {
+                callback();
+            }
         }
 
         function confirmAction() {
-            if (typeof window.confirmationCallback === 'function') {
-                window.confirmationCallback();
-            }
-            closeConfirmationModal();
+            handleConfirmationSubmit();
         }
 
         // Account Management Functions
@@ -7234,58 +7746,47 @@
 
         function submitRoleChange() {
             if (!selectedRole) return;
+            const confirmBtn = document.getElementById('confirmRoleBtn');
+            const formattedRole = selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1);
 
-            showConfirmationModal({
-                title: 'Change Student Role',
-                message: `Changing the role to '${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}' will modify the student's permissions and access levels.`,
-                iconType: 'warning',
-                confirmText: 'Change Role',
-                confirmClass: 'primary',
-                details: [
-                    { label: 'New Role', value: selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1) },
-                    { label: 'Impact', value: 'Student permissions will be updated immediately' },
-                    { label: 'Reversible', value: 'Yes, role can be changed again later' }
-                ],
-                onConfirm: () => {
-                    const confirmBtn = document.getElementById('confirmRoleBtn');
-                    confirmBtn.disabled = true;
-                    confirmBtn.textContent = 'Changing...';
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Changing...';
 
-                    fetch(`/admin/students/${studentId}/change-role`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({ role: selectedRole })
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to change role');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            showToast(`Role changed to ${selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)} successfully!`, 'success');
-                            closeRoleModal();
-                            // Optional: Reload page after delay to show updated role
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1500);
-                        } else {
-                            showToast(data.message || 'Failed to change role.', 'error');
-                            confirmBtn.disabled = false;
-                            confirmBtn.textContent = 'Change Role';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('An error occurred while changing the role.', 'error');
-                        confirmBtn.disabled = false;
-                        confirmBtn.textContent = 'Change Role';
-                    });
+            fetch(`/admin/students/${studentId}/change-role`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ role: selectedRole })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to change role');
                 }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    closeRoleModal();
+                    showToast(`Role changed to ${formattedRole} successfully!`, 'success', {
+                        title: 'Role updated',
+                        detail: `New role: ${formattedRole}`,
+                    });
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast(data.message || 'Failed to change role.', 'error');
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = 'Change Role';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('An error occurred while changing the role.', 'error');
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Change Role';
             });
         }
 
@@ -7380,24 +7881,12 @@
 
         // Fine Management Functions
         function generateReceipt() {
-            showConfirmationModal({
-                title: 'Generate Fine Receipt',
-                message: 'A receipt will be generated for all pending and paid fines. This receipt can be used for payment verification and record keeping.',
-                iconType: 'info',
-                confirmText: 'Generate Receipt',
-                confirmClass: 'primary',
-                details: [
-                    { label: 'Action', value: 'Generate Fine Receipt PDF' },
-                    { label: 'Contents', value: 'All fines (pending, paid, waived)' },
-                    { label: 'Format', value: 'PDF document for printing' }
-                ],
-                onConfirm: () => {
-                    showToast('Generating receipt PDF...', 'info');
-                    setTimeout(() => {
-                        showToast('Receipt generated successfully! Download will start automatically.', 'success');
-                    }, 1500);
-                }
-            });
+            if (!fineReceiptExportWorkflow) {
+                showToast('Fine receipt export is unavailable right now.', 'error');
+                return;
+            }
+
+            fineReceiptExportWorkflow.open();
         }
 
         function handleFineAction(action, fineId) {
@@ -7468,6 +7957,7 @@
 
         function syncStudentFines(nextFines = []) {
             replaceArrayContents(finesData, nextFines.map(normalizeStudentFineRecord));
+            fineReceiptExportWorkflow?.clearCache({ resetScope: false });
             renderFinesTable();
             updatePendingFineSummary();
         }
@@ -7617,64 +8107,52 @@
                 return;
             }
 
-            showConfirmationModal({
-                title: 'Adjust Fine Amount',
-                message: `You are about to change the fine amount from ₹${oldAmount.toFixed(2)} to ₹${parseFloat(newAmount).toFixed(2)}. This action will be recorded in the audit log.`,
-                iconType: 'warning',
-                confirmText: 'Adjust Fine',
-                confirmClass: 'primary',
-                details: [
-                    { label: 'Current Amount', value: '₹' + oldAmount.toFixed(2) },
-                    { label: 'New Amount', value: '₹' + parseFloat(newAmount).toFixed(2) },
-                    { label: 'Difference', value: (parseFloat(newAmount) - oldAmount >= 0 ? '+' : '') + (parseFloat(newAmount) - oldAmount).toFixed(2) }
-                ],
-                onConfirm: () => {
-                    const submitBtn = document.getElementById('adjustFineSubmitBtn');
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Adjusting...';
+            const submitBtn = document.getElementById('adjustFineSubmitBtn');
+            const nextAmount = parseFloat(newAmount);
+            const delta = nextAmount - oldAmount;
 
-                    fetch(`/admin/fines/${currentFineId}/adjust`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        credentials: 'same-origin',
-                        body: JSON.stringify({ amount: newAmount, action: 'adjust' })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            closeFineModal('adjust');
-                            // Show success popup
-                            showFineSuccessPopup('adjusted', {
-                                oldAmount: oldAmount,
-                                newAmount: newAmount
-                            });
-                            refreshStudentLiveSections({
-                                refreshFines: true,
-                                refreshActivityLogs: true,
-                            }).catch(error => {
-                                console.error('Live refresh failed after fine adjustment:', error);
-                                showToast('Fine updated, but the page could not refresh live. Please refresh manually if needed.', 'warning');
-                            });
-                        } else {
-                            showToast(data.message || 'Failed to adjust fine.', 'error');
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Adjust Fine';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        refreshStudentLiveSections({
-                            refreshFines: true,
-                            refreshActivityLogs: true,
-                        }).catch(() => {});
-                        showToast('Network issue - the fine may have been updated. Live refresh attempted.', 'warning');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Adjust Fine';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Adjusting...';
+
+            fetch(`/admin/fines/${currentFineId}/adjust`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ amount: newAmount, action: 'adjust' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeFineModal('adjust');
+                    showToast(`Fine updated from ₹${oldAmount.toFixed(2)} to ₹${nextAmount.toFixed(2)}.`, 'success', {
+                        title: 'Fine adjusted',
+                        detail: `Change: ${delta >= 0 ? '+' : '-'}₹${Math.abs(delta).toFixed(2)}`,
                     });
+                    refreshStudentLiveSections({
+                        refreshFines: true,
+                        refreshActivityLogs: true,
+                    }).catch(error => {
+                        console.error('Live refresh failed after fine adjustment:', error);
+                        showToast('Fine updated, but the page could not refresh live. Please refresh manually if needed.', 'warning');
+                    });
+                } else {
+                    showToast(data.message || 'Failed to adjust fine.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Adjust Fine';
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                refreshStudentLiveSections({
+                    refreshFines: true,
+                    refreshActivityLogs: true,
+                }).catch(() => {});
+                showToast('Network issue - the fine may have been updated. Live refresh attempted.', 'warning');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Adjust Fine';
             });
         }
 
@@ -7698,65 +8176,49 @@
                 return;
             }
 
-            showConfirmationModal({
-                title: 'Waive Fine',
-                message: `You are about to waive the fine of ₹${amount.toFixed(2)}. The student will be notified and the fine will be marked as waived.`,
-                iconType: 'warning',
-                confirmText: 'Waive Fine',
-                confirmClass: 'warning',
-                details: [
-                    { label: 'Fine Amount', value: '₹' + amount.toFixed(2) },
-                    { label: 'Reason', value: reason },
-                    { label: 'Impact', value: 'Fine will be marked as waived' },
-                    { label: 'Notification', value: 'Student will be notified via email' }
-                ],
-                onConfirm: () => {
-                    const submitBtn = document.getElementById('waiveFineSubmitBtn');
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Waiving...';
+            const submitBtn = document.getElementById('waiveFineSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Waiving...';
 
-                    fetch(`/admin/fines/${currentFineId}/waive`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        credentials: 'same-origin',
-                        body: JSON.stringify({ reason: reason })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            closeFineModal('waive');
-                            // Show success popup
-                            showFineSuccessPopup('waived', {
-                                amount: amount,
-                                reason: reason
-                            });
-                            refreshStudentLiveSections({
-                                refreshFines: true,
-                                refreshActivityLogs: true,
-                            }).catch(error => {
-                                console.error('Live refresh failed after fine waiver:', error);
-                                showToast('Fine waived, but the page could not refresh live. Please refresh manually if needed.', 'warning');
-                            });
-                        } else {
-                            showToast(data.message || 'Failed to waive fine.', 'error');
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Waive Fine';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        refreshStudentLiveSections({
-                            refreshFines: true,
-                            refreshActivityLogs: true,
-                        }).catch(() => {});
-                        showToast('Network issue - the fine may have been waived. Live refresh attempted.', 'warning');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Waive Fine';
+            fetch(`/admin/fines/${currentFineId}/waive`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ reason: reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeFineModal('waive');
+                    showToast('The fine was waived successfully.', 'warning', {
+                        title: 'Fine waived',
+                        detail: `Amount: ₹${amount.toFixed(2)} | Reason: ${reason}`,
                     });
+                    refreshStudentLiveSections({
+                        refreshFines: true,
+                        refreshActivityLogs: true,
+                    }).catch(error => {
+                        console.error('Live refresh failed after fine waiver:', error);
+                        showToast('Fine waived, but the page could not refresh live. Please refresh manually if needed.', 'warning');
+                    });
+                } else {
+                    showToast(data.message || 'Failed to waive fine.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Waive Fine';
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                refreshStudentLiveSections({
+                    refreshFines: true,
+                    refreshActivityLogs: true,
+                }).catch(() => {});
+                showToast('Network issue - the fine may have been waived. Live refresh attempted.', 'warning');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Waive Fine';
             });
         }
 
@@ -7764,29 +8226,18 @@
 
         function markFineAsPaid(fineId, fine) {
             currentFineId = fineId;
-            document.getElementById('paidAmount').textContent = '₹' + parseFloat(fine.fineAmount).toFixed(2);
-            document.getElementById('markPaidSubmitBtn').disabled = false;
-            document.getElementById('markPaidSubmitBtn').textContent = 'Mark as Paid';
-            document.getElementById('markPaidOverlay').classList.add('show');
-        }
-
-        function submitMarkAsPaid() {
-            const amount = parseFloat(document.getElementById('paidAmount').textContent.replace(/[₹,]/g, '')) || 0;
-            const submitBtn = document.getElementById('markPaidSubmitBtn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Marking...';
+            const amount = Number(fine.fineAmount || 0);
 
             showConfirmationModal({
-                title: 'Mark Fine as Paid',
-                message: `You are confirming that the fine of ₹${amount.toFixed(2)} has been paid. Please ensure payment has been received before proceeding.`,
-                iconType: 'warning',
+                title: 'Mark Fine as Paid?',
+                message: 'Record this student payment now?',
+                iconType: 'info',
                 confirmText: 'Mark as Paid',
                 confirmClass: 'success',
                 details: [
-                    { label: 'Fine Amount', value: '₹' + amount.toFixed(2) },
-                    { label: 'Action', value: 'Mark as Paid' },
-                    { label: 'Impact', value: 'Fine status will change to Paid' },
-                    { label: 'Notification', value: 'Student will receive payment confirmation' }
+                    { label: 'Book', value: fine.bookName || 'Unknown' },
+                    { label: 'Amount', value: `₹${amount.toFixed(2)}` },
+                    { label: 'Impact', value: 'Fine status will move to paid immediately' }
                 ],
                 onConfirm: () => {
                     fetch(`/admin/fines/${currentFineId}/mark-as-paid`, {
@@ -7800,10 +8251,9 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            closeFineModal('paid');
-                            // Show success popup
-                            showFineSuccessPopup('paid', {
-                                amount: amount
+                            showToast('The payment was recorded successfully.', 'success', {
+                                title: 'Fine marked as paid',
+                                detail: `Amount: ₹${amount.toFixed(2)}`,
                             });
                             refreshStudentLiveSections({
                                 refreshFines: true,
@@ -7814,8 +8264,6 @@
                             });
                         } else {
                             showToast(data.message || 'Failed to mark fine as paid.', 'error');
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = 'Mark as Paid';
                         }
                     })
                     .catch(error => {
@@ -7825,8 +8273,6 @@
                             refreshActivityLogs: true,
                         }).catch(() => {});
                         showToast('Network issue - the fine may have been marked as paid. Live refresh attempted.', 'warning');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Mark as Paid';
                     });
                 }
             });
@@ -8029,13 +8475,12 @@
         function closeFineModal(type) {
             if (type === 'adjust') document.getElementById('adjustFineOverlay').classList.remove('show');
             if (type === 'waive') document.getElementById('waiveFineOverlay').classList.remove('show');
-            if (type === 'paid') document.getElementById('markPaidOverlay').classList.remove('show');
             if (type === 'history') document.getElementById('historyOverlay').classList.remove('show');
             currentFineId = null;
         }
 
         // Close modals on overlay click
-        ['adjustFineOverlay', 'waiveFineOverlay', 'markPaidOverlay', 'historyOverlay'].forEach(id => {
+        ['adjustFineOverlay', 'waiveFineOverlay', 'historyOverlay'].forEach(id => {
             document.getElementById(id)?.addEventListener('click', function(e) {
                 if (e.target === this) {
                     this.classList.remove('show');

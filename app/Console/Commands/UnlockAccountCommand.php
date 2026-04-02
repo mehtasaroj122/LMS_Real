@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Support\AccountLockoutManager;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
 
 class UnlockAccountCommand extends Command
@@ -48,8 +48,7 @@ class UnlockAccountCommand extends Command
             $ip = $this->ask('Enter the IP address to unlock (leave blank for all)', null);
 
             if ($ip) {
-                $throttleKey = strtolower($email) . '|' . $ip;
-                RateLimiter::clear($throttleKey);
+                AccountLockoutManager::clearLock($email, $ip);
                 $this->info("✅ Account lock cleared for '{$email}' from IP '{$ip}'");
                 Log::info("Account unlocked", [
                     'email' => $email,
@@ -71,15 +70,7 @@ class UnlockAccountCommand extends Command
      */
     protected function clearAllIpLocks(string $email): void
     {
-        // Get cache driver
-        $cache = \Illuminate\Support\Facades\Cache::store();
-
-        // For database cache driver, clear directly
-        if (config('cache.default') === 'database') {
-            \DB::table('cache')
-                ->where('key', 'like', '%throttle|' . strtolower($email) . '%')
-                ->delete();
-        }
+        AccountLockoutManager::clearLocksForEmail($email);
 
         Log::info("All account locks cleared", [
             'email' => $email,
