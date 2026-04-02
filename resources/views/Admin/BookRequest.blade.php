@@ -31,6 +31,7 @@
 @endphp
 
 @push('styles')
+    @include('shared.action-feedback.styles')
     @include('shared.book-request-management.styles')
 @endpush
 
@@ -43,5 +44,6 @@
 @endsection
 
 @push('scripts')
+    @include('shared.action-feedback.scripts')
     @include('shared.book-request-management.scripts', ['bookRequestManagementConfig' => $bookRequestManagementConfig])
 @endpush

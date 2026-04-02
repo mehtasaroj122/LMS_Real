@@ -882,6 +882,10 @@
             display: none;
             margin-top: 6px;
             line-height: 1.4;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            animation: slideDown 0.2s ease;
         }
 
         .field-validation-icon {
@@ -918,7 +922,7 @@
         }
 
         .student-form-field.has-invalid .error-message {
-            display: block;
+            display: flex;
         }
 
         body.light-theme .student-form-field.has-valid .student-form-control {
@@ -973,9 +977,25 @@
             color: #fecaca;
         }
 
-        .student-submit-btn:disabled {
-            opacity: 0.65;
-            cursor: not-allowed !important;
+        .form-validation-summary i {
+            margin-right: 6px;
+        }
+
+        .student-submit-btn[data-submitting="true"] {
+            opacity: 0.92;
+            cursor: progress !important;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Keyboard navigation styling */
@@ -2471,30 +2491,50 @@
             }
         }
 
-        function showStudentToast(message, type = 'info') {
+        function escapeStudentHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderStudentToast(message, type = 'info') {
             const container = document.getElementById('studentToastContainer');
 
             if (!container) {
                 return;
             }
 
+            const normalizedType = typeof type === 'string' && type.startsWith('#')
+                ? 'error'
+                : type;
             const payload = typeof message === 'object' && message !== null
                 ? message
                 : {
-                    title: type === 'error' ? 'Action Failed' : 'Update Complete',
+                    title: normalizedType === 'error'
+                        ? 'Action Failed'
+                        : normalizedType === 'warning'
+                            ? 'Check Required Fields'
+                            : normalizedType === 'success'
+                                ? 'Success'
+                                : 'Notice',
                     message: String(message || ''),
                 };
 
+            container.querySelectorAll('.student-toast').forEach((existingToast) => existingToast.remove());
+
             const toast = document.createElement('div');
-            toast.className = `student-toast ${type}`;
+            toast.className = `student-toast ${normalizedType}`;
             toast.innerHTML = `
                 <div class="student-toast-icon" aria-hidden="true">
-                    <i class="${payload.icon || studentToastIcons[type] || studentToastIcons.info}"></i>
+                    <i class="${escapeStudentHtml(payload.icon || studentToastIcons[normalizedType] || studentToastIcons.info)}"></i>
                 </div>
                 <div class="student-toast-copy">
-                    <div class="student-toast-title">${payload.title || 'Notice'}</div>
-                    <div class="student-toast-message">${payload.message || ''}</div>
-                    ${payload.detail ? `<div class="student-toast-detail">${payload.detail}</div>` : ''}
+                    <div class="student-toast-title">${escapeStudentHtml(payload.title || 'Notice')}</div>
+                    <div class="student-toast-message">${escapeStudentHtml(payload.message || '')}</div>
+                    ${payload.detail ? `<div class="student-toast-detail">${escapeStudentHtml(payload.detail)}</div>` : ''}
                 </div>
                 <button type="button" class="student-toast-close" aria-label="Dismiss notification">
                     <i class="fas fa-times"></i>
@@ -2504,7 +2544,12 @@
 
             container.appendChild(toast);
             toast.querySelector('.student-toast-close')?.addEventListener('click', () => dismissStudentToast(toast));
+            announceStudentMessage(`${payload.title || 'Notice'}. ${payload.message || ''}`.trim());
             window.setTimeout(() => dismissStudentToast(toast), 4200);
+        }
+
+        function showStudentToast(message, type = 'info') {
+            renderStudentToast(message, type);
         }
 
         Object.assign(StudentManager.prototype, {
@@ -3997,45 +4042,21 @@
         }
 
         function showStudentToast(message, type = 'info') {
-            const container = document.getElementById('studentToastContainer');
-
-            if (!container) {
-                return;
-            }
-
-            const normalizedType = typeof type === 'string' && type.startsWith('#')
-                ? 'error'
-                : type;
-            const payload = typeof message === 'object' && message !== null
-                ? message
-                : {
-                    title: normalizedType === 'error' ? 'Action Failed' : 'Update Complete',
-                    message: String(message || ''),
-                };
-            const toast = document.createElement('div');
-            toast.className = `student-toast ${normalizedType}`;
-            toast.innerHTML = `
-                <div class="student-toast-icon" aria-hidden="true">
-                    <i class="${payload.icon || studentToastIcons[normalizedType] || studentToastIcons.info}"></i>
-                </div>
-                <div class="student-toast-copy">
-                    <div class="student-toast-title">${payload.title || 'Notice'}</div>
-                    <div class="student-toast-message">${payload.message || ''}</div>
-                    ${payload.detail ? `<div class="student-toast-detail">${payload.detail}</div>` : ''}
-                </div>
-                <button type="button" class="student-toast-close" aria-label="Dismiss notification">
-                    <i class="fas fa-times"></i>
-                </button>
-                <span class="student-toast-progress" aria-hidden="true"></span>
-            `;
-
-            container.appendChild(toast);
-            toast.querySelector('.student-toast-close')?.addEventListener('click', () => dismissStudentToast(toast));
-            setTimeout(() => dismissStudentToast(toast), 4200);
+            renderStudentToast(message, type);
         }
 
         class LiveStudentFormValidator {
-            constructor({ formId, modalId, prefix, summaryId, submitUrl, successMessage, submitMethod = 'POST', includeStatus = false }) {
+            constructor({
+                formId,
+                modalId,
+                prefix,
+                summaryId,
+                submitUrl,
+                successMessage,
+                submitMethod = 'POST',
+                includeStatus = false,
+                validateSeedValues = true,
+            }) {
                 this.form = document.getElementById(formId);
                 this.modal = document.getElementById(modalId);
                 this.prefix = prefix;
@@ -4045,11 +4066,18 @@
                 this.successMessage = successMessage;
                 this.submitMethod = submitMethod;
                 this.includeStatus = includeStatus;
+                this.validateSeedValues = validateSeedValues;
                 this.fieldNames = STUDENT_FIELD_ORDER.filter(fieldName => (fieldName !== 'status' || includeStatus) && this.getField(fieldName));
                 this.abortControllers = {};
                 this.pendingFields = new Set();
+                this.touchedFields = new Set();
                 this.verifiedValues = {};
                 this.fieldState = {};
+                this.isSubmitting = false;
+
+                if (this.submitButton && !this.submitButton.dataset.defaultLabel) {
+                    this.submitButton.dataset.defaultLabel = this.submitButton.textContent.trim();
+                }
 
                 this.ensureFieldIcons();
                 this.attachListeners();
@@ -4066,6 +4094,10 @@
 
             getFieldError(fieldName) {
                 return this.getFieldGroup(fieldName)?.querySelector('.error-message') ?? null;
+            }
+
+            getModalPanel() {
+                return this.modal?.firstElementChild ?? null;
             }
 
             ensureFieldIcons() {
@@ -4094,6 +4126,7 @@
                     field.addEventListener(triggerEvent, () => {
                         const normalizedValue = normalizeStudentFieldValue(fieldName, field.value);
                         field.value = normalizedValue;
+                        this.touchedFields.add(fieldName);
                         this.clearSummary();
 
                         if (STUDENT_UNIQUE_FIELDS.has(fieldName) && this.verifiedValues[fieldName] !== normalizedValue) {
@@ -4104,15 +4137,26 @@
                     });
 
                     field.addEventListener('blur', () => {
-                        this.validateField(fieldName, { showSummary: true, runUniqueCheck: true });
+                        this.touchedFields.add(fieldName);
+                        this.validateField(fieldName, { showSummary: false, runUniqueCheck: true });
                     });
                 });
 
                 this.form.addEventListener('submit', async (event) => {
                     event.preventDefault();
 
-                    const isValid = await this.validateAll({ showSummary: true, focusSummary: true });
+                    if (this.isSubmitting) {
+                        return;
+                    }
+
+                    const isValid = await this.validateAll({ showSummary: true, showFirstErrorOnly: true });
                     if (!isValid) {
+                        showStudentToast({
+                            title: 'Check Required Fields',
+                            message: 'Review the highlighted field before saving.',
+                            detail: 'Only the first invalid field is highlighted.',
+                            icon: 'fas fa-circle-exclamation',
+                        }, 'warning');
                         return;
                     }
 
@@ -4141,7 +4185,88 @@
             }
 
             showSummary(message, focusSummary = false) {
-                this.clearSummary();
+                if (!this.summary) {
+                    return;
+                }
+
+                this.summary.innerHTML = `<i class="fas fa-circle-exclamation" aria-hidden="true"></i>${escapeStudentHtml(message || 'Please review the highlighted fields before saving.')}`;
+                this.summary.hidden = false;
+
+                if (focusSummary) {
+                    this.summary.focus({ preventScroll: true });
+                }
+            }
+
+            focusField(fieldName) {
+                const field = this.getField(fieldName);
+                const target = this.getFieldGroup(fieldName) ?? field;
+                const panel = this.getModalPanel();
+
+                if (!field || !target) {
+                    return;
+                }
+
+                if (panel) {
+                    const panelRect = panel.getBoundingClientRect();
+                    const targetRect = target.getBoundingClientRect();
+                    const nextScrollTop = panel.scrollTop
+                        + (targetRect.top - panelRect.top)
+                        - (panel.clientHeight / 2)
+                        + (targetRect.height / 2);
+
+                    panel.scrollTo({
+                        top: Math.max(0, nextScrollTop),
+                        behavior: 'smooth',
+                    });
+                } else {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                field.focus({ preventScroll: true });
+            }
+
+            clearDisplayedError(fieldName, { clearValidityOnly = false } = {}) {
+                const group = this.getFieldGroup(fieldName);
+                const field = this.getField(fieldName);
+                const icon = group?.querySelector('.field-validation-icon');
+                const error = this.getFieldError(fieldName);
+
+                if (!field) {
+                    return;
+                }
+
+                group?.classList.remove('has-invalid', 'has-pending');
+                field.classList.remove('error', 'pending');
+                field.removeAttribute('aria-invalid');
+
+                if (error) {
+                    error.innerHTML = '';
+                    error.style.display = 'none';
+                }
+
+                this.pendingFields.delete(fieldName);
+
+                if (!clearValidityOnly) {
+                    group?.classList.remove('has-valid');
+                    field.classList.remove('valid');
+                }
+
+                const isValid = field.classList.contains('valid');
+                if (isValid) {
+                    group?.classList.add('has-valid');
+                    if (icon) {
+                        icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                    }
+                } else if (icon) {
+                    icon.innerHTML = '';
+                }
+
+                this.fieldState[fieldName] = { valid: isValid };
+                this.updateSubmitState();
+            }
+
+            clearDisplayedErrors({ clearValidityOnly = false } = {}) {
+                this.fieldNames.forEach(fieldName => this.clearDisplayedError(fieldName, { clearValidityOnly }));
             }
 
             setNeutral(fieldName) {
@@ -4151,10 +4276,11 @@
                 const error = this.getFieldError(fieldName);
 
                 group?.classList.remove('has-valid', 'has-invalid', 'has-pending');
+                field?.classList.remove('error', 'valid', 'pending');
                 field?.removeAttribute('aria-invalid');
                 if (icon) icon.innerHTML = '';
                 if (error) {
-                    error.textContent = '';
+                    error.innerHTML = '';
                     error.style.display = 'none';
                 }
 
@@ -4163,30 +4289,49 @@
                 this.updateSubmitState();
             }
 
-            setState(fieldName, state, message = '') {
+            setState(fieldName, state, message = '', { showValidState = true, showPendingState = true } = {}) {
                 const group = this.getFieldGroup(fieldName);
                 const field = this.getField(fieldName);
                 const icon = group?.querySelector('.field-validation-icon');
                 const error = this.getFieldError(fieldName);
+                const renderValidState = state !== 'valid' || showValidState;
+                const renderPendingState = state !== 'pending' || showPendingState;
+                const shouldRenderState = state === 'invalid'
+                    || (state === 'valid' && renderValidState)
+                    || (state === 'pending' && renderPendingState);
 
                 group?.classList.remove('has-valid', 'has-invalid', 'has-pending');
-                group?.classList.add(`has-${state}`);
+                field?.classList.remove('error', 'valid', 'pending');
+                if (shouldRenderState) {
+                    group?.classList.add(`has-${state}`);
+                }
 
                 if (field) {
                     field.setAttribute('aria-invalid', state === 'invalid' ? 'true' : 'false');
+                    if (state === 'invalid') {
+                        field.classList.add('error');
+                    } else if (state === 'valid' && renderValidState) {
+                        field.classList.add('valid');
+                    } else if (state === 'pending' && renderPendingState) {
+                        field.classList.add('pending');
+                    }
                 }
 
                 if (icon) {
-                    icon.innerHTML = state === 'valid'
-                        ? '<i class="fas fa-check-circle"></i>'
-                        : state === 'invalid'
-                            ? '<i class="fas fa-exclamation-circle"></i>'
-                            : '<i class="fas fa-spinner fa-spin"></i>';
+                    icon.innerHTML = !shouldRenderState
+                        ? ''
+                        : state === 'valid'
+                            ? '<i class="fas fa-check-circle"></i>'
+                            : state === 'invalid'
+                                ? '<i class="fas fa-exclamation-circle"></i>'
+                                : '<i class="fas fa-spinner fa-spin"></i>';
                 }
 
                 if (error) {
-                    error.textContent = message;
-                    error.style.display = state === 'invalid' ? 'block' : 'none';
+                    error.innerHTML = state === 'invalid'
+                        ? `<i class="fas fa-exclamation-circle" aria-hidden="true"></i>${escapeStudentHtml(message)}`
+                        : '';
+                    error.style.display = state === 'invalid' ? 'flex' : 'none';
                 }
 
                 if (state === 'pending') {
@@ -4256,20 +4401,20 @@
                 }
             }
 
-            async runUniqueValidation(fieldName, value, showSummary) {
+            async runUniqueValidation(fieldName, value, showSummary, { showValidState = true, showPendingState = true } = {}) {
                 if (!STUDENT_UNIQUE_FIELDS.has(fieldName) || !value) {
                     return true;
                 }
 
                 if (this.verifiedValues[fieldName] === value) {
-                    this.setState(fieldName, 'valid');
+                    this.setState(fieldName, 'valid', '', { showValidState });
                     return true;
                 }
 
                 this.abortControllers[fieldName]?.abort();
                 const controller = new AbortController();
                 this.abortControllers[fieldName] = controller;
-                this.setState(fieldName, 'pending');
+                this.setState(fieldName, 'pending', '', { showPendingState });
 
                 try {
                     const response = await fetch('{{ route('admin.students.validate-field') }}', {
@@ -4303,7 +4448,7 @@
                     }
 
                     this.verifiedValues[fieldName] = value;
-                    this.setState(fieldName, 'valid');
+                    this.setState(fieldName, 'valid', '', { showValidState });
                     return true;
                 } catch (error) {
                     if (error.name === 'AbortError') {
@@ -4319,7 +4464,12 @@
                 }
             }
 
-            async validateField(fieldName, { showSummary = false, runUniqueCheck = false } = {}) {
+            async validateField(fieldName, {
+                showSummary = false,
+                runUniqueCheck = false,
+                showValidState = true,
+                showPendingState = true,
+            } = {}) {
                 const values = this.getValues();
                 const syncMessage = this.getSyncMessage(fieldName, values);
 
@@ -4335,61 +4485,85 @@
                     if (!runUniqueCheck) {
                         // Keep the form submittable once the local format is valid.
                         // Uniqueness is still verified on blur and again on submit.
-                        this.setState(fieldName, 'valid');
+                        this.setState(fieldName, 'valid', '', { showValidState });
                         return true;
                     }
 
-                    return this.runUniqueValidation(fieldName, values[fieldName], showSummary);
+                    return this.runUniqueValidation(fieldName, values[fieldName], showSummary, {
+                        showValidState,
+                        showPendingState,
+                    });
                 }
 
-                this.setState(fieldName, 'valid');
+                this.setState(fieldName, 'valid', '', { showValidState });
                 return true;
             }
 
-            async validateAll({ showSummary = true, focusSummary = false } = {}) {
+            async validateAll({ showSummary = true, focusSummary = false, showFirstErrorOnly = false } = {}) {
                 this.clearSummary();
+                if (showFirstErrorOnly) {
+                    this.clearDisplayedErrors({ clearValidityOnly: true });
+                }
+
                 let firstInvalidField = null;
+                let firstInvalidMessage = '';
                 let allValid = true;
 
                 for (const fieldName of this.fieldNames) {
-                    const isValid = await this.validateField(fieldName, { showSummary, runUniqueCheck: true });
+                    const isTouched = this.touchedFields.has(fieldName);
+                    const isValid = await this.validateField(fieldName, {
+                        showSummary: false,
+                        runUniqueCheck: true,
+                        showValidState: isTouched,
+                        showPendingState: isTouched,
+                    });
                     if (!isValid) {
                         allValid = false;
                         if (!firstInvalidField) {
                             firstInvalidField = fieldName;
+                            firstInvalidMessage = this.getFieldError(fieldName)?.textContent?.trim() || '';
+                            if (showFirstErrorOnly) {
+                                break;
+                            }
                         }
                     }
                 }
 
                 if (!allValid && firstInvalidField) {
-                    this.getField(firstInvalidField)?.focus();
+                    if (showSummary) {
+                        this.showSummary(firstInvalidMessage || 'Please review the highlighted field before saving.', focusSummary);
+                    }
+                    this.focusField(firstInvalidField);
                 }
 
                 return allValid;
             }
 
-            applyServerErrors(errors = {}) {
+            applyServerErrors(errors = {}, { showFirstErrorOnly = false } = {}) {
                 this.clearSummary();
+                this.clearDisplayedErrors({ clearValidityOnly: true });
 
                 let firstField = '';
-                let firstMessage = '';
 
-                Object.entries(errors).forEach(([fieldName, fieldErrors]) => {
+                for (const [fieldName, fieldErrors] of Object.entries(errors)) {
+                    if (showFirstErrorOnly && firstField) {
+                        break;
+                    }
+
                     const message = Array.isArray(fieldErrors) ? fieldErrors[0] : fieldErrors;
                     if (!message || !this.getField(fieldName)) {
-                        return;
+                        continue;
                     }
 
                     this.setState(fieldName, 'invalid', message);
 
-                    if (!firstMessage) {
+                    if (!firstField) {
                         firstField = fieldName;
-                        firstMessage = message;
                     }
-                });
+                }
 
-                if (firstMessage) {
-                    this.getField(firstField)?.focus();
+                if (firstField) {
+                    this.focusField(firstField);
                 }
             }
 
@@ -4397,6 +4571,7 @@
                 this.form?.reset();
                 this.clearSummary();
                 this.pendingFields.clear();
+                this.touchedFields.clear();
                 this.verifiedValues = {};
                 Object.values(this.abortControllers).forEach(controller => controller?.abort());
                 this.abortControllers = {};
@@ -4416,6 +4591,10 @@
                     const normalizedValue = normalizeStudentFieldValue(fieldName, values[fieldName] ?? '');
                     field.value = normalizedValue;
 
+                    if (!this.validateSeedValues) {
+                        return;
+                    }
+
                     if (STUDENT_UNIQUE_FIELDS.has(fieldName) && normalizedValue) {
                         this.verifiedValues[fieldName] = normalizedValue;
                         this.setState(fieldName, 'valid');
@@ -4432,18 +4611,47 @@
                     return;
                 }
 
-                const hasPending = this.pendingFields.size > 0;
-                const hasInvalid = this.fieldNames.some(fieldName => !this.fieldState[fieldName]?.valid);
-                this.submitButton.disabled = hasPending || hasInvalid;
+                this.submitButton.disabled = false;
+                this.submitButton.removeAttribute('disabled');
+                this.submitButton.dataset.submitting = this.isSubmitting ? 'true' : 'false';
+                if (this.isSubmitting) {
+                    this.submitButton.setAttribute('aria-busy', 'true');
+                } else {
+                    this.submitButton.removeAttribute('aria-busy');
+                }
+                this.submitButton.dataset.pendingValidation = this.pendingFields.size > 0 ? 'true' : 'false';
+            }
+
+            setSubmittingState(isSubmitting) {
+                if (!this.submitButton) {
+                    return;
+                }
+
+                this.isSubmitting = isSubmitting;
+                const defaultLabel = this.submitButton.dataset.defaultLabel || this.submitButton.textContent.trim() || 'Save';
+                const busyLabel = this.submitMethod === 'POST' ? 'Saving...' : 'Updating...';
+
+                if (isSubmitting) {
+                    this.submitButton.innerHTML = `<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> ${busyLabel}`;
+                } else {
+                    this.submitButton.textContent = defaultLabel;
+                }
+
+                this.updateSubmitState();
             }
 
             async submit() {
+                if (this.isSubmitting) {
+                    return;
+                }
+
                 const values = this.getValues();
                 const requestUrl = manager
                     ? manager.buildMutationUrl(this.submitMethod === 'POST' ? this.submitUrl : this.form.action)
                     : (this.submitMethod === 'POST' ? this.submitUrl : this.form.action);
 
                 try {
+                    this.setSubmittingState(true);
                     let response;
                     let formData = null;
 
@@ -4477,13 +4685,26 @@
 
                     if (!response.ok && response.status === 422) {
                         const data = await response.json();
-                        this.applyServerErrors(data.errors || {});
+                        this.applyServerErrors(data.errors || {}, { showFirstErrorOnly: true });
+                        this.showSummary(data.message || 'Please correct the highlighted field and try again.', false);
+                        showStudentToast({
+                            title: 'Check Required Fields',
+                            message: 'Please correct the highlighted field and try again.',
+                            detail: 'Only the first invalid field is highlighted.',
+                            icon: 'fas fa-circle-exclamation',
+                        }, 'warning');
                         return;
                     }
 
                     const data = await response.json();
                     if (!data.success) {
-                        this.showSummary(data.message || 'Unable to save the student right now. Please try again.', true);
+                        const message = data.message || 'Unable to save the student right now. Please try again.';
+                        this.showSummary(message, false);
+                        showStudentToast({
+                            title: 'Unable to Save Student',
+                            message,
+                            icon: 'fas fa-circle-xmark',
+                        }, 'error');
                         return;
                     }
 
@@ -4506,7 +4727,15 @@
                     announceStudentMessage(`${data.student?.name || 'Student'} ${mutationType === 'create' ? 'created' : 'updated'} successfully.`);
                 } catch (error) {
                     console.error('Student form submission failed:', error);
-                    this.showSummary('Unable to save the student right now. Please try again.', true);
+                    const message = 'Unable to save the student right now. Please try again.';
+                    this.showSummary(message, false);
+                    showStudentToast({
+                        title: 'Unable to Save Student',
+                        message,
+                        icon: 'fas fa-circle-xmark',
+                    }, 'error');
+                } finally {
+                    this.setSubmittingState(false);
                 }
             }
         }
@@ -4599,6 +4828,7 @@
                 successMessage: 'Student updated successfully!',
                 submitMethod: 'PUT',
                 includeStatus: true,
+                validateSeedValues: false,
             });
 
             const addModal = document.getElementById('addStudentModal');

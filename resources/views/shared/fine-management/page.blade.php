@@ -275,23 +275,25 @@
         </div>
     </div>
 
-    <div id="confirmActionModal" class="modal-backdrop" aria-hidden="true">
-        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="confirmActionTitle" aria-describedby="confirmActionMessage">
-            <div class="modal-body" style="text-align: center;">
-                <div id="confirmActionIcon" class="action-popup-icon paid"></div>
-                <h3 id="confirmActionTitle" style="font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem;">Confirm Action</h3>
-                <p id="confirmActionMessage" class="modal-description" style="margin-bottom: 0.35rem;">Are you sure you want to continue?</p>
-                <div id="confirmActionDetail" class="action-popup-detail" hidden></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="modal-btn" data-modal-close="confirmActionModal">Cancel</button>
-                <button type="button" class="modal-btn primary" id="confirmActionSubmitBtn">Continue</button>
-            </div>
-        </div>
-    </div>
-
     @include('shared.report-export.modal', ['reportExportConfig' => $reportExportConfig])
-
-    <div id="fineToastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
-    <div id="fineLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    @include('shared.action-feedback.markup', [
+        'actionFeedbackConfig' => [
+            'confirm' => [
+                'modalId' => 'confirmActionModal',
+                'iconId' => 'confirmActionIcon',
+                'titleId' => 'confirmActionTitle',
+                'messageId' => 'confirmActionMessage',
+                'detailId' => 'confirmActionDetail',
+                'submitButtonId' => 'confirmActionSubmitBtn',
+                'cancelLabel' => 'Cancel',
+                'confirmLabel' => 'Continue',
+                'defaultTitle' => 'Confirm Action',
+                'defaultMessage' => 'Are you sure you want to continue?',
+            ],
+            'toast' => [
+                'containerId' => 'fineToastContainer',
+                'liveRegionId' => 'fineLiveRegion',
+            ],
+        ],
+    ])
 </div>

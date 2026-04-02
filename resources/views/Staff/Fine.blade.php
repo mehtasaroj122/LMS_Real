@@ -34,6 +34,7 @@
 @endphp
 
 @push('styles')
+    @include('shared.action-feedback.styles')
     @include('shared.report-export.styles')
     @include('shared.fine-management.styles')
 @endpush
@@ -43,6 +44,7 @@
 @endsection
 
 @push('scripts')
+    @include('shared.action-feedback.scripts')
     @include('shared.report-export.scripts')
     @include('shared.fine-management.scripts', ['fineManagementConfig' => $fineManagementConfig])
 @endpush

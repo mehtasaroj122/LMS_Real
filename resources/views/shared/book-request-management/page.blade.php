@@ -314,22 +314,24 @@
         </div>
     </div>
 
-    <div id="requestActionModal" class="request-modal-backdrop" aria-hidden="true">
-        <div class="request-modal-panel compact" role="dialog" aria-modal="true" aria-labelledby="requestActionTitle" aria-describedby="requestActionMessage">
-            <div class="request-modal-body" style="text-align: center;">
-                <div id="requestActionIcon" class="request-action-icon accept"></div>
-                <h3 id="requestActionTitle" class="request-modal-title">Confirm Action</h3>
-                <p id="requestActionMessage" class="request-modal-description">Please confirm this request update.</p>
-                <p id="requestActionNote" class="request-modal-note"></p>
-                <div id="requestActionDetail" class="request-action-detail" hidden></div>
-            </div>
-            <div class="request-modal-footer">
-                <button type="button" class="request-modal-btn" data-modal-close="requestActionModal">Cancel</button>
-                <button type="button" class="request-modal-btn primary" id="confirmRequestActionBtn">Confirm</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="requestToastContainer" class="request-toast-container" aria-live="polite" aria-atomic="true"></div>
-    <div id="requestLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    @include('shared.action-feedback.markup', [
+        'actionFeedbackConfig' => [
+            'confirm' => [
+                'modalId' => 'requestActionModal',
+                'iconId' => 'requestActionIcon',
+                'titleId' => 'requestActionTitle',
+                'messageId' => 'requestActionMessage',
+                'detailId' => 'requestActionDetail',
+                'submitButtonId' => 'confirmRequestActionBtn',
+                'cancelLabel' => 'Cancel',
+                'confirmLabel' => 'Confirm',
+                'defaultTitle' => 'Confirm Action',
+                'defaultMessage' => 'Please confirm this request update.',
+            ],
+            'toast' => [
+                'containerId' => 'requestToastContainer',
+                'liveRegionId' => 'requestLiveRegion',
+            ],
+        ],
+    ])
 </div>

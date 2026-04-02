@@ -229,6 +229,7 @@
                     actionInFlight: false,
                     lastUpdatedAt: null,
                 };
+                this.feedbackUI = null;
             }
 
             init() {
@@ -237,6 +238,7 @@
                     return;
                 }
 
+                this.initializeFeedbackUI();
                 this.initSelects();
                 this.setupEventListeners();
                 this.loadRequests();
@@ -276,11 +278,35 @@
                 this.elements.actionIcon = document.getElementById('requestActionIcon');
                 this.elements.actionTitle = document.getElementById('requestActionTitle');
                 this.elements.actionMessage = document.getElementById('requestActionMessage');
-                this.elements.actionNote = document.getElementById('requestActionNote');
                 this.elements.actionDetail = document.getElementById('requestActionDetail');
                 this.elements.actionSubmitButton = document.getElementById('confirmRequestActionBtn');
                 this.elements.toastContainer = document.getElementById('requestToastContainer');
                 this.elements.liveRegion = document.getElementById('requestLiveRegion');
+            }
+
+            initializeFeedbackUI() {
+                if (typeof window.ActionFeedbackUI !== 'function') {
+                    return;
+                }
+
+                this.feedbackUI = new window.ActionFeedbackUI({
+                    confirm: {
+                        modalId: 'requestActionModal',
+                        iconId: 'requestActionIcon',
+                        titleId: 'requestActionTitle',
+                        messageId: 'requestActionMessage',
+                        detailId: 'requestActionDetail',
+                        submitButtonId: 'confirmRequestActionBtn',
+                        confirmLabel: 'Confirm',
+                    },
+                    toast: {
+                        containerId: 'requestToastContainer',
+                        liveRegionId: 'requestLiveRegion',
+                    },
+                    openModal: (modalId, focusTarget) => this.openModal(modalId, focusTarget),
+                    closeModal: (modalId) => this.closeModal(modalId),
+                    setButtonBusy: (button, isBusy, label) => this.setButtonBusy(button, isBusy, label),
+                });
             }
 
             initSelects() {
@@ -350,7 +376,7 @@
                     }
                 });
 
-                document.querySelectorAll('.request-modal-backdrop').forEach((modal) => {
+                document.querySelectorAll('.request-modal-backdrop, .action-feedback-confirm-overlay').forEach((modal) => {
                     modal.addEventListener('click', (event) => {
                         if (event.target === modal) {
                             this.closeModal(modal.id);
@@ -809,7 +835,7 @@
                 }
 
                 if (!this.validateCreateForm()) {
-                    this.showToast('error', 'Missing details', 'Please select both a student and a book before creating the request.');
+                    this.showToast('warning', 'Missing details', 'Please select both a student and a book before creating the request.');
                     return;
                 }
 
@@ -852,21 +878,33 @@
                 const isApprove = action === 'approved';
                 const studentName = request.studentName || 'This student';
                 const bookTitle = request.bookTitle || 'this book';
+                const title = isApprove ? 'Accept Request?' : 'Reject Request?';
+                const message = isApprove
+                    ? `Approve ${studentName}'s request for "${bookTitle}"? The student will be notified once this request is accepted.`
+                    : `Reject ${studentName}'s request for "${bookTitle}"? The student will be notified once this request is rejected.`;
+                const detail = `Request date: ${request.requestDate || 'N/A'} • Current status: ${request.statusLabel || this.capitalize(request.status || 'pending')}`;
+                const buttonLabel = isApprove ? 'Accept' : 'Reject';
 
                 this.state.pendingAction = { requestId: Number(requestId), action };
-                this.elements.actionIcon.className = `request-action-icon ${isApprove ? 'accept' : 'reject'}`;
-                this.elements.actionIcon.innerHTML = isApprove ? svgIcons.approved : svgIcons.rejected;
-                this.elements.actionTitle.textContent = isApprove ? 'Accept Request?' : 'Reject Request?';
-                this.elements.actionMessage.textContent = isApprove
-                    ? `Approve ${studentName}'s request for "${bookTitle}"?`
-                    : `Reject ${studentName}'s request for "${bookTitle}"?`;
-                this.elements.actionNote.textContent = isApprove
-                    ? 'The student will be notified that the request was accepted.'
-                    : 'The student will be notified that the request was rejected.';
+                if (this.feedbackUI) {
+                    this.feedbackUI.openConfirm({
+                        variant: isApprove ? 'success' : 'danger',
+                        buttonVariant: isApprove ? 'success' : 'danger',
+                        iconMarkup: isApprove ? svgIcons.approved : svgIcons.rejected,
+                        title,
+                        message,
+                        detail,
+                        confirmText: buttonLabel,
+                    });
+                    return;
+                }
+
+                this.elements.actionTitle.textContent = title;
+                this.elements.actionMessage.textContent = message;
                 this.elements.actionDetail.hidden = false;
-                this.elements.actionDetail.textContent = `Request date: ${request.requestDate || 'N/A'} • Current status: ${request.statusLabel || this.capitalize(request.status || 'pending')}`;
-                this.elements.actionSubmitButton.dataset.defaultLabel = isApprove ? 'Accept' : 'Reject';
-                this.elements.actionSubmitButton.innerHTML = `<span>${isApprove ? 'Accept' : 'Reject'}</span>`;
+                this.elements.actionDetail.textContent = detail;
+                this.elements.actionSubmitButton.dataset.defaultLabel = buttonLabel;
+                this.elements.actionSubmitButton.innerHTML = `<span>${buttonLabel}</span>`;
                 this.openModal('requestActionModal', this.elements.actionSubmitButton);
             }
 
@@ -877,7 +915,11 @@
 
                 const { requestId, action } = this.state.pendingAction;
                 this.state.actionInFlight = true;
-                this.setButtonBusy(this.elements.actionSubmitButton, true, action === 'approved' ? 'Accepting...' : 'Rejecting...');
+                if (this.feedbackUI) {
+                    this.feedbackUI.setConfirmBusy(true, action === 'approved' ? 'Accepting...' : 'Rejecting...');
+                } else {
+                    this.setButtonBusy(this.elements.actionSubmitButton, true, action === 'approved' ? 'Accepting...' : 'Rejecting...');
+                }
 
                 try {
                     await this.requestJson(this.buildRequestRoute(this.config.routes.update, requestId), {
@@ -888,7 +930,7 @@
                     this.closeModal('requestActionModal');
                     await this.loadRequests({ silent: true });
                     this.showToast(
-                        'success',
+                        action === 'approved' ? 'success' : 'warning',
                         action === 'approved' ? 'Request accepted' : 'Request rejected',
                         action === 'approved'
                             ? 'The request was marked as approved successfully.'
@@ -900,12 +942,15 @@
                     this.showToast('error', 'Update failed', message);
                 } finally {
                     this.state.actionInFlight = false;
-                    this.state.pendingAction = null;
-                    this.setButtonBusy(
-                        this.elements.actionSubmitButton,
-                        false,
-                        this.elements.actionSubmitButton?.dataset.defaultLabel || 'Confirm'
-                    );
+                    if (this.feedbackUI) {
+                        this.feedbackUI.setConfirmBusy(false, this.elements.actionSubmitButton?.dataset.defaultLabel || 'Confirm');
+                    } else {
+                        this.setButtonBusy(
+                            this.elements.actionSubmitButton,
+                            false,
+                            this.elements.actionSubmitButton?.dataset.defaultLabel || 'Confirm'
+                        );
+                    }
                 }
             }
 
@@ -928,6 +973,7 @@
                 if (modalId === 'requestActionModal') {
                     this.state.pendingAction = null;
                     this.elements.actionDetail.hidden = true;
+                    this.feedbackUI?.resetConfirm();
                 }
                 this.state.lastFocusedElement?.focus?.();
             }
@@ -1075,6 +1121,11 @@
             }
 
             showToast(type, title, message, timeout = 4200) {
+                if (this.feedbackUI) {
+                    this.feedbackUI.showToast(type, title, message, timeout);
+                    return;
+                }
+
                 if (!this.elements.toastContainer) return;
 
                 const toast = document.createElement('div');
@@ -1096,6 +1147,11 @@
             }
 
             dismissToast(toast) {
+                if (this.feedbackUI) {
+                    this.feedbackUI.dismissToast(toast);
+                    return;
+                }
+
                 if (!toast || !toast.parentNode) {
                     return;
                 }

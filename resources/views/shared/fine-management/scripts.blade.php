@@ -55,6 +55,7 @@
                 actionInFlight: false,
             },
             elements: {},
+            feedbackUI: null,
             exportWorkflow: null,
 
             init() {
@@ -63,6 +64,7 @@
                     return;
                 }
 
+                this.initializeFeedbackUI();
                 this.initializeExportWorkflow();
                 this.hydrateStateFromUrl();
                 this.syncControlsFromState();
@@ -117,6 +119,31 @@
                 this.elements.exportDownloadBtn = document.getElementById('exportDownloadBtn');
                 this.elements.exportDownloadBtnLabel = this.elements.exportDownloadBtn?.querySelector('span') || null;
                 this.elements.statCards = Array.from(document.querySelectorAll('[data-stat-card]'));
+            },
+
+            initializeFeedbackUI() {
+                if (typeof window.ActionFeedbackUI !== 'function') {
+                    return;
+                }
+
+                this.feedbackUI = new window.ActionFeedbackUI({
+                    confirm: {
+                        modalId: 'confirmActionModal',
+                        iconId: 'confirmActionIcon',
+                        titleId: 'confirmActionTitle',
+                        messageId: 'confirmActionMessage',
+                        detailId: 'confirmActionDetail',
+                        submitButtonId: 'confirmActionSubmitBtn',
+                        confirmLabel: 'Continue',
+                    },
+                    toast: {
+                        containerId: 'fineToastContainer',
+                        liveRegionId: 'fineLiveRegion',
+                    },
+                    openModal: (modalId, focusTarget) => this.openModal(modalId, focusTarget),
+                    closeModal: (modalId) => this.closeModal(modalId),
+                    setButtonBusy: (button, isBusy, label) => this.setButtonBusy(button, isBusy, label),
+                });
             },
 
             initializeExportWorkflow() {
@@ -382,7 +409,7 @@
                 if (this.state.minAmount && this.state.maxAmount && Number(this.state.minAmount) > Number(this.state.maxAmount)) {
                     invalidFields.push(this.elements.minAmountFilter, this.elements.maxAmountFilter);
                     if (showToast && invalidFields.length <= 2) {
-                        this.showToast('error', 'Invalid amount range', 'The maximum amount must be greater than or equal to the minimum amount.');
+                        this.showToast('warning', 'Invalid amount range', 'The maximum amount must be greater than or equal to the minimum amount.');
                     }
                 }
 
@@ -733,7 +760,7 @@
                 }
 
                 if (this.state.fines.length === 0) {
-                    this.showToast('error', 'Nothing to export', 'There are no fine records in the current result set.');
+                    this.showToast('warning', 'Nothing to export', 'There are no fine records in the current result set.');
                     return;
                 }
 
@@ -831,7 +858,7 @@
                     this.closeModal('waiveModal');
                     this.notifyFineUpdate({ fineId, status: 'waived' });
                     this.applyFineStatusChange(fineId, 'waived', { reason });
-                    this.showToast('success', 'Fine waived', `${fine?.studentName || 'The student'}'s fine was waived successfully.`);
+                    this.showToast('warning', 'Fine waived', `${fine?.studentName || 'The student'}'s fine was waived successfully.`);
                     this.announce('Fine waived successfully.');
                 } catch (error) {
                     const message = this.resolveErrorMessage(error, 'Unable to waive the selected fine.');
@@ -860,20 +887,22 @@
                 const studentName = fine.studentName || 'this student';
                 const configs = {
                     paid: {
-                        iconClass: 'paid',
                         iconMarkup: svgIcons.confirmPaid,
                         title: 'Mark Fine as Paid?',
                         message: `Record ${studentName}'s payment now?`,
                         detail: `${fineAmount} for "${bookTitle}" will be marked as paid.`,
                         buttonLabel: 'Mark as Paid',
+                        variant: 'primary',
+                        buttonVariant: 'primary',
                     },
                     email: {
-                        iconClass: 'email',
                         iconMarkup: svgIcons.confirmEmail,
                         title: 'Send Fine Email?',
                         message: `Send an email update to ${studentName}?`,
                         detail: `${fineAmount} for "${bookTitle}" will be emailed based on the current ${(extra.status || fine.status || 'pending')} status.`,
                         buttonLabel: 'Send Email',
+                        variant: 'primary',
+                        buttonVariant: 'primary',
                     },
                 };
 
@@ -881,8 +910,19 @@
                 if (!config) return;
 
                 this.state.pendingConfirmAction = { type, fineId, fine, extra };
-                this.elements.confirmActionIcon.className = `action-popup-icon ${config.iconClass}`;
-                this.elements.confirmActionIcon.innerHTML = config.iconMarkup;
+                if (this.feedbackUI) {
+                    this.feedbackUI.openConfirm({
+                        variant: config.variant,
+                        buttonVariant: config.buttonVariant,
+                        iconMarkup: config.iconMarkup,
+                        title: config.title,
+                        message: config.message,
+                        detail: config.detail,
+                        confirmText: config.buttonLabel,
+                    });
+                    return;
+                }
+
                 this.elements.confirmActionTitle.textContent = config.title;
                 this.elements.confirmActionMessage.textContent = config.message;
                 this.elements.confirmActionDetail.textContent = config.detail;
@@ -897,7 +937,11 @@
 
                 const pending = this.state.pendingConfirmAction;
                 this.state.actionInFlight = true;
-                this.setButtonBusy(this.elements.confirmActionSubmitBtn, true, 'Processing...');
+                if (this.feedbackUI) {
+                    this.feedbackUI.setConfirmBusy(true, 'Processing...');
+                } else {
+                    this.setButtonBusy(this.elements.confirmActionSubmitBtn, true, 'Processing...');
+                }
 
                 try {
                     if (pending.type === 'paid') {
@@ -907,12 +951,15 @@
                     }
                 } finally {
                     this.state.actionInFlight = false;
-                    this.state.pendingConfirmAction = null;
-                    this.setButtonBusy(
-                        this.elements.confirmActionSubmitBtn,
-                        false,
-                        this.elements.confirmActionSubmitBtn?.dataset.defaultLabel || 'Continue'
-                    );
+                    if (this.feedbackUI) {
+                        this.feedbackUI.setConfirmBusy(false, this.elements.confirmActionSubmitBtn?.dataset.defaultLabel || 'Continue');
+                    } else {
+                        this.setButtonBusy(
+                            this.elements.confirmActionSubmitBtn,
+                            false,
+                            this.elements.confirmActionSubmitBtn?.dataset.defaultLabel || 'Continue'
+                        );
+                    }
                 }
             },
 
@@ -943,7 +990,7 @@
 
                     this.closeModal('confirmActionModal');
                     const status = extra.status || fine?.status || 'pending';
-                    this.showToast('success', 'Email queued', data.message || `${fine?.studentName || 'The student'} will receive the latest ${status} fine update shortly.`);
+                    this.showToast('info', 'Email queued', data.message || `${fine?.studentName || 'The student'} will receive the latest ${status} fine update shortly.`);
                     this.announce('Fine email queued successfully.');
                 } catch (error) {
                     const message = this.resolveErrorMessage(error, 'Unable to send the fine email.');
@@ -1041,7 +1088,10 @@
                 modal.setAttribute('aria-hidden', 'true');
                 this.state.currentModalId = null;
                 if (modalId === 'waiveModal') this.state.currentFineId = null;
-                if (modalId === 'confirmActionModal') this.state.pendingConfirmAction = null;
+                if (modalId === 'confirmActionModal') {
+                    this.state.pendingConfirmAction = null;
+                    this.feedbackUI?.resetConfirm();
+                }
                 if (modalId === this.exportWorkflow?.getModalId?.()) {
                     this.exportWorkflow.handleModalClosed();
                 }
@@ -1567,13 +1617,13 @@
 
                 const rows = context.rows;
                 if (rows.length === 0) {
-                    this.showToast('error', 'Nothing to print', 'There are no fine records in the current result set.');
+                    this.showToast('warning', 'Nothing to print', 'There are no fine records in the current result set.');
                     return;
                 }
 
                 const printWindow = window.open('', '_blank', 'width=1100,height=760');
                 if (!printWindow) {
-                    this.showToast('error', 'Popup blocked', 'Allow popups for this site to open the print view.');
+                    this.showToast('warning', 'Popup blocked', 'Allow popups for this site to open the print view.');
                     return;
                 }
 
@@ -1583,7 +1633,7 @@
                     printWindow.document.close();
                     this.closeModal('exportOptionsModal');
                     this.showToast(
-                        'success',
+                        'info',
                         'Print view ready',
                         context.isAllScope
                             ? 'The print dialog will open in a new window for the full filtered fine report.'
@@ -1816,7 +1866,7 @@
 
                 const rows = context.rows;
                 if (rows.length === 0) {
-                    this.showToast('error', 'Nothing to export', 'There are no fine records in the current result set.');
+                    this.showToast('warning', 'Nothing to export', 'There are no fine records in the current result set.');
                     return;
                 }
 
@@ -1864,6 +1914,11 @@
             },
 
             showToast(type, title, message, timeout = 4200) {
+                if (this.feedbackUI) {
+                    this.feedbackUI.showToast(type, title, message, timeout);
+                    return;
+                }
+
                 if (!this.elements.toastContainer) return;
 
                 const toast = document.createElement('div');
@@ -1888,6 +1943,11 @@
             },
 
             dismissToast(toast) {
+                if (this.feedbackUI) {
+                    this.feedbackUI.dismissToast(toast);
+                    return;
+                }
+
                 if (!toast || !toast.parentNode) return;
                 toast.classList.remove('is-visible');
                 window.setTimeout(() => toast.remove(), 180);
