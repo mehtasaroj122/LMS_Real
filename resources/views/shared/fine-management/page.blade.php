@@ -20,9 +20,9 @@
             'previewDescription' => 'Rows included in export.',
             'previewCount' => '0 rows',
             'emptyPreview' => 'No fine records selected for preview.',
-            'footerNote' => 'Using current page for export.',
+            'footerNote' => 'Using current page for spreadsheet export.',
             'cancelButton' => 'Cancel',
-            'downloadButton' => 'Download CSV',
+            'downloadButton' => 'Download Excel',
             'printButton' => 'Print',
         ],
         'document' => [
@@ -59,7 +59,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="m7 10 5 5 5-5" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 15V3" />
                         </svg>
-                        <span>{{ $config['labels']['exportButton'] ?? 'Export CSV' }}</span>
+                        <span>{{ $config['labels']['exportButton'] ?? 'Export Excel' }}</span>
                     </button>
                 @endif
             </div>
@@ -200,11 +200,59 @@
                 </div>
             </section>
 
+            <section class="fine-bulk-bar" id="fineBulkActionBar" aria-label="Bulk fine actions">
+                <div class="fine-bulk-copy">
+                    <span class="fine-bulk-title">Bulk Actions</span>
+                    <p id="fineBulkSummary" class="fine-bulk-summary">Select fines from the table to send emails, or choose pending fines to mark them as paid or waive them.</p>
+                </div>
+                <div class="fine-bulk-actions">
+                    <button type="button" id="bulkMarkPaidBtn" class="fine-bulk-btn paid" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2"></rect>
+                            <path d="M1 10h22"></path>
+                        </svg>
+                        <span>Mark Selected Paid</span>
+                    </button>
+                    <button type="button" id="bulkWaiveBtn" class="fine-bulk-btn waive" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                        <span>Waive Selected</span>
+                    </button>
+                    <button type="button" id="bulkEmailBtn" class="fine-bulk-btn email" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                            <path d="m22 7-10 7L2 7"></path>
+                        </svg>
+                        <span>Send Selected Emails</span>
+                    </button>
+                    <button type="button" id="clearSelectedFinesBtn" class="fine-bulk-btn clear" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                        <span>Clear</span>
+                    </button>
+                </div>
+            </section>
+
             <div class="fines-table-container" aria-live="polite">
                 <div class="fines-table-wrapper" id="finesTableWrapper" aria-busy="true">
                     <table class="fines-table">
                         <thead>
                             <tr>
+                                <th scope="col" class="fine-select-column">
+                                    <label class="fine-checkbox fine-checkbox-header" for="fineSelectAll">
+                                        <input
+                                            type="checkbox"
+                                            id="fineSelectAll"
+                                            class="fine-checkbox-input"
+                                            aria-label="Select all fines on this page"
+                                        >
+                                        <span class="fine-checkbox-control" aria-hidden="true"></span>
+                                        <span class="sr-only">Select all fines on this page</span>
+                                    </label>
+                                </th>
                                 <th scope="col">User</th>
                                 <th scope="col">Book Title</th>
                                 <th scope="col">Due Date</th>
@@ -216,7 +264,7 @@
                         </thead>
                         <tbody id="finesTableBody">
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <span class="table-skeleton-line"></span>
                                 </td>
                             </tr>

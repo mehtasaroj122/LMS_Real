@@ -3,9 +3,11 @@ import 'cropperjs/dist/cropper.css';
 
 import Alpine from 'alpinejs';
 import Cropper from 'cropperjs/dist/cropper.js';
+import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 window.Alpine = Alpine;
 window.Cropper = Cropper;
+window.PDFLib = { PDFDocument, StandardFonts, rgb };
 
 Alpine.start();
 

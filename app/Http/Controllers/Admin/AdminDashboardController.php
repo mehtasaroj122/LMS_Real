@@ -20,9 +20,12 @@ class AdminDashboardController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         Gate::authorize('access-admin');
+
+        $selectedFineTrendPeriod = $this->resolveFineTrendPeriod($request->query('fine_period'));
+
         /* =========================
          | BASIC COUNTS
          |=========================*/
@@ -126,62 +129,7 @@ class AdminDashboardController extends Controller
             ->limit(5)
             ->get();
 
-        $fineReportYearStart = Carbon::now()->startOfYear();
-        $fineReportYearEnd = $fineReportYearStart->copy()->endOfYear();
-
-        $monthlyFineMonths = collect(range(0, 11))->map(function ($monthIndex) use ($fineReportYearStart) {
-            return $fineReportYearStart->copy()->addMonths($monthIndex);
-        });
-
-        $generatedFinesByMonth = Fine::whereHas('student.user', function ($q) {
-                $q->where('role', 'student');
-            })
-            ->whereBetween('created_at', [$fineReportYearStart, $fineReportYearEnd])
-            ->get()
-            ->groupBy(function ($fine) {
-                return Carbon::parse($fine->created_at)->format('Y-m');
-            });
-
-        $collectedFinesByMonth = Fine::whereHas('student.user', function ($q) {
-                $q->where('role', 'student');
-            })
-            ->whereRaw('LOWER(status) = ?', ['paid'])
-            ->whereNotNull('paid_on')
-            ->whereBetween('paid_on', [$fineReportYearStart, $fineReportYearEnd])
-            ->get()
-            ->groupBy(function ($fine) {
-                return Carbon::parse($fine->paid_on)->format('Y-m');
-            });
-
-        $waivedFinesByMonth = Fine::whereHas('student.user', function ($q) {
-                $q->where('role', 'student');
-            })
-            ->whereRaw('LOWER(status) = ?', ['waived'])
-            ->whereBetween('updated_at', [$fineReportYearStart, $fineReportYearEnd])
-            ->get()
-            ->groupBy(function ($fine) {
-                return Carbon::parse($fine->updated_at)->format('Y-m');
-            });
-
-        $monthlyFineLabels = [];
-        $monthlyPendingFines = [];
-        $monthlyCollectedFines = [];
-        $monthlyWaivedFines = [];
-
-        foreach ($monthlyFineMonths as $month) {
-            $key = $month->format('Y-m');
-            $monthlyFineLabels[] = $month->format('M');
-            $monthlyPendingFines[] = round((float) ($generatedFinesByMonth->get($key, collect())->filter(function ($fine) {
-                return strtolower($fine->status) === 'pending';
-            })->sum('amount')), 2);
-            $monthlyCollectedFines[] = round((float) ($collectedFinesByMonth->get($key, collect())->sum('amount')), 2);
-            $monthlyWaivedFines[] = round((float) ($waivedFinesByMonth->get($key, collect())->sum('amount')), 2);
-        }
-
-        $monthlyFineMax = max(
-            100,
-            (int) ceil(max(array_merge($monthlyPendingFines, $monthlyCollectedFines, $monthlyWaivedFines, [0])) / 100) * 100
-        );
+        $fineTrendViewData = $this->fineTrendViewData($selectedFineTrendPeriod);
 
         // Recent activities
         $recentActivities = ActivityLog::with('user')
@@ -193,28 +141,212 @@ class AdminDashboardController extends Controller
         /* =========================
          | PASS TO VIEW
          |=========================*/
-        return view('Admin.dashboard', compact(
-            'totalBooks',
-            'availableBooks',
-            'issuedBooks',
-            'overdueBooks',
-            'reservedBooks',
-            'totalStudents',
-            'pendingFines',
-            'collectedFines',
-            'waivedFines',
-            'fineStatusLegend',
-            'pendingRequestsCount',
-            'todayActivities',
-            'totalCategories',
-            'pendingFinesList',
-            'recentActivities',
-            'monthlyFineLabels',
-            'monthlyPendingFines',
-            'monthlyCollectedFines',
-            'monthlyWaivedFines',
-            'monthlyFineMax'
+        return view('Admin.dashboard', array_merge(
+            $fineTrendViewData,
+            compact(
+                'totalBooks',
+                'availableBooks',
+                'issuedBooks',
+                'overdueBooks',
+                'reservedBooks',
+                'totalStudents',
+                'pendingFines',
+                'collectedFines',
+                'waivedFines',
+                'fineStatusLegend',
+                'pendingRequestsCount',
+                'todayActivities',
+                'totalCategories',
+                'pendingFinesList',
+                'recentActivities'
+            )
         ));
+    }
+
+    public function fineTrend(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $selectedFineTrendPeriod = $this->resolveFineTrendPeriod($request->query('fine_period'));
+
+        return response()->json([
+            'html' => view('Admin.partials.dashboard.fine-trend-card', $this->fineTrendViewData($selectedFineTrendPeriod))->render(),
+            'period' => $selectedFineTrendPeriod,
+        ]);
+    }
+
+    private function fineTrendPeriodOptions(): array
+    {
+        return [
+            '7days' => 'Last 7 Days',
+            '30days' => 'Last 30 Days',
+            '12months' => 'Last 12 Months',
+        ];
+    }
+
+    private function resolveFineTrendPeriod(?string $period): string
+    {
+        $fineTrendPeriodOptions = $this->fineTrendPeriodOptions();
+
+        if (! is_string($period) || ! array_key_exists($period, $fineTrendPeriodOptions)) {
+            return '12months';
+        }
+
+        return $period;
+    }
+
+    private function fineTrendViewData(string $selectedFineTrendPeriod): array
+    {
+        $fineTrendPeriodOptions = $this->fineTrendPeriodOptions();
+
+        return array_merge(
+            $this->buildFineTrendData($selectedFineTrendPeriod, $fineTrendPeriodOptions[$selectedFineTrendPeriod]),
+            [
+                'fineTrendPeriodOptions' => $fineTrendPeriodOptions,
+                'selectedFineTrendPeriod' => $selectedFineTrendPeriod,
+            ]
+        );
+    }
+
+    private function buildFineTrendData(string $period, string $periodLabel): array
+    {
+        $studentFines = Fine::query()->whereHas('student.user', function ($query) {
+            $query->whereRaw('LOWER(role) = ?', ['student']);
+        });
+
+        if ($period === '7days' || $period === '30days') {
+            $dayCount = $period === '7days' ? 7 : 30;
+            $days = collect(range($dayCount - 1, 0))->map(function (int $offset) {
+                return Carbon::now()->startOfDay()->subDays($offset);
+            });
+
+            $startDate = $days->first()->copy()->startOfDay();
+            $endDate = Carbon::now()->endOfDay();
+
+            $generatedFines = (clone $studentFines)
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->get()
+                ->groupBy(function ($fine) {
+                    return Carbon::parse($fine->created_at)->format('Y-m-d');
+                });
+
+            $collectedFines = (clone $studentFines)
+                ->whereRaw('LOWER(status) = ?', ['paid'])
+                ->whereNotNull('paid_on')
+                ->whereBetween('paid_on', [$startDate, $endDate])
+                ->get()
+                ->groupBy(function ($fine) {
+                    return Carbon::parse($fine->paid_on)->format('Y-m-d');
+                });
+
+            $waivedFines = (clone $studentFines)
+                ->whereRaw('LOWER(status) = ?', ['waived'])
+                ->whereBetween('updated_at', [$startDate, $endDate])
+                ->get()
+                ->groupBy(function ($fine) {
+                    return Carbon::parse($fine->updated_at)->format('Y-m-d');
+                });
+
+            $labels = $days->map(function (Carbon $day) {
+                return $day->format('M j, Y');
+            })->all();
+
+            $axisLabels = $days->map(function (Carbon $day, int $index) use ($dayCount) {
+                if ($dayCount === 7) {
+                    return $day->format('M j');
+                }
+
+                if ($index === 0 || $index === $dayCount - 1 || $index % 5 === 0) {
+                    return $day->format('M j');
+                }
+
+                return '';
+            })->all();
+
+            $pendingSeries = $days->map(function (Carbon $day) use ($generatedFines) {
+                $key = $day->format('Y-m-d');
+
+                return round((float) ($generatedFines->get($key, collect())->filter(function ($fine) {
+                    return strtolower((string) $fine->status) === 'pending';
+                })->sum('amount')), 2);
+            })->all();
+
+            $collectedSeries = $days->map(function (Carbon $day) use ($collectedFines) {
+                return round((float) ($collectedFines->get($day->format('Y-m-d'), collect())->sum('amount')), 2);
+            })->all();
+
+            $waivedSeries = $days->map(function (Carbon $day) use ($waivedFines) {
+                return round((float) ($waivedFines->get($day->format('Y-m-d'), collect())->sum('amount')), 2);
+            })->all();
+        } else {
+            $months = collect(range(11, 0))->map(function (int $offset) {
+                return Carbon::now()->startOfMonth()->subMonths($offset);
+            });
+
+            $startMonth = $months->first()->copy()->startOfMonth();
+            $endMonth = Carbon::now()->endOfMonth();
+
+            $generatedFines = (clone $studentFines)
+                ->whereBetween('created_at', [$startMonth, $endMonth])
+                ->get()
+                ->groupBy(function ($fine) {
+                    return Carbon::parse($fine->created_at)->format('Y-m');
+                });
+
+            $collectedFines = (clone $studentFines)
+                ->whereRaw('LOWER(status) = ?', ['paid'])
+                ->whereNotNull('paid_on')
+                ->whereBetween('paid_on', [$startMonth, $endMonth])
+                ->get()
+                ->groupBy(function ($fine) {
+                    return Carbon::parse($fine->paid_on)->format('Y-m');
+                });
+
+            $waivedFines = (clone $studentFines)
+                ->whereRaw('LOWER(status) = ?', ['waived'])
+                ->whereBetween('updated_at', [$startMonth, $endMonth])
+                ->get()
+                ->groupBy(function ($fine) {
+                    return Carbon::parse($fine->updated_at)->format('Y-m');
+                });
+
+            $labels = $months->map(function (Carbon $month) {
+                return $month->format('M Y');
+            })->all();
+
+            $axisLabels = $months->map(function (Carbon $month) {
+                return $month->format('M');
+            })->all();
+
+            $pendingSeries = $months->map(function (Carbon $month) use ($generatedFines) {
+                $key = $month->format('Y-m');
+
+                return round((float) ($generatedFines->get($key, collect())->filter(function ($fine) {
+                    return strtolower((string) $fine->status) === 'pending';
+                })->sum('amount')), 2);
+            })->all();
+
+            $collectedSeries = $months->map(function (Carbon $month) use ($collectedFines) {
+                return round((float) ($collectedFines->get($month->format('Y-m'), collect())->sum('amount')), 2);
+            })->all();
+
+            $waivedSeries = $months->map(function (Carbon $month) use ($waivedFines) {
+                return round((float) ($waivedFines->get($month->format('Y-m'), collect())->sum('amount')), 2);
+            })->all();
+        }
+
+        return [
+            'fineTrendLabels' => $labels,
+            'fineTrendAxisLabels' => $axisLabels,
+            'fineTrendPending' => $pendingSeries,
+            'fineTrendCollected' => $collectedSeries,
+            'fineTrendWaived' => $waivedSeries,
+            'fineTrendMax' => max(
+                100,
+                (int) ceil(max(array_merge($pendingSeries, $collectedSeries, $waivedSeries, [0])) / 100) * 100
+            ),
+            'fineTrendSubtitle' => 'Fine generation and collection trend over the ' . strtolower($periodLabel),
+        ];
     }
 
     /**

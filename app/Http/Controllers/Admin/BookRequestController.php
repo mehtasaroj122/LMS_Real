@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BookRequestManagement\BulkUpdateBookRequestStatusRequest;
 use App\Http\Requests\BookRequestManagement\ListBookRequestsRequest;
 use App\Http\Requests\BookRequestManagement\StoreBookRequestRequest;
 use App\Http\Requests\BookRequestManagement\UpdateBookRequestStatusRequest;
@@ -109,6 +110,46 @@ class BookRequestController extends Controller
             ->with('success', $message);
     }
 
+    public function bulkUpdate(
+        BulkUpdateBookRequestStatusRequest $request,
+        BookRequestManagementActionService $actionService,
+        BookRequestManagementDataService $dataService
+    ) {
+        Gate::authorize('access-admin');
+
+        $status = $request->status();
+        $results = $actionService->bulkUpdateStatus(
+            $request->requestIds(),
+            $status,
+            (string) (auth()->user()?->name ?? 'System'),
+            true
+        );
+
+        $message = $this->buildBulkActionMessage(
+            $status,
+            (int) $results['updated_count'],
+            (int) $results['skipped_count']
+        );
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'action' => $status,
+                'processedCount' => (int) $results['updated_count'],
+                'skippedCount' => (int) $results['skipped_count'],
+                'requests' => collect($results['updated'])
+                    ->map(fn (BookRequest $bookRequest) => $dataService->serializeRequest($bookRequest))
+                    ->values()
+                    ->all(),
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.book-requests.index')
+            ->with('success', $message);
+    }
+
     public function show(string $id)
     {
         //
@@ -138,5 +179,20 @@ class BookRequestController extends Controller
         return redirect()
             ->route('admin.book-requests.index')
             ->with('success', 'Request deleted successfully.');
+    }
+
+    protected function buildBulkActionMessage(string $status, int $processedCount, int $skippedCount): string
+    {
+        $actionLabel = $status === 'approved' ? 'approved' : 'rejected';
+
+        if ($processedCount === 0 && $skippedCount > 0) {
+            return "No selected requests were {$actionLabel} because they were no longer pending.";
+        }
+
+        if ($skippedCount > 0) {
+            return "{$processedCount} request(s) {$actionLabel}. {$skippedCount} selected request(s) were skipped because they were no longer pending.";
+        }
+
+        return "{$processedCount} request(s) {$actionLabel} successfully.";
     }
 }

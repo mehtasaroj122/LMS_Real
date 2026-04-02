@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\LibrarySettingsRequest;
 use App\Http\Requests\Admin\PasswordUpdateRequest;
 use App\Http\Requests\Admin\ProfileUpdateRequest;
 use App\Models\FineSetting;
+use App\Models\Notification;
 use App\Support\LibraryBranding;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -60,7 +61,62 @@ class SettingController extends Controller
                 ->withErrors(['profile_photo' => 'Failed to upload photo. Please try again.']);
         }
 
+        // Capture old values before update
+        $oldEmail = $user->email;
+        $oldName = $user->name;
+        $hadProfilePhoto = $user->profile_photo !== null;
+        
         $user->update($validated);
+
+        // Build list of changes
+        $changes = [];
+        if (isset($validated['name']) && $oldName !== $validated['name']) {
+            $changes[] = "name: {$oldName} → {$validated['name']}";
+        }
+        if (isset($validated['email']) && $oldEmail !== $validated['email']) {
+            $changes[] = "email: {$oldEmail} → {$validated['email']}";
+        }
+        if (isset($validated['profile_photo']) || $removeProfilePhoto) {
+            if ($removeProfilePhoto) {
+                $changes[] = "profile picture: removed";
+            } elseif ($hadProfilePhoto) {
+                $changes[] = "profile picture: updated";
+            } else {
+                $changes[] = "profile picture: added";
+            }
+        }
+
+        // Notify about profile update with specific changes
+        if (!empty($changes)) {
+            $changesSummary = implode(", ", $changes);
+            Notification::notify(
+                user: $user,
+                type: 'account.profile_updated',
+                title: 'Profile Information Updated',
+                message: "Your profile information was updated: {$changesSummary}",
+                data: [
+                    'ip' => request()->ip(),
+                    'timestamp' => now(),
+                    'changes' => $changes,
+                    'changed_fields' => array_keys($validated)
+                ],
+                relatedModel: 'User',
+                relatedId: $user->id
+            );
+        }
+
+        // Notify if email was changed
+        if ($oldEmail !== ($validated['email'] ?? $oldEmail)) {
+            Notification::notify(
+                user: $user,
+                type: 'account.email_changed',
+                title: 'Email Address Changed',
+                message: 'Your email address was changed to ' . $validated['email'],
+                data: ['old_email' => $oldEmail, 'new_email' => $validated['email']],
+                relatedModel: 'User',
+                relatedId: $user->id
+            );
+        }
 
         ActivityLogger::logActivity(
             'profile_updated',
@@ -93,6 +149,26 @@ class SettingController extends Controller
         $user->update([
             'password' => Hash::make($request->validated('new_password')),
         ]);
+
+        // Notify about password change with details
+        $ipAddress = request()->ip();
+        $timestamp = now();
+        $changeMessage = "Your password was changed successfully on {$timestamp->format('M d, Y')} at {$timestamp->format('h:i A')} from IP {$ipAddress}";
+        
+        Notification::notify(
+            user: $user,
+            type: 'account.password_changed',
+            title: 'Password Changed Successfully',
+            message: $changeMessage,
+            data: [
+                'ip' => $ipAddress,
+                'timestamp' => $timestamp,
+                'date_formatted' => $timestamp->format('M d, Y h:i A'),
+                'user_agent' => request()->header('User-Agent')
+            ],
+            relatedModel: 'User',
+            relatedId: $user->id
+        );
 
         ActivityLogger::logActivity(
             'password_changed',
@@ -152,12 +228,76 @@ class SettingController extends Controller
             ? $validated['logo_fallback_text']
             : FineSetting::DEFAULTS['logo_fallback_text'];
 
+        // Capture old values before update
+        $oldValues = $fineSetting->toArray();
+        
         $fineSetting->fill($validated);
         $fineSetting->is_active = true;
         $fineSetting->save();
 
         FineSetting::where('id', '!=', $fineSetting->id)->update(['is_active' => false]);
         $branding = LibraryBranding::refresh();
+
+        // Build list of changes for notification (only show actual changes)
+        $changes = [];
+        foreach ($validated as $field => $newValue) {
+            $oldValue = $oldValues[$field] ?? null;
+            
+            // Skip system fields and unchanged values (use loose comparison to handle type differences)
+            if (in_array($field, ['created_at', 'updated_at', 'id'])) {
+                continue;
+            }
+            
+            // Convert to string for comparison to handle type differences between form and database
+            if ((string)$oldValue === (string)$newValue) {
+                continue;
+            }
+            
+            // Format the change message
+            $oldValueStr = $oldValue ?? 'not set';
+            $newValueStr = $newValue ?? 'not set';
+            
+            // For boolean fields, convert to yes/no
+            if (is_bool($oldValue) || is_bool($newValue)) {
+                $oldValueStr = $oldValue ? 'yes' : 'no';
+                $newValueStr = $newValue ? 'yes' : 'no';
+            }
+            
+            // Truncate long values for readability
+            if (strlen((string) $oldValueStr) > 50) {
+                $oldValueStr = substr((string) $oldValueStr, 0, 47) . '...';
+            }
+            if (strlen((string) $newValueStr) > 50) {
+                $newValueStr = substr((string) $newValueStr, 0, 47) . '...';
+            }
+            
+            $changes[] = "{$field}: {$oldValueStr} → {$newValueStr}";
+        }
+
+        // Notify about library settings update
+        $user = Auth::user();
+        if ($user) {
+            if (!empty($changes)) {
+                $changesSummary = implode(", ", $changes);
+                $message = "Library settings have been updated: {$changesSummary}";
+            } else {
+                $message = 'Library settings have been updated successfully';
+            }
+            
+            Notification::notify(
+                user: $user,
+                type: 'system.settings_updated',
+                title: 'Library Settings Updated',
+                message: $message,
+                data: [
+                    'changed_settings' => array_keys($validated),
+                    'changes' => $changes,
+                    'timestamp' => now()
+                ],
+                relatedModel: 'FineSetting',
+                relatedId: $fineSetting->id
+            );
+        }
 
         ActivityLogger::logActivity(
             'library_settings_updated',

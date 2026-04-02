@@ -65,6 +65,9 @@ Route::middleware(['auth', 'can:access-admin'])
     ->name('admin.')
     ->group(function () {
 
+        Route::get('/dashboard/fine-trend', [AdminDashboardController::class, 'fineTrend'])
+            ->name('dashboard.fine-trend');
+
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
 
@@ -78,6 +81,7 @@ Route::middleware(['auth', 'can:access-admin'])
 
         Route::get('/book-requests/data', [BookRequestController::class, 'getRequestsData'])->name('book-requests.data');
         Route::get('/book-requests/stats', [BookRequestController::class, 'getRequestStats'])->name('book-requests.stats');
+        Route::post('/book-requests/bulk-status', [BookRequestController::class, 'bulkUpdate'])->name('book-requests.bulk-status');
 
         Route::get('/students/data', [StudentController::class, 'getStudentsData'])->name('students.data');
         Route::get('/students/stats', [StudentController::class, 'getStudentsStats'])->name('students.stats');
@@ -109,6 +113,7 @@ Route::middleware(['auth', 'can:access-admin'])
         Route::get('/students/{student}/privileges', [StudentController::class, 'getPrivileges'])->name('students.privileges');
         Route::get('/students/{student}/activity-logs', [StudentController::class, 'getStudentActivityLogs'])->name('students.activity-logs');
         Route::post('/students/{student}/privileges', [StudentController::class, 'savePrivileges'])->name('students.privileges.save');
+        Route::post('/students/{student}/privileges/reset', [StudentController::class, 'resetPrivileges'])->name('students.privileges.reset');
         Route::resource('transactions', TransactionController::class)->only(['index']);
         Route::get('/transactions/students/search', [TransactionController::class, 'getStudents'])->name('transactions.students');
         Route::get('/transactions/books/available', [TransactionController::class, 'getAvailableBooks'])->name('transactions.books');
@@ -118,6 +123,8 @@ Route::middleware(['auth', 'can:access-admin'])
         Route::resource('fines', FineController::class)->only(['index', 'update']);
         Route::get('/fines/data/list', [FineController::class, 'getFinesData'])->name('fines.data');
         Route::get('/fines/export/data', [FineController::class, 'getExportData'])->name('fines.export-data');
+        Route::post('/fines/bulk-status', [FineController::class, 'bulkUpdate'])->name('fines.bulk-status');
+        Route::post('/fines/bulk-email', [FineController::class, 'bulkSendEmail'])->name('fines.bulk-email');
         Route::post('/fines/{fine}/mark-as-paid', [FineController::class, 'markAsPaid'])->name('fines.mark-as-paid');
         Route::post('/fines/{fine}/waive', [FineController::class, 'waive'])->name('fines.waive');
         Route::post('/fines/{fine}/send-email', [FineController::class, 'sendEmailNotification'])->name('fines.send-email');
@@ -128,6 +135,7 @@ Route::middleware(['auth', 'can:access-admin'])
         Route::get('/fines/overdue/books', [FineController::class, 'overdueBooksSummary'])->name('fines.overdue');
         Route::resource('book-requests', BookRequestController::class)->only(['index', 'store', 'update', 'destroy']);
 
+        Route::get('/reports/data', [ReportController::class, 'data'])->name('reports.data');
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
         Route::get('/ui-showcase', [UiShowcaseController::class, 'index'])->name('ui-showcase.index');
@@ -153,6 +161,7 @@ Route::middleware(['auth', 'can:access-admin'])
             Route::get('/', [NotificationController::class, 'index'])->name('index');
             Route::get('/unread', [NotificationController::class, 'unread'])->name('unread');
             Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
+            Route::get('/{notificationId}', [NotificationController::class, 'show'])->name('show');
             Route::post('/{notificationId}/read', [NotificationController::class, 'markAsRead'])->name('mark-read');
             Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
             Route::post('/delete-all-read', [NotificationController::class, 'deleteAllRead'])->name('delete-all-read');
@@ -199,6 +208,8 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::get('/fines', [StaffFineController::class, 'index'])->name('fines.index');
         Route::get('/fines/data', [StaffFineController::class, 'getFinesData'])->name('fines.data');
         Route::get('/fines/export/data', [StaffFineController::class, 'getExportData'])->name('fines.export-data');
+        Route::post('/fines/bulk-status', [StaffFineController::class, 'bulkUpdate'])->name('fines.bulk-status');
+        Route::post('/fines/bulk-email', [StaffFineController::class, 'bulkSendEmail'])->name('fines.bulk-email');
         Route::post('/fines/{fine}/mark-as-paid', [StaffFineController::class, 'markAsPaid'])->name('fines.mark-as-paid');
         Route::post('/fines/{fine}/waive', [StaffFineController::class, 'waive'])->name('fines.waive');
         Route::post('/fines/{fine}/send-email', [StaffFineController::class, 'sendEmailNotification'])->name('fines.send-email');
@@ -208,6 +219,7 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::get('/book-requests/data', [StaffBookRequestController::class, 'getRequestsData'])->name('book-requests.data');
         Route::get('/book-requests/stats', [StaffBookRequestController::class, 'getRequestStats'])->name('book-requests.stats');
         Route::get('/book-requests/next', [StaffBookRequestController::class, 'getNextPending'])->name('book-requests.next');
+        Route::post('/book-requests/bulk-status', [StaffBookRequestController::class, 'bulkUpdate'])->name('book-requests.bulk-status');
         Route::resource('book-requests', StaffBookRequestController::class)->only(['store', 'update']);
         
         // Student management routes

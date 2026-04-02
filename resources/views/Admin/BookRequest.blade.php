@@ -9,6 +9,7 @@
             'data' => route('admin.book-requests.data'),
             'stats' => route('admin.book-requests.stats'),
             'store' => route('admin.book-requests.store'),
+            'bulkUpdate' => route('admin.book-requests.bulk-status'),
             'update' => url('admin/book-requests/__REQUEST_ID__'),
         ],
         'features' => [

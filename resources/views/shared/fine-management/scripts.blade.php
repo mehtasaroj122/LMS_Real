@@ -38,6 +38,7 @@
                 minAmount: '',
                 maxAmount: '',
                 fines: [],
+                selectedFineIds: new Set(),
                 exportScope: 'page',
                 exportPreparedAt: null,
                 exportAllRows: [],
@@ -46,7 +47,7 @@
                 exportAllRowsLoading: false,
                 stats: {},
                 pagination: {},
-                currentFineId: null,
+                currentWaiveContext: null,
                 pendingConfirmAction: null,
                 currentModalId: null,
                 lastFocusedElement: null,
@@ -86,6 +87,13 @@
                 this.elements.maxAmountFilter = document.getElementById('maxAmountFilter');
                 this.elements.entriesSelect = document.getElementById('fineEntriesSelect');
                 this.elements.exportButton = document.getElementById('exportFinesBtn');
+                this.elements.bulkActionBar = document.getElementById('fineBulkActionBar');
+                this.elements.bulkSummary = document.getElementById('fineBulkSummary');
+                this.elements.bulkMarkPaidBtn = document.getElementById('bulkMarkPaidBtn');
+                this.elements.bulkWaiveBtn = document.getElementById('bulkWaiveBtn');
+                this.elements.bulkEmailBtn = document.getElementById('bulkEmailBtn');
+                this.elements.clearSelectedFinesBtn = document.getElementById('clearSelectedFinesBtn');
+                this.elements.selectAllCheckbox = document.getElementById('fineSelectAll');
                 this.elements.tbody = document.getElementById('finesTableBody');
                 this.elements.tableWrapper = document.getElementById('finesTableWrapper');
                 this.elements.emptyState = document.getElementById('emptyState');
@@ -100,6 +108,8 @@
                 this.elements.lastUpdatedLabel = document.getElementById('lastUpdatedLabel');
                 this.elements.toastContainer = document.getElementById('fineToastContainer');
                 this.elements.liveRegion = document.getElementById('fineLiveRegion');
+                this.elements.waiveModalTitle = document.getElementById('waiveModalTitle');
+                this.elements.waiveModalDescription = document.getElementById('waiveModalDescription');
                 this.elements.waiveReason = document.getElementById('waiveReason');
                 this.elements.waiveReasonError = document.getElementById('waiveReasonError');
                 this.elements.waiveSubmitBtn = document.getElementById('waiveSubmitBtn');
@@ -159,6 +169,8 @@
                     modalId: 'exportOptionsModal',
                     idPrefix: 'reportExport',
                     scopeName: 'reportExportScope',
+                    downloadFormat: 'excel-xml',
+                    sheetName: 'Fine Report',
                     routes: {
                         exportData: this.config.routes?.exportData,
                     },
@@ -169,16 +181,16 @@
                     labels: {
                         printButton: 'Print List',
                         allScopePrintButton: 'Print Full Report',
-                        downloadButton: 'Download CSV',
-                        allScopeDownloadButton: 'Download Full CSV',
+                        downloadButton: 'Download Excel',
+                        allScopeDownloadButton: 'Download Full Excel',
                     },
                     messages: {
                         emptyMessage: 'There are no fine records in the current result set.',
                         preparingMessage: 'Please wait until the full fine report finishes loading.',
                         printReadyMessage: 'The print dialog will open in a new window for the current fine list.',
                         fullPrintReadyMessage: 'The print dialog will open in a new window for the full filtered fine report.',
-                        exportReadyMessage: 'The current fine list has been exported to CSV.',
-                        fullExportReadyMessage: 'The full filtered fine report has been exported to CSV.',
+                        exportReadyMessage: 'The current fine list has been exported to Excel.',
+                        fullExportReadyMessage: 'The full filtered fine report has been exported to Excel.',
                         exportRouteMissingMessage: 'The full fine report endpoint is not available right now.',
                         fullLoadFailedMessage: 'Something went wrong while preparing the full fine report.',
                     },
@@ -205,18 +217,10 @@
                         perPage: Math.max(1, Number(this.state.perPage || 10)),
                     }),
                     getScopeLabel: (scope) => this.getExportScopeLabel(scope),
-                    getFilename: (context) => this.getExportFilename(context),
+                    getFilename: (context) => this.getExportFilename(context, 'excel'),
                     extractAllRows: (data) => Array.isArray(data?.fines) ? data.fines : [],
                     extractGeneratedAt: (data) => data?.meta?.generated_at || null,
-                    getCsvMetaRows: (context) => [
-                        [systemTitle],
-                        ['Fine Report'],
-                        [context.generatedAtLabel],
-                        ...(defaultLibraryBranding?.image_url ? [['Library Logo', defaultLibraryBranding.image_url], ['']] : []),
-                        ['Report Scope', context.scopeLabel],
-                        ['Records Included', String(context.rows.length)],
-                        [''],
-                    ],
+                    getExportMetaRows: (context) => this.buildFineReportExportMetaRows(context),
                     describeContext: (context) => this.describeExportContext(context),
                 }).init();
             },
@@ -246,6 +250,14 @@
                     this.loadFines();
                 });
 
+                this.elements.bulkMarkPaidBtn?.addEventListener('click', () => this.openBulkMarkPaidModal());
+                this.elements.bulkWaiveBtn?.addEventListener('click', () => this.openBulkWaiveModal());
+                this.elements.bulkEmailBtn?.addEventListener('click', () => this.openBulkEmailModal());
+                this.elements.clearSelectedFinesBtn?.addEventListener('click', () => this.clearSelection());
+                this.elements.selectAllCheckbox?.addEventListener('change', (event) => {
+                    this.toggleSelectAll(Boolean(event.target.checked));
+                });
+
                 ['minAmountFilter', 'maxAmountFilter'].forEach((key) => {
                     const element = this.elements[key];
                     element?.addEventListener('input', () => {
@@ -267,10 +279,17 @@
                     }
                 });
 
+                this.elements.root.addEventListener('change', (event) => {
+                    const fineCheckbox = event.target.closest('[data-fine-checkbox]');
+                    if (fineCheckbox) {
+                        this.setSelection(fineCheckbox.dataset.fineId, Boolean(fineCheckbox.checked));
+                    }
+                });
+
                 this.elements.waiveSubmitBtn?.addEventListener('click', () => this.confirmWaiveFine());
                 this.elements.confirmActionSubmitBtn?.addEventListener('click', () => this.executeConfirmedAction());
                 this.elements.exportPrintBtn?.addEventListener('click', () => this.printCurrentList());
-                this.elements.exportDownloadBtn?.addEventListener('click', () => this.exportToCSV());
+                this.elements.exportDownloadBtn?.addEventListener('click', () => this.downloadExportFile());
                 this.elements.exportScopeInputs.forEach((input) => {
                     input.addEventListener('change', (event) => {
                         void this.setExportScope(event.target.value);
@@ -369,6 +388,7 @@
                     this.state.lastUpdatedAt = new Date();
                     this.state.exportPreparedAt = new Date();
                     this.clearAllExportRowsCache();
+                    this.reconcileSelection();
 
                     const lastPage = Math.max(1, Number(this.state.pagination.last_page || 1));
                     if (this.state.currentPage > lastPage) {
@@ -433,6 +453,7 @@
                 this.renderStats();
                 this.renderPagination();
                 this.renderToolbarMeta();
+                this.updateBulkActionState();
                 this.updateExportState();
                 if (this.state.currentModalId === (this.exportWorkflow?.getModalId?.() || 'exportOptionsModal')) {
                     this.renderExportPreview();
@@ -470,6 +491,7 @@
                 this.elements.emptyState?.setAttribute('aria-hidden', 'true');
                 const skeletonRow = `
                     <tr>
+                        <td><span class="table-skeleton-line short"></span></td>
                         <td><span class="table-skeleton-line"></span></td>
                         <td><span class="table-skeleton-line"></span></td>
                         <td><span class="table-skeleton-line short"></span></td>
@@ -484,7 +506,7 @@
 
             renderTableError() {
                 if (!this.elements.tbody) return;
-                this.elements.tbody.innerHTML = '<tr><td colspan="7" class="text-muted" style="padding:1.25rem;text-align:center;">Fine records could not be loaded.</td></tr>';
+                this.elements.tbody.innerHTML = '<tr><td colspan="8" class="text-muted" style="padding:1.25rem;text-align:center;">Fine records could not be loaded.</td></tr>';
             },
 
             renderTable() {
@@ -525,6 +547,9 @@
 
                 return `
                     <tr data-fine-id="${Number(fine.id)}" class="${isOverdue ? 'is-overdue' : ''}">
+                        <td class="fine-select-cell">
+                            ${this.buildSelectionCell(fine)}
+                        </td>
                         <td>
                             <div class="student-cell">
                                 <div class="student-avatar">${this.getStudentAvatarMarkup(fine)}</div>
@@ -560,6 +585,26 @@
                 `;
             },
 
+            buildSelectionCell(fine) {
+                const fineId = Number(fine.id);
+                const isSelected = this.state.selectedFineIds.has(fineId);
+                const label = `Select fine for ${fine.studentName || 'student'} and ${fine.bookTitle || 'book'}`;
+
+                return `
+                    <label class="fine-checkbox" title="${this.escapeAttribute(label)}">
+                        <input
+                            type="checkbox"
+                            class="fine-checkbox-input"
+                            data-fine-checkbox
+                            data-fine-id="${fineId}"
+                            aria-label="${this.escapeAttribute(label)}"
+                            ${isSelected ? 'checked' : ''}
+                        >
+                        <span class="fine-checkbox-control" aria-hidden="true"></span>
+                    </label>
+                `;
+            },
+
             buildActionButtons(fine) {
                 const status = (fine.status || 'pending').toLowerCase();
                 const buttons = [];
@@ -585,6 +630,154 @@
                 if (status === 'paid') return svgIcons.paidBadge;
                 if (status === 'waived') return svgIcons.waivedBadge;
                 return svgIcons.pendingBadge;
+            },
+
+            isFineSelectable(fine) {
+                return String(fine?.status || '').toLowerCase() === 'pending';
+            },
+
+            reconcileSelection() {
+                const visibleFineIds = new Set(this.getVisibleFineIds());
+
+                this.state.selectedFineIds = new Set(
+                    Array.from(this.state.selectedFineIds).filter((fineId) => visibleFineIds.has(Number(fineId)))
+                );
+            },
+
+            getVisibleFineIds() {
+                return this.state.fines
+                    .map((fine) => Number(fine.id))
+                    .filter((fineId) => fineId > 0);
+            },
+
+            getSelectableFineIds() {
+                return this.state.fines
+                    .filter((fine) => this.isFineSelectable(fine))
+                    .map((fine) => Number(fine.id));
+            },
+
+            getSelectedFineIds() {
+                return this.getVisibleFineIds()
+                    .filter((fineId) => this.state.selectedFineIds.has(fineId));
+            },
+
+            getSelectedFines() {
+                const selectedIds = new Set(this.getSelectedFineIds());
+
+                return this.state.fines.filter((fine) => selectedIds.has(Number(fine.id)));
+            },
+
+            getPendingSelectedFineIds() {
+                return this.getSelectableFineIds()
+                    .filter((fineId) => this.state.selectedFineIds.has(fineId));
+            },
+
+            getPendingSelectedFines() {
+                const selectedIds = new Set(this.getPendingSelectedFineIds());
+
+                return this.state.fines.filter((fine) => selectedIds.has(Number(fine.id)));
+            },
+
+            setSelection(fineId, isSelected) {
+                const normalizedId = Number(fineId);
+                if (!normalizedId) return;
+
+                if (isSelected) {
+                    this.state.selectedFineIds.add(normalizedId);
+                } else {
+                    this.state.selectedFineIds.delete(normalizedId);
+                }
+
+                this.updateBulkActionState();
+            },
+
+            toggleSelectAll(shouldSelect) {
+                this.getVisibleFineIds().forEach((fineId) => {
+                    if (shouldSelect) {
+                        this.state.selectedFineIds.add(fineId);
+                    } else {
+                        this.state.selectedFineIds.delete(fineId);
+                    }
+                });
+
+                this.updateBulkActionState();
+            },
+
+            clearSelection() {
+                this.state.selectedFineIds.clear();
+                this.updateBulkActionState();
+            },
+
+            syncSelectionInputs() {
+                this.elements.root?.querySelectorAll('[data-fine-checkbox]').forEach((checkbox) => {
+                    const fineId = Number(checkbox.dataset.fineId);
+                    checkbox.checked = this.state.selectedFineIds.has(fineId);
+                });
+
+                if (!this.elements.selectAllCheckbox) {
+                    return;
+                }
+
+                const visibleIds = this.getVisibleFineIds();
+                const selectedCount = this.getSelectedFineIds().length;
+                const hasVisibleRows = visibleIds.length > 0;
+
+                this.elements.selectAllCheckbox.disabled = !hasVisibleRows;
+                this.elements.selectAllCheckbox.checked = hasVisibleRows && selectedCount === visibleIds.length;
+                this.elements.selectAllCheckbox.indeterminate = hasVisibleRows && selectedCount > 0 && selectedCount < visibleIds.length;
+            },
+
+            updateBulkActionState() {
+                const visibleCount = this.getVisibleFineIds().length;
+                const selectableCount = this.getSelectableFineIds().length;
+                const selectedFines = this.getSelectedFines();
+                const selectedCount = selectedFines.length;
+                const pendingSelectedFines = this.getPendingSelectedFines();
+                const pendingSelectedCount = pendingSelectedFines.length;
+                const hasSelection = selectedCount > 0;
+                const hasPendingSelection = pendingSelectedCount > 0;
+
+                if (this.elements.bulkActionBar) {
+                    this.elements.bulkActionBar.classList.toggle('has-selection', hasSelection);
+                }
+
+                if (this.elements.bulkSummary) {
+                    if (visibleCount === 0) {
+                        this.elements.bulkSummary.textContent = 'No fine records are available in this view right now.';
+                    } else if (!hasSelection) {
+                        this.elements.bulkSummary.textContent = selectableCount > 0
+                            ? `Select fines from the table to send emails, or choose from ${selectableCount} pending fine${selectableCount === 1 ? '' : 's'} on this page to mark them as paid or waive them.`
+                            : 'Select fines from the table to send emails. Mark as paid and waive are available only for pending fines.';
+                    } else if (hasPendingSelection) {
+                        const selectedAmount = selectedFines.reduce((sum, fine) => sum + Number(fine.fineAmount || 0), 0);
+                        const pendingAmount = pendingSelectedFines.reduce((sum, fine) => sum + Number(fine.fineAmount || 0), 0);
+                        const emailOnlyCount = selectedCount - pendingSelectedCount;
+
+                        this.elements.bulkSummary.textContent = emailOnlyCount > 0
+                            ? `${selectedCount} fine${selectedCount === 1 ? '' : 's'} selected for ${this.formatCurrency(selectedAmount)}. ${pendingSelectedCount} pending fine${pendingSelectedCount === 1 ? '' : 's'} totaling ${this.formatCurrency(pendingAmount)} can be marked as paid or waived, and ${emailOnlyCount} selected fine${emailOnlyCount === 1 ? '' : 's'} can receive email only.`
+                            : `${pendingSelectedCount} pending fine${pendingSelectedCount === 1 ? '' : 's'} selected for ${this.formatCurrency(pendingAmount)}.`;
+                    } else {
+                        this.elements.bulkSummary.textContent = `${selectedCount} selected fine${selectedCount === 1 ? '' : 's'} can receive email. Mark as paid and waive only work on pending fines.`;
+                    }
+                }
+
+                if (this.elements.bulkMarkPaidBtn) {
+                    this.elements.bulkMarkPaidBtn.disabled = !hasPendingSelection || this.state.actionInFlight;
+                }
+
+                if (this.elements.bulkWaiveBtn) {
+                    this.elements.bulkWaiveBtn.disabled = !hasPendingSelection || this.state.actionInFlight;
+                }
+
+                if (this.elements.bulkEmailBtn) {
+                    this.elements.bulkEmailBtn.disabled = !hasSelection || this.state.actionInFlight || !this.config.routes?.bulkEmail;
+                }
+
+                if (this.elements.clearSelectedFinesBtn) {
+                    this.elements.clearSelectedFinesBtn.disabled = !hasSelection || this.state.actionInFlight;
+                }
+
+                this.syncSelectionInputs();
             },
 
             renderPagination() {
@@ -826,23 +1019,172 @@
                 this.openConfirmActionModal('paid', fineId, fine);
             },
 
+            openBulkMarkPaidModal() {
+                const selectedFines = this.getSelectedFines();
+                const pendingSelectedFines = this.getPendingSelectedFines();
+                const selectedIds = selectedFines.map((fine) => Number(fine.id));
+                const pendingCount = pendingSelectedFines.length;
+
+                if (pendingCount === 0) {
+                    this.showToast('warning', 'No pending fines selected', 'Select at least one pending fine before using Mark Selected Paid.');
+                    return;
+                }
+
+                const totalAmount = pendingSelectedFines.reduce((sum, fine) => sum + Number(fine.fineAmount || 0), 0);
+                const skippedCount = selectedFines.length - pendingCount;
+                const detail = skippedCount > 0
+                    ? `${this.formatCurrency(totalAmount)} across ${pendingCount} pending fine${pendingCount === 1 ? '' : 's'} will be marked as paid. ${skippedCount} selected fine${skippedCount === 1 ? '' : 's'} already paid or waived will be skipped.`
+                    : `${this.formatCurrency(totalAmount)} across ${pendingCount} pending fine${pendingCount === 1 ? '' : 's'} will be marked as paid.`;
+
+                this.state.pendingConfirmAction = {
+                    type: 'paid-bulk',
+                    fineIds: selectedIds,
+                    fines: selectedFines,
+                };
+
+                if (this.feedbackUI) {
+                    this.feedbackUI.openConfirm({
+                        variant: 'success',
+                        buttonVariant: 'success',
+                        iconMarkup: svgIcons.confirmPaid,
+                        title: 'Mark selected fines as paid?',
+                        message: `Record payment for ${pendingCount} pending fine${pendingCount === 1 ? '' : 's'} from the current selection now?`,
+                        detail,
+                        confirmText: 'Mark Selected Paid',
+                    });
+                    return;
+                }
+
+                this.elements.confirmActionTitle.textContent = 'Mark selected fines as paid?';
+                this.elements.confirmActionMessage.textContent = `Record payment for ${pendingCount} pending fine${pendingCount === 1 ? '' : 's'} from the current selection now?`;
+                this.elements.confirmActionDetail.textContent = detail;
+                this.elements.confirmActionDetail.hidden = false;
+                this.elements.confirmActionSubmitBtn.textContent = 'Mark Selected Paid';
+                this.elements.confirmActionSubmitBtn.dataset.defaultLabel = 'Mark Selected Paid';
+                this.openModal('confirmActionModal', this.elements.confirmActionSubmitBtn);
+            },
+
+            openBulkEmailModal() {
+                const selectedFines = this.getSelectedFines();
+                const selectedIds = selectedFines.map((fine) => Number(fine.id));
+                const selectedCount = selectedIds.length;
+
+                if (selectedCount === 0) {
+                    this.showToast('warning', 'No fines selected', 'Select at least one fine before sending bulk emails.');
+                    return;
+                }
+
+                const recipientCount = new Set(
+                    selectedFines.map((fine) => String(fine.studentId || fine.studentName || fine.id))
+                ).size;
+
+                this.state.pendingConfirmAction = {
+                    type: 'email-bulk',
+                    fineIds: selectedIds,
+                    fines: selectedFines,
+                    extra: { recipientCount },
+                };
+
+                const detail = `${selectedCount} fine email${selectedCount === 1 ? '' : 's'} will be queued for ${recipientCount} student${recipientCount === 1 ? '' : 's'}. Students with multiple selected fines will receive one email per fine.`;
+
+                if (this.feedbackUI) {
+                    this.feedbackUI.openConfirm({
+                        variant: 'primary',
+                        buttonVariant: 'primary',
+                        iconMarkup: svgIcons.confirmEmail,
+                        title: 'Send selected fine emails?',
+                        message: `Queue email updates for ${selectedCount} selected fine${selectedCount === 1 ? '' : 's'} now?`,
+                        detail,
+                        confirmText: 'Send Selected Emails',
+                    });
+                    return;
+                }
+
+                this.elements.confirmActionTitle.textContent = 'Send selected fine emails?';
+                this.elements.confirmActionMessage.textContent = `Queue email updates for ${selectedCount} selected fine${selectedCount === 1 ? '' : 's'} now?`;
+                this.elements.confirmActionDetail.textContent = detail;
+                this.elements.confirmActionDetail.hidden = false;
+                this.elements.confirmActionSubmitBtn.textContent = 'Send Selected Emails';
+                this.elements.confirmActionSubmitBtn.dataset.defaultLabel = 'Send Selected Emails';
+                this.openModal('confirmActionModal', this.elements.confirmActionSubmitBtn);
+            },
+
             openWaiveModal(fineId) {
-                this.state.currentFineId = fineId;
-                if (this.elements.waiveReason) this.elements.waiveReason.value = '';
-                if (this.elements.waiveReasonError) this.elements.waiveReasonError.hidden = true;
-                this.setFieldValidity(this.elements.waiveReason, true);
+                const fine = this.getFineRecord(fineId);
+                if (!fine) return;
+
+                this.state.currentWaiveContext = {
+                    scope: 'single',
+                    fineIds: [Number(fineId)],
+                    fines: [fine],
+                };
+                this.prepareWaiveModal({
+                    title: 'Waive Fine',
+                    description: 'Add a short reason. This note will be stored with the fine record and shown in the activity history.',
+                    submitLabel: 'Waive Fine',
+                });
                 this.openModal('waiveModal', this.elements.waiveReason);
+            },
+
+            openBulkWaiveModal() {
+                const selectedFines = this.getSelectedFines();
+                const pendingSelectedFines = this.getPendingSelectedFines();
+                const selectedIds = selectedFines.map((fine) => Number(fine.id));
+                const pendingCount = pendingSelectedFines.length;
+
+                if (pendingCount === 0) {
+                    this.showToast('warning', 'No pending fines selected', 'Select at least one pending fine before using Waive Selected.');
+                    return;
+                }
+
+                const totalAmount = pendingSelectedFines.reduce((sum, fine) => sum + Number(fine.fineAmount || 0), 0);
+                const skippedCount = selectedFines.length - pendingCount;
+
+                this.state.currentWaiveContext = {
+                    scope: 'bulk',
+                    fineIds: selectedIds,
+                    fines: selectedFines,
+                };
+                this.prepareWaiveModal({
+                    title: 'Waive Selected Fines',
+                    description: skippedCount > 0
+                        ? `Add one reason for ${pendingCount} pending fine${pendingCount === 1 ? '' : 's'} totaling ${this.formatCurrency(totalAmount)}. ${skippedCount} selected fine${skippedCount === 1 ? '' : 's'} already paid or waived will be skipped.`
+                        : `Add one reason for all ${pendingCount} selected pending fine${pendingCount === 1 ? '' : 's'} totaling ${this.formatCurrency(totalAmount)}.`,
+                    submitLabel: 'Waive Selected',
+                });
+                this.openModal('waiveModal', this.elements.waiveReason);
+            },
+
+            prepareWaiveModal({ title, description, submitLabel }) {
+                if (this.elements.waiveModalTitle) this.elements.waiveModalTitle.textContent = title;
+                if (this.elements.waiveModalDescription) this.elements.waiveModalDescription.textContent = description;
+                if (this.elements.waiveReason) this.elements.waiveReason.value = '';
+                if (this.elements.waiveReasonError) {
+                    this.elements.waiveReasonError.hidden = true;
+                    this.elements.waiveReasonError.textContent = 'Please enter a reason for waiving the fine.';
+                }
+                this.setFieldValidity(this.elements.waiveReason, true);
+                if (this.elements.waiveSubmitBtn) {
+                    this.elements.waiveSubmitBtn.dataset.defaultLabel = submitLabel;
+                    this.elements.waiveSubmitBtn.innerHTML = `<span>${this.escapeHtml(submitLabel)}</span>`;
+                }
             },
 
             async confirmWaiveFine() {
                 if (this.state.actionInFlight) return;
 
-                const fineId = this.state.currentFineId;
-                const fine = this.getFineRecord(fineId);
+                const waiveContext = this.state.currentWaiveContext;
+                if (!waiveContext) return;
+
+                const fineId = waiveContext.fineIds?.[0];
+                const fine = waiveContext.fines?.[0] || this.getFineRecord(fineId);
                 const reason = (this.elements.waiveReason?.value || '').trim();
 
                 if (!reason) {
-                    if (this.elements.waiveReasonError) this.elements.waiveReasonError.hidden = false;
+                    if (this.elements.waiveReasonError) {
+                        this.elements.waiveReasonError.hidden = false;
+                        this.elements.waiveReasonError.textContent = 'Please enter a reason for waiving the fine.';
+                    }
                     this.setFieldValidity(this.elements.waiveReason, false);
                     this.elements.waiveReason?.focus();
                     return;
@@ -855,16 +1197,38 @@
                 this.setButtonBusy(this.elements.waiveSubmitBtn, true, 'Saving...');
 
                 try {
-                    await this.requestJson(this.buildFineRoute(this.config.routes.waive, fineId), {
-                        method: 'POST',
-                        body: JSON.stringify({ remarks: reason }),
-                    });
+                    if (waiveContext.scope === 'bulk') {
+                        const response = await this.requestJson(this.config.routes.bulkUpdate, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                status: 'waived',
+                                fine_ids: waiveContext.fineIds,
+                                remarks: reason,
+                            }),
+                        });
 
-                    this.closeModal('waiveModal');
-                    this.notifyFineUpdate({ fineId, status: 'waived' });
-                    this.applyFineStatusChange(fineId, 'waived', { reason });
-                    this.showToast('warning', 'Fine waived', `${fine?.studentName || 'The student'}'s fine was waived successfully.`);
-                    this.announce('Fine waived successfully.');
+                        this.closeModal('waiveModal');
+                        this.clearSelection();
+                        this.notifyFineUpdate({ fineIds: waiveContext.fineIds, status: 'waived', bulk: true });
+                        await this.loadFines({ silent: true });
+                        this.showToast(
+                            Number(response.skippedCount || 0) > 0 ? 'warning' : 'info',
+                            Number(response.processedCount || 0) > 0 ? 'Fines waived' : 'No fines waived',
+                            response.message || 'Selected fines were waived successfully.'
+                        );
+                        this.announce('Selected fines waived successfully.');
+                    } else {
+                        await this.requestJson(this.buildFineRoute(this.config.routes.waive, fineId), {
+                            method: 'POST',
+                            body: JSON.stringify({ remarks: reason }),
+                        });
+
+                        this.closeModal('waiveModal');
+                        this.notifyFineUpdate({ fineId, status: 'waived' });
+                        this.applyFineStatusChange(fineId, 'waived', { reason });
+                        this.showToast('warning', 'Fine waived', `${fine?.studentName || 'The student'}'s fine was waived successfully.`);
+                        this.announce('Fine waived successfully.');
+                    }
                 } catch (error) {
                     const message = this.resolveErrorMessage(error, 'Unable to waive the selected fine.');
                     if (this.elements.waiveReasonError) {
@@ -874,7 +1238,11 @@
                     this.showToast('error', 'Waiver failed', message);
                 } finally {
                     this.state.actionInFlight = false;
-                    this.setButtonBusy(this.elements.waiveSubmitBtn, false, 'Waive Fine');
+                    this.setButtonBusy(
+                        this.elements.waiveSubmitBtn,
+                        false,
+                        this.elements.waiveSubmitBtn?.dataset.defaultLabel || 'Waive Fine'
+                    );
                 }
             },
 
@@ -951,6 +1319,10 @@
                 try {
                     if (pending.type === 'paid') {
                         await this.processMarkAsPaid(pending.fineId, pending.fine);
+                    } else if (pending.type === 'paid-bulk') {
+                        await this.processBulkMarkAsPaid(pending.fineIds, pending.fines);
+                    } else if (pending.type === 'email-bulk') {
+                        await this.processBulkSendEmailNotifications(pending.fineIds, pending.fines, pending.extra);
                     } else if (pending.type === 'email') {
                         await this.processSendEmailNotification(pending.fineId, pending.fine, pending.extra);
                     }
@@ -986,6 +1358,60 @@
                 }
             },
 
+            async processBulkMarkAsPaid(fineIds, fines = []) {
+                try {
+                    const response = await this.requestJson(this.config.routes.bulkUpdate, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            status: 'paid',
+                            fine_ids: fineIds,
+                        }),
+                    });
+
+                    this.closeModal('confirmActionModal');
+                    this.clearSelection();
+                    this.notifyFineUpdate({ fineIds, status: 'paid', bulk: true });
+                    await this.loadFines({ silent: true });
+                    this.showToast(
+                        Number(response.skippedCount || 0) > 0 ? 'warning' : 'success',
+                        Number(response.processedCount || 0) > 0 ? 'Fines marked as paid' : 'No fines updated',
+                        response.message || 'Selected fines were marked as paid successfully.'
+                    );
+                    this.announce('Selected fines marked as paid.');
+                } catch (error) {
+                    const message = this.resolveErrorMessage(error, 'Unable to mark the selected fines as paid.');
+                    this.showToast('error', 'Bulk payment update failed', message);
+                    throw error;
+                }
+            },
+
+            async processBulkSendEmailNotifications(fineIds, fines = [], extra = {}) {
+                try {
+                    const response = await this.requestJson(this.config.routes.bulkEmail, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            fine_ids: fineIds,
+                        }),
+                    });
+
+                    this.closeModal('confirmActionModal');
+                    const processedCount = Number(response.processedCount || 0);
+                    const skippedCount = Number(response.skippedCount || 0);
+                    const recipientCount = Number(response.recipientCount || extra.recipientCount || 0);
+
+                    this.showToast(
+                        skippedCount > 0 ? 'warning' : 'info',
+                        processedCount > 0 ? 'Emails queued' : 'No emails queued',
+                        response.message || `${processedCount} fine email${processedCount === 1 ? '' : 's'} were queued for ${recipientCount} recipient${recipientCount === 1 ? '' : 's'}.`
+                    );
+                    this.announce(processedCount > 0 ? 'Selected fine emails queued successfully.' : 'No selected fine emails were queued.');
+                } catch (error) {
+                    const message = this.resolveErrorMessage(error, 'Unable to send emails for the selected fines.');
+                    this.showToast('error', 'Bulk email failed', message);
+                    throw error;
+                }
+            },
+
             async processSendEmailNotification(fineId, fine, extra = {}) {
                 try {
                     const data = await this.requestJson(this.buildFineRoute(this.config.routes.sendEmail, fineId), {
@@ -1011,6 +1437,8 @@
                 const previousStatus = (fine.status || '').toLowerCase();
                 const targetStatus = (nextStatus || '').toLowerCase();
                 if (!targetStatus || previousStatus === targetStatus) return;
+
+                this.state.selectedFineIds.delete(Number(fineId));
 
                 this.updateStatsLocally(fine, previousStatus, targetStatus);
                 fine.status = targetStatus;
@@ -1092,7 +1520,7 @@
                 modal.classList.remove('is-open');
                 modal.setAttribute('aria-hidden', 'true');
                 this.state.currentModalId = null;
-                if (modalId === 'waiveModal') this.state.currentFineId = null;
+                if (modalId === 'waiveModal') this.state.currentWaiveContext = null;
                 if (modalId === 'confirmActionModal') {
                     this.state.pendingConfirmAction = null;
                     this.feedbackUI?.resetConfirm();
@@ -1214,7 +1642,7 @@
                 if (this.elements.exportDownloadBtnLabel) {
                     this.elements.exportDownloadBtnLabel.textContent = context.isLoading
                         ? 'Preparing report...'
-                        : (context.isAllScope ? 'Download Full CSV' : 'Download CSV');
+                        : (context.isAllScope ? 'Download Full Excel' : 'Download Excel');
                 }
 
                 if (this.elements.exportDownloadBtn) {
@@ -1232,7 +1660,7 @@
                     ? `Rows ${context.start}-${context.end} of ${context.total}.`
                     : 'Visible rows used for export.';
                 let previewCountText = `${context.rowsReady} ${context.rowsReady === 1 ? 'row' : 'rows'}`;
-                let footerNote = 'Using current page for print and CSV.';
+                let footerNote = 'Using current page for print and spreadsheet download.';
                 let emptyMessage = 'No fine records are available for preview.';
 
                 if (context.isAllScope && context.isLoading) {
@@ -1253,7 +1681,7 @@
                     previewCountText = context.rowsReady > context.previewRows.length
                         ? `Showing ${context.previewRows.length} of ${context.rowsReady}`
                         : `${context.rowsReady} ${context.rowsReady === 1 ? 'row' : 'rows'}`;
-                    footerNote = 'Using full filtered report for print and CSV.';
+                    footerNote = 'Using full filtered report for print and spreadsheet download.';
                 }
 
                 return {
@@ -1289,19 +1717,19 @@
                 let badgeLabel = 'Current result set';
                 let headline = `${rowsReady} fine ${rowsReady === 1 ? 'record' : 'records'} ready on this page`;
                 let subtext = total > rowsReady
-                    ? `You are previewing rows ${start}-${end} of ${total} matching fine records. Print and CSV download use the current page only.`
+                    ? `You are previewing rows ${start}-${end} of ${total} matching fine records. Print and spreadsheet download use the current page only.`
                     : 'Print or download the currently visible fine records from this dialog.';
                 let previewCaption = total > rowsReady
                     ? `Current page preview. Rows ${start}-${end} of ${total} matching fine records will be used.`
                     : 'Current filtered fine records that will be printed or downloaded.';
                 let previewCountText = `${rowsReady} ${rowsReady === 1 ? 'row' : 'rows'}`;
-                let footerNote = 'Printing and CSV download use the current filtered page shown above.';
+                let footerNote = 'Printing and spreadsheet download use the current filtered page shown above.';
                 let emptyMessage = 'No fine records are available for preview.';
 
                 if (isAllScope && isLoading) {
                     badgeLabel = 'Preparing full report';
                     headline = 'Loading every matching fine record...';
-                    subtext = `Fetching all ${total} matching fine ${total === 1 ? 'record' : 'records'} across ${lastPage} ${lastPage === 1 ? 'page' : 'pages'} for printing and CSV download.`;
+                    subtext = `Fetching all ${total} matching fine ${total === 1 ? 'record' : 'records'} across ${lastPage} ${lastPage === 1 ? 'page' : 'pages'} for printing and spreadsheet download.`;
                     previewCaption = 'The full filtered report preview will appear here as soon as it is ready.';
                     previewCountText = 'Preparing...';
                     footerNote = 'Please wait while the entire filtered report is being prepared.';
@@ -1309,14 +1737,14 @@
                 } else if (isAllScope) {
                     badgeLabel = 'Entire filtered report';
                     headline = `${rowsReady} fine ${rowsReady === 1 ? 'record' : 'records'} ready in the full report`;
-                    subtext = `All ${rowsReady} matching fine ${rowsReady === 1 ? 'record' : 'records'} across ${lastPage} ${lastPage === 1 ? 'page' : 'pages'} will be used for print and CSV download.`;
+                    subtext = `All ${rowsReady} matching fine ${rowsReady === 1 ? 'record' : 'records'} across ${lastPage} ${lastPage === 1 ? 'page' : 'pages'} will be used for print and spreadsheet download.`;
                     previewCaption = rowsReady > previewRows.length
-                        ? `Previewing the first ${previewRows.length} rows. Print and CSV download will include all ${rowsReady} matching fine records.`
-                        : `All ${rowsReady} matching fine ${rowsReady === 1 ? 'record' : 'records'} will be used for print and CSV download.`;
+                        ? `Previewing the first ${previewRows.length} rows. Print and spreadsheet download will include all ${rowsReady} matching fine records.`
+                        : `All ${rowsReady} matching fine ${rowsReady === 1 ? 'record' : 'records'} will be used for print and spreadsheet download.`;
                     previewCountText = rowsReady > previewRows.length
                         ? `Showing ${previewRows.length} of ${rowsReady}`
                         : `${rowsReady} ${rowsReady === 1 ? 'row' : 'rows'}`;
-                    footerNote = `Printing and CSV download will use the entire filtered report with ${rowsReady} ${rowsReady === 1 ? 'record' : 'records'}.`;
+                    footerNote = `Printing and spreadsheet download will use the entire filtered report with ${rowsReady} ${rowsReady === 1 ? 'record' : 'records'}.`;
                 }
 
                 return {
@@ -1409,6 +1837,23 @@
 
             getExportHeaders() {
                 return ['User ID', 'User Name', 'Book Title', 'Due Date', 'Days Overdue', 'Fine Amount', 'Status'];
+            },
+
+            buildFineReportExportMetaRows(context) {
+                if (typeof window.ReportExportTemplates?.buildStandardMetaRows === 'function') {
+                    return window.ReportExportTemplates.buildStandardMetaRows({
+                        systemTitle,
+                        reportTitle: 'Fine Report',
+                        generatedAtLabel: context.generatedAtLabel,
+                    });
+                }
+
+                return [
+                    [systemTitle],
+                    ['Fine Report'],
+                    [context.generatedAtLabel],
+                    [''],
+                ];
             },
 
             syncExportScopeControls() {
@@ -1569,12 +2014,13 @@
                 return scope === 'all' ? 'Entire filtered report' : 'Current page';
             },
 
-            getExportFilename(context) {
+            getExportFilename(context, format = 'excel') {
                 const generatedAt = this.toDateObject(context?.generatedAt) || new Date();
                 const datePart = generatedAt.toISOString().slice(0, 10);
+                const extension = format === 'csv' ? 'csv' : 'xls';
                 return context?.isAllScope
-                    ? `fine-report-full-${datePart}.csv`
-                    : `fine-report-page-${context?.currentPage || 1}-${datePart}.csv`;
+                    ? `fine-report-full-${datePart}.${extension}`
+                    : `fine-report-page-${context?.currentPage || 1}-${datePart}.${extension}`;
             },
 
             getStatusFilterLabel() {
@@ -1606,6 +2052,15 @@
                 }
 
                 return 'Any amount';
+            },
+
+            downloadExportFile() {
+                if (this.exportWorkflow) {
+                    this.exportWorkflow.download();
+                    return;
+                }
+
+                this.exportToCSV();
             },
 
             printCurrentList() {
@@ -1914,7 +2369,7 @@
 
             exportToCSV() {
                 if (this.exportWorkflow) {
-                    this.exportWorkflow.downloadCsv();
+                    this.exportWorkflow.download();
                     return;
                 }
 
@@ -1931,17 +2386,8 @@
                 }
 
                 const headers = this.getExportHeaders();
-                const generatedAt = this.formatDateTime(context.generatedAt || new Date());
                 const escapeCsvCell = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
-                const metaRows = [
-                    [systemTitle],
-                    ['Fine Report'],
-                    [`Generated on ${generatedAt}`],
-                    ...(defaultLibraryBranding?.image_url ? [['Library Logo', defaultLibraryBranding.image_url], ['']] : []),
-                    ['Report Scope', context.scopeLabel],
-                    ['Records Included', String(rows.length)],
-                    [''],
-                ];
+                const metaRows = this.buildFineReportExportMetaRows(context);
                 const csvRows = rows.map((row) => [
                     row.studentId,
                     row.studentName,
@@ -1958,7 +2404,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = this.getExportFilename(context);
+                link.download = this.getExportFilename(context, 'csv');
                 link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();

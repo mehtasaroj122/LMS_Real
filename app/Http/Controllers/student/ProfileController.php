@@ -90,7 +90,11 @@ class ProfileController extends Controller
         ]);
 
         try {
+            // Capture old values before update
+            $oldName = $user->name;
             $oldEmail = $user->email;
+            $oldPhone = $user->phone;
+            $oldAddress = $user->address;
 
             $user->update([
                 'name' => $validated['name'],
@@ -99,15 +103,42 @@ class ProfileController extends Controller
                 'address' => $validated['address'] ?? null,
             ]);
 
-            Notification::notify(
-                user: $user,
-                type: 'account.profile_updated',
-                title: 'Profile Information Updated',
-                message: 'Your personal information was updated',
-                data: ['ip' => request()->ip()],
-                relatedModel: 'User',
-                relatedId: $user->id
-            );
+            // Build list of changes
+            $changes = [];
+            if ($oldName !== $validated['name']) {
+                $changes[] = "name: {$oldName} → {$validated['name']}";
+            }
+            if ($oldEmail !== $validated['email']) {
+                $changes[] = "email: {$oldEmail} → {$validated['email']}";
+            }
+            if ($oldPhone !== ($validated['phone'] ?? null)) {
+                $oldPhoneStr = $oldPhone ?? 'not set';
+                $newPhoneStr = $validated['phone'] ?? 'not set';
+                $changes[] = "phone: {$oldPhoneStr} → {$newPhoneStr}";
+            }
+            if ($oldAddress !== ($validated['address'] ?? null)) {
+                $oldAddressStr = $oldAddress ?? 'not set';
+                $newAddressStr = $validated['address'] ?? 'not set';
+                $changes[] = "address: {$oldAddressStr} → {$newAddressStr}";
+            }
+
+            // Notify about profile update with specific changes
+            if (!empty($changes)) {
+                $changesSummary = implode(", ", $changes);
+                Notification::notify(
+                    user: $user,
+                    type: 'account.profile_updated',
+                    title: 'Profile Information Updated',
+                    message: "Your profile information was updated: {$changesSummary}",
+                    data: [
+                        'ip' => request()->ip(),
+                        'changes' => $changes,
+                        'changed_fields' => array_keys($validated)
+                    ],
+                    relatedModel: 'User',
+                    relatedId: $user->id
+                );
+            }
 
             if ($oldEmail !== $validated['email']) {
                 Notification::notify(
@@ -247,12 +278,22 @@ class ProfileController extends Controller
                 'password' => Hash::make($validated['password']),
             ]);
 
+            // Notify about password change with details
+            $ipAddress = request()->ip();
+            $timestamp = now();
+            $changeMessage = "Your password was changed successfully on {$timestamp->format('M d, Y')} at {$timestamp->format('h:i A')} from IP {$ipAddress}";
+            
             Notification::notify(
                 user: $user,
                 type: 'account.password_changed',
                 title: 'Password Changed Successfully',
-                message: 'Your password was changed on ' . now()->format('M d, Y h:i A'),
-                data: ['ip' => request()->ip(), 'timestamp' => now()],
+                message: $changeMessage,
+                data: [
+                    'ip' => $ipAddress,
+                    'timestamp' => $timestamp,
+                    'date_formatted' => $timestamp->format('M d, Y h:i A'),
+                    'user_agent' => request()->header('User-Agent')
+                ],
                 relatedModel: 'User',
                 relatedId: $user->id
             );

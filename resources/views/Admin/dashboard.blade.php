@@ -14,6 +14,14 @@
             padding: 1rem;
         }
 
+        .fine-trend-card-shell {
+            transition: opacity 0.18s ease;
+        }
+
+        .fine-trend-card-shell.is-loading {
+            opacity: 0.64;
+        }
+
         .fine-graph-header {
             display: flex;
             align-items: center;
@@ -298,8 +306,16 @@
         .fine-transaction-header {
             display: flex;
             align-items: flex-start;
-            gap: 0.75rem;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
             margin-bottom: 0.85rem;
+        }
+
+        .fine-transaction-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
         }
 
         .fine-transaction-icon {
@@ -328,6 +344,58 @@
 
         body.dark-theme .fine-transaction-subtitle {
             color: #94a3b8;
+        }
+
+        .fine-period-form {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            flex-wrap: wrap;
+        }
+
+        .fine-period-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        body.dark-theme .fine-period-label {
+            color: #94a3b8;
+        }
+
+        .fine-period-select {
+            min-width: 10.75rem;
+            padding: 0.45rem 0.75rem;
+            border-radius: 0.8rem;
+            border: 1px solid #cbd5e1;
+            font-size: 0.82rem;
+            font-weight: 600;
+            line-height: 1.2;
+            outline: none;
+            transition:
+                border-color 0.15s ease,
+                box-shadow 0.15s ease;
+        }
+
+        .fine-period-select:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        body.light-theme .fine-period-select {
+            background: #ffffff;
+            color: #0f172a;
+        }
+
+        body.dark-theme .fine-period-select {
+            background: #0f172a;
+            border-color: #334155;
+            color: #f8fafc;
+        }
+
+        .fine-period-select:disabled {
+            cursor: wait;
+            opacity: 0.8;
         }
 
         .fine-trend-legend {
@@ -428,6 +496,14 @@
             .fine-trend-legend {
                 justify-content: flex-start;
                 margin-left: 0.5rem;
+            }
+
+            .fine-period-form {
+                width: 100%;
+            }
+
+            .fine-period-select {
+                width: 100%;
             }
         }
     </style>
@@ -538,49 +614,6 @@
             $radius = 54;
             $circumference = 2 * pi() * $radius;
             $offset = 0;
-
-            $chartWidth = 700;
-            $chartHeight = 280;
-            $paddingLeft = 64;
-            $paddingRight = 18;
-            $paddingTop = 18;
-            $paddingBottom = 36;
-            $innerWidth = $chartWidth - $paddingLeft - $paddingRight;
-            $innerHeight = $chartHeight - $paddingTop - $paddingBottom;
-            $pointCount = max(count($monthlyFineLabels), 2);
-            $stepX = $pointCount > 1 ? $innerWidth / ($pointCount - 1) : $innerWidth;
-
-            $buildFineSeries = function (array $series) use ($paddingLeft, $paddingTop, $paddingBottom, $innerHeight, $stepX, $chartHeight, $monthlyFineMax) {
-                $points = [];
-                foreach ($series as $index => $value) {
-                    $x = $paddingLeft + ($stepX * $index);
-                    $ratio = $monthlyFineMax > 0 ? ($value / $monthlyFineMax) : 0;
-                    $y = $paddingTop + ($innerHeight - ($ratio * $innerHeight));
-                    $points[] = [
-                        'x' => round($x, 2),
-                        'y' => round($y, 2),
-                        'value' => $value,
-                    ];
-                }
-
-                $linePath = '';
-                foreach ($points as $index => $point) {
-                    $linePath .= ($index === 0 ? 'M' : ' L') . $point['x'] . ' ' . $point['y'];
-                }
-
-                $areaPath = $linePath;
-                if (!empty($points)) {
-                    $areaPath .= ' L' . end($points)['x'] . ' ' . ($chartHeight - $paddingBottom);
-                    $areaPath .= ' L' . $points[0]['x'] . ' ' . ($chartHeight - $paddingBottom) . ' Z';
-                }
-
-                return [$points, $linePath, $areaPath];
-            };
-
-            [$generatedPoints, $generatedLinePath, $generatedAreaPath] = $buildFineSeries($monthlyPendingFines);
-            [$collectedPoints, $collectedLinePath, $collectedAreaPath] = $buildFineSeries($monthlyCollectedFines);
-            [$waivedPoints, $waivedLinePath, $waivedAreaPath] = $buildFineSeries($monthlyWaivedFines);
-            $yStep = max(50, (int) ceil($monthlyFineMax / 5));
         @endphp
 
         <div class="dashboard-section-grid mb-3">
@@ -659,134 +692,12 @@
                 </div>
             </div>
 
-            <div class="shadow-sm card fine-graph-card">
-                <div class="fine-transaction-header">
-                    <i data-lucide="trending-up" class="fine-transaction-icon"></i>
-                    <div>
-                        <h4 class="fine-transaction-title text-primary">Fine Transactions</h4>
-                        <p class="fine-transaction-subtitle">Monthly fine generation and collection trend</p>
-                    </div>
-                </div>
-
-                <div class="fine-trend-legend">
-                    <div class="fine-trend-legend-item text-primary">
-                        <span class="fine-trend-legend-dot" style="background-color: #f87171;"></span>
-                        <span>Pending Fines</span>
-                    </div>
-                    <div class="fine-trend-legend-item text-primary">
-                        <span class="fine-trend-legend-dot" style="background-color: #10b981;"></span>
-                        <span>Collected Fines</span>
-                    </div>
-                    <div class="fine-trend-legend-item text-primary">
-                        <span class="fine-trend-legend-dot" style="background-color: #f59e0b;"></span>
-                        <span>Waived Fines</span>
-                    </div>
-                </div>
-
-                <div class="fine-trend-shell" data-fine-trend>
-                    <div class="fine-trend-wrap">
-                        <svg class="fine-trend-chart" viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" aria-label="Fine transaction trend chart">
-                        @for($i = 0; $i <= 5; $i++)
-                            @php
-                                $y = $paddingTop + (($innerHeight / 5) * $i);
-                                $labelValue = $monthlyFineMax - ($yStep * $i);
-                                if ($i === 5) {
-                                    $labelValue = 0;
-                                }
-                            @endphp
-                            <line x1="{{ $paddingLeft }}" y1="{{ $y }}" x2="{{ $chartWidth - $paddingRight }}" y2="{{ $y }}" class="fine-grid-line" />
-                            <text x="{{ $paddingLeft - 10 }}" y="{{ $y + 4 }}" text-anchor="end" class="fine-axis-label">
-                                ₹{{ max($labelValue, 0) }}
-                            </text>
-                        @endfor
-
-                        @foreach($monthlyFineLabels as $index => $label)
-                            @php
-                                $x = $paddingLeft + ($stepX * $index);
-                            @endphp
-                            <line x1="{{ $x }}" y1="{{ $paddingTop }}" x2="{{ $x }}" y2="{{ $chartHeight - $paddingBottom }}" class="fine-grid-line" />
-                            <text x="{{ $x }}" y="{{ $chartHeight - 12 }}" text-anchor="middle" class="fine-axis-label">
-                                {{ $label }}
-                            </text>
-                        @endforeach
-
-                        @if($generatedAreaPath)
-                            <path d="{{ $generatedAreaPath }}" class="fine-generated-area"></path>
-                        @endif
-
-                        @if($collectedAreaPath)
-                            <path d="{{ $collectedAreaPath }}" class="fine-collected-area"></path>
-                        @endif
-
-                        @if($waivedAreaPath)
-                            <path d="{{ $waivedAreaPath }}" class="fine-waived-area"></path>
-                        @endif
-
-                        @if($generatedLinePath)
-                            <path d="{{ $generatedLinePath }}" class="fine-generated-line"></path>
-                        @endif
-
-                        @if($collectedLinePath)
-                            <path d="{{ $collectedLinePath }}" class="fine-collected-line"></path>
-                        @endif
-
-                        @if($waivedLinePath)
-                            <path d="{{ $waivedLinePath }}" class="fine-waived-line"></path>
-                        @endif
-
-                        @foreach($generatedPoints as $index => $point)
-                            <circle
-                                cx="{{ $point['x'] }}"
-                                cy="{{ $point['y'] }}"
-                                r="5.5"
-                                class="fine-generated-point"
-                                data-trend-series="Pending"
-                                data-trend-month="{{ $monthlyFineLabels[$index] ?? '' }}"
-                                data-trend-amount="{{ number_format((float) $point['value'], 2) }}"
-                                data-trend-color="#f87171"
-                            ></circle>
-                        @endforeach
-
-                        @foreach($collectedPoints as $index => $point)
-                            <circle
-                                cx="{{ $point['x'] }}"
-                                cy="{{ $point['y'] }}"
-                                r="5.5"
-                                class="fine-collected-point"
-                                data-trend-series="Collected"
-                                data-trend-month="{{ $monthlyFineLabels[$index] ?? '' }}"
-                                data-trend-amount="{{ number_format((float) $point['value'], 2) }}"
-                                data-trend-color="#10b981"
-                            ></circle>
-                        @endforeach
-
-                        @foreach($waivedPoints as $index => $point)
-                            <circle
-                                cx="{{ $point['x'] }}"
-                                cy="{{ $point['y'] }}"
-                                r="5.5"
-                                class="fine-waived-point"
-                                data-trend-series="Waived"
-                                data-trend-month="{{ $monthlyFineLabels[$index] ?? '' }}"
-                                data-trend-amount="{{ number_format((float) $point['value'], 2) }}"
-                                data-trend-color="#f59e0b"
-                            ></circle>
-                        @endforeach
-                        </svg>
-                    </div>
-
-                    <div class="fine-trend-tooltip" data-fine-trend-tooltip>
-                        <div class="fine-trend-tooltip-label">
-                            <span class="fine-trend-tooltip-dot" data-trend-tooltip-dot></span>
-                            <span data-trend-tooltip-series></span>
-                        </div>
-                        <div class="fine-trend-tooltip-meta">
-                            <span data-trend-tooltip-month></span>
-                            <span> • </span>
-                            <span data-trend-tooltip-amount></span>
-                        </div>
-                    </div>
-                </div>
+            <div
+                class="fine-trend-card-shell"
+                data-fine-trend-card
+                data-fine-trend-url="{{ route('admin.dashboard.fine-trend') }}"
+            >
+                @include('Admin.partials.dashboard.fine-trend-card')
             </div>
 
         </div>
@@ -901,91 +812,213 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('[data-fine-chart]').forEach(function (chart) {
-                const tooltip = chart.querySelector('[data-fine-tooltip]');
-                const label = tooltip?.querySelector('[data-tooltip-label]');
-                const amount = tooltip?.querySelector('[data-tooltip-amount]');
-                const percentage = tooltip?.querySelector('[data-tooltip-percentage]');
-                const dot = tooltip?.querySelector('[data-tooltip-dot]');
+            const initFineChartTooltips = function (root) {
+                root.querySelectorAll('[data-fine-chart]').forEach(function (chart) {
+                    if (chart.dataset.tooltipBound === 'true') {
+                        return;
+                    }
 
-                if (!tooltip || !label || !amount || !percentage || !dot) {
+                    const tooltip = chart.querySelector('[data-fine-tooltip]');
+                    const label = tooltip?.querySelector('[data-tooltip-label]');
+                    const amount = tooltip?.querySelector('[data-tooltip-amount]');
+                    const percentage = tooltip?.querySelector('[data-tooltip-percentage]');
+                    const dot = tooltip?.querySelector('[data-tooltip-dot]');
+
+                    if (!tooltip || !label || !amount || !percentage || !dot) {
+                        return;
+                    }
+
+                    chart.dataset.tooltipBound = 'true';
+
+                    const showTooltip = function (event) {
+                        const segment = event.currentTarget;
+                        label.textContent = segment.dataset.label || '';
+                        amount.textContent = `₹${segment.dataset.amount || 0}`;
+                        percentage.textContent = `${segment.dataset.percentage || 0}%`;
+                        dot.style.backgroundColor = segment.dataset.color || '#ef4444';
+                        tooltip.classList.add('is-visible');
+                        moveTooltip(event);
+                    };
+
+                    const moveTooltip = function (event) {
+                        const rect = chart.getBoundingClientRect();
+                        const x = event.clientX - rect.left;
+                        const y = event.clientY - rect.top;
+
+                        tooltip.style.left = `${x}px`;
+                        tooltip.style.top = `${y}px`;
+                    };
+
+                    const hideTooltip = function () {
+                        tooltip.classList.remove('is-visible');
+                    };
+
+                    chart.querySelectorAll('.fine-donut-segment').forEach(function (segment) {
+                        segment.addEventListener('mouseenter', showTooltip);
+                        segment.addEventListener('mousemove', moveTooltip);
+                        segment.addEventListener('mouseleave', hideTooltip);
+                    });
+
+                    chart.addEventListener('mouseleave', hideTooltip);
+                });
+            };
+
+            const initFineTrendTooltips = function (root) {
+                root.querySelectorAll('[data-fine-trend]').forEach(function (chart) {
+                    if (chart.dataset.tooltipBound === 'true') {
+                        return;
+                    }
+
+                    const tooltip = chart.querySelector('[data-fine-trend-tooltip]');
+                    const series = tooltip?.querySelector('[data-trend-tooltip-series]');
+                    const month = tooltip?.querySelector('[data-trend-tooltip-month]');
+                    const amount = tooltip?.querySelector('[data-trend-tooltip-amount]');
+                    const dot = tooltip?.querySelector('[data-trend-tooltip-dot]');
+
+                    if (!tooltip || !series || !month || !amount || !dot) {
+                        return;
+                    }
+
+                    chart.dataset.tooltipBound = 'true';
+
+                    const showTooltip = function (event) {
+                        const point = event.currentTarget;
+                        series.textContent = point.dataset.trendSeries || '';
+                        month.textContent = point.dataset.trendMonth || '';
+                        amount.textContent = `₹${point.dataset.trendAmount || 0}`;
+                        dot.style.backgroundColor = point.dataset.trendColor || '#ef4444';
+                        tooltip.classList.add('is-visible');
+                        moveTooltip(event);
+                    };
+
+                    const moveTooltip = function (event) {
+                        const rect = chart.getBoundingClientRect();
+                        const x = event.clientX - rect.left;
+                        const y = event.clientY - rect.top;
+
+                        tooltip.style.left = `${x}px`;
+                        tooltip.style.top = `${y}px`;
+                    };
+
+                    const hideTooltip = function () {
+                        tooltip.classList.remove('is-visible');
+                    };
+
+                    chart.querySelectorAll('.fine-generated-point, .fine-collected-point, .fine-waived-point').forEach(function (point) {
+                        point.addEventListener('mouseenter', showTooltip);
+                        point.addEventListener('mousemove', moveTooltip);
+                        point.addEventListener('mouseleave', hideTooltip);
+                    });
+
+                    chart.addEventListener('mouseleave', hideTooltip);
+                });
+            };
+
+            const clearFineTrendHistory = function () {
+                const url = new URL(window.location.href);
+
+                if (!url.searchParams.has('fine_period')) {
                     return;
                 }
 
-                const showTooltip = function (event) {
-                    const segment = event.currentTarget;
-                    label.textContent = segment.dataset.label || '';
-                    amount.textContent = `₹${segment.dataset.amount || 0}`;
-                    percentage.textContent = `${segment.dataset.percentage || 0}%`;
-                    dot.style.backgroundColor = segment.dataset.color || '#ef4444';
-                    tooltip.classList.add('is-visible');
-                    moveTooltip(event);
-                };
+                url.searchParams.delete('fine_period');
+                window.history.replaceState({}, '', url);
+            };
 
-                const moveTooltip = function (event) {
-                    const rect = chart.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    const y = event.clientY - rect.top;
+            const refreshLucideIcons = function () {
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons();
+                }
+            };
 
-                    tooltip.style.left = `${x}px`;
-                    tooltip.style.top = `${y}px`;
-                };
-
-                const hideTooltip = function () {
-                    tooltip.classList.remove('is-visible');
-                };
-
-                chart.querySelectorAll('.fine-donut-segment').forEach(function (segment) {
-                    segment.addEventListener('mouseenter', showTooltip);
-                    segment.addEventListener('mousemove', moveTooltip);
-                    segment.addEventListener('mouseleave', hideTooltip);
-                });
-
-                chart.addEventListener('mouseleave', hideTooltip);
-            });
-
-            document.querySelectorAll('[data-fine-trend]').forEach(function (chart) {
-                const tooltip = chart.querySelector('[data-fine-trend-tooltip]');
-                const series = tooltip?.querySelector('[data-trend-tooltip-series]');
-                const month = tooltip?.querySelector('[data-trend-tooltip-month]');
-                const amount = tooltip?.querySelector('[data-trend-tooltip-amount]');
-                const dot = tooltip?.querySelector('[data-trend-tooltip-dot]');
-
-                if (!tooltip || !series || !month || !amount || !dot) {
+            const bindFineTrendCard = function (container) {
+                if (!container) {
                     return;
                 }
 
-                const showTooltip = function (event) {
-                    const point = event.currentTarget;
-                    series.textContent = point.dataset.trendSeries || '';
-                    month.textContent = point.dataset.trendMonth || '';
-                    amount.textContent = `₹${point.dataset.trendAmount || 0}`;
-                    dot.style.backgroundColor = point.dataset.trendColor || '#ef4444';
-                    tooltip.classList.add('is-visible');
-                    moveTooltip(event);
-                };
+                initFineTrendTooltips(container);
 
-                const moveTooltip = function (event) {
-                    const rect = chart.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    const y = event.clientY - rect.top;
+                const form = container.querySelector('[data-fine-period-form]');
+                const select = container.querySelector('[data-fine-period-select]');
+                const endpoint = form?.dataset.fineTrendUrl || container.dataset.fineTrendUrl;
 
-                    tooltip.style.left = `${x}px`;
-                    tooltip.style.top = `${y}px`;
-                };
+                if (!form || !select || !endpoint) {
+                    return;
+                }
 
-                const hideTooltip = function () {
-                    tooltip.classList.remove('is-visible');
-                };
+                const serverPeriod = select.dataset.serverPeriod || '12months';
+                form.reset();
+                select.value = serverPeriod;
 
-                chart.querySelectorAll('.fine-generated-point, .fine-collected-point, .fine-waived-point').forEach(function (point) {
-                    point.addEventListener('mouseenter', showTooltip);
-                    point.addEventListener('mousemove', moveTooltip);
-                    point.addEventListener('mouseleave', hideTooltip);
+                if (select.dataset.ajaxBound === 'true') {
+                    return;
+                }
+
+                select.dataset.ajaxBound = 'true';
+
+                select.addEventListener('change', function () {
+                    const nextPeriod = select.value || '12months';
+
+                    if (container._fineTrendAbortController) {
+                        container._fineTrendAbortController.abort();
+                    }
+
+                    const controller = new AbortController();
+                    const requestUrl = new URL(endpoint, window.location.origin);
+                    requestUrl.searchParams.set('fine_period', nextPeriod);
+
+                    container._fineTrendAbortController = controller;
+                    container.classList.add('is-loading');
+                    select.disabled = true;
+
+                    fetch(requestUrl.toString(), {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        signal: controller.signal,
+                    })
+                        .then(function (response) {
+                            if (!response.ok) {
+                                throw new Error('Failed to load fine trend data.');
+                            }
+
+                            return response.json();
+                        })
+                        .then(function (payload) {
+                            if (!payload || typeof payload.html !== 'string') {
+                                throw new Error('Invalid fine trend response.');
+                            }
+
+                            container.innerHTML = payload.html;
+                            container.classList.remove('is-loading');
+                            container._fineTrendAbortController = null;
+                            refreshLucideIcons();
+                            bindFineTrendCard(container);
+                        })
+                        .catch(function (error) {
+                            container.classList.remove('is-loading');
+                            container._fineTrendAbortController = null;
+
+                            if (error.name === 'AbortError') {
+                                return;
+                            }
+
+                            select.disabled = false;
+
+                            if (typeof form.requestSubmit === 'function') {
+                                form.requestSubmit();
+                                return;
+                            }
+
+                            form.submit();
+                        });
                 });
+            };
 
-                chart.addEventListener('mouseleave', hideTooltip);
-            });
+            clearFineTrendHistory();
+            initFineChartTooltips(document);
+            document.querySelectorAll('[data-fine-trend-card]').forEach(bindFineTrendCard);
         });
     </script>
 @endpush

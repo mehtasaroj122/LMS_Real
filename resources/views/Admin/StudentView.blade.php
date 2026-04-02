@@ -8,7 +8,7 @@
     <style>
         /* Student Details Page */
         .student-details-page {
-            padding: 14px;
+            padding: 4px 14px 14px;
             width: 100%;
             max-width: none;
             margin: 0;
@@ -20,8 +20,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            padding: 10px 0;
+            margin-bottom: 14px;
+            padding: 4px 0 10px;
             border-bottom: 1px solid;
         }
 
@@ -895,7 +895,7 @@
 
         @media (max-width: 768px) {
             .student-details-page {
-                padding: 12px;
+                padding: 6px 12px 12px;
             }
 
             .page-header {
@@ -970,6 +970,7 @@
         /* Part 2 Styles */
         .details-section-part2 {
             margin-top: 20px;
+            --student-management-card-height: clamp(360px, 52vh, 500px);
         }
 
         /* Main Grid for Part 2 */
@@ -980,11 +981,23 @@
             margin-bottom: 20px;
         }
 
+        .left-column-part2,
+        .right-column-part2 {
+            display: flex;
+            min-height: 0;
+        }
+
         /* Account Management Card */
         .account-management-card {
             border-radius: 8px;
             padding: 14px;
             border: 1px solid;
+            width: 100%;
+            height: var(--student-management-card-height);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
         }
 
         body.light-theme .account-management-card {
@@ -1044,6 +1057,10 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 4px;
         }
 
         .account-btn {
@@ -3109,6 +3126,12 @@
             border-radius: 8px;
             padding: 16px;
             border: 1px solid;
+            width: 100%;
+            height: var(--student-management-card-height);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
         }
 
         body.light-theme .fines-management-card {
@@ -3126,12 +3149,15 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .fines-management-card h3 {
             font-size: 16px;
             font-weight: 600;
             margin: 0;
+            flex: 1;
         }
 
         .generate-receipt-btn {
@@ -3147,6 +3173,7 @@
             background-color: #10b981;
             color: white;
             transition: background-color 0.2s ease;
+            flex-shrink: 0;
         }
 
         .generate-receipt-btn:hover {
@@ -3379,6 +3406,17 @@
             gap: 16px;
         }
 
+        .fines-management-card .search-filter-container,
+        .fines-management-card .student-table-pagination {
+            flex-shrink: 0;
+        }
+
+        .fines-management-card .table-container.paginated-table {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+        }
+
         /* Privilege Settings Card */
         .privilege-settings-card {
             border-radius: 8px;
@@ -3421,6 +3459,16 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        .settings-actions > button {
+            flex: 1;
         }
 
         .form-group {
@@ -3473,21 +3521,67 @@
         }
 
         .save-changes-btn {
-            margin-top: 6px;
             padding: 10px 14px;
             border-radius: 6px;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             border: none;
             background-color: #3b82f6;
             color: white;
-            transition: background-color 0.2s ease;
-            width: 100%;
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .save-changes-btn:hover {
             background-color: #2563eb;
+        }
+
+        .save-changes-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .set-default-btn {
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        body.light-theme .set-default-btn {
+            background-color: #fff7ed;
+            color: #c2410c;
+            border-color: #fdba74;
+        }
+
+        body.dark-theme .set-default-btn {
+            background-color: #431407;
+            color: #fdba74;
+            border-color: #9a3412;
+        }
+
+        body.light-theme .set-default-btn:hover {
+            background-color: #ffedd5;
+        }
+
+        body.dark-theme .set-default-btn:hover {
+            background-color: #7c2d12;
+        }
+
+        .set-default-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
         }
 
         /* Activity Logs Card */
@@ -4678,6 +4772,7 @@
         @media (max-width: 768px) {
             .details-section-part2 {
                 margin-top: 16px;
+                --student-management-card-height: clamp(340px, 60vh, 460px);
             }
 
             .fine-actions {
@@ -4688,11 +4783,16 @@
             .action-btn-small {
                 width: 100%;
             }
+
+            .settings-actions {
+                flex-direction: column;
+            }
         }
 
         @media (max-width: 480px) {
             .account-btn,
             .generate-receipt-btn,
+            .set-default-btn,
             .save-changes-btn {
                 padding: 10px 12px;
                 font-size: 13px;
@@ -4721,13 +4821,6 @@
                 <h1 class="page-title">Student Details</h1>
             </div>
             <div class="header-right">
-                <button class="btn btn-primary" id="sendNotificationBtn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                    </svg>
-                    Send Notification
-                </button>
                 <button class="btn btn-secondary" id="printReportBtn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M6 9V2h12v7"/>
@@ -4871,8 +4964,7 @@
                     <div class="summary-card">
                         <div class="summary-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"/>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="700" fill="currentColor" stroke="none">₹</text>
                             </svg>
                         </div>
                         <div class="summary-content">
@@ -5143,9 +5235,18 @@
                             <option value="restricted">Restricted</option>
                         </select>
                     </div>
-                    <button class="save-changes-btn" id="saveChangesBtn">
-                        Save Changes
-                    </button>
+                    <div class="settings-actions">
+                        <button type="button" class="set-default-btn" id="setDefaultPrivilegesBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M3 12a9 9 0 1 0 3-6.7"/>
+                                <polyline points="3 3 3 9 9 9"/>
+                            </svg>
+                            <span data-privilege-reset-label>Set Default</span>
+                        </button>
+                        <button type="button" class="save-changes-btn" id="saveChangesBtn">
+                            Save Changes
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -5551,9 +5652,9 @@
                 'previewDescription' => 'Rows included in the issued books report.',
                 'previewCount' => '0 rows',
                 'emptyPreview' => 'No issued books selected for preview.',
-                'footerNote' => 'Using the current page for export.',
+                'footerNote' => 'Using the current page for spreadsheet export.',
                 'cancelButton' => 'Cancel',
-                'downloadButton' => 'Download CSV',
+                'downloadButton' => 'Download Excel',
                 'printButton' => 'Print Report',
             ],
             'document' => [
@@ -5591,9 +5692,9 @@
                 'previewDescription' => 'Fine rows included in the receipt.',
                 'previewCount' => '0 rows',
                 'emptyPreview' => 'No fine rows selected for preview.',
-                'footerNote' => 'Using the current page for receipt output.',
+                'footerNote' => 'Using the current page for spreadsheet export.',
                 'cancelButton' => 'Cancel',
-                'downloadButton' => 'Download CSV',
+                'downloadButton' => 'Download Excel',
                 'printButton' => 'Print Receipt',
             ],
             'document' => [
@@ -5641,7 +5742,7 @@
     @include('shared.action-feedback.scripts')
     <script>
         // Data provided by server (transformed in controller)
-        const booksData = @json($booksData ?? []);
+        const booksData = (@json($booksData ?? []) || []).map(normalizeStudentBookRecord);
         const finesData = @json($finesData ?? []);
         const activityLogs = @json($activityLogs ?? []);
         const remainingActivityLogs = @json($remainingActivityLogs ?? []);
@@ -5671,7 +5772,6 @@
         const finesTablePagination = document.getElementById('finesTablePagination');
         const adminStudentProfileCard = document.getElementById('adminStudentProfileCard');
         const adminStudentTopContent = document.getElementById('adminStudentTopContent');
-        const sendNotificationBtn = document.getElementById('sendNotificationBtn');
         const printReportBtn = document.getElementById('printReportBtn');
         const issuedBooksExportModal = document.getElementById('issuedBooksExportModal');
         const fineReceiptExportModal = document.getElementById('fineReceiptExportModal');
@@ -5831,10 +5931,6 @@
             }
 
             // Button actions
-            if (sendNotificationBtn) {
-                sendNotificationBtn.addEventListener('click', sendNotification);
-            }
-
             if (printReportBtn) {
                 printReportBtn.addEventListener('click', printReport);
             }
@@ -5881,12 +5977,6 @@
                 if (e.ctrlKey && e.key === 'p') {
                     e.preventDefault();
                     printReport();
-                }
-
-                // Ctrl+N for notification
-                if (e.ctrlKey && e.key === 'n') {
-                    e.preventDefault();
-                    sendNotification();
                 }
             });
         }
@@ -6115,6 +6205,8 @@
                 modalId: 'issuedBooksExportModal',
                 idPrefix: 'issuedBooksExport',
                 scopeName: 'issuedBooksExportScope',
+                downloadFormat: 'excel-xml',
+                sheetName: 'Issued Books',
                 document: {
                     systemTitle: issuedBooksReportSystemTitle,
                     reportTitle: 'Issued Books Report',
@@ -6122,16 +6214,16 @@
                 labels: {
                     printButton: 'Print Report',
                     allScopePrintButton: 'Print Full Report',
-                    downloadButton: 'Download CSV',
-                    allScopeDownloadButton: 'Download Full CSV',
+                    downloadButton: 'Download Excel',
+                    allScopeDownloadButton: 'Download Full Excel',
                 },
                 messages: {
                     emptyMessage: 'There are no issued books in the current result set.',
                     preparingMessage: 'Preparing the full issued books report. Please wait.',
                     printReadyMessage: 'The print dialog will open in a new window for the current issued books page.',
                     fullPrintReadyMessage: 'The print dialog will open in a new window for the full filtered issued books report.',
-                    exportReadyMessage: 'The current issued books page has been exported to CSV.',
-                    fullExportReadyMessage: 'The full filtered issued books report has been exported to CSV.',
+                    exportReadyMessage: 'The current issued books page has been exported to Excel.',
+                    fullExportReadyMessage: 'The full filtered issued books report has been exported to Excel.',
                     exportRouteMissingMessage: 'The full issued books report is not available right now.',
                     fullLoadFailedMessage: 'Something went wrong while preparing the issued books report.',
                 },
@@ -6176,7 +6268,7 @@
                 getScopeLabel: (scope) => scope === 'all' ? 'Entire filtered issued books list' : 'Current page',
                 getFilename: (context) => buildIssuedBooksExportFilename(context),
                 getDocumentDetails: () => getIssuedBooksDocumentDetails(),
-                getCsvMetaRows: (context) => buildIssuedBooksCsvMetaRows(context),
+                getExportMetaRows: (context) => buildIssuedBooksExportMetaRows(context),
                 describeContext: (context) => describeIssuedBooksExportContext(context),
             }).init();
         }
@@ -6239,6 +6331,8 @@
                 modalId: 'fineReceiptExportModal',
                 idPrefix: 'fineReceiptExport',
                 scopeName: 'fineReceiptExportScope',
+                downloadFormat: 'excel-xml',
+                sheetName: 'Fine Receipt',
                 document: {
                     systemTitle: issuedBooksReportSystemTitle,
                     reportTitle: 'Fine Receipt',
@@ -6246,16 +6340,16 @@
                 labels: {
                     printButton: 'Print Receipt',
                     allScopePrintButton: 'Print Full Receipt',
-                    downloadButton: 'Download CSV',
-                    allScopeDownloadButton: 'Download Full CSV',
+                    downloadButton: 'Download Excel',
+                    allScopeDownloadButton: 'Download Full Excel',
                 },
                 messages: {
                     emptyMessage: 'There are no fine records in the current result set.',
                     preparingMessage: 'Preparing the full fine receipt. Please wait.',
                     printReadyMessage: 'The print dialog will open in a new window for the current fine receipt page.',
                     fullPrintReadyMessage: 'The print dialog will open in a new window for the full filtered fine receipt.',
-                    exportReadyMessage: 'The current fine receipt page has been exported to CSV.',
-                    fullExportReadyMessage: 'The full filtered fine receipt has been exported to CSV.',
+                    exportReadyMessage: 'The current fine receipt page has been exported to Excel.',
+                    fullExportReadyMessage: 'The full filtered fine receipt has been exported to Excel.',
                     exportRouteMissingMessage: 'The full fine receipt is not available right now.',
                     fullLoadFailedMessage: 'Something went wrong while preparing the fine receipt.',
                 },
@@ -6297,7 +6391,7 @@
                 getScopeLabel: (scope) => scope === 'all' ? 'Entire filtered fine receipt' : 'Current page',
                 getFilename: (context) => buildFineReceiptExportFilename(context),
                 getDocumentDetails: () => getIssuedBooksDocumentDetails(),
-                getCsvMetaRows: (context) => buildFineReceiptCsvMetaRows(context),
+                getExportMetaRows: (context) => buildFineReceiptExportMetaRows(context),
                 describeContext: (context) => describeFineReceiptExportContext(context),
             }).init();
         }
@@ -6397,19 +6491,22 @@
             ];
         }
 
-        function buildIssuedBooksCsvMetaRows(context) {
-            const filters = getIssuedBooksFilterSummary();
+        function buildIssuedBooksExportMetaRows(context) {
+            if (typeof window.ReportExportTemplates?.buildStandardMetaRows === 'function') {
+                return window.ReportExportTemplates.buildStandardMetaRows({
+                    systemTitle: issuedBooksReportSystemTitle,
+                    reportTitle: 'Issued Books Report',
+                    generatedAtLabel: context.generatedAtLabel,
+                    documentDetails: getIssuedBooksDocumentDetails(),
+                });
+            }
 
             return [
                 [issuedBooksReportSystemTitle],
                 ['Issued Books Report'],
                 [context.generatedAtLabel],
-                ...(issuedBooksReportBranding?.image_url ? [['Library Logo', issuedBooksReportBranding.image_url], ['']] : []),
+                [''],
                 ...getIssuedBooksDocumentDetails().map((detail) => [detail.label, detail.value]),
-                ['Search', filters.search],
-                ['Status Filter', filters.status],
-                ['Report Scope', context.scopeLabel],
-                ['Records Included', String(context.rows.length)],
                 [''],
             ];
         }
@@ -6427,7 +6524,7 @@
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/^-+|-+$/g, '') || 'student';
 
-            return `issued-books-${studentSlug}-${scopeLabel}-${dateStamp}.csv`;
+            return `issued-books-${studentSlug}-${scopeLabel}-${dateStamp}.xls`;
         }
 
         function mapFineToReceiptRow(fine) {
@@ -6475,22 +6572,30 @@
             });
         }
 
-        function buildFineReceiptCsvMetaRows(context) {
-            const filters = getFineReceiptFilterSummary();
+        function buildFineReceiptExportMetaRows(context) {
             const totals = getFineReceiptTotals(context.rows);
+
+            if (typeof window.ReportExportTemplates?.buildStandardMetaRows === 'function') {
+                return window.ReportExportTemplates.buildStandardMetaRows({
+                    systemTitle: issuedBooksReportSystemTitle,
+                    reportTitle: 'Fine Receipt',
+                    generatedAtLabel: context.generatedAtLabel,
+                    documentDetails: getIssuedBooksDocumentDetails(),
+                    extraRows: [
+                        ['Receipt Total', formatCurrency(totals.totalAmount)],
+                        ['Pending Total', formatCurrency(totals.pendingAmount)],
+                    ],
+                });
+            }
 
             return [
                 [issuedBooksReportSystemTitle],
                 ['Fine Receipt'],
                 [context.generatedAtLabel],
-                ...(issuedBooksReportBranding?.image_url ? [['Library Logo', issuedBooksReportBranding.image_url], ['']] : []),
+                [''],
                 ...getIssuedBooksDocumentDetails().map((detail) => [detail.label, detail.value]),
-                ['Search', filters.search],
-                ['Status Filter', filters.status],
                 ['Receipt Total', formatCurrency(totals.totalAmount)],
                 ['Pending Total', formatCurrency(totals.pendingAmount)],
-                ['Report Scope', context.scopeLabel],
-                ['Records Included', String(context.rows.length)],
                 [''],
             ];
         }
@@ -6508,7 +6613,7 @@
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/^-+|-+$/g, '') || 'student';
 
-            return `fine-receipt-${studentSlug}-${scopeLabel}-${dateStamp}.csv`;
+            return `fine-receipt-${studentSlug}-${scopeLabel}-${dateStamp}.xls`;
         }
 
         function describeFineReceiptExportContext(context) {
@@ -6562,29 +6667,6 @@
             };
         }
 
-        // Action functions
-        function sendNotification() {
-            showConfirmationModal({
-                title: 'Send Notification to Student',
-                message: 'A notification will be sent to the student\'s email address. This can be used for reminders, announcements, or important updates.',
-                iconType: 'info',
-                confirmText: 'Send Notification',
-                confirmClass: 'primary',
-                details: [
-                    { label: 'Action', value: 'Send Email Notification' },
-                    { label: 'Recipient', value: 'Student\'s registered email address' },
-                    { label: 'Purpose', value: 'Library announcements or reminders' }
-                ],
-                onConfirm: () => {
-                    showToast('Sending notification to student...', 'info');
-                    // Simulate API call
-                    setTimeout(() => {
-                        showToast('Notification sent successfully! The student will receive it shortly.', 'success');
-                    }, 1500);
-                }
-            });
-        }
-
         function printReport() {
             if (!issuedBooksExportWorkflow) {
                 showToast('Issued books export is unavailable right now.', 'error');
@@ -6623,11 +6705,12 @@
         }
 
         function viewBookDetails(bookId) {
-            const book = booksData.find(b => b.id === bookId);
-            if (!book) {
+            const rawBook = booksData.find(b => b.id === bookId);
+            if (!rawBook) {
                 showToast('Book details not found.', 'error');
                 return;
             }
+            const book = normalizeStudentBookRecord(rawBook);
 
             // Populate book cover using DOM to avoid inline onerror quoting issues
             const coverContainer = document.getElementById('bookCoverContent');
@@ -6815,6 +6898,7 @@
 
             // Privilege Settings
             document.getElementById('saveChangesBtn')?.addEventListener('click', savePrivilegeSettings);
+            document.getElementById('setDefaultPrivilegesBtn')?.addEventListener('click', resetPrivilegeSettings);
             
             // Load privilege settings on page load
             loadPrivilegeSettings().catch(() => {});
@@ -6903,8 +6987,7 @@
             <td colspan="5">
                 <div class="empty-state">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="1" x2="12" y2="23"/>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="700" fill="currentColor" stroke="none">₹</text>
                     </svg>
                     <h3>No Fines & Payments</h3>
                     <p>${currentFineSearchTerm || currentFineStatusFilter !== 'all'
@@ -7338,7 +7421,7 @@
             const typeMap = {
                 'book-issued': { label: 'Book Issued', icon: 'fas fa-book-open' },
                 'book-returned': { label: 'Book Returned', icon: 'fas fa-undo-alt' },
-                'fine-applied': { label: 'Fine Applied', icon: 'fas fa-money-bill-wave' },
+                'fine-applied': { label: 'Fine Applied', icon: 'fas fa-indian-rupee-sign' },
                 'fine-paid': { label: 'Fine Paid', icon: 'fas fa-check-circle' },
                 'fine-waived': { label: 'Fine Waived', icon: 'fas fa-ban' },
                 'account-status': { label: 'Account Status', icon: 'fas fa-user-shield' },
@@ -7919,6 +8002,66 @@
             targetArray.splice(0, targetArray.length, ...nextItems);
         }
 
+        function parseStudentOverdueDays(value) {
+            if (value === null || value === undefined || value === '') {
+                return null;
+            }
+
+            const numericValue = typeof value === 'string'
+                ? Number.parseFloat(String(value).replace(/[^0-9.-]+/g, ''))
+                : Number(value);
+
+            return Number.isFinite(numericValue) ? numericValue : null;
+        }
+
+        function calculateOverdueDaysFromDate(dateValue) {
+            if (!dateValue) {
+                return null;
+            }
+
+            const parsedDate = new Date(dateValue);
+            if (Number.isNaN(parsedDate.getTime())) {
+                return null;
+            }
+
+            parsedDate.setHours(0, 0, 0, 0);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            return Math.max(0, Math.floor((today.getTime() - parsedDate.getTime()) / 86400000));
+        }
+
+        function resolveStudentBookDaysOverdue(book = {}) {
+            const numericDays = parseStudentOverdueDays(book.daysOverdue);
+            const dueDateDays = calculateOverdueDaysFromDate(book.dueDateRaw || book.dueDate);
+
+            if (dueDateDays !== null && (numericDays === null || numericDays < 0 || !Number.isInteger(numericDays))) {
+                return dueDateDays;
+            }
+
+            if (numericDays !== null) {
+                return Math.max(0, Math.floor(Math.abs(numericDays)));
+            }
+
+            return dueDateDays ?? 0;
+        }
+
+        function normalizeStudentBookRecord(book = {}) {
+            const normalizedStatus = String(book.status || 'issued').toLowerCase();
+            const fineAmount = Number(book.fine ?? 0);
+
+            return {
+                ...book,
+                id: Number(book.id),
+                status: normalizedStatus,
+                fine: Number.isFinite(fineAmount) ? fineAmount : 0,
+                daysOverdue: normalizedStatus === 'overdue'
+                    ? resolveStudentBookDaysOverdue(book)
+                    : 0,
+            };
+        }
+
         function normalizeStudentFineRecord(fine) {
             const normalizedStatus = String(fine.paymentStatus ?? fine.status ?? 'pending').toLowerCase();
             const statusKey = normalizedStatus === 'unpaid' ? 'pending' : normalizedStatus;
@@ -8050,6 +8193,84 @@
             });
         }
 
+        function parseJsonResponse(response, fallbackMessage) {
+            return response.json()
+                .catch(() => ({}))
+                .then(data => {
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || fallbackMessage);
+                    }
+
+                    return data;
+                });
+        }
+
+        function normalizePrivilegeSettingsPayload(payload = {}) {
+            return {
+                max_books: payload.max_books ?? null,
+                issue_duration_days: payload.issue_duration_days ?? null,
+                per_day_fine: payload.per_day_fine ?? null,
+                borrowing_allowed: payload.borrowing_allowed !== false,
+                grace_period_days: payload.grace_period_days ?? null,
+                max_fine_amount: payload.max_fine_amount ?? null,
+            };
+        }
+
+        function applyPrivilegeSettingsState(data = {}) {
+            const defaults = normalizePrivilegeSettingsPayload(data.defaults || {});
+            const stored = normalizePrivilegeSettingsPayload(data.privileges || {});
+            const effective = normalizePrivilegeSettingsPayload(data.effective || defaults);
+
+            document.getElementById('maxBooks').value = effective.max_books ?? defaults.max_books ?? '';
+            document.getElementById('maxDays').value = effective.issue_duration_days ?? defaults.issue_duration_days ?? '';
+            document.getElementById('fineRate').value = effective.per_day_fine ?? defaults.per_day_fine ?? '';
+            document.getElementById('borrowingPermission').value = effective.borrowing_allowed ? 'allowed' : 'restricted';
+
+            window.originalPrivileges = stored;
+            window.privilegeDefaults = defaults;
+            window.effectivePrivileges = effective;
+            window.hasCustomPrivilegeOverrides = Boolean(data.has_custom_overrides);
+        }
+
+        function setPrivilegeButtonsBusy(activeAction = null, isBusy = false) {
+            const saveButton = document.getElementById('saveChangesBtn');
+            const resetButton = document.getElementById('setDefaultPrivilegesBtn');
+            const resetLabel = resetButton?.querySelector('[data-privilege-reset-label]');
+
+            if (saveButton) {
+                saveButton.disabled = isBusy;
+                saveButton.textContent = isBusy && activeAction === 'save' ? 'Saving...' : 'Save Changes';
+            }
+
+            if (resetButton) {
+                resetButton.disabled = isBusy;
+            }
+
+            if (resetLabel) {
+                resetLabel.textContent = isBusy && activeAction === 'reset' ? 'Resetting...' : 'Set Default';
+            }
+        }
+
+        function getPrivilegeFormValues() {
+            return {
+                max_books: parseInt(document.getElementById('maxBooks').value, 10),
+                issue_duration_days: parseInt(document.getElementById('maxDays').value, 10),
+                per_day_fine: parseFloat(document.getElementById('fineRate').value),
+                borrowing_allowed: document.getElementById('borrowingPermission').value === 'allowed',
+            };
+        }
+
+        function getPrivilegeDefaultDetails(defaults = window.privilegeDefaults || {}) {
+            const normalizedDefaults = normalizePrivilegeSettingsPayload(defaults);
+
+            return [
+                { label: 'Max Books', value: `${normalizedDefaults.max_books ?? 5} books` },
+                { label: 'Issue Duration', value: `${normalizedDefaults.issue_duration_days ?? 14} days` },
+                { label: 'Fine Rate', value: `₹${normalizedDefaults.per_day_fine ?? 10} per day` },
+                { label: 'Borrowing', value: normalizedDefaults.borrowing_allowed ? 'Allowed' : 'Restricted' }
+            ];
+        }
+
         // Load privilege settings when page loads
         function loadPrivilegeSettings() {
             return fetch(`/admin/students/${currentStudentId}/privileges`, {
@@ -8058,29 +8279,9 @@
                 },
                 credentials: 'same-origin'
             })
-            .then(response => response.json())
+            .then(response => parseJsonResponse(response, 'Failed to load privileges'))
             .then(data => {
-                if (data.success) {
-                    const privileges = data.privileges;
-                    const effective = data.effective;
-                    
-                    // Set input values - use effective values OR empty to show global defaults
-                    document.getElementById('maxBooks').value = privileges.max_books ?? effective.max_books;
-                    document.getElementById('maxDays').value = privileges.issue_duration_days ?? effective.issue_duration_days;
-                    document.getElementById('fineRate').value = privileges.per_day_fine ?? effective.per_day_fine;
-                    document.getElementById('borrowingPermission').value = privileges.borrowing_allowed ? 'allowed' : 'restricted';
-                    
-                    // Store original values to detect changes
-                    window.originalPrivileges = {
-                        max_books: privileges.max_books,
-                        issue_duration_days: privileges.issue_duration_days,
-                        per_day_fine: privileges.per_day_fine,
-                        borrowing_allowed: privileges.borrowing_allowed
-                    };
-                } else {
-                    throw new Error(data.message || 'Failed to load privileges');
-                }
-
+                applyPrivilegeSettingsState(data);
                 return data;
             })
             .catch(error => {
@@ -8397,7 +8598,7 @@
         function getPaymentMethodMeta(paymentMethod) {
             const normalizedMethod = String(paymentMethod || '').toLowerCase();
             const methodMap = {
-                cash: { icon: 'fa-money-bill-wave', label: 'Cash' },
+                cash: { icon: 'fa-indian-rupee-sign', label: 'Cash' },
                 card: { icon: 'fa-credit-card', label: 'Card' },
                 online: { icon: 'fa-globe', label: 'Online' },
             };
@@ -8491,23 +8692,20 @@
 
         // Privilege Settings Functions
         function savePrivilegeSettings() {
-            const maxBooks = document.getElementById('maxBooks').value;
-            const maxDays = document.getElementById('maxDays').value;
-            const fineRate = document.getElementById('fineRate').value;
-            const borrowingPermission = document.getElementById('borrowingPermission').value;
+            const privilegeValues = getPrivilegeFormValues();
 
             // Validate inputs
-            if (!maxBooks || maxBooks < 1 || maxBooks > 20) {
+            if (!privilegeValues.max_books || Number.isNaN(privilegeValues.max_books) || privilegeValues.max_books < 1 || privilegeValues.max_books > 20) {
                 showToast('Maximum books must be between 1 and 20', 'error');
                 return;
             }
 
-            if (!maxDays || maxDays < 1 || maxDays > 90) {
+            if (!privilegeValues.issue_duration_days || Number.isNaN(privilegeValues.issue_duration_days) || privilegeValues.issue_duration_days < 1 || privilegeValues.issue_duration_days > 90) {
                 showToast('Maximum issue duration must be between 1 and 90 days', 'error');
                 return;
             }
 
-            if (fineRate === null || fineRate === '' || fineRate < 0 || fineRate > 100) {
+            if (Number.isNaN(privilegeValues.per_day_fine) || privilegeValues.per_day_fine < 0 || privilegeValues.per_day_fine > 100) {
                 showToast('Fine rate must be between ₹0 and ₹100 per day', 'error');
                 return;
             }
@@ -8519,13 +8717,16 @@
                 confirmText: 'Save Changes',
                 confirmClass: 'primary',
                 details: [
-                    { label: 'Max Books', value: maxBooks + ' books' },
-                    { label: 'Issue Duration', value: maxDays + ' days' },
-                    { label: 'Fine Rate', value: '₹' + fineRate + ' per day' },
-                    { label: 'Borrowing', value: borrowingPermission === 'allowed' ? 'Allowed' : 'Restricted' }
+                    { label: 'Max Books', value: `${privilegeValues.max_books} books` },
+                    { label: 'Issue Duration', value: `${privilegeValues.issue_duration_days} days` },
+                    { label: 'Fine Rate', value: `₹${privilegeValues.per_day_fine} per day` },
+                    { label: 'Borrowing', value: privilegeValues.borrowing_allowed ? 'Allowed' : 'Restricted' }
                 ],
                 onConfirm: () => {
-                    showToast('Saving privilege settings...', 'info');
+                    setPrivilegeButtonsBusy('save', true);
+                    showToast('Saving privilege settings...', 'info', {
+                        title: 'Updating library settings',
+                    });
 
                     fetch(`/admin/students/${currentStudentId}/privileges`, {
                         method: 'POST',
@@ -8535,34 +8736,98 @@
                         },
                         credentials: 'same-origin',
                         body: JSON.stringify({
-                            max_books: parseInt(maxBooks),
-                            issue_duration_days: parseInt(maxDays),
-                            per_day_fine: parseFloat(fineRate),
-                            borrowing_allowed: borrowingPermission === 'allowed'
+                            max_books: privilegeValues.max_books,
+                            issue_duration_days: privilegeValues.issue_duration_days,
+                            per_day_fine: privilegeValues.per_day_fine,
+                            borrowing_allowed: privilegeValues.borrowing_allowed
                         })
                     })
-                    .then(response => response.json())
+                    .then(response => parseJsonResponse(response, 'Failed to save privilege settings.'))
                     .then(data => {
-                        if (data.success) {
-                            showToast('✅ Privilege settings saved successfully!', 'success');
-                            refreshStudentLiveSections({
-                                refreshPrivileges: true,
-                                refreshActivityLogs: true,
-                            }).catch(error => {
-                                console.error('Live refresh failed after saving privilege settings:', error);
-                                showToast('Privileges saved, but live refresh could not complete. Please refresh manually if needed.', 'warning');
-                            });
-                        } else {
-                            showToast(data.message || 'Failed to save privilege settings.', 'error');
-                        }
+                        applyPrivilegeSettingsState(data);
+                        showToast('Privilege settings saved successfully.', 'success', {
+                            title: 'Library settings updated',
+                            detail: 'Changes take effect immediately for this student.',
+                        });
+
+                        refreshStudentLiveSections({
+                            refreshActivityLogs: true,
+                        }).catch(error => {
+                            console.error('Live refresh failed after saving privilege settings:', error);
+                            showToast('Privileges saved, but activity logs could not refresh live. Please refresh manually if needed.', 'warning');
+                        });
                     })
                     .catch(error => {
                         console.error('Error:', error);
+                        if (error instanceof TypeError) {
+                            refreshStudentLiveSections({
+                                refreshPrivileges: true,
+                                refreshActivityLogs: true,
+                            }).catch(() => {});
+                            showToast('Network issue - privileges may have been saved. Live refresh attempted.', 'warning');
+                            return;
+                        }
+
+                        showToast(error.message || 'Failed to save privilege settings.', 'error');
+                    })
+                    .finally(() => {
+                        setPrivilegeButtonsBusy(null, false);
+                    });
+                }
+            });
+        }
+
+        function resetPrivilegeSettings() {
+            showConfirmationModal({
+                title: 'Reset to Default Settings',
+                message: 'Are you sure you want to reset to default settings? All custom library privilege overrides for this student will be removed immediately.',
+                iconType: 'warning',
+                confirmText: 'Reset',
+                confirmClass: 'warning',
+                details: getPrivilegeDefaultDetails(),
+                onConfirm: () => {
+                    setPrivilegeButtonsBusy('reset', true);
+                    showToast('Resetting privilege settings to default values...', 'info', {
+                        title: 'Restoring defaults',
+                    });
+
+                    fetch(`/admin/students/${currentStudentId}/privileges/reset`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        credentials: 'same-origin'
+                    })
+                    .then(response => parseJsonResponse(response, 'Failed to reset privilege settings.'))
+                    .then(data => {
+                        applyPrivilegeSettingsState(data);
+                        showToast('Library privileges have been reset to the default values.', 'success', {
+                            title: 'Defaults restored',
+                            detail: 'Custom overrides were cleared immediately.',
+                        });
+
                         refreshStudentLiveSections({
-                            refreshPrivileges: true,
                             refreshActivityLogs: true,
-                        }).catch(() => {});
-                        showToast('Network issue - privileges may have been saved. Live refresh attempted.', 'warning');
+                        }).catch(error => {
+                            console.error('Live refresh failed after resetting privilege settings:', error);
+                            showToast('Defaults were restored, but activity logs could not refresh live. Please refresh manually if needed.', 'warning');
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        if (error instanceof TypeError) {
+                            refreshStudentLiveSections({
+                                refreshPrivileges: true,
+                                refreshActivityLogs: true,
+                            }).catch(() => {});
+                            showToast('Network issue - privileges may have been reset. Live refresh attempted.', 'warning');
+                            return;
+                        }
+
+                        showToast(error.message || 'Failed to reset privilege settings.', 'error');
+                    })
+                    .finally(() => {
+                        setPrivilegeButtonsBusy(null, false);
                     });
                 }
             });

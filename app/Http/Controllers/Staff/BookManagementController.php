@@ -314,6 +314,46 @@ class BookManagementController extends Controller
                 );
             }
 
+            // Notify staff member about book they added
+            $staffMember = auth()->user();
+            if ($staffMember) {
+                Notification::notify(
+                    user: $staffMember,
+                    type: 'staff.action_book_added',
+                    title: 'Book Added Successfully',
+                    message: "You added book '{$book->title}' (ISBN: {$book->isbn}) to the library",
+                    data: [
+                        'book_id' => $book->id,
+                        'title' => $book->title,
+                        'isbn' => $book->isbn,
+                        'category' => $category->name ?? 'N/A',
+                        'total_copies' => $book->total_copies,
+                    ],
+                    relatedModel: 'Book',
+                    relatedId: $book->id
+                );
+            }
+
+            // Notify admin about new book added by staff
+            $staffName = auth()->user()?->name ?? 'Staff Member';
+            $admin = User::where('role', 'admin')->first();
+            if ($admin) {
+                Notification::notify(
+                    user: $admin,
+                    type: 'staff.book_added',
+                    title: 'New Book Added by Staff',
+                    message: "{$staffName} added book '{$book->title}' (ISBN: {$book->isbn})",
+                    data: [
+                        'book_id' => $book->id,
+                        'title' => $book->title,
+                        'isbn' => $book->isbn,
+                        'staff_name' => $staffName,
+                    ],
+                    relatedModel: 'Book',
+                    relatedId: $book->id
+                );
+            }
+
             if ($book->available_copies < 5) {
                 $admin = User::where('role', 'admin')->first();
                 if ($admin) {
@@ -423,6 +463,68 @@ class BookManagementController extends Controller
                 $book->id,
                 ['changes' => $changes, 'category_id' => $book->category_id]
             );
+
+            // Notify staff member about book they edited with change details
+            $staffMember = auth()->user();
+            if ($staffMember) {
+                // Build detailed change message
+                $detailedChanges = [];
+                foreach ($validated as $field => $newValue) {
+                    if ($field === 'category_id' && isset($book->getOriginal()[$field])) {
+                        $oldCategoryId = $book->getOriginal()['category_id'];
+                        $oldCategoryName = category::find($oldCategoryId)?->name ?? 'N/A';
+                        $newCategoryName = category::find($newValue)?->name ?? 'N/A';
+                        if ($oldCategoryId !== $newValue) {
+                            $detailedChanges[] = "category: {$oldCategoryName} → {$newCategoryName}";
+                        }
+                    } elseif ($field === 'available_copies' && $oldCopies !== $newValue) {
+                        $detailedChanges[] = "available copies: {$oldCopies} → {$newValue}";
+                    } elseif (isset($book->getOriginal()[$field]) && $book->getOriginal()[$field] !== $newValue) {
+                        $detailedChanges[] = "{$field}: {$book->getOriginal()[$field]} → {$newValue}";
+                    }
+                }
+                
+                $changesDescription = !empty($detailedChanges) 
+                    ? "Changes: " . implode(", ", $detailedChanges)
+                    : "Book was updated";
+
+                Notification::notify(
+                    user: $staffMember,
+                    type: 'staff.action_book_edited',
+                    title: 'Book Edited Successfully',
+                    message: "You edited book '{$book->title}' (ISBN: {$book->isbn}). {$changesDescription}",
+                    data: [
+                        'book_id' => $book->id,
+                        'title' => $book->title,
+                        'isbn' => $book->isbn,
+                        'changes' => $detailedChanges,
+                        'total_changes' => count($detailedChanges),
+                    ],
+                    relatedModel: 'Book',
+                    relatedId: $book->id
+                );
+            }
+
+            // Notify admin about book edited by staff
+            $staffName = auth()->user()?->name ?? 'Staff Member';
+            $admin = User::where('role', 'admin')->first();
+            if ($admin) {
+                Notification::notify(
+                    user: $admin,
+                    type: 'staff.book_edited',
+                    title: 'Book Updated by Staff',
+                    message: "{$staffName} edited book '{$book->title}' (ISBN: {$book->isbn})",
+                    data: [
+                        'book_id' => $book->id,
+                        'title' => $book->title,
+                        'isbn' => $book->isbn,
+                        'staff_name' => $staffName,
+                        'changes' => $changes,
+                    ],
+                    relatedModel: 'Book',
+                    relatedId: $book->id
+                );
+            }
 
             if ($book->available_copies < 5 && $oldCopies >= 5) {
                 $admin = User::where('role', 'admin')->first();

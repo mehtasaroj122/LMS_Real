@@ -8,6 +8,8 @@
         'routes' => [
             'data' => route('admin.fines.data'),
             'exportData' => route('admin.fines.export-data'),
+            'bulkUpdate' => route('admin.fines.bulk-status'),
+            'bulkEmail' => route('admin.fines.bulk-email'),
             'markPaid' => route('admin.fines.mark-as-paid', ['fine' => '__FINE_ID__']),
             'waive' => route('admin.fines.waive', ['fine' => '__FINE_ID__']),
             'sendEmail' => route('admin.fines.send-email', ['fine' => '__FINE_ID__']),
@@ -21,7 +23,7 @@
         'labels' => [
             'pageTitle' => 'Fines Records',
             'pageDescription' => 'Manage and update fines for overdue books',
-            'exportButton' => 'Export CSV',
+            'exportButton' => 'Export Excel',
             'searchPlaceholder' => 'Search by user, book title, amount, or reason...',
             'stats' => [
                 'totalTitle' => 'Total Fines',

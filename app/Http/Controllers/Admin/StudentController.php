@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use App\Models\FineSetting;
 use App\Models\Student;
+use App\Models\StudentPrivilege;
 use App\Models\User;
 use App\Models\Notification;
 use App\Models\ActivityLog;
@@ -109,6 +111,7 @@ class StudentController extends Controller
             $tableRows .= '<div class="action-buttons">';
             $tableRows .= '<a href="' . route('admin.students.show', $student->id) . '" class="action-btn" title="View details"><i class="fas fa-eye"></i></a>';
             $tableRows .= '<button onclick="openEditStudentModal(' . $student->id . ')" class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>';
+            $tableRows .= '<button onclick="resetStudentPassword(' . $student->id . ')" class="action-btn" title="Reset password"><i class="fas fa-key"></i></button>';
             $toggleIcon = $student->user->status === 'active' ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
             $tableRows .= '<button onclick="toggleStudentStatus(' . $student->id . ')" class="action-btn" title="Toggle status"><i class="' . $toggleIcon . '"></i></button>';
             $tableRows .= '<button onclick="deleteStudent(' . $student->id . ')" class="action-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>';
@@ -529,8 +532,17 @@ class StudentController extends Controller
         
         // Transform issued books for frontend
         $booksData = $student->issuedBooks->map(function($issued) {
-            $status = $issued->return_date ? 'returned' : (\Carbon\Carbon::parse($issued->due_date)->toDateString() < now()->toDateString() ? 'overdue' : 'issued');
-            $daysOverdue = $status === 'overdue' ? now()->diffInDays(\Carbon\Carbon::parse($issued->due_date)) : 0;
+            $issueDate = $issued->issue_date ? \Carbon\Carbon::parse($issued->issue_date) : null;
+            $dueDate = $issued->due_date ? \Carbon\Carbon::parse($issued->due_date)->startOfDay() : null;
+            $returnDate = $issued->return_date ? \Carbon\Carbon::parse($issued->return_date) : null;
+            $today = now()->startOfDay();
+
+            $status = $returnDate
+                ? 'returned'
+                : ($dueDate && $dueDate->lt($today) ? 'overdue' : 'issued');
+            $daysOverdue = $status === 'overdue' && $dueDate
+                ? (int) $dueDate->diffInDays($today)
+                : 0;
             $fineAmount = $issued->fine?->amount ?? $issued->fine_amount ?? 0;
             
             return [
@@ -544,17 +556,20 @@ class StudentController extends Controller
                 'condition' => $issued->condition ?? 'Good',
                 'category' => $issued->book?->category?->name ?? 'Uncategorized',
                 'transactionId' => 'TXN-' . str_pad((string) $issued->id, 6, '0', STR_PAD_LEFT),
-                'issueDate' => optional($issued->issue_date) ? \Carbon\Carbon::parse($issued->issue_date)->format('M d, Y') : 'N/A',
-                'issueDateFull' => optional($issued->issue_date) ? \Carbon\Carbon::parse($issued->issue_date)->format('M d, Y H:i') : 'N/A',
-                'dueDate' => optional($issued->due_date) ? \Carbon\Carbon::parse($issued->due_date)->format('M d, Y') : 'N/A',
-                'returnDate' => optional($issued->return_date) ? \Carbon\Carbon::parse($issued->return_date)->format('M d, Y') : '-',
+                'issueDate' => $issueDate ? $issueDate->format('M d, Y') : 'N/A',
+                'issueDateFull' => $issueDate ? $issueDate->format('M d, Y H:i') : 'N/A',
+                'issueDateRaw' => $issueDate ? $issueDate->toDateString() : null,
+                'dueDate' => $dueDate ? $dueDate->format('M d, Y') : 'N/A',
+                'dueDateRaw' => $dueDate ? $dueDate->toDateString() : null,
+                'returnDate' => $returnDate ? $returnDate->format('M d, Y') : '-',
+                'returnDateRaw' => $returnDate ? $returnDate->toDateString() : null,
                 'issuedBy' => $issued->issuer?->name ?? 'System',
                 'renewalCount' => $issued->renewal_count ?? 0,
                 'status' => $status,
                 'fine' => $fineAmount,
                 'hasFine' => (bool) $issued->fine,
                 'fineStatus' => strtolower((string) ($issued->fine?->status ?? 'n/a')),
-                'daysOverdue' => $daysOverdue,
+                'daysOverdue' => (int) $daysOverdue,
                 'remarks' => $issued->remarks ?? 'No remarks'
             ];
         })->toArray();
@@ -935,14 +950,7 @@ class StudentController extends Controller
 
     protected function buildPrivilegeLogSnapshot($privileges, $fineSetting): array
     {
-        return [
-            'max_books' => $privileges->max_books ?? ($fineSetting->max_books_per_student ?? 5),
-            'issue_duration_days' => $privileges->issue_duration_days ?? ($fineSetting->issue_duration_days ?? 14),
-            'per_day_fine' => $privileges->per_day_fine ?? ($fineSetting->per_day_fine ?? 10),
-            'borrowing_allowed' => (bool) ($privileges->borrowing_allowed ?? true),
-            'grace_period_days' => $privileges->grace_period_days ?? ($fineSetting->grace_period_days ?? 2),
-            'max_fine_amount' => $privileges->max_fine_amount ?? ($fineSetting->max_fine_amount ?? 500),
-        ];
+        return $this->buildPrivilegeResponsePayload($privileges, $fineSetting)['effective'];
     }
 
     protected function privilegeValueChanged(string $field, $currentValue, $newValue): bool
@@ -956,6 +964,137 @@ class StudentController extends Controller
         }
 
         return $currentValue !== $newValue;
+    }
+
+    protected function resolvePrivilegeDefaults(FineSetting $fineSetting): array
+    {
+        return [
+            'max_books' => (int) ($fineSetting->max_books_per_student ?? 5),
+            'issue_duration_days' => (int) ($fineSetting->issue_duration_days ?? 14),
+            'per_day_fine' => (float) ($fineSetting->per_day_fine ?? 10),
+            'borrowing_allowed' => true,
+            'grace_period_days' => (int) ($fineSetting->grace_period_days ?? 2),
+            'max_fine_amount' => (float) ($fineSetting->max_fine_amount ?? 500),
+        ];
+    }
+
+    protected function buildStoredPrivilegeSnapshot(?StudentPrivilege $privileges): array
+    {
+        $hasPrivilegeRecord = $privileges instanceof StudentPrivilege && $privileges->exists;
+
+        return [
+            'max_books' => $hasPrivilegeRecord ? $privileges->max_books : null,
+            'issue_duration_days' => $hasPrivilegeRecord ? $privileges->issue_duration_days : null,
+            'per_day_fine' => $hasPrivilegeRecord ? $privileges->per_day_fine : null,
+            'borrowing_allowed' => $hasPrivilegeRecord ? (bool) ($privileges->borrowing_allowed ?? true) : true,
+            'grace_period_days' => $hasPrivilegeRecord ? $privileges->grace_period_days : null,
+            'max_fine_amount' => $hasPrivilegeRecord ? $privileges->max_fine_amount : null,
+        ];
+    }
+
+    protected function hasStoredPrivilegeOverrides(?StudentPrivilege $privileges): bool
+    {
+        if (!($privileges instanceof StudentPrivilege) || !$privileges->exists) {
+            return false;
+        }
+
+        return $privileges->max_books !== null
+            || $privileges->issue_duration_days !== null
+            || $privileges->per_day_fine !== null
+            || (bool) ($privileges->borrowing_allowed ?? true) !== true
+            || $privileges->grace_period_days !== null
+            || $privileges->max_fine_amount !== null;
+    }
+
+    protected function buildEffectivePrivilegeSnapshot(array $storedPrivileges, array $defaults): array
+    {
+        return [
+            'max_books' => $storedPrivileges['max_books'] ?? $defaults['max_books'],
+            'issue_duration_days' => $storedPrivileges['issue_duration_days'] ?? $defaults['issue_duration_days'],
+            'per_day_fine' => $storedPrivileges['per_day_fine'] ?? $defaults['per_day_fine'],
+            'borrowing_allowed' => array_key_exists('borrowing_allowed', $storedPrivileges)
+                ? (bool) ($storedPrivileges['borrowing_allowed'] ?? true)
+                : (bool) $defaults['borrowing_allowed'],
+            'grace_period_days' => $storedPrivileges['grace_period_days'] ?? $defaults['grace_period_days'],
+            'max_fine_amount' => $storedPrivileges['max_fine_amount'] ?? $defaults['max_fine_amount'],
+        ];
+    }
+
+    protected function buildPrivilegeResponsePayload(?StudentPrivilege $privileges, FineSetting $fineSetting): array
+    {
+        $defaults = $this->resolvePrivilegeDefaults($fineSetting);
+        $storedPrivileges = $this->buildStoredPrivilegeSnapshot($privileges);
+
+        return [
+            'privileges' => $storedPrivileges,
+            'defaults' => $defaults,
+            'effective' => $this->buildEffectivePrivilegeSnapshot($storedPrivileges, $defaults),
+            'has_custom_overrides' => $this->hasStoredPrivilegeOverrides($privileges),
+        ];
+    }
+
+    protected function normalizePrivilegeOverridePayload(array $validated, array $defaults): array
+    {
+        $normalized = $validated;
+
+        foreach (['max_books', 'issue_duration_days', 'per_day_fine', 'grace_period_days', 'max_fine_amount'] as $field) {
+            if (!array_key_exists($field, $normalized) || $normalized[$field] === null) {
+                continue;
+            }
+
+            if (!$this->privilegeValueChanged($field, $defaults[$field] ?? null, $normalized[$field])) {
+                $normalized[$field] = null;
+            }
+        }
+
+        if (array_key_exists('borrowing_allowed', $normalized)) {
+            $normalized['borrowing_allowed'] = (bool) $normalized['borrowing_allowed'];
+        }
+
+        return $normalized;
+    }
+
+    protected function buildNextStoredPrivilegeSnapshot(?StudentPrivilege $privileges, array $payload): array
+    {
+        $storedPrivileges = $this->buildStoredPrivilegeSnapshot($privileges);
+
+        foreach ($payload as $field => $value) {
+            if (array_key_exists($field, $storedPrivileges)) {
+                $storedPrivileges[$field] = $value;
+            }
+        }
+
+        return $storedPrivileges;
+    }
+
+    protected function shouldDeletePrivilegeRecord(array $storedPrivileges): bool
+    {
+        return $storedPrivileges['max_books'] === null
+            && $storedPrivileges['issue_duration_days'] === null
+            && $storedPrivileges['per_day_fine'] === null
+            && $storedPrivileges['grace_period_days'] === null
+            && $storedPrivileges['max_fine_amount'] === null
+            && (bool) ($storedPrivileges['borrowing_allowed'] ?? true) === true;
+    }
+
+    protected function calculatePrivilegeChanges(array $currentSettings, array $nextSettings): array
+    {
+        $changes = [];
+
+        foreach ([
+            'max_books',
+            'issue_duration_days',
+            'per_day_fine',
+            'borrowing_allowed',
+            'grace_period_days',
+            'max_fine_amount',
+        ] as $field) {
+            if ($this->privilegeValueChanged($field, $currentSettings[$field] ?? null, $nextSettings[$field] ?? null)) {
+                $changes[$field] = $nextSettings[$field] ?? null;
+            }
+        }
+
+        return $changes;
     }
 
     /**
@@ -1149,6 +1288,17 @@ class StudentController extends Controller
             $user->status = 'inactive';
             $user->save();
 
+            // Notify student about status change
+            Notification::notify(
+                user: $user,
+                type: 'account.status_changed',
+                title: 'Account Status Changed',
+                message: 'Your account has been deactivated by admin',
+                data: ['status' => 'inactive', 'changed_by' => auth()->user()?->name],
+                relatedModel: 'Student',
+                relatedId: $student->id
+            );
+
             // Log the activity
             ActivityLogger::logStatusChange($student, $oldStatus, 'inactive');
 
@@ -1192,6 +1342,17 @@ class StudentController extends Controller
             // Update user status to active
             $user->status = 'active';
             $user->save();
+
+            // Notify student about status change
+            Notification::notify(
+                user: $user,
+                type: 'account.status_changed',
+                title: 'Account Status Changed',
+                message: 'Your account has been activated by admin',
+                data: ['status' => 'active', 'changed_by' => auth()->user()?->name],
+                relatedModel: 'Student',
+                relatedId: $student->id
+            );
 
             // Log the activity
             ActivityLogger::logStatusChange($student, $oldStatus, 'active');
@@ -1237,6 +1398,18 @@ class StudentController extends Controller
             // Update user status
             $user->status = $newStatus;
             $user->save();
+
+            // Notify student about status change
+            $statusMessage = $newStatus === 'active' ? 'activated' : 'deactivated';
+            Notification::notify(
+                user: $user,
+                type: 'account.status_changed',
+                title: 'Account Status Changed',
+                message: "Your account has been {$statusMessage} by admin",
+                data: ['status' => $newStatus, 'changed_by' => auth()->user()?->name],
+                relatedModel: 'Student',
+                relatedId: $student->id
+            );
 
             // Log the activity
             ActivityLogger::logStatusChange($student, $oldStatus, $newStatus);
@@ -1425,38 +1598,12 @@ class StudentController extends Controller
                 ], 403);
             }
 
-            $student = Student::findOrFail($studentId);
-            $privileges = $student->privileges ?? new \App\Models\StudentPrivilege();
+            $student = Student::with('privileges')->findOrFail($studentId);
+            $fineSetting = FineSetting::resolveActive();
 
-            // Get global fine settings for defaults
-            $fineSetting = \App\Models\FineSetting::resolveActive();
-
-            return response()->json([
+            return response()->json(array_merge([
                 'success' => true,
-                'privileges' => [
-                    'max_books' => $privileges->max_books,
-                    'issue_duration_days' => $privileges->issue_duration_days,
-                    'per_day_fine' => $privileges->per_day_fine,
-                    'borrowing_allowed' => $privileges->borrowing_allowed ?? true,
-                    'grace_period_days' => $privileges->grace_period_days,
-                    'max_fine_amount' => $privileges->max_fine_amount,
-                ],
-                'defaults' => [
-                    'max_books' => $fineSetting->max_books_per_student ?? 5,
-                    'issue_duration_days' => $fineSetting->issue_duration_days ?? 14,
-                    'per_day_fine' => $fineSetting->per_day_fine ?? 10,
-                    'grace_period_days' => $fineSetting->grace_period_days ?? 2,
-                    'max_fine_amount' => $fineSetting->max_fine_amount ?? 500,
-                ],
-                'effective' => [
-                    'max_books' => $privileges->max_books ?? ($fineSetting->max_books_per_student ?? 5),
-                    'issue_duration_days' => $privileges->issue_duration_days ?? ($fineSetting->issue_duration_days ?? 14),
-                    'per_day_fine' => $privileges->per_day_fine ?? ($fineSetting->per_day_fine ?? 10),
-                    'grace_period_days' => $privileges->grace_period_days ?? ($fineSetting->grace_period_days ?? 2),
-                    'max_fine_amount' => $privileges->max_fine_amount ?? ($fineSetting->max_fine_amount ?? 500),
-                    'borrowing_allowed' => $privileges->borrowing_allowed ?? true,
-                ]
-            ]);
+            ], $this->buildPrivilegeResponsePayload($student->privileges, $fineSetting)));
         } catch (\Exception $e) {
             \Log::error('Error getting privileges: ' . $e->getMessage());
             return response()->json([
@@ -1474,8 +1621,9 @@ class StudentController extends Controller
         try {
             Gate::authorize('access-admin');
 
-            $student = Student::findOrFail($studentId);
-            $fineSetting = \App\Models\FineSetting::resolveActive();
+            $student = Student::with('privileges')->findOrFail($studentId);
+            $fineSetting = FineSetting::resolveActive();
+            $defaults = $this->resolvePrivilegeDefaults($fineSetting);
 
             $validated = $request->validate([
                 'max_books' => 'nullable|integer|min:1|max:20',
@@ -1486,38 +1634,52 @@ class StudentController extends Controller
                 'borrowing_allowed' => 'boolean',
             ]);
 
-            $fillablePayload = array_intersect_key(
-                $validated,
-                array_flip((new \App\Models\StudentPrivilege())->getFillable())
-            );
-
-            // Get or create privileges record
-            $privileges = $student->privileges ?? new \App\Models\StudentPrivilege(['student_id' => $student->id]);
+            $privileges = $student->privileges;
             $originalSettings = $this->buildPrivilegeLogSnapshot($privileges, $fineSetting);
+            $normalizedPayload = $this->normalizePrivilegeOverridePayload($validated, $defaults);
+            $fillablePayload = array_intersect_key(
+                $normalizedPayload,
+                array_flip((new StudentPrivilege())->getFillable())
+            );
+            $nextStoredPrivileges = $this->buildNextStoredPrivilegeSnapshot($privileges, $fillablePayload);
 
-            // Track changes for logging
-            $changes = [];
-
-            foreach ([
-                'max_books',
-                'issue_duration_days',
-                'per_day_fine',
-                'borrowing_allowed',
-                'grace_period_days',
-                'max_fine_amount',
-            ] as $field) {
-                if (!array_key_exists($field, $fillablePayload) || $fillablePayload[$field] === null) {
-                    continue;
+            if ($this->shouldDeletePrivilegeRecord($nextStoredPrivileges)) {
+                if ($privileges instanceof StudentPrivilege && $privileges->exists) {
+                    $privileges->delete();
                 }
 
-                if ($this->privilegeValueChanged($field, $originalSettings[$field] ?? null, $fillablePayload[$field])) {
-                    $changes[$field] = $fillablePayload[$field];
-                }
+                $student->unsetRelation('privileges');
+                $responsePayload = $this->buildPrivilegeResponsePayload(null, $fineSetting);
+            } else {
+                $privileges = $privileges ?? new StudentPrivilege(['student_id' => $student->id]);
+                $privileges->fill($fillablePayload);
+                $privileges->student_id = $student->id;
+                $privileges->save();
+                $student->setRelation('privileges', $privileges);
+
+                $responsePayload = $this->buildPrivilegeResponsePayload($privileges, $fineSetting);
             }
 
-            // Update privileges
-            $privileges->fill($fillablePayload);
-            $privileges->save();
+            $changes = $this->calculatePrivilegeChanges($originalSettings, $responsePayload['effective']);
+
+            // Notify student if privileges were changed
+            if (!empty($changes)) {
+                $changesSummary = collect($changes)->map(fn($change) => "{$change['field']}: {$change['old']} → {$change['new']}")->join(', ');
+                Notification::notify(
+                    user: $student->user,
+                    type: 'account.privilege_settings_changed',
+                    title: 'Library Privileges Updated',
+                    message: "Your library privileges have been updated by administrator. Changes: {$changesSummary}",
+                    data: [
+                        'student_id' => $student->id,
+                        'student_name' => $student->user->name,
+                        'changes' => $changes,
+                        'admin_name' => auth()->user()?->name,
+                    ],
+                    relatedModel: 'StudentPrivilege',
+                    relatedId: $privileges->id ?? null
+                );
+            }
 
             // Log the activity
             if (!empty($changes)) {
@@ -1537,23 +1699,85 @@ class StudentController extends Controller
                 }
             }
 
-            return response()->json([
+            return response()->json(array_merge([
                 'success' => true,
                 'message' => 'Library privileges saved successfully',
-                'privileges' => [
-                    'max_books' => $privileges->max_books,
-                    'issue_duration_days' => $privileges->issue_duration_days,
-                    'per_day_fine' => $privileges->per_day_fine,
-                    'grace_period_days' => $privileges->grace_period_days,
-                    'max_fine_amount' => $privileges->max_fine_amount,
-                    'borrowing_allowed' => $privileges->borrowing_allowed,
-                ]
-            ]);
+            ], $responsePayload));
         } catch (\Exception $e) {
             \Log::error('Error saving privileges: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error saving privileges: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reset student privileges back to system defaults.
+     */
+    public function resetPrivileges($studentId)
+    {
+        try {
+            Gate::authorize('access-admin');
+
+            $student = Student::with('privileges')->findOrFail($studentId);
+            $fineSetting = FineSetting::resolveActive();
+            $privileges = $student->privileges;
+            $hadOverrides = $this->hasStoredPrivilegeOverrides($privileges);
+            $originalSettings = $this->buildPrivilegeLogSnapshot($privileges, $fineSetting);
+
+            if ($privileges instanceof StudentPrivilege && $privileges->exists) {
+                $privileges->delete();
+            }
+
+            $student->unsetRelation('privileges');
+
+            $responsePayload = $this->buildPrivilegeResponsePayload(null, $fineSetting);
+            $changes = $this->calculatePrivilegeChanges($originalSettings, $responsePayload['effective']);
+
+            if ($hadOverrides || !empty($changes)) {
+                try {
+                    ActivityLogger::logStudentActivity(
+                        $student,
+                        'privilege_updated',
+                        'Library privileges reset to default settings.',
+                        'privilege',
+                        [
+                            'changes' => $changes,
+                            'updated_fields' => array_keys($changes),
+                            'reset_to_defaults' => true,
+                        ]
+                    );
+                } catch (\Exception $logError) {
+                    \Log::warning('Failed to log privilege reset: ' . $logError->getMessage());
+                }
+
+                // Notify student of privilege reset
+                Notification::notify(
+                    user: $student->user,
+                    type: 'account.privilege_settings_changed',
+                    title: 'Library Privileges Reset',
+                    message: 'Your library privileges have been reset to default system settings by the administrator.',
+                    data: [
+                        'student_id' => $student->id,
+                        'student_name' => $student->user->name,
+                        'action' => 'reset_to_defaults',
+                        'admin_name' => auth()->user()?->name,
+                    ],
+                    relatedModel: 'StudentPrivilege',
+                    relatedId: null
+                );
+            }
+
+            return response()->json(array_merge([
+                'success' => true,
+                'message' => 'Library privileges reset to default settings',
+            ], $responsePayload));
+        } catch (\Exception $e) {
+            \Log::error('Error resetting privileges: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error resetting privileges: ' . $e->getMessage()
             ], 500);
         }
     }

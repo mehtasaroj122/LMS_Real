@@ -308,6 +308,148 @@
         margin-left: auto;
     }
 
+    .book-request-page .request-bulk-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.7rem;
+        padding: 0.95rem 1rem;
+        border-radius: 0.9rem;
+        border: 1px solid var(--request-border-color);
+        background:
+            linear-gradient(135deg, rgba(59, 130, 246, 0.04), rgba(16, 185, 129, 0.05)),
+            var(--request-bg-secondary);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .book-request-page .request-bulk-bar.has-selection {
+        border-color: rgba(59, 130, 246, 0.32);
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.08);
+    }
+
+    body.dark-theme .book-request-page .request-bulk-bar {
+        background:
+            linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(16, 185, 129, 0.08)),
+            var(--request-bg-secondary);
+    }
+
+    body.dark-theme .book-request-page .request-bulk-bar.has-selection {
+        border-color: rgba(96, 165, 250, 0.34);
+        box-shadow: 0 16px 32px rgba(2, 6, 23, 0.28);
+    }
+
+    .book-request-page .request-bulk-copy {
+        min-width: 0;
+    }
+
+    .book-request-page .request-bulk-title {
+        display: inline-block;
+        margin-bottom: 0.18rem;
+        font-size: 0.73rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--request-text-secondary);
+    }
+
+    .book-request-page .request-bulk-summary {
+        margin: 0;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        color: var(--request-text-primary);
+    }
+
+    .book-request-page .request-bulk-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        margin-left: auto;
+    }
+
+    .book-request-page .request-bulk-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        min-height: 38px;
+        padding: 0.55rem 0.95rem;
+        border-radius: 0.75rem;
+        border: 1px solid transparent;
+        font-size: 0.76rem;
+        font-weight: 700;
+        background: var(--request-bg-secondary);
+        color: var(--request-text-primary);
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease, background-color 0.2s ease;
+    }
+
+    .book-request-page .request-bulk-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+
+    body.light-theme .book-request-page .request-bulk-btn.accept {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    body.light-theme .book-request-page .request-bulk-btn.accept:hover:not(:disabled) {
+        background: #bbf7d0;
+        box-shadow: 0 10px 18px rgba(22, 163, 74, 0.14);
+    }
+
+    body.light-theme .book-request-page .request-bulk-btn.reject {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    body.light-theme .book-request-page .request-bulk-btn.reject:hover:not(:disabled) {
+        background: #fecaca;
+        box-shadow: 0 10px 18px rgba(220, 38, 38, 0.14);
+    }
+
+    body.light-theme .book-request-page .request-bulk-btn.clear {
+        border-color: var(--request-border-color);
+        background: #ffffff;
+        color: #475569;
+    }
+
+    body.light-theme .book-request-page .request-bulk-btn.clear:hover:not(:disabled) {
+        border-color: #94a3b8;
+        color: #0f172a;
+    }
+
+    body.dark-theme .book-request-page .request-bulk-btn.accept {
+        background: rgba(20, 83, 45, 0.92);
+        color: #86efac;
+    }
+
+    body.dark-theme .book-request-page .request-bulk-btn.accept:hover:not(:disabled) {
+        background: #166534;
+    }
+
+    body.dark-theme .book-request-page .request-bulk-btn.reject {
+        background: rgba(127, 29, 29, 0.92);
+        color: #fca5a5;
+    }
+
+    body.dark-theme .book-request-page .request-bulk-btn.reject:hover:not(:disabled) {
+        background: #991b1b;
+    }
+
+    body.dark-theme .book-request-page .request-bulk-btn.clear {
+        border-color: #475569;
+        background: #111827;
+        color: #cbd5e1;
+    }
+
+    body.dark-theme .book-request-page .request-bulk-btn.clear:hover:not(:disabled) {
+        border-color: #64748b;
+        color: #f8fafc;
+    }
+
     .book-request-page .request-btn,
     .book-request-page .request-action-btn,
     .book-request-page .request-modal-btn,
@@ -395,7 +537,7 @@
 
     .book-request-page .requests-table {
         width: 100%;
-        min-width: 980px;
+        min-width: 1040px;
         border-collapse: collapse;
     }
 
@@ -419,6 +561,92 @@
     .book-request-page .requests-table td {
         font-size: 0.81rem;
         color: var(--request-text-primary);
+    }
+
+    .book-request-page .request-select-column,
+    .book-request-page .request-select-cell {
+        width: 56px;
+        text-align: center;
+    }
+
+    .book-request-page .request-select-cell {
+        vertical-align: middle;
+    }
+
+    .book-request-page .request-checkbox {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.2rem;
+        height: 1.2rem;
+        cursor: pointer;
+    }
+
+    .book-request-page .request-checkbox-header {
+        margin: 0 auto;
+    }
+
+    .book-request-page .request-checkbox.is-disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+
+    .book-request-page .request-checkbox-input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .book-request-page .request-checkbox-control {
+        position: relative;
+        width: 1.1rem;
+        height: 1.1rem;
+        border-radius: 0.35rem;
+        border: 1.5px solid #cbd5e1;
+        background: var(--request-bg-secondary);
+        transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    body.dark-theme .book-request-page .request-checkbox-control {
+        border-color: #475569;
+        background: #0f172a;
+    }
+
+    .book-request-page .request-checkbox-input:checked + .request-checkbox-control,
+    .book-request-page .request-checkbox-input:indeterminate + .request-checkbox-control {
+        border-color: #2563eb;
+        background: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+    }
+
+    .book-request-page .request-checkbox-input:checked + .request-checkbox-control::after {
+        content: "";
+        position: absolute;
+        left: 0.34rem;
+        top: 0.12rem;
+        width: 0.24rem;
+        height: 0.5rem;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .book-request-page .request-checkbox-input:indeterminate + .request-checkbox-control::after {
+        content: "";
+        position: absolute;
+        top: 0.42rem;
+        left: 0.2rem;
+        width: 0.45rem;
+        height: 0.12rem;
+        border-radius: 999px;
+        background: #ffffff;
+    }
+
+    .book-request-page .request-checkbox-input:focus-visible + .request-checkbox-control {
+        border-color: var(--request-focus-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
     }
 
     .book-request-page .requests-table tbody tr:last-child td {
@@ -1200,6 +1428,7 @@
     }
 
     .book-request-page .request-btn:disabled,
+    .book-request-page .request-bulk-btn:disabled,
     .book-request-page .request-action-btn:disabled,
     .book-request-page .request-modal-btn:disabled {
         cursor: not-allowed;
@@ -1224,10 +1453,22 @@
             align-items: stretch;
         }
 
+        .book-request-page .request-bulk-bar,
         .book-request-page .request-entries-control,
         .book-request-page .request-toolbar-actions {
             margin-left: 0;
             width: 100%;
+        }
+
+        .book-request-page .request-bulk-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .book-request-page .request-bulk-actions {
+            width: 100%;
+            margin-left: 0;
+            justify-content: flex-start;
         }
 
         .book-request-page .request-toolbar-actions {
@@ -1255,12 +1496,14 @@
         .book-request-page .request-search-box,
         .book-request-page .request-filters,
         .book-request-page .request-filter-field,
+        .book-request-page .request-bulk-actions,
         .book-request-page .request-toolbar-actions {
             width: 100%;
             max-width: none;
         }
 
         .book-request-page .request-btn,
+        .book-request-page .request-bulk-btn,
         .book-request-page .request-modal-btn {
             justify-content: center;
         }

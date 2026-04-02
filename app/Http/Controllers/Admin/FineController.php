@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\InteractsWithFineRecords;
+use App\Http\Requests\FineManagement\BulkSendFineEmailRequest;
+use App\Http\Requests\FineManagement\BulkUpdateFineStatusRequest;
 use App\Http\Requests\FineManagement\ListFinesRequest;
 use App\Http\Requests\FineManagement\WaiveFineRequest;
 use App\Models\ActivityLog;
@@ -11,6 +13,7 @@ use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\FineManagement\FineManagementActionService;
 use App\Services\FineManagement\FineManagementDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -83,49 +86,16 @@ class FineController extends Controller
     /**
      * Mark fine as paid
      */
-    public function markAsPaid(string $id)
+    public function markAsPaid(string $id, FineManagementActionService $actionService)
     {
         try {
             Gate::authorize('access-admin');
 
             $fine = $this->loadFineRecord($id);
-            $this->ensureFineIsActionable($fine);
-            $fine->update([
-                'status' => 'paid',
-                'paid_on' => now()
+            $actionService->markAsPaid($fine, [
+                'notify_student' => false,
+                'log_email' => true,
             ]);
-            
-            // Log the activity
-            try {
-                if ($fine->student) {
-                    ActivityLogger::logStudentActivity(
-                        $fine->student,
-                        'fine_paid',
-                        "Fine of ₹{$fine->amount} marked as paid",
-                        'fine',
-                        $this->buildFineHistoryMetadata($fine, [
-                            'action_type' => 'paid',
-                            'amount' => (float) $fine->amount,
-                            'new_amount' => (float) $fine->amount,
-                            'payment_method' => $fine->payment_method ?? 'cash',
-                        ])
-                    );
-                }
-            } catch (Throwable $logError) {
-                \Log::warning('Failed to log activity: ' . $logError->getMessage());
-            }
-            
-            // Queue email to send 3 seconds later
-            // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
-            if ($fine->student && $fine->student->user && $fine->student->user->email) {
-                // SendFineEmail::dispatch(
-                //     $fine->student->user->email,
-                //     $fine->student->user->name,
-                //     $fine->amount,
-                //     'paid'
-                // );
-                \Log::info('Fine email would have been sent to: ' . $fine->student->user->email);
-            }
 
             return response()->json([
                 'success' => true,
@@ -148,57 +118,44 @@ class FineController extends Controller
     /**
      * Waive fine
      */
-    public function waive(WaiveFineRequest $request, string $id)
+    public function waive(
+        WaiveFineRequest $request,
+        string $id,
+        FineManagementActionService $actionService
+    )
     {
         try {
             Gate::authorize('access-admin');
 
             $fine = $this->loadFineRecord($id);
-            $this->ensureFineIsActionable($fine);
-            $reason = $request->waiverReason();
-            
-            $fine->update([
-                'status' => 'waived',
-                'remarks' => $reason
+            $waiverReason = $request->waiverReason();
+            $updatedFine = $actionService->waive($fine, $waiverReason, [
+                'notify_student' => false,
+                'log_email' => true,
             ]);
-            
-            // Log the activity
-            try {
-                if ($fine->student) {
-                    ActivityLogger::logStudentActivity(
-                        $fine->student,
-                        'fine_waived',
-                        "Fine of ₹{$fine->amount} waived. Reason: {$reason}",
-                        'fine',
-                        $this->buildFineHistoryMetadata($fine, [
-                            'action_type' => 'waived',
-                            'amount' => (float) $fine->amount,
-                            'new_amount' => (float) $fine->amount,
-                            'remarks' => $reason,
-                        ])
-                    );
-                }
-            } catch (Throwable $logError) {
-                \Log::warning('Failed to log activity: ' . $logError->getMessage());
-            }
-            
-            // Queue email to send 3 seconds later (include waiver reason)
-            // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
-            if ($fine->student && $fine->student->user && $fine->student->user->email) {
-                // SendFineEmail::dispatch(
-                //     $fine->student->user->email,
-                //     $fine->student->user->name,
-                //     $fine->amount,
-                //     'waived',
-                //     $reason
-                // );
-                \Log::info('Fine email would have been sent to: ' . $fine->student->user->email);
+
+            // Notify student about fine waived with reason
+            if ($fine->student && $fine->student->user) {
+                Notification::notify(
+                    user: $fine->student->user,
+                    type: 'fine.waived_by_admin',
+                    title: 'Fine Waived',
+                    message: "Your fine of ₹{$fine->amount} has been waived by administrator. Reason: {$waiverReason}",
+                    data: [
+                        'fine_id' => $fine->id,
+                        'amount' => $fine->amount,
+                        'reason' => $waiverReason,
+                        'admin_name' => auth()->user()?->name,
+                    ],
+                    relatedModel: 'Fine',
+                    relatedId: $fine->id
+                );
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Fine waived successfully',
-                'data' => $fine->fresh()
+                'data' => $updatedFine,
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -218,48 +175,68 @@ class FineController extends Controller
     /**
      * Send email notification based on fine status
      */
-    public function sendEmailNotification(Request $request, string $id)
+    public function sendEmailNotification(
+        Request $request,
+        string $id,
+        FineManagementActionService $actionService
+    )
     {
         try {
             Gate::authorize('access-admin');
 
             $fine = $this->loadFineRecord($id);
-
-            // Check if student and email exist
-            if (!$fine->student || !$fine->student->user || !$fine->student->user->email) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Student email not found'
-                ], 400);
-            }
-
-            $studentEmail = $fine->student->user->email;
-            $studentName = $fine->student->user->name;
-            $fineAmount = $fine->amount;
-            $status = strtolower((string) $fine->status);
-
-            // Dispatch appropriate email based on status
-            // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
-            // if ($status === 'paid') {
-            //     SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'paid', null);
-            // } elseif ($status === 'waived') {
-            //     $waiveReason = trim($fine->remarks ?? 'Fine waived by admin');
-            //     SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'waived', $waiveReason);
-            // } else {
-            //     // For pending status, send a payment reminder
-            //     SendFineEmail::dispatch($studentEmail, $studentName, $fineAmount, 'pending', null);
-            // }
-            \Log::info('Fine email would have been sent to: ' . $studentEmail . ' (Mail disabled)');
+            $actionService->sendEmailNotification($fine);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Email queued successfully and will be sent shortly'
             ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->first() ?: 'Student email not found',
+                'errors' => $e->errors(),
+            ], 400);
         } catch (\Exception $e) {
             \Log::error('Error sending fine email notification: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error sending email: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function bulkSendEmail(
+        BulkSendFineEmailRequest $request,
+        FineManagementActionService $actionService
+    ) {
+        try {
+            Gate::authorize('access-admin');
+
+            $results = $actionService->bulkSendEmailNotifications($request->fineIds());
+
+            return response()->json([
+                'success' => true,
+                'message' => $this->buildBulkEmailMessage(
+                    (int) $results['processed_count'],
+                    (int) $results['skipped_count'],
+                    (int) $results['recipient_count']
+                ),
+                'processedCount' => (int) $results['processed_count'],
+                'skippedCount' => (int) $results['skipped_count'],
+                'recipientCount' => (int) $results['recipient_count'],
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->first() ?: 'Unable to queue emails for the selected fines.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error bulk sending fine emails: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error sending emails: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -306,6 +283,52 @@ class FineController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error loading export data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function bulkUpdate(
+        BulkUpdateFineStatusRequest $request,
+        FineManagementActionService $actionService
+    ) {
+        try {
+            Gate::authorize('access-admin');
+
+            $status = $request->status();
+            $results = $actionService->bulkUpdateStatus(
+                $request->fineIds(),
+                $status,
+                [
+                    'notify_student' => false,
+                    'log_email' => $status === 'waived' || $status === 'paid',
+                ],
+                $request->waiverReason()
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => $this->buildBulkActionMessage(
+                    $status,
+                    (int) $results['updated_count'],
+                    (int) $results['skipped_count'],
+                    (float) $results['total_amount']
+                ),
+                'status' => $status,
+                'processedCount' => (int) $results['updated_count'],
+                'skippedCount' => (int) $results['skipped_count'],
+                'totalAmount' => (float) $results['total_amount'],
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => collect($e->errors())->flatten()->first() ?: 'Unable to update the selected fines.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error bulk updating fines: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating fines: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -784,5 +807,36 @@ class FineController extends Controller
                 'message' => 'Error marking fines as paid: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    protected function buildBulkActionMessage(string $status, int $processedCount, int $skippedCount, float $totalAmount): string
+    {
+        $actionLabel = $status === 'paid' ? 'marked as paid' : 'waived';
+        $amountLabel = '₹' . number_format($totalAmount, 2);
+
+        if ($processedCount === 0 && $skippedCount > 0) {
+            return "No selected fines were {$actionLabel} because they were no longer pending.";
+        }
+
+        if ($skippedCount > 0) {
+            return "{$processedCount} fine(s) {$actionLabel} for {$amountLabel}. {$skippedCount} selected fine(s) were skipped because they were no longer pending.";
+        }
+
+        return "{$processedCount} fine(s) {$actionLabel} for {$amountLabel}.";
+    }
+
+    protected function buildBulkEmailMessage(int $processedCount, int $skippedCount, int $recipientCount): string
+    {
+        $recipientLabel = $recipientCount === 1 ? 'recipient' : 'recipients';
+
+        if ($processedCount === 0 && $skippedCount > 0) {
+            return 'No fine emails were queued because the selected records no longer have a student email address.';
+        }
+
+        if ($skippedCount > 0) {
+            return "{$processedCount} fine email(s) queued for {$recipientCount} {$recipientLabel}. {$skippedCount} selected fine(s) were skipped because a student email address was unavailable.";
+        }
+
+        return "{$processedCount} fine email(s) queued for {$recipientCount} {$recipientLabel}.";
     }
 }

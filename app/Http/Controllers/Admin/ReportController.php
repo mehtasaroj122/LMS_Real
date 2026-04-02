@@ -28,29 +28,64 @@ class ReportController extends Controller
 
         $filters = $this->resolveFilters($request);
 
-        $inventoryReport = $this->buildInventoryReport($filters);
-        $transactionsReport = $this->buildTransactionsReport($filters);
-        $finesReport = $this->buildFinesReport($filters);
-        $usersReport = $this->buildUsersReport($filters);
-        $overdueReport = $this->buildOverdueReport();
-
-        $reportCharts = [
-            'inventory' => $inventoryReport['charts'],
-            'transactions' => $transactionsReport['charts'],
-            'fines' => $finesReport['charts'],
-            'users' => $usersReport['charts'],
-            'overdue' => $overdueReport['charts'],
-        ];
-
         return view('Admin.ReportsDynamic', [
-            'filters' => $filters,
-            'inventoryReport' => $inventoryReport,
-            'transactionsReport' => $transactionsReport,
-            'finesReport' => $finesReport,
-            'usersReport' => $usersReport,
-            'overdueReport' => $overdueReport,
-            'reportCharts' => $reportCharts,
+            'filters' => $this->serializeFilters($filters),
         ]);
+    }
+
+    public function data(Request $request)
+    {
+        Gate::authorize('access-admin');
+
+        $filters = $this->resolveFilters($request);
+        $reportPayload = $this->buildReportPayload($filters);
+
+        return response()->json([
+            'filters' => $this->serializeFilters($filters),
+            'reportType' => $filters['reportType'],
+            'charts' => $reportPayload['charts'],
+            'content' => view('Admin.reports.partials.content', [
+                'filters' => $filters,
+                'reportType' => $filters['reportType'],
+                'reportData' => $reportPayload['data'],
+            ])->render(),
+            'fetchedAt' => now()->toIso8601String(),
+        ]);
+    }
+
+    private function buildReportPayload(array $filters): array
+    {
+        return match ($filters['reportType']) {
+            'transactions' => $this->mapReportPayload($this->buildTransactionsReport($filters)),
+            'fines' => $this->mapReportPayload($this->buildFinesReport($filters)),
+            'users' => $this->mapReportPayload($this->buildUsersReport($filters)),
+            'overdue' => $this->mapReportPayload($this->buildOverdueReport()),
+            'inventory' => $this->mapReportPayload($this->buildInventoryReport($filters)),
+            default => $this->mapReportPayload($this->buildInventoryReport($filters)),
+        };
+    }
+
+    private function mapReportPayload(array $reportData): array
+    {
+        return [
+            'data' => $reportData,
+            'charts' => $reportData['charts'] ?? [],
+        ];
+    }
+
+    private function serializeFilters(array $filters): array
+    {
+        return [
+            'reportType' => $filters['reportType'],
+            'timePeriod' => $filters['timePeriod'],
+            'startDate' => $filters['startDate']->toDateString(),
+            'endDate' => $filters['endDate']->toDateString(),
+            'startDateInput' => $filters['startDateInput'],
+            'endDateInput' => $filters['endDateInput'],
+            'periodLabel' => $filters['periodLabel'],
+            'periodDays' => $filters['periodDays'],
+            'showCustomRange' => $filters['showCustomRange'],
+        ];
     }
 
     private function resolveFilters(Request $request): array
@@ -133,9 +168,9 @@ class ReportController extends Controller
             ->pluck('total', 'condition_name');
 
         $conditionBreakdown = collect([
-            ['key' => 'new', 'label' => 'New', 'badge_class' => 'badge-info'],
-            ['key' => 'good', 'label' => 'Good', 'badge_class' => 'badge-success'],
-            ['key' => 'damaged', 'label' => 'Damaged', 'badge_class' => 'badge-warning'],
+            ['key' => 'new', 'label' => 'New', 'badge_class' => 'badge-success'],
+            ['key' => 'good', 'label' => 'Good', 'badge_class' => 'badge-info'],
+            ['key' => 'damaged', 'label' => 'Damaged', 'badge_class' => 'badge-danger'],
         ])->map(function (array $condition) use ($conditionCounts) {
             $condition['count'] = (int) ($conditionCounts[$condition['key']] ?? 0);
 
@@ -258,6 +293,7 @@ class ReportController extends Controller
                 return [
                     'student_name' => $student?->user?->name ?? 'Unknown Student',
                     'student_id' => $student?->roll_no ?? 'N/A',
+                    'pending_cases' => $fines->count(),
                     'pending_amount' => round((float) $fines->sum('amount'), 2),
                 ];
             })
@@ -266,6 +302,39 @@ class ReportController extends Controller
             ->values();
 
         $collectionOverviewChart = $this->buildFineCollectionChart();
+        $collectionRate = $generatedInRange > 0 ? round(((float) $collectedInRange / (float) $generatedInRange) * 100, 1) : 0.0;
+        $pendingShare = $generatedInRange > 0 ? round(((float) $pendingInRange / (float) $generatedInRange) * 100, 1) : 0.0;
+        $waiverShare = $generatedInRange > 0 ? round(((float) $waivedInRange / (float) $generatedInRange) * 100, 1) : 0.0;
+        $averageTopBalance = round((float) ($topDefaulters->avg('pending_amount') ?? 0), 2);
+
+        $collectionHealth = collect([
+            [
+                'metric' => 'Collection Rate',
+                'value_display' => number_format($collectionRate, 1) . '%',
+                'insight' => 'Collected versus new fines within ' . $filters['periodLabel'],
+                'badge_class' => $collectionRate >= 70 ? 'badge-success' : ($collectionRate >= 40 ? 'badge-info' : 'badge-danger'),
+            ],
+            [
+                'metric' => 'Pending Share',
+                'value_display' => number_format($pendingShare, 1) . '%',
+                'insight' => 'Outstanding balance still pending from the same reporting window',
+                'badge_class' => $pendingShare <= 25 ? 'badge-success' : ($pendingShare <= 50 ? 'badge-warning' : 'badge-danger'),
+            ],
+            [
+                'metric' => 'Waiver Share',
+                'value_display' => number_format($waiverShare, 1) . '%',
+                'insight' => 'Amount waived compared with fines generated during the period',
+                'badge_class' => $waiverShare <= 10 ? 'badge-info' : 'badge-warning',
+            ],
+            [
+                'metric' => 'Avg. Top Balance',
+                'value_display' => '₹' . number_format($averageTopBalance, 2),
+                'insight' => $topDefaulters->isNotEmpty()
+                    ? 'Average pending balance across the current top defaulters'
+                    : 'No current pending defaulters to benchmark',
+                'badge_class' => $averageTopBalance > 0 ? 'badge-danger' : 'badge-info',
+            ],
+        ])->values();
 
         return [
             'stats' => [
@@ -275,6 +344,7 @@ class ReportController extends Controller
                 'waived' => round((float) $waivedInRange, 2),
             ],
             'top_defaulters' => $topDefaulters->all(),
+            'collection_health' => $collectionHealth->all(),
             'charts' => [
                 'collection_overview' => $collectionOverviewChart,
                 'efficiency' => [
@@ -357,6 +427,7 @@ class ReportController extends Controller
 
                 return [
                     'student_name' => $issuedBook->student?->user?->name ?? 'Unknown Student',
+                    'student_roll_no' => $issuedBook->student?->roll_no ?? 'N/A',
                     'book_title' => $issuedBook->book?->title ?? 'Unknown Book',
                     'days_overdue' => $daysOverdue,
                     'fine_amount' => round($fineAmount, 2),
@@ -384,6 +455,36 @@ class ReportController extends Controller
         $criticalOverdue = $overdueBooks->filter(fn (array $book) => $book['days_overdue'] >= 30)->count();
         $averageDaysOverdue = round((float) ($overdueBooks->avg('days_overdue') ?? 0), 1);
         $totalFineAmount = round((float) $overdueBooks->sum('fine_amount'), 2);
+        $overdueStudentSummary = $overdueBooks
+            ->groupBy(fn (array $book) => $book['student_roll_no'] . '|' . $book['student_name'])
+            ->map(function (Collection $books) {
+                $firstBook = $books->first();
+
+                return [
+                    'student_name' => $firstBook['student_name'] ?? 'Unknown Student',
+                    'student_roll_no' => $firstBook['student_roll_no'] ?? 'N/A',
+                    'books_overdue' => $books->count(),
+                    'highest_days_overdue' => (int) ($books->max('days_overdue') ?? 0),
+                    'fine_exposure' => round((float) $books->sum('fine_amount'), 2),
+                ];
+            })
+            ->sort(function (array $left, array $right) {
+                if ($left['fine_exposure'] !== $right['fine_exposure']) {
+                    return $right['fine_exposure'] <=> $left['fine_exposure'];
+                }
+
+                if ($left['highest_days_overdue'] !== $right['highest_days_overdue']) {
+                    return $right['highest_days_overdue'] <=> $left['highest_days_overdue'];
+                }
+
+                if ($left['books_overdue'] !== $right['books_overdue']) {
+                    return $right['books_overdue'] <=> $left['books_overdue'];
+                }
+
+                return strcmp($left['student_name'], $right['student_name']);
+            })
+            ->take(8)
+            ->values();
 
         return [
             'stats' => [
@@ -393,6 +494,7 @@ class ReportController extends Controller
                 'average_days_overdue' => $averageDaysOverdue,
             ],
             'overdue_books' => $overdueBooks->all(),
+            'overdue_students' => $overdueStudentSummary->all(),
             'charts' => [
                 'distribution' => [
                     'labels' => $distributionBuckets->pluck('label')->all(),

@@ -3,6 +3,7 @@
 namespace App\Services\StudentManagement;
 
 use App\Helpers\ActivityLogger;
+use App\Models\Notification;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\QueryException;
@@ -60,6 +61,41 @@ class StudentManagementActionService
         }
 
         $student->user->update(['status' => $status]);
+
+        // Notify student about status change
+        $statusMessage = $status === 'active' ? 'activated' : 'deactivated';
+        Notification::notify(
+            user: $student->user,
+            type: 'account.status_changed',
+            title: 'Account Status Changed',
+            message: "Your account has been {$statusMessage} by staff",
+            data: ['status' => $status, 'changed_by' => auth()->user()?->name],
+            relatedModel: 'Student',
+            relatedId: $student->id
+        );
+        
+        // Notify admin about student status change by staff
+        $staffName = auth()->user()?->name ?? 'Staff Member';
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            Notification::notify(
+                user: $admin,
+                type: 'staff.student_status_changed',
+                title: 'Student Status Changed by Staff',
+                message: "{$staffName} {$statusMessage} student {$student->user->name} (Roll: {$student->roll_no})",
+                data: [
+                    'student_id' => $student->id,
+                    'user_id' => $student->user_id,
+                    'student_name' => $student->user->name,
+                    'roll_no' => $student->roll_no,
+                    'status' => $status,
+                    'staff_name' => $staffName,
+                ],
+                relatedModel: 'Student',
+                relatedId: $student->id
+            );
+        }
+        
         ActivityLogger::logStatusChange($student, $oldStatus, $status);
 
         return $student->load(['user', 'department']);

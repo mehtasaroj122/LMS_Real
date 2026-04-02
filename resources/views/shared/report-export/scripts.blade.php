@@ -7,6 +7,55 @@
         const defaultLibraryBranding = window.LibraryBranding?.normalize
             ? window.LibraryBranding.normalize(window.__LIBRARY_BRANDING__ ?? @json($libraryBranding))
             : (window.__LIBRARY_BRANDING__ ?? @json($libraryBranding));
+        const reportExportTemplates = window.ReportExportTemplates || {};
+
+        const normalizeStandardMetaRows = (rows = []) => {
+            if (!Array.isArray(rows)) {
+                return [];
+            }
+
+            return rows
+                .map((row) => {
+                    if (Array.isArray(row)) {
+                        return row;
+                    }
+
+                    if (row && typeof row === 'object') {
+                        return [row.label ?? '', row.value ?? ''];
+                    }
+
+                    if (row === null || row === undefined) {
+                        return [''];
+                    }
+
+                    return [row];
+                })
+                .filter((row) => Array.isArray(row) && row.length > 0);
+        };
+
+        reportExportTemplates.buildStandardMetaRows = ({
+            systemTitle = 'Library Management System',
+            reportTitle = 'Report',
+            generatedAtLabel = '',
+            documentDetails = [],
+            extraRows = [],
+        } = {}) => {
+            const bodyRows = [
+                ...normalizeStandardMetaRows(documentDetails),
+                ...normalizeStandardMetaRows(extraRows),
+            ];
+
+            return [
+                [systemTitle],
+                [reportTitle],
+                [generatedAtLabel],
+                [''],
+                ...bodyRows,
+                ...(bodyRows.length > 0 ? [['']] : []),
+            ];
+        };
+
+        window.ReportExportTemplates = reportExportTemplates;
 
         class ReportExportWorkflow {
             constructor(config = {}) {
@@ -54,11 +103,12 @@
             }
 
             getLabels() {
+                const downloadLabel = this.getDownloadFormat() === 'excel-xml' ? 'Excel' : 'CSV';
                 return {
                     printButton: 'Print Report',
                     allScopePrintButton: 'Print Full Report',
-                    downloadButton: 'Download CSV',
-                    allScopeDownloadButton: 'Download Full CSV',
+                    downloadButton: `Download ${downloadLabel}`,
+                    allScopeDownloadButton: `Download Full ${downloadLabel}`,
                     loadingPrintButton: 'Preparing report...',
                     loadingDownloadButton: 'Preparing report...',
                     ...this.config.labels,
@@ -66,6 +116,7 @@
             }
 
             getMessages() {
+                const exportFormatLabel = this.getDownloadFormat() === 'excel-xml' ? 'Excel' : 'CSV';
                 return {
                     emptyTitle: 'Nothing to export',
                     emptyMessage: 'There are no records in the current result set.',
@@ -79,8 +130,8 @@
                     printFailedTitle: 'Print view failed',
                     printFailedMessage: 'The print preview could not be prepared. Please try again.',
                     exportReadyTitle: 'Export ready',
-                    exportReadyMessage: 'The current report has been exported to CSV.',
-                    fullExportReadyMessage: 'The full filtered report has been exported to CSV.',
+                    exportReadyMessage: `The current report has been exported to ${exportFormatLabel}.`,
+                    fullExportReadyMessage: `The full filtered report has been exported to ${exportFormatLabel}.`,
                     exportRouteMissingTitle: 'Export route missing',
                     exportRouteMissingMessage: 'The full report endpoint is not available right now.',
                     fullLoadFailedTitle: 'Could not prepare full report',
@@ -132,12 +183,28 @@
 
             bindEvents() {
                 this.elements.printBtn?.addEventListener('click', () => this.print());
-                this.elements.downloadBtn?.addEventListener('click', () => this.downloadCsv());
+                this.elements.downloadBtn?.addEventListener('click', () => this.download());
                 this.elements.scopeInputs.forEach((input) => {
                     input.addEventListener('change', (event) => {
                         void this.setScope(event.target.value);
                     });
                 });
+            }
+
+            getDownloadFormat() {
+                const requestedFormat = String(this.config.downloadFormat || 'csv').toLowerCase();
+                return ['excel', 'excel-xml', 'spreadsheet', 'spreadsheetml'].includes(requestedFormat)
+                    ? 'excel-xml'
+                    : 'csv';
+            }
+
+            download() {
+                if (this.getDownloadFormat() === 'excel-xml') {
+                    this.downloadExcelWorkbook();
+                    return;
+                }
+
+                this.downloadCsv();
             }
 
             open() {
@@ -245,7 +312,7 @@
                     subtext: 'Review the report before printing or downloading it.',
                     previewCaption: 'Preview rows that will be used for print or download.',
                     previewCountText: `${baseContext.rowsReady} ${baseContext.rowsReady === 1 ? 'row' : 'rows'}`,
-                    footerNote: 'Printing and CSV download use the selected report scope shown above.',
+                    footerNote: 'Printing and download use the selected report scope shown above.',
                     emptyMessage: 'No records are available for preview.',
                     summaryItems: this.buildDefaultSummaryItems(baseContext),
                 };
@@ -327,7 +394,7 @@
                     subtext: describedContext.subtext || 'Review the report before printing or downloading it.',
                     previewCaption: describedContext.previewCaption || 'Preview rows that will be used for print or download.',
                     previewCountText: describedContext.previewCountText || `${rowsReady} ${rowsReady === 1 ? 'row' : 'rows'}`,
-                    footerNote: describedContext.footerNote || 'Printing and CSV download use the selected report scope shown above.',
+                    footerNote: describedContext.footerNote || 'Printing and download use the selected report scope shown above.',
                     emptyMessage: describedContext.emptyMessage || 'No records are available for preview.',
                     summaryItems: Array.isArray(describedContext.summaryItems) ? describedContext.summaryItems : this.buildDefaultSummaryItems(baseContext),
                 };
@@ -956,21 +1023,12 @@
                 const columns = this.getColumns();
                 const headers = columns.map((column) => column.label || '');
                 const escapeCsvCell = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
-                const csvRows = context.rows.map((row) => columns.map((column) => this.getCellValue(row, column)));
-                const csv = '\uFEFF' + [...this.getCsvMetaRows(context), headers, ...csvRows]
+                const csvRows = context.rows.map((row) => columns.map((column) => this.getCellExportValue(row, column, context)));
+                const csv = '\uFEFF' + [...this.getExportMetaRows(context), headers, ...csvRows]
                     .map((row) => row.map((cell) => escapeCsvCell(cell)).join(','))
                     .join('\r\n');
 
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = this.getFilename(context);
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.setTimeout(() => URL.revokeObjectURL(url), 100);
+                this.triggerDownload(csv, 'text/csv;charset=utf-8;', this.getExportFilename(context));
 
                 if (typeof this.config.closeModal === 'function') {
                     this.config.closeModal(this.getModalId());
@@ -983,27 +1041,362 @@
                 );
             }
 
+            downloadExcelWorkbook() {
+                const context = this.getContext();
+                const messages = this.getMessages();
+
+                if (context.isLoading) {
+                    this.showToast('info', messages.preparingTitle, messages.preparingMessage);
+                    return;
+                }
+
+                if (context.rows.length === 0) {
+                    this.showToast('error', messages.emptyTitle, messages.emptyMessage);
+                    return;
+                }
+
+                const workbook = this.buildSpreadsheetDocument(context);
+                this.triggerDownload(workbook, 'application/vnd.ms-excel;charset=utf-8;', this.getExportFilename(context));
+
+                if (typeof this.config.closeModal === 'function') {
+                    this.config.closeModal(this.getModalId());
+                }
+
+                this.showToast(
+                    'success',
+                    messages.exportReadyTitle,
+                    context.isAllScope ? messages.fullExportReadyMessage : messages.exportReadyMessage
+                );
+            }
+
+            triggerDownload(content, mimeType, filename) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.setTimeout(() => URL.revokeObjectURL(url), 100);
+            }
+
+            getExportMetaRows(context) {
+                if (typeof this.config.getExportMetaRows === 'function') {
+                    return this.config.getExportMetaRows(context) || [];
+                }
+
+                return this.getCsvMetaRows(context);
+            }
+
             getCsvMetaRows(context) {
                 if (typeof this.config.getCsvMetaRows === 'function') {
                     return this.config.getCsvMetaRows(context) || [];
                 }
 
-                const documentConfig = this.getDocument();
-                const branding = this.getBranding();
-                const logoRows = branding?.image_url ? [['Library Logo', branding.image_url], ['']] : [];
-                const detailRows = Array.isArray(context.documentDetails)
-                    ? context.documentDetails.map((detail) => [detail.label, detail.value])
-                    : [];
-                return [
-                    [documentConfig.systemTitle],
-                    [documentConfig.reportTitle],
-                    [context.generatedAtLabel],
-                    ...logoRows,
-                    ...detailRows,
-                    ['Report Scope', context.scopeLabel],
-                    ['Records Included', String(context.rows.length)],
-                    [''],
-                ];
+                return this.buildStandardMetaRows(context, {
+                    extraRows: [
+                        ['Report Scope', context.scopeLabel],
+                        ['Records Included', String(context.rows.length)],
+                    ],
+                });
+            }
+
+            buildStandardMetaRows(context, options = {}) {
+                return reportExportTemplates.buildStandardMetaRows({
+                    systemTitle: options.systemTitle ?? this.getDocument().systemTitle,
+                    reportTitle: options.reportTitle ?? this.getDocument().reportTitle,
+                    generatedAtLabel: options.generatedAtLabel ?? context?.generatedAtLabel ?? '',
+                    documentDetails: options.documentDetails ?? context?.documentDetails ?? [],
+                    extraRows: options.extraRows ?? [],
+                });
+            }
+
+            buildSpreadsheetDocument(context) {
+                const columns = this.getColumns();
+                const exportMetaRows = this.getExportMetaRows(context);
+                const columnCount = Math.max(1, columns.length);
+                const worksheetName = this.getWorksheetName(context);
+                const expandedRowCount = exportMetaRows.length + 1 + context.rows.length;
+                const columnMarkup = columns.map((column) => `
+                    <Column ss:AutoFitWidth="0" ss:Width="${this.getColumnSpreadsheetWidth(column)}"/>
+                `).join('');
+                const metaRowsMarkup = exportMetaRows.map((row, index) => this.buildSpreadsheetMetaRowXml(row, index, columnCount)).join('');
+                const headerRowMarkup = this.buildSpreadsheetHeaderRowXml(columns);
+                const dataRowsMarkup = this.buildSpreadsheetDataRowsXml(context, columns);
+
+                return `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+    <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+        <Author>OpenAI Codex</Author>
+        <Created>${this.escapeHtml((this.toDateObject(context.generatedAt) || new Date()).toISOString())}</Created>
+        <Company>${this.escapeHtml(this.getDocument().systemTitle || 'Library Management System')}</Company>
+        <Version>16.00</Version>
+    </DocumentProperties>
+    <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+        <ProtectStructure>False</ProtectStructure>
+        <ProtectWindows>False</ProtectWindows>
+    </ExcelWorkbook>
+    ${this.buildSpreadsheetStylesXml()}
+    <Worksheet ss:Name="${this.escapeAttribute(worksheetName)}">
+        <Table ss:ExpandedColumnCount="${columnCount}" ss:ExpandedRowCount="${expandedRowCount}" x:FullColumns="1" x:FullRows="1" ss:DefaultRowHeight="18">
+            ${columnMarkup}
+            ${metaRowsMarkup}
+            ${headerRowMarkup}
+            ${dataRowsMarkup}
+        </Table>
+        <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+            <Selected/>
+            <ProtectObjects>False</ProtectObjects>
+            <ProtectScenarios>False</ProtectScenarios>
+        </WorksheetOptions>
+    </Worksheet>
+</Workbook>`;
+            }
+
+            buildSpreadsheetStylesXml() {
+                return `<Styles>
+    <Style ss:ID="Default" ss:Name="Normal">
+        <Alignment ss:Vertical="Center" ss:WrapText="1"/>
+        <Borders/>
+        <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#0f172a"/>
+        <Interior/>
+        <NumberFormat/>
+        <Protection/>
+    </Style>
+    <Style ss:ID="WorkbookTitle">
+        <Font ss:FontName="Calibri" ss:Size="16" ss:Bold="1" ss:Color="#0f172a"/>
+        <Alignment ss:Vertical="Center"/>
+        <Interior ss:Color="#dbeafe" ss:Pattern="Solid"/>
+    </Style>
+    <Style ss:ID="WorkbookSubtitle">
+        <Font ss:FontName="Calibri" ss:Size="12" ss:Bold="1" ss:Color="#1d4ed8"/>
+        <Alignment ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="WorkbookTimestamp">
+        <Font ss:FontName="Calibri" ss:Size="10" ss:Color="#64748b"/>
+        <Alignment ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="WorkbookMetaFull">
+        <Font ss:FontName="Calibri" ss:Size="10" ss:Color="#334155"/>
+        <Alignment ss:Vertical="Center"/>
+    </Style>
+    <Style ss:ID="WorkbookMetaLabel">
+        <Font ss:FontName="Calibri" ss:Size="10" ss:Bold="1" ss:Color="#334155"/>
+        <Interior ss:Color="#eff6ff" ss:Pattern="Solid"/>
+        <Alignment ss:Vertical="Center"/>
+        <Borders>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#cbd5e1"/>
+        </Borders>
+    </Style>
+    <Style ss:ID="WorkbookMetaValue">
+        <Font ss:FontName="Calibri" ss:Size="11" ss:Color="#0f172a"/>
+        <Alignment ss:Vertical="Center" ss:WrapText="1"/>
+        <Borders>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#cbd5e1"/>
+        </Borders>
+    </Style>
+    <Style ss:ID="WorkbookTableHeader">
+        <Font ss:FontName="Calibri" ss:Size="11" ss:Bold="1" ss:Color="#ffffff"/>
+        <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>
+        <Interior ss:Color="#1d4ed8" ss:Pattern="Solid"/>
+        <Borders>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#cbd5e1"/>
+            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#cbd5e1"/>
+            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#cbd5e1"/>
+            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#cbd5e1"/>
+        </Borders>
+    </Style>
+    ${this.buildSpreadsheetDataCellStylesXml()}
+</Styles>`;
+            }
+
+            buildSpreadsheetDataCellStylesXml() {
+                const alignments = {
+                    Left: 'Left',
+                    Center: 'Center',
+                    Right: 'Right',
+                };
+                const backgrounds = {
+                    Odd: '#ffffff',
+                    Even: '#f8fafc',
+                };
+
+                return Object.entries(backgrounds).flatMap(([rowVariant, backgroundColor]) => {
+                    return Object.entries(alignments).flatMap(([alignmentKey, alignmentValue]) => {
+                        return ['', 'Emphasis'].map((emphasisSuffix) => {
+                            const styleId = `WorkbookCell${rowVariant}${alignmentKey}${emphasisSuffix}`;
+                            const isEmphasis = emphasisSuffix === 'Emphasis';
+
+                            return `<Style ss:ID="${styleId}">
+        <Font ss:FontName="Calibri" ss:Size="11"${isEmphasis ? ' ss:Bold="1"' : ''} ss:Color="#0f172a"/>
+        <Alignment ss:Horizontal="${alignmentValue}" ss:Vertical="Center" ss:WrapText="1"/>
+        <Interior ss:Color="${backgroundColor}" ss:Pattern="Solid"/>
+        <Borders>
+            <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#dbe3ef"/>
+            <Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#dbe3ef"/>
+            <Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#dbe3ef"/>
+            <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#dbe3ef"/>
+        </Borders>
+    </Style>`;
+                        });
+                    });
+                }).join('');
+            }
+
+            buildSpreadsheetMetaRowXml(row, index, columnCount) {
+                const normalizedRow = Array.isArray(row) ? row.map((cell) => this.normalizeExportValue(cell)) : [this.normalizeExportValue(row)];
+                const isBlankRow = normalizedRow.length === 0 || normalizedRow.every((cell) => cell === '');
+
+                if (isBlankRow) {
+                    return '<Row ss:Height="8"/>';
+                }
+
+                if (normalizedRow.length === 1) {
+                    const styleId = index === 0
+                        ? 'WorkbookTitle'
+                        : (index === 1 ? 'WorkbookSubtitle' : (index === 2 ? 'WorkbookTimestamp' : 'WorkbookMetaFull'));
+
+                    return `<Row>
+        ${this.buildSpreadsheetCellXml(normalizedRow[0], {
+            styleId,
+            type: 'String',
+            mergeAcross: Math.max(0, columnCount - 1),
+        })}
+    </Row>`;
+                }
+
+                if (normalizedRow.length === 2) {
+                    return `<Row>
+        ${this.buildSpreadsheetCellXml(normalizedRow[0], {
+            styleId: 'WorkbookMetaLabel',
+            type: 'String',
+        })}
+        ${this.buildSpreadsheetCellXml(normalizedRow[1], {
+            styleId: 'WorkbookMetaValue',
+            type: 'String',
+            mergeAcross: Math.max(0, columnCount - 2),
+        })}
+    </Row>`;
+                }
+
+                return `<Row>${normalizedRow.slice(0, columnCount).map((cell, cellIndex) => this.buildSpreadsheetCellXml(cell, {
+                    styleId: cellIndex === 0 ? 'WorkbookMetaLabel' : 'WorkbookMetaValue',
+                    type: 'String',
+                })).join('')}</Row>`;
+            }
+
+            buildSpreadsheetHeaderRowXml(columns) {
+                return `<Row ss:AutoFitHeight="0" ss:Height="24">
+        ${columns.map((column) => this.buildSpreadsheetCellXml(column.label || '', {
+            styleId: 'WorkbookTableHeader',
+            type: 'String',
+        })).join('')}
+    </Row>`;
+            }
+
+            buildSpreadsheetDataRowsXml(context, columns) {
+                return context.rows.map((row, rowIndex) => {
+                    return `<Row>${columns.map((column) => {
+                        const value = this.getCellExportValue(row, column, context);
+                        return this.buildSpreadsheetCellXml(value, {
+                            styleId: this.getSpreadsheetCellStyleId(column, rowIndex),
+                            type: this.getSpreadsheetCellType(row, column, value, context),
+                        });
+                    }).join('')}</Row>`;
+                }).join('');
+            }
+
+            buildSpreadsheetCellXml(value, options = {}) {
+                const normalizedValue = this.normalizeExportValue(value);
+                const type = options.type || 'String';
+                const styleId = options.styleId ? ` ss:StyleID="${this.escapeAttribute(options.styleId)}"` : '';
+                const mergeAcross = Number.isFinite(options.mergeAcross) && options.mergeAcross > 0
+                    ? ` ss:MergeAcross="${Math.floor(options.mergeAcross)}"`
+                    : '';
+
+                return `<Cell${styleId}${mergeAcross}><Data ss:Type="${this.escapeAttribute(type)}">${this.escapeHtml(normalizedValue)}</Data></Cell>`;
+            }
+
+            getSpreadsheetCellStyleId(column, rowIndex) {
+                const rowVariant = rowIndex % 2 === 0 ? 'Odd' : 'Even';
+                const alignmentKey = column?.align === 'right'
+                    ? 'Right'
+                    : (column?.align === 'center' ? 'Center' : 'Left');
+                const emphasisSuffix = column?.emphasis ? 'Emphasis' : '';
+
+                return `WorkbookCell${rowVariant}${alignmentKey}${emphasisSuffix}`;
+            }
+
+            getSpreadsheetCellType(row, column, value, context) {
+                if (typeof column?.exportType === 'function') {
+                    return column.exportType(row, value, context) || 'String';
+                }
+
+                return column?.exportType || 'String';
+            }
+
+            getCellExportValue(row, column, context = null) {
+                if (typeof column?.exportValue === 'function') {
+                    return column.exportValue(row, context);
+                }
+
+                return this.getCellValue(row, column);
+            }
+
+            normalizeExportValue(value) {
+                if (value === null || value === undefined) {
+                    return '';
+                }
+
+                if (value instanceof Date) {
+                    return this.formatDateTime(value);
+                }
+
+                if (typeof value === 'boolean') {
+                    return value ? 'Yes' : 'No';
+                }
+
+                return String(value);
+            }
+
+            getColumnSpreadsheetWidth(column) {
+                const width = column?.spreadsheetWidth ?? column?.exportWidth ?? column?.width;
+
+                if (typeof width === 'number' && Number.isFinite(width)) {
+                    return Math.max(70, width);
+                }
+
+                const normalizedWidth = String(width || '').trim();
+                if (/^\d+(\.\d+)?px$/i.test(normalizedWidth)) {
+                    return Math.max(70, Number.parseFloat(normalizedWidth));
+                }
+
+                if (/^\d+(\.\d+)?%$/i.test(normalizedWidth)) {
+                    return Math.max(70, Math.round((Number.parseFloat(normalizedWidth) / 100) * 760));
+                }
+
+                return 120;
+            }
+
+            getWorksheetName(context) {
+                const requestedName = typeof this.config.getWorksheetName === 'function'
+                    ? this.config.getWorksheetName(context)
+                    : (this.config.sheetName || this.getDocument().reportTitle || 'Report');
+
+                const sanitizedName = String(requestedName || 'Report')
+                    .replace(/[\\\/\?\*\[\]:]/g, ' ')
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .slice(0, 31);
+
+                return sanitizedName || 'Report';
             }
 
             getFilename(context) {
@@ -1012,7 +1405,11 @@
                 }
 
                 const generatedAt = this.toDateObject(context.generatedAt) || new Date();
-                return `report-export-${generatedAt.toISOString().slice(0, 10)}.csv`;
+                return `report-export-${generatedAt.toISOString().slice(0, 10)}.${this.getDownloadFormat() === 'excel-xml' ? 'xls' : 'csv'}`;
+            }
+
+            getExportFilename(context) {
+                return this.getFilename(context);
             }
 
             buildColumnStyle(column, isHeader) {

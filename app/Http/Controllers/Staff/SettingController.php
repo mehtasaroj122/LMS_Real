@@ -6,6 +6,7 @@ use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\UpdatePasswordRequest;
 use App\Http\Requests\Staff\UpdateProfileRequest;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -51,8 +52,69 @@ class SettingController extends Controller
                 ->withErrors(['profile_photo' => 'Failed to upload profile photo. Please try again.']);
         }
 
+        // Capture old values before update
+        $oldName = $user->name;
+        $oldEmail = $user->email;
+        $oldPhone = $user->phone;
+        $oldAddress = $user->address;
+        $hadProfilePhoto = $user->profile_photo !== null;
+        
         $user->update($validated);
         $changedFields = array_keys($validated);
+
+        // Build list of changes
+        $changes = [];
+        if (isset($validated['name']) && $oldName !== $validated['name']) {
+            $changes[] = "name: {$oldName} → {$validated['name']}";
+        }
+        if (isset($validated['email']) && $oldEmail !== $validated['email']) {
+            $changes[] = "email: {$oldEmail} → {$validated['email']}";
+        }
+        if (isset($validated['phone']) && $oldPhone !== $validated['phone']) {
+            $changes[] = "phone: {$oldPhone} → {$validated['phone']}";
+        }
+        if (isset($validated['address']) && $oldAddress !== $validated['address']) {
+            $changes[] = "address: {$oldAddress} → {$validated['address']}";
+        }
+        if (isset($validated['profile_photo'])) {
+            if ($hadProfilePhoto) {
+                $changes[] = "profile picture: updated";
+            } else {
+                $changes[] = "profile picture: added";
+            }
+        }
+
+        // Notify about profile update with specific changes
+        if (!empty($changes)) {
+            $changesSummary = implode(", ", $changes);
+            Notification::notify(
+                user: $user,
+                type: 'account.profile_updated',
+                title: 'Profile Information Updated',
+                message: "Your profile information was updated: {$changesSummary}",
+                data: [
+                    'ip' => request()->ip(),
+                    'timestamp' => now(),
+                    'changes' => $changes,
+                    'changed_fields' => $changedFields
+                ],
+                relatedModel: 'User',
+                relatedId: $user->id
+            );
+        }
+
+        // Notify if email was changed
+        if ($emailChanged) {
+            Notification::notify(
+                user: $user,
+                type: 'account.email_changed',
+                title: 'Email Address Changed',
+                message: 'Your email address was changed to ' . $validated['email'],
+                data: ['old_email' => $user->getOriginal('email'), 'new_email' => $validated['email']],
+                relatedModel: 'User',
+                relatedId: $user->id
+            );
+        }
 
         $message = $emailChanged
             ? 'Profile updated successfully. Your login email has been changed.'
@@ -103,6 +165,26 @@ class SettingController extends Controller
         $user->update([
             'password' => Hash::make($request->validated('password')),
         ]);
+
+        // Notify about password change with details
+        $ipAddress = request()->ip();
+        $timestamp = now();
+        $changeMessage = "Your password was changed successfully on {$timestamp->format('M d, Y')} at {$timestamp->format('h:i A')} from IP {$ipAddress}";
+        
+        Notification::notify(
+            user: $user,
+            type: 'account.password_changed',
+            title: 'Password Changed Successfully',
+            message: $changeMessage,
+            data: [
+                'ip' => $ipAddress,
+                'timestamp' => $timestamp,
+                'date_formatted' => $timestamp->format('M d, Y h:i A'),
+                'user_agent' => request()->header('User-Agent')
+            ],
+            relatedModel: 'User',
+            relatedId: $user->id
+        );
 
         ActivityLogger::logActivity('password_changed', 'Staff changed password', 'auth', 'user', $user->id);
 

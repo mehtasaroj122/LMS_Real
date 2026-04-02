@@ -218,6 +218,7 @@
                     status: String(searchParams.get('status') || 'all').toLowerCase(),
                     sort: String(searchParams.get('sort') || 'date-desc').toLowerCase(),
                     requests: [],
+                    selectedRequestIds: new Set(),
                     stats: {},
                     pagination: {},
                     fetchController: null,
@@ -252,6 +253,12 @@
                 this.elements.entriesSelect = document.getElementById('requestEntriesSelect');
                 this.elements.resetButton = document.getElementById('requestResetFiltersBtn');
                 this.elements.createButton = document.getElementById('createRequestBtn');
+                this.elements.bulkActionBar = document.getElementById('requestBulkActionBar');
+                this.elements.bulkSummary = document.getElementById('requestBulkSummary');
+                this.elements.bulkApproveButton = document.getElementById('bulkApproveRequestsBtn');
+                this.elements.bulkRejectButton = document.getElementById('bulkRejectRequestsBtn');
+                this.elements.clearSelectionButton = document.getElementById('clearSelectedRequestsBtn');
+                this.elements.selectAllCheckbox = document.getElementById('requestSelectAll');
                 this.elements.tableWrapper = document.getElementById('requestsTableWrapper');
                 this.elements.tbody = document.getElementById('requestsTableBody');
                 this.elements.emptyState = document.getElementById('requestsEmptyState');
@@ -351,6 +358,12 @@
 
                 this.elements.resetButton?.addEventListener('click', () => this.resetFilters());
                 this.elements.createButton?.addEventListener('click', () => this.openCreateModal());
+                this.elements.bulkApproveButton?.addEventListener('click', () => this.openBulkActionModal('approved'));
+                this.elements.bulkRejectButton?.addEventListener('click', () => this.openBulkActionModal('rejected'));
+                this.elements.clearSelectionButton?.addEventListener('click', () => this.clearSelection());
+                this.elements.selectAllCheckbox?.addEventListener('change', (event) => {
+                    this.toggleSelectAll(Boolean(event.target.checked));
+                });
                 this.elements.createSubmitButton?.addEventListener('click', () => this.submitCreateRequest());
                 this.elements.actionSubmitButton?.addEventListener('click', () => this.executeRequestAction());
 
@@ -373,6 +386,13 @@
                     const paginationButton = event.target.closest('[data-page]');
                     if (paginationButton) {
                         this.goToPage(Number(paginationButton.dataset.page));
+                    }
+                });
+
+                this.elements.root?.addEventListener('change', (event) => {
+                    const requestCheckbox = event.target.closest('[data-request-checkbox]');
+                    if (requestCheckbox) {
+                        this.setSelection(requestCheckbox.dataset.requestId, Boolean(requestCheckbox.checked));
                     }
                 });
 
@@ -440,6 +460,7 @@
                     this.state.stats = data.stats || {};
                     this.state.pagination = data.pagination || {};
                     this.state.lastUpdatedAt = new Date();
+                    this.reconcileSelection();
 
                     const lastPage = Math.max(1, Number(this.state.pagination.last_page || 1));
                     if (this.state.currentPage > lastPage) {
@@ -478,6 +499,7 @@
             renderAll() {
                 this.renderStats();
                 this.renderTable();
+                this.updateBulkActionState();
                 this.renderToolbarMeta();
                 this.renderPagination();
             }
@@ -508,6 +530,7 @@
 
                 const row = `
                     <tr>
+                        <td><span class="request-skeleton-line short"></span></td>
                         <td><span class="request-skeleton-line"></span></td>
                         <td><span class="request-skeleton-line"></span></td>
                         <td><span class="request-skeleton-line short"></span></td>
@@ -523,7 +546,7 @@
             renderTableError() {
                 if (!this.elements.tbody) return;
                 this.toggleEmptyState(false);
-                this.elements.tbody.innerHTML = '<tr><td colspan="6" style="padding:1.2rem;text-align:center;color:var(--request-text-secondary);">Book requests could not be loaded.</td></tr>';
+                this.elements.tbody.innerHTML = '<tr><td colspan="7" style="padding:1.2rem;text-align:center;color:var(--request-text-secondary);">Book requests could not be loaded.</td></tr>';
             }
 
             renderTable() {
@@ -556,6 +579,9 @@
 
                 return `
                     <tr data-request-id="${Number(request.id)}">
+                        <td class="request-select-cell">
+                            ${this.buildSelectionCell(request)}
+                        </td>
                         <td>
                             <div class="request-student-cell">
                                 <div class="request-student-avatar">${this.getAvatarMarkup(request)}</div>
@@ -580,6 +606,30 @@
                             </div>
                         </td>
                     </tr>
+                `;
+            }
+
+            buildSelectionCell(request) {
+                const requestId = Number(request.id);
+                const isSelectable = this.isRequestSelectable(request);
+                const isSelected = this.state.selectedRequestIds.has(requestId);
+                const label = isSelectable
+                    ? `Select request for ${request.studentName || 'student'} and ${request.bookTitle || 'book'}`
+                    : 'Only pending requests can be selected';
+
+                return `
+                    <label class="request-checkbox${isSelectable ? '' : ' is-disabled'}" title="${this.escapeAttribute(label)}">
+                        <input
+                            type="checkbox"
+                            class="request-checkbox-input"
+                            data-request-checkbox
+                            data-request-id="${requestId}"
+                            aria-label="${this.escapeAttribute(label)}"
+                            ${isSelected ? 'checked' : ''}
+                            ${isSelectable ? '' : 'disabled'}
+                        >
+                        <span class="request-checkbox-control" aria-hidden="true"></span>
+                    </label>
                 `;
             }
 
@@ -608,6 +658,120 @@
             buildStatusBadge(status) {
                 const label = this.capitalize(status);
                 return `<span class="request-status-badge ${this.escapeAttribute(status)}">${svgIcons[status] || svgIcons.pending}<span>${this.escapeHtml(label)}</span></span>`;
+            }
+
+            isRequestSelectable(request) {
+                return Boolean(request?.canApprove || request?.canReject || String(request?.status || '').toLowerCase() === 'pending');
+            }
+
+            reconcileSelection() {
+                const visibleSelectableIds = new Set(this.getSelectableRequestIds());
+
+                this.state.selectedRequestIds = new Set(
+                    Array.from(this.state.selectedRequestIds).filter((requestId) => visibleSelectableIds.has(Number(requestId)))
+                );
+            }
+
+            getSelectableRequestIds() {
+                return this.state.requests
+                    .filter((request) => this.isRequestSelectable(request))
+                    .map((request) => Number(request.id));
+            }
+
+            getSelectedRequestIds() {
+                return this.getSelectableRequestIds()
+                    .filter((requestId) => this.state.selectedRequestIds.has(requestId));
+            }
+
+            getSelectedRequests() {
+                const selectedIds = new Set(this.getSelectedRequestIds());
+
+                return this.state.requests.filter((request) => selectedIds.has(Number(request.id)));
+            }
+
+            setSelection(requestId, isSelected) {
+                const normalizedId = Number(requestId);
+                if (!normalizedId) {
+                    return;
+                }
+
+                if (isSelected) {
+                    this.state.selectedRequestIds.add(normalizedId);
+                } else {
+                    this.state.selectedRequestIds.delete(normalizedId);
+                }
+
+                this.updateBulkActionState();
+            }
+
+            toggleSelectAll(shouldSelect) {
+                this.getSelectableRequestIds().forEach((requestId) => {
+                    if (shouldSelect) {
+                        this.state.selectedRequestIds.add(requestId);
+                    } else {
+                        this.state.selectedRequestIds.delete(requestId);
+                    }
+                });
+
+                this.updateBulkActionState();
+            }
+
+            clearSelection() {
+                this.state.selectedRequestIds.clear();
+                this.updateBulkActionState();
+            }
+
+            syncSelectionInputs() {
+                this.elements.root?.querySelectorAll('[data-request-checkbox]').forEach((checkbox) => {
+                    const requestId = Number(checkbox.dataset.requestId);
+                    checkbox.checked = this.state.selectedRequestIds.has(requestId);
+                });
+
+                if (!this.elements.selectAllCheckbox) {
+                    return;
+                }
+
+                const selectableIds = this.getSelectableRequestIds();
+                const selectedCount = this.getSelectedRequestIds().length;
+                const hasSelectable = selectableIds.length > 0;
+
+                this.elements.selectAllCheckbox.disabled = !hasSelectable;
+                this.elements.selectAllCheckbox.checked = hasSelectable && selectedCount === selectableIds.length;
+                this.elements.selectAllCheckbox.indeterminate = hasSelectable && selectedCount > 0 && selectedCount < selectableIds.length;
+            }
+
+            updateBulkActionState() {
+                const selectableCount = this.getSelectableRequestIds().length;
+                const selectedCount = this.getSelectedRequestIds().length;
+                const hasSelection = selectedCount > 0;
+
+                if (this.elements.bulkActionBar) {
+                    this.elements.bulkActionBar.classList.toggle('has-selection', hasSelection);
+                }
+
+                if (this.elements.bulkSummary) {
+                    if (selectableCount === 0) {
+                        this.elements.bulkSummary.textContent = 'No pending requests are available in this view yet. Bulk actions only work on pending requests.';
+                    } else if (!hasSelection) {
+                        this.elements.bulkSummary.textContent = `Select pending requests from the table to accept or reject up to ${selectableCount} request${selectableCount === 1 ? '' : 's'} on this page.`;
+                    } else {
+                        this.elements.bulkSummary.textContent = `${selectedCount} pending request${selectedCount === 1 ? '' : 's'} selected. Choose an action to process them together.`;
+                    }
+                }
+
+                if (this.elements.bulkApproveButton) {
+                    this.elements.bulkApproveButton.disabled = !hasSelection || this.state.actionInFlight;
+                }
+
+                if (this.elements.bulkRejectButton) {
+                    this.elements.bulkRejectButton.disabled = !hasSelection || this.state.actionInFlight;
+                }
+
+                if (this.elements.clearSelectionButton) {
+                    this.elements.clearSelectionButton.disabled = !hasSelection || this.state.actionInFlight;
+                }
+
+                this.syncSelectionInputs();
             }
 
             renderEmptyStateMessage() {
@@ -885,7 +1049,59 @@
                 const detail = `Request date: ${request.requestDate || 'N/A'} • Current status: ${request.statusLabel || this.capitalize(request.status || 'pending')}`;
                 const buttonLabel = isApprove ? 'Accept' : 'Reject';
 
-                this.state.pendingAction = { requestId: Number(requestId), action };
+                this.state.pendingAction = {
+                    scope: 'single',
+                    requestId: Number(requestId),
+                    action,
+                };
+                if (this.feedbackUI) {
+                    this.feedbackUI.openConfirm({
+                        variant: isApprove ? 'success' : 'danger',
+                        buttonVariant: isApprove ? 'success' : 'danger',
+                        iconMarkup: isApprove ? svgIcons.approved : svgIcons.rejected,
+                        title,
+                        message,
+                        detail,
+                        confirmText: buttonLabel,
+                    });
+                    return;
+                }
+
+                this.elements.actionTitle.textContent = title;
+                this.elements.actionMessage.textContent = message;
+                this.elements.actionDetail.hidden = false;
+                this.elements.actionDetail.textContent = detail;
+                this.elements.actionSubmitButton.dataset.defaultLabel = buttonLabel;
+                this.elements.actionSubmitButton.innerHTML = `<span>${buttonLabel}</span>`;
+                this.openModal('requestActionModal', this.elements.actionSubmitButton);
+            }
+
+            openBulkActionModal(action) {
+                const selectedRequests = this.getSelectedRequests();
+                const selectedIds = selectedRequests.map((request) => Number(request.id));
+                const selectedCount = selectedIds.length;
+
+                if (selectedCount === 0) {
+                    this.showToast('warning', 'No requests selected', 'Select at least one pending request before using a bulk action.');
+                    return;
+                }
+
+                const isApprove = action === 'approved';
+                const title = isApprove ? 'Accept selected requests?' : 'Reject selected requests?';
+                const message = isApprove
+                    ? `Accept ${selectedCount} selected request${selectedCount === 1 ? '' : 's'}? Each student will be notified once their request is approved.`
+                    : `Reject ${selectedCount} selected request${selectedCount === 1 ? '' : 's'}? Each student will be notified once their request is rejected.`;
+                const detail = selectedCount === 1
+                    ? `1 pending request selected • ${selectedRequests[0]?.studentName || 'Student'} • ${selectedRequests[0]?.bookTitle || 'Book'}`
+                    : `${selectedCount} pending requests selected on this page • Requests that are no longer pending will be skipped automatically.`;
+                const buttonLabel = isApprove ? 'Accept Selected' : 'Reject Selected';
+
+                this.state.pendingAction = {
+                    scope: 'bulk',
+                    requestIds: selectedIds,
+                    action,
+                };
+
                 if (this.feedbackUI) {
                     this.feedbackUI.openConfirm({
                         variant: isApprove ? 'success' : 'danger',
@@ -913,35 +1129,75 @@
                     return;
                 }
 
-                const { requestId, action } = this.state.pendingAction;
+                const { scope, requestId, requestIds, action } = this.state.pendingAction;
+                const isBulkAction = scope === 'bulk';
                 this.state.actionInFlight = true;
+                this.updateBulkActionState();
                 if (this.feedbackUI) {
-                    this.feedbackUI.setConfirmBusy(true, action === 'approved' ? 'Accepting...' : 'Rejecting...');
+                    this.feedbackUI.setConfirmBusy(
+                        true,
+                        action === 'approved'
+                            ? (isBulkAction ? 'Accepting selected...' : 'Accepting...')
+                            : (isBulkAction ? 'Rejecting selected...' : 'Rejecting...')
+                    );
                 } else {
-                    this.setButtonBusy(this.elements.actionSubmitButton, true, action === 'approved' ? 'Accepting...' : 'Rejecting...');
+                    this.setButtonBusy(
+                        this.elements.actionSubmitButton,
+                        true,
+                        action === 'approved'
+                            ? (isBulkAction ? 'Accepting selected...' : 'Accepting...')
+                            : (isBulkAction ? 'Rejecting selected...' : 'Rejecting...')
+                    );
                 }
 
                 try {
-                    await this.requestJson(this.buildRequestRoute(this.config.routes.update, requestId), {
-                        method: 'PUT',
-                        body: JSON.stringify({ status: action }),
-                    });
+                    const response = isBulkAction
+                        ? await this.requestJson(this.config.routes.bulkUpdate, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                status: action,
+                                request_ids: requestIds,
+                            }),
+                        })
+                        : await this.requestJson(this.buildRequestRoute(this.config.routes.update, requestId), {
+                            method: 'PUT',
+                            body: JSON.stringify({ status: action }),
+                        });
 
                     this.closeModal('requestActionModal');
+                    if (isBulkAction) {
+                        this.clearSelection();
+                    }
                     await this.loadRequests({ silent: true });
-                    this.showToast(
-                        action === 'approved' ? 'success' : 'warning',
-                        action === 'approved' ? 'Request accepted' : 'Request rejected',
-                        action === 'approved'
-                            ? 'The request was marked as approved successfully.'
-                            : 'The request was marked as rejected successfully.'
-                    );
-                    this.announce(action === 'approved' ? 'Request accepted.' : 'Request rejected.');
+
+                    if (isBulkAction) {
+                        const processedCount = Number(response.processedCount || 0);
+                        const skippedCount = Number(response.skippedCount || 0);
+                        const toastType = skippedCount > 0
+                            ? 'warning'
+                            : (action === 'approved' ? 'success' : 'warning');
+                        const toastTitle = action === 'approved'
+                            ? (processedCount > 0 ? 'Requests accepted' : 'No requests accepted')
+                            : (processedCount > 0 ? 'Requests rejected' : 'No requests rejected');
+
+                        this.showToast(toastType, toastTitle, response.message || 'Bulk request action completed.');
+                        this.announce(action === 'approved' ? 'Selected requests accepted.' : 'Selected requests rejected.');
+                    } else {
+                        this.showToast(
+                            action === 'approved' ? 'success' : 'warning',
+                            action === 'approved' ? 'Request accepted' : 'Request rejected',
+                            action === 'approved'
+                                ? 'The request was marked as approved successfully.'
+                                : 'The request was marked as rejected successfully.'
+                        );
+                        this.announce(action === 'approved' ? 'Request accepted.' : 'Request rejected.');
+                    }
                 } catch (error) {
                     const message = this.resolveErrorMessage(error, 'Unable to update the book request.');
                     this.showToast('error', 'Update failed', message);
                 } finally {
                     this.state.actionInFlight = false;
+                    this.updateBulkActionState();
                     if (this.feedbackUI) {
                         this.feedbackUI.setConfirmBusy(false, this.elements.actionSubmitButton?.dataset.defaultLabel || 'Confirm');
                     } else {

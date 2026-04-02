@@ -9,6 +9,7 @@
             'data' => route('staff.book-requests.data'),
             'stats' => route('staff.book-requests.stats'),
             'store' => route('staff.book-requests.store'),
+            'bulkUpdate' => route('staff.book-requests.bulk-status'),
             'update' => url('staff/book-requests/__REQUEST_ID__'),
         ],
         'features' => [

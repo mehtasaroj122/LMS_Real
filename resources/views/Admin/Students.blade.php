@@ -3,6 +3,7 @@
 @section('title', 'Students')
 
 @push('styles')
+    @include('shared.action-feedback.styles')
     <style>
         /* ===== TABLE & PAGINATION STYLES (dual theme) ===== */
         .table-container {
@@ -1792,12 +1793,34 @@
         </div>
     </div>
 
+    @include('shared.action-feedback.markup', [
+        'actionFeedbackConfig' => [
+            'confirm' => [
+                'modalId' => 'studentPasswordResetConfirmModal',
+                'iconId' => 'studentPasswordResetConfirmIcon',
+                'titleId' => 'studentPasswordResetConfirmTitle',
+                'messageId' => 'studentPasswordResetConfirmMessage',
+                'detailId' => 'studentPasswordResetConfirmDetail',
+                'submitButtonId' => 'studentPasswordResetConfirmSubmitBtn',
+                'cancelLabel' => 'Cancel',
+                'confirmLabel' => 'Reset Student Password',
+                'defaultTitle' => 'Reset Password',
+                'defaultMessage' => 'Are you sure you want to reset this student password?',
+            ],
+            'toast' => [
+                'containerId' => 'studentActionToastContainer',
+                'liveRegionId' => 'studentActionLiveRegion',
+            ],
+        ],
+    ])
+
     <div id="studentToastContainer" class="student-toast-container" aria-live="polite" aria-atomic="true"></div>
     <div id="studentLiveRegion" class="student-visually-hidden" aria-live="polite" aria-atomic="true"></div>
 
 @endsection
 
 @push('scripts')
+    @include('shared.action-feedback.scripts')
     <script>
         class StudentManager {
             constructor() {
@@ -2559,6 +2582,8 @@
                 this.statsData = null;
                 this.pendingDeleteStudent = null;
                 this.isDeletingStudent = false;
+                this.pendingPasswordResetStudent = null;
+                this.isResettingPassword = false;
                 this.toastContainer = document.getElementById('studentToastContainer');
                 this.liveRegion = document.getElementById('studentLiveRegion');
                 this.deleteModal = document.getElementById('deleteStudentModal');
@@ -2567,6 +2592,9 @@
                 this.deleteModalTitle = document.getElementById('deleteStudentModalTitle');
                 this.deleteModalMessage = document.getElementById('deleteStudentModalMessage');
                 this.deleteModalDetail = document.getElementById('deleteStudentModalDetail');
+                this.passwordResetModal = document.getElementById('studentPasswordResetConfirmModal');
+                this.passwordResetConfirmButton = document.getElementById('studentPasswordResetConfirmSubmitBtn');
+                this.feedbackUI = this.initializePasswordResetFeedback();
 
                 const searchInput = document.getElementById('searchInput');
                 const departmentFilter = document.getElementById('departmentFilter');
@@ -2632,6 +2660,7 @@
                 addBtn?.addEventListener('click', () => openAddStudentModal());
 
                 this.bindDeleteModalEvents();
+                this.bindPasswordResetFeedbackEvents();
                 document.addEventListener('keydown', (event) => this.handleKeyboardNavigation(event));
                 this.setupKeyboardShortcuts();
                 void this.reloadStudents();
@@ -2639,7 +2668,7 @@
 
             setupKeyboardShortcuts() {
                 document.addEventListener('keydown', (event) => {
-                    if (this.isDeleteModalVisible()) {
+                    if (this.isDeleteModalVisible() || this.isPasswordResetModalVisible()) {
                         return;
                     }
 
@@ -2675,8 +2704,116 @@
                 });
             },
 
+            initializePasswordResetFeedback() {
+                if (typeof window.ActionFeedbackUI !== 'function') {
+                    return null;
+                }
+
+                return new window.ActionFeedbackUI({
+                    confirm: {
+                        modalId: 'studentPasswordResetConfirmModal',
+                        iconId: 'studentPasswordResetConfirmIcon',
+                        titleId: 'studentPasswordResetConfirmTitle',
+                        messageId: 'studentPasswordResetConfirmMessage',
+                        detailId: 'studentPasswordResetConfirmDetail',
+                        submitButtonId: 'studentPasswordResetConfirmSubmitBtn',
+                        confirmLabel: 'Reset Student Password',
+                    },
+                    toast: {
+                        containerId: 'studentActionToastContainer',
+                        liveRegionId: 'studentActionLiveRegion',
+                    },
+                    setButtonBusy: (button, isBusy, label) => this.setFeedbackButtonBusy(button, isBusy, label),
+                });
+            },
+
+            bindPasswordResetFeedbackEvents() {
+                this.passwordResetConfirmButton?.addEventListener('click', () => {
+                    void this.confirmPasswordReset();
+                });
+
+                document.addEventListener('click', (event) => {
+                    const closeButton = event.target.closest('[data-modal-close="studentPasswordResetConfirmModal"]');
+
+                    if (closeButton) {
+                        this.closePasswordResetModal();
+                    }
+                });
+
+                this.passwordResetModal?.addEventListener('click', (event) => {
+                    if (event.target === this.passwordResetModal) {
+                        this.closePasswordResetModal();
+                    }
+                });
+            },
+
             isDeleteModalVisible() {
                 return this.deleteModal?.style.display === 'flex';
+            },
+
+            isPasswordResetModalVisible() {
+                return this.passwordResetModal?.classList.contains('is-open');
+            },
+
+            setFeedbackButtonBusy(button, isBusy, label) {
+                if (!button) {
+                    return;
+                }
+
+                button.disabled = Boolean(isBusy);
+                button.textContent = label || button.dataset.defaultLabel || 'Continue';
+            },
+
+            getPasswordResetModalContent(student) {
+                const email = student?.email && student.email !== 'N/A'
+                    ? student.email
+                    : 'the student email address';
+                const detailSegments = [];
+
+                if (student?.rollNo && student.rollNo !== 'N/A') {
+                    detailSegments.push(`Student ID ${student.rollNo}`);
+                }
+
+                if (student?.department && student.department !== 'N/A') {
+                    detailSegments.push(student.department);
+                }
+
+                return {
+                    title: `Reset password for ${student?.name || 'this student'}?`,
+                    message: `A temporary password will be sent to ${email} and must be changed after the next sign in.`,
+                    detail: detailSegments.join(' • ') || 'Student account',
+                    confirmLabel: 'Reset Student Password',
+                };
+            },
+
+            openPasswordResetModal(student) {
+                if (!student || !this.feedbackUI) {
+                    return;
+                }
+
+                this.pendingPasswordResetStudent = student;
+                const modalCopy = this.getPasswordResetModalContent(student);
+
+                this.feedbackUI.openConfirm({
+                    title: modalCopy.title,
+                    message: modalCopy.message,
+                    detail: modalCopy.detail,
+                    confirmText: modalCopy.confirmLabel,
+                    variant: 'warning',
+                    buttonVariant: 'warning',
+                });
+
+                this.feedbackUI.getConfirmButton()?.focus();
+            },
+
+            closePasswordResetModal(force = false) {
+                if (!force && this.isResettingPassword) {
+                    return;
+                }
+
+                this.feedbackUI?.resetConfirm();
+                this.feedbackUI?.closeConfirm();
+                this.pendingPasswordResetStudent = null;
             },
 
             openDeleteModal(student) {
@@ -2719,6 +2856,33 @@
                 }
 
                 this.openDeleteModal(student);
+            },
+
+            requestPasswordReset(studentId) {
+                const student = this.getStudentById(studentId);
+
+                if (!student) {
+                    this.showActionToast({
+                        title: 'Student Not Found',
+                        message: 'We could not find that student in the current list.',
+                        detail: 'Refresh the roster and try again.',
+                    }, 'warning');
+                    return;
+                }
+
+                if (this.feedbackUI) {
+                    this.openPasswordResetModal(student);
+                    return;
+                }
+
+                const confirmed = window.confirm(
+                    `Reset password for ${student.name}?\n\nA temporary password will be sent to ${student.email}. They must change it after the next sign in.`
+                );
+
+                if (confirmed) {
+                    this.pendingPasswordResetStudent = student;
+                    void this.confirmPasswordReset();
+                }
             },
 
             resetFilters() {
@@ -2913,6 +3077,9 @@
                                 <button type="button" class="action-btn btn-edit" onclick="openEditStudentModal(${student.id})" title="Edit student">
                                     <i class="fas fa-edit"></i>
                                 </button>
+                                <button type="button" class="action-btn btn-password" onclick="resetStudentPassword(${student.id})" title="Reset password">
+                                    <i class="fas fa-key"></i>
+                                </button>
                                 <button
                                     type="button"
                                     class="action-btn"
@@ -3092,6 +3259,14 @@
                     if (event.key === 'Escape') {
                         event.preventDefault();
                         this.closeDeleteModal();
+                    }
+                    return;
+                }
+
+                if (this.isPasswordResetModalVisible()) {
+                    if (event.key === 'Escape') {
+                        event.preventDefault();
+                        this.closePasswordResetModal();
                     }
                     return;
                 }
@@ -3414,6 +3589,49 @@
                 }
             },
 
+            async confirmPasswordReset() {
+                if (!this.pendingPasswordResetStudent || this.isResettingPassword) {
+                    return;
+                }
+
+                this.isResettingPassword = true;
+                this.feedbackUI?.setConfirmBusy(true, 'Sending...');
+
+                try {
+                    const response = await fetch(`{{ url('admin/students') }}/${this.pendingPasswordResetStudent.id}/reset-password`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'Unable to reset the student password.');
+                    }
+
+                    const student = this.pendingPasswordResetStudent;
+                    this.closePasswordResetModal(true);
+                    this.showActionToast({
+                        title: 'Password Reset Sent',
+                        message: `Sent a temporary password to ${student?.name || 'the student'}.`,
+                        detail: student?.email && student.email !== 'N/A' ? student.email : '',
+                    }, 'success');
+                } catch (error) {
+                    console.error('Error resetting student password:', error);
+                    this.showActionToast({
+                        title: 'Password Reset Failed',
+                        message: error.message || 'Unable to reset the student password right now.',
+                    }, 'error');
+                } finally {
+                    this.isResettingPassword = false;
+                    this.feedbackUI?.resetConfirm();
+                }
+            },
+
             async performStatusToggle(studentId) {
                 const button = document.querySelector(`[data-action="toggle-status"][data-student-id="${studentId}"]`);
                 const originalMarkup = button?.innerHTML || '';
@@ -3621,10 +3839,27 @@
             showToast(message, type = 'info') {
                 showStudentToast(message, type);
             },
+
+            showActionToast(message, type = 'info') {
+                if (this.feedbackUI) {
+                    const payload = typeof message === 'object' && message !== null
+                        ? { ...message, type }
+                        : { type, title: 'Notice', message: String(message || '') };
+
+                    this.feedbackUI.showToast(payload);
+                    return;
+                }
+
+                this.showToast(message, type);
+            },
         });
 
         window.deleteStudent = function(studentId) {
             manager?.requestDeleteStudent(studentId);
+        };
+
+        window.resetStudentPassword = function(studentId) {
+            void manager?.requestPasswordReset(studentId);
         };
 
         window.toggleStudentStatus = function(studentId) {

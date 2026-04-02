@@ -127,6 +127,35 @@
             </div>
         </section>
 
+        <section class="request-bulk-bar" id="requestBulkActionBar" aria-label="Bulk request actions">
+            <div class="request-bulk-copy">
+                <span class="request-bulk-title">Bulk Actions</span>
+                <p id="requestBulkSummary" class="request-bulk-summary">Select pending requests from the table to accept or reject them together.</p>
+            </div>
+            <div class="request-bulk-actions">
+                <button type="button" id="bulkApproveRequestsBtn" class="request-bulk-btn accept" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m20 6-11 11-5-5" />
+                    </svg>
+                    <span>Accept Selected</span>
+                </button>
+                <button type="button" id="bulkRejectRequestsBtn" class="request-bulk-btn reject" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m18 6-12 12" />
+                        <path d="m6 6 12 12" />
+                    </svg>
+                    <span>Reject Selected</span>
+                </button>
+                <button type="button" id="clearSelectedRequestsBtn" class="request-bulk-btn clear" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18" />
+                        <path d="m6 6 12 12" />
+                    </svg>
+                    <span>Clear</span>
+                </button>
+            </div>
+        </section>
+
         <div class="request-toolbar-meta">
             <div id="requestFilterSummary">Showing all requests</div>
             <div id="requestLastUpdated">Waiting for data...</div>
@@ -138,6 +167,18 @@
                     <table class="requests-table">
                         <thead>
                             <tr>
+                                <th scope="col" class="request-select-column">
+                                    <label class="request-checkbox request-checkbox-header" for="requestSelectAll">
+                                        <input
+                                            type="checkbox"
+                                            id="requestSelectAll"
+                                            class="request-checkbox-input"
+                                            aria-label="Select all pending requests on this page"
+                                        >
+                                        <span class="request-checkbox-control" aria-hidden="true"></span>
+                                        <span class="sr-only">Select all pending requests on this page</span>
+                                    </label>
+                                </th>
                                 <th scope="col">Student</th>
                                 <th scope="col">Book</th>
                                 <th scope="col">Date</th>
@@ -148,6 +189,7 @@
                         </thead>
                         <tbody id="requestsTableBody">
                             <tr>
+                                <td><span class="request-skeleton-line short"></span></td>
                                 <td><span class="request-skeleton-line"></span></td>
                                 <td><span class="request-skeleton-line"></span></td>
                                 <td><span class="request-skeleton-line short"></span></td>

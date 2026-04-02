@@ -5,6 +5,7 @@ namespace App\Services\BookRequestManagement;
 use App\Models\BookRequest;
 use App\Models\Notification;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 class BookRequestManagementActionService
@@ -62,6 +63,58 @@ class BookRequestManagementActionService
         }
 
         return $bookRequest;
+    }
+
+    public function bulkUpdateStatus(
+        array $requestIds,
+        string $status,
+        string $processedBy,
+        bool $notifyAdmin = false
+    ): array {
+        $normalizedIds = collect($requestIds)
+            ->map(static fn (mixed $value) => (int) $value)
+            ->filter(static fn (int $value) => $value > 0)
+            ->unique()
+            ->values();
+
+        /** @var Collection<int, BookRequest> $requests */
+        $requests = BookRequest::query()
+            ->with(['student.user', 'book'])
+            ->whereIn('id', $normalizedIds->all())
+            ->get()
+            ->keyBy('id');
+
+        $updated = [];
+        $skipped = [];
+
+        foreach ($normalizedIds as $requestId) {
+            $bookRequest = $requests->get($requestId);
+
+            if (!$bookRequest) {
+                $skipped[] = [
+                    'id' => $requestId,
+                    'reason' => 'missing',
+                ];
+                continue;
+            }
+
+            if (strtolower((string) $bookRequest->status) !== 'pending') {
+                $skipped[] = [
+                    'id' => $requestId,
+                    'reason' => 'not_pending',
+                ];
+                continue;
+            }
+
+            $updated[] = $this->updateStatus($bookRequest, $status, $processedBy, $notifyAdmin);
+        }
+
+        return [
+            'updated' => $updated,
+            'updated_count' => count($updated),
+            'skipped' => $skipped,
+            'skipped_count' => count($skipped),
+        ];
     }
 
     protected function ensurePending(BookRequest $bookRequest): void
