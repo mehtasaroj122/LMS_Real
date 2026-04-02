@@ -34,6 +34,12 @@
                 minAmount: '',
                 maxAmount: '',
                 fines: [],
+                exportScope: 'page',
+                exportPreparedAt: null,
+                exportAllRows: [],
+                exportAllRowsFilterKey: '',
+                exportAllRowsGeneratedAt: null,
+                exportAllRowsLoading: false,
                 stats: {},
                 pagination: {},
                 currentFineId: null,
@@ -42,12 +48,14 @@
                 lastFocusedElement: null,
                 lastUpdatedAt: null,
                 fetchController: null,
+                exportFetchController: null,
                 inputDebounceTimer: null,
                 broadcastChannel: null,
                 storageListener: null,
                 actionInFlight: false,
             },
             elements: {},
+            exportWorkflow: null,
 
             init() {
                 this.cacheElements();
@@ -55,6 +63,7 @@
                     return;
                 }
 
+                this.initializeExportWorkflow();
                 this.hydrateStateFromUrl();
                 this.syncControlsFromState();
                 this.setupEventListeners();
@@ -93,7 +102,91 @@
                 this.elements.confirmActionMessage = document.getElementById('confirmActionMessage');
                 this.elements.confirmActionDetail = document.getElementById('confirmActionDetail');
                 this.elements.confirmActionSubmitBtn = document.getElementById('confirmActionSubmitBtn');
+                this.elements.exportScopeInputs = Array.from(document.querySelectorAll('input[name="exportScope"]'));
+                this.elements.exportModalBadge = document.getElementById('exportModalBadge');
+                this.elements.exportSummaryGrid = document.getElementById('exportSummaryGrid');
+                this.elements.exportModalHeadline = document.getElementById('exportModalHeadline');
+                this.elements.exportModalSubtext = document.getElementById('exportModalSubtext');
+                this.elements.exportPreviewCaption = document.getElementById('exportPreviewCaption');
+                this.elements.exportPreviewCount = document.getElementById('exportPreviewCount');
+                this.elements.exportDocumentTimestamp = document.getElementById('exportDocumentTimestamp');
+                this.elements.exportFooterNote = document.getElementById('exportFooterNote');
+                this.elements.exportPreviewTableBody = document.getElementById('exportPreviewTableBody');
+                this.elements.exportPrintBtn = document.getElementById('exportPrintBtn');
+                this.elements.exportPrintBtnLabel = this.elements.exportPrintBtn?.querySelector('span') || null;
+                this.elements.exportDownloadBtn = document.getElementById('exportDownloadBtn');
+                this.elements.exportDownloadBtnLabel = this.elements.exportDownloadBtn?.querySelector('span') || null;
                 this.elements.statCards = Array.from(document.querySelectorAll('[data-stat-card]'));
+            },
+
+            initializeExportWorkflow() {
+                if (typeof window.ReportExportWorkflow !== 'function') {
+                    return;
+                }
+
+                this.exportWorkflow = new window.ReportExportWorkflow({
+                    modalId: 'exportOptionsModal',
+                    idPrefix: 'reportExport',
+                    scopeName: 'reportExportScope',
+                    routes: {
+                        exportData: this.config.routes?.exportData,
+                    },
+                    document: {
+                        systemTitle: 'Library Management System',
+                        reportTitle: 'Fine Report',
+                    },
+                    labels: {
+                        printButton: 'Print List',
+                        allScopePrintButton: 'Print Full Report',
+                        downloadButton: 'Download CSV',
+                        allScopeDownloadButton: 'Download Full CSV',
+                    },
+                    messages: {
+                        emptyMessage: 'There are no fine records in the current result set.',
+                        preparingMessage: 'Please wait until the full fine report finishes loading.',
+                        printReadyMessage: 'The print dialog will open in a new window for the current fine list.',
+                        fullPrintReadyMessage: 'The print dialog will open in a new window for the full filtered fine report.',
+                        exportReadyMessage: 'The current fine list has been exported to CSV.',
+                        fullExportReadyMessage: 'The full filtered fine report has been exported to CSV.',
+                        exportRouteMissingMessage: 'The full fine report endpoint is not available right now.',
+                        fullLoadFailedMessage: 'Something went wrong while preparing the full fine report.',
+                    },
+                    columns: [
+                        { key: 'studentId', label: 'User ID', width: '14%' },
+                        { key: 'studentName', label: 'User Name', width: '17%' },
+                        { key: 'bookTitle', label: 'Book Title', width: '28%', emphasis: true },
+                        { key: 'dueDate', label: 'Due Date', width: '14%' },
+                        { key: 'daysOverdue', label: 'Days Overdue', width: '10%', align: 'center' },
+                        { key: 'fineAmount', label: 'Fine Amount', width: '11%', align: 'right', nowrap: true },
+                        { key: 'status', label: 'Status', width: '10%', align: 'center', nowrap: true },
+                    ],
+                    openModal: (modalId, focusTarget) => this.openModal(modalId, focusTarget),
+                    closeModal: (modalId) => this.closeModal(modalId),
+                    showToast: (type, title, message, timeout) => this.showToast(type, title, message, timeout),
+                    requestJson: (url, options) => this.requestJson(url, options),
+                    getCurrentRows: () => this.state.fines,
+                    mapRow: (fine) => this.mapFineToExportRow(fine),
+                    buildFilterParams: () => this.buildExportFilterParams(),
+                    getListingState: () => ({
+                        total: Number(this.state.pagination.total || this.state.stats.count || this.state.fines.length),
+                        currentPage: Math.max(1, Number(this.state.pagination.current_page || this.state.currentPage || 1)),
+                        lastPage: Math.max(1, Number(this.state.pagination.last_page || 1)),
+                        perPage: Math.max(1, Number(this.state.perPage || 10)),
+                    }),
+                    getScopeLabel: (scope) => this.getExportScopeLabel(scope),
+                    getFilename: (context) => this.getExportFilename(context),
+                    extractAllRows: (data) => Array.isArray(data?.fines) ? data.fines : [],
+                    extractGeneratedAt: (data) => data?.meta?.generated_at || null,
+                    getCsvMetaRows: (context) => [
+                        ['Library Management System'],
+                        ['Fine Report'],
+                        [context.generatedAtLabel],
+                        ['Report Scope', context.scopeLabel],
+                        ['Records Included', String(context.rows.length)],
+                        [''],
+                    ],
+                    describeContext: (context) => this.describeExportContext(context),
+                }).init();
             },
 
             setupEventListeners() {
@@ -144,6 +237,13 @@
 
                 this.elements.waiveSubmitBtn?.addEventListener('click', () => this.confirmWaiveFine());
                 this.elements.confirmActionSubmitBtn?.addEventListener('click', () => this.executeConfirmedAction());
+                this.elements.exportPrintBtn?.addEventListener('click', () => this.printCurrentList());
+                this.elements.exportDownloadBtn?.addEventListener('click', () => this.exportToCSV());
+                this.elements.exportScopeInputs.forEach((input) => {
+                    input.addEventListener('change', (event) => {
+                        void this.setExportScope(event.target.value);
+                    });
+                });
 
                 document.addEventListener('keydown', (event) => {
                     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
@@ -235,6 +335,8 @@
                     this.state.stats = data.stats || {};
                     this.state.pagination = data.pagination || {};
                     this.state.lastUpdatedAt = new Date();
+                    this.state.exportPreparedAt = new Date();
+                    this.clearAllExportRowsCache();
 
                     const lastPage = Math.max(1, Number(this.state.pagination.last_page || 1));
                     if (this.state.currentPage > lastPage) {
@@ -300,6 +402,9 @@
                 this.renderPagination();
                 this.renderToolbarMeta();
                 this.updateExportState();
+                if (this.state.currentModalId === (this.exportWorkflow?.getModalId?.() || 'exportOptionsModal')) {
+                    this.renderExportPreview();
+                }
             },
 
             setStatsLoading(isLoading) {
@@ -587,7 +692,7 @@
                 const action = button.getAttribute('data-action');
                 const fineId = Number(button.getAttribute('data-fine-id'));
 
-                if (action === 'export') return this.exportToCSV();
+                if (action === 'export') return this.openExportModal();
                 if (action === 'reset-filters') return this.resetFilters();
                 if (!fineId) return;
                 if (action === 'mark-paid') return this.markAsPaid(fineId);
@@ -619,6 +724,24 @@
                 this.state.search = '';
                 this.state.currentPage = 1;
                 if (this.elements.searchInput) this.elements.searchInput.value = '';
+            },
+
+            openExportModal() {
+                if (this.exportWorkflow) {
+                    this.exportWorkflow.open();
+                    return;
+                }
+
+                if (this.state.fines.length === 0) {
+                    this.showToast('error', 'Nothing to export', 'There are no fine records in the current result set.');
+                    return;
+                }
+
+                this.state.exportScope = 'page';
+                this.state.exportPreparedAt = new Date();
+                this.syncExportScopeControls();
+                this.renderExportPreview();
+                this.openModal('exportOptionsModal', this.elements.exportPrintBtn || this.elements.exportDownloadBtn);
             },
 
             hydrateStateFromUrl() {
@@ -919,6 +1042,14 @@
                 this.state.currentModalId = null;
                 if (modalId === 'waiveModal') this.state.currentFineId = null;
                 if (modalId === 'confirmActionModal') this.state.pendingConfirmAction = null;
+                if (modalId === this.exportWorkflow?.getModalId?.()) {
+                    this.exportWorkflow.handleModalClosed();
+                }
+                if (modalId === (this.exportWorkflow?.getModalId?.() || 'exportOptionsModal') && this.state.exportFetchController) {
+                    this.state.exportFetchController.abort();
+                    this.state.exportFetchController = null;
+                    this.state.exportAllRowsLoading = false;
+                }
                 this.state.lastFocusedElement?.focus?.();
             },
 
@@ -954,35 +1085,782 @@
                 return data;
             },
 
+            renderExportPreview() {
+                if (this.exportWorkflow) {
+                    this.exportWorkflow.render();
+                    return;
+                }
+
+                const context = this.getExportContext();
+
+                if (this.elements.exportModalBadge) {
+                    this.elements.exportModalBadge.textContent = context.badgeLabel;
+                }
+
+                if (this.elements.exportModalHeadline) {
+                    this.elements.exportModalHeadline.textContent = context.headline;
+                }
+
+                if (this.elements.exportModalSubtext) {
+                    this.elements.exportModalSubtext.textContent = context.subtext;
+                }
+
+                if (this.elements.exportSummaryGrid) {
+                    this.elements.exportSummaryGrid.innerHTML = context.summaryItems.map((item) => `
+                        <div class="export-summary-card">
+                            <span class="export-summary-label">${this.escapeHtml(item.label)}</span>
+                            <span class="export-summary-value">${this.escapeHtml(item.value)}</span>
+                        </div>
+                    `).join('');
+                }
+
+                if (this.elements.exportPreviewCaption) {
+                    this.elements.exportPreviewCaption.textContent = context.previewCaption;
+                }
+
+                if (this.elements.exportPreviewCount) {
+                    this.elements.exportPreviewCount.textContent = context.previewCountText;
+                }
+
+                if (this.elements.exportDocumentTimestamp) {
+                    this.elements.exportDocumentTimestamp.textContent = context.generatedAtLabel;
+                }
+
+                if (this.elements.exportFooterNote) {
+                    this.elements.exportFooterNote.textContent = context.footerNote;
+                }
+
+                if (this.elements.exportPreviewTableBody) {
+                    this.elements.exportPreviewTableBody.innerHTML = context.previewRows.length > 0
+                        ? context.previewRows.map((row) => `
+                            <tr>
+                                <td>${this.escapeHtml(row.studentId)}</td>
+                                <td>${this.escapeHtml(row.studentName)}</td>
+                                <td>${this.escapeHtml(row.bookTitle)}</td>
+                                <td>${this.escapeHtml(row.dueDate)}</td>
+                                <td>${this.escapeHtml(String(row.daysOverdue))}</td>
+                                <td>${this.escapeHtml(row.fineAmount)}</td>
+                                <td>${this.escapeHtml(row.status)}</td>
+                            </tr>
+                        `).join('')
+                        : `<tr><td colspan="7" class="export-preview-empty">${this.escapeHtml(context.emptyMessage)}</td></tr>`;
+                }
+
+                if (this.elements.exportPrintBtnLabel) {
+                    this.elements.exportPrintBtnLabel.textContent = context.isLoading
+                        ? 'Preparing report...'
+                        : (context.isAllScope ? 'Print Full Report' : 'Print List');
+                }
+
+                if (this.elements.exportPrintBtn) {
+                    this.elements.exportPrintBtn.disabled = context.isLoading || context.rows.length === 0;
+                }
+
+                if (this.elements.exportDownloadBtnLabel) {
+                    this.elements.exportDownloadBtnLabel.textContent = context.isLoading
+                        ? 'Preparing report...'
+                        : (context.isAllScope ? 'Download Full CSV' : 'Download CSV');
+                }
+
+                if (this.elements.exportDownloadBtn) {
+                    this.elements.exportDownloadBtn.disabled = context.isLoading || context.rows.length === 0;
+                }
+            },
+
+            describeExportContext(context) {
+                let badgeLabel = 'Current page';
+                let headline = `${context.rowsReady} fine ${context.rowsReady === 1 ? 'record' : 'records'} on this page`;
+                let subtext = context.total > context.rowsReady
+                    ? `Rows ${context.start}-${context.end} of ${context.total} matching records.`
+                    : 'Visible fine records will be used.';
+                let previewCaption = context.total > context.rowsReady
+                    ? `Rows ${context.start}-${context.end} of ${context.total}.`
+                    : 'Visible rows used for export.';
+                let previewCountText = `${context.rowsReady} ${context.rowsReady === 1 ? 'row' : 'rows'}`;
+                let footerNote = 'Using current page for print and CSV.';
+                let emptyMessage = 'No fine records are available for preview.';
+
+                if (context.isAllScope && context.isLoading) {
+                    badgeLabel = 'Preparing full report';
+                    headline = `Loading ${context.total} matching records...`;
+                    subtext = 'Preparing the full filtered report.';
+                    previewCaption = 'Preview updates when ready.';
+                    previewCountText = 'Preparing...';
+                    footerNote = 'Preparing full report.';
+                    emptyMessage = 'Preparing full report preview...';
+                } else if (context.isAllScope) {
+                    badgeLabel = 'Filtered report';
+                    headline = `${context.rowsReady} fine ${context.rowsReady === 1 ? 'record' : 'records'} in report`;
+                    subtext = `All matching records across ${context.lastPage} ${context.lastPage === 1 ? 'page' : 'pages'}.`;
+                    previewCaption = context.rowsReady > context.previewRows.length
+                        ? `Showing first ${context.previewRows.length} of ${context.rowsReady}.`
+                        : `All ${context.rowsReady} matching records included.`;
+                    previewCountText = context.rowsReady > context.previewRows.length
+                        ? `Showing ${context.previewRows.length} of ${context.rowsReady}`
+                        : `${context.rowsReady} ${context.rowsReady === 1 ? 'row' : 'rows'}`;
+                    footerNote = 'Using full filtered report for print and CSV.';
+                }
+
+                return {
+                    badgeLabel,
+                    headline,
+                    subtext,
+                    previewCaption,
+                    previewCountText,
+                    footerNote,
+                    emptyMessage,
+                    summaryItems: this.buildExportSummaryItems(context),
+                };
+            },
+
+            getExportContext() {
+                const isAllScope = this.state.exportScope === 'all';
+                const pageRows = this.getCurrentPageExportRows();
+                const total = Number(this.state.pagination.total || this.state.stats.count || pageRows.length);
+                const currentPage = Math.max(1, Number(this.state.pagination.current_page || this.state.currentPage || 1));
+                const lastPage = Math.max(1, Number(this.state.pagination.last_page || 1));
+                const start = total === 0 ? 0 : ((currentPage - 1) * this.state.perPage) + 1;
+                const end = total === 0 ? 0 : Math.min(currentPage * this.state.perPage, total);
+                const rows = this.getExportRows();
+                const rowsReady = rows.length;
+                const isLoading = isAllScope && this.state.exportAllRowsLoading;
+                const generatedAt = isAllScope
+                    ? (this.state.exportAllRowsGeneratedAt || this.state.exportPreparedAt || this.state.lastUpdatedAt || new Date())
+                    : (this.state.exportPreparedAt || this.state.lastUpdatedAt || new Date());
+                const previewLimit = isAllScope ? 12 : Math.max(1, Number(this.state.perPage || rowsReady || 10));
+                const previewRows = isAllScope ? rows.slice(0, previewLimit) : rows;
+                const scopeLabel = this.getExportScopeLabel(this.state.exportScope);
+
+                let badgeLabel = 'Current result set';
+                let headline = `${rowsReady} fine ${rowsReady === 1 ? 'record' : 'records'} ready on this page`;
+                let subtext = total > rowsReady
+                    ? `You are previewing rows ${start}-${end} of ${total} matching fine records. Print and CSV download use the current page only.`
+                    : 'Print or download the currently visible fine records from this dialog.';
+                let previewCaption = total > rowsReady
+                    ? `Current page preview. Rows ${start}-${end} of ${total} matching fine records will be used.`
+                    : 'Current filtered fine records that will be printed or downloaded.';
+                let previewCountText = `${rowsReady} ${rowsReady === 1 ? 'row' : 'rows'}`;
+                let footerNote = 'Printing and CSV download use the current filtered page shown above.';
+                let emptyMessage = 'No fine records are available for preview.';
+
+                if (isAllScope && isLoading) {
+                    badgeLabel = 'Preparing full report';
+                    headline = 'Loading every matching fine record...';
+                    subtext = `Fetching all ${total} matching fine ${total === 1 ? 'record' : 'records'} across ${lastPage} ${lastPage === 1 ? 'page' : 'pages'} for printing and CSV download.`;
+                    previewCaption = 'The full filtered report preview will appear here as soon as it is ready.';
+                    previewCountText = 'Preparing...';
+                    footerNote = 'Please wait while the entire filtered report is being prepared.';
+                    emptyMessage = 'Preparing full report preview...';
+                } else if (isAllScope) {
+                    badgeLabel = 'Entire filtered report';
+                    headline = `${rowsReady} fine ${rowsReady === 1 ? 'record' : 'records'} ready in the full report`;
+                    subtext = `All ${rowsReady} matching fine ${rowsReady === 1 ? 'record' : 'records'} across ${lastPage} ${lastPage === 1 ? 'page' : 'pages'} will be used for print and CSV download.`;
+                    previewCaption = rowsReady > previewRows.length
+                        ? `Previewing the first ${previewRows.length} rows. Print and CSV download will include all ${rowsReady} matching fine records.`
+                        : `All ${rowsReady} matching fine ${rowsReady === 1 ? 'record' : 'records'} will be used for print and CSV download.`;
+                    previewCountText = rowsReady > previewRows.length
+                        ? `Showing ${previewRows.length} of ${rowsReady}`
+                        : `${rowsReady} ${rowsReady === 1 ? 'row' : 'rows'}`;
+                    footerNote = `Printing and CSV download will use the entire filtered report with ${rowsReady} ${rowsReady === 1 ? 'record' : 'records'}.`;
+                }
+
+                return {
+                    isAllScope,
+                    isLoading,
+                    rows,
+                    previewRows,
+                    rowsReady,
+                    total,
+                    currentPage,
+                    lastPage,
+                    start,
+                    end,
+                    badgeLabel,
+                    headline,
+                    subtext,
+                    previewCaption,
+                    previewCountText,
+                    footerNote,
+                    emptyMessage,
+                    scopeLabel,
+                    generatedAt,
+                    generatedAtLabel: `Generated on ${this.formatDateTime(generatedAt)}`,
+                    summaryItems: this.buildExportSummaryItems({
+                        isAllScope,
+                        isLoading,
+                        rowsReady,
+                        total,
+                        currentPage,
+                        lastPage,
+                        start,
+                        end,
+                        scopeLabel,
+                    }),
+                };
+            },
+
+            buildExportSummaryItems(context) {
+                const amountRange = this.getAmountRangeLabel();
+                const summaryItems = [
+                    {
+                        label: 'Scope',
+                        value: context.scopeLabel,
+                    },
+                    {
+                        label: 'Rows',
+                        value: context.isLoading
+                            ? 'Preparing...'
+                            : `${context.rowsReady} ${context.rowsReady === 1 ? 'record' : 'records'}`,
+                    },
+                    {
+                        label: 'Total',
+                        value: `${context.total} ${context.total === 1 ? 'record' : 'records'}`,
+                    },
+                    {
+                        label: context.isAllScope ? 'Pages' : 'Page',
+                        value: context.isAllScope
+                            ? `${context.lastPage} ${context.lastPage === 1 ? 'page' : 'pages'}`
+                            : `${context.currentPage}/${context.lastPage}`,
+                    },
+                ];
+
+                const filterParts = [];
+
+                if (this.state.filter !== 'all') {
+                    filterParts.push(this.getStatusFilterLabel());
+                }
+
+                if (this.state.search) {
+                    filterParts.push(`Search: ${this.state.search}`);
+                }
+
+                if (amountRange !== 'Any amount') {
+                    filterParts.push(amountRange);
+                }
+
+                if (this.state.sort !== 'date-desc') {
+                    filterParts.push(this.getSortLabel());
+                }
+
+                if (filterParts.length > 0) {
+                    summaryItems.push({
+                        label: 'Filters',
+                        value: filterParts.join(' • '),
+                    });
+                }
+
+                return summaryItems;
+            },
+
+            getExportHeaders() {
+                return ['User ID', 'User Name', 'Book Title', 'Due Date', 'Days Overdue', 'Fine Amount', 'Status'];
+            },
+
+            syncExportScopeControls() {
+                this.elements.exportScopeInputs.forEach((input) => {
+                    input.checked = input.value === this.state.exportScope;
+                });
+            },
+
+            clearAllExportRowsCache() {
+                if (this.exportWorkflow) {
+                    this.exportWorkflow.clearCache();
+                    return;
+                }
+
+                if (this.state.exportFetchController) {
+                    this.state.exportFetchController.abort();
+                }
+
+                this.state.exportFetchController = null;
+                this.state.exportAllRowsLoading = false;
+                this.state.exportAllRows = [];
+                this.state.exportAllRowsFilterKey = '';
+                this.state.exportAllRowsGeneratedAt = null;
+                this.state.exportScope = 'page';
+                this.syncExportScopeControls();
+            },
+
+            buildExportFilterParams() {
+                const params = new URLSearchParams({
+                    search: this.state.search,
+                    status: this.state.filter,
+                    sort: this.state.sort,
+                });
+
+                if (this.state.minAmount) params.set('min_amount', this.state.minAmount);
+                if (this.state.maxAmount) params.set('max_amount', this.state.maxAmount);
+
+                return params;
+            },
+
+            getExportFilterKey() {
+                return this.buildExportFilterParams().toString();
+            },
+
+            async setExportScope(scope) {
+                if (this.exportWorkflow) {
+                    await this.exportWorkflow.setScope(scope);
+                    return;
+                }
+
+                const normalizedScope = scope === 'all' ? 'all' : 'page';
+                const shouldReloadAll = normalizedScope === 'all'
+                    && (!this.state.exportAllRows.length || this.state.exportAllRowsFilterKey !== this.getExportFilterKey());
+
+                if (normalizedScope === 'page' && this.state.exportFetchController) {
+                    this.state.exportFetchController.abort();
+                    this.state.exportFetchController = null;
+                    this.state.exportAllRowsLoading = false;
+                }
+
+                this.state.exportScope = normalizedScope;
+                this.state.exportPreparedAt = new Date();
+                this.syncExportScopeControls();
+
+                if (normalizedScope === 'all' && shouldReloadAll) {
+                    await this.loadAllExportRows();
+                    return;
+                }
+
+                this.renderExportPreview();
+            },
+
+            async loadAllExportRows() {
+                const route = this.config.routes?.exportData;
+                if (!route) {
+                    this.state.exportScope = 'page';
+                    this.syncExportScopeControls();
+                    this.renderExportPreview();
+                    this.showToast('error', 'Export route missing', 'The full fine report endpoint is not available right now.');
+                    return;
+                }
+
+                const filterKey = this.getExportFilterKey();
+                if (this.state.exportAllRowsFilterKey === filterKey && this.state.exportAllRows.length > 0) {
+                    this.state.exportPreparedAt = this.state.exportAllRowsGeneratedAt || new Date();
+                    this.renderExportPreview();
+                    return;
+                }
+
+                if (this.state.exportFetchController) {
+                    this.state.exportFetchController.abort();
+                }
+
+                const controller = new AbortController();
+                this.state.exportFetchController = controller;
+                this.state.exportAllRowsLoading = true;
+                this.renderExportPreview();
+
+                try {
+                    const params = this.buildExportFilterParams();
+                    const data = await this.requestJson(`${route}?${params.toString()}`, {
+                        method: 'GET',
+                        signal: controller.signal,
+                    });
+
+                    if (this.state.exportFetchController !== controller) {
+                        return;
+                    }
+
+                    this.state.exportAllRows = Array.isArray(data.fines)
+                        ? data.fines.map((fine) => this.mapFineToExportRow(fine))
+                        : [];
+                    this.state.exportAllRowsFilterKey = filterKey;
+                    this.state.exportAllRowsGeneratedAt = this.toDateObject(data.meta?.generated_at) || new Date();
+                    this.state.exportPreparedAt = this.state.exportAllRowsGeneratedAt;
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        return;
+                    }
+
+                    console.error('[Fines] Failed to load full export rows:', error);
+                    this.state.exportScope = 'page';
+                    this.syncExportScopeControls();
+                    this.showToast('error', 'Could not prepare full report', this.resolveErrorMessage(error, 'Something went wrong while preparing the full fine report.'));
+                } finally {
+                    if (this.state.exportFetchController === controller) {
+                        this.state.exportFetchController = null;
+                        this.state.exportAllRowsLoading = false;
+                    }
+
+                    this.renderExportPreview();
+                }
+            },
+
+            mapFineToExportRow(fine) {
+                return {
+                    studentId: fine.studentId || fine.student_id || 'N/A',
+                    studentName: fine.studentName || fine.student_name || 'Unknown',
+                    bookTitle: fine.bookTitle || fine.book_title || 'Unknown',
+                    dueDate: fine.dueDate || fine.due_date || 'N/A',
+                    daysOverdue: Number(fine.daysOverdue ?? fine.days_overdue ?? 0),
+                    fineAmount: this.formatCurrency(fine.fineAmount ?? fine.amount ?? 0),
+                    status: fine.statusLabel || fine.status_label || this.capitalize(fine.status || 'pending'),
+                };
+            },
+
+            getCurrentPageExportRows() {
+                return this.state.fines.map((fine) => this.mapFineToExportRow(fine));
+            },
+
+            getExportRows() {
+                return this.state.exportScope === 'all'
+                    ? this.state.exportAllRows
+                    : this.getCurrentPageExportRows();
+            },
+
+            getExportScopeLabel(scope) {
+                return scope === 'all' ? 'Entire filtered report' : 'Current page';
+            },
+
+            getExportFilename(context) {
+                const generatedAt = this.toDateObject(context?.generatedAt) || new Date();
+                const datePart = generatedAt.toISOString().slice(0, 10);
+                return context?.isAllScope
+                    ? `fine-report-full-${datePart}.csv`
+                    : `fine-report-page-${context?.currentPage || 1}-${datePart}.csv`;
+            },
+
+            getStatusFilterLabel() {
+                return this.state.filter === 'all' ? 'All statuses' : this.capitalize(this.state.filter);
+            },
+
+            getSortLabel() {
+                const sortLabels = {
+                    'date-desc': 'Date (Newest)',
+                    'date-asc': 'Date (Oldest)',
+                    'amount-desc': 'Amount (High to Low)',
+                    'amount-asc': 'Amount (Low to High)',
+                };
+
+                return sortLabels[this.state.sort] || 'Date (Newest)';
+            },
+
+            getAmountRangeLabel() {
+                if (this.state.minAmount && this.state.maxAmount) {
+                    return `${this.formatCurrency(this.state.minAmount)} to ${this.formatCurrency(this.state.maxAmount)}`;
+                }
+
+                if (this.state.minAmount) {
+                    return `${this.formatCurrency(this.state.minAmount)} and above`;
+                }
+
+                if (this.state.maxAmount) {
+                    return `Up to ${this.formatCurrency(this.state.maxAmount)}`;
+                }
+
+                return 'Any amount';
+            },
+
+            printCurrentList() {
+                if (this.exportWorkflow) {
+                    this.exportWorkflow.print();
+                    return;
+                }
+
+                const context = this.getExportContext();
+                if (context.isLoading) {
+                    this.showToast('info', 'Preparing full report', 'Please wait until the full fine report finishes loading.');
+                    return;
+                }
+
+                const rows = context.rows;
+                if (rows.length === 0) {
+                    this.showToast('error', 'Nothing to print', 'There are no fine records in the current result set.');
+                    return;
+                }
+
+                const printWindow = window.open('', '_blank', 'width=1100,height=760');
+                if (!printWindow) {
+                    this.showToast('error', 'Popup blocked', 'Allow popups for this site to open the print view.');
+                    return;
+                }
+
+                try {
+                    printWindow.document.open();
+                    printWindow.document.write(this.buildPrintDocument(rows, context));
+                    printWindow.document.close();
+                    this.closeModal('exportOptionsModal');
+                    this.showToast(
+                        'success',
+                        'Print view ready',
+                        context.isAllScope
+                            ? 'The print dialog will open in a new window for the full filtered fine report.'
+                            : 'The print dialog will open in a new window for the current fine list.'
+                    );
+                } catch (error) {
+                    console.error('[Fines] Failed to build print document:', error);
+                    printWindow.close();
+                    this.showToast('error', 'Print view failed', 'The print preview could not be prepared. Please try again.');
+                }
+            },
+
+            buildPrintDocument(rows, context = null) {
+                const generatedAt = this.formatDateTime(context?.generatedAt || new Date());
+                const tableRows = rows.map((row) => `
+                    <tr>
+                        <td>${this.escapeHtml(row.studentId)}</td>
+                        <td>${this.escapeHtml(row.studentName)}</td>
+                        <td>${this.escapeHtml(row.bookTitle)}</td>
+                        <td>${this.escapeHtml(row.dueDate)}</td>
+                        <td>${this.escapeHtml(String(row.daysOverdue))}</td>
+                        <td>${this.escapeHtml(row.fineAmount)}</td>
+                        <td>${this.escapeHtml(row.status)}</td>
+                    </tr>
+                `).join('');
+
+                return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fine Report</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Inter, Arial, sans-serif;
+            color: #020617;
+            background: #ffffff;
+        }
+
+        .table-shell {
+            width: 100%;
+            padding: 4px 6px 0;
+        }
+
+        .print-header {
+            text-align: center;
+            padding: 6px 0 16px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        .print-system-title {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #0f172a;
+        }
+
+        .print-report-title {
+            margin: 5px 0 0;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #334155;
+        }
+
+        .print-report-meta {
+            margin: 7px 0 0;
+            font-size: 11px;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            border: 1px solid #cbd5e1;
+        }
+
+        .print-table thead {
+            display: table-header-group;
+        }
+
+        .print-table tbody {
+            display: table-row-group;
+        }
+
+        .print-table tr {
+            page-break-inside: avoid;
+        }
+
+        .print-table th,
+        .print-table td {
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 12px;
+            line-height: 1.4;
+            word-break: break-word;
+            border: 1px solid #cbd5e1;
+        }
+
+        .print-table th {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #0f172a;
+            background: #e2e8f0;
+        }
+
+        .print-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .print-table tbody tr:nth-child(odd) {
+            background: #ffffff;
+        }
+
+        .print-table th:nth-child(1),
+        .print-table td:nth-child(1) {
+            width: 14%;
+        }
+
+        .print-table th:nth-child(2),
+        .print-table td:nth-child(2) {
+            width: 17%;
+        }
+
+        .print-table th:nth-child(3),
+        .print-table td:nth-child(3) {
+            width: 28%;
+            font-weight: 600;
+        }
+
+        .print-table th:nth-child(4),
+        .print-table td:nth-child(4) {
+            width: 14%;
+        }
+
+        .print-table th:nth-child(5),
+        .print-table td:nth-child(5) {
+            width: 10%;
+            text-align: center;
+        }
+
+        .print-table th:nth-child(6),
+        .print-table td:nth-child(6) {
+            width: 11%;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .print-table th:nth-child(7),
+        .print-table td:nth-child(7) {
+            width: 10%;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .print-table th:nth-child(6) {
+            text-align: right;
+        }
+
+        @media print {
+            .table-shell {
+                padding: 0;
+            }
+        }
+            </style>
+</head>
+<body>
+    <div class="table-shell">
+        <div class="print-header">
+            <p class="print-system-title">Library Management System</p>
+            <p class="print-report-title">Fine Report</p>
+            <p class="print-report-meta">Generated on ${this.escapeHtml(generatedAt)}</p>
+        </div>
+        <table class="print-table">
+            <thead>
+                <tr>
+                    ${this.getExportHeaders().map((header) => `<th scope="col">${this.escapeHtml(header)}</th>`).join('')}
+                </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+        </table>
+    </div>
+    <script>
+        window.addEventListener('load', function () {
+            window.setTimeout(function () {
+                window.focus();
+                window.print();
+            }, 120);
+        });
+
+        window.addEventListener('afterprint', function () {
+            window.close();
+        });
+    <\/script>
+</body>
+</html>`;
+            },
+
             exportToCSV() {
-                if (this.state.fines.length === 0) {
+                if (this.exportWorkflow) {
+                    this.exportWorkflow.downloadCsv();
+                    return;
+                }
+
+                const context = this.getExportContext();
+                if (context.isLoading) {
+                    this.showToast('info', 'Preparing full report', 'Please wait until the full fine report finishes loading.');
+                    return;
+                }
+
+                const rows = context.rows;
+                if (rows.length === 0) {
                     this.showToast('error', 'Nothing to export', 'There are no fine records in the current result set.');
                     return;
                 }
 
-                const headers = ['User ID', 'User Name', 'Book Title', 'Due Date', 'Days Overdue', 'Fine Amount', 'Status'];
-                const rows = this.state.fines.map((fine) => [
-                    fine.studentId || 'N/A',
-                    fine.studentName || 'Unknown',
-                    fine.bookTitle || 'Unknown',
-                    fine.dueDate || 'N/A',
-                    Number(fine.daysOverdue || 0),
-                    this.formatCurrency(fine.fineAmount || 0),
-                    fine.statusLabel || this.capitalize(fine.status || 'pending'),
+                const headers = this.getExportHeaders();
+                const generatedAt = this.formatDateTime(context.generatedAt || new Date());
+                const escapeCsvCell = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+                const metaRows = [
+                    ['Library Management System'],
+                    ['Fine Report'],
+                    [`Generated on ${generatedAt}`],
+                    ['Report Scope', context.scopeLabel],
+                    ['Records Included', String(rows.length)],
+                    [''],
+                ];
+                const csvRows = rows.map((row) => [
+                    row.studentId,
+                    row.studentName,
+                    row.bookTitle,
+                    row.dueDate,
+                    row.daysOverdue,
+                    row.fineAmount,
+                    row.status,
                 ]);
-
-                const csv = [headers.join(','), ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))].join('\n');
+                const csv = '\uFEFF' + [...metaRows, headers, ...csvRows]
+                    .map((row) => row.map((cell) => escapeCsvCell(cell)).join(','))
+                    .join('\r\n');
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `fines_export_${new Date().toISOString().slice(0, 10)}.csv`;
+                link.download = this.getExportFilename(context);
                 link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 window.setTimeout(() => URL.revokeObjectURL(url), 100);
-                this.showToast('success', 'Export ready', 'The current fine list has been exported to CSV.');
+                this.closeModal('exportOptionsModal');
+                this.showToast(
+                    'success',
+                    'Export ready',
+                    context.isAllScope
+                        ? 'The full filtered fine report has been exported to CSV.'
+                        : 'The current fine list has been exported to CSV.'
+                );
             },
 
             showToast(type, title, message, timeout = 4200) {
@@ -1051,9 +1929,23 @@
                 return `₹${numericAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             },
 
+            formatDateTime(value) {
+                const date = this.toDateObject(value);
+                if (!date) return 'Unknown time';
+                return new Intl.DateTimeFormat(undefined, {
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                }).format(date);
+            },
+
+            toDateObject(value) {
+                const date = value instanceof Date ? value : new Date(value);
+                return Number.isNaN(date.getTime()) ? null : date;
+            },
+
             formatDateShort(value) {
-                const date = new Date(value);
-                if (Number.isNaN(date.getTime())) return value;
+                const date = this.toDateObject(value);
+                if (!date) return value;
                 return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
             },
 

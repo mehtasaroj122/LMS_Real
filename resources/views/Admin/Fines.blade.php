@@ -7,6 +7,7 @@
         'role' => 'admin',
         'routes' => [
             'data' => route('admin.fines.data'),
+            'exportData' => route('admin.fines.export-data'),
             'markPaid' => route('admin.fines.mark-as-paid', ['fine' => '__FINE_ID__']),
             'waive' => route('admin.fines.waive', ['fine' => '__FINE_ID__']),
             'sendEmail' => route('admin.fines.send-email', ['fine' => '__FINE_ID__']),
@@ -33,6 +34,7 @@
 @endphp
 
 @push('styles')
+    @include('shared.report-export.styles')
     @include('shared.fine-management.styles')
 @endpush
 
@@ -41,5 +43,6 @@
 @endsection
 
 @push('scripts')
+    @include('shared.report-export.scripts')
     @include('shared.fine-management.scripts', ['fineManagementConfig' => $fineManagementConfig])
 @endpush

@@ -288,6 +288,29 @@ class FineController extends Controller
     }
 
     /**
+     * Get export-ready fine data (AJAX)
+     */
+    public function getExportData(ListFinesRequest $request, FineManagementDataService $fineManagementDataService)
+    {
+        try {
+            Gate::authorize('access-admin');
+
+            $exportData = $fineManagementDataService->getExportData($request->validated());
+
+            return response()->json([
+                'success' => true,
+                ...$exportData,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getExportData: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading export data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Adjust fine amount
      */
     public function adjustFine(Request $request, string $id)

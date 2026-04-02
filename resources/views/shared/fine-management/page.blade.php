@@ -1,5 +1,44 @@
 @php
     $config = $fineManagementConfig;
+    $reportExportConfig = [
+        'modalId' => 'exportOptionsModal',
+        'idPrefix' => 'reportExport',
+        'scopeName' => 'reportExportScope',
+        'labels' => [
+            'title' => 'Export Fines',
+            'description' => 'Print or download the fine report.',
+            'scopeTitle' => 'Scope',
+            'scopeHint' => 'Use this page or all filtered rows.',
+            'pageOptionTitle' => 'Current page',
+            'pageOptionDescription' => 'Only rows visible now.',
+            'allOptionTitle' => 'Filtered report',
+            'allOptionDescription' => 'All rows matching filters.',
+            'badge' => 'Current page',
+            'headline' => '0 fine records ready',
+            'subtext' => 'Selected rows will be used for export.',
+            'previewTitle' => 'Preview',
+            'previewDescription' => 'Rows included in export.',
+            'previewCount' => '0 rows',
+            'emptyPreview' => 'No fine records selected for preview.',
+            'footerNote' => 'Using current page for export.',
+            'cancelButton' => 'Cancel',
+            'downloadButton' => 'Download CSV',
+            'printButton' => 'Print',
+        ],
+        'document' => [
+            'systemTitle' => 'Library Management System',
+            'reportTitle' => 'Fine Report',
+        ],
+        'columns' => [
+            ['key' => 'studentId', 'label' => 'User ID', 'width' => '14%'],
+            ['key' => 'studentName', 'label' => 'User Name', 'width' => '17%'],
+            ['key' => 'bookTitle', 'label' => 'Book Title', 'width' => '28%', 'emphasis' => true],
+            ['key' => 'dueDate', 'label' => 'Due Date', 'width' => '14%'],
+            ['key' => 'daysOverdue', 'label' => 'Days Overdue', 'width' => '10%', 'align' => 'center'],
+            ['key' => 'fineAmount', 'label' => 'Fine Amount', 'width' => '11%', 'align' => 'right', 'nowrap' => true],
+            ['key' => 'status', 'label' => 'Status', 'width' => '10%', 'align' => 'center', 'nowrap' => true],
+        ],
+    ];
 @endphp
 
 <div class="fine-page" id="fineManagementRoot">
@@ -250,6 +289,8 @@
             </div>
         </div>
     </div>
+
+    @include('shared.report-export.modal', ['reportExportConfig' => $reportExportConfig])
 
     <div id="fineToastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
     <div id="fineLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>

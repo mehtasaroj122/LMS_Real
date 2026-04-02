@@ -250,4 +250,27 @@ class FineController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get export-ready fine data (AJAX)
+     */
+    public function getExportData(ListFinesRequest $request, FineManagementDataService $fineManagementDataService)
+    {
+        try {
+            Gate::authorize('access-staff');
+
+            $exportData = $fineManagementDataService->getExportData($request->validated());
+
+            return response()->json([
+                'success' => true,
+                ...$exportData,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error in getExportData: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading export data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

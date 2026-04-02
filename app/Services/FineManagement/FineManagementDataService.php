@@ -10,10 +10,7 @@ class FineManagementDataService
     public function getListingData(array $filters = []): array
     {
         $filters = $this->normalizeFilters($filters);
-
-        $query = $this->baseQuery();
-        $this->applyFilters($query, $filters);
-        $this->applySorting($query, $filters['sort']);
+        $query = $this->buildFilteredQuery($filters);
 
         $paginated = $query->paginate($filters['per_page'], ['*'], 'page', $filters['page']);
 
@@ -29,6 +26,23 @@ class FineManagementDataService
                 'total' => $paginated->total(),
             ],
             'stats' => $this->buildStats($filters),
+        ];
+    }
+
+    public function getExportData(array $filters = []): array
+    {
+        $filters = $this->normalizeFilters($filters);
+        $collection = $this->buildFilteredQuery($filters)->get();
+
+        return [
+            'fines' => $collection
+                ->map(fn (Fine $fine) => $this->transformFine($fine))
+                ->values()
+                ->all(),
+            'meta' => [
+                'count' => $collection->count(),
+                'generated_at' => now()->toIso8601String(),
+            ],
         ];
     }
 
@@ -63,6 +77,15 @@ class FineManagementDataService
             ->whereHas('student.user', function (Builder $query) {
                 $query->where('role', 'student');
             });
+    }
+
+    protected function buildFilteredQuery(array $filters): Builder
+    {
+        $query = $this->baseQuery();
+        $this->applyFilters($query, $filters);
+        $this->applySorting($query, $filters['sort']);
+
+        return $query;
     }
 
     protected function applyFilters(Builder $query, array $filters): void

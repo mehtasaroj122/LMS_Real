@@ -116,6 +116,7 @@ Route::middleware(['auth', 'can:access-admin'])
         Route::post('/transactions/return', [TransactionController::class, 'returnBooks'])->name('transactions.return');
         Route::resource('fines', FineController::class)->only(['index', 'update']);
         Route::get('/fines/data/list', [FineController::class, 'getFinesData'])->name('fines.data');
+        Route::get('/fines/export/data', [FineController::class, 'getExportData'])->name('fines.export-data');
         Route::post('/fines/{fine}/mark-as-paid', [FineController::class, 'markAsPaid'])->name('fines.mark-as-paid');
         Route::post('/fines/{fine}/waive', [FineController::class, 'waive'])->name('fines.waive');
         Route::post('/fines/{fine}/send-email', [FineController::class, 'sendEmailNotification'])->name('fines.send-email');
@@ -195,6 +196,7 @@ Route::middleware(['auth', 'can:access-staff'])
         // Fine management routes
         Route::get('/fines', [StaffFineController::class, 'index'])->name('fines.index');
         Route::get('/fines/data', [StaffFineController::class, 'getFinesData'])->name('fines.data');
+        Route::get('/fines/export/data', [StaffFineController::class, 'getExportData'])->name('fines.export-data');
         Route::post('/fines/{fine}/mark-as-paid', [StaffFineController::class, 'markAsPaid'])->name('fines.mark-as-paid');
         Route::post('/fines/{fine}/waive', [StaffFineController::class, 'waive'])->name('fines.waive');
         Route::post('/fines/{fine}/send-email', [StaffFineController::class, 'sendEmailNotification'])->name('fines.send-email');
