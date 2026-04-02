@@ -4,6 +4,10 @@
             return;
         }
 
+        const defaultLibraryBranding = window.LibraryBranding?.normalize
+            ? window.LibraryBranding.normalize(window.__LIBRARY_BRANDING__ ?? @json($libraryBranding))
+            : (window.__LIBRARY_BRANDING__ ?? @json($libraryBranding));
+
         class ReportExportWorkflow {
             constructor(config = {}) {
                 this.config = config;
@@ -87,10 +91,14 @@
 
             getDocument() {
                 return {
-                    systemTitle: 'Library Management System',
+                    systemTitle: defaultLibraryBranding?.name || 'Library Management System',
                     reportTitle: 'Report',
                     ...this.config.document,
                 };
+            }
+
+            getBranding() {
+                return this.config.branding || defaultLibraryBranding || {};
             }
 
             getColumns() {
@@ -567,8 +575,17 @@
                 }
             }
 
+            buildPrintLogoMarkup(branding) {
+                if (branding?.image_url) {
+                    return `<img src="${this.escapeAttribute(branding.image_url)}" alt="${this.escapeAttribute(branding.alt || 'Library Logo')}" loading="eager">`;
+                }
+
+                return `<span class="print-logo-fallback">${this.escapeHtml(branding?.fallback_text || 'LMS')}</span>`;
+            }
+
             buildPrintDocument(context) {
                 const documentConfig = this.getDocument();
+                const branding = this.getBranding();
                 const columns = this.getColumns();
                 const colgroup = columns.map((column) => `<col${column.width ? ` style="width:${this.escapeAttribute(String(column.width))}"` : ''}>`).join('');
                 const headerCells = columns.map((column) => `
@@ -618,8 +635,55 @@
         .print-header {
             margin-bottom: 10px;
             padding: 6px 0 16px;
-            text-align: center;
             border-bottom: 1px solid #cbd5e1;
+        }
+
+        .print-branding-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .print-logo {
+            width: 54px;
+            height: 54px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+        }
+
+        .print-logo img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            object-position: center;
+            background: #ffffff;
+        }
+
+        .print-logo-fallback {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 0 6px;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .print-branding-copy {
+            display: grid;
+            gap: 2px;
+            text-align: left;
         }
 
         .print-system-title {
@@ -704,9 +768,14 @@
 <body>
     <div class="table-shell">
         <div class="print-header">
-            <p class="print-system-title">${this.escapeHtml(documentConfig.systemTitle)}</p>
-            <p class="print-report-title">${this.escapeHtml(documentConfig.reportTitle)}</p>
-            <p class="print-report-meta">${this.escapeHtml(context.generatedAtLabel)}</p>
+            <div class="print-branding-row">
+                <div class="print-logo">${this.buildPrintLogoMarkup(branding)}</div>
+                <div class="print-branding-copy">
+                    <p class="print-system-title">${this.escapeHtml(documentConfig.systemTitle)}</p>
+                    <p class="print-report-title">${this.escapeHtml(documentConfig.reportTitle)}</p>
+                    <p class="print-report-meta">${this.escapeHtml(context.generatedAtLabel)}</p>
+                </div>
+            </div>
         </div>
 
         <table class="print-table">
@@ -784,10 +853,13 @@
                 }
 
                 const documentConfig = this.getDocument();
+                const branding = this.getBranding();
+                const logoRows = branding?.image_url ? [['Library Logo', branding.image_url], ['']] : [];
                 return [
                     [documentConfig.systemTitle],
                     [documentConfig.reportTitle],
                     [context.generatedAtLabel],
+                    ...logoRows,
                     ['Report Scope', context.scopeLabel],
                     ['Records Included', String(context.rows.length)],
                     [''],

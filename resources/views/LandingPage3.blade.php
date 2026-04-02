@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Next-gen Library Management System. Streamline cataloging, members, and assets.">
     <title>LMS - Intelligent Library Management</title>
+    @vite(['resources/js/app.js'])
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -212,7 +213,7 @@
             gap: 8px;
         }
 
-        .logo span {
+        .logo-title-accent {
             color: var(--primary);
         }
 
@@ -698,16 +699,13 @@
 </head>
 
 <body>
+    @include('shared.library-branding.bootstrap')
 
     <header class="navbar">
         <div class="container nav-container">
             <a href="#" class="logo">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary)">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                </svg>
-                LMS<span>.io</span>
+                <x-logo size="sm" :lazy="false" />
+                LMS<span class="logo-title-accent">.io</span>
             </a>
             <nav>
                 <ul class="nav-links" id="navLinks">
@@ -912,12 +910,7 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <a href="#" class="logo" style="margin-bottom:16px;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            style="color:var(--primary)">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                        </svg>
+                        <x-logo size="sm" :lazy="false" />
                         LMS.io
                     </a>
                     <p style="color:var(--text-muted); font-size: 0.9rem; max-width: 300px;">

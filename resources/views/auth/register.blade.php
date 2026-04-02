@@ -278,16 +278,11 @@
         }
 
         .library-icon {
-            width: 90px;
-            height: 90px;
             margin: 0 auto 25px;
-            background: linear-gradient(135deg, #5b7eff 0%, #4a63d1 100%);
-            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             animation: float 3s ease-in-out infinite;
-            box-shadow: 0 10px 30px rgba(91, 126, 255, 0.4);
         }
 
         @keyframes float {
@@ -297,13 +292,6 @@
             50% {
                 transform: translateY(-10px);
             }
-        }
-
-        .library-icon svg {
-            width: 55px;
-            height: 55px;
-            color: white;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
         }
 
         .branding-content h1 {
@@ -443,15 +431,6 @@
                 font-size: 20px;
             }
 
-            .library-icon {
-                width: 70px;
-                height: 70px;
-            }
-
-            .library-icon svg {
-                width: 45px;
-                height: 45px;
-            }
         }
 
         /* Loading State */
@@ -481,6 +460,7 @@
     </style>
 </head>
 <body>
+    @include('shared.library-branding.bootstrap')
     <div class="register-container">
         <!-- Left Side - Form -->
         <div class="register-form-container">
@@ -600,10 +580,7 @@
         <div class="register-branding active">
             <div class="branding-content">
                 <div class="library-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="55" height="55" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                    </svg>
+                    <x-logo size="hero" :lazy="false" />
                 </div>
                 
                 <h1>Join Us Today</h1>
@@ -677,4 +654,3 @@
     </script>
 </body>
 </html>
-

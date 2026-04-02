@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Support\LibraryBranding;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use App\Models\IssuedBook;
 use App\Models\Fine;
@@ -42,5 +44,7 @@ class AppServiceProvider extends ServiceProvider
         IssuedBook::observe(IssuedBookObserver::class);
         Fine::observe(FineObserver::class);
         BookRequest::observe(BookRequestObserver::class);
+
+        View::share('libraryBranding', LibraryBranding::resolve());
     }
 }

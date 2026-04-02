@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Modern Library Management System for schools and institutions.">
     <title>LMS | Smart Library Solutions</title>
+    @vite(['resources/js/app.js'])
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -437,11 +438,12 @@
     </style>
 </head>
 <body>
+    @include('shared.library-branding.bootstrap')
 
     <nav class="navbar" id="navbar">
         <div class="container nav-container">
             <a href="#" class="logo">
-                <i class="ri-book-mark-fill"></i>
+                <x-logo size="sm" :lazy="false" />
                 <span>LibManage</span>
             </a>
 
@@ -644,7 +646,10 @@
             <div class="footer-grid">
                 <div class="footer-col">
                     <a href="#" class="logo" style="color: white; margin-bottom: 20px; display: inline-block;">
-                        <i class="ri-book-mark-fill" style="color: var(--primary);"></i> LibManage
+                        <span style="display: inline-flex; align-items: center; gap: 10px;">
+                            <x-logo size="sm" :lazy="false" />
+                            <span>LibManage</span>
+                        </span>
                     </a>
                     <p style="font-size: 0.9rem; color: #9CA3AF; line-height: 1.6;">
                         Secure, efficient, and user-friendly library management software for educational institutions worldwide.

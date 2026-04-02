@@ -196,6 +196,7 @@
 </head>
 
 <body class="light-theme">
+@include('shared.library-branding.bootstrap')
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="flex h-screen min-h-0 overflow-hidden">
     <aside class="flex min-h-0 flex-col w-64 border-r sidebar shrink-0" id="sidebar">
@@ -204,7 +205,7 @@
                 <i data-lucide="x" class="w-6 h-6"></i>
             </button>
             <div class="flex items-center space-x-2">
-                <div class="p-2 bg-blue-600 rounded-lg"><i data-lucide="book-open" class="w-5 h-5 text-white"></i></div>
+                <x-logo size="md" :lazy="false" />
                 <div>
                     <h1 class="text-sm font-bold leading-none text-primary">Library Management</h1>
                     <p class="text-xs text-secondary">Staff Portal</p> {{-- Changed from Admin Portal --}}
@@ -261,7 +262,7 @@
                     <i data-lucide="menu" class="w-5 h-5"></i>
                 </button>
                 <div class="flex items-center space-x-2 md:hidden">
-                    <div class="p-1.5 bg-blue-600 rounded-lg"><i data-lucide="book-open" class="w-4 h-4 text-white"></i></div>
+                    <x-logo size="sm" :lazy="false" />
                     <div>
                         <h1 class="text-sm font-semibold leading-none text-primary">Library Management</h1>
                         <p class="text-xs text-secondary">Staff Portal</p> {{-- Changed from Admin Portal --}}

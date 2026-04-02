@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - LibraryPro</title>
+    @vite(['resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -44,17 +45,10 @@ body {
 }
 
 .brand-logo {
-    background-color: var(--primary-color);
-    color: white;
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
     margin-bottom: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .brand-name {
@@ -272,12 +266,6 @@ body {
         padding: 40px 20px;
     }
 
-    .brand-logo {
-        width: 44px;
-        height: 44px;
-        font-size: 1.3rem;
-    }
-
     .brand-name {
         font-size: 1.2rem;
     }
@@ -285,13 +273,14 @@ body {
     </style>
 </head>
 <body>
+    @include('shared.library-branding.bootstrap')
     <main class="login-container">
         <section class="login-section">
             <div class="form-wrapper fade-in">
                 
                 <div class="brand-container">
                     <div class="brand-logo">
-                        <i class="fa-solid fa-book-open-reader"></i>
+                        <x-logo size="lg" :lazy="false" />
                     </div>
                     <span class="brand-name">Library<span class="brand-accent">Pro</span></span>
                 </div>

@@ -23,7 +23,7 @@
     ], $reportExportConfig['labels'] ?? []);
 
     $document = array_merge([
-        'systemTitle' => 'Library Management System',
+        'systemTitle' => $libraryBranding['name'] ?? 'Library Management System',
         'reportTitle' => 'Report',
     ], $reportExportConfig['document'] ?? []);
 
@@ -122,9 +122,14 @@
                 </div>
 
                 <div class="report-export-document-header">
-                    <p class="report-export-document-system">{{ $document['systemTitle'] }}</p>
-                    <p class="report-export-document-title">{{ $document['reportTitle'] }}</p>
-                    <p class="report-export-document-meta" id="{{ $ids['documentTimestamp'] }}">Generated on --</p>
+                    <div class="report-export-document-brand">
+                        <x-logo size="lg" :lazy="false" />
+                        <div class="report-export-document-copy">
+                            <p class="report-export-document-system">{{ $document['systemTitle'] }}</p>
+                            <p class="report-export-document-title">{{ $document['reportTitle'] }}</p>
+                            <p class="report-export-document-meta" id="{{ $ids['documentTimestamp'] }}">Generated on --</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="report-export-preview-table-wrap">

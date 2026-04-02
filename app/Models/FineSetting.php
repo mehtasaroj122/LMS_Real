@@ -20,6 +20,7 @@ class FineSetting extends Model
         'max_books_per_student' => 5,
         'renewal_limit' => 2,
         'renewal_duration_days' => 7,
+        'logo_fallback_text' => 'LMS',
         'is_active' => true,
     ];
 
@@ -34,6 +35,8 @@ class FineSetting extends Model
         'max_books_per_student',
         'renewal_limit',
         'renewal_duration_days',
+        'logo_path',
+        'logo_fallback_text',
         'is_active',
     ];
 

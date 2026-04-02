@@ -570,7 +570,10 @@
 
     <div class="reports-container">
         <div class="reports-header">
-            <h1>Reports</h1>
+            <div class="flex items-center gap-3 mb-2">
+                <x-logo size="md" :lazy="false" />
+                <h1>Reports</h1>
+            </div>
             <p>Library analytics driven by live inventory, circulation, fine, user, and overdue data.</p>
         </div>
 
@@ -1805,6 +1808,14 @@
             }
 
             const rows = [];
+            const systemTitle = @json($libraryBranding['name'] ?? 'Library Management System');
+            const logoUrl = @json($libraryBranding['image_url'] ?? null);
+
+            rows.push(escapeCsv(systemTitle));
+            if (logoUrl) {
+                rows.push(`${escapeCsv('Library Logo')},${escapeCsv(logoUrl)}`);
+            }
+            rows.push('');
 
             tableCards.forEach(({ title, table }, index) => {
                 const tableId = table.dataset.paginationId;

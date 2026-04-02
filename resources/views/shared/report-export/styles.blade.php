@@ -355,7 +355,6 @@
 
     .report-export-document-header {
         padding: 0.75rem 0.9rem 0.7rem;
-        text-align: center;
         border-bottom: 1px solid var(--report-export-border);
         background: linear-gradient(180deg, rgba(248, 250, 252, 0.94), rgba(241, 245, 249, 0.7));
     }
@@ -370,6 +369,20 @@
         margin: 0;
     }
 
+    .report-export-document-brand {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.85rem;
+        width: 100%;
+    }
+
+    .report-export-document-copy {
+        display: grid;
+        gap: 0.12rem;
+        text-align: left;
+    }
+
     .report-export-document-system {
         font-size: 0.9rem;
         font-weight: 800;
@@ -379,7 +392,6 @@
     }
 
     .report-export-document-title {
-        margin-top: 0.25rem;
         font-size: 0.7rem;
         font-weight: 700;
         letter-spacing: 0.2em;
@@ -388,7 +400,6 @@
     }
 
     .report-export-document-meta {
-        margin-top: 0.3rem;
         font-size: 0.68rem;
         font-weight: 500;
         color: var(--report-export-text-secondary);
@@ -576,6 +587,11 @@
         .report-export-document-header {
             padding-left: 0.8rem;
             padding-right: 0.8rem;
+        }
+
+        .report-export-document-brand {
+            align-items: flex-start;
+            justify-content: flex-start;
         }
     }
 </style>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LibraFlow | Smart Library Management System</title>
+    @vite(['resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -126,6 +127,7 @@
     </style>
 </head>
 <body class="transition-colors duration-300 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    @include('shared.library-branding.bootstrap')
 
     <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 z-[100] transition-all duration-150"></div>
 
@@ -133,9 +135,7 @@
         <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <div class="flex items-center gap-2 cursor-pointer group">
-                    <div class="p-2 transition-transform bg-blue-600 rounded-lg group-hover:rotate-12">
-                        <i data-lucide="book-open" class="text-white"></i>
-                    </div>
+                    <x-logo size="sm" :lazy="false" />
                     <span class="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">LibraFlow</span>
                 </div>
 
@@ -368,9 +368,7 @@
         <div class="grid grid-cols-1 gap-12 mb-16 md:grid-cols-2 lg:grid-cols-4">
             <div class="col-span-1">
                 <div class="flex items-center gap-2 mb-6">
-                    <div class="p-2 bg-blue-600 rounded-lg">
-                        <i data-lucide="book-open" class="w-5 h-5 text-white"></i>
-                    </div>
+                    <x-logo size="sm" :lazy="false" />
                     <span class="text-2xl font-extrabold tracking-tight text-white">LibManage</span>
                 </div>
                 <p class="max-w-xs leading-relaxed text-slate-400">

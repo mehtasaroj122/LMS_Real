@@ -12,7 +12,7 @@
     $libraryErrorFields = [
         'per_day_fine', 'grace_period_days', 'max_fine_amount', 'lost_book_penalty',
         'damaged_book_penalty', 'fair_condition_penalty', 'issue_duration_days', 'max_books_per_student',
-        'renewal_limit', 'renewal_duration_days',
+        'renewal_limit', 'renewal_duration_days', 'logo_image', 'logo_fallback_text',
     ];
 
     $hasProfileErrors = collect($profileErrorFields)->contains(fn ($field) => $errors->has($field));
@@ -25,6 +25,9 @@
     $profileSummaryPhone = old('phone', $user->phone) ?: 'Not added';
     $defaultAvatarLetter = strtoupper(mb_substr(trim($user->name ?? 'A'), 0, 1));
     $defaultAvatarLetter = $defaultAvatarLetter !== '' ? $defaultAvatarLetter : 'A';
+    $savedLibraryLogoUrl = $libraryBranding['image_url'] ?? '';
+    $logoFallbackText = old('logo_fallback_text', $fineSetting->logo_fallback_text ?? ($libraryBranding['fallback_text'] ?? 'LMS'));
+    $hasSavedLibraryLogo = $savedLibraryLogoUrl !== '';
     $assetBaseUrl = rtrim(url('/'), '/');
 
 @endphp
@@ -225,6 +228,263 @@
         .section-subtitle {
             margin: 0 0 0.85rem; font-size: 0.78rem; font-weight: 800; color: var(--text-secondary);
             letter-spacing: 0.08em; text-transform: uppercase;
+        }
+
+        .logo-settings-panel {
+            display: grid;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            background: linear-gradient(135deg, var(--toggle-bg), color-mix(in srgb, var(--card-bg) 88%, white 12%));
+        }
+
+        .logo-preview-card {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 1rem;
+            align-items: center;
+            padding: 0.95rem;
+            border-radius: 0.95rem;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+        }
+
+        .logo-preview-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .logo-preview-status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 1.9rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            background: var(--toggle-bg);
+            color: var(--text-secondary);
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+
+        .logo-preview-copy h4 {
+            margin: 0 0 0.32rem;
+            font-size: 0.96rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo-preview-copy p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+
+        .logo-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+            margin-top: 0.9rem;
+        }
+
+        .logo-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+
+        .logo-helper-card {
+            padding: 0.9rem 0.95rem;
+            border-radius: 0.9rem;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+        }
+
+        .logo-helper-card h4 {
+            margin: 0 0 0.28rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo-helper-card p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.77rem;
+            line-height: 1.5;
+        }
+
+        .logo-fallback-input {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+        }
+
+        .logo-cropper-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            background: rgba(15, 23, 42, 0.64);
+        }
+
+        .logo-cropper-backdrop.is-open {
+            display: flex;
+        }
+
+        .logo-cropper-panel {
+            width: min(880px, 100%);
+            max-height: min(88vh, 860px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+            box-shadow: 0 28px 60px -26px rgba(15, 23, 42, 0.58);
+        }
+
+        .logo-cropper-header,
+        .logo-cropper-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.9rem;
+            padding: 1rem 1.1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .logo-cropper-footer {
+            border-bottom: none;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .logo-cropper-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo-cropper-header p {
+            margin: 0.22rem 0 0;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .logo-cropper-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 240px;
+            gap: 1rem;
+            padding: 1rem 1.1rem;
+            min-height: 0;
+            overflow: auto;
+        }
+
+        .logo-cropper-stage {
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            background:
+                linear-gradient(45deg, rgba(148, 163, 184, 0.06) 25%, transparent 25%, transparent 75%, rgba(148, 163, 184, 0.06) 75%, rgba(148, 163, 184, 0.06)),
+                linear-gradient(45deg, rgba(148, 163, 184, 0.06) 25%, transparent 25%, transparent 75%, rgba(148, 163, 184, 0.06) 75%, rgba(148, 163, 184, 0.06));
+            background-position: 0 0, 12px 12px;
+            background-size: 24px 24px;
+        }
+
+        .logo-cropper-stage img {
+            display: block;
+            max-width: 100%;
+        }
+
+        .logo-cropper-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .logo-cropper-preview-card {
+            padding: 0.9rem;
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            background: var(--toggle-bg);
+        }
+
+        .logo-cropper-preview-label {
+            margin: 0 0 0.65rem;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .logo-cropper-preview {
+            width: 132px;
+            height: 132px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 999px;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+        }
+
+        .logo-cropper-preview img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-cropper-controls {
+            padding: 0.9rem;
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            background: var(--card-bg);
+        }
+
+        .logo-cropper-controls label {
+            display: block;
+            margin-bottom: 0.55rem;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .logo-cropper-slider {
+            width: 100%;
+            accent-color: var(--primary-color);
+        }
+
+        .logo-cropper-tips {
+            padding: 0.9rem;
+            border-radius: 1rem;
+            border: 1px solid var(--card-border);
+            background: var(--toggle-bg);
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            line-height: 1.55;
+        }
+
+        .logo-cropper-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 0.55rem;
         }
 
         .sr-only-hidden { display: none; }
@@ -473,6 +733,11 @@
         @media (max-width: 768px) {
             .form-grid, .library-settings-grid { grid-template-columns: 1fr; }
             .profile-photo-container { grid-template-columns: 1fr; justify-items: flex-start; }
+            .logo-preview-card,
+            .logo-meta-grid,
+            .logo-cropper-layout { grid-template-columns: 1fr; }
+            .logo-cropper-stage { min-height: 260px; }
+            .logo-cropper-preview { width: 112px; height: 112px; }
             .settings-profile-card-content,
             .settings-main-card-content { padding: 1rem; }
             .settings-tabs { margin-inline: -0.1rem; }
@@ -733,9 +998,68 @@
                 </div>
             </div>
 
-            <form action="{{ route('admin.settings.update-library') }}" method="POST" id="librarySettingsForm" novalidate>
+            <form action="{{ route('admin.settings.update-library') }}" method="POST" enctype="multipart/form-data" id="librarySettingsForm" novalidate>
                 @csrf
                 @method('PUT')
+                <input type="hidden" name="remove_logo" id="remove-logo" value="0">
+
+                <div class="library-settings-section">
+                    <h3 class="section-subtitle">Brand Identity</h3>
+
+                    <div class="logo-settings-panel">
+                        <div class="logo-preview-card">
+                            <div class="logo-preview-stack">
+                                <x-logo
+                                    id="libraryLogoPreview"
+                                    :size="104"
+                                    :sync="false"
+                                    :branding="[
+                                        'image_url' => $savedLibraryLogoUrl ?: null,
+                                        'fallback_text' => $logoFallbackText,
+                                        'alt' => 'Library Logo',
+                                    ]"
+                                />
+                                <span class="logo-preview-status" id="libraryLogoPreviewStatus" aria-live="polite">
+                                    {{ $hasSavedLibraryLogo ? 'Saved logo' : 'Fallback logo' }}
+                                </span>
+                            </div>
+
+                            <div class="logo-preview-copy">
+                                <h4>Global Library Logo</h4>
+                                <p>The saved mark appears across admin, staff, student, landing, authentication, and export views.</p>
+
+                                <div class="logo-actions">
+                                    <label class="file-upload-btn is-disabled" id="libraryLogoLabel" for="library-logo-input">
+                                        <i data-lucide="upload" width="16" height="16"></i>
+                                        Upload Logo
+                                    </label>
+
+                                    <button class="btn btn-outline" id="removeLogoBtn" type="button" {{ $hasSavedLibraryLogo ? '' : 'hidden' }}>
+                                        <i data-lucide="trash-2" width="16" height="16"></i>
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input class="sr-only-hidden" type="file" id="library-logo-input" name="logo_image" accept=".jpg,.jpeg,.png,.svg" data-editable disabled>
+                        <span class="field-error" data-field="logo_image">{{ $errors->first('logo_image') }}</span>
+
+                        <div class="logo-meta-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="logo-fallback-text">Fallback Text<span class="required-marker">*</span></label>
+                                <input class="form-control logo-fallback-input" type="text" id="logo-fallback-text" name="logo_fallback_text" value="{{ $logoFallbackText }}" maxlength="10" data-editable disabled>
+                                <div class="form-hint">Shown when no logo image is saved. Short text like LMS works best.</div>
+                                <span class="field-error" data-field="logo_fallback_text">{{ $errors->first('logo_fallback_text') }}</span>
+                            </div>
+
+                            <div class="logo-helper-card">
+                                <h4>Upload Rules</h4>
+                                <p>Accepted formats: JPG, PNG, SVG. Maximum file size: 2MB. Images are cropped to a 1:1 canvas and optimized for circular display before saving.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="library-settings-section">
                     <h3 class="section-subtitle">Fine Rules</h3>
@@ -809,6 +1133,65 @@
 
             </form>
         </section>
+
+        <div class="logo-cropper-backdrop" id="logoCropperModal" aria-hidden="true">
+            <div class="logo-cropper-panel" role="dialog" aria-modal="true" aria-labelledby="logoCropperTitle" aria-describedby="logoCropperDescription">
+                <div class="logo-cropper-header">
+                    <div>
+                        <h3 id="logoCropperTitle">Crop Library Logo</h3>
+                        <p id="logoCropperDescription">Adjust the image inside a locked 1:1 crop area. The final file is optimized for circular display.</p>
+                    </div>
+
+                    <button type="button" class="report-export-close-btn" id="logoCropperCloseBtn" aria-label="Close logo cropper">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m18 6-12 12" />
+                            <path d="m6 6 12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="logo-cropper-layout">
+                    <div class="logo-cropper-stage">
+                        <img id="logoCropperImage" alt="Logo crop target">
+                    </div>
+
+                    <div class="logo-cropper-sidebar">
+                        <div class="logo-cropper-preview-card">
+                            <p class="logo-cropper-preview-label">Circular Preview</p>
+                            <div class="logo-cropper-preview" id="logoCropperPreview"></div>
+                        </div>
+
+                        <div class="logo-cropper-controls">
+                            <label for="logoCropperZoom">Zoom</label>
+                            <input class="logo-cropper-slider" type="range" id="logoCropperZoom" min="0" max="200" value="0">
+                        </div>
+
+                        <div class="logo-cropper-tips">
+                            Drag to reposition the artwork inside the crop area. Use the zoom slider for tighter framing. The saved output is resized to 512x512 pixels.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="logo-cropper-footer">
+                    <button class="btn btn-secondary" id="logoCropperResetBtn" type="button">
+                        <i data-lucide="refresh-cw" width="16" height="16"></i>
+                        Reset
+                    </button>
+
+                    <div class="logo-cropper-actions">
+                        <button class="btn btn-outline" id="logoCropperCancelBtn" type="button">
+                            <i data-lucide="x" width="16" height="16"></i>
+                            Cancel
+                        </button>
+
+                        <button class="btn btn-primary" id="logoCropperApplyBtn" type="button">
+                            <i data-lucide="check" width="16" height="16"></i>
+                            Use Cropped Logo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
                 </div>
             </div>
         </div>
@@ -851,11 +1234,34 @@
             const requirementItems = Array.from(document.querySelectorAll('.requirement-item'));
             const strengthFill = document.getElementById('strengthFill');
             const strengthText = document.getElementById('strengthText');
+            const libraryLogoPreview = document.getElementById('libraryLogoPreview');
+            const libraryLogoPreviewStatus = document.getElementById('libraryLogoPreviewStatus');
+            const libraryLogoInput = document.getElementById('library-logo-input');
+            const libraryLogoLabel = document.getElementById('libraryLogoLabel');
+            const removeLogoBtn = document.getElementById('removeLogoBtn');
+            const removeLogoInput = document.getElementById('remove-logo');
+            const libraryLogoFallbackInput = document.getElementById('logo-fallback-text');
+            const logoCropperModal = document.getElementById('logoCropperModal');
+            const logoCropperImage = document.getElementById('logoCropperImage');
+            const logoCropperPreview = document.getElementById('logoCropperPreview');
+            const logoCropperZoom = document.getElementById('logoCropperZoom');
+            const logoCropperResetBtn = document.getElementById('logoCropperResetBtn');
+            const logoCropperCancelBtn = document.getElementById('logoCropperCancelBtn');
+            const logoCropperCloseBtn = document.getElementById('logoCropperCloseBtn');
+            const logoCropperApplyBtn = document.getElementById('logoCropperApplyBtn');
+
+            let savedLibraryBranding = normalizeBrandingPayload(@json($libraryBranding));
+            let libraryLogoCropper = null;
+            let libraryLogoCropperSourceUrl = '';
+            let libraryLogoPreviewObjectUrl = '';
+            let pendingLibraryLogoFile = null;
+            let pendingLibraryLogoBranding = null;
 
             initializeToastSystem();
             initializeTabs();
             initializeSections();
             initializeProfilePhotoHandlers();
+            initializeLibraryLogoHandlers();
             initializePasswordToggles();
             initializePasswordRequirements();
             initializeUnsavedChangesGuard();
@@ -870,6 +1276,29 @@
 
             lucide.createIcons();
             syncProfileCard({ photoUrl: extractPreviewImageUrl() });
+            renderLibraryLogoPreview(savedLibraryBranding);
+
+            window.addEventListener('library-branding:updated', (event) => {
+                const normalizedBranding = normalizeBrandingPayload(event.detail ?? null);
+
+                if (!normalizedBranding) {
+                    return;
+                }
+
+                savedLibraryBranding = normalizedBranding;
+
+                const libraryController = sectionControllers.get('library');
+                if (libraryController?.editing && libraryController.dirty) {
+                    return;
+                }
+
+                pendingLibraryLogoBranding = null;
+                renderLibraryLogoPreview();
+
+                if (libraryController) {
+                    updateLibraryLogoControls(libraryController);
+                }
+            });
 
             function initializeTabs() {
                 tabButtons.forEach((button) => {
@@ -1003,6 +1432,151 @@
                 });
             }
 
+            function initializeLibraryLogoHandlers() {
+                const libraryController = sectionControllers.get('library');
+
+                if (!libraryController || !libraryLogoPreview || !libraryLogoInput || !removeLogoInput || !libraryLogoFallbackInput) {
+                    return;
+                }
+
+                libraryLogoInput.addEventListener('change', async () => {
+                    if (!libraryController.editing) {
+                        libraryLogoInput.value = '';
+                        return;
+                    }
+
+                    const file = libraryLogoInput.files?.[0];
+                    if (!file) {
+                        return;
+                    }
+
+                    const validationError = validateLibraryLogoFile(file);
+                    if (validationError) {
+                        pendingLibraryLogoFile = null;
+                        libraryLogoInput.value = '';
+                        applyFormErrors(libraryController.form, { logo_image: [validationError] });
+                        return;
+                    }
+
+                    clearFieldError(libraryController.form, 'logo_image');
+                    removeLogoInput.value = '0';
+
+                    try {
+                        await openLibraryLogoCropper(file);
+                    } catch (error) {
+                        pendingLibraryLogoFile = null;
+                        libraryLogoInput.value = '';
+                        showToast(`Unable to open the cropper: ${error.message}`, 'error');
+                    }
+                });
+
+                libraryLogoFallbackInput.addEventListener('input', () => {
+                    renderLibraryLogoPreview();
+                });
+
+                removeLogoBtn?.addEventListener('click', (event) => {
+                    event.preventDefault();
+
+                    if (!libraryController.editing) {
+                        return;
+                    }
+
+                    closeLibraryLogoCropper();
+                    pendingLibraryLogoFile = null;
+                    libraryLogoInput.value = '';
+                    removeLogoInput.value = '1';
+                    clearLibraryLogoPreviewObjectUrl();
+                    pendingLibraryLogoBranding = normalizeBrandingPayload({
+                        image_url: '',
+                        fallback_text: libraryLogoFallbackInput.value,
+                        status: 'Fallback logo',
+                    });
+                    renderLibraryLogoPreview();
+                    updateLibraryLogoControls(libraryController);
+                    updateDirtyState(libraryController);
+                    clearFieldError(libraryController.form, 'logo_image');
+                });
+
+                logoCropperZoom?.addEventListener('input', () => {
+                    if (!libraryLogoCropper) {
+                        return;
+                    }
+
+                    const zoomValue = Number(logoCropperZoom.value || 0);
+                    libraryLogoCropper.zoomTo(1 + (zoomValue / 100));
+                });
+
+                logoCropperResetBtn?.addEventListener('click', () => {
+                    if (!libraryLogoCropper) {
+                        return;
+                    }
+
+                    libraryLogoCropper.reset();
+                    if (logoCropperZoom) {
+                        logoCropperZoom.value = '0';
+                    }
+                });
+
+                const cancelCropper = () => {
+                    pendingLibraryLogoFile = null;
+                    libraryLogoInput.value = '';
+                    closeLibraryLogoCropper();
+                };
+
+                logoCropperCancelBtn?.addEventListener('click', cancelCropper);
+                logoCropperCloseBtn?.addEventListener('click', cancelCropper);
+                logoCropperModal?.addEventListener('click', (event) => {
+                    if (event.target === logoCropperModal) {
+                        cancelCropper();
+                    }
+                });
+
+                logoCropperApplyBtn?.addEventListener('click', async () => {
+                    if (!libraryLogoCropper) {
+                        return;
+                    }
+
+                    const file = libraryLogoInput.files?.[0];
+                    const libraryController = sectionControllers.get('library');
+                    if (!file || !libraryController) {
+                        return;
+                    }
+
+                    setButtonLoading(logoCropperApplyBtn, true, 'Cropping...');
+
+                    try {
+                        const croppedFile = await createCroppedLogoFile(file);
+                        pendingLibraryLogoFile = croppedFile;
+
+                        try {
+                            const transfer = new DataTransfer();
+                            transfer.items.add(croppedFile);
+                            libraryLogoInput.files = transfer.files;
+                        } catch (error) {
+                            // Some browser states reject programmatic file assignment.
+                        }
+
+                        const previewUrl = URL.createObjectURL(croppedFile);
+                        setLibraryLogoPreviewObjectUrl(previewUrl);
+                        removeLogoInput.value = '0';
+                        pendingLibraryLogoBranding = normalizeBrandingPayload({
+                            image_url: previewUrl,
+                            fallback_text: libraryLogoFallbackInput.value,
+                            status: 'Preview ready',
+                        });
+                        renderLibraryLogoPreview();
+                        clearFieldError(libraryController.form, 'logo_image');
+                        closeLibraryLogoCropper();
+                        updateLibraryLogoControls(libraryController);
+                        updateDirtyState(libraryController);
+                    } catch (error) {
+                        showToast(`Failed to crop logo: ${error.message}`, 'error');
+                    } finally {
+                        setButtonLoading(logoCropperApplyBtn, false);
+                    }
+                });
+            }
+
             function initializePasswordToggles() {
                 document.querySelectorAll('[data-password-toggle]').forEach((button) => {
                     button.addEventListener('click', () => {
@@ -1042,7 +1616,7 @@
             }
 
             function captureSnapshot(form) {
-                const snapshot = { comparable: {}, restore: {}, profilePreviewHtml: null };
+                const snapshot = { comparable: {}, restore: {}, profilePreviewHtml: null, libraryBranding: null };
 
                 form.querySelectorAll('[data-editable]').forEach((field) => {
                     if (!field.name) {
@@ -1056,7 +1630,9 @@
                     }
 
                     if (field.type === 'file') {
-                        snapshot.comparable[field.name] = field.files?.[0]?.name ?? '';
+                        snapshot.comparable[field.name] = form.id === 'librarySettingsForm'
+                            ? (pendingLibraryLogoFile?.name ?? field.files?.[0]?.name ?? '')
+                            : (field.files?.[0]?.name ?? '');
                         snapshot.restore[field.name] = '';
                         return;
                     }
@@ -1069,6 +1645,16 @@
                     snapshot.comparable.remove_profile_photo = removePhotoInput?.value ?? '0';
                     snapshot.restore.remove_profile_photo = removePhotoInput?.value ?? '0';
                     snapshot.profilePreviewHtml = profilePhotoPreview?.innerHTML ?? '';
+                }
+
+                if (form.id === 'librarySettingsForm') {
+                    snapshot.comparable.remove_logo = removeLogoInput?.value ?? '0';
+                    snapshot.restore.remove_logo = removeLogoInput?.value ?? '0';
+                    snapshot.libraryBranding = {
+                        ...resolveLibraryLogoPreviewBranding({
+                            status: libraryLogoPreviewStatus?.textContent ?? '',
+                        }),
+                    };
                 }
 
                 return snapshot;
@@ -1107,6 +1693,17 @@
                     updateProfilePhotoControls(controller);
                     syncProfileCard({ photoUrl: extractPreviewImageUrl() });
                 }
+
+                if (controller.name === 'library' && removeLogoInput) {
+                    pendingLibraryLogoFile = null;
+                    removeLogoInput.value = snapshot.restore.remove_logo ?? '0';
+                    clearLibraryLogoPreviewObjectUrl();
+                    pendingLibraryLogoBranding = snapshot.libraryBranding
+                        ? normalizeBrandingPayload(snapshot.libraryBranding)
+                        : null;
+                    renderLibraryLogoPreview();
+                    updateLibraryLogoControls(controller);
+                }
             }
 
             function toggleEditableFields(form, enabled) {
@@ -1130,6 +1727,11 @@
                 if (controller.name === 'profile') {
                     profilePhotoLabel?.classList.toggle('is-disabled', !editing);
                     updateProfilePhotoControls(controller);
+                }
+
+                if (controller.name === 'library') {
+                    libraryLogoLabel?.classList.toggle('is-disabled', !editing);
+                    updateLibraryLogoControls(controller);
                 }
 
                 if (controller.name === 'password') {
@@ -1191,7 +1793,9 @@
                     }
 
                     if (field.type === 'file') {
-                        comparable[field.name] = field.files?.[0]?.name ?? '';
+                        comparable[field.name] = form.id === 'librarySettingsForm'
+                            ? (pendingLibraryLogoFile?.name ?? field.files?.[0]?.name ?? '')
+                            : (field.files?.[0]?.name ?? '');
                         return;
                     }
 
@@ -1200,6 +1804,10 @@
 
                 if (form.id === 'profileForm') {
                     comparable.remove_profile_photo = removePhotoInput?.value ?? '0';
+                }
+
+                if (form.id === 'librarySettingsForm') {
+                    comparable.remove_logo = removeLogoInput?.value ?? '0';
                 }
 
                 return comparable;
@@ -1223,6 +1831,12 @@
                     }
 
                     syncProfileCard();
+                } else if (controller.name === 'library') {
+                    if (field.name === 'logo_fallback_text') {
+                        renderLibraryLogoPreview();
+                    }
+
+                    clearFieldError(controller.form, field.name);
                 } else {
                     clearFieldError(controller.form, field.name);
                 }
@@ -1253,9 +1867,15 @@
                 setButtonLoading(controller.saveButton, true, 'Saving...');
 
                 try {
+                    const formData = new FormData(controller.form);
+
+                    if (controller.name === 'library' && pendingLibraryLogoFile instanceof File) {
+                        formData.set('logo_image', pendingLibraryLogoFile, pendingLibraryLogoFile.name);
+                    }
+
                     const response = await fetch(controller.form.action, {
                         method: 'POST',
-                        body: new FormData(controller.form),
+                        body: formData,
                         headers: {
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': csrfToken,
@@ -1304,6 +1924,18 @@
                     }
 
                     syncProfileCard({ photoUrl: extractPreviewImageUrl() });
+                }
+
+                if (controller.name === 'library') {
+                    savedLibraryBranding = normalizeBrandingPayload(payload.branding ?? savedLibraryBranding);
+                    clearLibraryLogoPreviewObjectUrl();
+                    pendingLibraryLogoFile = null;
+                    pendingLibraryLogoBranding = null;
+                    libraryLogoInput.value = '';
+                    removeLogoInput.value = '0';
+                    renderLibraryLogoPreview();
+                    updateLibraryLogoControls(controller);
+                    window.LibraryBranding?.publish(savedLibraryBranding);
                 }
 
                 controller.snapshot = captureSnapshot(controller.form);
@@ -1511,6 +2143,225 @@
                 if (removePhotoBtn) {
                     removePhotoBtn.hidden = !(controller.editing && hasPreviewImage);
                 }
+            }
+
+            function updateLibraryLogoControls(controller) {
+                const hasPreviewImage = Boolean(resolveLibraryLogoPreviewBranding()?.image_url);
+
+                if (removeLogoBtn) {
+                    removeLogoBtn.hidden = !(controller.editing && hasPreviewImage);
+                }
+            }
+
+            function normalizeBrandingPayload(branding = {}) {
+                const normalized = branding && typeof branding === 'object' ? branding : {};
+
+                return {
+                    name: String(normalized.name ?? 'Library Management System').trim() || 'Library Management System',
+                    image_url: String(normalized.image_url ?? '').trim(),
+                    fallback_text: String(normalized.fallback_text ?? libraryLogoFallbackInput?.value ?? 'LMS').trim() || 'LMS',
+                    alt: String(normalized.alt ?? 'Library Logo').trim() || 'Library Logo',
+                    status: String(normalized.status ?? '').trim(),
+                };
+            }
+
+            function clearLibraryLogoPreviewObjectUrl() {
+                if (libraryLogoPreviewObjectUrl && libraryLogoPreviewObjectUrl.startsWith('blob:')) {
+                    URL.revokeObjectURL(libraryLogoPreviewObjectUrl);
+                }
+
+                libraryLogoPreviewObjectUrl = '';
+            }
+
+            function setLibraryLogoPreviewObjectUrl(url = '') {
+                clearLibraryLogoPreviewObjectUrl();
+
+                if (typeof url === 'string' && url.startsWith('blob:')) {
+                    libraryLogoPreviewObjectUrl = url;
+                }
+            }
+
+            function clearLibraryLogoCropperSourceUrl() {
+                if (libraryLogoCropperSourceUrl && libraryLogoCropperSourceUrl.startsWith('blob:')) {
+                    URL.revokeObjectURL(libraryLogoCropperSourceUrl);
+                }
+
+                libraryLogoCropperSourceUrl = '';
+            }
+
+            async function loadCropperImage(image, sourceUrl) {
+                if (!(image instanceof HTMLImageElement)) {
+                    throw new Error('Cropper image target is missing.');
+                }
+
+                image.removeAttribute('src');
+
+                await new Promise((resolve, reject) => {
+                    const handleLoad = () => {
+                        cleanup();
+                        resolve(true);
+                    };
+
+                    const handleError = () => {
+                        cleanup();
+                        reject(new Error('Unable to load the selected image.'));
+                    };
+
+                    const cleanup = () => {
+                        image.removeEventListener('load', handleLoad);
+                        image.removeEventListener('error', handleError);
+                    };
+
+                    image.addEventListener('load', handleLoad);
+                    image.addEventListener('error', handleError);
+                    image.src = sourceUrl;
+
+                    if (image.complete && image.naturalWidth > 0) {
+                        cleanup();
+                        resolve(true);
+                    }
+                });
+            }
+
+            function resolveLibraryLogoPreviewBranding(branding = null) {
+                return normalizeBrandingPayload({
+                    ...savedLibraryBranding,
+                    fallback_text: libraryLogoFallbackInput?.value ?? savedLibraryBranding?.fallback_text ?? 'LMS',
+                    ...(pendingLibraryLogoBranding ?? {}),
+                    ...(branding ?? {}),
+                });
+            }
+
+            function renderLibraryLogoPreview(branding = null) {
+                if (!libraryLogoPreview) {
+                    return;
+                }
+
+                const previewBranding = resolveLibraryLogoPreviewBranding(branding);
+
+                if (window.LibraryBranding?.renderInto) {
+                    window.LibraryBranding.renderInto(libraryLogoPreview, previewBranding);
+                }
+
+                if (libraryLogoPreviewStatus) {
+                    libraryLogoPreviewStatus.textContent = previewBranding.status
+                        || (previewBranding.image_url ? 'Saved logo' : 'Fallback logo');
+                }
+            }
+
+            function validateLibraryLogoFile(file) {
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/svg+xml'];
+                const allowedExtensionPattern = /\.(jpe?g|png|svg)$/i;
+
+                if (!(file instanceof File)) {
+                    return 'Choose a valid image file.';
+                }
+
+                if (file.size > 2 * 1024 * 1024) {
+                    return 'Logo image must be 2MB or smaller.';
+                }
+
+                if (!allowedTypes.includes(file.type) && !allowedExtensionPattern.test(file.name)) {
+                    return 'Use a JPG, PNG, or SVG image file.';
+                }
+
+                return '';
+            }
+
+            async function openLibraryLogoCropper(file) {
+                if (!window.Cropper) {
+                    throw new Error('Cropper is not available.');
+                }
+
+                closeLibraryLogoCropper();
+                clearLibraryLogoCropperSourceUrl();
+                libraryLogoCropperSourceUrl = URL.createObjectURL(file);
+
+                if (logoCropperPreview) {
+                    logoCropperPreview.innerHTML = '';
+                }
+
+                logoCropperModal?.classList.add('is-open');
+                logoCropperModal?.setAttribute('aria-hidden', 'false');
+
+                await loadCropperImage(logoCropperImage, libraryLogoCropperSourceUrl);
+
+                libraryLogoCropper = new window.Cropper(logoCropperImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 1,
+                    background: false,
+                    responsive: true,
+                    movable: true,
+                    zoomable: true,
+                    scalable: false,
+                    rotatable: false,
+                    cropBoxMovable: false,
+                    cropBoxResizable: false,
+                    preview: logoCropperPreview,
+                    ready() {
+                        if (logoCropperZoom) {
+                            logoCropperZoom.value = '0';
+                        }
+                    },
+                });
+            }
+
+            function closeLibraryLogoCropper() {
+                libraryLogoCropper?.destroy();
+                libraryLogoCropper = null;
+
+                if (logoCropperImage) {
+                    logoCropperImage.removeAttribute('src');
+                }
+
+                if (logoCropperPreview) {
+                    logoCropperPreview.innerHTML = '';
+                }
+
+                if (logoCropperZoom) {
+                    logoCropperZoom.value = '0';
+                }
+
+                logoCropperModal?.classList.remove('is-open');
+                logoCropperModal?.setAttribute('aria-hidden', 'true');
+                clearLibraryLogoCropperSourceUrl();
+            }
+
+            async function createCroppedLogoFile(file) {
+                const canvas = libraryLogoCropper?.getCroppedCanvas({
+                    width: 512,
+                    height: 512,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                    fillColor: file.type === 'image/jpeg' ? '#ffffff' : 'transparent',
+                });
+
+                if (!canvas) {
+                    throw new Error('Unable to prepare the cropped image.');
+                }
+
+                const mimeType = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
+                const quality = mimeType === 'image/jpeg' ? 0.9 : 0.92;
+                const blob = await new Promise((resolve, reject) => {
+                    canvas.toBlob((result) => {
+                        if (!result) {
+                            reject(new Error('Unable to optimize the cropped logo.'));
+                            return;
+                        }
+
+                        resolve(result);
+                    }, mimeType, quality);
+                });
+
+                const extension = mimeType === 'image/jpeg' ? 'jpg' : 'png';
+                const baseName = String(file.name || 'library-logo').replace(/\.[^.]+$/, '');
+
+                return new File([blob], `${baseName}.${extension}`, {
+                    type: mimeType,
+                    lastModified: Date.now(),
+                });
             }
 
             function getAvatarLetter(name = '') {

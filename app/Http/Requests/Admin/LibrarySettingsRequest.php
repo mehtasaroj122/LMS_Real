@@ -18,6 +18,7 @@ class LibrarySettingsRequest extends FormRequest
         'max_books_per_student',
         'renewal_limit',
         'renewal_duration_days',
+        'logo_fallback_text',
     ];
 
     public function authorize(): bool
@@ -36,6 +37,13 @@ class LibrarySettingsRequest extends FormRequest
             }
         }
 
+        $fallbackText = trim((string) $this->input('logo_fallback_text', ''));
+        if ($fallbackText !== '') {
+            $normalized['logo_fallback_text'] = preg_replace('/\s+/', ' ', $fallbackText);
+        }
+
+        $normalized['remove_logo'] = $this->boolean('remove_logo');
+
         $this->merge($normalized);
     }
 
@@ -52,6 +60,9 @@ class LibrarySettingsRequest extends FormRequest
             'max_books_per_student' => ['required', 'integer', 'min:1', 'max:100'],
             'renewal_limit' => ['required', 'integer', 'min:0', 'max:10'],
             'renewal_duration_days' => ['required', 'integer', 'min:1', 'max:30'],
+            'logo_image' => ['nullable', 'file', 'mimes:jpg,jpeg,png,svg', 'max:2048'],
+            'logo_fallback_text' => ['required', 'string', 'max:10'],
+            'remove_logo' => ['nullable', 'boolean'],
         ];
     }
 

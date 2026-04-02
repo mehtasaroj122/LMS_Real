@@ -26,7 +26,7 @@
             'printButton' => 'Print',
         ],
         'document' => [
-            'systemTitle' => 'Library Management System',
+            'systemTitle' => $libraryBranding['name'] ?? 'Library Management System',
             'reportTitle' => 'Fine Report',
         ],
         'columns' => [

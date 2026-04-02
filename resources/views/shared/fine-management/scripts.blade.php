@@ -1,6 +1,10 @@
 <script>
     (() => {
         const fineManagementConfig = @json($fineManagementConfig);
+        const defaultLibraryBranding = window.LibraryBranding?.normalize
+            ? window.LibraryBranding.normalize(window.__LIBRARY_BRANDING__ ?? @json($libraryBranding))
+            : (window.__LIBRARY_BRANDING__ ?? @json($libraryBranding));
+        const systemTitle = defaultLibraryBranding?.name || 'Library Management System';
 
         const svgIcons = {
             paidBadge: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m20 6-11 11-5-5"></path></svg>',
@@ -159,7 +163,7 @@
                         exportData: this.config.routes?.exportData,
                     },
                     document: {
-                        systemTitle: 'Library Management System',
+                        systemTitle: systemTitle,
                         reportTitle: 'Fine Report',
                     },
                     labels: {
@@ -205,9 +209,10 @@
                     extractAllRows: (data) => Array.isArray(data?.fines) ? data.fines : [],
                     extractGeneratedAt: (data) => data?.meta?.generated_at || null,
                     getCsvMetaRows: (context) => [
-                        ['Library Management System'],
+                        [systemTitle],
                         ['Fine Report'],
                         [context.generatedAtLabel],
+                        ...(defaultLibraryBranding?.image_url ? [['Library Logo', defaultLibraryBranding.image_url], ['']] : []),
                         ['Report Scope', context.scopeLabel],
                         ['Records Included', String(context.rows.length)],
                         [''],
@@ -1648,6 +1653,9 @@
 
             buildPrintDocument(rows, context = null) {
                 const generatedAt = this.formatDateTime(context?.generatedAt || new Date());
+                const logoMarkup = defaultLibraryBranding?.image_url
+                    ? `<img src="${this.escapeAttribute(defaultLibraryBranding.image_url)}" alt="${this.escapeAttribute(defaultLibraryBranding.alt || 'Library Logo')}" loading="eager">`
+                    : `<span class="print-logo-fallback">${this.escapeHtml(defaultLibraryBranding?.fallback_text || 'LMS')}</span>`;
                 const tableRows = rows.map((row) => `
                     <tr>
                         <td>${this.escapeHtml(row.studentId)}</td>
@@ -1690,10 +1698,57 @@
         }
 
         .print-header {
-            text-align: center;
             padding: 6px 0 16px;
             margin-bottom: 8px;
             border-bottom: 1px solid #cbd5e1;
+        }
+
+        .print-branding-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .print-logo {
+            width: 54px;
+            height: 54px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%);
+            border: 1px solid rgba(148, 163, 184, 0.22);
+        }
+
+        .print-logo img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            object-position: center;
+            background: #ffffff;
+        }
+
+        .print-logo-fallback {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 0 6px;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .print-branding-copy {
+            display: grid;
+            gap: 2px;
+            text-align: left;
         }
 
         .print-system-title {
@@ -1823,9 +1878,14 @@
 <body>
     <div class="table-shell">
         <div class="print-header">
-            <p class="print-system-title">Library Management System</p>
-            <p class="print-report-title">Fine Report</p>
-            <p class="print-report-meta">Generated on ${this.escapeHtml(generatedAt)}</p>
+            <div class="print-branding-row">
+                <div class="print-logo">${logoMarkup}</div>
+                <div class="print-branding-copy">
+                    <p class="print-system-title">${this.escapeHtml(systemTitle)}</p>
+                    <p class="print-report-title">Fine Report</p>
+                    <p class="print-report-meta">Generated on ${this.escapeHtml(generatedAt)}</p>
+                </div>
+            </div>
         </div>
         <table class="print-table">
             <thead>
@@ -1874,9 +1934,10 @@
                 const generatedAt = this.formatDateTime(context.generatedAt || new Date());
                 const escapeCsvCell = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
                 const metaRows = [
-                    ['Library Management System'],
+                    [systemTitle],
                     ['Fine Report'],
                     [`Generated on ${generatedAt}`],
+                    ...(defaultLibraryBranding?.image_url ? [['Library Logo', defaultLibraryBranding.image_url], ['']] : []),
                     ['Report Scope', context.scopeLabel],
                     ['Records Included', String(rows.length)],
                     [''],

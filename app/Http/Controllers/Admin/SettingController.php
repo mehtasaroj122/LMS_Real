@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\LibrarySettingsRequest;
 use App\Http\Requests\Admin\PasswordUpdateRequest;
 use App\Http\Requests\Admin\ProfileUpdateRequest;
 use App\Models\FineSetting;
+use App\Support\LibraryBranding;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -119,12 +120,44 @@ class SettingController extends Controller
 
         $validated = $request->validated();
         $fineSetting = FineSetting::resolveActive();
+        $removeLogo = (bool) Arr::pull($validated, 'remove_logo', false);
+
+        try {
+            if ($request->hasFile('logo_image')) {
+                $validated['logo_path'] = $this->storeLibraryLogo($fineSetting->logo_path, $request->file('logo_image'));
+            } elseif ($removeLogo) {
+                $this->deleteStoredLibraryLogo($fineSetting->logo_path);
+                $validated['logo_path'] = null;
+            }
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload the library logo. Please try again.',
+                    'errors' => [
+                        'logo_image' => ['Failed to upload the library logo. Please try again.'],
+                    ],
+                ], 422);
+            }
+
+            return back()
+                ->withInput()
+                ->withErrors(['logo_image' => 'Failed to upload the library logo. Please try again.']);
+        }
+
+        $validated['logo_fallback_text'] = trim((string) ($validated['logo_fallback_text'] ?? FineSetting::DEFAULTS['logo_fallback_text']));
+        $validated['logo_fallback_text'] = $validated['logo_fallback_text'] !== ''
+            ? $validated['logo_fallback_text']
+            : FineSetting::DEFAULTS['logo_fallback_text'];
 
         $fineSetting->fill($validated);
         $fineSetting->is_active = true;
         $fineSetting->save();
 
         FineSetting::where('id', '!=', $fineSetting->id)->update(['is_active' => false]);
+        $branding = LibraryBranding::refresh();
 
         ActivityLogger::logActivity(
             'library_settings_updated',
@@ -140,6 +173,7 @@ class SettingController extends Controller
                 'success' => true,
                 'message' => 'Library settings updated successfully',
                 'data' => $fineSetting->fresh(),
+                'branding' => $branding,
             ]);
         }
 
@@ -207,6 +241,32 @@ class SettingController extends Controller
         $normalizedPath = str_starts_with($photoPath, 'storage/')
             ? substr($photoPath, 8)
             : ltrim($photoPath, '/');
+
+        if (Storage::disk('public')->exists($normalizedPath)) {
+            Storage::disk('public')->delete($normalizedPath);
+        }
+    }
+
+    private function storeLibraryLogo(?string $currentLogoPath, UploadedFile $file): string
+    {
+        $this->deleteStoredLibraryLogo($currentLogoPath);
+
+        $extension = strtolower($file->getClientOriginalExtension() ?: $file->extension() ?: 'png');
+        $filename = 'library_logo_' . time() . '_' . bin2hex(random_bytes(6)) . '.' . $extension;
+        $file->storeAs('branding/logos', $filename, 'public');
+
+        return 'storage/branding/logos/' . $filename;
+    }
+
+    private function deleteStoredLibraryLogo(?string $logoPath): void
+    {
+        if (!$logoPath) {
+            return;
+        }
+
+        $normalizedPath = str_starts_with($logoPath, 'storage/')
+            ? substr($logoPath, 8)
+            : ltrim($logoPath, '/');
 
         if (Storage::disk('public')->exists($normalizedPath)) {
             Storage::disk('public')->delete($normalizedPath);
