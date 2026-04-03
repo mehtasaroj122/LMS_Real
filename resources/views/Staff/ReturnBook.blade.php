@@ -1954,7 +1954,7 @@
                 <div class="card">
                     <h2 class="section-header">Return Form</h2>
 
-                    <form id="returnForm">
+                    <form id="returnForm" autocomplete="off">
                         <!-- Search Student -->
                         <div class="mb-5">
                             <label class="form-label">
@@ -1966,7 +1966,7 @@
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                                 <input type="text" id="searchReturnStudent" class="search-input"
-                                    placeholder="Search by name, student ID, or email..." required>
+                                    placeholder="Search by name, student ID, or email..." autocomplete="off" required>
                                 <button type="button" id="clearReturnStudentBtn" class="clear-btn"
                                     onclick="clearReturnStudentSelection()" style="display: none;">Clear</button>
                                 <div class="search-results" id="returnStudentResults"></div>
@@ -2658,6 +2658,19 @@
             window.showTransactionToast(buildLegacyAlertPayload(title, message, type), type);
         };
 
+        function shouldResetReturnFormOnLoad() {
+            const navigationEntry = performance.getEntriesByType('navigation')[0];
+            return navigationEntry?.type === 'reload' || navigationEntry?.type === 'back_forward';
+        }
+
+        function resetReturnFormState() {
+            if (!returnForm) {
+                return;
+            }
+
+            clearReturnStudentSelection();
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Return Book Elements
             searchReturnStudentInput = document.getElementById('searchReturnStudent');
@@ -2887,6 +2900,18 @@
             });
 
             resetReturnPrivilegeSummary();
+
+            if (shouldResetReturnFormOnLoad()) {
+                window.requestAnimationFrame(resetReturnFormState);
+            }
+
+            window.addEventListener('pageshow', function(event) {
+                if (!event.persisted) {
+                    return;
+                }
+
+                window.requestAnimationFrame(resetReturnFormState);
+            });
         });
 
         function getIssuedBookCheckboxes() {
@@ -3261,7 +3286,7 @@
             updateReturnButton();
             returnStudentResults.style.display = 'none';
             resetReturnPrivilegeSummary();
-            document.getElementById('returnForm').reset();
+            returnForm?.reset();
             syncIssuedBooksBulkState();
         }
     </script>

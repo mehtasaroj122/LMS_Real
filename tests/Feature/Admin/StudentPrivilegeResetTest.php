@@ -142,3 +142,54 @@ test('saving privilege settings that match defaults removes redundant overrides'
 
     expect(StudentPrivilege::query()->where('student_id', $student->id)->exists())->toBeFalse();
 });
+
+test('saving custom privilege overrides returns effective settings without crashing', function () {
+    $admin = makePrivilegeAdminUser([
+        'email' => 'privilege-admin-3@example.com',
+        'phone' => '9800001113',
+    ]);
+    $student = makePrivilegeStudentRecord([
+        'roll_no' => 'STU-1003',
+    ]);
+
+    FineSetting::query()->create([
+        'is_active' => true,
+        'max_books_per_student' => 5,
+        'issue_duration_days' => 14,
+        'per_day_fine' => 10,
+        'grace_period_days' => 2,
+        'max_fine_amount' => 500,
+    ]);
+
+    $response = $this
+        ->actingAs($admin)
+        ->withHeader('Accept', 'application/json')
+        ->post(route('admin.students.privileges.save', $student), [
+            'max_books' => 7,
+            'issue_duration_days' => 21,
+            'per_day_fine' => 15,
+            'borrowing_allowed' => false,
+        ]);
+
+    $response
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', 'Library privileges saved successfully')
+        ->assertJsonPath('effective.max_books', 7)
+        ->assertJsonPath('effective.issue_duration_days', 21)
+        ->assertJsonPath('effective.per_day_fine', '15.00')
+        ->assertJsonPath('effective.borrowing_allowed', false)
+        ->assertJsonPath('privileges.max_books', 7)
+        ->assertJsonPath('privileges.issue_duration_days', 21)
+        ->assertJsonPath('privileges.per_day_fine', '15.00')
+        ->assertJsonPath('privileges.borrowing_allowed', false)
+        ->assertJsonPath('has_custom_overrides', true);
+
+    $storedPrivilege = StudentPrivilege::query()->where('student_id', $student->id)->first();
+
+    expect($storedPrivilege)->not->toBeNull();
+    expect($storedPrivilege->max_books)->toBe(7);
+    expect($storedPrivilege->issue_duration_days)->toBe(21);
+    expect((float) $storedPrivilege->per_day_fine)->toBe(15.0);
+    expect($storedPrivilege->borrowing_allowed)->toBeFalse();
+});

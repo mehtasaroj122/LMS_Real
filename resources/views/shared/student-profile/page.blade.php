@@ -125,37 +125,44 @@
                     </div>
                 </div>
 
-                <div class="student-table-filters">
-                    <input type="text" id="studentBookSearch" class="student-table-input" placeholder="Search by title, author, or ISBN..." aria-label="Search issued books">
-                    <select id="studentBookStatusFilter" class="student-table-select" aria-label="Filter issued books by status">
-                        <option value="all">All Status</option>
-                        <option value="issued">Issued</option>
-                        <option value="overdue">Overdue</option>
-                        <option value="returned">Returned</option>
-                    </select>
-                    <select id="studentBookSortFilter" class="student-table-select" aria-label="Sort issued books">
-                        <option value="issue-desc">Newest First</option>
-                        <option value="issue-asc">Oldest First</option>
-                        <option value="title-asc">Title A-Z</option>
-                        <option value="title-desc">Title Z-A</option>
-                        <option value="fine-desc">Highest Fine</option>
-                    </select>
-                    <button type="button" id="studentBookResetFiltersBtn" class="student-filter-reset" aria-label="Reset issued book filters">
-                        Reset
-                    </button>
-                </div>
+                <div class="search-filter-container student-profile-toolbar" aria-label="Issued books search and filters">
+                    <div class="search-box student-profile-search-box">
+                        <div class="search-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <input type="text" id="studentBookSearch" class="search-input" placeholder="Search by title, author, or ISBN..." aria-label="Search issued books">
+                    </div>
 
-                <div class="student-request-toolbar">
-                    <label class="student-entries-control" for="studentBookEntries">
-                        <span>Show entries</span>
-                        <select id="studentBookEntries" class="student-table-select student-entries-select" aria-label="Select issued book entries per page">
+                    <div class="filters-container student-profile-filters">
+                        <select id="studentBookStatusFilter" class="filter-select" aria-label="Filter issued books by status">
+                            <option value="all">All Status</option>
+                            <option value="issued">Issued</option>
+                            <option value="overdue">Overdue</option>
+                            <option value="returned">Returned</option>
+                        </select>
+                        <select id="studentBookSortFilter" class="filter-select" aria-label="Sort issued books">
+                            <option value="issue-desc">Newest First</option>
+                            <option value="issue-asc">Oldest First</option>
+                            <option value="title-asc">Title A-Z</option>
+                            <option value="title-desc">Title Z-A</option>
+                            <option value="fine-desc">Highest Fine</option>
+                        </select>
+                        <button type="button" id="studentBookResetFiltersBtn" class="student-toolbar-reset" aria-label="Reset issued book filters">
+                            <i class="fas fa-rotate-left"></i>
+                            Reset
+                        </button>
+                    </div>
+
+                    <label class="admin-table-entries-control student-profile-entries-control" for="studentBookEntries">
+                        <span>Show</span>
+                        <select id="studentBookEntries" class="admin-table-entries-select" aria-label="Select issued book entries per page">
                             <option value="10" selected>10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
                             <option value="100">100</option>
                         </select>
+                        <span>entries</span>
                     </label>
-                    <span class="student-pane-meta" id="studentBookSummary">Showing 0 books</span>
                 </div>
 
                 <div class="student-pane-scroll student-pane-scroll-table student-books-table-panel">
@@ -181,9 +188,12 @@
                     </div>
                 </div>
 
-                <div class="student-pane-footer">
-                    <span class="student-pane-meta" id="studentBookPageInfo">Page 1 of 1</span>
-                    <div class="student-pagination" id="studentBookPagination" aria-label="Issued books pagination"></div>
+                <div class="admin-table-pagination student-profile-pagination">
+                    <div class="admin-table-pagination-meta">
+                        <div class="admin-table-pagination-summary" id="studentBookSummary">Showing 0 books</div>
+                        <div class="admin-table-pagination-page" id="studentBookPageInfo">Page 1 of 1</div>
+                    </div>
+                    <div class="admin-table-pagination-nav" id="studentBookPagination" aria-label="Issued books pagination"></div>
                 </div>
             </div>
         </section>
@@ -205,17 +215,37 @@
                 @endif
             </div>
 
-            <div class="student-request-toolbar">
-                <label class="student-entries-control" for="studentFineEntries">
-                    <span>Show entries</span>
-                    <select id="studentFineEntries" class="student-table-select student-entries-select" aria-label="Select fine entries per page">
-                        <option value="10" selected>10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
+            <div class="search-filter-container student-profile-toolbar" aria-label="Fine overview search and filters">
+                <div class="search-box student-profile-search-box">
+                    <div class="search-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <input type="text" id="studentFineSearch" class="search-input" placeholder="Search by book title or amount..." aria-label="Search fines">
+                </div>
+
+                <div class="filters-container student-profile-filters">
+                    <select id="studentFineStatusFilter" class="filter-select" aria-label="Filter fines by status">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="paid">Paid</option>
+                        <option value="waived">Waived</option>
                     </select>
+                    <button type="button" id="studentFineResetFiltersBtn" class="student-toolbar-reset" aria-label="Reset fine filters">
+                        <i class="fas fa-rotate-left"></i>
+                        Reset
+                    </button>
+                </div>
+
+                <label class="admin-table-entries-control student-profile-entries-control" for="studentFineEntries">
+                        <span>Show</span>
+                        <select id="studentFineEntries" class="admin-table-entries-select" aria-label="Select fine entries per page">
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>entries</span>
                 </label>
-                <span class="student-pane-meta" id="studentFineSummary">Showing 0 fines</span>
             </div>
 
             <div class="student-pane-scroll student-pane-scroll-table student-fines-table-panel">
@@ -237,14 +267,17 @@
                     </table>
                 </div>
                 <div id="studentFinesEmptyState" class="student-empty-card student-pane-empty" hidden>
-                    <h3>No fines recorded</h3>
-                    <p>This student does not have any fine history right now.</p>
+                    <h3>No fines found</h3>
+                    <p>Try adjusting the search or status filter to locate a different fine record.</p>
                 </div>
             </div>
 
-            <div class="student-pane-footer">
-                <span class="student-pane-meta" id="studentFinePageInfo">Page 1 of 1</span>
-                <div class="student-pagination" id="studentFinePagination" aria-label="Fine overview pagination"></div>
+            <div class="admin-table-pagination student-profile-pagination">
+                <div class="admin-table-pagination-meta">
+                    <div class="admin-table-pagination-summary" id="studentFineSummary">Showing 0 fines</div>
+                    <div class="admin-table-pagination-page" id="studentFinePageInfo">Page 1 of 1</div>
+                </div>
+                <div class="admin-table-pagination-nav" id="studentFinePagination" aria-label="Fine overview pagination"></div>
             </div>
         </section>
 
@@ -306,16 +339,16 @@
             </div>
 
             <div class="student-request-toolbar">
-                <label class="student-entries-control" for="studentRequestEntries">
-                    <span>Show entries</span>
-                    <select id="studentRequestEntries" class="student-table-select student-entries-select" aria-label="Select book request entries per page">
+                <label class="admin-table-entries-control student-profile-entries-control" for="studentRequestEntries">
+                    <span>Show</span>
+                    <select id="studentRequestEntries" class="admin-table-entries-select" aria-label="Select book request entries per page">
                         <option value="10" selected>10</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
                         <option value="100">100</option>
                     </select>
+                    <span>entries</span>
                 </label>
-                <span class="student-pane-meta" id="studentRequestSummary">Showing 0 requests</span>
             </div>
 
             <div class="student-pane-scroll student-pane-scroll-table student-request-table-panel">
@@ -337,9 +370,12 @@
                 </div>
             </div>
 
-            <div class="student-pane-footer">
-                <span class="student-pane-meta" id="studentRequestPageInfo">Page 1 of 1</span>
-                <div class="student-pagination" id="studentRequestPagination" aria-label="Book request pagination"></div>
+            <div class="admin-table-pagination student-profile-pagination">
+                <div class="admin-table-pagination-meta">
+                    <div class="admin-table-pagination-summary" id="studentRequestSummary">Showing 0 requests</div>
+                    <div class="admin-table-pagination-page" id="studentRequestPageInfo">Page 1 of 1</div>
+                </div>
+                <div class="admin-table-pagination-nav" id="studentRequestPagination" aria-label="Book request pagination"></div>
             </div>
         </section>
     </div>

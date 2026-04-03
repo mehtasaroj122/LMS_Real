@@ -3043,9 +3043,10 @@
             },
 
             studentRowMarkup(student) {
+                const fallbackInitial = String(student.name || 'S').trim().charAt(0).toUpperCase() || 'S';
                 const avatar = student.avatar
                     ? `<div class="student-avatar"><img src="${this.escapeHtml(student.avatar)}" alt="${this.escapeHtml(student.name)}"></div>`
-                    : `<div class="student-avatar">${this.escapeHtml(student.initials || 'ST')}</div>`;
+                    : `<div class="student-avatar">${this.escapeHtml(fallbackInitial)}</div>`;
                 const statusClass = student.status === 'active' ? 'status-active' : 'status-inactive';
                 const statusIconMarkup = student.status === 'active'
                     ? '<i class="fas fa-check-circle" style="font-size: 10px;"></i>'
@@ -4255,6 +4256,18 @@
             }
         }
 
+        function normalizeStudentLiveFieldValue(fieldName, value) {
+            const rawValue = String(value ?? '');
+
+            if (fieldName === 'name') {
+                return rawValue
+                    .replace(/^\s+/, '')
+                    .replace(/\s{2,}/g, ' ');
+            }
+
+            return normalizeStudentFieldValue(fieldName, value);
+        }
+
         function getStudentAge(dateOfBirth) {
             if (!dateOfBirth) {
                 return null;
@@ -4359,7 +4372,9 @@
                     const triggerEvent = field.tagName === 'SELECT' || field.type === 'date' ? 'change' : 'input';
 
                     field.addEventListener(triggerEvent, () => {
-                        const normalizedValue = normalizeStudentFieldValue(fieldName, field.value);
+                        const normalizedValue = triggerEvent === 'input'
+                            ? normalizeStudentLiveFieldValue(fieldName, field.value)
+                            : normalizeStudentFieldValue(fieldName, field.value);
                         field.value = normalizedValue;
                         this.touchedFields.add(fieldName);
                         this.clearSummary();
@@ -4368,10 +4383,15 @@
                             delete this.verifiedValues[fieldName];
                         }
 
-                        this.validateField(fieldName, { showSummary: false, runUniqueCheck: false });
+                        this.validateField(fieldName, {
+                            showSummary: false,
+                            runUniqueCheck: false,
+                            syncFields: triggerEvent !== 'input',
+                        });
                     });
 
                     field.addEventListener('blur', () => {
+                        field.value = normalizeStudentFieldValue(fieldName, field.value);
                         this.touchedFields.add(fieldName);
                         this.validateField(fieldName, { showSummary: false, runUniqueCheck: true });
                     });
@@ -4399,12 +4419,14 @@
                 });
             }
 
-            getValues() {
+            getValues({ syncFields = true } = {}) {
                 const values = {};
                 this.fieldNames.forEach(fieldName => {
                     const field = this.getField(fieldName);
                     const normalizedValue = normalizeStudentFieldValue(fieldName, field.value);
-                    field.value = normalizedValue;
+                    if (syncFields) {
+                        field.value = normalizedValue;
+                    }
                     values[fieldName] = normalizedValue;
                 });
                 return values;
@@ -4704,8 +4726,9 @@
                 runUniqueCheck = false,
                 showValidState = true,
                 showPendingState = true,
+                syncFields = true,
             } = {}) {
-                const values = this.getValues();
+                const values = this.getValues({ syncFields });
                 const syncMessage = this.getSyncMessage(fieldName, values);
 
                 if (syncMessage) {

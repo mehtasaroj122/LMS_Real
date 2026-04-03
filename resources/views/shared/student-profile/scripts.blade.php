@@ -34,6 +34,8 @@
                 this.bookSort = 'issue-desc';
                 this.bookPage = 1;
                 this.bookPerPage = 10;
+                this.fineSearch = '';
+                this.fineStatus = 'all';
                 this.finePage = 1;
                 this.finePerPage = 10;
                 this.activityVisibleCount = 10;
@@ -62,6 +64,9 @@
                     booksBody: document.getElementById('studentBooksTableBody'),
                     booksEmpty: document.getElementById('studentBooksEmptyState'),
                     fineEntries: document.getElementById('studentFineEntries'),
+                    fineSearch: document.getElementById('studentFineSearch'),
+                    fineStatus: document.getElementById('studentFineStatusFilter'),
+                    fineReset: document.getElementById('studentFineResetFiltersBtn'),
                     fineSummary: document.getElementById('studentFineSummary'),
                     finePageInfo: document.getElementById('studentFinePageInfo'),
                     finePagination: document.getElementById('studentFinePagination'),
@@ -133,6 +138,24 @@
                     this.bookPerPage = Number(event.target.value || 10);
                     this.bookPage = 1;
                     this.renderBooks();
+                });
+                this.elements.fineSearch?.addEventListener('input', (event) => {
+                    this.fineSearch = event.target.value.trim().toLowerCase();
+                    this.finePage = 1;
+                    this.renderFines();
+                });
+                this.elements.fineStatus?.addEventListener('change', (event) => {
+                    this.fineStatus = event.target.value;
+                    this.finePage = 1;
+                    this.renderFines();
+                });
+                this.elements.fineReset?.addEventListener('click', () => {
+                    if (this.elements.fineSearch) this.elements.fineSearch.value = '';
+                    if (this.elements.fineStatus) this.elements.fineStatus.value = 'all';
+                    this.fineSearch = '';
+                    this.fineStatus = 'all';
+                    this.finePage = 1;
+                    this.renderFines();
                 });
                 this.elements.fineEntries?.addEventListener('change', (event) => {
                     this.finePerPage = Number(event.target.value || 10);
@@ -271,7 +294,19 @@
             }
 
             renderFines() {
-                const totalFines = this.fines.length;
+                const filteredFines = this.fines.filter((fine) => {
+                    const status = this.normalizeFineStatus(fine.status);
+                    const matchesSearch = !this.fineSearch || [
+                        fine.bookName,
+                        fine.amountLabel,
+                        fine.dueDate,
+                        fine.statusLabel,
+                        status,
+                    ].filter(Boolean).some((value) => String(value).toLowerCase().includes(this.fineSearch));
+                    const matchesStatus = this.fineStatus === 'all' || status === this.fineStatus;
+                    return matchesSearch && matchesStatus;
+                });
+                const totalFines = filteredFines.length;
                 const totalPages = Math.max(1, Math.ceil(totalFines / this.finePerPage));
                 this.finePage = Math.min(this.finePage, totalPages);
 
@@ -289,7 +324,7 @@
 
                 const startIndex = (this.finePage - 1) * this.finePerPage;
                 const endIndex = Math.min(startIndex + this.finePerPage, totalFines);
-                const pageItems = this.fines.slice(startIndex, endIndex);
+                const pageItems = filteredFines.slice(startIndex, endIndex);
 
                 if (this.elements.finesPanel) this.elements.finesPanel.hidden = false;
                 if (this.elements.fineTableScroller) this.elements.fineTableScroller.hidden = false;
@@ -583,27 +618,27 @@
 
                 const buttons = [];
                 buttons.push(`
-                    <button type="button" class="student-pagination-btn" data-request-page="${this.requestPage - 1}" ${this.requestPage === 1 ? 'disabled' : ''}>
-                        Prev
+                    <button type="button" class="admin-table-pagination-link ${this.requestPage === 1 ? 'is-disabled' : ''}" data-request-page="${this.requestPage - 1}" ${this.requestPage === 1 ? 'disabled' : ''}>
+                        &larr; Previous
                     </button>
                 `);
 
                 this.getVisiblePaginationPages(this.requestPage, totalPages).forEach((page) => {
                     if (page === 'ellipsis') {
-                        buttons.push('<span class="student-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
+                        buttons.push('<span class="admin-table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
                         return;
                     }
 
                     buttons.push(`
-                        <button type="button" class="student-pagination-btn ${page === this.requestPage ? 'is-active' : ''}" data-request-page="${page}" ${page === this.requestPage ? 'aria-current="page"' : ''}>
+                        <button type="button" class="admin-table-pagination-link ${page === this.requestPage ? 'is-active' : ''}" data-request-page="${page}" ${page === this.requestPage ? 'aria-current="page"' : ''}>
                             ${page}
                         </button>
                     `);
                 });
 
                 buttons.push(`
-                    <button type="button" class="student-pagination-btn" data-request-page="${this.requestPage + 1}" ${this.requestPage === totalPages ? 'disabled' : ''}>
-                        Next
+                    <button type="button" class="admin-table-pagination-link ${this.requestPage === totalPages ? 'is-disabled' : ''}" data-request-page="${this.requestPage + 1}" ${this.requestPage === totalPages ? 'disabled' : ''}>
+                        Next &rarr;
                     </button>
                 `);
 
@@ -620,27 +655,27 @@
 
                 const buttons = [];
                 buttons.push(`
-                    <button type="button" class="student-pagination-btn" data-book-page="${this.bookPage - 1}" ${this.bookPage === 1 ? 'disabled' : ''}>
-                        Prev
+                    <button type="button" class="admin-table-pagination-link ${this.bookPage === 1 ? 'is-disabled' : ''}" data-book-page="${this.bookPage - 1}" ${this.bookPage === 1 ? 'disabled' : ''}>
+                        &larr; Previous
                     </button>
                 `);
 
                 this.getVisiblePaginationPages(this.bookPage, totalPages).forEach((page) => {
                     if (page === 'ellipsis') {
-                        buttons.push('<span class="student-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
+                        buttons.push('<span class="admin-table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
                         return;
                     }
 
                     buttons.push(`
-                        <button type="button" class="student-pagination-btn ${page === this.bookPage ? 'is-active' : ''}" data-book-page="${page}" ${page === this.bookPage ? 'aria-current="page"' : ''}>
+                        <button type="button" class="admin-table-pagination-link ${page === this.bookPage ? 'is-active' : ''}" data-book-page="${page}" ${page === this.bookPage ? 'aria-current="page"' : ''}>
                             ${page}
                         </button>
                     `);
                 });
 
                 buttons.push(`
-                    <button type="button" class="student-pagination-btn" data-book-page="${this.bookPage + 1}" ${this.bookPage === totalPages ? 'disabled' : ''}>
-                        Next
+                    <button type="button" class="admin-table-pagination-link ${this.bookPage === totalPages ? 'is-disabled' : ''}" data-book-page="${this.bookPage + 1}" ${this.bookPage === totalPages ? 'disabled' : ''}>
+                        Next &rarr;
                     </button>
                 `);
 
@@ -657,27 +692,27 @@
 
                 const buttons = [];
                 buttons.push(`
-                    <button type="button" class="student-pagination-btn" data-fine-page="${this.finePage - 1}" ${this.finePage === 1 ? 'disabled' : ''}>
-                        Prev
+                    <button type="button" class="admin-table-pagination-link ${this.finePage === 1 ? 'is-disabled' : ''}" data-fine-page="${this.finePage - 1}" ${this.finePage === 1 ? 'disabled' : ''}>
+                        &larr; Previous
                     </button>
                 `);
 
                 this.getVisiblePaginationPages(this.finePage, totalPages).forEach((page) => {
                     if (page === 'ellipsis') {
-                        buttons.push('<span class="student-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
+                        buttons.push('<span class="admin-table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
                         return;
                     }
 
                     buttons.push(`
-                        <button type="button" class="student-pagination-btn ${page === this.finePage ? 'is-active' : ''}" data-fine-page="${page}" ${page === this.finePage ? 'aria-current="page"' : ''}>
+                        <button type="button" class="admin-table-pagination-link ${page === this.finePage ? 'is-active' : ''}" data-fine-page="${page}" ${page === this.finePage ? 'aria-current="page"' : ''}>
                             ${page}
                         </button>
                     `);
                 });
 
                 buttons.push(`
-                    <button type="button" class="student-pagination-btn" data-fine-page="${this.finePage + 1}" ${this.finePage === totalPages ? 'disabled' : ''}>
-                        Next
+                    <button type="button" class="admin-table-pagination-link ${this.finePage === totalPages ? 'is-disabled' : ''}" data-fine-page="${this.finePage + 1}" ${this.finePage === totalPages ? 'disabled' : ''}>
+                        Next &rarr;
                     </button>
                 `);
 

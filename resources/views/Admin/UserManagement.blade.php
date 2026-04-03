@@ -2467,6 +2467,36 @@
             },
         };
 
+        function normalizeUserLiveFieldValue(fieldName, value) {
+            const rawValue = String(value ?? '');
+
+            switch (fieldName) {
+                case 'name':
+                    return rawValue
+                        .replace(/^\s+/, '')
+                        .replace(/\s{2,}/g, ' ');
+                case 'address':
+                case 'designation':
+                    return rawValue.replace(/\s+/g, ' ').trim();
+                case 'email':
+                    return rawValue.trim().toLowerCase();
+                case 'phone': {
+                    const trimmed = rawValue.trim();
+                    const digits = trimmed.replace(/\D/g, '');
+
+                    if (!trimmed) {
+                        return '';
+                    }
+
+                    return trimmed.startsWith('+') ? `+${digits}` : digits;
+                }
+                case 'roll_no':
+                    return rawValue.trim().toUpperCase();
+                default:
+                    return rawValue.trim();
+            }
+        }
+
         class LiveUserFormValidator {
             constructor({ formId, submitButtonId, fields, createMode = false, getUserId = () => null }) {
                 this.form = document.getElementById(formId);
@@ -2703,7 +2733,7 @@
                 }
             }
 
-            collectValues() {
+            collectValues({ syncFields = true } = {}) {
                 const values = {};
 
                 Object.keys(this.fields).forEach((fieldName) => {
@@ -2711,7 +2741,7 @@
                     values[fieldName] = normalized;
 
                     const config = this.getFieldConfig(fieldName);
-                    if (config?.type !== 'radio') {
+                    if (syncFields && config?.type !== 'radio') {
                         const element = document.getElementById(config.id);
                         if (element && element.value !== normalized) {
                             element.value = normalized;
@@ -2975,8 +3005,8 @@
                 }
             }
 
-            async validateField(fieldName, { runUniqueCheck = false } = {}) {
-                const values = this.collectValues();
+            async validateField(fieldName, { runUniqueCheck = false, syncFields = true } = {}) {
+                const values = this.collectValues({ syncFields });
                 const activeFields = this.getActiveFields(values.role);
 
                 if (!activeFields.includes(fieldName)) {
@@ -3157,7 +3187,9 @@
                         const inputEvent = config?.type === 'radio' || element.tagName === 'SELECT' || element.type === 'date' ? 'change' : 'input';
 
                         element.addEventListener(inputEvent, () => {
-                            const normalized = this.normalizeValue(fieldName, this.getRawValue(fieldName));
+                            const normalized = inputEvent === 'input'
+                                ? normalizeUserLiveFieldValue(fieldName, this.getRawValue(fieldName))
+                                : this.normalizeValue(fieldName, this.getRawValue(fieldName));
 
                             if (config?.type !== 'radio' && element.value !== normalized) {
                                 element.value = normalized;
@@ -3172,10 +3204,20 @@
                                 return;
                             }
 
-                            this.validateField(fieldName, { runUniqueCheck: false });
+                            this.validateField(fieldName, {
+                                runUniqueCheck: false,
+                                syncFields: inputEvent !== 'input',
+                            });
                         });
 
                         element.addEventListener('blur', () => {
+                            if (config?.type !== 'radio') {
+                                const normalized = this.normalizeValue(fieldName, this.getRawValue(fieldName));
+                                if (element.value !== normalized) {
+                                    element.value = normalized;
+                                }
+                            }
+
                             this.validateField(fieldName, { runUniqueCheck: true });
                         });
                     });

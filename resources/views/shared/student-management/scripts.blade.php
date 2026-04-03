@@ -454,9 +454,10 @@
             }
 
             studentRowMarkup(student) {
+                const fallbackInitial = String(student.name || 'S').trim().charAt(0).toUpperCase() || 'S';
                 const avatar = student.avatar
                     ? `<span class="student-avatar"><img src="${this.escapeHtml(student.avatar)}" alt="${this.escapeHtml(student.name)}"></span>`
-                    : `<span class="student-avatar">${this.escapeHtml(student.initials || 'ST')}</span>`;
+                    : `<span class="student-avatar">${this.escapeHtml(fallbackInitial)}</span>`;
                 const statusIcon = student.status === 'active' ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
                 const statusTitle = student.status === 'active' ? 'Deactivate account' : 'Activate account';
                 const statusClass = student.status === 'active' ? 'status-active' : 'status-inactive';

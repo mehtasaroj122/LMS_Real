@@ -1304,14 +1304,10 @@
             }
 
             getInitials(name) {
-                const parts = String(name || 'S')
-                    .trim()
-                    .split(/\s+/)
-                    .filter(Boolean)
-                    .slice(0, 2);
+                const normalizedName = String(name || 'S').trim();
 
-                return parts.length > 0
-                    ? parts.map((part) => part.charAt(0).toUpperCase()).join('')
+                return normalizedName
+                    ? normalizedName.charAt(0).toUpperCase()
                     : 'S';
             }
 

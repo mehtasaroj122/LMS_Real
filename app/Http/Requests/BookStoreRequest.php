@@ -30,7 +30,7 @@ class BookStoreRequest extends FormRequest
                 'string',
                 'min:2',
                 'max:255',
-                'regex:/^[A-Za-z0-9\s\-:\'.&()]+$/',
+                'regex:/^[A-Za-z0-9\s,\-:\'.&()]+$/',
             ],
             'author' => [
                 'bail',
@@ -38,7 +38,7 @@ class BookStoreRequest extends FormRequest
                 'string',
                 'min:2',
                 'max:255',
-                'regex:/^[A-Za-z\s.]+$/',
+                'regex:/^[A-Za-z\s.,&\'\-]+$/',
             ],
             'publisher' => [
                 'nullable',
@@ -110,12 +110,12 @@ class BookStoreRequest extends FormRequest
             'title.required' => 'Enter the book title.',
             'title.min' => 'Book title must be at least 2 characters long.',
             'title.max' => 'Book title must be 255 characters or fewer.',
-            'title.regex' => 'Title can only contain letters, numbers, spaces, and - : \' . & ( ).',
+            'title.regex' => 'Title can only contain letters, numbers, spaces, commas, and - : \' . & ( ).',
 
             'author.required' => 'Enter the author name.',
             'author.min' => 'Author name must be at least 2 characters long.',
             'author.max' => 'Author name must be 255 characters or fewer.',
-            'author.regex' => 'Author name can only contain letters, spaces, and periods.',
+            'author.regex' => 'Author name can only contain letters, spaces, periods, commas, apostrophes, hyphens, and ampersands.',
 
             'publisher.max' => 'Publisher name must be 150 characters or fewer.',
             'publisher.regex' => 'Publisher name can only contain letters, numbers, spaces, and & . , \' -.',

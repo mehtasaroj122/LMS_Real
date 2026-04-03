@@ -6,6 +6,7 @@
     <style>
         /* Settings Page Specific Styles */
         .settings-container {
+            --settings-sticky-top: 0.5rem;
             width: 100%;
             max-width: none;
             margin: -0.25rem 0 0;
@@ -41,6 +42,9 @@
             border-radius: 12px;
             transition: background-color 0.3s ease, color 0.3s ease;
             height: fit-content;
+            position: sticky;
+            top: var(--settings-sticky-top);
+            align-self: start;
         }
 
         body.light-theme .profile-card {
@@ -802,10 +806,24 @@
 
         .tab-content {
             display: none;
+            transform-origin: top center;
         }
 
         .tab-content.active {
             display: block;
+            animation: staffTabFadeIn 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes staffTabFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(0.985);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .top-edit-button {
@@ -872,6 +890,11 @@
                 gap: 1.25rem;
             }
 
+            .profile-card {
+                position: static;
+                top: auto;
+            }
+
             .profile-card-content {
                 display: flex;
                 flex-direction: column;
@@ -931,6 +954,12 @@
                 max-width: none;
             }
         }
+
+        @media (prefers-reduced-motion: reduce) {
+            .tab-content.active {
+                animation: none;
+            }
+        }
     </style>
 @endpush
 
@@ -949,11 +978,11 @@
         $usernameValue = $user->username ?? (($user->email ?? null) ? explode('@', $user->email)[0] : 'staff1');
         $lastLoginValue = optional($user->last_login_at)->format('n/j/Y') ?? now()->format('n/j/Y');
         $addressValue = old('address', $user->address ?? '');
-        $initials = collect(preg_split('/\s+/', trim($user->name ?? '')) ?: [])
+        $avatarInitial = collect(preg_split('/\s+/', trim($user->name ?? '')) ?: [])
             ->filter()
             ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
-            ->implode('');
-        $initials = $initials !== '' ? $initials : 'JL';
+            ->first();
+        $avatarInitial = $avatarInitial ?: 'S';
     @endphp
 
     <div class="settings-container" id="staffSettingsPage">
@@ -965,11 +994,11 @@
         <div class="settings-grid">
             <div class="profile-card">
                 <div class="profile-card-content">
-                    <div class="profile-avatar" id="profileAvatar" data-default-initials="{{ $initials }}">
+                    <div class="profile-avatar" id="profileAvatar" data-default-initial="{{ $avatarInitial }}">
                         @if ($profilePhotoUrl)
                             <img src="{{ $profilePhotoUrl }}" alt="Profile Photo" id="avatarImage">
                         @else
-                            <div class="avatar-placeholder">{{ $initials }}</div>
+                            <div class="avatar-placeholder">{{ $avatarInitial }}</div>
                         @endif
                     </div>
 
@@ -1315,12 +1344,14 @@
             }
 
             function switchTab(name) {
+                const nextPanelId = `${name}Tab`;
+                if (els.panels.some((panel) => panel.id === nextPanelId && panel.classList.contains('active'))) return;
                 els.tabButtons.forEach((button) => {
                     const active = button.dataset.tab === name;
                     button.classList.toggle('active', active);
                     button.setAttribute('aria-selected', active ? 'true' : 'false');
                 });
-                els.panels.forEach((panel) => panel.classList.toggle('active', panel.id === `${name}Tab`));
+                els.panels.forEach((panel) => panel.classList.toggle('active', panel.id === nextPanelId));
             }
 
             function bindProfile() {
@@ -1508,8 +1539,8 @@
                 if (els.username) els.username.textContent = user.username || username(user.email || '');
                 if ('profile_photo_url' in user) {
                     renderPhoto(user.profile_photo_url || '');
-                    renderAvatar(user.profile_photo_url || '', user.name || els.userName?.textContent || '');
                 }
+                renderAvatar('profile_photo_url' in user ? (user.profile_photo_url || '') : currentAvatarUrl(), user.name || els.userName?.textContent || '');
                 updateCounter();
             }
 
@@ -1633,7 +1664,7 @@
                 }
                 const node = document.createElement('div');
                 node.className = 'avatar-placeholder';
-                node.textContent = initials(name);
+                node.textContent = avatarInitial(name);
                 els.profileAvatar.appendChild(node);
             }
 
@@ -1895,7 +1926,8 @@
             function text(value) { return String(value || '').replace(/\s+/g, ' ').trim(); }
             function phone(value) { return String(value || '').trim().replace(/[^\d+]/g, '').replace(/(?!^)\+/g, ''); }
             function username(email) { return String(email || '').split('@')[0] || 'staff1'; }
-            function initials(name) { return text(name).split(' ').filter(Boolean).map((part) => part[0]?.toUpperCase() || '').join('') || 'JL'; }
+            function currentAvatarUrl() { return els.profileAvatar?.querySelector('img')?.getAttribute('src') || ''; }
+            function avatarInitial(name) { return text(name).charAt(0).toUpperCase() || els.profileAvatar?.dataset.defaultInitial || 'S'; }
             function csrf() { return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''; }
             function refreshIcons() { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); }
 

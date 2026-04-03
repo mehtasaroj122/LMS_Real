@@ -1812,8 +1812,8 @@
                 return {
                     isbn: { required: true, pattern: /^\d{5,13}$/, requiredMessage: 'Enter the book ISBN.', patternMessage: 'ISBN must contain 5 to 13 digits. You may use / or - as separators.' },
                     shelf_no: { required: true, pattern: /^[A-Za-z0-9]+[-]?[A-Za-z0-9]*$/, maxLength: 20, requiredMessage: 'Enter the rack number.', patternMessage: 'Rack number must contain only letters, numbers, and an optional dash like A-12.', maxLengthMessage: 'Rack number must be 20 characters or fewer.' },
-                    title: { required: true, minLength: 2, maxLength: 255, pattern: /^[A-Za-z0-9\s\-:'.&()]+$/, requiredMessage: 'Enter the book title.', minLengthMessage: 'Book title must be at least 2 characters long.', maxLengthMessage: 'Book title must be 255 characters or fewer.', patternMessage: 'Title can only contain letters, numbers, spaces, and - : \' . & ( ).' },
-                    author: { required: true, minLength: 2, maxLength: 255, pattern: /^[A-Za-z\s.]+$/, requiredMessage: 'Enter the author name.', minLengthMessage: 'Author name must be at least 2 characters long.', maxLengthMessage: 'Author name must be 255 characters or fewer.', patternMessage: 'Author name can only contain letters, spaces, and periods.' },
+                    title: { required: true, minLength: 2, maxLength: 255, pattern: /^[A-Za-z0-9\s,\-:'.&()]+$/, requiredMessage: 'Enter the book title.', minLengthMessage: 'Book title must be at least 2 characters long.', maxLengthMessage: 'Book title must be 255 characters or fewer.', patternMessage: 'Title can only contain letters, numbers, spaces, commas, and - : \' . & ( ).' },
+                    author: { required: true, minLength: 2, maxLength: 255, pattern: /^[A-Za-z\s.,&'\-]+$/, requiredMessage: 'Enter the author name.', minLengthMessage: 'Author name must be at least 2 characters long.', maxLengthMessage: 'Author name must be 255 characters or fewer.', patternMessage: 'Author name can only contain letters, spaces, periods, commas, apostrophes, hyphens, and ampersands.' },
                     publisher: { maxLength: 150, pattern: /^[A-Za-z0-9\s&.,'-]+$/, maxLengthMessage: 'Publisher name must be 150 characters or fewer.', patternMessage: 'Publisher name can only contain letters, numbers, spaces, and & . , \' -.' },
                     new_category: { minLength: 2, maxLength: 50, pattern: /^[A-Za-z\s&]+$/, minLengthMessage: 'New category name must be at least 2 characters long.', maxLengthMessage: 'New category name must be 50 characters or fewer.', patternMessage: 'Category name can only contain letters, spaces, and &.' },
                     total_copies: { required: true, numeric: true, min: 1, max: 9999, requiredMessage: 'Enter the total number of copies.', numericMessage: 'Total copies must be a whole number.', minMessage: 'Total copies must be at least 1.', maxMessage: 'Total copies must not exceed 9999.' },
@@ -4304,8 +4304,8 @@
                         minLengthMessage: 'Title must be at least 2 characters',
                         maxLength: 255,
                         maxLengthMessage: 'Title must not exceed 255 characters',
-                        pattern: /^[A-Za-z0-9\s\-:'.&()]+$/,
-                        patternMessage: 'Title can only contain letters, numbers, spaces, and: - : \' . & ( )'
+                        pattern: /^[A-Za-z0-9\s,\-:'.&()]+$/,
+                        patternMessage: 'Title can only contain letters, numbers, spaces, commas, and: - : \' . & ( )'
                     },
                     author: {
                         required: true,
@@ -4314,8 +4314,8 @@
                         minLengthMessage: 'Author name must be at least 2 characters',
                         maxLength: 255,
                         maxLengthMessage: 'Author name must not exceed 255 characters',
-                        pattern: /^[A-Za-z\s.]+$/,
-                        patternMessage: 'Author name can only contain letters, spaces, and periods'
+                        pattern: /^[A-Za-z\s.,&'\-]+$/,
+                        patternMessage: 'Author name can only contain letters, spaces, periods, commas, apostrophes, hyphens, and ampersands'
                     },
                     publisher: {
                         maxLength: 150,

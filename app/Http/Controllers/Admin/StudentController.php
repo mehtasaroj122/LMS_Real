@@ -948,6 +948,43 @@ class StudentController extends Controller
         return 'Library privileges updated: ' . implode(', ', $messages) . '.';
     }
 
+    protected function formatPrivilegeValue(string $field, $value): string
+    {
+        return match ($field) {
+            'borrowing_allowed' => (bool) $value ? 'allowed' : 'restricted',
+            'issue_duration_days', 'grace_period_days' => $value . ' days',
+            'per_day_fine', 'max_fine_amount' => 'Rs. ' . number_format((float) $value, 2),
+            default => (string) $value,
+        };
+    }
+
+    protected function formatPrivilegeChangeSummary(array $currentSettings, array $nextSettings): string
+    {
+        $messages = [];
+
+        foreach ([
+            'max_books',
+            'issue_duration_days',
+            'per_day_fine',
+            'borrowing_allowed',
+            'grace_period_days',
+            'max_fine_amount',
+        ] as $field) {
+            if (!$this->privilegeValueChanged($field, $currentSettings[$field] ?? null, $nextSettings[$field] ?? null)) {
+                continue;
+            }
+
+            $messages[] = sprintf(
+                '%s: %s -> %s',
+                $this->formatActivityLabel($field),
+                $this->formatPrivilegeValue($field, $currentSettings[$field] ?? null),
+                $this->formatPrivilegeValue($field, $nextSettings[$field] ?? null)
+            );
+        }
+
+        return implode(', ', $messages);
+    }
+
     protected function buildPrivilegeLogSnapshot($privileges, $fineSetting): array
     {
         return $this->buildPrivilegeResponsePayload($privileges, $fineSetting)['effective'];
@@ -1664,7 +1701,7 @@ class StudentController extends Controller
 
             // Notify student if privileges were changed
             if (!empty($changes)) {
-                $changesSummary = collect($changes)->map(fn($change) => "{$change['field']}: {$change['old']} → {$change['new']}")->join(', ');
+                $changesSummary = $this->formatPrivilegeChangeSummary($originalSettings, $responsePayload['effective']);
                 Notification::notify(
                     user: $student->user,
                     type: 'account.privilege_settings_changed',
