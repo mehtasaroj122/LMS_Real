@@ -458,6 +458,8 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             animation: fadeIn 0.3s ease;
         }
 
@@ -746,7 +748,7 @@
 
         <!-- Books Grid -->
         <div class="books-grid" id="booksContainer">
-            @forelse($books as $book)
+            @forelse($books->take(20) as $book)
                 @php
                     $normalizedDescription = trim(preg_replace('/\s+/', ' ', (string) ($book->description ?? '')));
                     $displayDescription = in_array(\Illuminate\Support\Str::lower($normalizedDescription), [
@@ -931,7 +933,7 @@
             const showMoreBtn = document.getElementById('showMoreBtn');
             const searchUrl = '{{ route('student.search') }}';
 
-            const BOOKS_PER_PAGE = 12;
+            const BOOKS_PER_PAGE = 20;
             const genericDescriptions = [
                 'comprehensive learning resource',
                 'a comprehensive learning resource'
@@ -1157,7 +1159,7 @@
                 attachRequestButtonListeners();
             }
 
-            // Function to display initial 12 books
+            // Function to display initial 20 books
             function displayInitialBooks() {
                 displayedBooks = BOOKS_PER_PAGE;
                 renderPaginatedBooks(allBooks.slice(0, BOOKS_PER_PAGE));
@@ -1420,7 +1422,7 @@
                 }
             });
 
-            // Initial load - fetch and display first 12 books
+            // Initial load - fetch and display first 20 books
             fetchBooks();
 
             // Initial attachment of request button listeners (will be reattached after fetch)

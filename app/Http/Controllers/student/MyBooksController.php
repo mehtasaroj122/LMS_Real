@@ -16,10 +16,11 @@ class MyBooksController extends Controller
         Gate::authorize('access-student');
 
         $user = Auth::user();
-        $student = Student::where('user_id', $user->id)->first();
+        $student = Student::with('department')->where('user_id', $user->id)->first();
 
         if (!$student) {
             return view('Student.MyBooks', [
+                'student' => null,
                 'issuedBooksJson' => json_encode([]),
                 'totalIssued' => 0,
                 'currentlyBorrowed' => 0,
@@ -67,6 +68,7 @@ class MyBooksController extends Controller
         })->toArray());
 
         return view('Student.MyBooks', [
+            'student' => $student,
             'issuedBooksJson' => $issuedBooksJson,
             'totalIssued' => $totalIssued,
             'currentlyBorrowed' => $currentlyBorrowed,

@@ -10,6 +10,28 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
+        .profile-container {
+            align-items: stretch;
+        }
+
+        .profile-sidebar-column,
+        .profile-main-column {
+            min-width: 0;
+        }
+
+        .profile-sidebar-column {
+            align-self: stretch;
+            position: relative;
+        }
+
+        .profile-sticky-card {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 1rem;
+            overflow: visible;
+            z-index: 2;
+        }
+
         body.light-theme .profile-card {
             background-color: #ffffff;
             border: 1px solid #e5e7eb;
@@ -363,6 +385,24 @@
             }
         }
 
+        @media (min-width: 1024px) {
+            .profile-page .profile-container {
+                grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+            }
+
+            .profile-page .profile-sidebar-column .profile-card {
+                max-width: 320px;
+                margin-right: auto;
+            }
+        }
+
+        @media (max-width: 1023px) {
+            .profile-sticky-card {
+                position: static;
+                overflow: visible;
+            }
+        }
+
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: 1fr 1fr;
@@ -567,7 +607,7 @@
             font-weight: 500;
             font-size: 0.875rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: color 0.24s ease, background-color 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease, transform 0.24s ease;
             position: relative;
             top: 1px;
         }
@@ -582,6 +622,7 @@
 
         .student-settings-shell .tab-btn:hover {
             background-color: rgba(59, 130, 246, 0.05);
+            transform: translateY(-1px);
         }
 
         body.dark-theme .student-settings-shell .tab-btn:hover {
@@ -600,6 +641,7 @@
             color: #60a5fa;
             border-color: #334155;
             border-bottom-color: #1e293b;
+            box-shadow: 0 -12px 28px rgba(2, 6, 23, 0.2);
         }
 
         .student-settings-shell .tab-btn svg {
@@ -609,10 +651,14 @@
 
         .student-settings-shell .tab-content {
             display: none;
+            opacity: 0;
+            transform: translateY(14px) scale(0.985);
+            transform-origin: top center;
         }
 
         .student-settings-shell .tab-content.active {
             display: block;
+            animation: studentProfileTabReveal 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
         .student-settings-shell .section-header {
@@ -638,7 +684,7 @@
             font-size: 1.05rem;
             font-weight: 600;
             margin-bottom: 0.25rem;
-            color: var(--text-primary, #0f172a);
+            color: inherit;
         }
 
         .student-settings-shell .section-header p {
@@ -700,6 +746,7 @@
             font-size: 0.875rem;
             margin-bottom: 0.5rem;
             line-height: 1.3;
+            color: inherit;
         }
 
         .student-settings-shell .required::after {
@@ -951,6 +998,10 @@
             color: #9ca3af;
         }
 
+        body.dark-theme .student-settings-shell .photo-upload-icon {
+            color: #cbd5e1;
+        }
+
         .student-settings-shell .photo-upload-icon svg {
             width: 2.5rem;
             height: 2.5rem;
@@ -1031,6 +1082,7 @@
             font-weight: 600;
             font-size: 0.875rem;
             margin-bottom: 0.375rem;
+            color: inherit;
         }
 
         .student-settings-shell .upload-requirements p {
@@ -1120,6 +1172,10 @@
             padding: 4px;
         }
 
+        body.dark-theme .student-settings-shell .pwd-toggle {
+            color: #cbd5e1;
+        }
+
         .student-settings-shell .pwd-toggle svg {
             width: 1rem;
             height: 1rem;
@@ -1146,6 +1202,7 @@
             font-weight: 600;
             font-size: 0.875rem;
             margin-bottom: 0.875rem;
+            color: inherit;
         }
 
         .student-settings-shell .requirement-list {
@@ -1161,6 +1218,11 @@
             margin-bottom: 0.625rem;
             font-size: 0.8125rem;
             line-height: 1.3;
+            color: #475569;
+        }
+
+        body.dark-theme .student-settings-shell .requirement-list li {
+            color: #cbd5e1;
         }
 
         .student-settings-shell .requirement-list li:last-child {
@@ -1184,149 +1246,26 @@
             color: #ef4444;
         }
 
-        .settings-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 0.875rem 1.25rem;
-            border-radius: 10px;
-            color: #ffffff;
-            font-weight: 500;
-            font-size: 0.875rem;
-            z-index: 1100;
-            max-width: 320px;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
-            animation: studentSettingsSlideIn 0.25s ease;
-        }
-
-        .settings-toast.success {
-            background-color: #10b981;
-        }
-
-        .settings-toast.error {
-            background-color: #ef4444;
-        }
-
-        .settings-toast.info {
-            background-color: #3b82f6;
-        }
-
-        .student-settings-shell .settings-modal-overlay[hidden] {
-            display: none !important;
-        }
-
-        .student-settings-shell .settings-modal-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 1200;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            background: rgba(15, 23, 42, 0.55);
-            backdrop-filter: blur(4px);
-        }
-
-        .student-settings-shell .settings-modal-card {
-            width: min(100%, 430px);
-            border-radius: 1rem;
-            border: 1px solid #e5e7eb;
-            background: #ffffff;
-            padding: 1.4rem;
-            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.2);
-        }
-
-        body.dark-theme .student-settings-shell .settings-modal-card {
-            background: #1e293b;
-            border-color: #334155;
-            box-shadow: 0 24px 48px rgba(2, 6, 23, 0.45);
-        }
-
-        .student-settings-shell .settings-modal-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .student-settings-shell .settings-modal-icon {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 999px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .student-settings-shell .settings-modal-icon svg {
-            width: 1.4rem;
-            height: 1.4rem;
-        }
-
-        .student-settings-shell .settings-modal-icon.danger {
-            background: rgba(239, 68, 68, 0.12);
-            color: #dc2626;
-        }
-
-        body.dark-theme .student-settings-shell .settings-modal-icon.danger {
-            background: rgba(248, 113, 113, 0.16);
-            color: #fca5a5;
-        }
-
-        .student-settings-shell .settings-modal-copy {
-            min-width: 0;
-        }
-
-        .student-settings-shell .settings-modal-title {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #0f172a;
-        }
-
-        body.dark-theme .student-settings-shell .settings-modal-title {
-            color: #f8fafc;
-        }
-
-        .student-settings-shell .settings-modal-message {
-            margin: 0.5rem 0 0;
-            font-size: 0.9375rem;
-            line-height: 1.6;
-            color: #64748b;
-        }
-
-        body.dark-theme .student-settings-shell .settings-modal-message {
-            color: #94a3b8;
-        }
-
-        .student-settings-shell .settings-modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-        }
-
-        @keyframes studentSettingsSlideIn {
+        @keyframes studentProfileTabReveal {
             from {
-                transform: translateX(100%);
                 opacity: 0;
+                transform: translateY(14px) scale(0.985);
             }
 
             to {
-                transform: translateX(0);
                 opacity: 1;
+                transform: translateY(0) scale(1);
             }
         }
 
-        @keyframes studentSettingsSlideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-
-            to {
-                transform: translateX(100%);
-                opacity: 0;
+        @media (prefers-reduced-motion: reduce) {
+            .profile-card,
+            .profile-avatar-upload,
+            .student-settings-shell .tab-btn,
+            .student-settings-shell .tab-content,
+            .student-settings-shell .btn {
+                transition: none !important;
+                animation: none !important;
             }
         }
 
@@ -1360,19 +1299,6 @@
                 justify-content: center;
             }
 
-            .student-settings-shell .settings-modal-header {
-                flex-direction: column;
-            }
-
-            .student-settings-shell .settings-modal-actions {
-                flex-direction: column-reverse;
-            }
-
-            .student-settings-shell .settings-modal-actions .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
             .student-settings-shell .settings-tabs {
                 overflow-x: auto;
                 white-space: nowrap;
@@ -1391,6 +1317,7 @@
                     : 'storage/' . ltrim($user->profile_photo, '/')))
             : null;
         $departmentName = $student && $student->department ? $student->department->name : 'N/A';
+        $studentIdentifier = $student ? ($student->roll_no ?: $student->student_id ?: 'N/A') : 'N/A';
         $usernameValue = $user->email ? explode('@', $user->email)[0] : 'student';
         $addressValue = $user->address ?? '';
         $initials = collect(preg_split('/\s+/', trim($user->name ?? '')) ?: [])
@@ -1408,17 +1335,15 @@
         </div>
 
         <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 gap-6 profile-container lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-6 profile-container">
             <!-- Left Column - User Profile Card -->
-            <div class="lg:col-span-1">
-                <div class="sticky p-6 profile-card top-6">
+            <div class="profile-sidebar-column">
+                <div class="p-6 profile-card profile-sticky-card">
                     <!-- Avatar -->
                     <div class="flex flex-col items-center mb-6">
                         <div class="profile-avatar" id="leftProfileAvatar" data-default-initials="{{ $initials }}">
                             <img src="{{ $profilePhotoUrl ?? '' }}" alt="Profile Photo" id="leftAvatarImage" style="display: {{ $profilePhotoUrl ? 'block' : 'none' }};">
-                            <span class="profile-avatar-initial" id="leftAvatarInitial" style="display: {{ $profilePhotoUrl ? 'none' : 'block' }};">
-                                {{ $initials }}
-                            </span>
+                            <span class="profile-avatar-initial" id="leftAvatarInitial" style="display: {{ $profilePhotoUrl ? 'none' : 'block' }};">{{ $initials }}</span>
                             <div class="profile-avatar-upload" onclick="switchToPhotoTab()" title="Upload Profile Photo">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -1467,7 +1392,7 @@
                             </svg>
                             <div>
                                 <p class="text-sm text-secondary">Student ID</p>
-                                <p class="font-medium text-primary">{{ $student ? $student->student_id : 'N/A' }}</p>
+                                <p class="font-medium text-primary">{{ $studentIdentifier }}</p>
                             </div>
                         </div>
 
@@ -1516,7 +1441,7 @@
             </div>
 
             <!-- Right Column -->
-            <div class="lg:col-span-2">
+            <div class="profile-main-column">
                 <!-- Account Statistics -->
                 <div class="p-6 mb-6 profile-card">
                     <h2 class="mb-4 text-xl font-bold text-primary">Account Statistics</h2>
@@ -1571,6 +1496,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 @endsection
 

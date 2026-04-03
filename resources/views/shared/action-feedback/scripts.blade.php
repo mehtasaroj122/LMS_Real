@@ -34,6 +34,8 @@
                     this.toastIcons = { ...defaultIcons, ...(config.toastIcons || {}) };
                     this.confirmIcons = { ...defaultIcons, ...(config.confirmIcons || {}) };
                     this.elements = {};
+                    this.modalState = new Map();
+                    this.pendingConfirm = null;
                     this.cacheElements();
                 }
 
@@ -52,6 +54,16 @@
                     return this.elements.confirmSubmitBtn || null;
                 }
 
+                getConfirmCancelButtons() {
+                    if (!this.elements.confirmModal) {
+                        return [];
+                    }
+
+                    return Array.from(
+                        this.elements.confirmModal.querySelectorAll(`[data-modal-close="${this.ids.confirm.modalId}"]`)
+                    );
+                }
+
                 openConfirm(options = {}) {
                     const variant = this.normalizeVariant(options.variant || 'primary');
                     const buttonVariant = this.normalizeVariant(options.buttonVariant || variant);
@@ -59,6 +71,7 @@
                     const message = options.message || 'Are you sure you want to continue?';
                     const detail = options.detail || '';
                     const confirmText = options.confirmText || this.defaultConfirmLabel;
+                    const cancelText = options.cancelText || options.cancelLabel || '';
 
                     if (this.elements.confirmIcon) {
                         this.elements.confirmIcon.className = `action-feedback-confirm-icon ${variant}`;
@@ -84,6 +97,16 @@
                         this.setConfirmBusy(false, confirmText);
                     }
 
+                    if (cancelText) {
+                        this.getConfirmCancelButtons().forEach((button) => {
+                            if (!button.dataset.defaultLabel) {
+                                button.dataset.defaultLabel = button.textContent || 'Cancel';
+                            }
+
+                            button.textContent = cancelText;
+                        });
+                    }
+
                     this.openModal(this.ids.confirm.modalId, this.elements.confirmSubmitBtn);
                 }
 
@@ -99,6 +122,107 @@
                     const label = this.elements.confirmSubmitBtn.dataset.defaultLabel || this.defaultConfirmLabel;
                     this.elements.confirmSubmitBtn.className = 'action-feedback-confirm-btn primary';
                     this.setConfirmBusy(false, label);
+                }
+
+                confirm(options = {}) {
+                    if (!this.elements.confirmModal || !this.elements.confirmSubmitBtn) {
+                        console.warn('Shared action feedback confirmation is unavailable.', options);
+                        return Promise.resolve(false);
+                    }
+
+                    this.cancelPendingConfirm(false);
+
+                    const modal = this.elements.confirmModal;
+                    const submitButton = this.elements.confirmSubmitBtn;
+                    const cancelButtons = this.getConfirmCancelButtons();
+                    const cancelText = options.cancelText || options.cancelLabel || '';
+
+                    cancelButtons.forEach((button) => {
+                        if (!button.dataset.defaultLabel) {
+                            button.dataset.defaultLabel = button.textContent || 'Cancel';
+                        }
+
+                        button.textContent = cancelText || button.dataset.defaultLabel;
+                    });
+
+                    this.openConfirm(options);
+
+                    return new Promise((resolve) => {
+                        const request = {
+                            settled: false,
+                            resolve: (value) => {
+                                if (request.settled) {
+                                    return;
+                                }
+
+                                request.settled = true;
+                                request.cleanup?.();
+                                request.restoreCancelButtons?.();
+                                this.resetConfirm();
+                                this.closeConfirm();
+                                resolve(value);
+                            },
+                        };
+
+                        const handleSubmit = (event) => {
+                            event.preventDefault();
+                            request.resolve(true);
+                        };
+
+                        const handleCancel = (event) => {
+                            event.preventDefault();
+                            request.resolve(false);
+                        };
+
+                        const handleBackdrop = (event) => {
+                            if (event.target === modal) {
+                                request.resolve(false);
+                            }
+                        };
+
+                        const handleKeydown = (event) => {
+                            if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                                event.preventDefault();
+                                request.resolve(false);
+                            }
+                        };
+
+                        request.cleanup = () => {
+                            submitButton.removeEventListener('click', handleSubmit);
+                            cancelButtons.forEach((button) => button.removeEventListener('click', handleCancel));
+                            modal.removeEventListener('click', handleBackdrop);
+                            document.removeEventListener('keydown', handleKeydown);
+
+                            if (this.pendingConfirm === request) {
+                                this.pendingConfirm = null;
+                            }
+                        };
+
+                        request.restoreCancelButtons = () => {
+                            cancelButtons.forEach((button) => {
+                                if (button.dataset.defaultLabel) {
+                                    button.textContent = button.dataset.defaultLabel;
+                                }
+                            });
+                        };
+
+                        submitButton.addEventListener('click', handleSubmit);
+                        cancelButtons.forEach((button) => button.addEventListener('click', handleCancel));
+                        modal.addEventListener('click', handleBackdrop);
+                        document.addEventListener('keydown', handleKeydown);
+
+                        this.pendingConfirm = request;
+                    });
+                }
+
+                cancelPendingConfirm(value = false) {
+                    const pendingConfirm = this.pendingConfirm;
+
+                    if (!pendingConfirm) {
+                        return;
+                    }
+
+                    pendingConfirm.resolve?.(value);
                 }
 
                 setConfirmBusy(isBusy, label) {
@@ -186,8 +310,16 @@
                         return;
                     }
 
+                    if (!modal.classList.contains('is-open')) {
+                        this.modalState.set(modalId, {
+                            previousFocus: document.activeElement instanceof HTMLElement ? document.activeElement : null,
+                            previousBodyOverflow: document.body.style.overflow || '',
+                        });
+                    }
+
                     modal.classList.add('is-open');
                     modal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
                     window.setTimeout(() => focusTarget?.focus?.(), 20);
                 }
 
@@ -202,8 +334,16 @@
                         return;
                     }
 
+                    const state = this.modalState.get(modalId) || {};
+
                     modal.classList.remove('is-open');
                     modal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = state.previousBodyOverflow || '';
+                    this.modalState.delete(modalId);
+
+                    if (typeof state.previousFocus?.focus === 'function') {
+                        window.setTimeout(() => state.previousFocus.focus(), 0);
+                    }
                 }
 
                 normalizeVariant(variant) {

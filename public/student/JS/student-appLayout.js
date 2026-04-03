@@ -49,8 +49,6 @@ function initializeStudentNotifications() {
     const notificationBadge = document.getElementById('notificationBadge');
     const markAllReadBtn = document.getElementById('markAllReadBtn');
     const deleteAllBtn = document.getElementById('deleteAllBtn');
-    const clearConfirmModal = document.getElementById('notificationClearConfirmModal');
-    const clearConfirmOkBtn = document.getElementById('notificationClearConfirmOkBtn');
 
     if (
         !notificationBtn ||
@@ -81,6 +79,30 @@ function initializeStudentNotifications() {
         fetchPromise: null,
         lastLoadedAt: 0,
         refreshTimer: null,
+        pendingRemovals: new Map(),
+        isClearingAll: false,
+        requestSequence: 0,
+        minResponseSequence: 0,
+    };
+
+    const showPortalToast = (type, title, message, timeout = 4200, detail = '') => {
+        if (typeof window.showStudentPortalToast === 'function') {
+            window.showStudentPortalToast(type, title, message, timeout, detail);
+            return;
+        }
+
+        const fallbackMessage = message || title || 'Something went wrong.';
+        const logger = type === 'error' ? console.error : console.log;
+        logger(fallbackMessage);
+    };
+
+    const openPortalConfirm = (options = {}) => {
+        if (typeof window.confirmStudentPortalAction === 'function') {
+            return window.confirmStudentPortalAction(options);
+        }
+
+        console.warn('Student portal action feedback confirmation is unavailable.', options);
+        return Promise.resolve(false);
     };
 
     notificationBtn.addEventListener('click', (event) => {
@@ -101,6 +123,10 @@ function initializeStudentNotifications() {
     markAllReadBtn?.addEventListener('click', async (event) => {
         event.stopPropagation();
 
+        if (markAllReadBtn.disabled) {
+            return;
+        }
+
         try {
             await api.markAllAsRead();
             list.markAllAsRead();
@@ -109,13 +135,18 @@ function initializeStudentNotifications() {
             await refreshUnreadCount();
         } catch (error) {
             console.error('Error marking all notifications as read:', error);
-            window.alert(error.message || 'Unable to mark all notifications as read right now.');
+            showPortalToast('error', 'Unable to mark all as read', error.message || 'Unable to mark all notifications as read right now.');
         }
     });
 
     deleteAllBtn?.addEventListener('click', async (event) => {
         event.stopPropagation();
-        openClearConfirmModal();
+
+        if (deleteAllBtn.disabled) {
+            return;
+        }
+
+        await confirmClearReadNotifications();
     });
 
     document.addEventListener('click', (event) => {
@@ -129,11 +160,6 @@ function initializeStudentNotifications() {
     });
 
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && clearConfirmModal?.classList.contains('is-open')) {
-            closeClearConfirmModal();
-            return;
-        }
-
         if (event.key === 'Escape' && notificationPopup.classList.contains('active') && !isAnyNotificationModalOpen()) {
             setPopupOpen(false);
         }
@@ -148,7 +174,7 @@ function initializeStudentNotifications() {
     hydrateNotificationsCache();
     startAutoRefresh();
     prefetchNotifications({ suppressErrors: true }).catch(() => {});
-    bindClearConfirmModal();
+    syncActionAvailability();
 
     async function handleNotificationClick(notificationId) {
         const summary = list.getNotification(notificationId);
@@ -195,6 +221,7 @@ function initializeStudentNotifications() {
 
                     if (syncedNotification?.readAt) {
                         list.markAsRead(notificationId, syncedNotification.readAt);
+                        syncCacheFromList();
                     }
 
                     refreshUnreadCount();
@@ -207,26 +234,52 @@ function initializeStudentNotifications() {
     }
 
     async function handleDeleteNotification(notificationId) {
-        const notification = list.getNotification(notificationId);
+        const resolvedId = String(notificationId);
+        const notification = list.getNotification(resolvedId);
+
+        if (
+            !notification ||
+            state.isClearingAll ||
+            state.pendingRemovals.has(resolvedId) ||
+            list.isAnimating(resolvedId)
+        ) {
+            return;
+        }
+
+        const previousNotifications = [...list.notifications];
+        const previousUnreadCount = state.unreadCount;
+
+        advanceMutationBarrier();
+        rememberPendingRemoval(notification);
+        syncActionAvailability();
+
+        await list.animateRemove(resolvedId);
+        list.remove(resolvedId);
+        syncCacheFromList();
+
+        if (!notification.readAt) {
+            setUnreadCount(previousUnreadCount - 1);
+        }
+
+        if (modal.isOpen() && String(modal.getActiveNotificationId()) === resolvedId) {
+            modal.close();
+        }
 
         try {
-            await api.deleteNotification(notificationId);
-            list.remove(notificationId);
-            syncCacheFromList();
-
-            if (!notification?.readAt) {
-                setUnreadCount(state.unreadCount - 1);
-            }
-
-            if (modal.isOpen() && String(modal.getActiveNotificationId()) === String(notificationId)) {
-                modal.close();
-            }
-
-            await refreshUnreadCount();
+            await api.deleteNotification(resolvedId);
         } catch (error) {
+            forgetPendingRemoval(resolvedId);
+            restoreNotificationSnapshot(previousNotifications, previousUnreadCount);
             console.error('Error deleting notification:', error);
-            window.alert(error.message || 'Unable to delete this notification right now.');
+            showPortalToast('error', 'Unable to delete notification', error.message || 'Unable to delete this notification right now.');
+            return;
         }
+
+        advanceMutationBarrier();
+        forgetPendingRemoval(resolvedId);
+        syncActionAvailability();
+        await loadNotifications({ silent: true, force: true });
+        await refreshUnreadCount();
     }
 
     function setPopupOpen(isOpen) {
@@ -235,77 +288,77 @@ function initializeStudentNotifications() {
         if (isOpen) {
             positionNotificationPopup();
         }
+
+        syncActionAvailability();
     }
 
     function isAnyNotificationModalOpen() {
-        return modal.isOpen() || clearConfirmModal?.classList.contains('is-open');
+        const portalConfirmOpen = Boolean(
+            window.getStudentPortalFeedback?.()?.elements?.confirmModal?.classList.contains('is-open')
+        );
+
+        return modal.isOpen() || portalConfirmOpen;
     }
 
-    function bindClearConfirmModal() {
-        if (!clearConfirmModal || !clearConfirmOkBtn) {
+    async function confirmClearReadNotifications() {
+        const readNotifications = list.notifications.filter((notification) => notification?.readAt);
+
+        if (readNotifications.length === 0) {
+            syncActionAvailability();
             return;
         }
 
-        clearConfirmModal.querySelectorAll('[data-notification-clear-close]').forEach((element) => {
-            element.addEventListener('click', closeClearConfirmModal);
+        const confirmed = await openPortalConfirm({
+            variant: 'danger',
+            buttonVariant: 'danger',
+            title: 'Clear read notifications?',
+            message: 'Remove every read notification from your list? Unread notifications will stay in place.',
+            detail: `${readNotifications.length} read notification${readNotifications.length === 1 ? '' : 's'} will be removed.`,
+            confirmText: 'Clear all',
+            cancelText: 'Cancel',
         });
 
-        clearConfirmModal.addEventListener('click', (event) => {
-            if (event.target === clearConfirmModal) {
-                closeClearConfirmModal();
-            }
-        });
-
-        clearConfirmOkBtn.addEventListener('click', async () => {
-            if (clearConfirmOkBtn.disabled) {
-                return;
-            }
-
-            const defaultLabel = clearConfirmOkBtn.dataset.defaultLabel || clearConfirmOkBtn.textContent || 'Clear all';
-            clearConfirmOkBtn.dataset.defaultLabel = defaultLabel;
-            clearConfirmOkBtn.disabled = true;
-            clearConfirmOkBtn.textContent = 'Clearing...';
-
-            try {
-                await api.deleteAllRead();
-                closeClearConfirmModal();
-                await loadNotifications({ silent: true, force: true });
-                await refreshUnreadCount();
-
-                if (modal.isOpen()) {
-                    const activeNotificationId = modal.getActiveNotificationId();
-                    if (!list.getNotification(activeNotificationId)) {
-                        modal.close();
-                    }
-                }
-            } catch (error) {
-                console.error('Error clearing read notifications:', error);
-                closeClearConfirmModal();
-                window.alert(error.message || 'Unable to clear notifications right now.');
-            } finally {
-                clearConfirmOkBtn.disabled = false;
-                clearConfirmOkBtn.textContent = defaultLabel;
-            }
-        });
-    }
-
-    function openClearConfirmModal() {
-        if (!clearConfirmModal) {
+        if (!confirmed) {
+            syncActionAvailability();
             return;
         }
 
-        clearConfirmModal.classList.add('is-open');
-        clearConfirmModal.setAttribute('aria-hidden', 'false');
-        window.setTimeout(() => clearConfirmOkBtn?.focus(), 20);
-    }
+        const previousNotifications = [...list.notifications];
+        const previousUnreadCount = state.unreadCount;
+        const removedIds = readNotifications.map((notification) => String(notification.id));
+        const activeNotificationId = modal.getActiveNotificationId();
+        const closesActiveModal = modal.isOpen() && removedIds.includes(String(activeNotificationId));
 
-    function closeClearConfirmModal() {
-        if (!clearConfirmModal) {
+        advanceMutationBarrier();
+        state.isClearingAll = true;
+        readNotifications.forEach((notification) => rememberPendingRemoval(notification));
+        syncActionAvailability();
+
+        await list.animateRemoveMany(removedIds, { staggerStep: 44 });
+        list.removeMany(removedIds);
+        syncCacheFromList();
+
+        if (closesActiveModal) {
+            modal.close();
+        }
+
+        try {
+            await api.deleteAllRead();
+        } catch (error) {
+            state.isClearingAll = false;
+            removedIds.forEach((notificationId) => forgetPendingRemoval(notificationId));
+            restoreNotificationSnapshot(previousNotifications, previousUnreadCount);
+            console.error('Error clearing read notifications:', error);
+            showPortalToast('error', 'Unable to clear notifications', error.message || 'Unable to clear notifications right now.');
             return;
         }
 
-        clearConfirmModal.classList.remove('is-open');
-        clearConfirmModal.setAttribute('aria-hidden', 'true');
+        advanceMutationBarrier();
+        state.isClearingAll = false;
+        removedIds.forEach((notificationId) => forgetPendingRemoval(notificationId));
+        syncActionAvailability();
+        await loadNotifications({ silent: true, force: true });
+        await refreshUnreadCount();
     }
 
     function positionNotificationPopup() {
@@ -326,11 +379,13 @@ function initializeStudentNotifications() {
     function openNotificationsPanel() {
         if (state.hasLoadedOnce) {
             list.render(state.notificationsCache);
+            syncActionAvailability();
             prefetchNotifications({ suppressErrors: true }).catch(() => {});
             return;
         }
 
         list.setLoading();
+        syncActionAvailability();
         prefetchNotifications().catch(() => {});
     }
 
@@ -355,6 +410,7 @@ function initializeStudentNotifications() {
 
         if (!silent && !state.hasLoadedOnce) {
             list.setLoading();
+            syncActionAvailability();
         }
 
         try {
@@ -367,6 +423,7 @@ function initializeStudentNotifications() {
 
             if (!silent && !state.hasLoadedOnce) {
                 list.setError(error.message || 'Unable to load notifications right now.');
+                syncActionAvailability();
             }
         }
     }
@@ -434,23 +491,94 @@ function initializeStudentNotifications() {
             : 0;
     }
 
+    function countPendingUnreadRemovals() {
+        let total = 0;
+        state.pendingRemovals.forEach((notification) => {
+            if (!notification?.readAt) {
+                total += 1;
+            }
+        });
+
+        return total;
+    }
+
+    function filterPendingRemovals(notifications) {
+        if (state.pendingRemovals.size === 0) {
+            return Array.isArray(notifications) ? notifications : [];
+        }
+
+        return (Array.isArray(notifications) ? notifications : []).filter((notification) => (
+            !state.pendingRemovals.has(String(notification?.id))
+        ));
+    }
+
+    function rememberPendingRemoval(notification) {
+        if (!notification?.id) {
+            return;
+        }
+
+        state.pendingRemovals.set(String(notification.id), notification);
+    }
+
+    function forgetPendingRemoval(notificationId) {
+        state.pendingRemovals.delete(String(notificationId));
+    }
+
+    function advanceMutationBarrier() {
+        state.minResponseSequence = state.requestSequence + 1;
+    }
+
+    function restoreNotificationSnapshot(notifications, unreadCount) {
+        list.render(notifications);
+        syncCacheFromList();
+        setUnreadCount(unreadCount);
+        syncActionAvailability();
+    }
+
     function syncCacheFromList() {
         state.notificationsCache = Array.isArray(list.notifications) ? [...list.notifications] : [];
         state.hasLoadedOnce = true;
         persistNotificationsCache();
+        syncActionAvailability();
+    }
+
+    function syncActionAvailability() {
+        const sourceNotifications = notificationPopup.classList.contains('active')
+            ? list.notifications
+            : state.notificationsCache;
+        const notifications = Array.isArray(sourceNotifications) ? sourceNotifications : [];
+        const isBusy = state.isClearingAll || state.pendingRemovals.size > 0 || list.hasActiveAnimations();
+        const hasUnreadNotifications = notifications.some((notification) => !notification?.readAt);
+        const hasReadNotifications = notifications.some((notification) => notification?.readAt);
+
+        if (markAllReadBtn) {
+            markAllReadBtn.disabled = isBusy || !hasUnreadNotifications;
+        }
+
+        if (deleteAllBtn) {
+            deleteAllBtn.disabled = isBusy || !hasReadNotifications;
+        }
     }
 
     function applyNotificationPayload(payload) {
-        state.notificationsCache = Array.isArray(payload?.data) ? payload.data : [];
+        const filteredNotifications = filterPendingRemovals(payload?.data);
+        const unreadCountFromServer = Number(payload?.unread_count);
+
+        state.notificationsCache = filteredNotifications;
         state.hasLoadedOnce = true;
         state.lastLoadedAt = Date.now();
 
-        if (notificationPopup.classList.contains('active')) {
+        if (notificationPopup.classList.contains('active') && !list.hasActiveAnimations()) {
             list.render(state.notificationsCache);
         }
 
-        setUnreadCount(payload?.unread_count ?? countUnreadNotifications(state.notificationsCache));
+        setUnreadCount(
+            Number.isFinite(unreadCountFromServer)
+                ? Math.max(0, unreadCountFromServer - countPendingUnreadRemovals())
+                : countUnreadNotifications(state.notificationsCache)
+        );
         persistNotificationsCache();
+        syncActionAvailability();
     }
 
     async function prefetchNotifications(options = {}) {
@@ -461,14 +589,19 @@ function initializeStudentNotifications() {
             return state.fetchPromise;
         }
 
+        const requestSequence = ++state.requestSequence;
         const requestPromise = api.fetchNotifications()
             .then((payload) => {
-                applyNotificationPayload(payload);
+                if (requestSequence >= state.minResponseSequence) {
+                    applyNotificationPayload(payload);
+                }
+
                 return payload;
             })
             .catch((error) => {
                 if (notificationPopup.classList.contains('active') && !state.hasLoadedOnce && !suppressErrors) {
                     list.setError(error.message || 'Unable to load notifications right now.');
+                    syncActionAvailability();
                 }
 
                 throw error;

@@ -4,21 +4,22 @@
 
 <div class="settings-card-inner">
     <div class="settings-tabs" role="tablist" aria-label="Profile settings sections">
-        <button type="button" class="tab-btn active" data-tab="profile" role="tab" aria-selected="true">
+        <button type="button" class="tab-btn active" id="profileTabButton" data-tab="profile" role="tab" aria-selected="true" aria-controls="profileTabPanel">
             <i data-lucide="user"></i>
             <span>Profile</span>
         </button>
-        <button type="button" class="tab-btn" data-tab="photo" role="tab" aria-selected="false">
+        <button type="button" class="tab-btn" id="photoTabButton" data-tab="photo" role="tab" aria-selected="false" aria-controls="photoTabPanel">
             <i data-lucide="camera"></i>
             <span>Photo</span>
         </button>
-        <button type="button" class="tab-btn" data-tab="security" role="tab" aria-selected="false">
+        <button type="button" class="tab-btn" id="securityTabButton" data-tab="security" role="tab" aria-selected="false" aria-controls="securityTabPanel">
             <i data-lucide="lock"></i>
             <span>Security</span>
         </button>
     </div>
 
-    <div class="tab-content active" id="profileTabPanel" role="tabpanel">
+    <div class="tab-panels">
+        <div class="tab-content active" id="profileTabPanel" role="tabpanel" aria-labelledby="profileTabButton" aria-hidden="false">
         <div class="section-header">
             <div class="section-header-main">
                 <h2>Personal Information</h2>
@@ -85,7 +86,7 @@
         </form>
     </div>
 
-    <div class="tab-content" id="photoTabPanel" role="tabpanel">
+        <div class="tab-content" id="photoTabPanel" role="tabpanel" aria-labelledby="photoTabButton" aria-hidden="true" hidden>
         <div class="photo-upload-container">
             <div class="section-header">
                 <div class="section-header-main">
@@ -138,7 +139,7 @@
         </div>
     </div>
 
-    <div class="tab-content" id="securityTabPanel" role="tabpanel">
+        <div class="tab-content" id="securityTabPanel" role="tabpanel" aria-labelledby="securityTabButton" aria-hidden="true" hidden>
         <div class="security-section">
             <div class="section-header">
                 <div class="section-header-main">
@@ -218,27 +219,5 @@
             </form>
         </div>
     </div>
-
-    <div class="settings-modal-overlay" id="settingsConfirmModal" hidden aria-hidden="true">
-        <div class="settings-modal-card" role="dialog" aria-modal="true" aria-labelledby="settingsConfirmTitle" aria-describedby="settingsConfirmMessage">
-            <div class="settings-modal-header">
-                <div class="settings-modal-icon danger" id="settingsConfirmIcon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 6V4h8v2" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 6l-1 14H6L5 6" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 11v6M14 11v6" />
-                    </svg>
-                </div>
-                <div class="settings-modal-copy">
-                    <h3 class="settings-modal-title" id="settingsConfirmTitle">Remove profile photo?</h3>
-                    <p class="settings-modal-message" id="settingsConfirmMessage">Your current profile photo will be removed from your account.</p>
-                </div>
-            </div>
-            <div class="settings-modal-actions">
-                <button type="button" class="btn btn-outline" id="settingsConfirmCancelBtn">Keep Photo</button>
-                <button type="button" class="btn btn-danger" id="settingsConfirmActionBtn">Remove Photo</button>
-            </div>
-        </div>
     </div>
 </div>

@@ -2,7 +2,60 @@
 
 @section('title', 'My Books')
 
+@php
+    $myBooksReportStudent = [
+        'name' => auth()->user()->name ?? 'Student',
+        'rollNo' => $student?->roll_no ?? ($student?->student_id ?? 'N/A'),
+        'email' => auth()->user()->email ?? 'N/A',
+        'department' => $student?->department?->name ?? 'N/A',
+        'semester' => $student?->semester ?? 'N/A',
+        'batch' => $student?->batch ? 'Batch ' . $student->batch : 'N/A',
+    ];
+
+    $myBooksReportExportConfig = [
+        'modalId' => 'myBooksExportModal',
+        'idPrefix' => 'myBooksExport',
+        'scopeName' => 'myBooksExportScope',
+        'labels' => [
+            'title' => 'My Books Report',
+            'description' => 'Print or download your books report.',
+            'scopeTitle' => 'Scope',
+            'scopeHint' => 'Use this page or all books matching the current filters.',
+            'pageOptionTitle' => 'Current page',
+            'pageOptionDescription' => 'Only the books visible on this page right now.',
+            'allOptionTitle' => 'Filtered report',
+            'allOptionDescription' => 'All books matching the current search and filters.',
+            'badge' => 'Current page',
+            'headline' => '0 books ready',
+            'subtext' => 'Review your books report before printing or downloading it.',
+            'previewTitle' => 'Preview',
+            'previewDescription' => 'Books included in the report.',
+            'previewCount' => '0 rows',
+            'emptyPreview' => 'No books selected for preview.',
+            'footerNote' => 'Using the current page for spreadsheet export.',
+            'cancelButton' => 'Cancel',
+            'downloadButton' => 'Download Excel',
+            'printButton' => 'Print Report',
+        ],
+        'document' => [
+            'systemTitle' => $libraryBranding['name'] ?? 'Library Management System',
+            'reportTitle' => 'My Books Report',
+        ],
+        'columns' => [
+            ['key' => 'bookTitle', 'label' => 'Book', 'width' => '22%', 'emphasis' => true],
+            ['key' => 'author', 'label' => 'Author', 'width' => '13%'],
+            ['key' => 'issueDate', 'label' => 'Issue Date', 'width' => '11%', 'nowrap' => true],
+            ['key' => 'dueDate', 'label' => 'Due Date', 'width' => '11%', 'nowrap' => true],
+            ['key' => 'returnDate', 'label' => 'Return Date', 'width' => '11%', 'nowrap' => true],
+            ['key' => 'status', 'label' => 'Status', 'width' => '8%', 'align' => 'center', 'nowrap' => true],
+            ['key' => 'fineAmount', 'label' => 'Fine Amount', 'width' => '12%', 'align' => 'right'],
+            ['key' => 'fineStatus', 'label' => 'Fine Status', 'width' => '12%', 'align' => 'center'],
+        ],
+    ];
+@endphp
+
 @push('styles')
+    @include('shared.report-export.styles')
     <style>
         /* Base Styles */
         * {
@@ -95,6 +148,72 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
+        }
+
+        .page-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-left: auto;
+        }
+
+        .report-trigger-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 2.5rem;
+            padding: 0.625rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .report-trigger-btn svg {
+            width: 1rem;
+            height: 1rem;
+            flex-shrink: 0;
+        }
+
+        body.light-theme .report-trigger-btn {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-color: #bfdbfe;
+            color: #1d4ed8;
+            box-shadow: 0 10px 18px rgba(37, 99, 235, 0.12);
+        }
+
+        body.dark-theme .report-trigger-btn {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.3) 0%, rgba(14, 116, 144, 0.28) 100%);
+            border-color: #1d4ed8;
+            color: #bfdbfe;
+            box-shadow: 0 12px 22px rgba(2, 6, 23, 0.32);
+        }
+
+        .report-trigger-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        body.light-theme .report-trigger-btn:hover:not(:disabled) {
+            border-color: #93c5fd;
+            box-shadow: 0 14px 24px rgba(37, 99, 235, 0.16);
+        }
+
+        body.dark-theme .report-trigger-btn:hover:not(:disabled) {
+            border-color: #60a5fa;
+            box-shadow: 0 16px 26px rgba(2, 6, 23, 0.38);
+        }
+
+        .report-trigger-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .page-title h1 {
@@ -750,6 +869,16 @@
                 gap: 0.5rem;
             }
 
+            .page-actions {
+                width: 100%;
+                margin-left: 0;
+                justify-content: flex-start;
+            }
+
+            .report-trigger-btn {
+                width: 100%;
+            }
+
             .pagination-container {
                 align-items: stretch;
             }
@@ -774,6 +903,24 @@
             <div class="page-title">
                 <h1>My Books</h1>
                 <p class="text-secondary">View your issued and returned books</p>
+            </div>
+
+            <div class="page-actions">
+                <button
+                    type="button"
+                    class="report-trigger-btn"
+                    id="printReportBtn"
+                    aria-controls="myBooksExportModal"
+                    aria-haspopup="dialog"
+                    {{ $totalIssued === 0 ? 'disabled' : '' }}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M6 9V2h12v7" />
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                        <path d="M6 14h12v8H6z" />
+                    </svg>
+                    <span>Print Report</span>
+                </button>
             </div>
         </div>
 
@@ -884,16 +1031,16 @@
                 <button type="button" class="reset-filter-btn" id="resetFiltersBtn">Reset</button>
             </div>
 
-            <div class="entries-control">
-                <label class="entries-label" for="entriesPerPage">Show</label>
-                <select class="filter-select entries-select" id="entriesPerPage">
+            <label class="entries-control admin-table-entries-control" for="entriesPerPage">
+                <span class="entries-label">Show</span>
+                <select class="filter-select entries-select admin-table-entries-select" id="entriesPerPage">
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
                     <option value="100">100</option>
                 </select>
                 <span class="entries-suffix">entries</span>
-            </div>
+            </label>
         </div>
 
         <!-- Books Table -->
@@ -928,32 +1075,44 @@
                 <h3 style="margin-bottom: 0.25rem; font-size: 1rem; font-weight: 600;">No books found</h3>
                 <p class="text-secondary">Try adjusting your search or filters</p>
             </div>
-            <div id="paginationContainer" class="pagination-container" style="display: none;">
-                <div class="pagination-info">
-                    <span>Showing <span id="startRecord">1</span> to <span id="endRecord">10</span> of <span id="totalRecords">0</span> results</span>
-                    <span class="pagination-page-summary">Page <span id="currentPageLabel">1</span> of <span id="totalPagesLabel">1</span></span>
-                </div>
-                <div class="pagination-controls">
-                    <button type="button" class="pagination-btn nav-btn" id="prevBtn" onclick="previousPage()">← Previous</button>
-                    <div id="pageNumbers"></div>
-                    <button type="button" class="pagination-btn nav-btn" id="nextBtn" onclick="nextPage()">Next →</button>
-                </div>
-            </div>
+            @include('shared.student-portal-pagination.markup', [
+                'containerId' => 'paginationContainer',
+                'fromId' => 'startRecord',
+                'toId' => 'endRecord',
+                'totalId' => 'totalRecords',
+                'pageInfoId' => 'pageInfo',
+                'buttonsId' => 'paginationButtons',
+                'label' => 'books',
+            ])
         </div>
         </div>
     </div>
 
+    @include('shared.report-export.modal', ['reportExportConfig' => $myBooksReportExportConfig])
+
 @endsection
 
 @push('scripts')
+    @include('shared.report-export.scripts')
     <script>
         // Book data from backend
         const booksData = {!! $issuedBooksJson !!};
+        const myBooksReportStudent = @json($myBooksReportStudent);
+        const myBooksReportBranding = window.LibraryBranding?.normalize
+            ? window.LibraryBranding.normalize(window.__LIBRARY_BRANDING__ ?? {})
+            : (window.__LIBRARY_BRANDING__ ?? {});
+        const myBooksReportSystemTitle = myBooksReportBranding?.name || 'Library Management System';
+        const printReportBtn = document.getElementById('printReportBtn');
+        const myBooksExportModal = document.getElementById('myBooksExportModal');
         const DEFAULT_BOOKS_PER_PAGE = 10;
         const ALLOWED_PAGE_SIZES = [10, 20, 50, 100];
         let booksPerPage = getInitialBooksPerPage();
         let currentPage = getInitialPage();
         let filteredBooks = [];
+        let booksPagination = null;
+        let booksReportFeedbackUI = null;
+        let myBooksExportWorkflow = null;
+        let myBooksExportLastTrigger = null;
 
         function getInitialBooksPerPage() {
             const perPage = Number(new URLSearchParams(window.location.search).get('per_page'));
@@ -979,21 +1138,25 @@
             window.history.replaceState({}, '', nextUrl);
         }
 
-        function updatePaginationInfo(startRecord, endRecord, totalRecords, totalPages) {
-            document.getElementById('startRecord').textContent = startRecord;
-            document.getElementById('endRecord').textContent = endRecord;
-            document.getElementById('totalRecords').textContent = totalRecords;
-            document.getElementById('currentPageLabel').textContent = totalRecords === 0 ? 0 : currentPage;
-            document.getElementById('totalPagesLabel').textContent = totalRecords === 0 ? 0 : totalPages;
+        function renderPagination(totalRecords, startRecord, endRecord, totalPages) {
+            booksPagination?.render({
+                total: totalRecords,
+                from: startRecord,
+                to: endRecord,
+                currentPage,
+                lastPage: totalPages,
+                onPageChange: (page) => goToPage(page),
+            });
+            syncPaginationState();
         }
 
         // Render books table with pagination
         function renderBooks(books, { preservePage = false } = {}) {
             const tableBody = document.getElementById('booksTableBody');
             const emptyState = document.getElementById('emptyState');
-            const paginationContainer = document.getElementById('paginationContainer');
 
             filteredBooks = books;
+            updateReportButtonState(books.length);
 
             if (!preservePage) {
                 currentPage = 1;
@@ -1005,8 +1168,7 @@
             if (books.length === 0) {
                 tableBody.innerHTML = '';
                 emptyState.style.display = 'block';
-                paginationContainer.style.display = 'none';
-                updatePaginationInfo(0, 0, 0, 0);
+                renderPagination(0, 0, 0, 0);
                 syncPaginationState();
                 return;
             }
@@ -1015,9 +1177,6 @@
 
             // Display current page
             displayPage(currentPage);
-
-            paginationContainer.style.display = 'flex';
-            updatePagination();
         }
 
         // Display a specific page
@@ -1063,78 +1222,7 @@
             // Update pagination info
             const startRecord = start + 1;
             const endRecord = Math.min(end, filteredBooks.length);
-            updatePaginationInfo(startRecord, endRecord, filteredBooks.length, totalPages);
-        }
-
-        function getVisiblePageItems(totalPages, activePage) {
-            if (totalPages <= 7) {
-                return Array.from({ length: totalPages }, (_, index) => index + 1);
-            }
-
-            const pages = [1];
-            let start = Math.max(2, activePage - 1);
-            let end = Math.min(totalPages - 1, activePage + 1);
-
-            if (activePage <= 4) {
-                start = 2;
-                end = 5;
-            }
-
-            if (activePage >= totalPages - 3) {
-                start = totalPages - 4;
-                end = totalPages - 1;
-            }
-
-            if (start > 2) {
-                pages.push('ellipsis-start');
-            }
-
-            for (let page = start; page <= end; page++) {
-                pages.push(page);
-            }
-
-            if (end < totalPages - 1) {
-                pages.push('ellipsis-end');
-            }
-
-            pages.push(totalPages);
-
-            return pages;
-        }
-
-        // Update pagination controls
-        function updatePagination() {
-            const totalPages = getTotalPages();
-            const pageNumbersContainer = document.getElementById('pageNumbers');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-
-            // Update prev/next button states
-            prevBtn.disabled = currentPage === 1;
-            nextBtn.disabled = currentPage === totalPages;
-
-            // Generate page numbers
-            pageNumbersContainer.innerHTML = '';
-
-            getVisiblePageItems(totalPages, currentPage).forEach(item => {
-                if (typeof item === 'string') {
-                    const ellipsis = document.createElement('span');
-                    ellipsis.className = 'pagination-ellipsis';
-                    ellipsis.textContent = '...';
-                    ellipsis.setAttribute('aria-hidden', 'true');
-                    pageNumbersContainer.appendChild(ellipsis);
-                    return;
-                }
-
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'pagination-btn page-number' + (item === currentPage ? ' active' : '');
-                btn.textContent = item;
-                btn.onclick = () => goToPage(item);
-                pageNumbersContainer.appendChild(btn);
-            });
-
-            syncPaginationState();
+            renderPagination(filteredBooks.length, startRecord, endRecord, totalPages);
         }
 
         // Navigation functions
@@ -1142,7 +1230,6 @@
             if (currentPage > 1) {
                 currentPage--;
                 displayPage(currentPage);
-                updatePagination();
             }
         }
 
@@ -1151,14 +1238,13 @@
             if (currentPage < totalPages) {
                 currentPage++;
                 displayPage(currentPage);
-                updatePagination();
             }
         }
 
         function goToPage(page) {
             currentPage = page;
             displayPage(currentPage);
-            updatePagination();
+            syncPaginationState();
         }
 
         function handleEntriesPerPageChange(event) {
@@ -1186,6 +1272,364 @@
         function formatCurrencyAmount(amount) {
             const normalizedAmount = Number(amount) || 0;
             return `₹${normalizedAmount.toFixed(2).replace(/\.00$/, '')}`;
+        }
+
+        function updateReportButtonState(totalRecords = filteredBooks.length) {
+            if (!printReportBtn) {
+                return;
+            }
+
+            printReportBtn.disabled = Number(totalRecords || 0) === 0;
+        }
+
+        function setupReportFeedback() {
+            booksReportFeedbackUI = window.getStudentPortalFeedback?.() || null;
+        }
+
+        function showReportToast(type, title, message, timeout) {
+            if (booksReportFeedbackUI) {
+                booksReportFeedbackUI.showToast({
+                    type,
+                    title,
+                    message,
+                    timeout,
+                });
+                return;
+            }
+
+            window.showStudentPortalToast?.(type, title, message, timeout);
+        }
+
+        function formatDisplayLabel(value, fallback = 'N/A') {
+            const normalizedValue = String(value ?? '').trim();
+
+            if (!normalizedValue) {
+                return fallback;
+            }
+
+            return normalizedValue
+                .replace(/[-_]+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .replace(/\b\w/g, (character) => character.toUpperCase());
+        }
+
+        function formatBookStatusLabel(status) {
+            return formatDisplayLabel(status, 'Issued');
+        }
+
+        function formatFineStatusLabel(status) {
+            if (String(status ?? '').toLowerCase() === 'none') {
+                return 'No Fine';
+            }
+
+            return formatDisplayLabel(status, 'No Fine');
+        }
+
+        function formatBookFineAmount(fineValue) {
+            return fineValue && fineValue !== 'No Fine' ? fineValue : 'No Fine';
+        }
+
+        function normalizeReportIsbn(isbn) {
+            return String(isbn ?? '')
+                .replace(/^isbn:\s*/i, '')
+                .trim();
+        }
+
+        function buildBooksReportFilterParams() {
+            const params = new URLSearchParams();
+            const searchValue = document.getElementById('searchInput')?.value?.trim();
+            const statusValue = document.getElementById('statusFilter')?.value || 'all';
+            const fineStatusValue = document.getElementById('fineStatusFilter')?.value || 'all';
+            const categoryValue = document.getElementById('categoryFilter')?.value || 'all';
+            const sortValue = document.getElementById('sortFilter')?.value || 'due-date-asc';
+
+            if (searchValue) {
+                params.set('search', searchValue);
+            }
+
+            if (statusValue !== 'all') {
+                params.set('status', statusValue);
+            }
+
+            if (fineStatusValue !== 'all') {
+                params.set('fine_status', fineStatusValue);
+            }
+
+            if (categoryValue !== 'all') {
+                params.set('category', categoryValue);
+            }
+
+            if (sortValue !== 'due-date-asc') {
+                params.set('sort', sortValue);
+            }
+
+            return params;
+        }
+
+        function getBooksReportFilterSummary() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const fineStatusFilter = document.getElementById('fineStatusFilter');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const sortFilter = document.getElementById('sortFilter');
+
+            return {
+                search: searchInput?.value?.trim() || 'All books',
+                status: statusFilter?.value === 'all'
+                    ? 'All statuses'
+                    : (statusFilter?.selectedOptions?.[0]?.textContent?.trim() || formatDisplayLabel(statusFilter?.value, 'All statuses')),
+                fineStatus: fineStatusFilter?.value === 'all'
+                    ? 'All fine statuses'
+                    : (fineStatusFilter?.selectedOptions?.[0]?.textContent?.trim() || formatFineStatusLabel(fineStatusFilter?.value)),
+                category: categoryFilter?.value === 'all'
+                    ? 'All categories'
+                    : (categoryFilter?.selectedOptions?.[0]?.textContent?.trim() || formatDisplayLabel(categoryFilter?.value, 'All categories')),
+                sort: sortFilter?.selectedOptions?.[0]?.textContent?.trim() || 'Due Date (Asc)',
+            };
+        }
+
+        function getMyBooksDocumentDetails() {
+            return [
+                { label: 'Student Name', value: myBooksReportStudent.name || 'Student' },
+                { label: 'Roll No', value: myBooksReportStudent.rollNo || 'N/A' },
+                { label: 'Email', value: myBooksReportStudent.email || 'N/A' },
+                { label: 'Department', value: myBooksReportStudent.department || 'N/A' },
+                { label: 'Semester', value: myBooksReportStudent.semester || 'N/A' },
+                { label: 'Batch', value: myBooksReportStudent.batch || 'N/A' },
+            ];
+        }
+
+        function buildMyBooksExportMetaRows(context) {
+            if (typeof window.ReportExportTemplates?.buildStandardMetaRows === 'function') {
+                return window.ReportExportTemplates.buildStandardMetaRows({
+                    systemTitle: myBooksReportSystemTitle,
+                    reportTitle: 'My Books Report',
+                    generatedAtLabel: context.generatedAtLabel,
+                    documentDetails: getMyBooksDocumentDetails(),
+                });
+            }
+
+            return [
+                [myBooksReportSystemTitle],
+                ['My Books Report'],
+                [context.generatedAtLabel],
+                [''],
+                ...getMyBooksDocumentDetails().map((detail) => [detail.label, detail.value]),
+                [''],
+            ];
+        }
+
+        function buildMyBooksExportFilename(context) {
+            const generatedAt = context?.generatedAt instanceof Date
+                ? context.generatedAt
+                : new Date(context?.generatedAt || Date.now());
+            const dateStamp = Number.isNaN(generatedAt.getTime())
+                ? new Date().toISOString().slice(0, 10)
+                : generatedAt.toISOString().slice(0, 10);
+            const scopeLabel = context?.isAllScope ? 'full' : 'page';
+            const studentSlug = String(myBooksReportStudent.name || myBooksReportStudent.email || 'student')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'student';
+
+            return `my-books-${studentSlug}-${scopeLabel}-${dateStamp}.xls`;
+        }
+
+        function describeMyBooksExportContext(context) {
+            const filters = getBooksReportFilterSummary();
+
+            return {
+                badgeLabel: context.isAllScope ? 'Filtered report' : 'Current page',
+                headline: `${context.rowsReady} ${context.rowsReady === 1 ? 'book' : 'books'} ready`,
+                subtext: context.isAllScope
+                    ? 'Print or download every book that matches your current filters.'
+                    : 'Print or download only the books visible on this page.',
+                previewCaption: context.isAllScope
+                    ? 'Preview of the first books from your full filtered report.'
+                    : 'Preview of the books on the current page.',
+                previewCountText: `${context.rowsReady} ${context.rowsReady === 1 ? 'book' : 'books'}`,
+                footerNote: context.isAllScope
+                    ? 'Using all filtered books for print and spreadsheet export.'
+                    : 'Using the current page for print and spreadsheet export.',
+                emptyMessage: 'No books match the selected filters.',
+                summaryItems: [
+                    { label: 'Report scope', value: context.scopeLabel },
+                    {
+                        label: 'Books included',
+                        value: context.isLoading
+                            ? 'Preparing...'
+                            : `${context.rowsReady} ${context.rowsReady === 1 ? 'book' : 'books'}`,
+                    },
+                    { label: 'Matching total', value: `${context.total} ${context.total === 1 ? 'book' : 'books'}` },
+                    {
+                        label: context.isAllScope ? 'Pages covered' : 'Page',
+                        value: context.isAllScope
+                            ? `All ${context.lastPage} ${context.lastPage === 1 ? 'page' : 'pages'}`
+                            : `${context.currentPage} of ${context.lastPage}`,
+                    },
+                    { label: 'Status', value: filters.status },
+                    { label: 'Fine Status', value: filters.fineStatus },
+                    { label: 'Category', value: filters.category },
+                    { label: 'Search', value: filters.search },
+                ],
+            };
+        }
+
+        function getCurrentBooksPageRows() {
+            const startIndex = Math.max(0, (currentPage - 1) * booksPerPage);
+            return filteredBooks.slice(startIndex, startIndex + booksPerPage);
+        }
+
+        function mapBookToExportRow(book) {
+            const normalizedIsbn = normalizeReportIsbn(book?.isbn);
+
+            return {
+                bookTitle: normalizedIsbn
+                    ? `${book?.title || 'N/A'} (${normalizedIsbn})`
+                    : (book?.title || 'N/A'),
+                author: book?.author || 'N/A',
+                issueDate: book?.issueDate || 'N/A',
+                dueDate: book?.dueDate || 'N/A',
+                returnDate: book?.returnDate || '-',
+                status: formatBookStatusLabel(book?.status),
+                fineAmount: formatBookFineAmount(book?.fine),
+                fineStatus: formatFineStatusLabel(book?.fineStatus),
+            };
+        }
+
+        function setupMyBooksExportWorkflow() {
+            if (typeof window.ReportExportWorkflow !== 'function') {
+                return;
+            }
+
+            myBooksExportWorkflow = new window.ReportExportWorkflow({
+                modalId: 'myBooksExportModal',
+                idPrefix: 'myBooksExport',
+                scopeName: 'myBooksExportScope',
+                downloadFormat: 'excel-xml',
+                sheetName: 'My Books Report',
+                document: {
+                    systemTitle: myBooksReportSystemTitle,
+                    reportTitle: 'My Books Report',
+                },
+                labels: {
+                    printButton: 'Print Report',
+                    allScopePrintButton: 'Print Full Report',
+                    downloadButton: 'Download Excel',
+                    allScopeDownloadButton: 'Download Full Excel',
+                },
+                messages: {
+                    emptyMessage: 'There are no books in the current result set.',
+                    preparingMessage: 'Preparing your full My Books report. Please wait.',
+                    printReadyMessage: 'The print dialog will open in a new window for the current My Books page.',
+                    fullPrintReadyMessage: 'The print dialog will open in a new window for the full filtered My Books report.',
+                    exportReadyMessage: 'The current My Books page has been exported to Excel.',
+                    fullExportReadyMessage: 'The full filtered My Books report has been exported to Excel.',
+                    fullLoadFailedMessage: 'Something went wrong while preparing your My Books report.',
+                },
+                columns: [
+                    { key: 'bookTitle', label: 'Book', width: '22%', emphasis: true },
+                    { key: 'author', label: 'Author', width: '13%' },
+                    { key: 'issueDate', label: 'Issue Date', width: '11%', nowrap: true },
+                    { key: 'dueDate', label: 'Due Date', width: '11%', nowrap: true },
+                    { key: 'returnDate', label: 'Return Date', width: '11%', nowrap: true },
+                    { key: 'status', label: 'Status', width: '8%', align: 'center', nowrap: true },
+                    { key: 'fineAmount', label: 'Fine Amount', width: '12%', align: 'right' },
+                    { key: 'fineStatus', label: 'Fine Status', width: '12%', align: 'center' },
+                ],
+                openModal: (modalId, focusTarget) => openMyBooksExportModal(modalId, focusTarget),
+                closeModal: (modalId) => closeMyBooksExportModal(modalId),
+                showToast: (type, title, message, timeout) => showReportToast(type, title, message, timeout),
+                getCurrentRows: () => getCurrentBooksPageRows(),
+                getAllRows: () => ({
+                    rows: filteredBooks,
+                    generatedAt: new Date().toISOString(),
+                }),
+                mapRow: (book) => mapBookToExportRow(book),
+                buildFilterParams: () => buildBooksReportFilterParams(),
+                getListingState: () => ({
+                    total: filteredBooks.length,
+                    currentPage: Math.max(1, currentPage),
+                    lastPage: Math.max(1, getTotalPages()),
+                    perPage: Math.max(1, booksPerPage),
+                }),
+                getScopeLabel: (scope) => scope === 'all' ? 'Entire filtered books report' : 'Current page',
+                getFilename: (context) => buildMyBooksExportFilename(context),
+                getDocumentDetails: () => getMyBooksDocumentDetails(),
+                getExportMetaRows: (context) => buildMyBooksExportMetaRows(context),
+                describeContext: (context) => describeMyBooksExportContext(context),
+            }).init();
+        }
+
+        function openMyBooksExportModal(modalId, focusTarget) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            const panel = modal.querySelector('.report-export-panel');
+            const closeButton = modal.querySelector('.report-export-close-btn');
+            const activeElement = document.activeElement;
+
+            myBooksExportLastTrigger = activeElement && !modal.contains(activeElement)
+                ? activeElement
+                : focusTarget;
+
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            modal.scrollTop = 0;
+            panel?.scrollTo?.({ top: 0, behavior: 'auto' });
+
+            window.setTimeout(() => {
+                const nextFocusTarget = closeButton || panel || focusTarget;
+
+                if (typeof nextFocusTarget?.focus === 'function') {
+                    try {
+                        nextFocusTarget.focus({ preventScroll: true });
+                    } catch (error) {
+                        nextFocusTarget.focus();
+                    }
+                }
+            }, 20);
+        }
+
+        function closeMyBooksExportModal(modalId = 'myBooksExportModal') {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            myBooksExportWorkflow?.handleModalClosed?.();
+
+            const focusTarget = myBooksExportLastTrigger;
+            myBooksExportLastTrigger = null;
+
+            if (typeof focusTarget?.focus === 'function') {
+                window.setTimeout(() => focusTarget.focus(), 20);
+            }
+        }
+
+        function setupMyBooksExportModalEvents() {
+            document.addEventListener('click', (event) => {
+                const closeButton = event.target.closest('[data-modal-close="myBooksExportModal"]');
+                if (closeButton) {
+                    closeMyBooksExportModal('myBooksExportModal');
+                    return;
+                }
+
+                if (event.target === myBooksExportModal) {
+                    closeMyBooksExportModal('myBooksExportModal');
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && myBooksExportModal?.classList.contains('is-open')) {
+                    closeMyBooksExportModal('myBooksExportModal');
+                }
+            });
         }
 
         // Update statistics based on filtered books
@@ -1258,6 +1702,19 @@
 
         // Event listeners for filters
         document.addEventListener('DOMContentLoaded', function() {
+            booksPagination = new window.StudentPortalPagination({
+                containerId: 'paginationContainer',
+                fromId: 'startRecord',
+                toId: 'endRecord',
+                totalId: 'totalRecords',
+                pageInfoId: 'pageInfo',
+                buttonsId: 'paginationButtons',
+            });
+
+            setupReportFeedback();
+            setupMyBooksExportWorkflow();
+            setupMyBooksExportModalEvents();
+
             // Get unique categories from backend data
             function populateCategories() {
                 const categories = [...new Set(booksData.map(book => book.category).filter(Boolean))].sort();
@@ -1288,6 +1745,14 @@
             const sortFilter = document.getElementById('sortFilter');
             const resetFiltersBtn = document.getElementById('resetFiltersBtn');
             const entriesPerPage = document.getElementById('entriesPerPage');
+            const handleReportOpen = () => {
+                if (!myBooksExportWorkflow) {
+                    showReportToast('error', 'Report unavailable', 'My Books report export is unavailable right now.');
+                    return;
+                }
+
+                myBooksExportWorkflow.open();
+            };
 
             if (searchInput) searchInput.addEventListener('input', filterBooks);
             if (statusFilter) statusFilter.addEventListener('change', filterBooks);
@@ -1295,6 +1760,7 @@
             if (categoryFilter) categoryFilter.addEventListener('change', filterBooks);
             if (sortFilter) sortFilter.addEventListener('change', filterBooks);
             if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetFilters);
+            if (printReportBtn) printReportBtn.addEventListener('click', handleReportOpen);
             if (entriesPerPage) {
                 entriesPerPage.value = String(booksPerPage);
                 entriesPerPage.addEventListener('change', handleEntriesPerPageChange);

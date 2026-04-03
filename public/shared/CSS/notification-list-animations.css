@@ -1,0 +1,56 @@
+.notification-header-link:disabled,
+.notification-detail-btn:disabled,
+.notification-delete-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    pointer-events: none;
+    transform: none;
+}
+
+.notification-item {
+    --notification-item-exit-duration: 420ms;
+    --notification-item-exit-easing: cubic-bezier(0.4, 0, 0.2, 1);
+    --notification-item-exit-shift: 44px;
+}
+
+.notification-item.notification-item-animating {
+    overflow: hidden;
+    transform-origin: center right;
+    will-change: opacity, transform, height, margin, padding;
+}
+
+.notification-item.notification-item-removing {
+    pointer-events: none;
+    animation: notificationItemExit var(--notification-item-exit-duration) var(--notification-item-exit-easing) forwards;
+    transition:
+        height var(--notification-item-exit-duration) var(--notification-item-exit-easing),
+        margin var(--notification-item-exit-duration) var(--notification-item-exit-easing),
+        padding var(--notification-item-exit-duration) var(--notification-item-exit-easing),
+        border-width var(--notification-item-exit-duration) var(--notification-item-exit-easing),
+        box-shadow 160ms ease,
+        background-color 160ms ease;
+}
+
+@keyframes notificationItemExit {
+    0% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+
+    22% {
+        opacity: 0.98;
+        transform: translateX(8px) scale(0.996);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(var(--notification-item-exit-shift)) scale(0.98);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .notification-item.notification-item-removing {
+        animation-duration: 1ms;
+        transition-duration: 1ms;
+    }
+}

@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') - Library Management</title>
     <link rel="stylesheet" href="{{ asset('student/CSS/student-appLayout.css') }}">
+    <link rel="stylesheet" href="{{ asset('shared/CSS/notification-list-animations.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,6 +14,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    @include('shared.student-portal-pagination.styles')
+    @include('shared.action-feedback.styles')
     @stack('styles')
 </head>
 
@@ -166,38 +169,13 @@
             </div>
         </div>
 
-        <div id="notificationClearConfirmModal" class="notification-detail-modal notification-detail-modal-danger" aria-hidden="true">
-            <div class="notification-detail-panel" role="dialog" aria-modal="true" aria-labelledby="notificationClearConfirmTitle" aria-describedby="notificationClearConfirmMessage">
-                <div class="notification-detail-header">
-                    <h3 id="notificationClearConfirmTitle">Clear Read Notifications</h3>
-                    <button type="button" class="notification-detail-close-btn" data-notification-clear-close aria-label="Close clear notifications confirmation">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-                <div class="notification-detail-body">
-                    <div class="notification-detail-hero">
-                        <div class="notification-detail-hero-icon" aria-hidden="true">
-                            <i data-lucide="trash-2" class="w-6 h-6"></i>
-                        </div>
-                        <div class="notification-detail-hero-copy">
-                            <span class="notification-detail-overline">Confirmation</span>
-                            <h4 class="notification-detail-hero-title" id="notificationClearConfirmHeading">Remove read notifications</h4>
-                            <p id="notificationClearConfirmMessage">Clear every read notification from the list? Unread notifications will stay in place.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="notification-detail-footer">
-                    <button type="button" class="notification-detail-btn" data-notification-clear-close>Cancel</button>
-                    <button type="button" class="notification-detail-btn primary" id="notificationClearConfirmOkBtn">Clear all</button>
-                </div>
-            </div>
-        </div>
-
         <div class="flex-1 p-3 overflow-y-auto md:p-2">
             @yield('content')
         </div>
     </main>
 </div>
+
+@include('shared.action-feedback.markup')
 
 <!-- API URLs for Notifications -->
 <script>
@@ -212,11 +190,48 @@
     };
 </script>
 
+@include('shared.action-feedback.scripts')
+<script>
+    (() => {
+        const feedback = typeof window.ActionFeedbackUI === 'function'
+            ? new window.ActionFeedbackUI()
+            : null;
+
+        window.StudentPortalFeedback = feedback;
+        window.getStudentPortalFeedback = () => window.StudentPortalFeedback || null;
+        window.showStudentPortalToast = (type, title, message, timeout = 4200, detail = '') => {
+            const payload = typeof type === 'object' && type !== null
+                ? type
+                : { type, title, message, timeout, detail };
+            const portalFeedback = window.getStudentPortalFeedback();
+
+            if (portalFeedback) {
+                portalFeedback.showToast(payload);
+                return;
+            }
+
+            const normalizedType = payload.type === 'error' ? 'error' : 'log';
+            console[normalizedType](`${payload.title || 'Notice'}: ${payload.message || ''}`);
+        };
+        window.confirmStudentPortalAction = (options = {}) => {
+            const portalFeedback = window.getStudentPortalFeedback();
+
+            if (portalFeedback?.confirm) {
+                return portalFeedback.confirm(options);
+            }
+
+            console.warn('Student portal action feedback confirmation is unavailable.', options);
+            return Promise.resolve(false);
+        };
+    })();
+</script>
 <script src="{{ asset('student/JS/services/notification-api.js') }}"></script>
+<script src="{{ asset('shared/JS/components/notification-list-animator.js') }}"></script>
 <script src="{{ asset('student/JS/components/notification-list.js') }}"></script>
 <script src="{{ asset('student/JS/components/notification-detail-modal.js') }}"></script>
 <script src="{{ asset('student/JS/student-appLayout.js') }}"></script>
 
+@include('shared.student-portal-pagination.scripts')
 @stack('scripts')
 </body>
 </html>

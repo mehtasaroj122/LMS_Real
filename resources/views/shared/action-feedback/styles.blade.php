@@ -155,6 +155,7 @@
             padding: 1.5rem;
             background: rgba(15, 23, 42, 0.58);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 2050;
         }
 

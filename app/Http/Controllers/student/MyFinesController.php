@@ -16,10 +16,11 @@ class MyFinesController extends Controller
         Gate::authorize('access-student');
 
         $user = Auth::user();
-        $student = Student::where('user_id', $user->id)->first();
+        $student = Student::with('department')->where('user_id', $user->id)->first();
 
         if (!$student) {
             return view('Student.MyFines', [
+                'student' => null,
                 'finesJson' => json_encode([]),
                 'outstandingAmount' => 0,
                 'paidAmount' => 0,
@@ -82,6 +83,7 @@ class MyFinesController extends Controller
         })->toArray());
 
         return view('Student.MyFines', [
+            'student' => $student,
             'finesJson' => $finesJson,
             'outstandingAmount' => $outstandingAmount,
             'paidAmount' => $paidAmount,

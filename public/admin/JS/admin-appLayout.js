@@ -81,6 +81,10 @@ function initializeAdminNotifications() {
         fetchPromise: null,
         lastLoadedAt: 0,
         refreshTimer: null,
+        pendingRemovals: new Map(),
+        isClearingAll: false,
+        requestSequence: 0,
+        minResponseSequence: 0,
     };
 
     notificationBtn.addEventListener('click', (event) => {
@@ -101,6 +105,10 @@ function initializeAdminNotifications() {
     markAllReadBtn?.addEventListener('click', async (event) => {
         event.stopPropagation();
 
+        if (markAllReadBtn.disabled) {
+            return;
+        }
+
         try {
             await api.markAllAsRead();
             list.markAllAsRead();
@@ -113,8 +121,13 @@ function initializeAdminNotifications() {
         }
     });
 
-    deleteAllBtn?.addEventListener('click', async (event) => {
+    deleteAllBtn?.addEventListener('click', (event) => {
         event.stopPropagation();
+
+        if (deleteAllBtn.disabled) {
+            return;
+        }
+
         openClearConfirmModal();
     });
 
@@ -149,6 +162,7 @@ function initializeAdminNotifications() {
     startAutoRefresh();
     prefetchNotifications({ suppressErrors: true }).catch(() => {});
     bindClearConfirmModal();
+    syncActionAvailability();
 
     async function handleNotificationClick(notificationId) {
         const summary = list.getNotification(notificationId);
@@ -195,6 +209,7 @@ function initializeAdminNotifications() {
 
                     if (syncedNotification?.readAt) {
                         list.markAsRead(notificationId, syncedNotification.readAt);
+                        syncCacheFromList();
                     }
 
                     refreshUnreadCount();
@@ -207,26 +222,52 @@ function initializeAdminNotifications() {
     }
 
     async function handleDeleteNotification(notificationId) {
-        const notification = list.getNotification(notificationId);
+        const resolvedId = String(notificationId);
+        const notification = list.getNotification(resolvedId);
+
+        if (
+            !notification ||
+            state.isClearingAll ||
+            state.pendingRemovals.has(resolvedId) ||
+            list.isAnimating(resolvedId)
+        ) {
+            return;
+        }
+
+        const previousNotifications = [...list.notifications];
+        const previousUnreadCount = state.unreadCount;
+
+        advanceMutationBarrier();
+        rememberPendingRemoval(notification);
+        syncActionAvailability();
+
+        await list.animateRemove(resolvedId);
+        list.remove(resolvedId);
+        syncCacheFromList();
+
+        if (!notification.readAt) {
+            setUnreadCount(previousUnreadCount - 1);
+        }
+
+        if (modal.isOpen() && String(modal.getActiveNotificationId()) === resolvedId) {
+            modal.close();
+        }
 
         try {
-            await api.deleteNotification(notificationId);
-            list.remove(notificationId);
-            syncCacheFromList();
-
-            if (!notification?.readAt) {
-                setUnreadCount(state.unreadCount - 1);
-            }
-
-            if (modal.isOpen() && String(modal.getActiveNotificationId()) === String(notificationId)) {
-                modal.close();
-            }
-
-            await refreshUnreadCount();
+            await api.deleteNotification(resolvedId);
         } catch (error) {
+            forgetPendingRemoval(resolvedId);
+            restoreNotificationSnapshot(previousNotifications, previousUnreadCount);
             console.error('Error deleting notification:', error);
             window.alert(error.message || 'Unable to delete this notification right now.');
+            return;
         }
+
+        advanceMutationBarrier();
+        forgetPendingRemoval(resolvedId);
+        syncActionAvailability();
+        await loadNotifications({ silent: true, force: true });
+        await refreshUnreadCount();
     }
 
     function setPopupOpen(isOpen) {
@@ -235,6 +276,8 @@ function initializeAdminNotifications() {
         if (isOpen) {
             positionNotificationPopup();
         }
+
+        syncActionAvailability();
     }
 
     function isAnyNotificationModalOpen() {
@@ -261,31 +304,60 @@ function initializeAdminNotifications() {
                 return;
             }
 
+            const readNotifications = list.notifications.filter((notification) => notification?.readAt);
+            if (readNotifications.length === 0) {
+                closeClearConfirmModal();
+                syncActionAvailability();
+                return;
+            }
+
+            const previousNotifications = [...list.notifications];
+            const previousUnreadCount = state.unreadCount;
+            const removedIds = readNotifications.map((notification) => String(notification.id));
+            const activeNotificationId = modal.getActiveNotificationId();
+            const closesActiveModal = modal.isOpen() && removedIds.includes(String(activeNotificationId));
             const defaultLabel = clearConfirmOkBtn.dataset.defaultLabel || clearConfirmOkBtn.textContent || 'Clear all';
+
             clearConfirmOkBtn.dataset.defaultLabel = defaultLabel;
             clearConfirmOkBtn.disabled = true;
             clearConfirmOkBtn.textContent = 'Clearing...';
 
+            advanceMutationBarrier();
+            state.isClearingAll = true;
+            readNotifications.forEach((notification) => rememberPendingRemoval(notification));
+            syncActionAvailability();
+            closeClearConfirmModal();
+
+            await list.animateRemoveMany(removedIds, { staggerStep: 44 });
+            list.removeMany(removedIds);
+            syncCacheFromList();
+
+            if (closesActiveModal) {
+                modal.close();
+            }
+
             try {
                 await api.deleteAllRead();
-                closeClearConfirmModal();
-                await loadNotifications({ silent: true, force: true });
-                await refreshUnreadCount();
-
-                if (modal.isOpen()) {
-                    const activeNotificationId = modal.getActiveNotificationId();
-                    if (!list.getNotification(activeNotificationId)) {
-                        modal.close();
-                    }
-                }
             } catch (error) {
+                state.isClearingAll = false;
+                removedIds.forEach((notificationId) => forgetPendingRemoval(notificationId));
+                restoreNotificationSnapshot(previousNotifications, previousUnreadCount);
                 console.error('Error clearing read notifications:', error);
-                closeClearConfirmModal();
                 window.alert(error.message || 'Unable to clear notifications right now.');
-            } finally {
                 clearConfirmOkBtn.disabled = false;
                 clearConfirmOkBtn.textContent = defaultLabel;
+                return;
             }
+
+            advanceMutationBarrier();
+            state.isClearingAll = false;
+            removedIds.forEach((notificationId) => forgetPendingRemoval(notificationId));
+            syncActionAvailability();
+            await loadNotifications({ silent: true, force: true });
+            await refreshUnreadCount();
+
+            clearConfirmOkBtn.disabled = false;
+            clearConfirmOkBtn.textContent = defaultLabel;
         });
     }
 
@@ -326,11 +398,13 @@ function initializeAdminNotifications() {
     function openNotificationsPanel() {
         if (state.hasLoadedOnce) {
             list.render(state.notificationsCache);
+            syncActionAvailability();
             prefetchNotifications({ suppressErrors: true }).catch(() => {});
             return;
         }
 
         list.setLoading();
+        syncActionAvailability();
         prefetchNotifications().catch(() => {});
     }
 
@@ -355,6 +429,7 @@ function initializeAdminNotifications() {
 
         if (!silent && !state.hasLoadedOnce) {
             list.setLoading();
+            syncActionAvailability();
         }
 
         try {
@@ -367,6 +442,7 @@ function initializeAdminNotifications() {
 
             if (!silent && !state.hasLoadedOnce) {
                 list.setError(error.message || 'Unable to load notifications right now.');
+                syncActionAvailability();
             }
         }
     }
@@ -434,23 +510,94 @@ function initializeAdminNotifications() {
             : 0;
     }
 
+    function countPendingUnreadRemovals() {
+        let total = 0;
+        state.pendingRemovals.forEach((notification) => {
+            if (!notification?.readAt) {
+                total += 1;
+            }
+        });
+
+        return total;
+    }
+
+    function filterPendingRemovals(notifications) {
+        if (state.pendingRemovals.size === 0) {
+            return Array.isArray(notifications) ? notifications : [];
+        }
+
+        return (Array.isArray(notifications) ? notifications : []).filter((notification) => (
+            !state.pendingRemovals.has(String(notification?.id))
+        ));
+    }
+
+    function rememberPendingRemoval(notification) {
+        if (!notification?.id) {
+            return;
+        }
+
+        state.pendingRemovals.set(String(notification.id), notification);
+    }
+
+    function forgetPendingRemoval(notificationId) {
+        state.pendingRemovals.delete(String(notificationId));
+    }
+
+    function advanceMutationBarrier() {
+        state.minResponseSequence = state.requestSequence + 1;
+    }
+
+    function restoreNotificationSnapshot(notifications, unreadCount) {
+        list.render(notifications);
+        syncCacheFromList();
+        setUnreadCount(unreadCount);
+        syncActionAvailability();
+    }
+
     function syncCacheFromList() {
         state.notificationsCache = Array.isArray(list.notifications) ? [...list.notifications] : [];
         state.hasLoadedOnce = true;
         persistNotificationsCache();
+        syncActionAvailability();
+    }
+
+    function syncActionAvailability() {
+        const sourceNotifications = notificationPopup.classList.contains('active')
+            ? list.notifications
+            : state.notificationsCache;
+        const notifications = Array.isArray(sourceNotifications) ? sourceNotifications : [];
+        const isBusy = state.isClearingAll || state.pendingRemovals.size > 0 || list.hasActiveAnimations();
+        const hasUnreadNotifications = notifications.some((notification) => !notification?.readAt);
+        const hasReadNotifications = notifications.some((notification) => notification?.readAt);
+
+        if (markAllReadBtn) {
+            markAllReadBtn.disabled = isBusy || !hasUnreadNotifications;
+        }
+
+        if (deleteAllBtn) {
+            deleteAllBtn.disabled = isBusy || !hasReadNotifications;
+        }
     }
 
     function applyNotificationPayload(payload) {
-        state.notificationsCache = Array.isArray(payload?.data) ? payload.data : [];
+        const filteredNotifications = filterPendingRemovals(payload?.data);
+        const unreadCountFromServer = Number(payload?.unread_count);
+
+        state.notificationsCache = filteredNotifications;
         state.hasLoadedOnce = true;
         state.lastLoadedAt = Date.now();
 
-        if (notificationPopup.classList.contains('active')) {
+        if (notificationPopup.classList.contains('active') && !list.hasActiveAnimations()) {
             list.render(state.notificationsCache);
         }
 
-        setUnreadCount(payload?.unread_count ?? countUnreadNotifications(state.notificationsCache));
+        setUnreadCount(
+            Number.isFinite(unreadCountFromServer)
+                ? Math.max(0, unreadCountFromServer - countPendingUnreadRemovals())
+                : countUnreadNotifications(state.notificationsCache)
+        );
         persistNotificationsCache();
+        syncActionAvailability();
     }
 
     async function prefetchNotifications(options = {}) {
@@ -461,14 +608,19 @@ function initializeAdminNotifications() {
             return state.fetchPromise;
         }
 
+        const requestSequence = ++state.requestSequence;
         const requestPromise = api.fetchNotifications()
             .then((payload) => {
-                applyNotificationPayload(payload);
+                if (requestSequence >= state.minResponseSequence) {
+                    applyNotificationPayload(payload);
+                }
+
                 return payload;
             })
             .catch((error) => {
                 if (notificationPopup.classList.contains('active') && !state.hasLoadedOnce && !suppressErrors) {
                     list.setError(error.message || 'Unable to load notifications right now.');
+                    syncActionAvailability();
                 }
 
                 throw error;

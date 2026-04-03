@@ -625,139 +625,6 @@
             color: var(--text-secondary);
         }
 
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-
-        .modal {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 1rem;
-            max-width: 360px;
-            width: 100%;
-            border: 1px solid var(--border-color);
-        }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .modal-icon {
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 9999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .modal-icon svg {
-            width: 1.25rem;
-            height: 1.25rem;
-        }
-
-        .modal-icon-warning {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--warning-color);
-        }
-
-        .modal-icon-success {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success-color);
-        }
-
-        .modal-icon-danger {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger-color);
-        }
-
-        .modal h3 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
-        }
-
-        .modal p {
-            color: var(--text-secondary);
-            margin: 0 0 1rem;
-            line-height: 1.4;
-            font-size: 0.8rem;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-        }
-
-        .modal-actions.is-single-action {
-            justify-content: flex-end;
-        }
-
-        .modal-btn {
-            padding: 0.25rem 0.75rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1px solid transparent;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .modal-btn.cancel {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }
-
-        .modal-btn.cancel:hover {
-            border-color: var(--text-muted);
-        }
-
-        .modal-btn.confirm {
-            background: var(--danger-color);
-            border: 1px solid var(--danger-color);
-            color: white;
-        }
-
-        .modal-btn.confirm:hover {
-            filter: brightness(0.95);
-        }
-
-        .modal-btn.success {
-            background: var(--success-color);
-            border: 1px solid var(--success-color);
-            color: white;
-        }
-
-        .modal-btn.success:hover {
-            filter: brightness(0.95);
-        }
-
-        .modal-btn:disabled {
-            opacity: 0.65;
-            cursor: not-allowed;
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .page-header h1 {
@@ -815,14 +682,6 @@
 
             .mobile-value {
                 text-align: left;
-                width: 100%;
-            }
-
-            .modal-actions {
-                flex-direction: column;
-            }
-
-            .modal-btn {
                 width: 100%;
             }
 
@@ -960,16 +819,16 @@
             <button type="button" class="reset-filter-btn" id="resetFiltersBtn">Reset</button>
         </div>
 
-        <div class="entries-control">
-            <label class="entries-label" for="entriesPerPage">Show</label>
-            <select class="filter-select entries-select" id="entriesPerPage">
+        <label class="entries-control admin-table-entries-control" for="entriesPerPage">
+            <span class="entries-label">Show</span>
+            <select class="filter-select entries-select admin-table-entries-select" id="entriesPerPage">
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
             </select>
             <span class="entries-suffix">entries</span>
-        </div>
+        </label>
     </div>
 
     <div class="requests-container">
@@ -1010,43 +869,17 @@
         </div>
 
         <!-- Pagination -->
-        <div class="pagination-container" id="paginationContainer" style="display: none;">
-            <div class="pagination-info">
-                <span>Showing <span id="paginationStart">1</span> to <span id="paginationEnd">10</span> of <span id="paginationTotal">0</span> results</span>
-                <span class="pagination-page-summary">Page <span id="paginationCurrentPage">1</span> of <span id="paginationTotalPages">1</span></span>
-            </div>
-            <div class="pagination-controls">
-                <button type="button" class="pagination-btn nav-btn" id="paginationPrev" onclick="previousPage()">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <div id="paginationNumbers"></div>
-                <button type="button" class="pagination-btn nav-btn" id="paginationNext" onclick="nextPage()">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
-        </div>
+        @include('shared.student-portal-pagination.markup', [
+            'containerId' => 'paginationContainer',
+            'fromId' => 'paginationStart',
+            'toId' => 'paginationEnd',
+            'totalId' => 'paginationTotal',
+            'pageInfoId' => 'paginationPageInfo',
+            'buttonsId' => 'paginationButtons',
+            'label' => 'requests',
+        ])
     </div>
 
-    <!-- Cancel Confirmation Modal -->
-    <div id="cancelModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-icon modal-icon-warning" id="requestModalIcon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
-                    </svg>
-                </div>
-                <h3 id="requestModalTitle">Cancel Request</h3>
-            </div>
-            <p id="requestModalMessage">Are you sure you want to cancel this book request? This action cannot be undone.</p>
-            <div class="modal-actions" id="requestModalActions">
-                <button class="modal-btn cancel" id="requestModalSecondaryBtn">No, Keep It</button>
-                <button class="modal-btn confirm" id="requestModalPrimaryBtn">Yes, Cancel Request</button>
-            </div>
-        </div>
-    </div>
 @endsection
 
 @push('scripts')
@@ -1054,13 +887,7 @@
         // Requests data from backend
         const requestsData = {!! $requestsJson !!};
         const currentUserName = @json(auth()->user()?->name ?? 'Student');
-
-        // Store the ID of the request being cancelled
-        let currentRequestId = null;
-        const requestModalState = {
-            primaryAction: null,
-            secondaryAction: null,
-        };
+        const requestFeedback = window.getStudentPortalFeedback?.() || null;
 
         function escapeHtml(value) {
             return String(value ?? '')
@@ -1069,6 +896,21 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        function showRequestToast(type, title, message, detail = '', timeout = 4200) {
+            if (typeof window.showStudentPortalToast === 'function') {
+                window.showStudentPortalToast(type, title, message, timeout, detail);
+                return;
+            }
+
+            if (requestFeedback) {
+                requestFeedback.showToast({ type, title, message, detail, timeout });
+                return;
+            }
+
+            const logger = type === 'error' ? console.error : console.log;
+            logger(`${title || 'Notice'}: ${message || ''}`);
         }
 
         function getStatusLabel(status) {
@@ -1118,32 +960,6 @@
             return renderCancelButton(request, 'Cancel Request');
         }
 
-        function getRequestModalIconSvg(type) {
-            const icons = {
-                warning: `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
-                    </svg>
-                `,
-                success: `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5" />
-                    </svg>
-                `,
-                danger: `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
-                    </svg>
-                `,
-            };
-
-            return icons[type] || icons.warning;
-        }
-
         function getRequestDisplayDate(request) {
             return request.requestDate || 'N/A';
         }
@@ -1157,6 +973,7 @@
         let itemsPerPage = getInitialItemsPerPage();
         let currentPage = getInitialPage();
         let filteredRequests = [];
+        let requestsPagination = null;
 
         function getInitialItemsPerPage() {
             const perPage = Number(new URLSearchParams(window.location.search).get('per_page'));
@@ -1182,48 +999,16 @@
             window.history.replaceState({}, '', nextUrl);
         }
 
-        function updatePaginationInfo(startRecord, endRecord, totalRecords, totalPages) {
-            document.getElementById('paginationStart').textContent = startRecord;
-            document.getElementById('paginationEnd').textContent = endRecord;
-            document.getElementById('paginationTotal').textContent = totalRecords;
-            document.getElementById('paginationCurrentPage').textContent = totalRecords === 0 ? 0 : currentPage;
-            document.getElementById('paginationTotalPages').textContent = totalRecords === 0 ? 0 : totalPages;
-        }
-
-        function getVisiblePageItems(totalPages, activePage) {
-            if (totalPages <= 7) {
-                return Array.from({ length: totalPages }, (_, index) => index + 1);
-            }
-
-            const pages = [1];
-            let start = Math.max(2, activePage - 1);
-            let end = Math.min(totalPages - 1, activePage + 1);
-
-            if (activePage <= 4) {
-                start = 2;
-                end = 5;
-            }
-
-            if (activePage >= totalPages - 3) {
-                start = totalPages - 4;
-                end = totalPages - 1;
-            }
-
-            if (start > 2) {
-                pages.push('ellipsis-start');
-            }
-
-            for (let page = start; page <= end; page++) {
-                pages.push(page);
-            }
-
-            if (end < totalPages - 1) {
-                pages.push('ellipsis-end');
-            }
-
-            pages.push(totalPages);
-
-            return pages;
+        function renderPagination(totalRecords, startRecord, endRecord, totalPages) {
+            requestsPagination?.render({
+                total: totalRecords,
+                from: startRecord,
+                to: endRecord,
+                currentPage,
+                lastPage: totalPages,
+                onPageChange: (page) => goToPage(page),
+            });
+            syncPaginationState();
         }
 
         // Render requests table and mobile cards
@@ -1231,7 +1016,6 @@
             const tableBody = document.getElementById('requestsTableBody');
             const mobileContainer = document.getElementById('requestsMobile');
             const emptyState = document.getElementById('emptyState');
-            const paginationContainer = document.getElementById('paginationContainer');
 
             filteredRequests = requests;
 
@@ -1246,51 +1030,13 @@
                 tableBody.innerHTML = '';
                 mobileContainer.innerHTML = '';
                 emptyState.style.display = 'block';
-                paginationContainer.style.display = 'none';
-                updatePaginationInfo(0, 0, 0, 0);
+                renderPagination(0, 0, 0, 0);
                 syncPaginationState();
                 return;
             }
 
             emptyState.style.display = 'none';
-            paginationContainer.style.display = 'flex';
             displayCurrentPage();
-            updatePagination();
-        }
-
-        // Update pagination display
-        function updatePagination() {
-            const totalPages = getTotalPages();
-            const paginationContainer = document.getElementById('paginationContainer');
-            const numbersContainer = document.getElementById('paginationNumbers');
-            const previousButton = document.getElementById('paginationPrev');
-            const nextButton = document.getElementById('paginationNext');
-
-            paginationContainer.style.display = filteredRequests.length > 0 ? 'flex' : 'none';
-            previousButton.disabled = currentPage === 1;
-            nextButton.disabled = currentPage === totalPages;
-
-            numbersContainer.innerHTML = '';
-
-            getVisiblePageItems(totalPages, currentPage).forEach(item => {
-                if (typeof item === 'string') {
-                    const ellipsis = document.createElement('span');
-                    ellipsis.className = 'pagination-ellipsis';
-                    ellipsis.textContent = '...';
-                    ellipsis.setAttribute('aria-hidden', 'true');
-                    numbersContainer.appendChild(ellipsis);
-                    return;
-                }
-
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = `pagination-btn page-number${item === currentPage ? ' active' : ''}`;
-                btn.textContent = item;
-                btn.onclick = () => goToPage(item);
-                numbersContainer.appendChild(btn);
-            });
-
-            syncPaginationState();
         }
 
         function handleEntriesPerPageChange(event) {
@@ -1314,7 +1060,6 @@
 
             currentPage = page;
             displayCurrentPage();
-            updatePagination();
         }
 
         // Display current page data
@@ -1325,7 +1070,7 @@
             const totalPages = getTotalPages();
 
             renderPageRequests(pageRequests);
-            updatePaginationInfo(start + 1, Math.min(end, filteredRequests.length), filteredRequests.length, totalPages);
+            renderPagination(filteredRequests.length, start + 1, Math.min(end, filteredRequests.length), totalPages);
         }
 
         // Render specific page requests
@@ -1396,7 +1141,6 @@
             if (currentPage < totalPages) {
                 currentPage++;
                 displayCurrentPage();
-                updatePagination();
             }
         }
 
@@ -1405,7 +1149,6 @@
             if (currentPage > 1) {
                 currentPage--;
                 displayCurrentPage();
-                updatePagination();
             }
         }
 
@@ -1504,6 +1247,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            requestsPagination = new window.StudentPortalPagination({
+                containerId: 'paginationContainer',
+                fromId: 'paginationStart',
+                toId: 'paginationEnd',
+                totalId: 'paginationTotal',
+                pageInfoId: 'paginationPageInfo',
+                buttonsId: 'paginationButtons',
+            });
+
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
             const dateFilter = document.getElementById('dateFilter');
@@ -1522,50 +1274,6 @@
             renderRequests(requestsData, { preservePage: true });
         });
 
-        function openRequestModal({
-            tone = 'warning',
-            title,
-            message,
-            primaryLabel = 'OK',
-            primaryClass = 'confirm',
-            onPrimary = hideCancelModal,
-            secondaryLabel = '',
-            onSecondary = hideCancelModal,
-        }) {
-            const modal = document.getElementById('cancelModal');
-            const icon = document.getElementById('requestModalIcon');
-            const titleElement = document.getElementById('requestModalTitle');
-            const messageElement = document.getElementById('requestModalMessage');
-            const actions = document.getElementById('requestModalActions');
-            const primaryButton = document.getElementById('requestModalPrimaryBtn');
-            const secondaryButton = document.getElementById('requestModalSecondaryBtn');
-
-            icon.className = `modal-icon modal-icon-${tone}`;
-            icon.innerHTML = getRequestModalIconSvg(tone);
-            titleElement.textContent = title;
-            messageElement.textContent = message;
-
-            primaryButton.className = `modal-btn ${primaryClass}`;
-            primaryButton.textContent = primaryLabel;
-            primaryButton.disabled = false;
-
-            if (secondaryLabel) {
-                secondaryButton.style.display = 'inline-flex';
-                secondaryButton.textContent = secondaryLabel;
-                secondaryButton.disabled = false;
-                actions.classList.remove('is-single-action');
-                requestModalState.secondaryAction = onSecondary;
-            } else {
-                secondaryButton.style.display = 'none';
-                secondaryButton.disabled = false;
-                actions.classList.add('is-single-action');
-                requestModalState.secondaryAction = null;
-            }
-
-            requestModalState.primaryAction = onPrimary;
-            modal.style.display = 'flex';
-        }
-
         function setCancelButtonsLoading(requestId, isLoading) {
             const cancelButtons = document.querySelectorAll(`.cancel-btn[data-request-id="${requestId}"]`);
 
@@ -1576,47 +1284,52 @@
             });
         }
 
-        function showCancelModal(requestId) {
-            currentRequestId = requestId;
-            openRequestModal({
-                tone: 'warning',
-                title: 'Cancel Request',
+        function getRequestById(requestId) {
+            return requestsData.find(request => Number(request.id) === Number(requestId)) || null;
+        }
+
+        async function showCancelModal(requestId) {
+            const request = getRequestById(requestId);
+
+            if (!request) {
+                return;
+            }
+
+            const confirmOptions = {
+                variant: 'warning',
+                buttonVariant: 'danger',
+                title: 'Cancel request?',
                 message: 'Are you sure you want to cancel this book request? This action cannot be undone.',
-                primaryLabel: 'Yes, Cancel Request',
-                primaryClass: 'confirm',
-                onPrimary: confirmCancel,
-                secondaryLabel: 'No, Keep It',
-                onSecondary: hideCancelModal,
-            });
+                detail: `${request.title} • Requested on ${getRequestDisplayDate(request)}`,
+                confirmText: 'Yes, Cancel Request',
+                cancelText: 'No, Keep It',
+            };
+            const confirmed = typeof window.confirmStudentPortalAction === 'function'
+                ? await window.confirmStudentPortalAction(confirmOptions)
+                : requestFeedback?.confirm
+                    ? await requestFeedback.confirm(confirmOptions)
+                    : false;
+
+            if (!confirmed) {
+                return;
+            }
+
+            await cancelRequest(requestId);
         }
 
-        function hideCancelModal() {
-            document.getElementById('cancelModal').style.display = 'none';
-            requestModalState.primaryAction = null;
-            requestModalState.secondaryAction = null;
-            currentRequestId = null;
-        }
-
-        function confirmCancel() {
-            if (!currentRequestId) return;
-
-            const requestId = currentRequestId;
-            const primaryButton = document.getElementById('requestModalPrimaryBtn');
-            const secondaryButton = document.getElementById('requestModalSecondaryBtn');
-
+        async function cancelRequest(requestId) {
+            const request = getRequestById(requestId);
             setCancelButtonsLoading(requestId, true);
-            primaryButton.disabled = true;
-            primaryButton.textContent = 'Cancelling...';
-            secondaryButton.disabled = true;
 
-            fetch(`/student/my-requests/${requestId}/cancel`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(async response => {
+            try {
+                const response = await fetch(`/student/my-requests/${requestId}/cancel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                });
+
                 let data = {};
 
                 try {
@@ -1628,13 +1341,7 @@
                     };
                 }
 
-                return {
-                    ok: response.ok,
-                    data,
-                };
-            })
-            .then(({ ok, data }) => {
-                if (ok && data.success) {
+                if (response.ok && data.success) {
                     const requestIndex = requestsData.findIndex(r => r.id === requestId);
                     if (requestIndex !== -1) {
                         requestsData[requestIndex].status = 'cancelled';
@@ -1642,67 +1349,33 @@
                     }
 
                     filterRequests({ preservePage: true });
-
-                    openRequestModal({
-                        tone: 'success',
-                        title: 'Request Cancelled',
-                        message: data.message || 'Your request has been cancelled successfully.',
-                        primaryLabel: 'OK',
-                        primaryClass: 'success',
-                        onPrimary: hideCancelModal,
-                    });
-                } else {
-                    setCancelButtonsLoading(requestId, false);
-                    openRequestModal({
-                        tone: 'danger',
-                        title: 'Unable to Cancel',
-                        message: data.message || 'An error occurred while cancelling the request.',
-                        primaryLabel: 'OK',
-                        primaryClass: 'confirm',
-                        onPrimary: hideCancelModal,
-                    });
+                    showRequestToast(
+                        'success',
+                        'Request cancelled',
+                        data.message || 'Your request has been cancelled successfully.',
+                        request?.title || 'Book request',
+                        4800
+                    );
+                    return;
                 }
-            })
-            .catch(error => {
+
+                setCancelButtonsLoading(requestId, false);
+                showRequestToast(
+                    'error',
+                    'Unable to cancel',
+                    data.message || 'An error occurred while cancelling the request.',
+                    request?.title || 'Book request'
+                );
+            } catch (error) {
                 console.error('Error:', error);
                 setCancelButtonsLoading(requestId, false);
-                openRequestModal({
-                    tone: 'danger',
-                    title: 'Unable to Cancel',
-                    message: 'An error occurred while cancelling the request.',
-                    primaryLabel: 'OK',
-                    primaryClass: 'confirm',
-                    onPrimary: hideCancelModal,
-                });
-            });
+                showRequestToast(
+                    'error',
+                    'Unable to cancel',
+                    'An error occurred while cancelling the request.',
+                    request?.title || 'Book request'
+                );
+            }
         }
-
-        document.getElementById('requestModalPrimaryBtn').addEventListener('click', function() {
-            if (typeof requestModalState.primaryAction === 'function') {
-                requestModalState.primaryAction();
-            }
-        });
-
-        document.getElementById('requestModalSecondaryBtn').addEventListener('click', function() {
-            if (typeof requestModalState.secondaryAction === 'function') {
-                requestModalState.secondaryAction();
-            } else {
-                hideCancelModal();
-            }
-        });
-
-        // Close modal when clicking outside
-        document.getElementById('cancelModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideCancelModal();
-            }
-        });
-
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                hideCancelModal();
-            }
-        });
     </script>
 @endpush

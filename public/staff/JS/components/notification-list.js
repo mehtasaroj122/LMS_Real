@@ -70,12 +70,21 @@
             this.onDeleteClick = options.onDeleteClick || (() => {});
             this.onRetryClick = options.onRetryClick || (() => {});
             this.notifications = [];
+            this.animator = this.root && window.NotificationListAnimator
+                ? new window.NotificationListAnimator(this.root, options.animation || {})
+                : null;
 
             this.handleClick = this.handleClick.bind(this);
             this.root?.addEventListener('click', this.handleClick);
         }
 
         handleClick(event) {
+            const animatingItem = event.target.closest('.notification-item.notification-item-animating');
+            if (animatingItem) {
+                event.preventDefault();
+                return;
+            }
+
             const retryButton = event.target.closest('[data-notification-action="retry"]');
             if (retryButton) {
                 this.onRetryClick();
@@ -92,6 +101,12 @@
             const item = event.target.closest('.notification-item[data-id]');
             if (item) {
                 this.onNotificationClick(item.getAttribute('data-id'));
+            }
+        }
+
+        ensureAnimator() {
+            if (!this.animator && this.root && window.NotificationListAnimator) {
+                this.animator = new window.NotificationListAnimator(this.root);
             }
         }
 
@@ -141,7 +156,38 @@
             }
 
             this.root.innerHTML = this.notifications.map(renderNotificationItem).join('');
+            this.ensureAnimator();
             lucide.createIcons();
+        }
+
+        async animateRemove(notificationId, options = {}) {
+            this.ensureAnimator();
+
+            if (!this.animator) {
+                return false;
+            }
+
+            return this.animator.animateRemoval(notificationId, options);
+        }
+
+        async animateRemoveMany(notificationIds, options = {}) {
+            this.ensureAnimator();
+
+            if (!this.animator) {
+                return false;
+            }
+
+            return this.animator.animateRemovals(notificationIds, options);
+        }
+
+        isAnimating(notificationId) {
+            this.ensureAnimator();
+            return this.animator ? this.animator.isAnimating(notificationId) : false;
+        }
+
+        hasActiveAnimations() {
+            this.ensureAnimator();
+            return this.animator ? this.animator.hasActiveAnimations() : false;
         }
 
         getNotification(notificationId) {
@@ -170,6 +216,13 @@
 
         remove(notificationId) {
             this.notifications = this.notifications.filter((notification) => String(notification.id) !== String(notificationId));
+            this.render(this.notifications);
+        }
+
+        removeMany(notificationIds) {
+            const idsToRemove = new Set((Array.isArray(notificationIds) ? notificationIds : []).map((notificationId) => String(notificationId)));
+
+            this.notifications = this.notifications.filter((notification) => !idsToRemove.has(String(notification.id)));
             this.render(this.notifications);
         }
     }

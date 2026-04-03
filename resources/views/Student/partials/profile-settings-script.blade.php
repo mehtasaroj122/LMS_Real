@@ -15,8 +15,7 @@
             flashError: @json(session('error')),
             startProfileEditing: false,
             startPasswordEditing: false,
-            confirmResolver: null,
-            confirmPreviousFocus: null,
+            feedbackUI: null,
         };
 
         const profileFields = ['name', 'email', 'phone', 'address'];
@@ -88,12 +87,12 @@
 
             state.originalProfile = snapshot();
             hydrateErrors();
+            initializeFeedbackUI();
             bindTabs();
             bindProfile();
             bindPhoto();
             bindPassword();
             bindToggles();
-            bindConfirmModal();
             updateCounter();
             updatePasswordRequirements();
 
@@ -148,11 +147,10 @@
             els.leftUserName = document.getElementById('leftUserName');
             els.leftUserEmail = document.getElementById('leftUserEmail');
             els.leftUsernameValue = document.getElementById('leftUsernameValue');
-            els.settingsConfirmModal = document.getElementById('settingsConfirmModal');
-            els.settingsConfirmTitle = document.getElementById('settingsConfirmTitle');
-            els.settingsConfirmMessage = document.getElementById('settingsConfirmMessage');
-            els.settingsConfirmCancelBtn = document.getElementById('settingsConfirmCancelBtn');
-            els.settingsConfirmActionBtn = document.getElementById('settingsConfirmActionBtn');
+        }
+
+        function initializeFeedbackUI() {
+            state.feedbackUI = window.getStudentPortalFeedback?.() || null;
         }
 
         function hydrateErrors() {
@@ -181,14 +179,20 @@
         }
 
         function switchTab(name) {
+            const nextPanelId = `${name}TabPanel`;
+
             els.tabButtons.forEach((button) => {
                 const active = button.dataset.tab === name;
                 button.classList.toggle('active', active);
                 button.setAttribute('aria-selected', active ? 'true' : 'false');
+                button.setAttribute('tabindex', active ? '0' : '-1');
             });
 
             els.panels.forEach((panel) => {
-                panel.classList.toggle('active', panel.id === `${name}TabPanel`);
+                const active = panel.id === nextPanelId;
+                panel.classList.toggle('active', active);
+                panel.hidden = !active;
+                panel.setAttribute('aria-hidden', active ? 'false' : 'true');
             });
         }
 
@@ -444,7 +448,7 @@
             }
 
             if (!profileChanged()) {
-                showToast('Make a change before saving your profile.', 'info');
+                showToast({ type: 'info', title: 'No changes to save', message: 'Make a change before saving your profile.' });
                 return;
             }
 
@@ -478,10 +482,10 @@
                 applyUser(payload.user || {});
                 state.originalProfile = snapshot();
                 cancelEdit();
-                showToast(payload.message || 'Profile updated successfully.', 'success');
+                showToast({ type: 'success', title: 'Profile updated', message: payload.message || 'Profile updated successfully.' });
             } catch (error) {
                 console.error(error);
-                showToast('Unable to save your profile right now.', 'error');
+                showToast({ type: 'error', title: 'Profile update failed', message: 'Unable to save your profile right now.' });
             } finally {
                 state.profileSubmitting = false;
                 if (els.saveProfileBtn) {
@@ -626,10 +630,10 @@
                 }
 
                 uploaded = true;
-                showToast(payload.message || 'Photo uploaded successfully.', 'success');
+                showToast({ type: 'success', title: 'Photo uploaded', message: payload.message || 'Photo uploaded successfully.' });
             } catch (error) {
                 console.error(error);
-                showToast('Unable to upload your photo right now.', 'error');
+                showToast({ type: 'error', title: 'Upload failed', message: 'Unable to upload your photo right now.' });
             } finally {
                 if (els.uploadPhotoBtn) {
                     els.uploadPhotoBtn.innerHTML = oldLabel;
@@ -647,8 +651,11 @@
             const confirmed = await openConfirmModal({
                 title: 'Remove profile photo?',
                 message: 'Your current profile photo will be removed from your account. This action can be reversed later by uploading a new photo.',
+                detail: 'Profile photo',
                 confirmLabel: 'Remove Photo',
                 cancelLabel: 'Keep Photo',
+                variant: 'danger',
+                buttonVariant: 'danger',
             });
 
             if (!confirmed) {
@@ -675,7 +682,7 @@
                 const payload = await parseResponse(response);
 
                 if (!response.ok || payload?.success === false) {
-                    showToast(payload?.message || 'Unable to remove your photo right now.', 'error');
+                    showToast({ type: 'error', title: 'Remove failed', message: payload?.message || 'Unable to remove your photo right now.' });
                     return;
                 }
 
@@ -697,10 +704,10 @@
                 }
 
                 removed = true;
-                showToast(payload.message || 'Profile photo removed successfully.', 'success');
+                showToast({ type: 'success', title: 'Photo removed', message: payload.message || 'Profile photo removed successfully.' });
             } catch (error) {
                 console.error(error);
-                showToast('Unable to remove your photo right now.', 'error');
+                showToast({ type: 'error', title: 'Remove failed', message: 'Unable to remove your photo right now.' });
             } finally {
                 if (els.removePhotoBtn) {
                     els.removePhotoBtn.innerHTML = oldLabel;
@@ -959,12 +966,12 @@
                     return;
                 }
 
-                showToast(payload.message || 'Password updated successfully.', 'success');
+                showToast({ type: 'success', title: 'Password updated', message: payload.message || 'Password updated successfully.' });
                 resetPassword();
                 setPasswordMode(false);
             } catch (error) {
                 console.error(error);
-                showToast('Unable to update your password right now.', 'error');
+                showToast({ type: 'error', title: 'Password update failed', message: 'Unable to update your password right now.' });
             } finally {
                 state.passwordSubmitting = false;
                 if (els.updatePasswordBtn) {
@@ -1007,78 +1014,35 @@
             });
         }
 
-        function bindConfirmModal() {
-            els.settingsConfirmCancelBtn?.addEventListener('click', () => closeConfirmModal(false));
-            els.settingsConfirmActionBtn?.addEventListener('click', () => closeConfirmModal(true));
-            els.settingsConfirmModal?.addEventListener('click', (event) => {
-                if (event.target === els.settingsConfirmModal) {
-                    closeConfirmModal(false);
-                }
-            });
-
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && !els.settingsConfirmModal?.hidden) {
-                    event.preventDefault();
-                    closeConfirmModal(false);
-                }
-            });
-        }
-
         function openConfirmModal({
             title = 'Are you sure?',
             message = 'Please confirm this action.',
+            detail = '',
             confirmLabel = 'Confirm',
             cancelLabel = 'Cancel',
+            variant = 'warning',
+            buttonVariant = variant,
         } = {}) {
-            if (!els.settingsConfirmModal || !els.settingsConfirmActionBtn || !els.settingsConfirmCancelBtn) {
-                return Promise.resolve(window.confirm(message));
+            const options = {
+                title,
+                message,
+                detail,
+                confirmText: confirmLabel,
+                cancelText: cancelLabel,
+                variant,
+                buttonVariant,
+            };
+
+            if (typeof window.confirmStudentPortalAction === 'function') {
+                return window.confirmStudentPortalAction(options);
             }
 
-            if (typeof state.confirmResolver === 'function') {
-                closeConfirmModal(false);
+            if (state.feedbackUI?.confirm) {
+                return state.feedbackUI.confirm(options);
             }
 
-            if (els.settingsConfirmTitle) {
-                els.settingsConfirmTitle.textContent = title;
-            }
-
-            if (els.settingsConfirmMessage) {
-                els.settingsConfirmMessage.textContent = message;
-            }
-
-            els.settingsConfirmActionBtn.textContent = confirmLabel;
-            els.settingsConfirmCancelBtn.textContent = cancelLabel;
-            state.confirmPreviousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-
-            els.settingsConfirmModal.hidden = false;
-            els.settingsConfirmModal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-
-            return new Promise((resolve) => {
-                state.confirmResolver = resolve;
-                window.setTimeout(() => els.settingsConfirmCancelBtn?.focus(), 0);
-            });
-        }
-
-        function closeConfirmModal(confirmed = false) {
-            if (!els.settingsConfirmModal) {
-                return;
-            }
-
-            els.settingsConfirmModal.hidden = true;
-            els.settingsConfirmModal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-
-            const resolver = state.confirmResolver;
-            state.confirmResolver = null;
-
-            if (typeof resolver === 'function') {
-                resolver(confirmed);
-            }
-
-            const previousFocus = state.confirmPreviousFocus;
-            state.confirmPreviousFocus = null;
-            window.setTimeout(() => previousFocus?.focus?.(), 0);
+            console.warn('Student profile confirmation is unavailable.', options);
+            return Promise.resolve(false);
         }
 
         function setPasswordToggleIcon(button, visible) {
@@ -1103,7 +1067,7 @@
                 });
 
                 switchTab('profile');
-                showToast(payload?.message || 'Please review the highlighted profile fields.', 'error');
+                showToast({ type: 'error', title: 'Review your profile details', message: payload?.message || 'Please review the highlighted profile fields.' });
 
                 if (firstField) {
                     focusFirstError(els.profileForm);
@@ -1124,7 +1088,7 @@
                 });
 
                 switchTab('security');
-                showToast(payload?.message || 'Please review the highlighted password fields.', 'error');
+                showToast({ type: 'error', title: 'Review your password details', message: payload?.message || 'Please review the highlighted password fields.' });
 
                 if (firstField) {
                     focusFirstError(els.passwordForm);
@@ -1134,7 +1098,7 @@
 
             setError('profile_photo', errors.profile_photo?.[0] || payload?.message || 'Please review the selected photo.');
             switchTab('photo');
-            showToast(payload?.message || 'Please review the selected photo.', 'error');
+            showToast({ type: 'error', title: 'Review your photo selection', message: payload?.message || 'Please review the selected photo.' });
             focusFirstError(els.photoForm);
         }
 
@@ -1218,30 +1182,49 @@
 
         function flash() {
             if (state.flashSuccess) {
-                showToast(state.flashSuccess, 'success');
+                showToast({ type: 'success', title: 'Success', message: state.flashSuccess });
             }
 
             if (state.flashError) {
-                showToast(state.flashError, 'error');
+                showToast({ type: 'error', title: 'Notice', message: state.flashError });
             }
         }
 
-        function showToast(message, type = 'info') {
-            if (!message) {
+        function showToast(message, type = 'info', title = '', detail = '') {
+            const payload = typeof message === 'object' && message !== null
+                ? message
+                : { message, type, title, detail };
+
+            if (!payload.message) {
                 return;
             }
 
-            const toast = document.createElement('div');
-            toast.className = `settings-toast ${type}`;
-            toast.setAttribute('role', 'status');
-            toast.setAttribute('aria-live', 'polite');
-            toast.textContent = message;
-            document.body.appendChild(toast);
+            const normalizedType = ['success', 'error', 'warning', 'info'].includes(payload.type)
+                ? payload.type
+                : 'info';
+            const resolvedTitle = payload.title || defaultToastTitle(normalizedType);
 
-            window.setTimeout(() => {
-                toast.style.animation = 'studentSettingsSlideOut 0.25s ease forwards';
-                window.setTimeout(() => toast.remove(), 250);
-            }, 3200);
+            if (state.feedbackUI) {
+                state.feedbackUI.showToast({
+                    type: normalizedType,
+                    title: resolvedTitle,
+                    message: payload.message,
+                    detail: payload.detail || '',
+                    timeout: payload.timeout || 4200,
+                });
+                return;
+            }
+
+            console[normalizedType === 'error' ? 'error' : 'log'](`${resolvedTitle}: ${payload.message}`);
+        }
+
+        function defaultToastTitle(type) {
+            return {
+                success: 'Success',
+                error: 'Something went wrong',
+                warning: 'Check this',
+                info: 'Notice',
+            }[type] || 'Notice';
         }
 
         async function parseResponse(response) {

@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') - Library Management</title>
     <link rel="stylesheet" href="{{ asset('staff/CSS/staff-appLayout.css') }}">
+    <link rel="stylesheet" href="{{ asset('shared/CSS/notification-list-animations.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -401,6 +402,7 @@
 </script>
 
 <script src="{{ asset('staff/JS/services/notification-api.js') }}"></script>
+<script src="{{ asset('shared/JS/components/notification-list-animator.js') }}"></script>
 <script src="{{ asset('staff/JS/components/notification-list.js') }}"></script>
 <script src="{{ asset('staff/JS/components/notification-detail-modal.js') }}"></script>
 <script src="{{ asset('staff/JS/staff-appLayout.js') }}"></script>

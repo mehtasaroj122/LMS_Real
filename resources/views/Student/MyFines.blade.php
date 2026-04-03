@@ -2,7 +2,59 @@
 
 @section('title', 'My Fines')
 
+@php
+    $myFinesReportStudent = [
+        'name' => auth()->user()->name ?? 'Student',
+        'rollNo' => $student?->roll_no ?? ($student?->student_id ?? 'N/A'),
+        'email' => auth()->user()->email ?? 'N/A',
+        'department' => $student?->department?->name ?? 'N/A',
+        'semester' => $student?->semester ?? 'N/A',
+        'batch' => $student?->batch ? 'Batch ' . $student->batch : 'N/A',
+    ];
+
+    $myFinesReportTotal = count(json_decode($finesJson, true) ?: []);
+    $myFinesReportExportConfig = [
+        'modalId' => 'myFinesExportModal',
+        'idPrefix' => 'myFinesExport',
+        'scopeName' => 'myFinesExportScope',
+        'labels' => [
+            'title' => 'My Fines Report',
+            'description' => 'Print or download your fines report.',
+            'scopeTitle' => 'Scope',
+            'scopeHint' => 'Use this page or every fine matching the current filters.',
+            'pageOptionTitle' => 'Current page',
+            'pageOptionDescription' => 'Only the fines visible on this page right now.',
+            'allOptionTitle' => 'Filtered report',
+            'allOptionDescription' => 'All fines matching your current filters.',
+            'badge' => 'Current page',
+            'headline' => '0 fines ready',
+            'subtext' => 'Review your fines report before printing or downloading it.',
+            'previewTitle' => 'Preview',
+            'previewDescription' => 'Fines included in the report.',
+            'previewCount' => '0 rows',
+            'emptyPreview' => 'No fines selected for preview.',
+            'footerNote' => 'Using the current page for print and spreadsheet export.',
+            'cancelButton' => 'Cancel',
+            'downloadButton' => 'Download Excel',
+            'printButton' => 'Print Report',
+        ],
+        'document' => [
+            'systemTitle' => $libraryBranding['name'] ?? 'Library Management System',
+            'reportTitle' => 'My Fines Report',
+        ],
+        'columns' => [
+            ['key' => 'bookTitle', 'label' => 'Book Title', 'width' => '32%', 'emphasis' => true],
+            ['key' => 'reason', 'label' => 'Fine Reason', 'width' => '16%'],
+            ['key' => 'dueDate', 'label' => 'Due Date', 'width' => '14%', 'nowrap' => true],
+            ['key' => 'daysOverdue', 'label' => 'Days Overdue', 'width' => '12%', 'align' => 'center', 'nowrap' => true],
+            ['key' => 'fineAmount', 'label' => 'Fine Amount', 'width' => '13%', 'align' => 'right', 'nowrap' => true],
+            ['key' => 'status', 'label' => 'Status', 'width' => '13%', 'align' => 'center', 'nowrap' => true],
+        ],
+    ];
+@endphp
+
 @push('styles')
+    @include('shared.report-export.styles')
     <style>
         /* ===== MY FINES PAGE STYLES ===== */
         :root {
@@ -43,19 +95,89 @@
 
         /* Page Header */
         .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
             margin-bottom: 0.75rem;
         }
 
-        .page-header h1 {
+        .page-title h1 {
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 0.125rem;
         }
 
-        .page-header p {
+        .page-title p {
             color: var(--text-secondary);
             font-size: 0.8rem;
+        }
+
+        .page-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-left: auto;
+        }
+
+        .report-trigger-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 2.5rem;
+            padding: 0.625rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .report-trigger-btn svg {
+            width: 1rem;
+            height: 1rem;
+            flex-shrink: 0;
+        }
+
+        body.light-theme .report-trigger-btn {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-color: #bfdbfe;
+            color: #1d4ed8;
+            box-shadow: 0 10px 18px rgba(37, 99, 235, 0.12);
+        }
+
+        body.dark-theme .report-trigger-btn {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.3) 0%, rgba(14, 116, 144, 0.28) 100%);
+            border-color: #1d4ed8;
+            color: #bfdbfe;
+            box-shadow: 0 12px 22px rgba(2, 6, 23, 0.32);
+        }
+
+        .report-trigger-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        body.light-theme .report-trigger-btn:hover:not(:disabled) {
+            border-color: #93c5fd;
+            box-shadow: 0 14px 24px rgba(37, 99, 235, 0.16);
+        }
+
+        body.dark-theme .report-trigger-btn:hover:not(:disabled) {
+            border-color: #60a5fa;
+            box-shadow: 0 16px 26px rgba(2, 6, 23, 0.38);
+        }
+
+        .report-trigger-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         /* ===== STATS CARDS - Consistent with other pages ===== */
@@ -586,8 +708,18 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-            .page-header h1 {
+            .page-title h1 {
                 font-size: 1.125rem;
+            }
+
+            .page-actions {
+                width: 100%;
+                justify-content: flex-start;
+                margin-left: 0;
+            }
+
+            .report-trigger-btn {
+                width: 100%;
             }
 
             .stats-grid {
@@ -662,8 +794,28 @@
     <div class="fines-container">
         <!-- Header -->
         <div class="page-header">
-            <h1>My Fines</h1>
-            <p>View and track your library fines</p>
+            <div class="page-title">
+                <h1>My Fines</h1>
+                <p>View and track your library fines</p>
+            </div>
+
+            <div class="page-actions">
+                <button
+                    type="button"
+                    class="report-trigger-btn"
+                    id="printReportBtn"
+                    aria-controls="myFinesExportModal"
+                    aria-haspopup="dialog"
+                    {{ $myFinesReportTotal === 0 ? 'disabled' : '' }}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path d="M6 9V2h12v7" />
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                        <path d="M6 14h12v8H6z" />
+                    </svg>
+                    <span>Print Report</span>
+                </button>
+            </div>
         </div>
 
         <!-- Stats Cards -->
@@ -770,16 +922,16 @@
                     <button type="button" class="reset-filter-btn" id="resetFiltersBtn">Reset</button>
                 </div>
 
-                <div class="entries-control">
-                    <label class="entries-label" for="entriesPerPage">Show</label>
-                    <select class="filter-select entries-select" id="entriesPerPage">
+                <label class="entries-control admin-table-entries-control" for="entriesPerPage">
+                    <span class="entries-label">Show</span>
+                    <select class="filter-select entries-select admin-table-entries-select" id="entriesPerPage">
                         <option value="10">10</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
                         <option value="100">100</option>
                     </select>
                     <span class="entries-suffix">entries</span>
-                </div>
+                </label>
             </div>
         </div>
 
@@ -802,21 +954,15 @@
             </table>
 
             <!-- Pagination -->
-            <div class="pagination-container" id="paginationContainer" style="display: none;">
-                <div class="pagination-info">
-                    <span>Showing <span id="paginationStart">1</span> to <span id="paginationEnd">10</span> of <span id="paginationTotal">0</span> results</span>
-                    <span class="pagination-page-summary">Page <span id="paginationCurrentPage">1</span> of <span id="paginationTotalPages">1</span></span>
-                </div>
-                <div class="pagination-controls">
-                    <button type="button" class="pagination-btn nav-btn" id="paginationPrev" onclick="previousPage()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    </button>
-                    <div id="paginationNumbers"></div>
-                    <button type="button" class="pagination-btn nav-btn" id="paginationNext" onclick="nextPage()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </button>
-                </div>
-            </div>
+            @include('shared.student-portal-pagination.markup', [
+                'containerId' => 'paginationContainer',
+                'fromId' => 'paginationStart',
+                'toId' => 'paginationEnd',
+                'totalId' => 'paginationTotal',
+                'pageInfoId' => 'paginationPageInfo',
+                'buttonsId' => 'paginationButtons',
+                'label' => 'fines',
+            ])
 
             <!-- Empty State -->
             <div id="emptyState" class="empty-state">
@@ -835,13 +981,22 @@
             </div>
         </div>
 
+        @include('shared.report-export.modal', ['reportExportConfig' => $myFinesReportExportConfig])
     </div>
 @endsection
 
 @push('scripts')
+    @include('shared.report-export.scripts')
     <script>
         // Fines data from backend
         const finesData = {!! $finesJson !!};
+        const myFinesReportStudent = @json($myFinesReportStudent);
+        const myFinesReportBranding = window.LibraryBranding?.normalize
+            ? window.LibraryBranding.normalize(window.__LIBRARY_BRANDING__ ?? {})
+            : (window.__LIBRARY_BRANDING__ ?? {});
+        const myFinesReportSystemTitle = myFinesReportBranding?.name || 'Library Management System';
+        const printReportBtn = document.getElementById('printReportBtn');
+        const myFinesExportModal = document.getElementById('myFinesExportModal');
 
         // Get reason icon
         function getReasonIcon(reason) {
@@ -880,6 +1035,10 @@
         let currentPage = getInitialPage();
         let itemsPerPage = getInitialItemsPerPage();
         let filteredFines = [];
+        let finesPagination = null;
+        let finesReportFeedbackUI = null;
+        let myFinesExportWorkflow = null;
+        let myFinesExportLastTrigger = null;
 
         function getInitialItemsPerPage() {
             const perPage = Number(new URLSearchParams(window.location.search).get('per_page'));
@@ -905,48 +1064,16 @@
             window.history.replaceState({}, '', nextUrl);
         }
 
-        function updatePaginationInfo(startRecord, endRecord, totalRecords, totalPages) {
-            document.getElementById('paginationStart').textContent = startRecord;
-            document.getElementById('paginationEnd').textContent = endRecord;
-            document.getElementById('paginationTotal').textContent = totalRecords;
-            document.getElementById('paginationCurrentPage').textContent = totalRecords === 0 ? 0 : currentPage;
-            document.getElementById('paginationTotalPages').textContent = totalRecords === 0 ? 0 : totalPages;
-        }
-
-        function getVisiblePageItems(totalPages, activePage) {
-            if (totalPages <= 7) {
-                return Array.from({ length: totalPages }, (_, index) => index + 1);
-            }
-
-            const pages = [1];
-            let start = Math.max(2, activePage - 1);
-            let end = Math.min(totalPages - 1, activePage + 1);
-
-            if (activePage <= 4) {
-                start = 2;
-                end = 5;
-            }
-
-            if (activePage >= totalPages - 3) {
-                start = totalPages - 4;
-                end = totalPages - 1;
-            }
-
-            if (start > 2) {
-                pages.push('ellipsis-start');
-            }
-
-            for (let page = start; page <= end; page++) {
-                pages.push(page);
-            }
-
-            if (end < totalPages - 1) {
-                pages.push('ellipsis-end');
-            }
-
-            pages.push(totalPages);
-
-            return pages;
+        function renderPagination(totalRecords, startRecord, endRecord, totalPages) {
+            finesPagination?.render({
+                total: totalRecords,
+                from: startRecord,
+                to: endRecord,
+                currentPage,
+                lastPage: totalPages,
+                onPageChange: (page) => goToPage(page),
+            });
+            syncPaginationState();
         }
 
         function getNumericFineAmount(value) {
@@ -958,12 +1085,338 @@
             return `₹${normalizedAmount.toFixed(2).replace(/\.00$/, '')}`;
         }
 
+        function updateReportButtonState(totalRecords = filteredFines.length) {
+            if (!printReportBtn) {
+                return;
+            }
+
+            printReportBtn.disabled = Number(totalRecords || 0) === 0;
+        }
+
+        function setupReportFeedback() {
+            finesReportFeedbackUI = window.getStudentPortalFeedback?.() || null;
+        }
+
+        function showReportToast(type, title, message, timeout) {
+            if (finesReportFeedbackUI) {
+                finesReportFeedbackUI.showToast({
+                    type,
+                    title,
+                    message,
+                    timeout,
+                });
+                return;
+            }
+
+            window.showStudentPortalToast?.(type, title, message, timeout);
+        }
+
+        function formatDisplayLabel(value, fallback = 'N/A') {
+            const normalizedValue = String(value ?? '').trim();
+
+            if (!normalizedValue) {
+                return fallback;
+            }
+
+            return normalizedValue
+                .replace(/[-_]+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+                .replace(/\b\w/g, (character) => character.toUpperCase());
+        }
+
+        function formatFineStatusLabel(status) {
+            return formatDisplayLabel(status, 'Unpaid');
+        }
+
+        function buildFinesReportFilterParams() {
+            const params = new URLSearchParams();
+            const searchValue = document.getElementById('searchInput')?.value?.trim();
+            const statusValue = document.getElementById('statusFilter')?.value || 'all';
+            const reasonValue = document.getElementById('reasonFilter')?.value || 'all';
+            const timeValue = document.getElementById('timeFilter')?.value || 'all';
+
+            if (searchValue) {
+                params.set('search', searchValue);
+            }
+
+            if (statusValue !== 'all') {
+                params.set('status', statusValue);
+            }
+
+            if (reasonValue !== 'all') {
+                params.set('reason', reasonValue);
+            }
+
+            if (timeValue !== 'all') {
+                params.set('updated_within_days', timeValue);
+            }
+
+            return params;
+        }
+
+        function getFinesReportFilterSummary() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const reasonFilter = document.getElementById('reasonFilter');
+            const timeFilter = document.getElementById('timeFilter');
+
+            return {
+                search: searchInput?.value?.trim() || 'All fines',
+                status: statusFilter?.value === 'all'
+                    ? 'All statuses'
+                    : (statusFilter?.selectedOptions?.[0]?.textContent?.trim() || formatFineStatusLabel(statusFilter?.value)),
+                reason: reasonFilter?.value === 'all'
+                    ? 'All reasons'
+                    : (reasonFilter?.selectedOptions?.[0]?.textContent?.trim() || getReasonText(reasonFilter?.value)),
+                updatedWithin: timeFilter?.value === 'all'
+                    ? 'All time'
+                    : (timeFilter?.selectedOptions?.[0]?.textContent?.trim() || `Last ${timeFilter?.value} days`),
+            };
+        }
+
+        function getMyFinesDocumentDetails() {
+            return [
+                { label: 'Student Name', value: myFinesReportStudent.name || 'Student' },
+                { label: 'Roll No', value: myFinesReportStudent.rollNo || 'N/A' },
+                { label: 'Email', value: myFinesReportStudent.email || 'N/A' },
+                { label: 'Department', value: myFinesReportStudent.department || 'N/A' },
+                { label: 'Semester', value: myFinesReportStudent.semester || 'N/A' },
+                { label: 'Batch', value: myFinesReportStudent.batch || 'N/A' },
+            ];
+        }
+
+        function buildMyFinesExportMetaRows(context) {
+            if (typeof window.ReportExportTemplates?.buildStandardMetaRows === 'function') {
+                return window.ReportExportTemplates.buildStandardMetaRows({
+                    systemTitle: myFinesReportSystemTitle,
+                    reportTitle: 'My Fines Report',
+                    generatedAtLabel: context.generatedAtLabel,
+                    documentDetails: getMyFinesDocumentDetails(),
+                });
+            }
+
+            return [
+                [myFinesReportSystemTitle],
+                ['My Fines Report'],
+                [context.generatedAtLabel],
+                [''],
+                ...getMyFinesDocumentDetails().map((detail) => [detail.label, detail.value]),
+                [''],
+            ];
+        }
+
+        function buildMyFinesExportFilename(context) {
+            const generatedAt = context?.generatedAt instanceof Date
+                ? context.generatedAt
+                : new Date(context?.generatedAt || Date.now());
+            const dateStamp = Number.isNaN(generatedAt.getTime())
+                ? new Date().toISOString().slice(0, 10)
+                : generatedAt.toISOString().slice(0, 10);
+            const scopeLabel = context?.isAllScope ? 'full' : 'page';
+            const studentSlug = String(myFinesReportStudent.name || myFinesReportStudent.email || 'student')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'student';
+
+            return `my-fines-${studentSlug}-${scopeLabel}-${dateStamp}.xls`;
+        }
+
+        function describeMyFinesExportContext(context) {
+            const filters = getFinesReportFilterSummary();
+
+            return {
+                badgeLabel: context.isAllScope ? 'Filtered report' : 'Current page',
+                headline: `${context.rowsReady} ${context.rowsReady === 1 ? 'fine' : 'fines'} ready`,
+                subtext: context.isAllScope
+                    ? 'Print or download every fine that matches your current filters.'
+                    : 'Print or download only the fines visible on this page.',
+                previewCaption: context.isAllScope
+                    ? 'Preview of the first fines from your full filtered report.'
+                    : 'Preview of the fines on the current page.',
+                previewCountText: `${context.rowsReady} ${context.rowsReady === 1 ? 'fine' : 'fines'}`,
+                footerNote: context.isAllScope
+                    ? 'Using all filtered fines for print and spreadsheet export.'
+                    : 'Using the current page for print and spreadsheet export.',
+                emptyMessage: 'No fines match the selected filters.',
+                summaryItems: [
+                    { label: 'Report scope', value: context.scopeLabel },
+                    {
+                        label: 'Fines included',
+                        value: context.isLoading
+                            ? 'Preparing...'
+                            : `${context.rowsReady} ${context.rowsReady === 1 ? 'fine' : 'fines'}`,
+                    },
+                    { label: 'Matching total', value: `${context.total} ${context.total === 1 ? 'fine' : 'fines'}` },
+                    {
+                        label: context.isAllScope ? 'Pages covered' : 'Page',
+                        value: context.isAllScope
+                            ? `All ${context.lastPage} ${context.lastPage === 1 ? 'page' : 'pages'}`
+                            : `${context.currentPage} of ${context.lastPage}`,
+                    },
+                    { label: 'Status', value: filters.status },
+                    { label: 'Reason', value: filters.reason },
+                    { label: 'Updated Within', value: filters.updatedWithin },
+                    { label: 'Search', value: filters.search },
+                ],
+            };
+        }
+
+        function getCurrentFinesPageRows() {
+            const startIndex = Math.max(0, (currentPage - 1) * itemsPerPage);
+            return filteredFines.slice(startIndex, startIndex + itemsPerPage);
+        }
+
+        function mapFineToExportRow(fine) {
+            return {
+                bookTitle: fine?.bookTitle || 'Unknown Book',
+                reason: getReasonText(fine?.fineReason),
+                dueDate: fine?.dueDate || 'N/A',
+                daysOverdue: fine?.daysOverdue || '—',
+                fineAmount: fine?.fineAmount || '₹0',
+                status: formatFineStatusLabel(fine?.status),
+            };
+        }
+
+        function setupMyFinesExportWorkflow() {
+            if (typeof window.ReportExportWorkflow !== 'function') {
+                return;
+            }
+
+            myFinesExportWorkflow = new window.ReportExportWorkflow({
+                modalId: 'myFinesExportModal',
+                idPrefix: 'myFinesExport',
+                scopeName: 'myFinesExportScope',
+                downloadFormat: 'excel-xml',
+                sheetName: 'My Fines Report',
+                document: {
+                    systemTitle: myFinesReportSystemTitle,
+                    reportTitle: 'My Fines Report',
+                },
+                labels: {
+                    printButton: 'Print Report',
+                    allScopePrintButton: 'Print Full Report',
+                    downloadButton: 'Download Excel',
+                    allScopeDownloadButton: 'Download Full Excel',
+                },
+                messages: {
+                    emptyMessage: 'There are no fines in the current result set.',
+                    preparingMessage: 'Preparing your full My Fines report. Please wait.',
+                    printReadyMessage: 'The print dialog will open in a new window for the current My Fines page.',
+                    fullPrintReadyMessage: 'The print dialog will open in a new window for the full filtered My Fines report.',
+                    exportReadyMessage: 'The current My Fines page has been exported to Excel.',
+                    fullExportReadyMessage: 'The full filtered My Fines report has been exported to Excel.',
+                    fullLoadFailedMessage: 'Something went wrong while preparing your My Fines report.',
+                },
+                columns: [
+                    { key: 'bookTitle', label: 'Book Title', width: '32%', emphasis: true },
+                    { key: 'reason', label: 'Fine Reason', width: '16%' },
+                    { key: 'dueDate', label: 'Due Date', width: '14%', nowrap: true },
+                    { key: 'daysOverdue', label: 'Days Overdue', width: '12%', align: 'center', nowrap: true },
+                    { key: 'fineAmount', label: 'Fine Amount', width: '13%', align: 'right', nowrap: true },
+                    { key: 'status', label: 'Status', width: '13%', align: 'center', nowrap: true },
+                ],
+                openModal: (modalId, focusTarget) => openMyFinesExportModal(modalId, focusTarget),
+                closeModal: (modalId) => closeMyFinesExportModal(modalId),
+                showToast: (type, title, message, timeout) => showReportToast(type, title, message, timeout),
+                getCurrentRows: () => getCurrentFinesPageRows(),
+                getAllRows: () => ({
+                    rows: filteredFines,
+                    generatedAt: new Date().toISOString(),
+                }),
+                mapRow: (fine) => mapFineToExportRow(fine),
+                buildFilterParams: () => buildFinesReportFilterParams(),
+                getListingState: () => ({
+                    total: filteredFines.length,
+                    currentPage: Math.max(1, currentPage),
+                    lastPage: Math.max(1, getTotalPages()),
+                    perPage: Math.max(1, itemsPerPage),
+                }),
+                getScopeLabel: (scope) => scope === 'all' ? 'Entire filtered fines report' : 'Current page',
+                getFilename: (context) => buildMyFinesExportFilename(context),
+                getDocumentDetails: () => getMyFinesDocumentDetails(),
+                getExportMetaRows: (context) => buildMyFinesExportMetaRows(context),
+                describeContext: (context) => describeMyFinesExportContext(context),
+            }).init();
+        }
+
+        function openMyFinesExportModal(modalId, focusTarget) {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            const panel = modal.querySelector('.report-export-panel');
+            const closeButton = modal.querySelector('.report-export-close-btn');
+            const activeElement = document.activeElement;
+
+            myFinesExportLastTrigger = activeElement && !modal.contains(activeElement)
+                ? activeElement
+                : focusTarget;
+
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            modal.scrollTop = 0;
+            panel?.scrollTo?.({ top: 0, behavior: 'auto' });
+
+            window.setTimeout(() => {
+                const nextFocusTarget = closeButton || panel || focusTarget;
+
+                if (typeof nextFocusTarget?.focus === 'function') {
+                    try {
+                        nextFocusTarget.focus({ preventScroll: true });
+                    } catch (error) {
+                        nextFocusTarget.focus();
+                    }
+                }
+            }, 20);
+        }
+
+        function closeMyFinesExportModal(modalId = 'myFinesExportModal') {
+            const modal = document.getElementById(modalId);
+            if (!modal) {
+                return;
+            }
+
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            myFinesExportWorkflow?.handleModalClosed?.();
+
+            const focusTarget = myFinesExportLastTrigger;
+            myFinesExportLastTrigger = null;
+
+            if (typeof focusTarget?.focus === 'function') {
+                window.setTimeout(() => focusTarget.focus(), 20);
+            }
+        }
+
+        function setupMyFinesExportModalEvents() {
+            document.addEventListener('click', (event) => {
+                const closeButton = event.target.closest('[data-modal-close="myFinesExportModal"]');
+                if (closeButton) {
+                    closeMyFinesExportModal('myFinesExportModal');
+                    return;
+                }
+
+                if (event.target === myFinesExportModal) {
+                    closeMyFinesExportModal('myFinesExportModal');
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && myFinesExportModal?.classList.contains('is-open')) {
+                    closeMyFinesExportModal('myFinesExportModal');
+                }
+            });
+        }
+
         // Render fines table
         function renderFines(fines, { preservePage = false } = {}) {
             filteredFines = fines;
             const tableBody = document.getElementById('finesTableBody');
             const emptyState = document.getElementById('emptyState');
-            const paginationContainer = document.getElementById('paginationContainer');
+
+            updateReportButtonState(fines.length);
 
             if (!preservePage) {
                 currentPage = 1;
@@ -975,51 +1428,13 @@
             if (fines.length === 0) {
                 tableBody.innerHTML = '';
                 emptyState.style.display = 'block';
-                paginationContainer.style.display = 'none';
-                updatePaginationInfo(0, 0, 0, 0);
+                renderPagination(0, 0, 0, 0);
                 syncPaginationState();
                 return;
             }
 
             emptyState.style.display = 'none';
-            paginationContainer.style.display = 'flex';
             displayCurrentPage();
-            updatePagination();
-        }
-
-        // Update pagination display
-        function updatePagination() {
-            const totalPages = getTotalPages();
-            const paginationContainer = document.getElementById('paginationContainer');
-            const numbersContainer = document.getElementById('paginationNumbers');
-            const previousButton = document.getElementById('paginationPrev');
-            const nextButton = document.getElementById('paginationNext');
-
-            paginationContainer.style.display = filteredFines.length > 0 ? 'flex' : 'none';
-            previousButton.disabled = currentPage === 1;
-            nextButton.disabled = currentPage === totalPages;
-
-            numbersContainer.innerHTML = '';
-
-            getVisiblePageItems(totalPages, currentPage).forEach(item => {
-                if (typeof item === 'string') {
-                    const ellipsis = document.createElement('span');
-                    ellipsis.className = 'pagination-ellipsis';
-                    ellipsis.textContent = '...';
-                    ellipsis.setAttribute('aria-hidden', 'true');
-                    numbersContainer.appendChild(ellipsis);
-                    return;
-                }
-
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = `pagination-btn page-number${item === currentPage ? ' active' : ''}`;
-                btn.textContent = item;
-                btn.onclick = () => goToPage(item);
-                numbersContainer.appendChild(btn);
-            });
-
-            syncPaginationState();
         }
 
         function handleEntriesPerPageChange(event) {
@@ -1043,7 +1458,6 @@
 
             currentPage = page;
             displayCurrentPage();
-            updatePagination();
         }
 
         // Display current page data
@@ -1054,7 +1468,7 @@
             const totalPages = getTotalPages();
 
             renderPageFines(pageFines);
-            updatePaginationInfo(start + 1, Math.min(end, filteredFines.length), filteredFines.length, totalPages);
+            renderPagination(filteredFines.length, start + 1, Math.min(end, filteredFines.length), totalPages);
         }
 
         // Render specific page fines
@@ -1076,7 +1490,7 @@
                 <td>${fine.daysOverdue}</td>
                 <td class="fine-amount">${fine.fineAmount}</td>
                 <td>
-                    <span class="status-badge ${fine.status}">${fine.status.charAt(0).toUpperCase() + fine.status.slice(1)}</span>
+                    <span class="status-badge ${fine.status}">${formatFineStatusLabel(fine.status)}</span>
                 </td>
             </tr>
         `).join('');
@@ -1088,7 +1502,6 @@
             if (currentPage < totalPages) {
                 currentPage++;
                 displayCurrentPage();
-                updatePagination();
             }
         }
 
@@ -1097,7 +1510,6 @@
             if (currentPage > 1) {
                 currentPage--;
                 displayCurrentPage();
-                updatePagination();
             }
         }
 
@@ -1211,18 +1623,40 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            finesPagination = new window.StudentPortalPagination({
+                containerId: 'paginationContainer',
+                fromId: 'paginationStart',
+                toId: 'paginationEnd',
+                totalId: 'paginationTotal',
+                pageInfoId: 'paginationPageInfo',
+                buttonsId: 'paginationButtons',
+            });
+
+            setupReportFeedback();
+            setupMyFinesExportWorkflow();
+            setupMyFinesExportModalEvents();
+
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
             const reasonFilter = document.getElementById('reasonFilter');
             const timeFilter = document.getElementById('timeFilter');
             const resetFiltersBtn = document.getElementById('resetFiltersBtn');
             const entriesPerPage = document.getElementById('entriesPerPage');
+            const handleReportOpen = () => {
+                if (!myFinesExportWorkflow) {
+                    showReportToast('error', 'Report unavailable', 'My Fines report export is unavailable right now.');
+                    return;
+                }
+
+                myFinesExportWorkflow.open();
+            };
 
             if (searchInput) searchInput.addEventListener('input', () => filterFines());
             if (statusFilter) statusFilter.addEventListener('change', () => filterFines());
             if (reasonFilter) reasonFilter.addEventListener('change', () => filterFines());
             if (timeFilter) timeFilter.addEventListener('change', () => filterFines());
             if (resetFiltersBtn) resetFiltersBtn.addEventListener('click', resetFilters);
+            if (printReportBtn) printReportBtn.addEventListener('click', handleReportOpen);
             if (entriesPerPage) {
                 entriesPerPage.value = String(itemsPerPage);
                 entriesPerPage.addEventListener('change', handleEntriesPerPageChange);
