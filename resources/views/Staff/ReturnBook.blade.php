@@ -296,6 +296,12 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
+        body.dark-theme .bulk-select-checkbox:checked::after,
+        body.dark-theme .bulk-select-checkbox:indeterminate::after {
+            /* Ensure checkmarks are visible in dark mode */
+            display: block;
+        }
+
         .issued-books-selection-summary {
             font-size: 12px;
             font-weight: 600;
@@ -332,8 +338,59 @@
         }
 
         .book-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            background-color: #ffffff;
+            cursor: pointer;
+            position: relative;
             margin-right: 12px;
             margin-top: 2px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .book-checkbox:hover {
+            border-color: #93c5fd;
+        }
+
+        .book-checkbox:checked {
+            border-color: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        }
+
+        .book-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 4px;
+            top: 0px;
+            width: 5px;
+            height: 9px;
+            border: solid #ffffff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        body.dark-theme .book-checkbox {
+            border-color: #64748b;
+            background-color: #0f172a;
+        }
+
+        body.dark-theme .book-checkbox:hover {
+            border-color: #93c5fd;
+        }
+
+        body.dark-theme .book-checkbox:checked {
+            border-color: #60a5fa;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        body.dark-theme .book-checkbox:checked::after {
+            display: block;
         }
 
         .book-info-full {

@@ -4,103 +4,113 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class NotificationController extends Controller
 {
     /**
-     * Get all notifications with pagination
+     * Display a listing of all notifications
      */
-    public function index(Request $request)
+    public function index()
     {
-        try {
-            Gate::authorize('access-student');
-            
-            $user = Auth::user();
-            
-            if (!$user) {
-                return response()->json(['error' => 'Unauthorized'], 401);
-            }
-            
-            $notifications = Notification::where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get();
+        Gate::authorize('access-student');
 
-            return response()->json([
-                'data' => $notifications,
-                'total' => count($notifications),
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Notification index error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        $notifications = Notification::query()
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->paginate(10);
+        $unreadCount = Notification::query()
+            ->where('user_id', auth()->id())
+            ->whereNull('read_at')
+            ->count();
+
+        return response()->json([
+            'data' => $notifications->items(),
+            'total' => $notifications->total(),
+            'unread_count' => $unreadCount,
+        ]);
     }
 
     /**
-     * Get unread notifications count
-     */
-    public function unreadCount()
-    {
-        try {
-            Gate::authorize('access-student');
-            
-            $user = Auth::user();
-            
-            if (!$user) {
-                return response()->json(['error' => 'Unauthorized'], 401);
-            }
-            
-            $count = Notification::where('user_id', $user->id)
-                ->whereNull('read_at')
-                ->count();
-
-            return response()->json(['unread_count' => $count]);
-        } catch (\Exception $e) {
-            \Log::error('Notification unreadCount error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Get all unread notifications
+     * Get unread notifications only
      */
     public function unread()
     {
         Gate::authorize('access-student');
-        
-        $user = Auth::user();
-        
-        $notifications = Notification::where('user_id', $user->id)
+
+        $notifications = Notification::query()
+            ->where('user_id', auth()->id())
             ->whereNull('read_at')
-            ->orderBy('created_at', 'desc')
+            ->latest()
             ->get();
 
-        return response()->json($notifications);
+        return response()->json([
+            'data' => $notifications,
+        ]);
     }
 
     /**
-     * Mark a single notification as read
+     * Display a specific notification
+     */
+    public function show($notificationId)
+    {
+        Gate::authorize('access-student');
+
+        $notification = $this->findUserNotification($notificationId);
+
+        if (!$notification) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Notification not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $notification,
+        ]);
+    }
+
+    /**
+     * Get count of unread notifications
+     */
+    public function unreadCount()
+    {
+        Gate::authorize('access-student');
+
+        $unreadCount = Notification::query()
+            ->where('user_id', auth()->id())
+            ->whereNull('read_at')
+            ->count();
+
+        return response()->json([
+            'unread_count' => $unreadCount,
+        ]);
+    }
+
+    /**
+     * Mark notification as read
      */
     public function markAsRead($notificationId)
     {
         Gate::authorize('access-student');
-        
-        $user = Auth::user();
-        
-        $notification = Notification::where('id', $notificationId)
-            ->where('user_id', $user->id)
-            ->firstOrFail();
 
-        $notification->markAsRead();
+        $notification = $this->findUserNotification($notificationId);
+
+        if ($notification) {
+            $notification->markAsRead();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marked as read',
+                'data' => $notification->fresh(),
+            ]);
+        }
 
         return response()->json([
-            'success' => true,
-            'message' => 'Notification marked as read',
-            'notification' => $notification,
-        ]);
+            'success' => false,
+            'message' => 'Notification not found',
+        ], 404);
     }
 
     /**
@@ -109,10 +119,9 @@ class NotificationController extends Controller
     public function markAllAsRead()
     {
         Gate::authorize('access-student');
-        
-        $user = Auth::user();
-        
-        Notification::where('user_id', $user->id)
+
+        Notification::query()
+            ->where('user_id', auth()->id())
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
@@ -128,19 +137,22 @@ class NotificationController extends Controller
     public function destroy($notificationId)
     {
         Gate::authorize('access-student');
-        
-        $user = Auth::user();
-        
-        $notification = Notification::where('id', $notificationId)
-            ->where('user_id', $user->id)
-            ->firstOrFail();
 
-        $notification->delete();
+        $notification = $this->findUserNotification($notificationId);
+
+        if ($notification) {
+            $notification->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification deleted',
+            ]);
+        }
 
         return response()->json([
-            'success' => true,
-            'message' => 'Notification deleted',
-        ]);
+            'success' => false,
+            'message' => 'Notification not found',
+        ], 404);
     }
 
     /**
@@ -149,10 +161,9 @@ class NotificationController extends Controller
     public function deleteAllRead()
     {
         Gate::authorize('access-student');
-        
-        $user = Auth::user();
-        
-        Notification::where('user_id', $user->id)
+
+        Notification::query()
+            ->where('user_id', auth()->id())
             ->whereNotNull('read_at')
             ->delete();
 
@@ -160,5 +171,12 @@ class NotificationController extends Controller
             'success' => true,
             'message' => 'All read notifications deleted',
         ]);
+    }
+
+    protected function findUserNotification($notificationId): ?Notification
+    {
+        return Notification::query()
+            ->where('user_id', auth()->id())
+            ->find($notificationId);
     }
 }

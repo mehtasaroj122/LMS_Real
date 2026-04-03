@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Notifications\DatabaseNotification;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-
     /**
      * Display a listing of all notifications
      */
@@ -18,13 +15,19 @@ class NotificationController extends Controller
     {
         Gate::authorize('access-staff');
 
-        $notifications = auth()->user()->notifications()
+        $notifications = Notification::query()
+            ->where('user_id', auth()->id())
             ->latest()
             ->paginate(10);
+        $unreadCount = Notification::query()
+            ->where('user_id', auth()->id())
+            ->whereNull('read_at')
+            ->count();
 
         return response()->json([
             'data' => $notifications->items(),
             'total' => $notifications->total(),
+            'unread_count' => $unreadCount,
         ]);
     }
 
@@ -35,7 +38,8 @@ class NotificationController extends Controller
     {
         Gate::authorize('access-staff');
 
-        $notifications = auth()->user()->notifications()
+        $notifications = Notification::query()
+            ->where('user_id', auth()->id())
             ->whereNull('read_at')
             ->latest()
             ->get();
@@ -46,13 +50,38 @@ class NotificationController extends Controller
     }
 
     /**
+     * Display a specific notification
+     */
+    public function show($notificationId)
+    {
+        Gate::authorize('access-staff');
+
+        $notification = $this->findUserNotification($notificationId);
+
+        if (!$notification) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Notification not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $notification,
+        ]);
+    }
+
+    /**
      * Get count of unread notifications
      */
     public function unreadCount()
     {
         Gate::authorize('access-staff');
 
-        $unreadCount = auth()->user()->unreadNotifications()->count();
+        $unreadCount = Notification::query()
+            ->where('user_id', auth()->id())
+            ->whereNull('read_at')
+            ->count();
 
         return response()->json([
             'unread_count' => $unreadCount,
@@ -66,14 +95,15 @@ class NotificationController extends Controller
     {
         Gate::authorize('access-staff');
 
-        $notification = DatabaseNotification::find($notificationId);
+        $notification = $this->findUserNotification($notificationId);
 
-        if ($notification && $notification->notifiable_id === auth()->id()) {
+        if ($notification) {
             $notification->markAsRead();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Notification marked as read',
+                'data' => $notification->fresh(),
             ]);
         }
 
@@ -90,7 +120,8 @@ class NotificationController extends Controller
     {
         Gate::authorize('access-staff');
 
-        auth()->user()->notifications()
+        Notification::query()
+            ->where('user_id', auth()->id())
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
@@ -107,7 +138,8 @@ class NotificationController extends Controller
     {
         Gate::authorize('access-staff');
 
-        auth()->user()->notifications()
+        Notification::query()
+            ->where('user_id', auth()->id())
             ->whereNotNull('read_at')
             ->delete();
 
@@ -124,11 +156,11 @@ class NotificationController extends Controller
     {
         Gate::authorize('access-staff');
 
-        $notification = DatabaseNotification::find($notificationId);
+        $notification = $this->findUserNotification($notificationId);
 
-        if ($notification && $notification->notifiable_id === auth()->id()) {
+        if ($notification) {
             $notification->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Notification deleted',
@@ -139,5 +171,12 @@ class NotificationController extends Controller
             'success' => false,
             'message' => 'Notification not found',
         ], 404);
+    }
+
+    protected function findUserNotification($notificationId): ?Notification
+    {
+        return Notification::query()
+            ->where('user_id', auth()->id())
+            ->find($notificationId);
     }
 }

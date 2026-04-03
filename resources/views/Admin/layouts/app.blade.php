@@ -358,7 +358,7 @@
             </div>
         </div>
 
-        <div id="notificationClearConfirmModal" class="notification-detail-modal" aria-hidden="true">
+        <div id="notificationClearConfirmModal" class="notification-detail-modal notification-detail-modal-danger" aria-hidden="true">
             <div class="notification-detail-panel" role="dialog" aria-modal="true" aria-labelledby="notificationClearConfirmTitle" aria-describedby="notificationClearConfirmMessage">
                 <div class="notification-detail-header">
                     <h3 id="notificationClearConfirmTitle">Clear Read Notifications</h3>

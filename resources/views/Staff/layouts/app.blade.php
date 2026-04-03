@@ -316,19 +316,69 @@
         <div class="notification-popup" id="notificationPopup">
             <div class="notification-header">
                 <h3>Notifications</h3>
-                <button class="text-sm font-medium text-blue-600 hover:text-blue-700" id="markAllReadBtn" style="margin-right: auto; margin-left: 12px;">
-                    Mark all as read
-                </button>
-                <button class="text-sm font-medium text-red-600 hover:text-red-700" id="deleteAllBtn" style="margin-right: 8px;" title="Delete all notifications">
-                    Clear all
-                </button>
+                <div class="notification-header-actions">
+                    <button type="button" class="notification-header-link notification-header-link-primary" id="markAllReadBtn">
+                        Mark all as read
+                    </button>
+                    <button type="button" class="notification-header-link notification-header-link-danger" id="deleteAllBtn" title="Delete all read notifications">
+                        Clear all
+                    </button>
+                </div>
                 <button class="notification-close-btn" id="notificationCloseBtn" aria-label="Close notifications">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
-            <div class="notification-body" id="notificationBody">
+            <div class="notification-body" id="notificationBody" aria-live="polite">
                 <!-- Notifications will be loaded dynamically here -->
+            </div>
+        </div>
+
+        <div id="notificationDetailModal" class="notification-detail-modal" aria-hidden="true">
+            <div class="notification-detail-panel" role="dialog" aria-modal="true" aria-labelledby="notificationDetailModalTitle" aria-describedby="notificationDetailModalBody">
+                <div class="notification-detail-header">
+                    <h3 id="notificationDetailModalTitle">Notification Details</h3>
+                    <button type="button" class="notification-detail-close-btn" data-notification-detail-close aria-label="Close notification details">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="notification-detail-body" id="notificationDetailModalBody">
+                    <div class="notification-detail-loading">
+                        <span class="notification-spinner" aria-hidden="true"></span>
+                        <p>Loading notification details...</p>
+                    </div>
+                </div>
+                <div class="notification-detail-footer">
+                    <button type="button" class="notification-detail-btn" data-notification-detail-close>Cancel</button>
+                    <button type="button" class="notification-detail-btn primary" id="notificationDetailOkBtn">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="notificationClearConfirmModal" class="notification-detail-modal notification-detail-modal-danger" aria-hidden="true">
+            <div class="notification-detail-panel" role="dialog" aria-modal="true" aria-labelledby="notificationClearConfirmTitle" aria-describedby="notificationClearConfirmMessage">
+                <div class="notification-detail-header">
+                    <h3 id="notificationClearConfirmTitle">Clear Read Notifications</h3>
+                    <button type="button" class="notification-detail-close-btn" data-notification-clear-close aria-label="Close clear notifications confirmation">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="notification-detail-body">
+                    <div class="notification-detail-hero">
+                        <div class="notification-detail-hero-icon" aria-hidden="true">
+                            <i data-lucide="trash-2" class="w-6 h-6"></i>
+                        </div>
+                        <div class="notification-detail-hero-copy">
+                            <span class="notification-detail-overline">Confirmation</span>
+                            <h4 class="notification-detail-hero-title" id="notificationClearConfirmHeading">Remove read notifications</h4>
+                            <p id="notificationClearConfirmMessage">Clear every read notification from the list? Unread notifications will stay in place.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="notification-detail-footer">
+                    <button type="button" class="notification-detail-btn" data-notification-clear-close>Cancel</button>
+                    <button type="button" class="notification-detail-btn primary" id="notificationClearConfirmOkBtn">Clear all</button>
+                </div>
             </div>
         </div>
 
@@ -341,14 +391,18 @@
 <script>
     window.notificationAPI = {
         index: '{{ route("staff.notifications.index") }}',
+        show: '{{ route("staff.notifications.show", "__ID__") }}',
         unreadCount: '{{ route("staff.notifications.unread-count") }}',
-        markRead: '{{ route("staff.notifications.mark-read", ":id") }}',
+        markRead: '{{ route("staff.notifications.mark-read", "__ID__") }}',
         markAllRead: '{{ route("staff.notifications.mark-all-read") }}',
-        delete: '{{ route("staff.notifications.destroy", ":id") }}',
+        delete: '{{ route("staff.notifications.destroy", "__ID__") }}',
         deleteAll: '{{ route("staff.notifications.delete-all-read") }}'
     };
 </script>
 
+<script src="{{ asset('staff/JS/services/notification-api.js') }}"></script>
+<script src="{{ asset('staff/JS/components/notification-list.js') }}"></script>
+<script src="{{ asset('staff/JS/components/notification-detail-modal.js') }}"></script>
 <script src="{{ asset('staff/JS/staff-appLayout.js') }}"></script>
 
 @stack('scripts')

@@ -243,6 +243,7 @@ Route::middleware(['auth', 'can:access-staff'])
             Route::get('/', [StaffNotificationController::class, 'index'])->name('index');
             Route::get('/unread', [StaffNotificationController::class, 'unread'])->name('unread');
             Route::get('/unread-count', [StaffNotificationController::class, 'unreadCount'])->name('unread-count');
+            Route::get('/{notificationId}', [StaffNotificationController::class, 'show'])->name('show');
             Route::post('/{notificationId}/read', [StaffNotificationController::class, 'markAsRead'])->name('mark-read');
             Route::post('/mark-all-read', [StaffNotificationController::class, 'markAllAsRead'])->name('mark-all-read');
             Route::post('/delete-all-read', [StaffNotificationController::class, 'deleteAllRead'])->name('delete-all-read');
@@ -310,6 +311,8 @@ Route::middleware(['auth', 'can:access-student'])
                 ->name('unread');
             Route::get('/unread-count', [StudentNotificationController::class, 'unreadCount'])
                 ->name('unread-count');
+            Route::get('/{notificationId}', [StudentNotificationController::class, 'show'])
+                ->name('show');
             Route::post('/{notificationId}/read', [StudentNotificationController::class, 'markAsRead'])
                 ->name('mark-read');
             Route::post('/mark-all-read', [StudentNotificationController::class, 'markAllAsRead'])
