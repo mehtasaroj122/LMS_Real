@@ -13,11 +13,21 @@ class IssuedBookObserver
      */
     public function created(IssuedBook $issuedBook): void
     {
+        $issuedBook->loadMissing(['student.user', 'book']);
+
         // Log book issued activity
-        if ($issuedBook->student) {
+        if ($issuedBook->student && $issuedBook->book) {
             ActivityLogger::logBookIssued(
                 $issuedBook->student,
-                $issuedBook->book->title ?? 'Unknown Book'
+                $issuedBook->book->title ?? 'Unknown Book',
+                [
+                    'issued_book_id' => $issuedBook->id,
+                    'book_id' => $issuedBook->book_id,
+                    'isbn' => $issuedBook->book?->isbn,
+                    'issue_date' => optional($issuedBook->issue_date)->toDateString(),
+                    'due_date' => optional($issuedBook->due_date)->toDateString(),
+                    'issued_by_user_id' => $issuedBook->issued_by,
+                ]
             );
         }
     }
@@ -27,18 +37,23 @@ class IssuedBookObserver
      */
     public function updated(IssuedBook $issuedBook): void
     {
+        $issuedBook->loadMissing(['student.user', 'book']);
+
         // Check if book was just returned
-        if ($issuedBook->isDirty('return_date')) {
-            $oldReturnDate = $issuedBook->getOriginal('return_date');
-            $newReturnDate = $issuedBook->return_date;
-            
-            // If return_date changed from null to something, book was returned
-            if ($oldReturnDate === null && $newReturnDate !== null) {
+        if ($issuedBook->wasChanged('return_date') && $issuedBook->return_date !== null) {
                 // Log book returned activity
-                if ($issuedBook->student) {
+                if ($issuedBook->student && $issuedBook->book) {
                     ActivityLogger::logBookReturned(
                         $issuedBook->student,
-                        $issuedBook->book->title ?? 'Unknown Book'
+                        $issuedBook->book->title ?? 'Unknown Book',
+                        [
+                            'issued_book_id' => $issuedBook->id,
+                            'book_id' => $issuedBook->book_id,
+                            'isbn' => $issuedBook->book?->isbn,
+                            'condition' => $issuedBook->condition,
+                            'fine_amount' => (float) ($issuedBook->fine_amount ?? 0),
+                            'return_date' => optional($issuedBook->return_date)->toDateString(),
+                        ]
                     );
                 }
 
@@ -56,11 +71,10 @@ class IssuedBookObserver
                         'Fine'
                     );
                 }
-            }
         }
 
         // Check if status changed to lost or damaged
-        if ($issuedBook->isDirty('status')) {
+        if ($issuedBook->wasChanged('status')) {
             $oldStatus = $issuedBook->getOriginal('status');
             $newStatus = $issuedBook->status;
 

@@ -1,11 +1,13 @@
 <?php
 
+use App\Mail\StudentPrivilegeUpdatedMail;
 use App\Models\Department;
 use App\Models\FineSetting;
 use App\Models\Student;
 use App\Models\StudentPrivilege;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 function makePrivilegeAdminUser(array $overrides = []): User
@@ -51,6 +53,8 @@ function makePrivilegeStudentRecord(array $overrides = []): Student
 }
 
 test('admin can reset student privileges back to defaults and clear stored overrides', function () {
+    Mail::fake();
+
     $admin = makePrivilegeAdminUser();
     $student = makePrivilegeStudentRecord();
 
@@ -93,6 +97,12 @@ test('admin can reset student privileges back to defaults and clear stored overr
         ->assertJsonPath('has_custom_overrides', false);
 
     expect(StudentPrivilege::query()->where('student_id', $student->id)->exists())->toBeFalse();
+
+    Mail::assertQueued(StudentPrivilegeUpdatedMail::class, function (StudentPrivilegeUpdatedMail $mail) use ($student) {
+        return $mail->hasTo($student->user->email)
+            && str_contains($mail->render(), 'Your library privileges were reset')
+            && str_contains($mail->render(), 'Maximum books');
+    });
 });
 
 test('saving privilege settings that match defaults removes redundant overrides', function () {
@@ -144,6 +154,8 @@ test('saving privilege settings that match defaults removes redundant overrides'
 });
 
 test('saving custom privilege overrides returns effective settings without crashing', function () {
+    Mail::fake();
+
     $admin = makePrivilegeAdminUser([
         'email' => 'privilege-admin-3@example.com',
         'phone' => '9800001113',
@@ -192,4 +204,11 @@ test('saving custom privilege overrides returns effective settings without crash
     expect($storedPrivilege->issue_duration_days)->toBe(21);
     expect((float) $storedPrivilege->per_day_fine)->toBe(15.0);
     expect($storedPrivilege->borrowing_allowed)->toBeFalse();
+
+    Mail::assertQueued(StudentPrivilegeUpdatedMail::class, function (StudentPrivilegeUpdatedMail $mail) use ($student) {
+        return $mail->hasTo($student->user->email)
+            && str_contains($mail->render(), 'Your library privileges were updated')
+            && str_contains($mail->render(), 'Borrowing access')
+            && str_contains($mail->render(), 'Restricted');
+    });
 });

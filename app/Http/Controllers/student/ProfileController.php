@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\student;
 
+use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\Fine;
@@ -41,9 +42,9 @@ class ProfileController extends Controller
         // Count books issued (not yet returned)
         $booksIssuedCount = $student->issuedBooks()->whereNull('return_date')->count();
 
-        // Count unpaid fines
+        // Count pending fines
         $unpaidFinesCount = Fine::where('student_id', $student->id)
-            ->where('status', 'unpaid')
+            ->where('status', 'pending')
             ->count();
 
         // Count pending requests
@@ -77,6 +78,7 @@ class ProfileController extends Controller
         Gate::authorize('access-student');
 
         $user = Auth::user();
+        $originalProfileState = $user->only(ActivityLogger::userProfileAuditFields());
 
         if (!$request->has('name') && $request->has('fullName')) {
             $request->merge(['name' => $request->input('fullName')]);
@@ -90,74 +92,61 @@ class ProfileController extends Controller
         ]);
 
         try {
-            // Capture old values before update
-            $oldName = $user->name;
-            $oldEmail = $user->email;
-            $oldPhone = $user->phone;
-            $oldAddress = $user->address;
-
             $user->update([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
                 'address' => $validated['address'] ?? null,
             ]);
+            $user->refresh();
+            $profileChanges = ActivityLogger::buildUserProfileChangeSet(
+                $originalProfileState,
+                $user->only(ActivityLogger::userProfileAuditFields())
+            );
+            $emailChanged = in_array('email', $profileChanges['changed_fields'], true);
 
-            // Build list of changes
-            $changes = [];
-            if ($oldName !== $validated['name']) {
-                $changes[] = "name: {$oldName} → {$validated['name']}";
-            }
-            if ($oldEmail !== $validated['email']) {
-                $changes[] = "email: {$oldEmail} → {$validated['email']}";
-            }
-            if ($oldPhone !== ($validated['phone'] ?? null)) {
-                $oldPhoneStr = $oldPhone ?? 'not set';
-                $newPhoneStr = $validated['phone'] ?? 'not set';
-                $changes[] = "phone: {$oldPhoneStr} → {$newPhoneStr}";
-            }
-            if ($oldAddress !== ($validated['address'] ?? null)) {
-                $oldAddressStr = $oldAddress ?? 'not set';
-                $newAddressStr = $validated['address'] ?? 'not set';
-                $changes[] = "address: {$oldAddressStr} → {$newAddressStr}";
-            }
-
-            // Notify about profile update with specific changes
-            if (!empty($changes)) {
-                $changesSummary = implode(", ", $changes);
+            if (!empty($profileChanges['messages'])) {
                 Notification::notify(
                     user: $user,
                     type: 'account.profile_updated',
                     title: 'Profile Information Updated',
-                    message: "Your profile information was updated: {$changesSummary}",
+                    message: 'Your profile information was updated: ' . $profileChanges['summary'],
                     data: [
                         'ip' => request()->ip(),
-                        'changes' => $changes,
-                        'changed_fields' => array_keys($validated)
+                        'changes' => $profileChanges['changes'],
+                        'changed_fields' => $profileChanges['changed_fields'],
                     ],
                     relatedModel: 'User',
                     relatedId: $user->id
                 );
             }
 
-            if ($oldEmail !== $validated['email']) {
+            if ($emailChanged) {
                 Notification::notify(
                     user: $user,
                     type: 'account.email_changed',
                     title: 'Email Address Changed',
-                    message: 'Your email address was changed to ' . $validated['email'],
-                    data: ['old_email' => $oldEmail, 'new_email' => $validated['email']],
+                    message: 'Your email address was changed to ' . $user->email,
+                    data: [
+                        'old_email' => $profileChanges['changes']['email']['old'] ?? null,
+                        'new_email' => $profileChanges['changes']['email']['new'] ?? null,
+                    ],
                     relatedModel: 'User',
                     relatedId: $user->id
                 );
             }
+
+            ActivityLogger::logUserProfileChanges($user, $profileChanges, [
+                'role_context' => 'student',
+                'email_changed' => $emailChanged,
+            ]);
 
             $freshUser = $user->fresh()->loadMissing('student.department');
 
             return response()->json([
                 'success' => true,
                 'message' => 'Profile updated successfully.',
-                'email_changed' => $oldEmail !== $validated['email'],
+                'email_changed' => $emailChanged,
                 'user' => [
                     'name' => $freshUser->name,
                     'email' => $freshUser->email,
@@ -192,6 +181,8 @@ class ProfileController extends Controller
         ]);
 
         try {
+            $originalProfileState = $user->only(ActivityLogger::userProfileAuditFields());
+
             if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
                 Storage::disk('public')->delete($user->profile_photo);
             }
@@ -206,6 +197,16 @@ class ProfileController extends Controller
             $user->update([
                 'profile_photo' => $path,
             ]);
+            $user->refresh();
+
+            ActivityLogger::logUserProfileChanges(
+                $user,
+                ActivityLogger::buildUserProfileChangeSet(
+                    $originalProfileState,
+                    $user->only(ActivityLogger::userProfileAuditFields())
+                ),
+                ['role_context' => 'student']
+            );
 
             $freshUser = $user->fresh();
 
@@ -317,6 +318,8 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         try {
+            $originalProfileState = $user->only(ActivityLogger::userProfileAuditFields());
+
             if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
                 Storage::disk('public')->delete($user->profile_photo);
             }
@@ -324,6 +327,16 @@ class ProfileController extends Controller
             $user->update([
                 'profile_photo' => null,
             ]);
+            $user->refresh();
+
+            ActivityLogger::logUserProfileChanges(
+                $user,
+                ActivityLogger::buildUserProfileChangeSet(
+                    $originalProfileState,
+                    $user->only(ActivityLogger::userProfileAuditFields())
+                ),
+                ['role_context' => 'student']
+            );
 
             return response()->json([
                 'success' => true,

@@ -507,10 +507,19 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            overflow: hidden;
             background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
             color: #1d4ed8;
             font-size: 0.78rem;
             font-weight: 800;
+        }
+
+        .activity-avatar img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+            border-radius: inherit;
         }
 
         body.dark-theme .activity-avatar {
@@ -1034,6 +1043,16 @@
                                     ? \Illuminate\Support\Str::headline($activity->action_category)
                                     : null;
                                 $description = $activity->readable_description ?: $activity->description;
+                                $profilePhoto = $activity->user?->profile_photo;
+                                $profilePhotoUrl = $profilePhoto
+                                    ? (str_starts_with($profilePhoto, 'http')
+                                        ? $profilePhoto
+                                        : asset(
+                                            str_starts_with($profilePhoto, 'storage/')
+                                                ? $profilePhoto
+                                                : 'storage/' . ltrim($profilePhoto, '/'),
+                                        ))
+                                    : null;
                             @endphp
                             <tr>
                                 <td data-label="Time" class="activity-time-col">
@@ -1048,7 +1067,13 @@
                                 </td>
                                 <td data-label="Actor">
                                     <div class="activity-actor">
-                                        <div class="activity-avatar">{{ $initials ?: 'U' }}</div>
+                                        <div class="activity-avatar">
+                                            @if ($profilePhotoUrl)
+                                                <img src="{{ $profilePhotoUrl }}" alt="{{ $userName }}">
+                                            @else
+                                                {{ $initials ?: 'U' }}
+                                            @endif
+                                        </div>
                                         <div class="activity-actor-copy">
                                             <div class="activity-actor-name-row">
                                                 <span class="activity-actor-name">{{ $userName }}</span>

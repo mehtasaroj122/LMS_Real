@@ -31,7 +31,7 @@ class SettingController extends Controller
         Gate::authorize('access-staff');
         $user = $request->user()->loadMissing('staff.department');
         $validated = $request->validated();
-        $emailChanged = isset($validated['email']) && $validated['email'] !== $user->email;
+        $originalProfileState = $user->only(ActivityLogger::userProfileAuditFields());
 
         try {
             if ($request->hasFile('profile_photo')) {
@@ -52,51 +52,26 @@ class SettingController extends Controller
                 ->withErrors(['profile_photo' => 'Failed to upload profile photo. Please try again.']);
         }
 
-        // Capture old values before update
-        $oldName = $user->name;
-        $oldEmail = $user->email;
-        $oldPhone = $user->phone;
-        $oldAddress = $user->address;
-        $hadProfilePhoto = $user->profile_photo !== null;
-        
         $user->update($validated);
-        $changedFields = array_keys($validated);
+        $user->refresh()->loadMissing('staff.department');
+        $profileChanges = ActivityLogger::buildUserProfileChangeSet(
+            $originalProfileState,
+            $user->only(ActivityLogger::userProfileAuditFields())
+        );
+        $changedFields = $profileChanges['changed_fields'];
+        $emailChanged = in_array('email', $changedFields, true);
 
-        // Build list of changes
-        $changes = [];
-        if (isset($validated['name']) && $oldName !== $validated['name']) {
-            $changes[] = "name: {$oldName} → {$validated['name']}";
-        }
-        if (isset($validated['email']) && $oldEmail !== $validated['email']) {
-            $changes[] = "email: {$oldEmail} → {$validated['email']}";
-        }
-        if (isset($validated['phone']) && $oldPhone !== $validated['phone']) {
-            $changes[] = "phone: {$oldPhone} → {$validated['phone']}";
-        }
-        if (isset($validated['address']) && $oldAddress !== $validated['address']) {
-            $changes[] = "address: {$oldAddress} → {$validated['address']}";
-        }
-        if (isset($validated['profile_photo'])) {
-            if ($hadProfilePhoto) {
-                $changes[] = "profile picture: updated";
-            } else {
-                $changes[] = "profile picture: added";
-            }
-        }
-
-        // Notify about profile update with specific changes
-        if (!empty($changes)) {
-            $changesSummary = implode(", ", $changes);
+        if (!empty($profileChanges['messages'])) {
             Notification::notify(
                 user: $user,
                 type: 'account.profile_updated',
                 title: 'Profile Information Updated',
-                message: "Your profile information was updated: {$changesSummary}",
+                message: 'Your profile information was updated: ' . $profileChanges['summary'],
                 data: [
                     'ip' => request()->ip(),
                     'timestamp' => now(),
-                    'changes' => $changes,
-                    'changed_fields' => $changedFields
+                    'changes' => $profileChanges['changes'],
+                    'changed_fields' => $changedFields,
                 ],
                 relatedModel: 'User',
                 relatedId: $user->id
@@ -109,8 +84,11 @@ class SettingController extends Controller
                 user: $user,
                 type: 'account.email_changed',
                 title: 'Email Address Changed',
-                message: 'Your email address was changed to ' . $validated['email'],
-                data: ['old_email' => $user->getOriginal('email'), 'new_email' => $validated['email']],
+                message: 'Your email address was changed to ' . $user->email,
+                data: [
+                    'old_email' => $profileChanges['changes']['email']['old'] ?? null,
+                    'new_email' => $profileChanges['changes']['email']['new'] ?? null,
+                ],
                 relatedModel: 'User',
                 relatedId: $user->id
             );
@@ -120,17 +98,10 @@ class SettingController extends Controller
             ? 'Profile updated successfully. Your login email has been changed.'
             : 'Profile updated successfully.';
 
-        ActivityLogger::logActivity(
-            'profile_updated',
-            'Staff profile updated',
-            'user',
-            'user',
-            $user->id,
-            [
-                'changed_fields' => $changedFields,
-                'email_changed' => $emailChanged,
-            ]
-        );
+        ActivityLogger::logUserProfileChanges($user, $profileChanges, [
+            'role_context' => 'staff',
+            'email_changed' => $emailChanged,
+        ]);
 
         $freshUser = $user->fresh()->loadMissing('staff.department');
 
@@ -209,10 +180,19 @@ class SettingController extends Controller
 
         try {
             $user = $request->user();
+            $originalProfileState = $user->only(ActivityLogger::userProfileAuditFields());
             $path = $this->handlePhotoUpload($user, $request->file('profile_photo'));
             $user->update(['profile_photo' => $path]);
+            $user->refresh();
 
-            ActivityLogger::logActivity('profile_photo_uploaded', 'Staff uploaded profile photo', 'user', 'user', $user->id);
+            ActivityLogger::logUserProfileChanges(
+                $user,
+                ActivityLogger::buildUserProfileChangeSet(
+                    $originalProfileState,
+                    $user->only(ActivityLogger::userProfileAuditFields())
+                ),
+                ['role_context' => 'staff']
+            );
 
             $message = 'Photo uploaded successfully.';
 
@@ -250,6 +230,7 @@ class SettingController extends Controller
     {
         Gate::authorize('access-staff');
         $user = $request->user();
+        $originalProfileState = $user->only(ActivityLogger::userProfileAuditFields());
 
         if (!$user->profile_photo) {
             if ($request->expectsJson()) {
@@ -266,8 +247,16 @@ class SettingController extends Controller
 
         $this->deleteStoredPhoto($user->profile_photo);
         $user->update(['profile_photo' => null]);
+        $user->refresh();
 
-        ActivityLogger::logActivity('profile_photo_removed', 'Staff removed profile photo', 'user', 'user', $user->id);
+        ActivityLogger::logUserProfileChanges(
+            $user,
+            ActivityLogger::buildUserProfileChangeSet(
+                $originalProfileState,
+                $user->only(ActivityLogger::userProfileAuditFields())
+            ),
+            ['role_context' => 'staff']
+        );
 
         if ($request->expectsJson()) {
             return response()->json([

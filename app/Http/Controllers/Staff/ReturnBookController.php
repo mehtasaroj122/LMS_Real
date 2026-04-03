@@ -9,13 +9,10 @@ use App\Models\Student;
 use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\Notification;
-use App\Helpers\ActivityLogger;
 use App\Services\FineCalculator;
 use App\Jobs\SendBookReturnedEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
 class ReturnBookController extends Controller
@@ -181,13 +178,6 @@ class ReturnBookController extends Controller
                 
                 $totalFine += $bookFine;
                 
-                // Log activity
-                ActivityLogger::logBookReturned($student, $issuedBook->book->title, [
-                    'isbn' => $issuedBook->book->isbn,
-                    'condition' => $condition,
-                    'fine_amount' => $bookFine,
-                ]);
-                
                 // Send notification to student
                 $notificationType = ($bookFine > 0) ? 'fine.created' : 'book.returned';
                 $title = ($bookFine > 0) ? 'Book Returned with Fine' : 'Book Returned Successfully';
@@ -210,17 +200,20 @@ class ReturnBookController extends Controller
                     relatedId: $issuedBook->id
                 );
                 
-                // Queue email to send 3 seconds later
-                // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
                 if ($student->user->email) {
-                    // SendBookReturnedEmail::dispatch(
-                    //     $student->user->email,
-                    //     $student->user->name,
-                    //     $issuedBook->book->title,
-                    //     $condition,
-                    //     $bookFine
-                    // );
-                    \Log::info('Book returned email would have been sent to: ' . $student->user->email);
+                    try {
+                        SendBookReturnedEmail::dispatch(
+                            $student->user->email,
+                            $student->user->name,
+                            $issuedBook->book->title,
+                            $condition,
+                            (float) $bookFine
+                        );
+                    } catch (\Throwable $e) {
+                        \Log::warning('Unable to queue book returned email: ' . $e->getMessage(), [
+                            'issued_book_id' => $issuedBook->id,
+                        ]);
+                    }
                 }
                 
                 $returnedCount++;

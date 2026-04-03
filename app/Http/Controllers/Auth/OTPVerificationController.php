@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\OTPVerificationMail;
+use App\Mail\WelcomeEmail;
 use App\Models\User;
 use App\Models\Student;
 use Illuminate\Auth\Events\Registered;
@@ -121,6 +122,23 @@ class OTPVerificationController extends Controller
         // Trigger registered event
         event(new Registered($user));
 
+        try {
+            Mail::to($user->email)->queue(new WelcomeEmail(
+                $user->name,
+                route('student.dashboard')
+            ));
+
+            \Log::info('Queued welcome email after OTP verification', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('Unable to queue welcome email after registration: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+        }
+
         // Log the user in
         Auth::login($user);
 
@@ -167,10 +185,10 @@ class OTPVerificationController extends Controller
 
         // Send OTP via email
         try {
-            Mail::send('emails.otp-email', ['otp' => $newOTP, 'name' => $regData['name']], function ($message) use ($request) {
-                $message->to($request->email)
-                    ->subject('New OTP - Library Management System');
-            });
+            Mail::to($request->email)->queue(new OTPVerificationMail($newOTP, $regData['name']));
+            \Log::info('Queued OTP resend email', [
+                'email' => $request->email,
+            ]);
 
             return response()->json([
                 'success' => true,

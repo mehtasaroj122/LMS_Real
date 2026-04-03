@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\QueuesLibraryNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -11,12 +12,13 @@ use Illuminate\Support\Str;
 
 class AccountLockedNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, QueuesLibraryNotification;
 
     public function __construct(
         protected ?string $ip = null,
         protected ?int $retryAfter = null,
     ) {
+        $this->configureLibraryNotificationQueue();
     }
 
     public function via(object $notifiable): array
@@ -29,7 +31,7 @@ class AccountLockedNotification extends Notification implements ShouldQueue
         $minutes = max(1, (int) ceil(($this->retryAfter ?? config('security.rate_limiting.lockout_duration', 60) * 60) / 60));
 
         $unlockUrl = URL::temporarySignedRoute(
-            'auth.unlock-from-email',
+            'unlock-from-email',
             now()->addHours(24),
             [
                 'email' => $notifiable->email,
@@ -39,14 +41,14 @@ class AccountLockedNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject('Account temporarily locked - ' . config('app.name'))
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('We temporarily locked your account after repeated failed sign-in attempts.')
-            ->line('Source IP: ' . ($this->ip ?: 'Multiple IP addresses'))
-            ->line('Estimated unlock window: ' . $minutes . ' ' . Str::plural('minute', $minutes) . '.')
-            ->line('If this activity was not yours, please review your password immediately.')
-            ->action('Unlock account now', $unlockUrl)
-            ->line('This secure unlock link expires in 24 hours.')
-            ->salutation('Library Security Team');
+            ->view('emails.account-locked', [
+                'userName' => $notifiable->name,
+                'sourceIp' => $this->ip ?: 'Multiple IP addresses',
+                'minutes' => $minutes,
+                'unlockUrl' => $unlockUrl,
+                'unlockExpiresAt' => now()->addHours(24)->format('M d, Y h:i A'),
+                'minuteLabel' => Str::plural('minute', $minutes),
+            ]);
     }
 
     public function toArray(object $notifiable): array
@@ -58,6 +60,14 @@ class AccountLockedNotification extends Notification implements ShouldQueue
             'ip' => $this->ip,
             'retry_after' => $this->retryAfter,
             'timestamp' => now(),
+        ];
+    }
+
+    protected function libraryNotificationFailureContext(): array
+    {
+        return [
+            'notification_type' => 'account_locked',
+            'ip' => $this->ip,
         ];
     }
 }

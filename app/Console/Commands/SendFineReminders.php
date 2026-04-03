@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\SendFineEmail;
 use App\Models\Fine;
 use App\Models\Notification;
 use Carbon\Carbon;
@@ -10,14 +11,14 @@ use Illuminate\Console\Command;
 class SendFineReminders extends Command
 {
     protected $signature = 'notifications:fine-reminders';
-    protected $description = 'Send reminders to students for unpaid fines';
+    protected $description = 'Send reminders to students for pending fines';
 
     public function handle()
     {
         $this->info('Sending fine payment reminders...');
 
-        // Find unpaid fines
-        $unpaidFines = Fine::where('status', 'unpaid')
+        // Find pending fines
+        $unpaidFines = Fine::where('status', 'pending')
             ->with(['student.user', 'issuedBook.book'])
             ->get();
 
@@ -54,6 +55,21 @@ class SendFineReminders extends Command
                 relatedModel: 'Fine',
                 relatedId: $fine->id
             );
+
+            if ($fine->student->user->email) {
+                try {
+                    SendFineEmail::dispatch(
+                        $fine->student->user->email,
+                        $fine->student->user->name ?? 'Student',
+                        (float) $fine->amount,
+                        'pending'
+                    );
+                } catch (\Throwable $e) {
+                    \Log::warning('Unable to queue fine reminder email: ' . $e->getMessage(), [
+                        'fine_id' => $fine->id,
+                    ]);
+                }
+            }
 
             $count++;
         }

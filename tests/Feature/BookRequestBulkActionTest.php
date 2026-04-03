@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SendBookRequestStatusEmail;
 use App\Models\BookRequest;
 use App\Models\book as Book;
 use App\Models\category as Category;
@@ -8,6 +9,7 @@ use App\Models\Notification;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 
 function makeRoleUser(string $role, array $overrides = []): User
@@ -80,6 +82,8 @@ function makeBookRequestRecord(string $status = 'pending'): BookRequest
 }
 
 test('admin can bulk approve pending requests while skipping already processed ones', function () {
+    Queue::fake();
+
     $admin = makeRoleUser('admin', [
         'name' => 'Primary Admin',
         'email' => 'admin-bulk@example.com',
@@ -109,9 +113,12 @@ test('admin can bulk approve pending requests while skipping already processed o
     expect($alreadyApproved->fresh()->processed_by)->toBe('Previous Handler');
 
     expect(Notification::query()->count())->toBe(4);
+    Queue::assertPushed(SendBookRequestStatusEmail::class, 2);
 });
 
 test('staff can bulk reject pending requests without notifying admins', function () {
+    Queue::fake();
+
     $staff = makeRoleUser('staff', [
         'name' => 'Desk Staff',
         'email' => 'staff-bulk@example.com',
@@ -139,4 +146,5 @@ test('staff can bulk reject pending requests without notifying admins', function
 
     expect(Notification::query()->count())->toBe(1);
     expect(Notification::query()->first()?->type)->toBe('request.rejected');
+    Queue::assertPushed(SendBookRequestStatusEmail::class, 1);
 });

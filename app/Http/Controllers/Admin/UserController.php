@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminUserRequest;
 use App\Models\ActivityLog;
+use App\Models\Notification;
 use App\Models\staff;
 use App\Models\student;
 use App\Models\User;
 use App\Helpers\ActivityLogger;
 use App\Mail\PasswordResetEmail;
+use App\Services\StudentManagement\StudentNotificationEmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -20,7 +22,9 @@ use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
-    public function __construct()
+    public function __construct(
+        private StudentNotificationEmailService $studentNotificationEmailService,
+    )
     {
         Gate::authorize('access-admin');
     }
@@ -607,11 +611,47 @@ class UserController extends Controller
             ['old_status' => $oldStatus, 'new_status' => $newStatus]
         );
 
+        $this->notifyAccountStatusChangeIfNeeded($user, $newStatus);
+
         return response()->json([
             'success' => true,
             'message' => 'Status updated successfully',
             'status' => $user->status
         ]);
+    }
+
+    protected function notifyAccountStatusChangeIfNeeded(User $user, string $newStatus): void
+    {
+        $user->loadMissing('student', 'staff');
+
+        $accountRole = strtolower((string) $user->role);
+
+        if (!in_array($accountRole, ['student', 'staff'], true)) {
+            return;
+        }
+
+        $statusMessage = $newStatus === 'active' ? 'activated' : 'deactivated';
+        $relatedModel = $accountRole === 'student' ? 'Student' : 'Staff';
+        $relatedId = $accountRole === 'student'
+            ? $user->student?->id
+            : $user->staff?->id;
+
+        Notification::notify(
+            user: $user,
+            type: 'account.status_changed',
+            title: 'Account Status Changed',
+            message: "Your account has been {$statusMessage} by admin",
+            data: ['status' => $newStatus, 'changed_by' => auth()->user()?->name],
+            relatedModel: $relatedModel,
+            relatedId: $relatedId
+        );
+
+        $this->studentNotificationEmailService->sendUserStatusChangedEmail(
+            $user,
+            $newStatus,
+            auth()->user()?->name,
+            auth()->user()?->role,
+        );
     }
 
     /**
@@ -621,22 +661,35 @@ class UserController extends Controller
     {
         // Generate temporary password
         $tempPassword = Str::random(10);
-
-        $user->update([
-            'password' => Hash::make($tempPassword),
-            'force_password_change' => true,
-            'password_reset_at' => now()
-        ]);
-
-        // Send email with temporary password
         try {
-            Mail::to($user->email)->queue(new PasswordResetEmail(
-                $user->name,
-                $user->email,
-                $tempPassword
-            ));
-        } catch (\Exception $e) {
-            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+            DB::transaction(function () use ($user, $tempPassword) {
+                $user->update([
+                    'password' => Hash::make($tempPassword),
+                    'force_password_change' => true,
+                    'password_reset_at' => now()
+                ]);
+
+                Mail::to($user->email)->queue(new PasswordResetEmail(
+                    $user->name,
+                    $user->email,
+                    $tempPassword
+                ));
+            });
+
+            \Log::info('Queued administrator password reset email', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to queue password reset email: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Password reset email could not be queued, so no changes were saved.',
+            ], 500);
         }
 
         // Log the activity

@@ -5,7 +5,6 @@ namespace App\Support;
 use App\Models\FineSetting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 
 class LibraryBranding
 {
@@ -82,27 +81,20 @@ class LibraryBranding
             return null;
         }
 
-        if (!Storage::disk('public')->exists($normalizedPath)) {
+        $publicPath = public_path('storage/' . $normalizedPath);
+
+        if (!is_file($publicPath)) {
             return null;
         }
 
-        $url = Storage::disk('public')->url($normalizedPath);
-        $path = parse_url($url, PHP_URL_PATH);
-        $query = parse_url($url, PHP_URL_QUERY);
+        $url = '/storage/' . ltrim($normalizedPath, '/');
 
-        if (is_string($path) && $path !== '') {
-            $url = $path . ($query ? "?{$query}" : '');
-        } elseif (!str_starts_with($url, '/')) {
-            $url = '/' . ltrim($url, '/');
+        if ($version) {
+            $separator = str_contains($url, '?') ? '&' : '?';
+            $url = "{$url}{$separator}v={$version}";
         }
 
-        if (!$version) {
-            return $url;
-        }
-
-        $separator = str_contains($url, '?') ? '&' : '?';
-
-        return "{$url}{$separator}v={$version}";
+        return $url;
     }
 
     private static function normalizeStoragePath(?string $path): ?string

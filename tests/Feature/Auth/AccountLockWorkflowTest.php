@@ -1,8 +1,10 @@
 <?php
 
+use App\Notifications\AccountLockedNotification;
 use App\Models\User;
 use App\Support\AccountLockoutManager;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 
@@ -42,6 +44,33 @@ test('failed logins honor the configured lockout duration', function () {
     expect($remainingSeconds)->toBeLessThanOrEqual(180);
 
     RateLimiter::clear($throttleKey);
+});
+
+test('account lockout queues a security email notification when email unlock is enabled', function () {
+    Notification::fake();
+
+    config([
+        'security.rate_limiting.enabled' => true,
+        'security.rate_limiting.max_attempts' => 1,
+        'security.rate_limiting.lockout_duration' => 2,
+        'security.rate_limiting.email_unlock_enabled' => true,
+    ]);
+
+    $user = makeAccountLockUser([
+        'email' => 'security-lock@example.com',
+    ]);
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'wrong-password',
+    ])->assertSessionHasErrors('email');
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'wrong-password',
+    ])->assertSessionHasErrors('email');
+
+    Notification::assertSentTo($user, AccountLockedNotification::class);
 });
 
 test('admin account lock dashboard lists and clears active lockouts', function () {

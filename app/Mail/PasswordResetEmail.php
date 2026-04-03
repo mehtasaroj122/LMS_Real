@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\QueuesLibraryMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -11,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class PasswordResetEmail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, QueuesLibraryMail;
 
     public $userName;
     public $userEmail;
@@ -29,6 +30,7 @@ class PasswordResetEmail extends Mailable implements ShouldQueue
         $this->tempPassword = $tempPassword;
         $this->appName = config('app.name');
         $this->loginUrl = route('login');
+        $this->configureLibraryMailQueue();
     }
 
     /**
@@ -66,5 +68,12 @@ class PasswordResetEmail extends Mailable implements ShouldQueue
     public function attachments(): array
     {
         return [];
+    }
+
+    protected function libraryMailFailureContext(): array
+    {
+        return [
+            'user_email' => $this->userEmail,
+        ];
     }
 }

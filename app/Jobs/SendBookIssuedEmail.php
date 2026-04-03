@@ -2,17 +2,17 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Concerns\HandlesQueuedEmail;
 use App\Mail\BookIssuedSimple;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 
 class SendBookIssuedEmail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, HandlesQueuedEmail;
 
     public function __construct(
         public string $studentEmail,
@@ -22,26 +22,26 @@ class SendBookIssuedEmail implements ShouldQueue
         public string $issueDate,
         public string $dueDate,
     ) {
-        $this->delay(now()->addSeconds(3));
+        $this->configureEmailQueue();
     }
 
     public function handle(): void
     {
-        /**
-         * MAIL SYSTEM DISABLED
-         * To re-enable: Uncomment the code below
-         * Make sure MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD are set in .env
-         */
-        // Mail::to($this->studentEmail)->send(new BookIssuedSimple(
-        //     $this->studentEmail,
-        //     $this->studentName,
-        //     $this->bookTitle,
-        //     $this->author,
-        //     $this->issueDate,
-        //     $this->dueDate
-        // ));
-        
-        // Log notification instead of sending email
-        \Log::info('Email would have been sent to: ' . $this->studentEmail . ' (Mail disabled)');
+        $this->sendQueuedMail(
+            $this->studentEmail,
+            new BookIssuedSimple(
+                $this->studentEmail,
+                $this->studentName,
+                $this->bookTitle,
+                $this->author,
+                $this->issueDate,
+                $this->dueDate
+            ),
+            'book_issued',
+            [
+                'book_title' => $this->bookTitle,
+                'due_date' => $this->dueDate,
+            ]
+        );
     }
 }

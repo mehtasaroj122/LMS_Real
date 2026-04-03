@@ -13,8 +13,10 @@ class FineObserver
      */
     public function updated(Fine $fine): void
     {
+        $fine->loadMissing(['student.user', 'student.privileges', 'issuedBook.book']);
+
         // Check if status changed to paid
-        if ($fine->isDirty('status')) {
+        if ($fine->wasChanged('status')) {
             $oldStatus = $fine->getOriginal('status');
             $newStatus = $fine->status;
             
@@ -52,17 +54,18 @@ class FineObserver
      */
     public function created(Fine $fine): void
     {
+        $fine->loadMissing(['student.user', 'student.privileges', 'issuedBook.book']);
+
         if ($fine->student) {
             $bookName = '';
             if ($fine->issuedBook && $fine->issuedBook->book) {
                 $bookName = $fine->issuedBook->book->title;
             }
             
-            ActivityLogger::logStudentActivity(
+            ActivityLogger::logFineApplied(
                 $fine->student,
-                'fine_applied',
-                "Fine of ₹{$fine->amount} applied" . ($bookName ? " for '{$bookName}'" : ''),
-                'fine',
+                (float) $fine->amount,
+                $bookName,
                 [
                     'fine_id' => $fine->id,
                     'issued_book_id' => $fine->issued_book_id,

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Notifications\Concerns\QueuesLibraryNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -9,13 +10,14 @@ use Illuminate\Notifications\Notification;
 
 class AccountUnlockNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, QueuesLibraryNotification;
 
     /**
      * Create a new notification instance.
      */
     public function __construct(protected ?string $ip = null)
     {
+        $this->configureLibraryNotificationQueue();
     }
 
     /**
@@ -35,11 +37,11 @@ class AccountUnlockNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Account unlocked - ' . config('app.name'))
-            ->greeting('Hello ' . $notifiable->name . ',')
-            ->line('Your account lock has been cleared and you can sign in again.')
-            ->line('Related IP: ' . ($this->ip ?? 'Multiple IP addresses'))
-            ->line('If you did not request this action, please change your password immediately and contact support.')
-            ->salutation('Library Security Team');
+            ->view('emails.account-unlocked', [
+                'userName' => $notifiable->name,
+                'sourceIp' => $this->ip ?? 'Multiple IP addresses',
+                'loginUrl' => route('login'),
+            ]);
     }
 
     /**
@@ -55,6 +57,14 @@ class AccountUnlockNotification extends Notification implements ShouldQueue
             'message' => 'Your account has been unlocked. If you did not request this, please change your password immediately.',
             'ip' => $this->ip,
             'timestamp' => now(),
+        ];
+    }
+
+    protected function libraryNotificationFailureContext(): array
+    {
+        return [
+            'notification_type' => 'account_unlocked',
+            'ip' => $this->ip,
         ];
     }
 }

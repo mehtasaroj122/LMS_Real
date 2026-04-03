@@ -12,6 +12,10 @@ use RuntimeException;
 
 class StudentManagementActionService
 {
+    public function __construct(
+        private StudentNotificationEmailService $studentNotificationEmailService,
+    ) {}
+
     public function create(array $validated): Student
     {
         $student = DB::transaction(function () use ($validated) {
@@ -72,6 +76,13 @@ class StudentManagementActionService
             data: ['status' => $status, 'changed_by' => auth()->user()?->name],
             relatedModel: 'Student',
             relatedId: $student->id
+        );
+
+        $this->studentNotificationEmailService->sendStatusChangedEmail(
+            $student,
+            $status,
+            auth()->user()?->name,
+            auth()->user()?->role,
         );
         
         // Notify admin about student status change by staff

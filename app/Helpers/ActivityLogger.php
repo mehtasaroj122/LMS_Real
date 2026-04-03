@@ -4,11 +4,273 @@ namespace App\Helpers;
 
 use App\Models\ActivityLog;
 use App\Models\Student;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 
 class ActivityLogger
 {
+    public static function userProfileAuditFields(): array
+    {
+        return ['name', 'email', 'phone', 'address', 'date_of_birth', 'profile_photo'];
+    }
+
+    private static function resolveStudentName(Student $student): string
+    {
+        $student->loadMissing('user');
+
+        return trim((string) ($student->user?->name ?: $student->roll_no ?: 'Unknown Student'));
+    }
+
+    private static function resolveActorName(): string
+    {
+        return trim((string) (Auth::user()?->name ?: 'System'));
+    }
+
+    private static function resolveStudentReference(Student $student): string
+    {
+        $reference = trim((string) ($student->roll_no ?: $student->student_id ?: ''));
+
+        if ($reference !== '') {
+            return $reference;
+        }
+
+        return 'Student ID: ' . $student->id;
+    }
+
+    private static function resolveFineStudentLabel(Student $student): string
+    {
+        return self::resolveStudentName($student) . ' (' . self::resolveStudentReference($student) . ')';
+    }
+
+    private static function formatBookActionDescription(
+        string $action,
+        string $bookName,
+        string $studentName,
+        string $actorName
+    ): string {
+        return match (strtolower($action)) {
+            'issued' => "Book '{$bookName}' issued to {$studentName} by {$actorName}",
+            'returned' => "Book '{$bookName}' returned by {$studentName} to {$actorName}",
+            default => "Book '{$bookName}' updated for {$studentName} by {$actorName}",
+        };
+    }
+
+    private static function formatBookRequestDescription(
+        string $action,
+        string $bookName,
+        string $studentName,
+        string $actorName
+    ): string {
+        return match (strtolower($action)) {
+            'approved', 'accepted' => "Book '{$bookName}' request accepted for {$studentName} by {$actorName}",
+            'rejected' => "Book '{$bookName}' request rejected for {$studentName} by {$actorName}",
+            'issued' => "Book '{$bookName}' request marked as issued for {$studentName} by {$actorName}",
+            'returned' => "Book '{$bookName}' request marked as returned for {$studentName} by {$actorName}",
+            'cancelled' => "Book '{$bookName}' request cancelled for {$studentName} by {$actorName}",
+            'pending', 'requested' => "Book '{$bookName}' requested for {$studentName} by {$actorName}",
+            default => "Book '{$bookName}' request updated for {$studentName} by {$actorName}",
+        };
+    }
+
+    private static function formatFineActionDescription(
+        string $action,
+        float $amount,
+        string $bookName,
+        string $studentLabel,
+        ?string $isbn = null,
+        array $details = []
+    ): string {
+        $amountLabel = self::formatCurrencyAmount($amount);
+        $bookInfo = self::formatFineBookContext($bookName, $isbn);
+        $bookTarget = self::formatFineBookTarget($bookName, $isbn);
+        $reason = trim((string) ($details['reason'] ?? $details['remarks'] ?? ''));
+        $paymentMethod = trim((string) ($details['payment_method'] ?? ''));
+        $oldAmount = array_key_exists('old_amount', $details) ? (float) $details['old_amount'] : null;
+        $newAmount = array_key_exists('new_amount', $details) ? (float) $details['new_amount'] : null;
+
+        return match (strtolower($action)) {
+            'applied' => "Fine of ₹{$amountLabel} applied{$bookTarget} to {$studentLabel}",
+            'payment' => "Fine payment of ₹{$amountLabel}{$bookInfo} processed for {$studentLabel}",
+            'paid' => 'Fine of ₹' . $amountLabel . $bookInfo . ' marked as paid for ' . $studentLabel
+                . ($paymentMethod !== '' ? " via {$paymentMethod}" : ''),
+            'waived' => 'Fine of ₹' . $amountLabel . $bookInfo . ' waived for ' . $studentLabel
+                . ($reason !== '' ? ". Reason: {$reason}" : ''),
+            'adjusted' => 'Fine' . $bookInfo . ' adjusted for ' . $studentLabel
+                . ($oldAmount !== null && $newAmount !== null
+                    ? ' from ₹' . self::formatCurrencyAmount($oldAmount) . ' to ₹' . self::formatCurrencyAmount($newAmount)
+                    : ''),
+            default => "Fine of ₹{$amountLabel}{$bookInfo} updated for {$studentLabel}",
+        };
+    }
+
+    private static function formatCurrencyAmount(float $amount): string
+    {
+        return abs($amount - round($amount)) < 0.00001
+            ? number_format($amount, 0, '.', '')
+            : number_format($amount, 2, '.', '');
+    }
+
+    private static function formatFineBookContext(string $bookName = '', ?string $isbn = null): string
+    {
+        $bookName = trim($bookName);
+        $isbn = trim((string) ($isbn ?? ''));
+
+        if ($bookName !== '' && $isbn !== '') {
+            return " for '{$bookName}' (ISBN: {$isbn})";
+        }
+
+        if ($bookName !== '') {
+            return " for '{$bookName}'";
+        }
+
+        if ($isbn !== '') {
+            return " for book (ISBN: {$isbn})";
+        }
+
+        return '';
+    }
+
+    private static function formatFineBookTarget(string $bookName = '', ?string $isbn = null): string
+    {
+        $context = self::formatFineBookContext($bookName, $isbn);
+
+        return $context !== '' ? str_replace(' for ', ' for ', $context) : '';
+    }
+
+    private static function buildFineAuditMetadata(
+        Student $student,
+        string $bookName,
+        ?string $isbn,
+        array $metadata = []
+    ): array {
+        return [
+            'amount' => $metadata['amount'] ?? null,
+            'book_name' => $bookName,
+            'isbn' => $isbn,
+            'student_label' => self::resolveFineStudentLabel($student),
+            ...$metadata,
+        ];
+    }
+
+    private static function formatUserProfileFieldLabel(string $field): string
+    {
+        return match ($field) {
+            'date_of_birth' => 'date of birth',
+            'profile_photo' => 'profile picture',
+            default => str_replace('_', ' ', $field),
+        };
+    }
+
+    private static function normalizeUserProfileAuditValue(string $field, mixed $value): ?string
+    {
+        if ($field === 'profile_photo') {
+            return filled($value) ? 'present' : null;
+        }
+
+        if ($value instanceof Carbon) {
+            return $value->format('Y-m-d');
+        }
+
+        if ($field === 'date_of_birth' && filled($value)) {
+            try {
+                return Carbon::parse((string) $value)->format('Y-m-d');
+            } catch (\Throwable) {
+                return trim((string) $value);
+            }
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'yes' : 'no';
+        }
+
+        if ($value === null) {
+            return null;
+        }
+
+        $normalized = trim((string) $value);
+
+        return $normalized === '' ? null : $normalized;
+    }
+
+    private static function formatUserProfileChangeMessage(string $field, array $change): string
+    {
+        $label = self::formatUserProfileFieldLabel($field);
+
+        if ($field === 'profile_photo') {
+            return match ($change['change_type'] ?? 'updated') {
+                'added' => 'profile picture added',
+                'removed' => 'profile picture removed',
+                default => 'profile picture updated',
+            };
+        }
+
+        $oldValue = $change['old'] ?? 'not set';
+        $newValue = $change['new'] ?? 'not set';
+
+        return "{$label}: {$oldValue} -> {$newValue}";
+    }
+
+    public static function buildUserProfileChangeSet(array $original, array $updated): array
+    {
+        $changes = [];
+        $messages = [];
+
+        foreach (self::userProfileAuditFields() as $field) {
+            $oldValue = self::normalizeUserProfileAuditValue($field, $original[$field] ?? null);
+            $newValue = self::normalizeUserProfileAuditValue($field, $updated[$field] ?? null);
+
+            if ($oldValue === $newValue) {
+                continue;
+            }
+
+            if ($field === 'profile_photo') {
+                $changeType = $oldValue === null
+                    ? 'added'
+                    : ($newValue === null ? 'removed' : 'updated');
+
+                $changes[$field] = [
+                    'change_type' => $changeType,
+                ];
+            } else {
+                $changes[$field] = [
+                    'old' => $oldValue ?? 'not set',
+                    'new' => $newValue ?? 'not set',
+                ];
+            }
+
+            $messages[] = self::formatUserProfileChangeMessage($field, $changes[$field]);
+        }
+
+        return [
+            'changes' => $changes,
+            'changed_fields' => array_keys($changes),
+            'messages' => $messages,
+            'summary' => implode(', ', $messages),
+        ];
+    }
+
+    public static function logUserProfileChanges(User $user, array $changeSet, array $metadata = [])
+    {
+        if (empty($changeSet['changes'])) {
+            return null;
+        }
+
+        return self::logActivity(
+            'profile_updated',
+            'Profile updated: ' . ($changeSet['summary'] ?: 'changes recorded'),
+            'user',
+            'user',
+            $user->id,
+            [
+                'changes' => $changeSet['changes'],
+                'changed_fields' => $changeSet['changed_fields'],
+                ...$metadata,
+            ]
+        );
+    }
+
     /**
      * Get device type from user agent
      */
@@ -166,12 +428,20 @@ class ActivityLogger
      */
     public static function logBookIssued(Student $student, string $bookName, array $bookDetails = [])
     {
+        $studentName = self::resolveStudentName($student);
+        $actorName = self::resolveActorName();
+
         return self::logStudentActivity(
             $student,
             'book_issued',
-            "Book '{$bookName}' issued to student by " . (Auth::user()->name ?? 'System'),
+            self::formatBookActionDescription('issued', $bookName, $studentName, $actorName),
             'book',
-            ['book_name' => $bookName, ...$bookDetails]
+            [
+                'book_name' => $bookName,
+                'student_name' => $studentName,
+                'actor_name' => $actorName,
+                ...$bookDetails,
+            ]
         );
     }
 
@@ -185,12 +455,20 @@ class ActivityLogger
      */
     public static function logBookReturned(Student $student, string $bookName, array $bookDetails = [])
     {
+        $studentName = self::resolveStudentName($student);
+        $actorName = self::resolveActorName();
+
         return self::logStudentActivity(
             $student,
             'book_returned',
-            "Book '{$bookName}' returned by student",
+            self::formatBookActionDescription('returned', $bookName, $studentName, $actorName),
             'book',
-            ['book_name' => $bookName, ...$bookDetails]
+            [
+                'book_name' => $bookName,
+                'student_name' => $studentName,
+                'actor_name' => $actorName,
+                ...$bookDetails,
+            ]
         );
     }
 
@@ -205,13 +483,106 @@ class ActivityLogger
      */
     public static function logFinePayment(Student $student, float $amount, string $bookName = '', array $metadata = [])
     {
-        $bookInfo = $bookName ? " for '{$bookName}'" : '';
+        $studentLabel = self::resolveFineStudentLabel($student);
+        $isbn = isset($metadata['isbn']) ? (string) $metadata['isbn'] : null;
+
         return self::logStudentActivity(
             $student,
             'fine_payment',
-            "Fine payment of ₹{$amount}{$bookInfo} processed",
+            self::formatFineActionDescription('payment', $amount, $bookName, $studentLabel, $isbn, $metadata),
             'fine',
-            ['amount' => $amount, 'book_name' => $bookName, ...$metadata]
+            self::buildFineAuditMetadata($student, $bookName, $isbn, [
+                'amount' => $amount,
+                ...$metadata,
+            ])
+        );
+    }
+
+    /**
+     * Log a fine applied activity
+     *
+     * @param Student $student
+     * @param float $amount
+     * @param string $bookName
+     * @param array $metadata
+     * @return ActivityLog
+     */
+    public static function logFineApplied(Student $student, float $amount, string $bookName = '', array $metadata = [])
+    {
+        $studentLabel = self::resolveFineStudentLabel($student);
+        $isbn = isset($metadata['isbn']) ? (string) $metadata['isbn'] : null;
+
+        return self::logStudentActivity(
+            $student,
+            'fine_applied',
+            self::formatFineActionDescription('applied', $amount, $bookName, $studentLabel, $isbn, $metadata),
+            'fine',
+            self::buildFineAuditMetadata($student, $bookName, $isbn, [
+                'amount' => $amount,
+                ...$metadata,
+            ])
+        );
+    }
+
+    public static function logFinePaid(Student $student, float $amount, string $bookName = '', array $metadata = [])
+    {
+        $studentLabel = self::resolveFineStudentLabel($student);
+        $isbn = isset($metadata['isbn']) ? (string) $metadata['isbn'] : null;
+
+        return self::logStudentActivity(
+            $student,
+            'fine_paid',
+            self::formatFineActionDescription('paid', $amount, $bookName, $studentLabel, $isbn, $metadata),
+            'fine',
+            self::buildFineAuditMetadata($student, $bookName, $isbn, [
+                'amount' => $amount,
+                ...$metadata,
+            ])
+        );
+    }
+
+    public static function logFineWaived(Student $student, float $amount, string $bookName = '', array $metadata = [])
+    {
+        $studentLabel = self::resolveFineStudentLabel($student);
+        $isbn = isset($metadata['isbn']) ? (string) $metadata['isbn'] : null;
+
+        return self::logStudentActivity(
+            $student,
+            'fine_waived',
+            self::formatFineActionDescription('waived', $amount, $bookName, $studentLabel, $isbn, $metadata),
+            'fine',
+            self::buildFineAuditMetadata($student, $bookName, $isbn, [
+                'amount' => $amount,
+                ...$metadata,
+            ])
+        );
+    }
+
+    public static function logFineAdjusted(
+        Student $student,
+        float $oldAmount,
+        float $newAmount,
+        string $bookName = '',
+        array $metadata = []
+    ) {
+        $studentLabel = self::resolveFineStudentLabel($student);
+        $isbn = isset($metadata['isbn']) ? (string) $metadata['isbn'] : null;
+
+        return self::logStudentActivity(
+            $student,
+            'fine_adjusted',
+            self::formatFineActionDescription('adjusted', $newAmount, $bookName, $studentLabel, $isbn, [
+                ...$metadata,
+                'old_amount' => $oldAmount,
+                'new_amount' => $newAmount,
+            ]),
+            'fine',
+            self::buildFineAuditMetadata($student, $bookName, $isbn, [
+                'amount' => $newAmount,
+                'old_amount' => $oldAmount,
+                'new_amount' => $newAmount,
+                ...$metadata,
+            ])
         );
     }
 
@@ -226,13 +597,21 @@ class ActivityLogger
      */
     public static function logBookRequest(Student $student, string $action, string $bookName, array $metadata = [])
     {
-        $actionText = ucfirst($action);
+        $studentName = self::resolveStudentName($student);
+        $actorName = self::resolveActorName();
+
         return self::logStudentActivity(
             $student,
             "book_request_{$action}",
-            "Book request for '{$bookName}' {$action}ed by " . (Auth::user()->name ?? 'System'),
+            self::formatBookRequestDescription($action, $bookName, $studentName, $actorName),
             'book_request',
-            ['book_name' => $bookName, 'action' => $action, ...$metadata]
+            [
+                'book_name' => $bookName,
+                'action' => $action,
+                'student_name' => $studentName,
+                'actor_name' => $actorName,
+                ...$metadata,
+            ]
         );
     }
 

@@ -2,19 +2,26 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\QueuesLibraryMail;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
-class BookReturnedSimple extends Mailable
+class BookReturnedSimple extends Mailable implements ShouldQueue
 {
+    use Queueable, QueuesLibraryMail;
+
     public function __construct(
         private string $studentEmail,
         private string $studentName,
         private string $bookTitle,
         private string $condition,
         private float $fineAmount,
-    ) {}
+    ) {
+        $this->configureLibraryMailQueue();
+    }
 
     public function envelope(): Envelope
     {
@@ -35,5 +42,13 @@ class BookReturnedSimple extends Mailable
                 'fineAmount' => $this->fineAmount,
             ],
         );
+    }
+
+    protected function libraryMailFailureContext(): array
+    {
+        return [
+            'student_email' => $this->studentEmail,
+            'book_title' => $this->bookTitle,
+        ];
     }
 }

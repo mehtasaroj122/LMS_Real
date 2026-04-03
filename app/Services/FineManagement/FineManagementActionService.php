@@ -4,6 +4,7 @@ namespace App\Services\FineManagement;
 
 use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Concerns\InteractsWithFineRecords;
+use App\Jobs\SendFineEmail;
 use App\Models\Fine;
 use App\Models\Notification;
 use Illuminate\Support\Collection;
@@ -30,17 +31,24 @@ class FineManagementActionService
         $status = strtolower(trim((string) ($fine->status ?? 'pending'))) ?: 'pending';
         $reason = $status === 'waived' ? trim((string) ($fine->remarks ?? '')) : null;
 
-        // MAIL SYSTEM DISABLED - To re-enable uncomment the queue dispatch and configure MAIL_* in .env
-        // if ($status === 'paid') {
-        //     SendFineEmail::dispatch($studentEmail, $studentName, (float) $fine->amount, 'paid', null);
-        // } elseif ($status === 'waived') {
-        //     SendFineEmail::dispatch($studentEmail, $studentName, (float) $fine->amount, 'waived', $reason ?: 'Fine waived');
-        // } else {
-        //     SendFineEmail::dispatch($studentEmail, $studentName, (float) $fine->amount, 'pending', null);
-        // }
-        \Log::info('Fine email would have been sent to: ' . $studentEmail . ' (Mail disabled)', [
+        $mailType = match ($status) {
+            'paid' => 'paid',
+            'waived' => 'waived',
+            default => 'pending',
+        };
+
+        SendFineEmail::dispatch(
+            $studentEmail,
+            $studentName,
+            (float) $fine->amount,
+            $mailType,
+            $mailType === 'waived' ? ($reason ?: 'Fine waived') : null
+        );
+
+        \Log::info('Queued fine email', [
             'fine_id' => $fine->id,
             'student_id' => $fine->student?->id,
+            'recipient' => $studentEmail,
             'status' => $status,
             'amount' => (float) $fine->amount,
         ]);
@@ -69,11 +77,10 @@ class FineManagementActionService
 
         try {
             if ($fine->student) {
-                ActivityLogger::logStudentActivity(
+                ActivityLogger::logFinePaid(
                     $fine->student,
-                    'fine_paid',
-                    "Fine of ₹{$fine->amount} marked as paid",
-                    'fine',
+                    (float) $fine->amount,
+                    $fine->issuedBook?->book?->title ?? '',
                     $this->buildFineHistoryMetadata($fine, [
                         'action_type' => 'paid',
                         'amount' => (float) $fine->amount,
@@ -107,7 +114,14 @@ class FineManagementActionService
         }
 
         if ($options['log_email'] && $fine->student?->user?->email) {
-            \Log::info('Fine email would have been sent to: ' . $fine->student->user->email);
+            try {
+                $this->sendEmailNotification($fine);
+            } catch (Throwable $exception) {
+                \Log::warning('Unable to queue paid fine email', [
+                    'fine_id' => $fine->id,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
         }
 
         return $fine->fresh(['student.user', 'student.privileges', 'issuedBook.book']);
@@ -134,16 +148,16 @@ class FineManagementActionService
 
         try {
             if ($fine->student) {
-                ActivityLogger::logStudentActivity(
+                ActivityLogger::logFineWaived(
                     $fine->student,
-                    'fine_waived',
-                    "Fine of ₹{$fine->amount} waived. Reason: {$normalizedReason}",
-                    'fine',
+                    (float) $fine->amount,
+                    $fine->issuedBook?->book?->title ?? '',
                     $this->buildFineHistoryMetadata($fine, [
                         'action_type' => 'waived',
                         'amount' => (float) $fine->amount,
                         'new_amount' => (float) $fine->amount,
                         'remarks' => $normalizedReason,
+                        'reason' => $normalizedReason,
                     ])
                 );
             }
@@ -172,7 +186,14 @@ class FineManagementActionService
         }
 
         if ($options['log_email'] && $fine->student?->user?->email) {
-            \Log::info('Fine email would have been sent to: ' . $fine->student->user->email);
+            try {
+                $this->sendEmailNotification($fine);
+            } catch (Throwable $exception) {
+                \Log::warning('Unable to queue waived fine email', [
+                    'fine_id' => $fine->id,
+                    'error' => $exception->getMessage(),
+                ]);
+            }
         }
 
         return $fine->fresh(['student.user', 'student.privileges', 'issuedBook.book']);

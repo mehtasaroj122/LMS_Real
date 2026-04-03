@@ -38,6 +38,7 @@ class SettingController extends Controller
         $user = $request->user();
         $validated = $request->validated();
         $removeProfilePhoto = (bool) Arr::pull($validated, 'remove_profile_photo', false);
+        $originalProfileState = $user->only(ActivityLogger::userProfileAuditFields());
 
         try {
             if ($request->hasFile('profile_photo')) {
@@ -61,77 +62,55 @@ class SettingController extends Controller
                 ->withErrors(['profile_photo' => 'Failed to upload photo. Please try again.']);
         }
 
-        // Capture old values before update
-        $oldEmail = $user->email;
-        $oldName = $user->name;
-        $hadProfilePhoto = $user->profile_photo !== null;
-        
         $user->update($validated);
+        $user->refresh();
+        $profileChanges = ActivityLogger::buildUserProfileChangeSet(
+            $originalProfileState,
+            $user->only(ActivityLogger::userProfileAuditFields())
+        );
+        $emailChanged = in_array('email', $profileChanges['changed_fields'], true);
 
-        // Build list of changes
-        $changes = [];
-        if (isset($validated['name']) && $oldName !== $validated['name']) {
-            $changes[] = "name: {$oldName} → {$validated['name']}";
-        }
-        if (isset($validated['email']) && $oldEmail !== $validated['email']) {
-            $changes[] = "email: {$oldEmail} → {$validated['email']}";
-        }
-        if (isset($validated['profile_photo']) || $removeProfilePhoto) {
-            if ($removeProfilePhoto) {
-                $changes[] = "profile picture: removed";
-            } elseif ($hadProfilePhoto) {
-                $changes[] = "profile picture: updated";
-            } else {
-                $changes[] = "profile picture: added";
-            }
-        }
-
-        // Notify about profile update with specific changes
-        if (!empty($changes)) {
-            $changesSummary = implode(", ", $changes);
+        if (!empty($profileChanges['messages'])) {
             Notification::notify(
                 user: $user,
                 type: 'account.profile_updated',
                 title: 'Profile Information Updated',
-                message: "Your profile information was updated: {$changesSummary}",
+                message: 'Your profile information was updated: ' . $profileChanges['summary'],
                 data: [
                     'ip' => request()->ip(),
                     'timestamp' => now(),
-                    'changes' => $changes,
-                    'changed_fields' => array_keys($validated)
+                    'changes' => $profileChanges['changes'],
+                    'changed_fields' => $profileChanges['changed_fields'],
                 ],
                 relatedModel: 'User',
                 relatedId: $user->id
             );
         }
 
-        // Notify if email was changed
-        if ($oldEmail !== ($validated['email'] ?? $oldEmail)) {
+        if ($emailChanged) {
             Notification::notify(
                 user: $user,
                 type: 'account.email_changed',
                 title: 'Email Address Changed',
-                message: 'Your email address was changed to ' . $validated['email'],
-                data: ['old_email' => $oldEmail, 'new_email' => $validated['email']],
+                message: 'Your email address was changed to ' . $user->email,
+                data: [
+                    'old_email' => $profileChanges['changes']['email']['old'] ?? null,
+                    'new_email' => $profileChanges['changes']['email']['new'] ?? null,
+                ],
                 relatedModel: 'User',
                 relatedId: $user->id
             );
         }
 
-        ActivityLogger::logActivity(
-            'profile_updated',
-            'Admin profile updated',
-            'user',
-            'user',
-            $user->id,
-            ['changed_fields' => array_keys($validated)]
-        );
+        ActivityLogger::logUserProfileChanges($user, $profileChanges, [
+            'role_context' => 'admin',
+        ]);
 
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Profile updated successfully',
-                'user' => $user->fresh(),
+                'user' => $user,
             ]);
         }
 
@@ -328,6 +307,7 @@ class SettingController extends Controller
 
         try {
             $user = $request->user();
+            $originalProfileState = $user->only(ActivityLogger::userProfileAuditFields());
 
             if (!$user->profile_photo) {
                 return response()->json([
@@ -339,13 +319,15 @@ class SettingController extends Controller
             $this->deleteStoredProfilePhoto($user->profile_photo);
 
             $user->update(['profile_photo' => null]);
+            $user->refresh();
 
-            ActivityLogger::logActivity(
-                'profile_photo_removed',
-                'Admin removed profile photo',
-                'user',
-                'user',
-                $user->id
+            ActivityLogger::logUserProfileChanges(
+                $user,
+                ActivityLogger::buildUserProfileChangeSet(
+                    $originalProfileState,
+                    $user->only(ActivityLogger::userProfileAuditFields())
+                ),
+                ['role_context' => 'admin']
             );
 
             return response()->json([

@@ -38,7 +38,7 @@ class FineController extends Controller
             $fine = $this->loadFineRecord($id);
             $actionService->markAsPaid($fine, [
                 'notify_student' => true,
-                'log_email' => false,
+                'log_email' => true,
             ]);
 
             return response()->json([
@@ -265,7 +265,7 @@ class FineController extends Controller
                 $status,
                 [
                     'notify_student' => true,
-                    'log_email' => $status === 'waived',
+                    'log_email' => $status === 'waived' || $status === 'paid',
                 ],
                 $request->waiverReason()
             );

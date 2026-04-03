@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\QueuesLibraryMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -9,9 +10,9 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class PasswordResetLinkMail extends Mailable
+class PasswordResetLinkMail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, QueuesLibraryMail;
 
     public $url;
     public $email;
@@ -25,6 +26,7 @@ class PasswordResetLinkMail extends Mailable
         $this->url = $url;
         $this->email = $email;
         $this->name = $name;
+        $this->configureLibraryMailQueue();
     }
 
     /**
@@ -33,10 +35,7 @@ class PasswordResetLinkMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: env('MAIL_FROM_ADDRESS'),
-            to: [$this->email],
-            replyTo: [env('MAIL_FROM_ADDRESS')],
-            subject: 'Reset Your Password - Library Management System',
+            subject: config('app.name') . ' - Password Reset Link',
         );
     }
 
@@ -46,7 +45,7 @@ class PasswordResetLinkMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.password-reset-link',
+            view: 'emails.password-reset-email',
             with: [
                 'url' => $this->url,
                 'email' => $this->email,
@@ -63,5 +62,12 @@ class PasswordResetLinkMail extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    protected function libraryMailFailureContext(): array
+    {
+        return [
+            'user_email' => $this->email,
+        ];
     }
 }

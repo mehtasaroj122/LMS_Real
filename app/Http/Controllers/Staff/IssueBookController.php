@@ -9,14 +9,11 @@ use App\Models\Student;
 use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\Notification;
-use App\Helpers\ActivityLogger;
 use App\Services\FineCalculator;
-use App\Notifications\BookIssuedNotification;
 use App\Jobs\SendBookIssuedEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
 class IssueBookController extends Controller
@@ -176,8 +173,6 @@ class IssueBookController extends Controller
             
             $bookIds = $request->book_ids;
             $issuedCount = 0;
-            $fineCalculator = new FineCalculator();
-            
             // Get effective issue duration for this student (per-student override or global default)
             $issueDuration = $this->getEffectiveIssueDuration($student);
             
@@ -206,12 +201,6 @@ class IssueBookController extends Controller
                     ]);
                 }
                 
-                ActivityLogger::logBookIssued($student, $book->title, [
-                    'isbn' => $book->isbn,
-                    'issued_date' => $issuedBook->issue_date,
-                    'due_date' => $issuedBook->due_date,
-                ]);
-                
                 // Send notification to student
                 Notification::notify(
                     user: $student->user,
@@ -228,18 +217,21 @@ class IssueBookController extends Controller
                     relatedId: $issuedBook->id
                 );
                 
-                // Queue email to send 3 seconds later
-                // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
                 if ($student->user->email) {
-                    // SendBookIssuedEmail::dispatch(
-                    //     $student->user->email,
-                    //     $student->user->name,
-                    //     $book->title,
-                    //     $book->author ?? 'Unknown',
-                    //     $issuedBook->issue_date->format('Y-m-d'),
-                    //     $issuedBook->due_date->format('Y-m-d')
-                    // );
-                    \Log::info('Book issued email would have been sent to: ' . $student->user->email);
+                    try {
+                        SendBookIssuedEmail::dispatch(
+                            $student->user->email,
+                            $student->user->name,
+                            $book->title,
+                            $book->author ?? 'Unknown',
+                            $issuedBook->issue_date->format('Y-m-d'),
+                            $issuedBook->due_date->format('Y-m-d')
+                        );
+                    } catch (\Throwable $e) {
+                        \Log::warning('Unable to queue book issued email: ' . $e->getMessage(), [
+                            'issued_book_id' => $issuedBook->id,
+                        ]);
+                    }
                 }
                 
                 $issuedCount++;

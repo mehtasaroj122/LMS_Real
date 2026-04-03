@@ -2,19 +2,26 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\QueuesLibraryMail;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 
-class FineSimple extends Mailable
+class FineSimple extends Mailable implements ShouldQueue
 {
+    use Queueable, QueuesLibraryMail;
+
     public function __construct(
         private string $studentEmail,
         private string $studentName,
         private float $fineAmount,
         private string $type,
         private ?string $reason = null,
-    ) {}
+    ) {
+        $this->configureLibraryMailQueue();
+    }
 
     public function envelope(): Envelope
     {
@@ -44,7 +51,17 @@ class FineSimple extends Mailable
                 'studentName' => $this->studentName,
                 'fineAmount' => $this->fineAmount,
                 'reason' => $this->type === 'waived' ? ($this->reason ?? 'Fine waived by admin') : $this->reason,
+                'fineStatus' => $this->type,
             ],
         );
+    }
+
+    protected function libraryMailFailureContext(): array
+    {
+        return [
+            'student_email' => $this->studentEmail,
+            'status' => $this->type,
+            'amount' => $this->fineAmount,
+        ];
     }
 }

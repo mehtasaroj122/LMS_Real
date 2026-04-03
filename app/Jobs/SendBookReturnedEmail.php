@@ -2,17 +2,17 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Concerns\HandlesQueuedEmail;
 use App\Mail\BookReturnedSimple;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 
 class SendBookReturnedEmail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, HandlesQueuedEmail;
 
     public function __construct(
         public string $studentEmail,
@@ -21,25 +21,26 @@ class SendBookReturnedEmail implements ShouldQueue
         public string $condition,
         public float $fineAmount,
     ) {
-        $this->delay(now()->addSeconds(3));
+        $this->configureEmailQueue();
     }
 
     public function handle(): void
     {
-        /**
-         * MAIL SYSTEM DISABLED
-         * To re-enable: Uncomment the code below
-         * Make sure MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD are set in .env
-         */
-        // Mail::to($this->studentEmail)->send(new BookReturnedSimple(
-        //     $this->studentEmail,
-        //     $this->studentName,
-        //     $this->bookTitle,
-        //     $this->condition,
-        //     $this->fineAmount
-        // ));
-        
-        // Log notification instead of sending email
-        \Log::info('Email would have been sent to: ' . $this->studentEmail . ' (Mail disabled)');
+        $this->sendQueuedMail(
+            $this->studentEmail,
+            new BookReturnedSimple(
+                $this->studentEmail,
+                $this->studentName,
+                $this->bookTitle,
+                $this->condition,
+                $this->fineAmount
+            ),
+            'book_returned',
+            [
+                'book_title' => $this->bookTitle,
+                'condition' => $this->condition,
+                'fine_amount' => $this->fineAmount,
+            ]
+        );
     }
 }

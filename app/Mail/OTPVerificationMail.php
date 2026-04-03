@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\QueuesLibraryMail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -9,22 +10,21 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OTPVerificationMail extends Mailable
+class OTPVerificationMail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, QueuesLibraryMail;
 
     public $otp;
-    public $email;
     public $name;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($otp, $email, $name)
+    public function __construct($otp, $name)
     {
         $this->otp = $otp;
-        $this->email = $email;
         $this->name = $name;
+        $this->configureLibraryMailQueue();
     }
 
     /**
@@ -33,10 +33,7 @@ class OTPVerificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: env('MAIL_FROM_ADDRESS'),
-            to: [$this->email],
-            replyTo: [env('MAIL_FROM_ADDRESS')],
-            subject: 'Email Verification - Your OTP for Library Management System',
+            subject: config('app.name') . ' - Verify Your Email Address',
         );
     }
 
@@ -46,10 +43,9 @@ class OTPVerificationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.otp-verification',
+            view: 'emails.otp-email',
             with: [
                 'otp' => $this->otp,
-                'email' => $this->email,
                 'name' => $this->name,
             ],
         );
@@ -63,5 +59,12 @@ class OTPVerificationMail extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+    protected function libraryMailFailureContext(): array
+    {
+        return [
+            'recipient_name' => $this->name,
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services\BookRequestManagement;
 
+use App\Jobs\SendBookRequestStatusEmail;
 use App\Models\BookRequest;
 use App\Models\Notification;
 use App\Models\User;
@@ -59,7 +60,25 @@ class BookRequestManagementActionService
         }
 
         if ($bookRequest->student?->user?->email) {
-            \Log::info('Book request status email would have been sent to: ' . $bookRequest->student->user->email);
+            try {
+                SendBookRequestStatusEmail::dispatch(
+                    $bookRequest->student->user->email,
+                    $bookRequest->student->user->name ?? 'Student',
+                    $bookRequest->book?->title ?? 'Requested Book',
+                    $status
+                );
+
+                \Log::info('Queued book request status email', [
+                    'request_id' => $bookRequest->id,
+                    'email' => $bookRequest->student->user->email,
+                    'status' => $status,
+                ]);
+            } catch (\Throwable $e) {
+                \Log::warning('Unable to queue book request status email: ' . $e->getMessage(), [
+                    'request_id' => $bookRequest->id,
+                    'status' => $status,
+                ]);
+            }
         }
 
         return $bookRequest;

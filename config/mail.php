@@ -18,6 +18,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Mail Queue Settings
+    |--------------------------------------------------------------------------
+    |
+    | All application emails are queued by default. The send delay helps avoid
+    | bursts of immediate outbound messages during user-triggered workflows.
+    |
+    */
+
+    'queue' => env('MAIL_QUEUE', 'emails'),
+
+    'send_delay_seconds' => (int) env('MAIL_SEND_DELAY_SECONDS', 3),
+
+    /*
+    |--------------------------------------------------------------------------
     | Mailer Configurations
     |--------------------------------------------------------------------------
     |
@@ -39,7 +53,7 @@ return [
 
         'smtp' => [
             'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
+            'scheme' => env('MAIL_SCHEME') ?: (env('MAIL_ENCRYPTION') === 'ssl' ? 'smtps' : null),
             'url' => env('MAIL_URL'),
             'host' => env('MAIL_HOST', '127.0.0.1'),
             'port' => env('MAIL_PORT', 2525),

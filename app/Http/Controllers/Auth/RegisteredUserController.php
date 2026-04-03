@@ -4,17 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\OTPVerificationMail;
-use App\Models\User;
-use App\Models\Student;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use App\Models\User;
 
 class RegisteredUserController extends Controller
 {
@@ -56,10 +52,10 @@ class RegisteredUserController extends Controller
 
         // Send OTP via email
         try {
-            Mail::send('emails.otp-email', ['otp' => $otp, 'name' => $request->name], function ($message) use ($request) {
-                $message->to($request->email)
-                    ->subject('Email Verification - Library Management System');
-            });
+            Mail::to($request->email)->queue(new OTPVerificationMail($otp, $request->name));
+            \Log::info('Queued registration OTP email', [
+                'email' => $request->email,
+            ]);
         } catch (\Exception $e) {
             \Log::error('Failed to send OTP email: ' . $e->getMessage());
             return redirect()->route('register')
@@ -71,5 +67,4 @@ class RegisteredUserController extends Controller
             ->with('status', 'OTP has been sent to your email. Please verify to complete registration.');
     }
 }
-
 

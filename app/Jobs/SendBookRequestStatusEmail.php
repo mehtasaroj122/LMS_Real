@@ -2,17 +2,17 @@
 
 namespace App\Jobs;
 
+use App\Jobs\Concerns\HandlesQueuedEmail;
 use App\Mail\BookRequestStatusSimple;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
 
 class SendBookRequestStatusEmail implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, HandlesQueuedEmail;
 
     public function __construct(
         public string $studentEmail,
@@ -20,24 +20,24 @@ class SendBookRequestStatusEmail implements ShouldQueue
         public string $bookTitle,
         public string $status, // 'approved' or 'rejected'
     ) {
-        $this->delay(now()->addSeconds(3));
+        $this->configureEmailQueue();
     }
 
     public function handle(): void
     {
-        /**
-         * MAIL SYSTEM DISABLED
-         * To re-enable: Uncomment the code below
-         * Make sure MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD are set in .env
-         */
-        // Mail::to($this->studentEmail)->send(new BookRequestStatusSimple(
-        //     $this->studentEmail,
-        //     $this->studentName,
-        //     $this->bookTitle,
-        //     $this->status
-        // ));
-        
-        // Log notification instead of sending email
-        \Log::info('Email would have been sent to: ' . $this->studentEmail . ' (Mail disabled)');
+        $this->sendQueuedMail(
+            $this->studentEmail,
+            new BookRequestStatusSimple(
+                $this->studentEmail,
+                $this->studentName,
+                $this->bookTitle,
+                $this->status
+            ),
+            'book_request_status',
+            [
+                'book_title' => $this->bookTitle,
+                'status' => $this->status,
+            ]
+        );
     }
 }

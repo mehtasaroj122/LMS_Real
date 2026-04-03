@@ -358,11 +358,11 @@ class FineController extends Controller
             // Log the activity (non-critical, wrap in try-catch)
             try {
                 if ($fine->student) {
-                    ActivityLogger::logStudentActivity(
+                    ActivityLogger::logFineAdjusted(
                         $fine->student,
-                        'fine_adjusted',
-                        "Fine amount adjusted from ₹{$oldAmount} to ₹{$validated['amount']}",
-                        'fine',
+                        (float) $oldAmount,
+                        (float) $validated['amount'],
+                        $fine->issuedBook?->book?->title ?? '',
                         $this->buildFineHistoryMetadata($fine, [
                             'action_type' => 'adjusted',
                             'old_amount' => (float) $oldAmount,

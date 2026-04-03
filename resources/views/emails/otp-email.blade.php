@@ -1,96 +1,27 @@
-<!DOCTYPE html>
+@extends('emails.layouts.base')
 
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Account Verification</title>
-</head>
-<body style="margin:0;padding:0;background-color:#f4f6fb;font-family:Arial, Helvetica, sans-serif;">
+@section('title', 'Verify Your Email')
+@section('preheader', 'Use this one-time verification code to finish creating your library account.')
+@section('eyebrow', 'Account Verification')
+@section('headline', 'Your verification code is ready')
+@section('subhead', 'Enter this one-time password on the verification screen to finish activating your library account.')
+@section('accent', '#7c3aed')
+@section('hero', '#5b21b6')
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6fb;padding:40px 0;">
-    <tr>
-        <td align="center">
+@section('content')
+    <p class="greeting">Hello <strong>{{ $name }}</strong>,</p>
 
-```
-        <!-- Card -->
-        <table width="100%" cellpadding="0" cellspacing="0"
-               style="max-width:600px;background:#ffffff;border-radius:10px;
-               box-shadow:0 6px 20px rgba(0,0,0,0.08);overflow:hidden;">
+    <p>Thanks for signing up. Use the one-time password below to verify your email address and complete your registration.</p>
 
-            <!-- Header -->
-            <tr>
-                <td style="background:#512da8;padding:24px 30px;color:#ffffff;">
-                    <h1 style="margin:0;font-size:22px;font-weight:600;">
-                        Library Management System
-                    </h1>
-                </td>
-            </tr>
+    <div style="margin: 24px 0; text-align: center;">
+        <div style="display: inline-block; min-width: 220px; padding: 18px 24px; border-radius: 18px; background: #f5f3ff; border: 1px solid #ddd6fe; color: #5b21b6; font-size: 32px; font-weight: 700; letter-spacing: 10px;">
+            {{ $otp }}
+        </div>
+    </div>
 
-            <!-- Body -->
-            <tr>
-                <td style="padding:30px;color:#333333;font-size:15px;line-height:1.6;">
+    <div class="notice" style="background:#faf5ff;color:#6b21a8;">
+        <strong>Important:</strong> This code expires in 10 minutes. If you did not start this registration, you can safely ignore this email.
+    </div>
 
-                    <p style="margin-top:0;">Hi <strong>{{ $name }}</strong>,</p>
-
-                    <p>
-                        Thank you for registering with the <strong>Library Management System</strong>.
-                        To complete your account verification, please use the verification code below.
-                    </p>
-
-                    <!-- OTP Box -->
-                    <div style="margin:30px 0;text-align:center;">
-                        <div style="
-                            display:inline-block;
-                            background:#f4f6fb;
-                            border:1px dashed #512da8;
-                            padding:18px 36px;
-                            border-radius:8px;
-                            font-size:28px;
-                            font-weight:700;
-                            letter-spacing:4px;
-                            color:#512da8;
-                        ">
-                            {{ $otp }}
-                        </div>
-                    </div>
-
-                    <p style="text-align:center;font-size:14px;color:#555;">
-                        Enter this code on the verification page to activate your account.
-                    </p>
-
-                    <p style="margin-top:25px;color:#b00020;font-size:14px;">
-                        ⏱️ <strong>This verification code will expire in 10 minutes.</strong>
-                    </p>
-
-                    <p style="font-size:14px;color:#555;">
-                        If you did not initiate this request, please ignore this email.
-                        No further action is required.
-                    </p>
-
-                    <p style="margin-bottom:0;">
-                        Kind regards,<br>
-                        <strong>Library Management System Team</strong>
-                    </p>
-
-                </td>
-            </tr>
-
-            <!-- Footer -->
-            <tr>
-                <td style="background:#f4f6fb;padding:16px 30px;text-align:center;
-                           font-size:12px;color:#777;">
-                    This is an automated message. Please do not reply.
-                </td>
-            </tr>
-
-        </table>
-        <!-- End Card -->
-
-    </td>
-</tr>
-```
-
-</table>
-
-</body>
-</html>
+    <p class="muted">For your security, never share this code with anyone.</p>
+@endsection

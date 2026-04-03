@@ -13,6 +13,7 @@ use App\Models\ActivityLog;
 use App\Helpers\ActivityLogger;
 use App\Mail\PasswordResetEmail;
 use App\Services\StudentManagement\StudentManagementDataService;
+use App\Services\StudentManagement\StudentNotificationEmailService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -25,6 +26,10 @@ use Illuminate\Validation\Rule;
 
 class StudentController extends Controller
 {
+    public function __construct(
+        private StudentNotificationEmailService $studentNotificationEmailService,
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -168,6 +173,32 @@ class StudentController extends Controller
             'status' => strtolower((string) $request->get('status', 'all')),
             'sort' => strtolower((string) $request->get('sort', 'created-desc')),
         ];
+    }
+
+    protected function queueStudentStatusEmail(Student $student, string $status): void
+    {
+        $this->studentNotificationEmailService->sendStatusChangedEmail(
+            $student->loadMissing('user'),
+            $status,
+            auth()->user()?->name,
+            auth()->user()?->role,
+        );
+    }
+
+    protected function queueStudentPrivilegeEmail(
+        Student $student,
+        array $effectiveSettings,
+        ?string $changeSummary = null,
+        bool $resetToDefaults = false,
+    ): void {
+        $this->studentNotificationEmailService->sendPrivilegeSettingsUpdatedEmail(
+            $student->loadMissing('user'),
+            $effectiveSettings,
+            $changeSummary,
+            $resetToDefaults,
+            auth()->user()?->name,
+            auth()->user()?->role,
+        );
     }
 
     /**
@@ -1196,6 +1227,22 @@ class StudentController extends Controller
             ActivityLogger::logProfileUpdate($student, $allChanges);
         }
 
+        if (isset($userChanges['status'])) {
+            $statusMessage = $validated['status'] === 'active' ? 'activated' : 'deactivated';
+
+            Notification::notify(
+                user: $user,
+                type: 'account.status_changed',
+                title: 'Account Status Changed',
+                message: "Your account has been {$statusMessage} by admin",
+                data: ['status' => $validated['status'], 'changed_by' => auth()->user()?->name],
+                relatedModel: 'Student',
+                relatedId: $student->id
+            );
+
+            $this->queueStudentStatusEmail($student, $validated['status']);
+        }
+
         // Notify admin if status changed to inactive (critical action)
         if (isset($userChanges['status']) && $validated['status'] === 'inactive') {
             $adminUser = User::where('role', 'admin')->where('id', '!=', auth()->id())->first();
@@ -1274,22 +1321,35 @@ class StudentController extends Controller
 
         // Generate temporary password
         $tempPassword = Str::random(10);
-
-        $user->update([
-            'password' => Hash::make($tempPassword),
-            'force_password_change' => true,
-            'password_reset_at' => now()
-        ]);
-
-        // Send email with temporary password
         try {
-            Mail::to($user->email)->queue(new PasswordResetEmail(
-                $user->name,
-                $user->email,
-                $tempPassword
-            ));
-        } catch (\Exception $e) {
-            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+            DB::transaction(function () use ($user, $tempPassword) {
+                $user->update([
+                    'password' => Hash::make($tempPassword),
+                    'force_password_change' => true,
+                    'password_reset_at' => now()
+                ]);
+
+                Mail::to($user->email)->queue(new PasswordResetEmail(
+                    $user->name,
+                    $user->email,
+                    $tempPassword
+                ));
+            });
+
+            \Log::info('Queued student password reset email', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Failed to queue password reset email: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'email' => $user->email,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Password reset email could not be queued, so no changes were saved.',
+            ], 500);
         }
 
         // Log the activity
@@ -1335,6 +1395,8 @@ class StudentController extends Controller
                 relatedModel: 'Student',
                 relatedId: $student->id
             );
+
+            $this->queueStudentStatusEmail($student, 'inactive');
 
             // Log the activity
             ActivityLogger::logStatusChange($student, $oldStatus, 'inactive');
@@ -1390,6 +1452,8 @@ class StudentController extends Controller
                 relatedModel: 'Student',
                 relatedId: $student->id
             );
+
+            $this->queueStudentStatusEmail($student, 'active');
 
             // Log the activity
             ActivityLogger::logStatusChange($student, $oldStatus, 'active');
@@ -1447,6 +1511,8 @@ class StudentController extends Controller
                 relatedModel: 'Student',
                 relatedId: $student->id
             );
+
+            $this->queueStudentStatusEmail($student, $newStatus);
 
             // Log the activity
             ActivityLogger::logStatusChange($student, $oldStatus, $newStatus);
@@ -1698,10 +1764,12 @@ class StudentController extends Controller
             }
 
             $changes = $this->calculatePrivilegeChanges($originalSettings, $responsePayload['effective']);
+            $changesSummary = !empty($changes)
+                ? $this->formatPrivilegeChangeSummary($originalSettings, $responsePayload['effective'])
+                : null;
 
             // Notify student if privileges were changed
             if (!empty($changes)) {
-                $changesSummary = $this->formatPrivilegeChangeSummary($originalSettings, $responsePayload['effective']);
                 Notification::notify(
                     user: $student->user,
                     type: 'account.privilege_settings_changed',
@@ -1715,6 +1783,12 @@ class StudentController extends Controller
                     ],
                     relatedModel: 'StudentPrivilege',
                     relatedId: $privileges->id ?? null
+                );
+
+                $this->queueStudentPrivilegeEmail(
+                    $student,
+                    $responsePayload['effective'],
+                    $changesSummary,
                 );
             }
 
@@ -1803,6 +1877,13 @@ class StudentController extends Controller
                     ],
                     relatedModel: 'StudentPrivilege',
                     relatedId: null
+                );
+
+                $this->queueStudentPrivilegeEmail(
+                    $student,
+                    $responsePayload['effective'],
+                    'Your custom borrowing overrides were removed and your account now follows the default library policy.',
+                    true,
                 );
             }
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SendFineEmail;
 use App\Models\book as Book;
 use App\Models\category as Category;
 use App\Models\department as Department;
@@ -9,7 +10,7 @@ use App\Models\Notification;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 
 function makeFineBulkTestUser(string $role, array $overrides = []): User
@@ -169,8 +170,67 @@ test('staff can bulk waive pending fines with a shared reason', function () {
     expect(Notification::query()->pluck('type')->all())->toBe(['fine.reminder', 'fine.reminder']);
 });
 
+test('staff can mark a pending fine as paid and queue the confirmation email', function () {
+    Queue::fake();
+
+    $staff = makeFineBulkTestUser('staff', [
+        'name' => 'Fine Desk Staff',
+        'email' => 'fine-desk-staff@example.com',
+    ]);
+
+    $fine = makeFineBulkTestRecord('pending', ['amount' => 125.00]);
+
+    $response = $this
+        ->actingAs($staff)
+        ->postJson(route('staff.fines.mark-as-paid', $fine));
+
+    $response
+        ->assertOk()
+        ->assertJsonPath('success', true);
+
+    expect($fine->fresh()->status)->toBe('paid');
+    expect($fine->fresh()->paid_on)->not->toBeNull();
+
+    Queue::assertPushed(SendFineEmail::class, 1);
+});
+
+test('staff can bulk mark pending fines as paid and queue confirmation emails', function () {
+    Queue::fake();
+
+    $staff = makeFineBulkTestUser('staff', [
+        'name' => 'Fine Bulk Staff',
+        'email' => 'fine-bulk-staff@example.com',
+    ]);
+
+    $pendingOne = makeFineBulkTestRecord('pending', ['amount' => 110.00]);
+    $pendingTwo = makeFineBulkTestRecord('pending', ['amount' => 95.00]);
+    $alreadyPaid = makeFineBulkTestRecord('paid', ['amount' => 60.00]);
+
+    $response = $this
+        ->actingAs($staff)
+        ->postJson(route('staff.fines.bulk-status'), [
+            'status' => 'paid',
+            'fine_ids' => [$pendingOne->id, $pendingTwo->id, $alreadyPaid->id],
+        ]);
+
+    $response
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('processedCount', 2)
+        ->assertJsonPath('skippedCount', 1);
+
+    expect((float) $response->json('totalAmount'))->toBe(205.0);
+
+    expect($pendingOne->fresh()->status)->toBe('paid');
+    expect($pendingTwo->fresh()->status)->toBe('paid');
+    expect($pendingOne->fresh()->paid_on)->not->toBeNull();
+    expect($pendingTwo->fresh()->paid_on)->not->toBeNull();
+
+    Queue::assertPushed(SendFineEmail::class, 2);
+});
+
 test('admin can bulk queue fine emails without changing fine statuses', function () {
-    Log::spy();
+    Queue::fake();
 
     $admin = makeFineBulkTestUser('admin', [
         'name' => 'Fine Mail Admin',
@@ -196,9 +256,7 @@ test('admin can bulk queue fine emails without changing fine statuses', function
     expect($pendingFine->fresh()->status)->toBe('pending');
     expect($waivedFine->fresh()->status)->toBe('waived');
 
-    Log::shouldHaveReceived('info')
-        ->twice()
-        ->withArgs(fn (...$args) => str_contains((string) ($args[0] ?? ''), 'Fine email would have been sent to:'));
+    Queue::assertPushed(SendFineEmail::class, 2);
 });
 
 test('staff bulk fine email validates that at least one fine is selected', function () {

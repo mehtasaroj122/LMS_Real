@@ -40,12 +40,12 @@ class MyFinesController extends Controller
             ->get();
 
         // Calculate statistics
-        $outstandingAmount = $allFines->where('status', 'unpaid')->sum('amount');
+        $outstandingAmount = $allFines->where('status', 'pending')->sum('amount');
         $paidAmount = $allFines->where('status', 'paid')->sum('amount');
         $waivedAmount = $allFines->where('status', 'waived')->sum('amount');
         
-        // Count overdue books (unpaid fines with days_late > 0)
-        $overdueCount = $allFines->where('status', 'unpaid')->where('days_late', '>', 0)->count();
+        // Count overdue books (pending fines with days_late > 0)
+        $overdueCount = $allFines->where('status', 'pending')->where('days_late', '>', 0)->count();
 
         // Transform fines data for JavaScript
         $finesJson = json_encode($allFines->map(function($fine) {

@@ -1,86 +1,31 @@
-<!DOCTYPE html>
+@php
+    $expiresIn = config('auth.passwords.' . config('auth.defaults.passwords') . '.expire', 60);
+@endphp
+@extends('emails.layouts.base')
 
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Password Reset</title>
-</head>
-<body style="margin:0;padding:0;background-color:#f4f6fb;font-family:Arial, Helvetica, sans-serif;">
+@section('title', 'Reset Your Password')
+@section('preheader', 'Use the secure link in this email to reset your library account password.')
+@section('eyebrow', 'Password Reset')
+@section('headline', 'Reset your library password')
+@section('subhead', 'We received a request to reset the password for your library account.')
+@section('accent', '#2563eb')
+@section('hero', '#1d4ed8')
 
-```
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f6fb;padding:40px 0;">
-    <tr>
-        <td align="center">
+@section('content')
+    <p class="greeting">Hello <strong>{{ $name }}</strong>,</p>
 
-            <!-- Card -->
-            <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.08);overflow:hidden;">
-                
-                <!-- Header -->
-                <tr>
-                    <td style="background:#512da8;padding:24px 30px;color:#ffffff;">
-                        <h1 style="margin:0;font-size:22px;font-weight:600;">Library Management System</h1>
-                    </td>
-                </tr>
+    <p>Select the button below to choose a new password for your account.</p>
 
-                <!-- Body -->
-                <tr>
-                    <td style="padding:30px;color:#333333;font-size:15px;line-height:1.6;">
-                        <p style="margin-top:0;">Hi <strong>{{ $name }}</strong>,</p>
+    <div class="cta-wrap" style="margin: 26px 0 18px; text-align: center;">
+        <a class="cta" href="{{ $url }}" style="display:inline-block;padding:13px 24px;border-radius:999px;background:#2563eb;color:#ffffff !important;text-decoration:none;font-size:14px;font-weight:700;">
+            <span style="color:#ffffff !important;">Reset Password</span>
+        </a>
+    </div>
 
-                        <p>
-                            We received a request to reset the password for your Library Management System account.
-                        </p>
+    <div class="notice">
+        <strong>Security note:</strong> This reset link expires in {{ $expiresIn }} minutes. If you did not request a password reset, no changes have been made to your account.
+    </div>
 
-                        <p style="margin-bottom:30px;">
-                            Click the button below to securely reset your password:
-                        </p>
-
-                        <!-- Button -->
-                        <p style="text-align:center;">
-                            <a href="{{ $url }}" 
-                               style="display:inline-block;background:#512da8;color:#ffffff;text-decoration:none;
-                               padding:14px 36px;border-radius:6px;font-size:15px;font-weight:600;">
-                                Reset Password
-                            </a>
-                        </p>
-
-                        <p style="margin-top:30px;font-size:14px;color:#555;">
-                            If the button doesn’t work, copy and paste this link into your browser:
-                        </p>
-
-                        <p style="word-break:break-all;background:#f1f3f9;padding:12px;border-radius:6px;font-size:13px;color:#333;">
-                            {{ $url }}
-                        </p>
-
-                        <p style="margin-top:25px;color:#b00020;font-size:14px;">
-                            ⏱️ <strong>This link will expire in 10 minutes.</strong>
-                        </p>
-
-                        <p style="font-size:14px;color:#555;">
-                            If you did not request a password reset, please ignore this email. Your account remains secure.
-                        </p>
-
-                        <p style="margin-bottom:0;">
-                            Regards,<br>
-                            <strong>Library Management System Team</strong>
-                        </p>
-                    </td>
-                </tr>
-
-                <!-- Footer -->
-                <tr>
-                    <td style="background:#f4f6fb;padding:16px 30px;text-align:center;font-size:12px;color:#777;">
-                        This is an automated message. Please do not reply.
-                    </td>
-                </tr>
-
-            </table>
-            <!-- End Card -->
-
-        </td>
-    </tr>
-</table>
-```
-
-</body>
-</html>
+    <p class="muted">If the button does not open, copy and paste this link into your browser:</p>
+    <p class="muted" style="word-break: break-all; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 14px; background:#f8fafc;">{{ $url }}</p>
+@endsection

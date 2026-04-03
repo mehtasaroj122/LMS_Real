@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\SendOverdueReminderEmail;
 use App\Models\IssuedBook;
 use App\Models\Notification;
 use Carbon\Carbon;
@@ -19,7 +20,7 @@ class SendOverdueReminders extends Command
         // Find books that are overdue
         $overdueBooks = IssuedBook::whereNull('return_date')
             ->where('due_date', '<', Carbon::now())
-            ->with(['student.user', 'book'])
+            ->with(['student.user', 'book', 'fine'])
             ->get();
 
         $count = 0;
@@ -56,6 +57,23 @@ class SendOverdueReminders extends Command
                 relatedModel: 'IssuedBook',
                 relatedId: $issuedBook->id
             );
+
+            if ($issuedBook->student->user->email) {
+                try {
+                    SendOverdueReminderEmail::dispatch(
+                        $issuedBook->student->user->email,
+                        $issuedBook->student->user->name ?? 'Student',
+                        $issuedBook->book->title,
+                        Carbon::parse($issuedBook->due_date)->format('Y-m-d'),
+                        $daysOverdue,
+                        (float) ($issuedBook->fine?->amount ?? $issuedBook->fine_amount ?? 0)
+                    );
+                } catch (\Throwable $e) {
+                    \Log::warning('Unable to queue overdue reminder email: ' . $e->getMessage(), [
+                        'issued_book_id' => $issuedBook->id,
+                    ]);
+                }
+            }
 
             $count++;
         }

@@ -12,7 +12,6 @@ use App\Models\FineSetting;
 use App\Models\Notification;
 use App\Jobs\SendBookIssuedEmail;
 use App\Jobs\SendBookReturnedEmail;
-use App\Helpers\ActivityLogger;
 use App\Services\FineCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -222,8 +221,6 @@ class TransactionController extends Controller
             $issuedCount = 0;
             $issuedBooks = [];
             
-            $fineCalculator = new FineCalculator();
-            
             // Get effective issue duration for this student (per-student override or global default)
             $issueDuration = $this->getEffectiveIssueDuration($student);
             
@@ -254,12 +251,22 @@ class TransactionController extends Controller
                     ]);
                 }
                 
-                // Log activity
-                ActivityLogger::logBookIssued($student, $book->title, [
-                    'isbn' => $book->isbn,
-                    'issued_date' => $issuedBook->issue_date,
-                    'due_date' => $issuedBook->due_date,
-                ]);
+                if ($student->user?->email) {
+                    try {
+                        SendBookIssuedEmail::dispatch(
+                            $student->user->email,
+                            $student->user->name,
+                            $book->title,
+                            $book->author ?? 'Unknown',
+                            $issuedBook->issue_date->format('Y-m-d'),
+                            $issuedBook->due_date->format('Y-m-d')
+                        );
+                    } catch (\Throwable $e) {
+                        \Log::warning('Unable to queue book issued email: ' . $e->getMessage(), [
+                            'issued_book_id' => $issuedBook->id,
+                        ]);
+                    }
+                }
                 
                 $issuedBooks[] = $book->title;
                 $issuedCount++;
@@ -282,22 +289,6 @@ class TransactionController extends Controller
                     relatedId: $issuedCount
                 );
                 
-                // Queue email to send 3 seconds later for each book
-                // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
-                foreach ($issuedBooks as $title) {
-                    $book = Book::where('title', $title)->first();
-                    if ($book) {
-                        // SendBookIssuedEmail::dispatch(
-                        //     $student->user->email,
-                        //     $student->user->name,
-                        //     $title,
-                        //     $book->author ?? 'Unknown',
-                        //     Carbon::now()->format('Y-m-d'),
-                        //     Carbon::now()->addDays($issueDuration)->format('Y-m-d')
-                        // );
-                        \Log::info('Book issued email would have been sent to: ' . $student->user->email);
-                    }
-                }
             }
             
             return response()->json([
@@ -427,24 +418,20 @@ class TransactionController extends Controller
                 $totalFine += $bookFine;
                 $returnedBooks[] = $issuedBook->book->title;
                 
-                // Log activity
-                ActivityLogger::logBookReturned($student, $issuedBook->book->title, [
-                    'isbn' => $issuedBook->book->isbn,
-                    'condition' => $condition,
-                    'fine_amount' => $bookFine,
-                ]);
-                
-                // Queue email to send 3 seconds later
-                // MAIL SYSTEM DISABLED - To re-enable uncomment below and set MAIL_* in .env
                 if ($student->user) {
-                    // SendBookReturnedEmail::dispatch(
-                    //     $student->user->email,
-                    //     $student->user->name,
-                    //     $issuedBook->book->title,
-                    //     $condition,
-                    //     $bookFine
-                    // );
-                    \Log::info('Book returned email would have been sent to: ' . $student->user->email);
+                    try {
+                        SendBookReturnedEmail::dispatch(
+                            $student->user->email,
+                            $student->user->name,
+                            $issuedBook->book->title,
+                            $condition,
+                            (float) $bookFine
+                        );
+                    } catch (\Throwable $e) {
+                        \Log::warning('Unable to queue book returned email: ' . $e->getMessage(), [
+                            'issued_book_id' => $issuedBook->id,
+                        ]);
+                    }
                 }
                 
                 $returnedCount++;

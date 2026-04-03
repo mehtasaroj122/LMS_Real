@@ -1,174 +1,37 @@
-<!DOCTYPE html>
-<html>
+@php
+    $resolvedStudentName = $studentName ?? $student?->user?->name ?? $student?->name ?? 'Reader';
+    $resolvedBookTitle = $bookTitle ?? $book?->title ?? $bookRequest?->book?->title ?? 'Requested Book';
+    $resolvedStatusDate = optional($bookRequest?->processed_date ?? $bookRequest?->updated_at ?? now())->format('Y-m-d');
+@endphp
+@extends('emails.layouts.base')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Request Approved - Library Management System</title>
-</head>
+@section('title', 'Request Approved')
+@section('preheader', 'Your library book request has been approved.')
+@section('eyebrow', 'Request Update')
+@section('headline', 'Your request was approved')
+@section('subhead', 'The library has approved your request and the book is ready for the next step.')
+@section('accent', '#15803d')
+@section('hero', '#166534')
 
-<body
-    style="margin:0;padding:0;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);font-family:'Segoe UI', Arial, sans-serif;min-height:100vh;">
+@section('content')
+    <p class="greeting">Hello <strong>{{ $resolvedStudentName }}</strong>,</p>
 
-    <table width="100%" cellpadding="0" cellspacing="0"
-        style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);padding:40px 20px;">
+    <table role="presentation" class="panel" width="100%" cellpadding="0" cellspacing="0">
         <tr>
-            <td align="center">
-                <table width="100%" cellpadding="0" cellspacing="0"
-                    style="max-width:600px;background:#ffffff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.15);overflow:hidden;">
-
-                    <!-- Header -->
-                    <tr>
-                        <td
-                            style="background:linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);padding:40px 30px;text-align:center;color:#ffffff;">
-                            <div style="font-size:48px;margin-bottom:15px;">🎉</div>
-                            <h1 style="margin:0 0 5px 0;font-size:28px;font-weight:700;letter-spacing:0.5px;">Library
-                                Management System</h1>
-                            <p style="margin:0;font-size:14px;opacity:0.9;letter-spacing:0.3px;">Book Request Approved!
-                            </p>
-                        </td>
-                    </tr>
-
-                    <!-- Content -->
-                    <tr>
-                        <td style="padding:40px 30px;color:#333333;font-size:15px;line-height:1.8;">
-                            <p style="margin:0 0 20px 0;font-size:18px;color:#1b5e20;font-weight:600;">Hi
-                                {{ $studentName }},</p>
-
-                            <p style="margin:0 0 25px 0;color:#555555;line-height:1.8;">
-                                Great news! Your book request has been <strong>approved</strong> by the library staff.
-                                The book details are below:
-                            </p>
-
-                            <!-- Book Details Card -->
-                            <table width="100%" cellpadding="0" cellspacing="0"
-                                style="background:#e8f5e9;border-left:4px solid #1b5e20;border-radius:8px;margin:0 0 25px 0;">
-                                <tr>
-                                    <td style="padding:20px;">
-                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                            <tr>
-                                                <td style="font-weight:600;color:#1b5e20;padding:8px 0;">📖 Book Title
-                                                </td>
-                                                <td style="text-align:right;color:#333;padding:8px 0;">
-                                                    {{ $bookTitle }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="border-top:1px solid #c8e6c9;font-weight:600;color:#1b5e20;padding:8px 0;">
-                                                </td>
-                                                <td
-                                                    style="border-top:1px solid #c8e6c9;text-align:right;color:#333;padding:8px 0;">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td style="font-weight:600;color:#1b5e20;padding:8px 0;">✓ Status</td>
-                                                <td style="text-align:right;color:#333;padding:8px 0;">
-                                                    <strong>APPROVED</strong></td>
-                                            </tr>
-                                            <td
-                                                style="border-top:1px solid #c8e6c9;font-weight:600;color:#1b5e20;padding:8px 0;">
-                                            </td>
-                                            <td
-                                                style="border-top:1px solid #c8e6c9;text-align:right;color:#333;padding:8px 0;">
-                                            </td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight:600;color:#1b5e20;padding:8px 0;">📱 ISBN</td>
-                                    <td
-                                        style="text-align:right;color:#333;padding:8px 0;font-family:'Courier New', monospace;font-size:13px;">
-                                        {{ $book->isbn }}</td>
-                                </tr>
-                                <tr>
-                                    <td
-                                        style="border-top:1px solid #c8e6c9;font-weight:600;color:#1b5e20;padding:8px 0;">
-                                    </td>
-                                    <td style="border-top:1px solid #c8e6c9;text-align:right;color:#333;padding:8px 0;">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight:600;color:#1b5e20;padding:8px 0;">📅 Request Date</td>
-                                    <td style="text-align:right;color:#333;padding:8px 0;">
-                                        {{ $bookRequest->request_date->format('d M, Y') }}</td>
-                                </tr>
-                                <tr>
-                                    <td
-                                        style="border-top:1px solid #c8e6c9;font-weight:600;color:#1b5e20;padding:8px 0;">
-                                    </td>
-                                    <td style="border-top:1px solid #c8e6c9;text-align:right;color:#333;padding:8px 0;">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight:600;color:#1b5e20;padding:8px 0;">✓ Status</td>
-                                    <td style="text-align:right;color:#333;padding:8px 0;font-weight:600;">APPROVED</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-
-                <!-- Next Steps -->
-                <table width="100%" cellpadding="0" cellspacing="0"
-                    style="background:#e3f2fd;border-left:4px solid #0d47a1;border-radius:6px;margin:20px 0;">
-                    <tr>
-                        <td style="padding:12px 15px;font-size:13px;color:#0d47a1;">
-                            📍 <strong>Next Steps:</strong> Please visit the library to collect this book at your
-                            earliest convenience. Contact the library staff if you need any assistance.
-                        </td>
-                    </tr>
-                </table>
-
-                <!-- Action Button -->
-                <table width="100%" cellpadding="0" cellspacing="0" style="margin:35px 0;">
-                    <tr>
-                        <td align="center">
-                            <table cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td
-                                        style="background:linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);padding:14px 40px;border-radius:8px;box-shadow:0 4px 15px rgba(27, 94, 32, 0.3);">
-                                        <a href="{{ config('app.url') }}/student/book-requests"
-                                            style="display:inline-block;color:#ffffff;text-decoration:none;font-size:16px;font-weight:700;letter-spacing:0.3px;">
-                                            View My Requests
-                                        </a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-
-                <p style="margin:0;font-size:13px;color:#666666;line-height:1.8;">
-                    Best regards,<br>
-                    <strong>Library Management System Team</strong>
-                </p>
-            </td>
+            <td class="label">Requested book</td>
+            <td class="value">{{ $resolvedBookTitle }}</td>
         </tr>
-
-        <!-- Divider -->
         <tr>
-            <td style="height:1px;background:#e0e0e0;"></td>
+            <td class="label">Decision</td>
+            <td class="value">Approved</td>
         </tr>
-
-        <!-- Footer -->
         <tr>
-            <td style="background:#f8f9fa;padding:20px 30px;text-align:center;">
-                <p style="margin:0 0 8px 0;font-size:12px;color:#888888;">
-                    <strong>Library Management System</strong>
-                </p>
-                <p style="margin:0 0 8px 0;font-size:11px;color:#999999;">
-                    Smart Library Management
-                </p>
-                <p style="margin:0;padding-top:8px;border-top:1px solid #e0e0e0;font-size:11px;color:#aaaaaa;">
-                    © {{ date('Y') }} Library Management System. All rights reserved.
-                </p>
-            </td>
+            <td class="label">Processed on</td>
+            <td class="value">{{ $resolvedStatusDate }}</td>
         </tr>
-
     </table>
 
-    </td>
-    </tr>
-    </table>
-
-</body>
-
-</html>
+    <div class="notice" style="background:#f0fdf4;color:#166534;">
+        <strong>Next step:</strong> Visit the library desk to collect the approved book when convenient.
+    </div>
+@endsection
