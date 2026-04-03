@@ -3,6 +3,7 @@
 @section('title', 'Settings')
 
 @push('styles')
+    @include('shared.action-feedback.styles')
     <style>
         /* Settings Page Specific Styles */
         .settings-container {
@@ -1232,9 +1233,30 @@
             </div>
         </div>
     </div>
+
+    @include('shared.action-feedback.markup', [
+        'actionFeedbackConfig' => [
+            'confirm' => [
+                'modalId' => 'staffSettingsConfirmModal',
+                'iconId' => 'staffSettingsConfirmIcon',
+                'titleId' => 'staffSettingsConfirmTitle',
+                'messageId' => 'staffSettingsConfirmMessage',
+                'detailId' => 'staffSettingsConfirmDetail',
+                'submitButtonId' => 'staffSettingsConfirmSubmitBtn',
+                'confirmLabel' => 'Continue',
+                'defaultTitle' => 'Confirm Action',
+                'defaultMessage' => 'Are you sure you want to continue?',
+            ],
+            'toast' => [
+                'containerId' => 'staffSettingsToastContainer',
+                'liveRegionId' => 'staffSettingsLiveRegion',
+            ],
+        ],
+    ])
 @endsection
 
 @push('scripts')
+    @include('shared.action-feedback.scripts')
     <script>
         const StaffSettings = (() => {
             const state = {
@@ -1244,6 +1266,8 @@
                 emailPending: false,
                 emailTimer: null,
                 emailAbort: null,
+                emailRequest: null,
+                emailRequestValue: null,
                 fieldTimers: {},
                 profileErrors: {},
                 passwordErrors: {},
@@ -1255,6 +1279,23 @@
             };
             const profileFields = ['name', 'email', 'phone', 'address'];
             const passwordFields = ['current_password', 'password', 'password_confirmation'];
+            const feedbackUI = typeof window.ActionFeedbackUI === 'function'
+                ? new window.ActionFeedbackUI({
+                    confirm: {
+                        modalId: 'staffSettingsConfirmModal',
+                        iconId: 'staffSettingsConfirmIcon',
+                        titleId: 'staffSettingsConfirmTitle',
+                        messageId: 'staffSettingsConfirmMessage',
+                        detailId: 'staffSettingsConfirmDetail',
+                        submitButtonId: 'staffSettingsConfirmSubmitBtn',
+                        confirmLabel: 'Continue',
+                    },
+                    toast: {
+                        containerId: 'staffSettingsToastContainer',
+                        liveRegionId: 'staffSettingsLiveRegion',
+                    },
+                })
+                : null;
             const requirementText = {
                 reqLength: 'At least 8 characters',
                 reqUppercase: 'At least one uppercase letter',
@@ -1369,9 +1410,24 @@
                     input.addEventListener('blur', () => {
                         if (!state.profileEditing) return;
                         clearTimeout(state.fieldTimers[field]);
-                        validateProfileField(field, true, true, true);
+                        validateProfileField(field, true, field !== 'email', field !== 'email');
                     });
                 });
+            }
+
+            function clearProfileFieldTimers() {
+                Object.values(state.fieldTimers).forEach((timer) => clearTimeout(timer));
+                state.fieldTimers = {};
+            }
+
+            function cancelEmailCheck() {
+                clearTimeout(state.emailTimer);
+                state.emailTimer = null;
+                if (state.emailAbort) state.emailAbort.abort();
+                state.emailAbort = null;
+                state.emailRequest = null;
+                state.emailRequestValue = null;
+                finishEmail();
             }
 
             function enterEdit() {
@@ -1394,9 +1450,8 @@
             function cancelEdit() {
                 state.profileEditing = false;
                 state.profileErrors = {};
-                if (state.emailAbort) state.emailAbort.abort();
-                clearTimeout(state.emailTimer);
-                state.emailPending = false;
+                clearProfileFieldTimers();
+                cancelEmailCheck();
                 Object.entries(state.originalProfile).forEach(([field, value]) => {
                     const input = document.getElementById(field);
                     if (input) input.value = value;
@@ -1426,7 +1481,7 @@
                 state.profileErrors[field] = message;
                 if (show) setError(field, message);
                 if (field === 'email') {
-                    if (message) finishEmail();
+                    if (message) cancelEmailCheck();
                     else if (asyncEmail) queueEmail(immediate);
                 } else {
                     paint(input, message ? 'invalid' : input?.value.trim() ? 'valid' : 'default');
@@ -1442,55 +1497,84 @@
             function queueEmail(immediate = false) {
                 const value = String(document.getElementById('email')?.value || '').trim().toLowerCase();
                 if (!value || value === String(state.originalProfile.email || '').trim().toLowerCase()) {
+                    cancelEmailCheck();
                     state.profileErrors.email = null;
                     setError('email', null);
                     paint(document.getElementById('email'), value ? 'valid' : 'default');
-                    finishEmail();
                     updateProfileSave();
                     return;
                 }
                 clearTimeout(state.emailTimer);
-                state.emailTimer = setTimeout(() => runEmailCheck(value), immediate ? 0 : 500);
+                state.emailTimer = setTimeout(() => {
+                    state.emailTimer = null;
+                    void runEmailCheck(value);
+                }, immediate ? 0 : 500);
             }
 
             async function runEmailCheck(value) {
                 const input = document.getElementById('email');
+                const normalizedValue = String(value || '').trim().toLowerCase();
+                const originalEmail = String(state.originalProfile.email || '').trim().toLowerCase();
                 if (!input) return true;
-                if (state.emailAbort) state.emailAbort.abort();
-                state.emailAbort = new AbortController();
-                state.emailPending = true;
-                paint(input, 'validating');
-                updateProfileSave();
-                try {
-                    const response = await fetch(els.profileForm.dataset.checkEmailUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() },
-                        body: JSON.stringify({ email: value }),
-                        signal: state.emailAbort.signal,
-                    });
-                    const payload = await response.json().catch(() => ({}));
-                    if (String(input.value || '').trim().toLowerCase() !== value) return false;
-                    if (!response.ok || !payload.available) {
-                        state.profileErrors.email = payload?.errors?.email?.[0] || 'This email address is already in use';
-                        setError('email', state.profileErrors.email);
-                        paint(input, 'invalid');
-                        return false;
-                    }
+                if (!normalizedValue || normalizedValue === originalEmail) {
+                    cancelEmailCheck();
                     state.profileErrors.email = null;
                     setError('email', null);
-                    paint(input, 'valid');
-                    return true;
-                } catch (error) {
-                    if (error.name !== 'AbortError') {
-                        state.profileErrors.email = 'Unable to verify email availability right now';
-                        setError('email', state.profileErrors.email);
-                        paint(input, 'invalid');
-                    }
-                    return false;
-                } finally {
-                    finishEmail();
+                    paint(input, normalizedValue ? 'valid' : 'default');
                     updateProfileSave();
+                    return true;
                 }
+                if (state.emailRequest && state.emailRequestValue === normalizedValue) {
+                    return state.emailRequest;
+                }
+                if (state.emailAbort) state.emailAbort.abort();
+                const controller = new AbortController();
+                state.emailAbort = controller;
+                state.emailPending = true;
+                state.emailRequestValue = normalizedValue;
+                paint(input, 'validating');
+                updateProfileSave();
+                let request;
+                request = (async () => {
+                    try {
+                        const response = await fetch(els.profileForm.dataset.checkEmailUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() },
+                            body: JSON.stringify({ email: normalizedValue }),
+                            signal: controller.signal,
+                        });
+                        const payload = await response.json().catch(() => ({}));
+                        if (String(input.value || '').trim().toLowerCase() !== normalizedValue) return false;
+                        if (!response.ok || !payload.available) {
+                            state.profileErrors.email = payload?.errors?.email?.[0] || 'This email address is already in use';
+                            setError('email', state.profileErrors.email);
+                            paint(input, 'invalid');
+                            return false;
+                        }
+                        state.profileErrors.email = null;
+                        setError('email', null);
+                        paint(input, 'valid');
+                        return true;
+                    } catch (error) {
+                        if (error.name !== 'AbortError') {
+                            state.profileErrors.email = 'Unable to verify email availability right now';
+                            setError('email', state.profileErrors.email);
+                            paint(input, 'invalid');
+                        }
+                        return false;
+                    } finally {
+                        if (state.emailRequest === request) {
+                            state.emailAbort = null;
+                            state.emailRequest = null;
+                            state.emailRequestValue = null;
+                            finishEmail();
+                        }
+                        updateProfileSave();
+                    }
+                })();
+                state.emailRequest = request;
+
+                return request;
             }
 
             function finishEmail() {
@@ -1501,6 +1585,9 @@
             async function submitProfile(event) {
                 event.preventDefault();
                 if (!state.profileEditing || state.profileSubmitting) return;
+                clearProfileFieldTimers();
+                clearTimeout(state.emailTimer);
+                state.emailTimer = null;
                 if (!validateProfileForm(true)) return focusFirstError(els.profileForm);
                 const email = String(document.getElementById('email')?.value || '').trim().toLowerCase();
                 const changedEmail = email !== String(state.originalProfile.email || '').trim().toLowerCase();
@@ -1597,7 +1684,18 @@
 
             async function removePhoto() {
                 if (els.removePhotoBtn?.disabled) return;
-                if (!window.confirm('Are you sure you want to remove your profile photo?')) return;
+                const confirmed = feedbackUI
+                    ? await feedbackUI.confirm({
+                        variant: 'danger',
+                        buttonVariant: 'danger',
+                        title: 'Remove Profile Photo?',
+                        message: 'This will remove your current profile photo from your account.',
+                        detail: 'You can upload a new photo at any time.',
+                        confirmText: 'Remove Photo',
+                        cancelText: 'Keep Photo',
+                    })
+                    : window.confirm('Are you sure you want to remove your profile photo?');
+                if (!confirmed) return;
                 try {
                     const response = await fetch('{{ route("staff.settings.remove-photo") }}', { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() } });
                     const payload = await response.json().catch(() => ({}));
@@ -1876,7 +1974,7 @@
 
             function updateProfileSave() {
                 const invalid = profileFields.some((field) => Boolean(state.profileErrors[field] || validators[field](document.getElementById(field)?.value || '')));
-                if (els.saveProfileBtn) els.saveProfileBtn.disabled = !state.profileEditing || state.profileSubmitting || state.emailPending || invalid || !profileChanged();
+                if (els.saveProfileBtn) els.saveProfileBtn.disabled = !state.profileEditing || state.profileSubmitting || invalid || !profileChanged();
             }
 
             function profileChanged() {
@@ -1909,11 +2007,29 @@
 
             function showToast(message, type = 'info') {
                 if (!message) return;
+                const normalizedType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+                const title = {
+                    success: 'Success',
+                    error: 'Error',
+                    warning: 'Warning',
+                    info: 'Notice',
+                }[normalizedType] || 'Notice';
+
+                if (feedbackUI) {
+                    feedbackUI.showToast({
+                        type: normalizedType,
+                        title,
+                        message: String(message),
+                        timeout: 3200,
+                    });
+                    return;
+                }
+
                 const toast = document.createElement('div');
-                toast.className = `settings-toast ${type}`;
+                toast.className = `settings-toast ${normalizedType}`;
                 toast.setAttribute('role', 'status');
                 toast.setAttribute('aria-live', 'polite');
-                toast.textContent = message;
+                toast.textContent = String(message);
                 document.body.appendChild(toast);
                 setTimeout(() => {
                     toast.style.animation = 'staffSettingsSlideOut 0.25s ease forwards';

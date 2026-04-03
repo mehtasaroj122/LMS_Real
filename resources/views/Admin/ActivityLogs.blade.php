@@ -212,7 +212,7 @@
 
         .activity-filter-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)) auto auto;
+            grid-template-columns: minmax(16rem, 18rem) repeat(3, minmax(8.75rem, 9.75rem)) auto minmax(0, 1fr) auto;
             gap: 0.75rem;
             align-items: end;
         }
@@ -249,25 +249,26 @@
 
         .activity-search-shell {
             position: relative;
+            min-width: 0;
         }
 
-        .activity-search-shell i {
+        .activity-search-icon {
             position: absolute;
-            left: 0.9rem;
+            left: 0.75rem;
             top: 50%;
-            width: 1rem;
-            height: 1rem;
+            width: 0.95rem;
+            height: 0.95rem;
             transform: translateY(-50%);
             color: #94a3b8;
+            pointer-events: none;
         }
 
         .search-input,
         .filter-select {
             width: 100%;
             min-height: 2.95rem;
-            border-radius: 0.85rem;
+            border-radius: 0.75rem;
             border: 1px solid #dbe2ea;
-            background: #f8fafc;
             color: #0f172a;
             padding: 0.78rem 0.95rem;
             font-size: 0.9rem;
@@ -281,62 +282,64 @@
             padding-top: 0.62rem;
             padding-bottom: 0.62rem;
             font-size: 0.85rem;
-            border-radius: 0.75rem;
+            border-radius: 0.65rem;
         }
 
         .search-input {
-            padding-left: 2.65rem;
-        }
-
-        .activity-filter-panel .search-input {
-            padding-left: 2.45rem;
+            padding-left: 2.4rem;
+            background-color: #f8fafc;
         }
 
         .filter-select {
             appearance: none;
-            background-image:
-                linear-gradient(45deg, transparent 50%, #64748b 50%),
-                linear-gradient(135deg, #64748b 50%, transparent 50%);
-            background-position:
-                calc(100% - 18px) calc(1.15rem),
-                calc(100% - 12px) calc(1.15rem);
-            background-size: 6px 6px, 6px 6px;
-            background-repeat: no-repeat;
-            padding-right: 2.6rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.7rem center;
+            padding-right: 2.3rem;
+            cursor: pointer;
         }
 
-        body.dark-theme .search-input,
-        body.dark-theme .filter-select {
+        body.dark-theme .search-input {
             border-color: #334155;
-            background: #0f172a;
+            background-color: #0f172a;
             color: #f8fafc;
         }
 
         body.dark-theme .filter-select {
-            background-image:
-                linear-gradient(45deg, transparent 50%, #94a3b8 50%),
-                linear-gradient(135deg, #94a3b8 50%, transparent 50%);
+            border-color: #334155;
+            background: #0f172a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.7rem center;
+            color: #f8fafc;
         }
 
-        .search-input:focus,
+        .search-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+            background-color: #fff;
+        }
+
         .filter-select:focus {
             border-color: #2563eb;
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-            background: #fff;
+            background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.7rem center;
         }
 
-        body.dark-theme .search-input:focus,
+        body.dark-theme .search-input:focus {
+            background-color: #111827;
+        }
+
         body.dark-theme .filter-select:focus {
-            background: #111827;
+            background: #111827 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.7rem center;
         }
 
         .activity-reset-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            justify-self: start;
+            width: auto;
             gap: 0.55rem;
             min-height: 2.95rem;
-            padding: 0.8rem 1rem;
+            padding: 0.62rem 0.9rem;
             border-radius: 0.85rem;
             border: 1px solid #dbe2ea;
             background: transparent;
@@ -348,9 +351,14 @@
 
         .activity-filter-panel .activity-reset-btn {
             min-height: 2.55rem;
-            padding: 0.68rem 0.95rem;
-            border-radius: 0.75rem;
-            font-size: 0.82rem;
+            padding: 0.5rem 0.85rem;
+            border-radius: 0.65rem;
+            font-size: 0.78rem;
+        }
+
+        .activity-filter-panel .admin-table-entries-control {
+            grid-column: 7;
+            justify-self: end;
         }
 
         .activity-reset-btn:hover {
@@ -778,6 +786,11 @@
             .activity-filter-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
+
+            .activity-filter-panel .admin-table-entries-control {
+                grid-column: auto;
+                justify-self: start;
+            }
         }
 
         @media (max-width: 720px) {
@@ -932,7 +945,12 @@
                 <div class="activity-filter-group">
                     {{-- <label for="search" class="activity-filter-label">Search</label> --}}
                     <div class="activity-search-shell">
-                        {{-- <i data-lucide="search"></i> --}}
+                        <svg class="activity-search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
                         <input type="text" id="search" name="search" class="search-input"
                             placeholder="Search name, email, action, or description" autocomplete="off"
                             value="{{ request('search') }}">

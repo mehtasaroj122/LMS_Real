@@ -10,12 +10,19 @@
             gap: 0.75rem;
         }
 
+        .dashboard-section-grid > * {
+            min-width: 0;
+        }
+
         .fine-graph-card {
             padding: 1rem;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .fine-trend-card-shell {
             transition: opacity 0.18s ease;
+            min-width: 0;
         }
 
         .fine-trend-card-shell.is-loading {
@@ -59,123 +66,10 @@
             margin: 0 auto;
         }
 
-        .fine-donut-wrap svg {
+        .fine-donut-canvas {
             width: 100%;
             height: 100%;
-            transform: rotate(-90deg);
-            overflow: visible;
-        }
-
-        .fine-donut-track {
-            fill: none;
-            stroke-width: 16;
-        }
-
-        body.light-theme .fine-donut-track {
-            stroke: #e5e7eb;
-        }
-
-        body.dark-theme .fine-donut-track {
-            stroke: #334155;
-        }
-
-        .fine-donut-segment {
-            fill: none;
-            stroke-width: 16;
-            cursor: pointer;
-            transition:
-                opacity 0.15s ease,
-                filter 0.15s ease;
-        }
-
-        .fine-donut-segment:hover {
-            opacity: 0.92;
-            filter: brightness(1.05);
-        }
-
-        .fine-donut-center {
-            position: absolute;
-            inset: 50%;
-            width: 8rem;
-            height: 8rem;
-            transform: translate(-50%, -50%);
-            border-radius: 9999px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-        }
-
-        body.light-theme .fine-donut-center {
-            background: #ffffff;
-            color: #0f172a;
-        }
-
-        body.dark-theme .fine-donut-center {
-            background: #172033;
-            color: #f1f5f9;
-        }
-
-        .fine-donut-total {
-            font-size: 1.55rem;
-            font-weight: 700;
-            line-height: 1.1;
-        }
-
-        .fine-tooltip {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 15;
-            pointer-events: none;
-            opacity: 0;
-            transform: translate(-50%, calc(-100% - 12px)) scale(0.96);
-            padding: 0.5rem 0.7rem;
-            border-radius: 0.75rem;
-            min-width: 140px;
-            box-shadow: 0 16px 35px rgba(15, 23, 42, 0.18);
-            transition:
-                opacity 0.12s ease,
-                transform 0.12s ease;
-        }
-
-        .fine-tooltip.is-visible {
-            opacity: 1;
-            transform: translate(-50%, calc(-100% - 12px)) scale(1);
-        }
-
-        body.light-theme .fine-tooltip {
-            background: rgba(15, 23, 42, 0.96);
-            color: #f8fafc;
-        }
-
-        body.dark-theme .fine-tooltip {
-            background: rgba(255, 255, 255, 0.96);
-            color: #0f172a;
-        }
-
-        .fine-tooltip-label {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            font-size: 0.76rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .fine-tooltip-dot {
-            width: 0.65rem;
-            height: 0.65rem;
-            border-radius: 9999px;
-            flex-shrink: 0;
-        }
-
-        .fine-tooltip-meta {
-            margin-top: 0.3rem;
-            font-size: 0.72rem;
-            opacity: 0.9;
+            display: block;
         }
 
         .fine-legend {
@@ -191,12 +85,31 @@
             font-size: 0.82rem;
             font-weight: 500;
             justify-content: space-between;
+            cursor: pointer;
+            transition:
+                opacity 0.15s ease,
+                color 0.15s ease;
         }
 
         .fine-legend-label {
             display: inline-flex;
             align-items: center;
             gap: 0.7rem;
+        }
+
+        .fine-legend-item:focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 4px;
+            border-radius: 0.5rem;
+        }
+
+        .fine-legend-item.is-hidden {
+            opacity: 0.42;
+        }
+
+        .fine-legend-item.is-hidden .fine-legend-text,
+        .fine-legend-item.is-hidden .fine-legend-value {
+            text-decoration: line-through;
         }
 
         .fine-legend-dot {
@@ -208,99 +121,30 @@
 
         .fine-trend-shell {
             position: relative;
+            min-height: 21rem;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .fine-trend-wrap {
-            overflow-x: auto;
-            overflow-y: hidden;
             position: relative;
-            z-index: 1;
+            min-width: 0;
+        }
+
+        .fine-trend-canvas-shell {
+            position: relative;
+            width: 100%;
+            min-height: 21rem;
+            height: 21rem;
+            min-width: 0;
+            overflow: hidden;
         }
 
         .fine-trend-chart {
             width: 100%;
-            min-width: 560px;
-            height: auto;
+            height: 100%;
             display: block;
-        }
-
-        .fine-grid-line {
-            stroke: rgba(148, 163, 184, 0.22);
-            stroke-width: 1;
-        }
-
-        .fine-axis-label {
-            font-size: 12px;
-            fill: #64748b;
-            font-weight: 500;
-        }
-
-        body.dark-theme .fine-axis-label {
-            fill: #cbd5e1;
-        }
-
-        .fine-generated-area {
-            fill: rgba(248, 113, 113, 0.10);
-        }
-
-        .fine-collected-area {
-            fill: rgba(16, 185, 129, 0.10);
-        }
-
-        .fine-waived-area {
-            fill: rgba(245, 158, 11, 0.10);
-        }
-
-        .fine-generated-line {
-            fill: none;
-            stroke: #f87171;
-            stroke-width: 3;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .fine-collected-line {
-            fill: none;
-            stroke: #10b981;
-            stroke-width: 3;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .fine-waived-line {
-            fill: none;
-            stroke: #f59e0b;
-            stroke-width: 3;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .fine-generated-point,
-        .fine-collected-point,
-        .fine-waived-point {
-            stroke-width: 3;
-            cursor: pointer;
-        }
-
-        .fine-generated-point {
-            fill: #f87171;
-            stroke: #ffffff;
-        }
-
-        .fine-collected-point {
-            fill: #10b981;
-            stroke: #ffffff;
-        }
-
-        .fine-waived-point {
-            fill: #f59e0b;
-            stroke: #ffffff;
-        }
-
-        body.dark-theme .fine-generated-point,
-        body.dark-theme .fine-collected-point,
-        body.dark-theme .fine-waived-point {
-            stroke: #172033;
+            max-width: 100%;
         }
 
         .fine-transaction-header {
@@ -310,12 +154,14 @@
             gap: 1rem;
             flex-wrap: wrap;
             margin-bottom: 0.85rem;
+            min-width: 0;
         }
 
         .fine-transaction-heading {
             display: flex;
             align-items: flex-start;
             gap: 0.75rem;
+            min-width: 0;
         }
 
         .fine-transaction-icon {
@@ -398,84 +244,6 @@
             opacity: 0.8;
         }
 
-        .fine-trend-legend {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 1.1rem 1.5rem;
-            margin: 0.4rem 0 0.75rem;
-            font-size: 0.88rem;
-            font-weight: 500;
-        }
-
-        .fine-trend-legend-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-        }
-
-        .fine-trend-legend-dot {
-            width: 0.95rem;
-            height: 0.95rem;
-            border-radius: 9999px;
-            flex-shrink: 0;
-        }
-
-        .fine-trend-tooltip {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 60;
-            pointer-events: none;
-            opacity: 0;
-            transform: translate(-50%, calc(-100% - 12px)) scale(0.96);
-            padding: 0.5rem 0.7rem;
-            border-radius: 0.75rem;
-            min-width: 150px;
-            box-shadow: 0 16px 35px rgba(15, 23, 42, 0.18);
-            transition:
-                opacity 0.12s ease,
-                transform 0.12s ease;
-            white-space: nowrap;
-        }
-
-        .fine-trend-tooltip.is-visible {
-            opacity: 1;
-            transform: translate(-50%, calc(-100% - 12px)) scale(1);
-        }
-
-        body.light-theme .fine-trend-tooltip {
-            background: rgba(15, 23, 42, 0.96);
-            color: #f8fafc;
-        }
-
-        body.dark-theme .fine-trend-tooltip {
-            background: rgba(255, 255, 255, 0.96);
-            color: #0f172a;
-        }
-
-        .fine-trend-tooltip-label {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            font-size: 0.76rem;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        .fine-trend-tooltip-dot {
-            width: 0.65rem;
-            height: 0.65rem;
-            border-radius: 9999px;
-            flex-shrink: 0;
-        }
-
-        .fine-trend-tooltip-meta {
-            margin-top: 0.3rem;
-            font-size: 0.72rem;
-            opacity: 0.9;
-        }
-
         @media (min-width: 1100px) {
             .dashboard-section-grid {
                 grid-template-columns: 0.9fr 1.3fr;
@@ -488,14 +256,10 @@
                 height: 12rem;
             }
 
-            .fine-donut-center {
-                width: 6.8rem;
-                height: 6.8rem;
-            }
-
-            .fine-trend-legend {
-                justify-content: flex-start;
-                margin-left: 0.5rem;
+            .fine-trend-shell,
+            .fine-trend-canvas-shell {
+                min-height: 18rem;
+                height: 18rem;
             }
 
             .fine-period-form {
@@ -611,9 +375,6 @@
 
         @php
             $fineChartTotal = collect($fineStatusLegend)->sum('amount');
-            $radius = 54;
-            $circumference = 2 * pi() * $radius;
-            $offset = 0;
         @endphp
 
         <div class="dashboard-section-grid mb-3">
@@ -627,65 +388,34 @@
                 </div>
 
                 <div class="fine-status-layout">
-                    <div class="fine-donut-wrap" data-fine-chart>
-                        <svg viewBox="0 0 120 120" aria-label="Fine status chart">
-                            <circle class="fine-donut-track" cx="60" cy="60" r="{{ $radius }}"></circle>
-
-                            @foreach($fineStatusLegend as $item)
-                                @php
-                                    $segmentLength = $fineChartTotal > 0
-                                        ? ($item['amount'] / $fineChartTotal) * $circumference
-                                        : 0;
-                                @endphp
-
-                                @if($segmentLength > 0)
-                                    <circle
-                                        class="fine-donut-segment"
-                                        cx="60"
-                                        cy="60"
-                                        r="{{ $radius }}"
-                                        stroke="{{ $item['color'] }}"
-                                        stroke-dasharray="{{ $segmentLength }} {{ $circumference - $segmentLength }}"
-                                        stroke-dashoffset="{{ -$offset }}"
-                                        data-label="{{ $item['label'] }}"
-                                        data-amount="{{ number_format($item['amount'], 2) }}"
-                                        data-percentage="{{ number_format($item['percentage'], 1) }}"
-                                        data-color="{{ $item['color'] }}"
-                                    ></circle>
-                                @endif
-
-                                @php
-                                    $offset += $segmentLength;
-                                @endphp
-                            @endforeach
-                        </svg>
-
-                        <div class="fine-donut-center">
-                            <span class="fine-donut-total">₹{{ number_format($fineChartTotal, 2) }}</span>
-                            <p class="mt-1 text-xs font-medium text-muted">Total Fine Value</p>
-                        </div>
-
-                        <div class="fine-tooltip" data-fine-tooltip>
-                            <div class="fine-tooltip-label">
-                                <span class="fine-tooltip-dot" data-tooltip-dot></span>
-                                <span data-tooltip-label></span>
-                            </div>
-                            <div class="fine-tooltip-meta">
-                                <span data-tooltip-amount></span>
-                                <span> • </span>
-                                <span data-tooltip-percentage></span>
-                            </div>
-                        </div>
+                    <div class="fine-donut-wrap">
+                        <canvas
+                            class="fine-donut-canvas"
+                            aria-label="Fine status chart"
+                            data-fine-status-chart
+                            data-fine-status-total="{{ number_format($fineChartTotal, 2) }}"
+                            data-fine-status-caption="Total Fine Value"
+                            data-fine-status-labels='@json(collect($fineStatusLegend)->pluck("label")->all())'
+                            data-fine-status-values='@json(collect($fineStatusLegend)->pluck("amount")->map(fn ($amount) => round((float) $amount, 2))->all())'
+                            data-fine-status-colors='@json(collect($fineStatusLegend)->pluck("color")->all())'
+                        ></canvas>
                     </div>
 
                     <div class="fine-legend">
                         @foreach($fineStatusLegend as $item)
-                            <div class="fine-legend-item text-primary">
+                            <div
+                                class="fine-legend-item text-primary"
+                                data-fine-legend-item
+                                data-fine-legend-index="{{ $loop->index }}"
+                                role="button"
+                                tabindex="0"
+                                aria-pressed="true"
+                            >
                                 <span class="fine-legend-label">
                                     <span class="fine-legend-dot" style="background-color: {{ $item['color'] }}"></span>
-                                    <span>{{ $item['label'] }}</span>
+                                    <span class="fine-legend-text">{{ $item['label'] }}</span>
                                 </span>
-                                <span>₹{{ number_format($item['amount'], 2) }}</span>
+                                <span class="fine-legend-value">₹{{ number_format($item['amount'], 2) }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -810,215 +540,563 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const initFineChartTooltips = function (root) {
-                root.querySelectorAll('[data-fine-chart]').forEach(function (chart) {
-                    if (chart.dataset.tooltipBound === 'true') {
+        const adminDashboardCharts = {
+            fineStatus: null,
+        };
+        let adminDashboardThemeMode = null;
+        let adminDashboardThemeObserverInitialized = false;
+        let adminDashboardChartExtensionsRegistered = false;
+
+        function getAdminDashboardPalette() {
+            const isDark = document.body.classList.contains('dark-theme');
+
+            return {
+                surface: isDark ? '#172033' : '#ffffff',
+                grid: isDark ? 'rgba(148, 163, 184, 0.18)' : 'rgba(148, 163, 184, 0.24)',
+                text: isDark ? '#cbd5e1' : '#475569',
+                textStrong: isDark ? '#f8fafc' : '#0f172a',
+                textMuted: isDark ? '#94a3b8' : '#64748b',
+                tooltipBackground: isDark ? '#0f172a' : '#ffffff',
+                tooltipBorder: isDark ? '#334155' : '#dbe4f0',
+            };
+        }
+
+        function formatFineCurrency(value) {
+            return `₹${Number(value || 0).toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            })}`;
+        }
+
+        function registerAdminDashboardChartExtensions() {
+            if (typeof Chart === 'undefined' || adminDashboardChartExtensionsRegistered) {
+                return;
+            }
+
+            if (Chart.Tooltip && Chart.Tooltip.positioners && typeof Chart.Tooltip.positioners.cursor !== 'function') {
+                Chart.Tooltip.positioners.cursor = function (items, eventPosition) {
+                    return eventPosition;
+                };
+            }
+
+            Chart.register({
+                id: 'adminDoughnutCenterText',
+                afterDraw(chart, args, pluginOptions) {
+                    if (chart.config.type !== 'doughnut' || !pluginOptions || !pluginOptions.value) {
                         return;
                     }
 
-                    const tooltip = chart.querySelector('[data-fine-tooltip]');
-                    const label = tooltip?.querySelector('[data-tooltip-label]');
-                    const amount = tooltip?.querySelector('[data-tooltip-amount]');
-                    const percentage = tooltip?.querySelector('[data-tooltip-percentage]');
-                    const dot = tooltip?.querySelector('[data-tooltip-dot]');
+                    const chartArea = chart.chartArea;
 
-                    if (!tooltip || !label || !amount || !percentage || !dot) {
+                    if (!chartArea) {
                         return;
                     }
 
-                    chart.dataset.tooltipBound = 'true';
+                    const ctx = chart.ctx;
+                    const centerX = (chartArea.left + chartArea.right) / 2;
+                    const centerY = (chartArea.top + chartArea.bottom) / 2;
 
-                    const showTooltip = function (event) {
-                        const segment = event.currentTarget;
-                        label.textContent = segment.dataset.label || '';
-                        amount.textContent = `₹${segment.dataset.amount || 0}`;
-                        percentage.textContent = `${segment.dataset.percentage || 0}%`;
-                        dot.style.backgroundColor = segment.dataset.color || '#ef4444';
-                        tooltip.classList.add('is-visible');
-                        moveTooltip(event);
-                    };
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = pluginOptions.valueColor || '#0f172a';
+                    ctx.font = pluginOptions.valueFont || '700 18px Inter, sans-serif';
+                    ctx.fillText(String(pluginOptions.value), centerX, centerY - 6);
+                    ctx.fillStyle = pluginOptions.labelColor || '#64748b';
+                    ctx.font = pluginOptions.labelFont || '600 11px Inter, sans-serif';
+                    ctx.fillText(String(pluginOptions.label || ''), centerX, centerY + 16);
+                    ctx.restore();
+                },
+            });
 
-                    const moveTooltip = function (event) {
-                        const rect = chart.getBoundingClientRect();
-                        const x = event.clientX - rect.left;
-                        const y = event.clientY - rect.top;
+            adminDashboardChartExtensionsRegistered = true;
+        }
 
-                        tooltip.style.left = `${x}px`;
-                        tooltip.style.top = `${y}px`;
-                    };
+        function parseChartDataset(element, datasetKey, fallback = []) {
+            if (!element || !element.dataset || typeof element.dataset[datasetKey] !== 'string') {
+                return fallback;
+            }
 
-                    const hideTooltip = function () {
-                        tooltip.classList.remove('is-visible');
-                    };
+            try {
+                return JSON.parse(element.dataset[datasetKey]);
+            } catch (error) {
+                return fallback;
+            }
+        }
 
-                    chart.querySelectorAll('.fine-donut-segment').forEach(function (segment) {
-                        segment.addEventListener('mouseenter', showTooltip);
-                        segment.addEventListener('mousemove', moveTooltip);
-                        segment.addEventListener('mouseleave', hideTooltip);
-                    });
+        function destroyFineStatusChart() {
+            if (!adminDashboardCharts.fineStatus) {
+                return;
+            }
 
-                    chart.addEventListener('mouseleave', hideTooltip);
+            adminDashboardCharts.fineStatus.destroy();
+            adminDashboardCharts.fineStatus = null;
+        }
+
+        function destroyFineTrendChart(container) {
+            if (!container || !container._fineTrendChart) {
+                return;
+            }
+
+            container._fineTrendChart.destroy();
+            container._fineTrendChart = null;
+        }
+
+        function syncFineStatusLegendState() {
+            const chart = adminDashboardCharts.fineStatus;
+
+            document.querySelectorAll('[data-fine-legend-item]').forEach(function (item) {
+                const index = Number(item.dataset.fineLegendIndex || 0);
+                const isVisible = chart ? chart.getDataVisibility(index) : true;
+
+                item.classList.toggle('is-hidden', !isVisible);
+                item.setAttribute('aria-pressed', String(isVisible));
+            });
+        }
+
+        function bindFineStatusLegend() {
+            document.querySelectorAll('[data-fine-legend-item]').forEach(function (item) {
+                if (item.dataset.legendBound === 'true') {
+                    return;
+                }
+
+                item.dataset.legendBound = 'true';
+
+                const toggleLegendItem = function () {
+                    const chart = adminDashboardCharts.fineStatus;
+
+                    if (!chart) {
+                        return;
+                    }
+
+                    const index = Number(item.dataset.fineLegendIndex || 0);
+                    chart.toggleDataVisibility(index);
+                    chart.update();
+                    syncFineStatusLegendState();
+                };
+
+                item.addEventListener('click', toggleLegendItem);
+                item.addEventListener('keydown', function (event) {
+                    if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    toggleLegendItem();
                 });
-            };
+            });
+        }
 
-            const initFineTrendTooltips = function (root) {
-                root.querySelectorAll('[data-fine-trend]').forEach(function (chart) {
-                    if (chart.dataset.tooltipBound === 'true') {
-                        return;
-                    }
+        function initializeFineStatusChart() {
+            if (typeof Chart === 'undefined') {
+                return;
+            }
 
-                    const tooltip = chart.querySelector('[data-fine-trend-tooltip]');
-                    const series = tooltip?.querySelector('[data-trend-tooltip-series]');
-                    const month = tooltip?.querySelector('[data-trend-tooltip-month]');
-                    const amount = tooltip?.querySelector('[data-trend-tooltip-amount]');
-                    const dot = tooltip?.querySelector('[data-trend-tooltip-dot]');
+            const canvas = document.querySelector('[data-fine-status-chart]');
+            destroyFineStatusChart();
 
-                    if (!tooltip || !series || !month || !amount || !dot) {
-                        return;
-                    }
+            if (!canvas) {
+                return;
+            }
 
-                    chart.dataset.tooltipBound = 'true';
+            registerAdminDashboardChartExtensions();
 
-                    const showTooltip = function (event) {
-                        const point = event.currentTarget;
-                        series.textContent = point.dataset.trendSeries || '';
-                        month.textContent = point.dataset.trendMonth || '';
-                        amount.textContent = `₹${point.dataset.trendAmount || 0}`;
-                        dot.style.backgroundColor = point.dataset.trendColor || '#ef4444';
-                        tooltip.classList.add('is-visible');
-                        moveTooltip(event);
-                    };
+            const palette = getAdminDashboardPalette();
+            const labels = parseChartDataset(canvas, 'fineStatusLabels', []);
+            const values = parseChartDataset(canvas, 'fineStatusValues', []).map(function (value) {
+                return Number(value || 0);
+            });
+            const colors = parseChartDataset(canvas, 'fineStatusColors', []);
+            const total = canvas.dataset.fineStatusTotal || Number(values.reduce(function (sum, value) {
+                return sum + Number(value || 0);
+            }, 0)).toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
+            const caption = canvas.dataset.fineStatusCaption || 'Total Fine Value';
 
-                    const moveTooltip = function (event) {
-                        const rect = chart.getBoundingClientRect();
-                        const x = event.clientX - rect.left;
-                        const y = event.clientY - rect.top;
+            Chart.defaults.color = palette.text;
+            Chart.defaults.borderColor = palette.grid;
 
-                        tooltip.style.left = `${x}px`;
-                        tooltip.style.top = `${y}px`;
-                    };
-
-                    const hideTooltip = function () {
-                        tooltip.classList.remove('is-visible');
-                    };
-
-                    chart.querySelectorAll('.fine-generated-point, .fine-collected-point, .fine-waived-point').forEach(function (point) {
-                        point.addEventListener('mouseenter', showTooltip);
-                        point.addEventListener('mousemove', moveTooltip);
-                        point.addEventListener('mouseleave', hideTooltip);
-                    });
-
-                    chart.addEventListener('mouseleave', hideTooltip);
-                });
-            };
-
-            const clearFineTrendHistory = function () {
-                const url = new URL(window.location.href);
-
-                if (!url.searchParams.has('fine_period')) {
-                    return;
-                }
-
-                url.searchParams.delete('fine_period');
-                window.history.replaceState({}, '', url);
-            };
-
-            const refreshLucideIcons = function () {
-                if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                    window.lucide.createIcons();
-                }
-            };
-
-            const bindFineTrendCard = function (container) {
-                if (!container) {
-                    return;
-                }
-
-                initFineTrendTooltips(container);
-
-                const form = container.querySelector('[data-fine-period-form]');
-                const select = container.querySelector('[data-fine-period-select]');
-                const endpoint = form?.dataset.fineTrendUrl || container.dataset.fineTrendUrl;
-
-                if (!form || !select || !endpoint) {
-                    return;
-                }
-
-                const serverPeriod = select.dataset.serverPeriod || '12months';
-                form.reset();
-                select.value = serverPeriod;
-
-                if (select.dataset.ajaxBound === 'true') {
-                    return;
-                }
-
-                select.dataset.ajaxBound = 'true';
-
-                select.addEventListener('change', function () {
-                    const nextPeriod = select.value || '12months';
-
-                    if (container._fineTrendAbortController) {
-                        container._fineTrendAbortController.abort();
-                    }
-
-                    const controller = new AbortController();
-                    const requestUrl = new URL(endpoint, window.location.origin);
-                    requestUrl.searchParams.set('fine_period', nextPeriod);
-
-                    container._fineTrendAbortController = controller;
-                    container.classList.add('is-loading');
-                    select.disabled = true;
-
-                    fetch(requestUrl.toString(), {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
+            adminDashboardCharts.fineStatus = new Chart(canvas.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: palette.surface,
+                        borderWidth: 0,
+                        hoverOffset: 0,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    layout: {
+                        padding: 0,
+                    },
+                    onHover(event, elements, chart) {
+                        chart.canvas.style.cursor = elements.length ? 'pointer' : 'default';
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
                         },
-                        signal: controller.signal,
+                        tooltip: {
+                            position: 'cursor',
+                            backgroundColor: palette.tooltipBackground,
+                            borderColor: palette.tooltipBorder,
+                            borderWidth: 1,
+                            titleColor: palette.textStrong,
+                            bodyColor: palette.text,
+                            padding: 10,
+                            displayColors: true,
+                            callbacks: {
+                                label(context) {
+                                    const value = Number(context.raw || 0);
+                                    const total = values.reduce(function (sum, item) {
+                                        return sum + Number(item || 0);
+                                    }, 0);
+                                    const share = total > 0 ? Math.round((value / total) * 100) : 0;
+
+                                    return `${context.label}: ${formatFineCurrency(value)} (${share}%)`;
+                                },
+                            },
+                        },
+                        adminDoughnutCenterText: {
+                            value: `₹${total}`,
+                            label: caption,
+                            valueColor: palette.textStrong,
+                            labelColor: palette.textMuted,
+                        },
+                    },
+                },
+            });
+
+            bindFineStatusLegend();
+            syncFineStatusLegendState();
+        }
+
+        function initializeFineTrendChart(container) {
+            if (typeof Chart === 'undefined' || !container) {
+                return;
+            }
+
+            const canvas = container.querySelector('[data-fine-trend-chart]');
+            destroyFineTrendChart(container);
+
+            if (!canvas) {
+                return;
+            }
+
+            registerAdminDashboardChartExtensions();
+
+            const palette = getAdminDashboardPalette();
+            const labels = parseChartDataset(canvas, 'fineTrendLabels', []);
+            const axisLabels = parseChartDataset(canvas, 'fineTrendAxisLabels', labels);
+            const pending = parseChartDataset(canvas, 'fineTrendPending', []).map(function (value) {
+                return Number(value || 0);
+            });
+            const collected = parseChartDataset(canvas, 'fineTrendCollected', []).map(function (value) {
+                return Number(value || 0);
+            });
+            const waived = parseChartDataset(canvas, 'fineTrendWaived', []).map(function (value) {
+                return Number(value || 0);
+            });
+
+            Chart.defaults.color = palette.text;
+            Chart.defaults.borderColor = palette.grid;
+
+            container._fineTrendChart = new Chart(canvas.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Pending Fines',
+                        data: pending,
+                        borderColor: '#f87171',
+                        backgroundColor: 'rgba(248, 113, 113, 0.12)',
+                        fill: true,
+                        tension: 0.34,
+                        borderWidth: 4,
+                        pointRadius: 5,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#f87171',
+                        pointBorderColor: palette.surface,
+                        pointBorderWidth: 3,
+                    }, {
+                        label: 'Collected Fines',
+                        data: collected,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                        fill: true,
+                        tension: 0.34,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: palette.surface,
+                        pointBorderWidth: 3,
+                    }, {
+                        label: 'Waived Fines',
+                        data: waived,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                        fill: true,
+                        tension: 0.34,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#f59e0b',
+                        pointBorderColor: palette.surface,
+                        pointBorderWidth: 3,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 0,
+                            right: 0,
+                            bottom: 0,
+                            left: 0,
+                        },
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    onHover(event, elements, chart) {
+                        chart.canvas.style.cursor = elements.length ? 'pointer' : 'default';
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'center',
+                            labels: {
+                                color: palette.textStrong,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                padding: 22,
+                                boxWidth: 10,
+                                boxHeight: 10,
+                                font: {
+                                    size: 12,
+                                    weight: '600',
+                                },
+                            },
+                        },
+                        tooltip: {
+                            position: 'cursor',
+                            backgroundColor: palette.tooltipBackground,
+                            borderColor: palette.tooltipBorder,
+                            borderWidth: 1,
+                            titleColor: palette.textStrong,
+                            bodyColor: palette.text,
+                            padding: 10,
+                            displayColors: true,
+                            callbacks: {
+                                title(context) {
+                                    const point = Array.isArray(context) ? context[0] : null;
+                                    return point ? labels[point.dataIndex] || '' : '';
+                                },
+                                label(context) {
+                                    return `${context.dataset.label}: ${formatFineCurrency(context.parsed.y)}`;
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: palette.textStrong,
+                                font: {
+                                    size: 11,
+                                    weight: '600',
+                                },
+                                maxTicksLimit: 6,
+                                callback(value) {
+                                    return `₹${Number(value || 0).toLocaleString('en-IN')}`;
+                                },
+                            },
+                            grid: {
+                                color: palette.grid,
+                            },
+                            border: {
+                                display: false,
+                            },
+                        },
+                        x: {
+                            offset: false,
+                            bounds: 'data',
+                            ticks: {
+                                color: palette.textStrong,
+                                font: {
+                                    size: 11,
+                                    weight: '600',
+                                },
+                                align: 'inner',
+                                autoSkip: false,
+                                maxRotation: 0,
+                                padding: 0,
+                                callback(value, index) {
+                                    return axisLabels[index] ?? labels[index] ?? '';
+                                },
+                            },
+                            grid: {
+                                color: palette.grid,
+                                offset: false,
+                            },
+                            border: {
+                                display: false,
+                            },
+                        },
+                    },
+                },
+            });
+        }
+
+        function initializeAdminDashboardThemeObserver() {
+            if (adminDashboardThemeObserverInitialized || !document.body) {
+                return;
+            }
+
+            adminDashboardThemeMode = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+
+            const observer = new MutationObserver(function () {
+                const nextThemeMode = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+
+                if (nextThemeMode === adminDashboardThemeMode) {
+                    return;
+                }
+
+                adminDashboardThemeMode = nextThemeMode;
+                initializeFineStatusChart();
+                document.querySelectorAll('[data-fine-trend-card]').forEach(initializeFineTrendChart);
+            });
+
+            observer.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['class'],
+            });
+
+            adminDashboardThemeObserverInitialized = true;
+        }
+
+        function clearFineTrendHistory() {
+            const url = new URL(window.location.href);
+
+            if (!url.searchParams.has('fine_period')) {
+                return;
+            }
+
+            url.searchParams.delete('fine_period');
+            window.history.replaceState({}, '', url);
+        }
+
+        function refreshLucideIcons() {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+        }
+
+        function bindFineTrendCard(container) {
+            if (!container) {
+                return;
+            }
+
+            initializeFineTrendChart(container);
+
+            const form = container.querySelector('[data-fine-period-form]');
+            const select = container.querySelector('[data-fine-period-select]');
+            const endpoint = form?.dataset.fineTrendUrl || container.dataset.fineTrendUrl;
+
+            if (!form || !select || !endpoint) {
+                return;
+            }
+
+            const serverPeriod = select.dataset.serverPeriod || '12months';
+            form.reset();
+            select.value = serverPeriod;
+
+            if (select.dataset.ajaxBound === 'true') {
+                return;
+            }
+
+            select.dataset.ajaxBound = 'true';
+
+            select.addEventListener('change', function () {
+                const nextPeriod = select.value || '12months';
+
+                if (container._fineTrendAbortController) {
+                    container._fineTrendAbortController.abort();
+                }
+
+                const controller = new AbortController();
+                const requestUrl = new URL(endpoint, window.location.origin);
+                requestUrl.searchParams.set('fine_period', nextPeriod);
+
+                container._fineTrendAbortController = controller;
+                container.classList.add('is-loading');
+                select.disabled = true;
+
+                fetch(requestUrl.toString(), {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    signal: controller.signal,
+                })
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('Failed to load fine trend data.');
+                        }
+
+                        return response.json();
                     })
-                        .then(function (response) {
-                            if (!response.ok) {
-                                throw new Error('Failed to load fine trend data.');
-                            }
+                    .then(function (payload) {
+                        if (!payload || typeof payload.html !== 'string') {
+                            throw new Error('Invalid fine trend response.');
+                        }
 
-                            return response.json();
-                        })
-                        .then(function (payload) {
-                            if (!payload || typeof payload.html !== 'string') {
-                                throw new Error('Invalid fine trend response.');
-                            }
+                        destroyFineTrendChart(container);
+                        container.innerHTML = payload.html;
+                        container.classList.remove('is-loading');
+                        container._fineTrendAbortController = null;
+                        refreshLucideIcons();
+                        bindFineTrendCard(container);
+                    })
+                    .catch(function (error) {
+                        container.classList.remove('is-loading');
+                        container._fineTrendAbortController = null;
 
-                            container.innerHTML = payload.html;
-                            container.classList.remove('is-loading');
-                            container._fineTrendAbortController = null;
-                            refreshLucideIcons();
-                            bindFineTrendCard(container);
-                        })
-                        .catch(function (error) {
-                            container.classList.remove('is-loading');
-                            container._fineTrendAbortController = null;
+                        if (error.name === 'AbortError') {
+                            return;
+                        }
 
-                            if (error.name === 'AbortError') {
-                                return;
-                            }
+                        select.disabled = false;
 
-                            select.disabled = false;
+                        if (typeof form.requestSubmit === 'function') {
+                            form.requestSubmit();
+                            return;
+                        }
 
-                            if (typeof form.requestSubmit === 'function') {
-                                form.requestSubmit();
-                                return;
-                            }
+                        form.submit();
+                    });
+            });
+        }
 
-                            form.submit();
-                        });
-                });
-            };
-
+        document.addEventListener('DOMContentLoaded', function () {
             clearFineTrendHistory();
-            initFineChartTooltips(document);
+            initializeFineStatusChart();
             document.querySelectorAll('[data-fine-trend-card]').forEach(bindFineTrendCard);
+            initializeAdminDashboardThemeObserver();
         });
     </script>
 @endpush

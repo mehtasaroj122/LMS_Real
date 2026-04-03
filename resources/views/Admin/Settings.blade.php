@@ -33,6 +33,7 @@
 @endphp
 
 @push('styles')
+    @include('shared.action-feedback.styles')
     <style>
         :root {
             --primary-color: #2563eb;
@@ -636,6 +637,13 @@
             padding-bottom: 0;
             border-bottom: 1px solid var(--card-border);
             overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .settings-tabs::-webkit-scrollbar {
+            height: 0;
         }
 
         .tab-btn {
@@ -651,7 +659,8 @@
             font-weight: 600;
             cursor: pointer;
             position: relative;
-            top: 1px;
+            top: 0;
+            margin-bottom: -1px;
             white-space: nowrap;
             transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
         }
@@ -1196,9 +1205,30 @@
             </div>
         </div>
     </div>
+
+    @include('shared.action-feedback.markup', [
+        'actionFeedbackConfig' => [
+            'confirm' => [
+                'modalId' => 'adminSettingsConfirmModal',
+                'iconId' => 'adminSettingsConfirmIcon',
+                'titleId' => 'adminSettingsConfirmTitle',
+                'messageId' => 'adminSettingsConfirmMessage',
+                'detailId' => 'adminSettingsConfirmDetail',
+                'submitButtonId' => 'adminSettingsConfirmSubmitBtn',
+                'confirmLabel' => 'Continue',
+                'defaultTitle' => 'Confirm Action',
+                'defaultMessage' => 'Are you sure you want to continue?',
+            ],
+            'toast' => [
+                'containerId' => 'adminSettingsToastContainer',
+                'liveRegionId' => 'adminSettingsLiveRegion',
+            ],
+        ],
+    ])
 @endsection
 
 @push('scripts')
+    @include('shared.action-feedback.scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const settingsPage = document.getElementById('adminSettingsPage');
@@ -1212,6 +1242,24 @@
             const sections = Array.from(settingsPage.querySelectorAll('[data-settings-section]'));
             const tabButtons = Array.from(settingsPage.querySelectorAll('.tab-btn'));
             const sectionControllers = new Map();
+            const feedbackUI = typeof window.ActionFeedbackUI === 'function'
+                ? new window.ActionFeedbackUI({
+                    confirm: {
+                        modalId: 'adminSettingsConfirmModal',
+                        iconId: 'adminSettingsConfirmIcon',
+                        titleId: 'adminSettingsConfirmTitle',
+                        messageId: 'adminSettingsConfirmMessage',
+                        detailId: 'adminSettingsConfirmDetail',
+                        submitButtonId: 'adminSettingsConfirmSubmitBtn',
+                        confirmLabel: 'Continue',
+                    },
+                    toast: {
+                        containerId: 'adminSettingsToastContainer',
+                        liveRegionId: 'adminSettingsLiveRegion',
+                    },
+                    setButtonBusy: (button, loading, label) => setButtonLoading(button, loading, label),
+                })
+                : null;
 
             const profilePhotoPreview = document.getElementById('profilePhotoPreview');
             const profilePhotoInput = document.getElementById('profile-photo');
@@ -2525,6 +2573,10 @@
             }
 
             function initializeToastSystem() {
+                if (feedbackUI) {
+                    return;
+                }
+
                 if (document.getElementById('toast-container')) {
                     return;
                 }
@@ -2543,13 +2595,39 @@
             }
 
             function showToast(message, type = 'info', duration = 4200) {
+                const payload = typeof message === 'object' && message !== null
+                    ? {
+                        timeout: duration,
+                        ...message,
+                    }
+                    : {
+                        type,
+                        title: {
+                            success: 'Success',
+                            error: 'Notice',
+                            warning: 'Warning',
+                            info: 'Notice',
+                        }[type] ?? 'Notice',
+                        message: String(message ?? ''),
+                        timeout: duration,
+                    };
+
+                if (feedbackUI) {
+                    feedbackUI.showToast(payload);
+                    return;
+                }
+
                 const icons = {
                     success: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
                     error: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+                    warning: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
                     info: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
                 };
 
-                const colors = { success: '#10b981', error: '#ef4444', info: '#3b82f6' };
+                const normalizedType = ['success', 'error', 'warning', 'info'].includes(payload.type)
+                    ? payload.type
+                    : 'info';
+                const colors = { success: '#10b981', error: '#ef4444', warning: '#f59e0b', info: '#3b82f6' };
                 const container = document.getElementById('toast-container');
 
                 if (!container) {
@@ -2559,25 +2637,25 @@
                 const toast = document.createElement('div');
                 toast.style.cssText = `
                     min-width:280px;max-width:360px;padding:14px 16px;border-radius:14px;
-                    background:${colors[type] ?? colors.info};color:white;display:flex;align-items:center;gap:10px;
+                    background:${colors[normalizedType] ?? colors.info};color:white;display:flex;align-items:center;gap:10px;
                     box-shadow:0 16px 28px -18px rgba(15,23,42,.6);font-size:.9rem;pointer-events:auto;
                     animation:slideInToast .2s ease-out forwards;
                 `;
 
                 toast.innerHTML = `
-                    ${icons[type] ?? icons.info}
-                    <span style="flex:1;">${message}</span>
+                    ${icons[normalizedType] ?? icons.info}
+                    <span style="flex:1;">${payload.message ?? ''}</span>
                     <button type="button" style="border:none;background:transparent;color:inherit;cursor:pointer;font-size:1rem;line-height:1;">×</button>
                 `;
 
                 toast.querySelector('button')?.addEventListener('click', () => toast.remove());
                 container.appendChild(toast);
 
-                if (duration > 0) {
+                if (payload.timeout > 0) {
                     window.setTimeout(() => {
                         toast.style.animation = 'slideOutToast .2s ease-in forwards';
                         window.setTimeout(() => toast.remove(), 220);
-                    }, duration);
+                    }, payload.timeout);
                 }
             }
         });
