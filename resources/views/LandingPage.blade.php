@@ -1,10 +1,84 @@
+@php
+    $brandName = 'Library Management System';
+    $contactEmail = 'librarymanagementsystem270@gmail.com';
+
+    $heroProofs = [
+        'Role-Based Portals',
+        'Automated Fines',
+        'Secure Access & Audit Logs',
+    ];
+
+    $problems = [
+        'Lost or untracked books make inventory harder to trust.',
+        'Delayed approvals create confusion between students and staff.',
+        'Manual fine follow-up leads to missed payments and inconsistent records.',
+    ];
+
+    $features = [
+        ['icon' => 'books', 'title' => 'Book Catalog Control', 'description' => 'Keep your entire inventory organized with categories, ISBNs, shelf numbers, copy counts, condition tracking, and live availability.'],
+        ['icon' => 'students', 'title' => 'Student Records & Privileges', 'description' => 'Manage student accounts, departments, semesters, status changes, and borrowing privileges from one consistent workflow.'],
+        ['icon' => 'requests', 'title' => 'Request Tracking', 'description' => 'Never lose track of pending, approved, issued, returned, rejected, and cancelled book requests.'],
+        ['icon' => 'workflow', 'title' => 'Issue & Return Workflow', 'description' => 'Help staff issue and return books quickly with clear steps, due dates, condition handling, and request fulfillment.'],
+        ['icon' => 'fines', 'title' => 'Fine & Payment Management', 'description' => 'Automatically calculate overdue fines, apply penalties, and manage paid or waived records with better control.'],
+        ['icon' => 'notifications', 'title' => 'Notifications & Reminders', 'description' => 'Keep users informed with in-app notifications, queued emails, overdue reminders, and request status updates.'],
+    ];
+
+    $roles = [
+        ['icon' => 'admin', 'title' => 'Admin', 'summary' => 'Full system control and visibility.', 'points' => ['Manage users, students, reports, and settings.', 'Oversee account lockouts, policies, and audit activity.', 'Monitor fines, requests, and system-wide operational health.']],
+        ['icon' => 'staff', 'title' => 'Staff', 'summary' => 'Faster day-to-day library operations.', 'points' => ['Process requests and fulfill approved circulation quickly.', 'Issue and return books with structured workflows.', 'Handle fines, reminders, and inventory updates efficiently.']],
+        ['icon' => 'student', 'title' => 'Student', 'summary' => 'A clearer self-service library experience.', 'points' => ['Search books and place requests from the student portal.', 'Track due dates, active books, fines, and notifications.', 'Manage profile details and stay informed about library activity.']],
+    ];
+
+    $workflowSteps = [
+        ['icon' => 'login', 'title' => 'Login', 'description' => 'Users enter the portal matched to their role and permissions.'],
+        ['icon' => 'search', 'title' => 'Search or Request', 'description' => 'Students browse available books and submit requests when needed.'],
+        ['icon' => 'approve', 'title' => 'Approve or Reject', 'description' => 'Staff or admins review pending requests and update status clearly.'],
+        ['icon' => 'issue', 'title' => 'Issue Book', 'description' => 'Books are issued with due dates, student limits, and activity tracking.'],
+        ['icon' => 'return', 'title' => 'Return Book', 'description' => 'Returns update inventory, condition, and request lifecycle automatically.'],
+        ['icon' => 'fine-notification', 'title' => 'Fine / Notification', 'description' => 'Overdues, payments, waivers, and reminders keep everyone informed.'],
+    ];
+
+    $previewCards = [
+        ['kind' => 'admin', 'title' => 'Admin Dashboard', 'subtitle' => 'Books, users, fines, and reports', 'caption' => 'A clean overview of the system with the numbers and signals that matter most.'],
+        ['kind' => 'staff', 'title' => 'Staff Workspace', 'subtitle' => 'Requests, circulation, and fine handling', 'caption' => 'A focused workspace for day-to-day actions without extra noise.'],
+        ['kind' => 'student', 'title' => 'Student Portal', 'subtitle' => 'Search, requests, books, and reminders', 'caption' => 'A simple self-service view for finding books and tracking library activity.'],
+    ];
+
+    $securityPoints = [
+        ['icon' => 'security', 'title' => 'Email Verification & OTP Signup', 'description' => 'Student registration is backed by OTP verification and email confirmation for stronger account trust.'],
+        ['icon' => 'lock', 'title' => 'Rate Limiting & Account Lock Controls', 'description' => 'Login attempts are rate limited and admins get dedicated account lock management tools.'],
+        ['icon' => 'portal', 'title' => 'Role-Based Access', 'description' => 'Admin, Staff, and Student portals keep the right actions in the right hands.'],
+        ['icon' => 'audit', 'title' => 'Audit Trails & Scheduled Reminders', 'description' => 'Activity logs, overdue reminders, and fine reminder jobs support accountability over time.'],
+    ];
+
+    $uspPoints = [
+        ['icon' => 'portal', 'title' => 'Dedicated Portals', 'description' => 'Give admins, staff, and students focused interfaces instead of one crowded dashboard.'],
+        ['icon' => 'automation', 'title' => 'Fine Automation', 'description' => 'Apply overdue rules, caps, and penalties through configurable library settings.'],
+        ['icon' => 'notifications', 'title' => 'Workflow-Aware Alerts', 'description' => 'Notify users when requests are processed, books are issued or returned, and fines need attention.'],
+        ['icon' => 'security', 'title' => 'Stronger Account Protection', 'description' => 'Combine OTP, verification, lockouts, password resets, and audit logging in one platform.'],
+    ];
+
+    $useCases = [
+        ['icon' => 'college', 'title' => 'College Libraries', 'description' => 'Manage departments, semesters, large student populations, and higher request volume with better visibility.'],
+        ['icon' => 'school', 'title' => 'School Libraries', 'description' => 'Simplify borrowing, overdue follow-up, and day-to-day circulation for school staff and students.'],
+        ['icon' => 'department', 'title' => 'Department Libraries', 'description' => 'Support focused collections with staff efficiency and admin oversight across smaller academic units.'],
+    ];
+@endphp
+
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
-    <title>LibraFlow | Smart Library Management System</title>
+    <meta name="description" content="A secure, role-based Library Management System for institutions to manage books, students, requests, fines, notifications, and library workflows from one platform.">
+    <meta property="og:title" content="{{ $brandName }} | Role-Based Library Platform">
+    <meta property="og:description" content="Manage books, students, requests, fines, and notifications in one secure system built for institutions.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ asset('favicon.ico') }}">
+    <title>{{ $brandName }} | Secure, Role-Based Library Platform</title>
+
     <script>
         (() => {
             try {
@@ -14,503 +88,148 @@
 
                 document.documentElement.classList.toggle('dark', isDark);
             } catch (error) {
-                // Keep the landing page on the default light theme if storage access fails.
+                document.documentElement.classList.remove('dark');
             }
         })();
     </script>
-    @vite(['resources/js/app.js'])
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        };
-    </script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        /* Custom Properties & Transitions */
-:root {
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.3);
-}
-
-.dark {
-    --glass-bg: rgba(15, 23, 42, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.05);
-}
-
-* {
-    font-family: 'Inter', sans-serif;
-}
-
-/* Glassmorphism utility */
-.glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-}
-
-/* Navbar Scroll Effect */
-#navbar.scrolled {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    height: 70px;
-    border-color: var(--glass-border);
-    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-}
-
-/* Nav Link Animation */
-.nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(to right, #2563eb, #9333ea);
-    transition: width 0.3s ease;
-}
-
-.nav-link:hover::after {
-    width: 100%;
-}
-
-/* Reveal Animations */
-.reveal {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.reveal.active {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Floating Animations */
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-}
-
-.animate-float { animation: float 6s ease-in-out infinite; }
-.animate-float-delayed { animation: float 6s ease-in-out infinite 2s; }
-
-/* Feature Card Hover */
-.feature-card {
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.feature-card:hover {
-    transform: translateY(-10px) rotateX(5deg) rotateY(2deg);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-}
-
-/* Add to previous CSS */
-
-/* Grid Pattern Background for sections */
-#features {
-    background-image: radial-gradient(#cbd5e1 0.5px, transparent 0.5px);
-    background-size: 24px 24px;
-}
-.dark #features {
-    background-image: radial-gradient(#1e293b 1px, transparent 1px);
-}
-
-/* Enhanced Reveal Delays */
-.delay-100 { transition-delay: 100ms; }
-.delay-200 { transition-delay: 200ms; }
-.delay-300 { transition-delay: 300ms; }
-
-/* Timeline Hover Effect */
-.how-it-works-step:hover .step-number {
-    transform: scale(1.1) rotate(5deg);
-    filter: brightness(1.2);
-}
-
-/* Smooth Icon Hover */
-.feature-card i {
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.feature-card:hover i {
-    transform: scale(1.2) translateY(-2px);
-}
-
-/* Accessibility: Focus visible */
-:focus-visible {
-    outline: 2px solid #2563eb;
-    outline-offset: 4px;
-}
+        :root { color-scheme: light; --landing-bg: #f5f7fb; --landing-surface: rgba(255, 255, 255, 0.78); --landing-surface-strong: rgba(255, 255, 255, 0.92); --landing-border: rgba(148, 163, 184, 0.24); --landing-shadow: 0 24px 64px -40px rgba(15, 23, 42, 0.45); --landing-text: #0f172a; --landing-muted: #475569; --landing-muted-soft: #64748b; --landing-accent: #1d4ed8; --landing-accent-strong: #0f766e; --landing-accent-soft: rgba(29, 78, 216, 0.12); }
+        .dark { color-scheme: dark; --landing-bg: #020617; --landing-surface: rgba(15, 23, 42, 0.72); --landing-surface-strong: rgba(15, 23, 42, 0.88); --landing-border: rgba(148, 163, 184, 0.18); --landing-shadow: 0 28px 72px -46px rgba(2, 6, 23, 0.85); --landing-text: #e2e8f0; --landing-muted: #cbd5e1; --landing-muted-soft: #94a3b8; --landing-accent: #60a5fa; --landing-accent-strong: #2dd4bf; --landing-accent-soft: rgba(96, 165, 250, 0.16); }
+        body { min-height: 100vh; font-family: 'Figtree', sans-serif; background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.15), transparent 28%), radial-gradient(circle at 85% 18%, rgba(13, 148, 136, 0.16), transparent 24%), linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0)), var(--landing-bg); color: var(--landing-text); }
+        .dark body { background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 28%), radial-gradient(circle at 85% 18%, rgba(45, 212, 191, 0.16), transparent 24%), linear-gradient(180deg, rgba(15, 23, 42, 0.4), rgba(2, 6, 23, 0)), var(--landing-bg); }
+        .landing-surface { background: var(--landing-surface); border: 1px solid var(--landing-border); box-shadow: var(--landing-shadow); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+        .landing-section-grid { background-image: linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px); background-size: 34px 34px; }
+        .landing-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.625rem; border-radius: 999px; padding: 0.9rem 1.35rem; font-size: 0.95rem; font-weight: 700; line-height: 1; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease; }
+        .landing-btn:hover { transform: translateY(-1px); }
+        .landing-btn:active { transform: translateY(0); }
+        .landing-btn--primary { background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%); color: #ffffff; box-shadow: 0 18px 34px -20px rgba(29, 78, 216, 0.75); }
+        .landing-btn--secondary { background: rgba(15, 23, 42, 0.04); color: var(--landing-text); border: 1px solid var(--landing-border); }
+        .dark .landing-btn--secondary { background: rgba(148, 163, 184, 0.08); }
+        .landing-btn--ghost { background: transparent; color: var(--landing-text); border: 1px dashed rgba(29, 78, 216, 0.32); }
+        .landing-chip { display: inline-flex; align-items: center; gap: 0.55rem; border-radius: 999px; border: 1px solid rgba(29, 78, 216, 0.16); background: rgba(255, 255, 255, 0.72); padding: 0.7rem 0.95rem; font-size: 0.875rem; font-weight: 600; color: var(--landing-muted); }
+        .dark .landing-chip { background: rgba(15, 23, 42, 0.76); }
+        .landing-kicker { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 999px; background: rgba(29, 78, 216, 0.12); padding: 0.42rem 0.8rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--landing-accent); }
+        .dark .landing-kicker { background: rgba(96, 165, 250, 0.16); }
+        .landing-card-hover { transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; }
+        .landing-card-hover:hover { transform: translateY(-4px); box-shadow: 0 28px 72px -48px rgba(15, 23, 42, 0.7); border-color: rgba(29, 78, 216, 0.24); }
+        .dark .landing-card-hover:hover { box-shadow: 0 28px 72px -48px rgba(2, 6, 23, 0.95); border-color: rgba(96, 165, 250, 0.28); }
+        .mini-window, .preview-canvas { position: relative; overflow: hidden; border-radius: 1.55rem; border: 1px solid rgba(148, 163, 184, 0.24); background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 34%), linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(248, 250, 252, 0.98)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.68), var(--landing-shadow); transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease; }
+        .mini-window::after, .preview-canvas::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid rgba(255, 255, 255, 0.42); pointer-events: none; }
+        .dark .mini-window, .dark .preview-canvas { background: radial-gradient(circle at top right, rgba(96, 165, 250, 0.16), transparent 36%), linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.82)); box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08), var(--landing-shadow); }
+        .mini-window__toolbar, .preview-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; border-bottom: 1px solid var(--landing-border); background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.56)); padding: 0.9rem 1.05rem; }
+        .dark .mini-window__toolbar, .dark .preview-toolbar { background: linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7)); }
+        .mini-window__dots, .preview-dots { display: inline-flex; gap: 0.35rem; }
+        .mini-window__dots span, .preview-dots span { height: 0.55rem; width: 0.55rem; border-radius: 999px; background: rgba(148, 163, 184, 0.58); }
+        .mini-window__body, .preview-canvas__body { display: grid; gap: 0.8rem; padding: 0.95rem; }
+        .mini-window__stat, .preview-stat, .preview-list-row { border-radius: 1rem; border: 1px solid rgba(148, 163, 184, 0.16); background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.7)); padding: 0.85rem 0.95rem; box-shadow: 0 18px 30px -28px rgba(15, 23, 42, 0.32); }
+        .dark .mini-window__stat, .dark .preview-stat, .dark .preview-list-row { background: linear-gradient(180deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.72)); box-shadow: 0 18px 30px -28px rgba(2, 6, 23, 0.72); }
+        .mini-window__stat strong, .preview-stat strong { display: block; font-size: 0.98rem; color: var(--landing-text); }
+        .mini-window__stat span, .preview-stat span, .preview-caption { display: block; margin-top: 0.2rem; font-size: 0.78rem; color: var(--landing-muted-soft); }
+        .preview-metric-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .preview-chart { height: 8rem; border-radius: 1rem; border: 1px solid rgba(148, 163, 184, 0.16); background: linear-gradient(180deg, rgba(29, 78, 216, 0.1), rgba(29, 78, 216, 0)), rgba(255, 255, 255, 0.8); padding: 0.85rem; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42); }
+        .dark .preview-chart { background: linear-gradient(180deg, rgba(96, 165, 250, 0.16), rgba(96, 165, 250, 0)), rgba(30, 41, 59, 0.78); box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.08); }
+        .preview-chart__bars { display: flex; height: 100%; align-items: end; gap: 0.55rem; }
+        .preview-chart__bars span { flex: 1 1 0; border-radius: 999px 999px 0.55rem 0.55rem; background: linear-gradient(180deg, rgba(29, 78, 216, 0.88), rgba(13, 148, 136, 0.78)); }
+        .preview-pill { display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 999px; border: 1px solid rgba(29, 78, 216, 0.12); background: rgba(29, 78, 216, 0.08); padding: 0.36rem 0.68rem; font-size: 0.7rem; font-weight: 700; color: var(--landing-accent); }
+        .dark .preview-pill { border-color: rgba(96, 165, 250, 0.18); background: rgba(96, 165, 250, 0.12); }
+        .landing-card-hover:hover .preview-canvas { transform: translateY(-2px) scale(1.012); border-color: rgba(29, 78, 216, 0.2); box-shadow: 0 28px 56px -42px rgba(15, 23, 42, 0.42); }
+        .dark .landing-card-hover:hover .preview-canvas { border-color: rgba(96, 165, 250, 0.24); box-shadow: 0 28px 56px -42px rgba(2, 6, 23, 0.88); }
+        .workflow-grid { position: relative; }
+        @media (min-width: 1024px) { .workflow-grid::before { content: ''; position: absolute; top: 3rem; left: 6%; right: 6%; height: 1px; background: linear-gradient(90deg, rgba(29, 78, 216, 0), rgba(29, 78, 216, 0.28), rgba(13, 148, 136, 0.28), rgba(29, 78, 216, 0)); } }
+        .workflow-step-index { display: inline-flex; height: 2.8rem; width: 2.8rem; align-items: center; justify-content: center; border-radius: 999px; background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%); color: #ffffff; font-weight: 800; box-shadow: 0 14px 28px -18px rgba(29, 78, 216, 0.72); }
+        .theme-icon-light { display: none; }
+        .dark .theme-icon-light { display: inline-flex; }
+        .dark .theme-icon-dark { display: none; }
+        .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .reveal.is-visible { opacity: 1; transform: translateY(0); }
+        .delay-100 { transition-delay: 0.08s; }
+        .delay-200 { transition-delay: 0.16s; }
+        #site-nav.is-scrolled .landing-surface { background: var(--landing-surface-strong); box-shadow: 0 24px 50px -38px rgba(15, 23, 42, 0.72); }
+        #scroll-progress { transform-origin: left center; transform: scaleX(0); }
+        @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0ms !important; scroll-behavior: auto !important; } .reveal { opacity: 1; transform: none; } #scroll-progress { transition: none !important; } }
     </style>
 </head>
-<body class="transition-colors duration-300 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+<body class="antialiased">
     @include('shared.library-branding.bootstrap')
 
-    <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-blue-600 to-purple-600 z-[100] transition-all duration-150"></div>
+    <div id="scroll-progress" class="fixed left-0 top-0 z-[70] h-1 w-full bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500"></div>
 
-    <nav id="navbar" class="fixed z-50 w-full transition-all duration-300 border-b border-transparent">
-        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <div class="flex items-center gap-2 cursor-pointer group">
-                    <x-logo size="sm" :lazy="false" />
-                    <span class="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">LibraFlow</span>
-                </div>
+    @include('landing.partials.nav', ['brandName' => $brandName])
 
-                <div class="items-center hidden space-x-8 md:flex">
-                    <a href="#home" class="relative py-1 nav-link">Home</a>
-                    <a href="#features" class="relative py-1 nav-link">Features</a>
-                    <a href="#modules" class="relative py-1 nav-link">How It Works</a>
-                    <a href="#pricing" class="relative py-1 nav-link">Pricing</a>
-                    <button id="theme-toggle" class="p-2 transition-colors rounded-full hover:bg-slate-200 dark:hover:bg-slate-800">
-                        <i data-lucide="sun" class="hidden dark:block"></i>
-                        <i data-lucide="moon" class="block dark:hidden"></i>
-                    </button>
-                </div>
+    <main>
+        @include('landing.partials.hero', ['heroProofs' => $heroProofs])
+        @include('landing.partials.problem-solution', ['problems' => $problems])
+        @include('landing.partials.features', ['features' => $features])
+        @include('landing.partials.roles', ['roles' => $roles])
+        @include('landing.partials.workflow', ['workflowSteps' => $workflowSteps])
+        @include('landing.partials.previews', ['previewCards' => $previewCards])
+        @include('landing.partials.security', ['securityPoints' => $securityPoints])
+        @include('landing.partials.why-choose', ['uspPoints' => $uspPoints])
+        @include('landing.partials.use-cases', ['useCases' => $useCases])
+        @include('landing.partials.final-cta')
+    </main>
 
-                <div class="flex items-center gap-4">
-                    <a href="{{ route('login') }}" class="px-5 py-2 transition-all border rounded-lg border-blue-600/50 hover:bg-blue-600/10 hover:scale-105 active:scale-95">Login</a>
-                    <a href="{{ route('register') }}" class="px-6 py-2 font-semibold text-white transition-all rounded-full shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 active:scale-95">Sign Up</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <section id="home" class="relative pt-32 pb-20 overflow-hidden">
-        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full"></div>
-        <div class="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-purple-500/10 blur-[120px] rounded-full"></div>
-        
-        <div class="flex flex-col items-center gap-12 px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 lg:flex-row">
-            <div class="flex-1 reveal">
-                <h1 class="mb-6 text-5xl font-extrabold leading-tight lg:text-7xl">
-                    Smart Library <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-400">Management</span> Made Simple
-                </h1>
-                <p class="max-w-xl mb-8 text-lg text-slate-600 dark:text-slate-400">
-                    Manage books, students, borrowing, and reports with a fast, secure, cloud-based system. Designed for the modern academic ecosystem.
-                </p>
-                <div class="flex flex-wrap gap-4">
-                    <a href="{{ route('register') }}" class="px-8 py-4 font-bold text-white transition-all shadow-xl bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:shadow-blue-500/40 hover:-translate-y-1">Get Started Now</a>
-                    <button class="flex items-center gap-2 px-8 py-4 font-bold transition-all border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <i data-lucide="play-circle"></i> View Demo
-                    </button>
-                </div>
-            </div>
-
-            <div class="relative flex-1 delay-200 reveal">
-                <div class="relative z-10 p-4 border shadow-2xl glass-card rounded-2xl border-white/20">
-                    <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=1000" alt="Dashboard Preview" class="shadow-inner rounded-xl">
-                    
-                    <div class="absolute p-4 shadow-xl -top-6 -right-6 glass-card rounded-xl animate-float">
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Total Books</p>
-                        <p class="text-2xl font-bold counter" data-target="12840">0</p>
-                    </div>
-                    <div class="absolute p-4 shadow-xl -bottom-8 -left-8 glass-card rounded-xl animate-float-delayed">
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Active Members</p>
-                        <p class="text-2xl font-bold counter" data-target="3250">0</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-   <section id="features" class="relative py-24 overflow-hidden bg-white dark:bg-slate-950">
-    <div class="relative z-10 px-4 mx-auto max-w-7xl">
-        <div class="max-w-3xl mx-auto mb-20 text-center reveal">
-            <h2 class="mb-3 text-sm font-bold tracking-widest text-indigo-600 uppercase">Powerful Tools</h2>
-            <h3 class="mb-6 text-4xl font-extrabold lg:text-5xl dark:text-white">Everything you need to run a modern library</h3>
-            <p class="text-lg text-slate-600 dark:text-slate-400">Powerful tools designed to automate daily operations, reduce manual work, and give you complete control over your library ecosystem.</p>
-        </div>
-
-        <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div class="p-8 border feature-card glass-card rounded-3xl border-slate-200 dark:border-white/10 reveal">
-                <div class="flex items-center justify-center w-12 h-12 mb-6 text-blue-600 bg-blue-500/10 rounded-xl">
-                    <i data-lucide="book-copy"></i>
-                </div>
-                <h4 class="mb-4 text-xl font-bold dark:text-white">Book Management</h4>
-                <ul class="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Bulk import via ISBN/CSV</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Category & Author tracking</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Digital asset & PDF storage</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Real-time availability status</li>
-                </ul>
-            </div>
-
-            <div class="p-8 delay-100 border feature-card glass-card rounded-3xl border-slate-200 dark:border-white/10 reveal">
-                <div class="flex items-center justify-center w-12 h-12 mb-6 text-purple-600 bg-purple-500/10 rounded-xl">
-                    <i data-lucide="users"></i>
-                </div>
-                <h4 class="mb-4 text-xl font-bold dark:text-white">Member Records</h4>
-                <ul class="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Digital ID cards & history</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Student & Staff profiles</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Fine history tracking</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Role-based data security</li>
-                </ul>
-            </div>
-
-            <div class="p-8 delay-200 border feature-card glass-card rounded-3xl border-slate-200 dark:border-white/10 reveal">
-                <div class="flex items-center justify-center w-12 h-12 mb-6 text-teal-600 bg-teal-500/10 rounded-xl">
-                    <i data-lucide="refresh-cw"></i>
-                </div>
-                <h4 class="mb-4 text-xl font-bold dark:text-white">Issue & Return System</h4>
-                <ul class="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> One-click workflow</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Auto due-date calculation</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Real-time overdue tracking</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Detailed transaction logs</li>
-                </ul>
-            </div>
-
-            <div class="p-8 border feature-card glass-card rounded-3xl border-slate-200 dark:border-white/10 reveal">
-                <div class="flex items-center justify-center w-12 h-12 mb-6 text-orange-600 bg-orange-500/10 rounded-xl">
-                    <i data-lucide="bar-chart-3"></i>
-                </div>
-                <h4 class="mb-4 text-xl font-bold dark:text-white">Smart Analytics</h4>
-                <ul class="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Popular category insights</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> PDF/Excel report export</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Monthly usage stats</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Fine summary dashboards</li>
-                </ul>
-            </div>
-
-            <div class="p-8 delay-100 border feature-card glass-card rounded-3xl border-slate-200 dark:border-white/10 reveal">
-                <div class="flex items-center justify-center w-12 h-12 mb-6 text-pink-600 bg-pink-500/10 rounded-xl">
-                    <i data-lucide="bell"></i>
-                </div>
-                <h4 class="mb-4 text-xl font-bold dark:text-white">Automated Notifications</h4>
-                <ul class="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> SMS & Email due reminders</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> New book arrival alerts</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Penalty/Fine notifications</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Customizable templates</li>
-                </ul>
-            </div>
-
-            <div class="p-8 delay-200 border feature-card glass-card rounded-3xl border-slate-200 dark:border-white/10 reveal">
-                <div class="flex items-center justify-center w-12 h-12 mb-6 text-indigo-600 bg-indigo-500/10 rounded-xl">
-                    <i data-lucide="shield-check"></i>
-                </div>
-                <h4 class="mb-4 text-xl font-bold dark:text-white">Secure Access</h4>
-                <ul class="space-y-3 text-sm text-slate-500 dark:text-slate-400">
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Admin & Student portals</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Permission-based actions</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Session & Auth handling</li>
-                    <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 mt-1 text-teal-500"></i> Full system activity logs</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section id="modules" class="py-24 overflow-hidden bg-slate-50 dark:bg-slate-900">
-    <div class="px-4 mx-auto max-w-7xl">
-        <div class="mb-20 text-center reveal">
-            <h3 class="mb-4 text-4xl font-bold dark:text-white">How It Works</h3>
-            <p class="text-slate-500 dark:text-slate-400">Get your library digital in three simple steps</p>
-        </div>
-
-        <div class="relative">
-            <div class="hidden lg:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-200 dark:bg-slate-800 -translate-x-1/2"></div>
-
-            <div class="flex flex-col items-center justify-between mb-20 lg:flex-row reveal">
-                <div class="mb-8 text-center lg:w-5/12 lg:text-right lg:mb-0">
-                    <h4 class="mb-3 text-2xl font-bold dark:text-white">1. Create Account</h4>
-                    <p class="text-slate-500 dark:text-slate-400">Sign up as an institution administrator and set up your digital library policies instantly.</p>
-                </div>
-                <div class="relative z-10 flex items-center justify-center w-16 h-16 text-xl font-bold text-white bg-blue-600 rounded-full shadow-xl shadow-blue-500/30">1</div>
-                <div class="p-6 mt-8 border lg:w-5/12 lg:mt-0 glass-card rounded-2xl border-white/10">
-                    <ul class="space-y-2 text-sm text-slate-500 dark:text-slate-400">
-                        <li>• Register your institution securely</li>
-                        <li>• Configure library policies</li>
-                        <li>• Access personalized dashboard</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="flex flex-col items-center justify-between mb-20 lg:flex-row-reverse reveal">
-                <div class="mb-8 text-center lg:w-5/12 lg:text-left lg:mb-0">
-                    <h4 class="mb-3 text-2xl font-bold dark:text-white">2. Add Data</h4>
-                    <p class="text-slate-500 dark:text-slate-400">Bring your library data into the system effortlessly using automated scanners and CSV tools.</p>
-                </div>
-                <div class="relative z-10 flex items-center justify-center w-16 h-16 text-xl font-bold text-white bg-purple-600 rounded-full shadow-xl shadow-purple-500/30">2</div>
-                <div class="p-6 mt-8 border lg:w-5/12 lg:mt-0 glass-card rounded-2xl border-white/10">
-                    <ul class="space-y-2 text-sm text-slate-500 dark:text-slate-400">
-                        <li>• Import books using ISBN scanning</li>
-                        <li>• Add students and staff members</li>
-                        <li>• Assign roles and permissions</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="flex flex-col items-center justify-between lg:flex-row reveal">
-                <div class="mb-8 text-center lg:w-5/12 lg:text-right lg:mb-0">
-                    <h4 class="mb-3 text-2xl font-bold dark:text-white">3. Start Managing</h4>
-                    <p class="text-slate-500 dark:text-slate-400">Begin day-to-day operations with full control and automated tracking of every transaction.</p>
-                </div>
-                <div class="relative z-10 flex items-center justify-center w-16 h-16 text-xl font-bold text-white bg-teal-500 rounded-full shadow-xl shadow-teal-500/30">3</div>
-                <div class="p-6 mt-8 border lg:w-5/12 lg:mt-0 glass-card rounded-2xl border-white/10">
-                    <ul class="space-y-2 text-sm text-slate-500 dark:text-slate-400">
-                        <li>• Issue & return with one click</li>
-                        <li>• Real-time activity monitoring</li>
-                        <li>• Automated fine alerts & reports</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-    <section class="relative py-24 overflow-hidden text-center transition-colors border-t bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-white/5">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full"></div>
-    
-    <div class="relative z-10 max-w-4xl px-4 mx-auto reveal">
-        <h2 class="mb-6 text-4xl font-extrabold text-slate-900 dark:text-white md:text-6xl">Digitize Your Library Today</h2>
-        <p class="max-w-2xl mx-auto mb-10 text-lg text-slate-600 dark:text-slate-400 md:text-xl">
-            Join hundreds of institutions modernizing their library experience.
-        </p>
-        
-        <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a href="{{ route('register') }}" class="w-full px-10 py-4 font-bold text-white transition-all shadow-xl sm:w-auto bg-slate-900 dark:bg-white dark:text-slate-900 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 hover:scale-105 active:scale-95 shadow-slate-900/10 dark:shadow-white/10">
-                Get Started Now
-            </a>
-            <a href="{{ route('login') }}" class="w-full px-10 py-4 font-bold transition-all bg-transparent border-2 sm:w-auto text-slate-900 dark:text-white border-slate-300 dark:border-slate-700 rounded-xl hover:border-slate-900 dark:hover:border-white hover:bg-slate-900/5 dark:hover:bg-white/5">
-                Admin Login
-            </a>
-        </div>
-    </div>
-</section>
-
-<footer class="pt-20 pb-10 transition-colors border-t bg-slate-950 border-white/5">
-    <div class="px-4 mx-auto max-w-7xl lg:px-8">
-        <div class="grid grid-cols-1 gap-12 mb-16 md:grid-cols-2 lg:grid-cols-4">
-            <div class="col-span-1">
-                <div class="flex items-center gap-2 mb-6">
-                    <x-logo size="sm" :lazy="false" />
-                    <span class="text-2xl font-extrabold tracking-tight text-white">LibManage</span>
-                </div>
-                <p class="max-w-xs leading-relaxed text-slate-400">
-                    Secure, efficient, and user-friendly library management software for educational institutions worldwide.
-                </p>
-            </div>
-
-            <div>
-                <h4 class="mb-6 text-sm font-bold tracking-wider text-white uppercase">Product</h4>
-                <ul class="space-y-4 text-slate-400">
-                    <li><a href="#features" class="transition-colors hover:text-blue-500">Features</a></li>
-                    <li><a href="#pricing" class="transition-colors hover:text-blue-500">Pricing</a></li>
-                    <li><a href="#" class="transition-colors hover:text-blue-500">Updates</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="mb-6 text-sm font-bold tracking-wider text-white uppercase">Support</h4>
-                <ul class="space-y-4 text-slate-400">
-                    <li><a href="#" class="transition-colors hover:text-blue-500">Help Center</a></li>
-                    <li><a href="#" class="transition-colors hover:text-blue-500">Documentation</a></li>
-                    <li><a href="#" class="transition-colors hover:text-blue-500">Contact Us</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="mb-6 text-sm font-bold tracking-wider text-white uppercase">Account</h4>
-                <ul class="space-y-4 text-slate-400">
-                    <li><a href="{{ route('login') }}" class="transition-colors hover:text-blue-500">Admin Login</a></li>
-                    <li><a href="{{ route('login') }}" class="transition-colors hover:text-blue-500">Student Login</a></li>
-                    <li><a href="{{ route('register') }}" class="transition-colors hover:text-blue-500">Create Account</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="flex flex-col items-center justify-between gap-4 pt-8 text-sm border-t border-white/5 md:flex-row text-slate-500">
-            <p>© 2026 Library Management System. All rights reserved.</p>
-            <div class="flex gap-6">
-                <a href="#" class="transition-colors hover:text-white"><i data-lucide="twitter" class="w-5 h-5"></i></a>
-                <a href="#" class="transition-colors hover:text-white"><i data-lucide="linkedin" class="w-5 h-5"></i></a>
-                <a href="#" class="transition-colors hover:text-white"><i data-lucide="github" class="w-5 h-5"></i></a>
-            </div>
-        </div>
-    </div>
-</footer>
-
+    @include('landing.partials.footer', ['brandName' => $brandName, 'contactEmail' => $contactEmail])
     <script>
-        // Initialize Icons
-lucide.createIcons();
+        (() => {
+            const root = document.documentElement;
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const nav = document.getElementById('site-nav');
+            const progress = document.getElementById('scroll-progress');
+            const navToggle = document.querySelector('[data-nav-toggle]');
+            const navPanel = document.querySelector('[data-nav-panel]');
+            const themeButtons = document.querySelectorAll('[data-theme-toggle]');
 
-// Navbar Scroll Effect
-window.addEventListener('scroll', () => {
-    const navbar = document.getElementById('navbar');
-    const progressBar = document.getElementById('progress-bar');
-    
-    // Header shadow and height
-    if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
-    }
+            const setTheme = (isDark) => {
+                root.classList.toggle('dark', isDark);
+                try { localStorage.setItem('theme', isDark ? 'dark-theme' : 'light-theme'); } catch (error) {}
+            };
 
-    // Scroll Progress
-    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const scrolled = (winScroll / height) * 100;
-    progressBar.style.width = scrolled + "%";
-});
+            themeButtons.forEach((button) => button.addEventListener('click', () => setTheme(!root.classList.contains('dark'))));
 
-// Reveal on Scroll Logic
-const reveal = () => {
-    const reveals = document.querySelectorAll('.reveal');
-    reveals.forEach(element => {
-        const windowHeight = window.innerHeight;
-        const elementTop = element.getBoundingClientRect().top;
-        const elementVisible = 150;
-        if (elementTop < windowHeight - elementVisible) {
-            element.classList.add('active');
-        }
-    });
-};
+            const toggleNav = (forceOpen = null) => {
+                if (!navPanel || !navToggle) return;
+                const isOpen = forceOpen === null ? navPanel.classList.contains('hidden') : forceOpen;
+                navPanel.classList.toggle('hidden', !isOpen);
+                navToggle.setAttribute('aria-expanded', String(isOpen));
+            };
 
-window.addEventListener('scroll', reveal);
-reveal(); // Initial check
+            navToggle?.addEventListener('click', () => toggleNav(navPanel?.classList.contains('hidden')));
+            document.querySelectorAll('[data-nav-panel] a').forEach((link) => link.addEventListener('click', () => toggleNav(false)));
 
-// Animated Counter Logic
-const counters = document.querySelectorAll('.counter');
-const speed = 200;
+            const updateProgress = () => {
+                const scrollTop = window.scrollY;
+                const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const ratio = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+                progress.style.transform = `scaleX(${Math.min(1, Math.max(0, ratio))})`;
+                nav?.classList.toggle('is-scrolled', scrollTop > 32);
+            };
 
-counters.forEach(counter => {
-    const animate = () => {
-        const value = +counter.getAttribute('data-target');
-        const data = +counter.innerText;
-        const time = value / speed;
-        if (data < value) {
-            counter.innerText = Math.ceil(data + time);
-            setTimeout(animate, 10);
-        } else {
-            counter.innerText = value.toLocaleString();
-        }
-    };
-    
-    // Start counter when visible
-    const observer = new IntersectionObserver((entries) => {
-        if(entries[0].isIntersecting) animate();
-    });
-    observer.observe(counter);
-});
+            updateProgress();
+            window.addEventListener('scroll', updateProgress, { passive: true });
 
-// Theme Toggle
-const themeToggle = document.getElementById('theme-toggle');
-const html = document.documentElement;
+            const revealElements = document.querySelectorAll('.reveal');
+            if (prefersReducedMotion) {
+                revealElements.forEach((element) => element.classList.add('is-visible'));
+            } else {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.16 });
+                revealElements.forEach((element) => observer.observe(element));
+            }
 
-themeToggle?.addEventListener('click', () => {
-    html.classList.toggle('dark');
-    const isDark = html.classList.contains('dark');
-
-    try {
-        localStorage.setItem('theme', isDark ? 'dark-theme' : 'light-theme');
-    } catch (error) {
-        // Ignore storage write failures so the toggle still works for the current session.
-    }
-});
+        })();
     </script>
 </body>
 </html>
