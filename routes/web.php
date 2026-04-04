@@ -43,17 +43,7 @@ Route::get('/', function () {
     return view('LandingPage');
 });
 
-Route::get('/lan', function () {
-    return view('LandingPage');
-});
 
-Route::get('/lan2', function () {
-    return view('LandingPage2');
-});
-
-Route::get('/lan3', function () {
-    return view('LandingPage3');
-});
 
 Route::get('/login1', function () {
     return view('Loginpage');
