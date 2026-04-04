@@ -22,3 +22,9 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+# Local SQLite database files (runtime artifacts)
+*.sqlite
+*.db
+LibraryMS
+# Large JSON seed data (use database seeders instead)
+database/JSON/
