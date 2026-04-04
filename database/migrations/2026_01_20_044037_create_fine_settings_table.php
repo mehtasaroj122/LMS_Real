@@ -23,6 +23,8 @@ return new class extends Migration
             $table->integer('max_books_per_student')->default(5);
             $table->integer('renewal_limit')->default(2);
             $table->integer('renewal_duration_days')->default(7);
+            $table->string('logo_path')->nullable();
+            $table->string('logo_fallback_text', 10)->default('LMS');
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });

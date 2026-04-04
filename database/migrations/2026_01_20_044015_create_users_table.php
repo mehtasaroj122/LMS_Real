@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('phone', 15)->nullable()->unique();
             $table->date('date_of_birth')->nullable();
             $table->string('password');
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('remember_token')->nullable();
             $table->string('otp')->nullable()->comment('6-digit OTP for email verification');
             $table->timestamp('otp_expires_at')->nullable()->comment('OTP expiration time');
