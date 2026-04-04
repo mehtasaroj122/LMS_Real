@@ -2114,13 +2114,29 @@
         let activityChart;
         let requestStatusChartInstance;
 
-        function initTheme() {
+        function getResolvedTheme() {
             const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark' || (!savedTheme && prefersDarkScheme.matches)) {
-                document.body.classList.add('dark-theme');
-            } else {
-                document.body.classList.remove('dark-theme');
+
+            if (savedTheme === 'dark-theme' || savedTheme === 'light-theme') {
+                return savedTheme;
             }
+
+            if (document.body.classList.contains('dark-theme')) {
+                return 'dark-theme';
+            }
+
+            if (document.body.classList.contains('light-theme')) {
+                return 'light-theme';
+            }
+
+            return prefersDarkScheme.matches ? 'dark-theme' : 'light-theme';
+        }
+
+        function initTheme() {
+            const theme = getResolvedTheme();
+
+            document.body.classList.remove('light-theme', 'dark-theme');
+            document.body.classList.add(theme);
         }
 
         function getChartTheme() {
@@ -2569,7 +2585,11 @@
             });
 
             prefersDarkScheme.addEventListener('change', () => {
-                if (!localStorage.getItem('theme')) {
+                if (
+                    !localStorage.getItem('theme') &&
+                    !document.body.classList.contains('light-theme') &&
+                    !document.body.classList.contains('dark-theme')
+                ) {
                     initTheme();
                 }
             });
