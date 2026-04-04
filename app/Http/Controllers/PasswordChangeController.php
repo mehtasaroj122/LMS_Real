@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 
 class PasswordChangeController extends Controller
 {
@@ -22,7 +24,7 @@ class PasswordChangeController extends Controller
 
         return view('auth.change-password', [
             'user' => $user,
-            'tempPassword' => session('temp_password', false)
+            'tempPassword' => session('temp_password', false),
         ]);
     }
 
@@ -33,50 +35,78 @@ class PasswordChangeController extends Controller
     {
         $user = Auth::user();
 
-        // Verify user is logged in
         if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not authenticated'
-            ], 401);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated',
+                ], 401);
+            }
+
+            return redirect()->route('login');
         }
 
-        // Validate input
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'password' => [
                 'required',
-                'min:8',
-                'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/', // At least one lowercase, uppercase, and digit
-                'different:email' // Different from email
-            ]
+                'string',
+                PasswordRule::min(8)->mixedCase()->numbers()->symbols(),
+                function ($attribute, $value, $fail) use ($user) {
+                    if (is_string($value) && mb_strtolower($value) === mb_strtolower((string) $user->email)) {
+                        $fail('Password must be different from your email address.');
+                    }
+                },
+            ],
+            'password_confirmation' => [
+                'required',
+                'same:password',
+            ],
         ], [
-            'password.required' => 'Password is required',
-            'password.min' => 'Password must be at least 8 characters',
-            'password.confirmed' => 'Passwords do not match',
-            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, and one number',
-            'password.different' => 'Password cannot be the same as your email'
+            'password.required' => 'Please enter a new password.',
+            'password.min' => 'Password must be at least 8 characters.',
+            'password_confirmation.required' => 'Please confirm your new password.',
+            'password_confirmation.same' => 'Passwords do not match.',
         ]);
 
-        // Update password
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please correct the highlighted fields.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            return back()
+                ->withErrors($validator)
+                ->withInput($request->except(['password', 'password_confirmation']));
+        }
+
+        $validated = $validator->validated();
+
         $user->update([
             'password' => Hash::make($validated['password']),
-            'force_password_change' => false // Mark as no longer forced
+            'force_password_change' => false,
         ]);
 
-        // Log the activity
         \App\Helpers\ActivityLogger::logActivity(
             'password_changed',
-            "User changed their password",
+            'User changed their password',
             'auth',
             'user',
             $user->id
         );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Password changed successfully',
-            'redirect' => auth()->user()->role === 'admin' ? '/admin/dashboard' : '/'
-        ]);
+        $redirect = $user->role === 'admin' ? '/admin/dashboard' : '/';
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Password changed successfully.',
+                'redirect' => $redirect,
+            ]);
+        }
+
+        return redirect($redirect)->with('status', 'Password changed successfully.');
     }
 }

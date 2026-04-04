@@ -3,9 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
     <title>LibraFlow | Smart Library Management System</title>
+    <script>
+        (() => {
+            try {
+                const storedTheme = window.localStorage.getItem('theme');
+                const normalizedTheme = typeof storedTheme === 'string' ? storedTheme.trim().toLowerCase() : '';
+                const isDark = normalizedTheme === 'dark-theme' || normalizedTheme === 'dark';
+
+                document.documentElement.classList.toggle('dark', isDark);
+            } catch (error) {
+                // Keep the landing page on the default light theme if storage access fails.
+            }
+        })();
+    </script>
     @vite(['resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        };
+    </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -183,11 +202,11 @@
                     <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&q=80&w=1000" alt="Dashboard Preview" class="shadow-inner rounded-xl">
                     
                     <div class="absolute p-4 shadow-xl -top-6 -right-6 glass-card rounded-xl animate-float">
-                        <p class="text-xs text-slate-500">Total Books</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Total Books</p>
                         <p class="text-2xl font-bold counter" data-target="12840">0</p>
                     </div>
                     <div class="absolute p-4 shadow-xl -bottom-8 -left-8 glass-card rounded-xl animate-float-delayed">
-                        <p class="text-xs text-slate-500">Active Members</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Active Members</p>
                         <p class="text-2xl font-bold counter" data-target="3250">0</p>
                     </div>
                 </div>
@@ -289,7 +308,7 @@
     <div class="px-4 mx-auto max-w-7xl">
         <div class="mb-20 text-center reveal">
             <h3 class="mb-4 text-4xl font-bold dark:text-white">How It Works</h3>
-            <p class="text-slate-500">Get your library digital in three simple steps</p>
+            <p class="text-slate-500 dark:text-slate-400">Get your library digital in three simple steps</p>
         </div>
 
         <div class="relative">
@@ -298,7 +317,7 @@
             <div class="flex flex-col items-center justify-between mb-20 lg:flex-row reveal">
                 <div class="mb-8 text-center lg:w-5/12 lg:text-right lg:mb-0">
                     <h4 class="mb-3 text-2xl font-bold dark:text-white">1. Create Account</h4>
-                    <p class="text-slate-500">Sign up as an institution administrator and set up your digital library policies instantly.</p>
+                    <p class="text-slate-500 dark:text-slate-400">Sign up as an institution administrator and set up your digital library policies instantly.</p>
                 </div>
                 <div class="relative z-10 flex items-center justify-center w-16 h-16 text-xl font-bold text-white bg-blue-600 rounded-full shadow-xl shadow-blue-500/30">1</div>
                 <div class="p-6 mt-8 border lg:w-5/12 lg:mt-0 glass-card rounded-2xl border-white/10">
@@ -313,7 +332,7 @@
             <div class="flex flex-col items-center justify-between mb-20 lg:flex-row-reverse reveal">
                 <div class="mb-8 text-center lg:w-5/12 lg:text-left lg:mb-0">
                     <h4 class="mb-3 text-2xl font-bold dark:text-white">2. Add Data</h4>
-                    <p class="text-slate-500">Bring your library data into the system effortlessly using automated scanners and CSV tools.</p>
+                    <p class="text-slate-500 dark:text-slate-400">Bring your library data into the system effortlessly using automated scanners and CSV tools.</p>
                 </div>
                 <div class="relative z-10 flex items-center justify-center w-16 h-16 text-xl font-bold text-white bg-purple-600 rounded-full shadow-xl shadow-purple-500/30">2</div>
                 <div class="p-6 mt-8 border lg:w-5/12 lg:mt-0 glass-card rounded-2xl border-white/10">
@@ -328,7 +347,7 @@
             <div class="flex flex-col items-center justify-between lg:flex-row reveal">
                 <div class="mb-8 text-center lg:w-5/12 lg:text-right lg:mb-0">
                     <h4 class="mb-3 text-2xl font-bold dark:text-white">3. Start Managing</h4>
-                    <p class="text-slate-500">Begin day-to-day operations with full control and automated tracking of every transaction.</p>
+                    <p class="text-slate-500 dark:text-slate-400">Begin day-to-day operations with full control and automated tracking of every transaction.</p>
                 </div>
                 <div class="relative z-10 flex items-center justify-center w-16 h-16 text-xl font-bold text-white bg-teal-500 rounded-full shadow-xl shadow-teal-500/30">3</div>
                 <div class="p-6 mt-8 border lg:w-5/12 lg:mt-0 glass-card rounded-2xl border-white/10">
@@ -343,27 +362,27 @@
     </div>
 </section>
 
-    <section class="relative py-24 overflow-hidden text-center border-t bg-slate-950 border-white/5">
+    <section class="relative py-24 overflow-hidden text-center transition-colors border-t bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-white/5">
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/10 blur-[120px] rounded-full"></div>
     
     <div class="relative z-10 max-w-4xl px-4 mx-auto reveal">
-        <h2 class="mb-6 text-4xl font-extrabold text-white md:text-6xl">Digitize Your Library Today</h2>
-        <p class="max-w-2xl mx-auto mb-10 text-lg text-slate-400 md:text-xl">
+        <h2 class="mb-6 text-4xl font-extrabold text-slate-900 dark:text-white md:text-6xl">Digitize Your Library Today</h2>
+        <p class="max-w-2xl mx-auto mb-10 text-lg text-slate-600 dark:text-slate-400 md:text-xl">
             Join hundreds of institutions modernizing their library experience.
         </p>
         
         <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a href="{{ route('register') }}" class="w-full px-10 py-4 font-bold transition-all bg-white shadow-xl sm:w-auto text-slate-900 rounded-xl hover:bg-slate-100 hover:scale-105 active:scale-95 shadow-white/10">
+            <a href="{{ route('register') }}" class="w-full px-10 py-4 font-bold text-white transition-all shadow-xl sm:w-auto bg-slate-900 dark:bg-white dark:text-slate-900 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 hover:scale-105 active:scale-95 shadow-slate-900/10 dark:shadow-white/10">
                 Get Started Now
             </a>
-            <a href="{{ route('login') }}" class="w-full px-10 py-4 font-bold text-white transition-all bg-transparent border-2 sm:w-auto border-slate-700 rounded-xl hover:border-white hover:bg-white/5">
+            <a href="{{ route('login') }}" class="w-full px-10 py-4 font-bold transition-all bg-transparent border-2 sm:w-auto text-slate-900 dark:text-white border-slate-300 dark:border-slate-700 rounded-xl hover:border-slate-900 dark:hover:border-white hover:bg-slate-900/5 dark:hover:bg-white/5">
                 Admin Login
             </a>
         </div>
     </div>
 </section>
 
-<footer class="pt-20 pb-10 border-t bg-slate-950 border-white/5">
+<footer class="pt-20 pb-10 transition-colors border-t bg-slate-950 border-white/5">
     <div class="px-4 mx-auto max-w-7xl lg:px-8">
         <div class="grid grid-cols-1 gap-12 mb-16 md:grid-cols-2 lg:grid-cols-4">
             <div class="col-span-1">
@@ -482,17 +501,16 @@ counters.forEach(counter => {
 const themeToggle = document.getElementById('theme-toggle');
 const html = document.documentElement;
 
-themeToggle.addEventListener('click', () => {
+themeToggle?.addEventListener('click', () => {
     html.classList.toggle('dark');
     const isDark = html.classList.contains('dark');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-});
 
-// Check for saved theme
-if (localStorage.getItem('theme') === 'dark' || 
-    (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    html.classList.add('dark');
-}
+    try {
+        localStorage.setItem('theme', isDark ? 'dark-theme' : 'light-theme');
+    } catch (error) {
+        // Ignore storage write failures so the toggle still works for the current session.
+    }
+});
     </script>
 </body>
 </html>

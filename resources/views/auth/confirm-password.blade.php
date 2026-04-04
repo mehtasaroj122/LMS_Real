@@ -1,27 +1,30 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
-    </div>
+<x-layouts.auth
+    title="Confirm Password"
+    eyebrow="Security check"
+    heading="Confirm your password"
+    subheading="This is a protected area. Please re-enter your password before continuing."
+>
+    <x-auth-card>
+        <div class="space-y-5">
+            <x-auth-alert variant="info" :message="__('This is a secure area of the application. Please confirm your password before continuing.')" />
 
-    <form method="POST" action="{{ route('password.confirm') }}">
-        @csrf
+            @if ($errors->any())
+                <x-auth-alert variant="danger" :message="$errors->first()" />
+            @endif
 
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
+            <form method="POST" action="{{ route('password.confirm') }}" class="space-y-6" x-data="{ submitting: false }" @submit="submitting = true">
+                @csrf
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+                <x-input-password
+                    name="password"
+                    label="Password"
+                    required
+                    autofocus
+                    autocomplete="current-password"
+                />
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                <x-button-primary text="Confirm Password" loading="submitting" loading-text="Confirming..." icon="shield" />
+            </form>
         </div>
-
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    </x-auth-card>
+</x-layouts.auth>

@@ -327,8 +327,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Password change routes
-    Route::get('/change-password', [PasswordChangeController::class, 'showChangePassword'])->name('password.change');
-    Route::post('/change-password', [PasswordChangeController::class, 'updatePassword'])->name('password.update');
+    Route::get('/change-password', [PasswordChangeController::class, 'showChangePassword'])->name('force-password.change');
+    Route::post('/change-password', [PasswordChangeController::class, 'updatePassword'])->name('force-password.update');
     
     // Student privileges endpoint - accessible by admin and staff
     Route::get('/admin/students/{student}/privileges', [StudentController::class, 'getPrivileges'])->name('api.students.privileges');

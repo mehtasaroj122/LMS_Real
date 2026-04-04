@@ -1,3 +1,256 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+}
+
+@layer components {
+    .auth-outlined-field {
+        position: relative;
+        --field-bg: rgba(255, 255, 255, 0.94);
+        --field-border: rgba(148, 163, 184, 0.55);
+        --field-border-active: rgb(37, 99, 235);
+        --field-ring: rgba(37, 99, 235, 0.14);
+        --field-text: rgb(15, 23, 42);
+        --field-label: rgb(71, 85, 105);
+        --field-cutout: rgba(255, 255, 255, 0.92);
+        --field-placeholder: rgb(148, 163, 184);
+    }
+
+    .dark .auth-outlined-field {
+        --field-bg: rgba(2, 6, 23, 0.42);
+        --field-border: rgba(100, 116, 139, 0.75);
+        --field-border-active: rgb(125, 211, 252);
+        --field-ring: rgba(56, 189, 248, 0.16);
+        --field-text: rgb(248, 250, 252);
+        --field-label: rgb(148, 163, 184);
+        --field-cutout: rgba(15, 23, 42, 0.88);
+        --field-placeholder: rgb(100, 116, 139);
+    }
+
+    .auth-outlined-field.is-error,
+    .auth-outlined-field.is-invalid {
+        --field-border: rgba(251, 113, 133, 0.75);
+        --field-border-active: rgb(225, 29, 72);
+        --field-ring: rgba(225, 29, 72, 0.12);
+        --field-label: rgb(190, 24, 93);
+        --field-placeholder: rgb(251, 113, 133);
+    }
+
+    .dark .auth-outlined-field.is-error,
+    .dark .auth-outlined-field.is-invalid {
+        --field-border: rgba(251, 113, 133, 0.7);
+        --field-border-active: rgb(253, 164, 175);
+        --field-ring: rgba(251, 113, 133, 0.12);
+        --field-label: rgb(253, 164, 175);
+        --field-placeholder: rgb(251, 113, 133);
+    }
+
+    .auth-outlined-field.is-valid {
+        --field-border: rgba(16, 185, 129, 0.68);
+        --field-border-active: rgb(5, 150, 105);
+        --field-ring: rgba(16, 185, 129, 0.14);
+        --field-label: rgb(5, 150, 105);
+        --field-placeholder: rgb(16, 185, 129);
+    }
+
+    .dark .auth-outlined-field.is-valid {
+        --field-border: rgba(52, 211, 153, 0.62);
+        --field-border-active: rgb(110, 231, 183);
+        --field-ring: rgba(16, 185, 129, 0.16);
+        --field-label: rgb(110, 231, 183);
+        --field-placeholder: rgb(52, 211, 153);
+    }
+
+    .auth-outlined-field.is-pending {
+        --field-border: rgba(245, 158, 11, 0.72);
+        --field-border-active: rgb(217, 119, 6);
+        --field-ring: rgba(245, 158, 11, 0.14);
+        --field-label: rgb(217, 119, 6);
+        --field-placeholder: rgb(245, 158, 11);
+    }
+
+    .dark .auth-outlined-field.is-pending {
+        --field-border: rgba(251, 191, 36, 0.68);
+        --field-border-active: rgb(252, 211, 77);
+        --field-ring: rgba(251, 191, 36, 0.16);
+        --field-label: rgb(252, 211, 77);
+        --field-placeholder: rgb(251, 191, 36);
+    }
+
+    .auth-outlined-input {
+        width: 100%;
+        height: 3.35rem;
+        min-height: 3.35rem;
+        border: 1.5px solid var(--field-border);
+        border-radius: 0.9rem;
+        background-color: var(--field-bg);
+        color: var(--field-text);
+        padding: 0.92rem 0.95rem;
+        font-size: 0.94rem;
+        line-height: 1.25;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        outline: none;
+        transition:
+            border-color 0.18s ease,
+            box-shadow 0.18s ease,
+            background-color 0.18s ease,
+            color 0.18s ease;
+    }
+
+    .auth-outlined-input:focus {
+        border-color: var(--field-border-active);
+        box-shadow: 0 0 0 4px var(--field-ring);
+    }
+
+    .auth-outlined-input[readonly],
+    .auth-outlined-input:disabled {
+        cursor: not-allowed;
+        background-color: color-mix(in srgb, var(--field-bg) 84%, rgb(148 163 184 / 0.12));
+        color: color-mix(in srgb, var(--field-text) 82%, rgb(100 116 139));
+    }
+
+    .auth-outlined-input:-webkit-autofill,
+    .auth-outlined-input:-webkit-autofill:hover,
+    .auth-outlined-input:-webkit-autofill:focus {
+        -webkit-text-fill-color: var(--field-text);
+        -webkit-box-shadow: 0 0 0 1000px var(--field-bg) inset;
+        transition: background-color 9999s ease-in-out 0s;
+    }
+
+    .auth-outlined-input::-ms-reveal,
+    .auth-outlined-input::-ms-clear {
+        display: none;
+    }
+
+    .auth-outlined-field.has-trailing-action .auth-outlined-input {
+        padding-right: 3.15rem;
+    }
+
+    .auth-field-error {
+        display: none;
+        color: rgb(190, 24, 93);
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.45;
+    }
+
+    .dark .auth-field-error {
+        color: rgb(253, 164, 175);
+    }
+
+    .auth-field-error.is-visible {
+        display: block;
+    }
+
+    .auth-field-hint.is-hidden {
+        display: none;
+    }
+
+    .auth-field-validation-icon {
+        position: absolute;
+        right: 0.95rem;
+        top: 50%;
+        display: inline-flex;
+        height: 1rem;
+        width: 1rem;
+        align-items: center;
+        justify-content: center;
+        color: transparent;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-50%);
+        transition: opacity 0.18s ease, color 0.18s ease;
+    }
+
+    .auth-outlined-field.has-trailing-action .auth-field-validation-icon {
+        right: 3rem;
+    }
+
+    .auth-field-validation-icon svg {
+        height: 100%;
+        width: 100%;
+    }
+
+    .auth-outlined-field.is-valid .auth-field-validation-icon,
+    .auth-outlined-field.is-invalid .auth-field-validation-icon,
+    .auth-outlined-field.is-pending .auth-field-validation-icon,
+    .auth-outlined-field.is-error .auth-field-validation-icon {
+        opacity: 1;
+    }
+
+    .auth-outlined-field.is-valid .auth-field-validation-icon {
+        color: rgb(5, 150, 105);
+    }
+
+    .auth-outlined-field.is-invalid .auth-field-validation-icon,
+    .auth-outlined-field.is-error .auth-field-validation-icon {
+        color: rgb(225, 29, 72);
+    }
+
+    .auth-outlined-field.is-pending .auth-field-validation-icon {
+        color: rgb(217, 119, 6);
+    }
+
+    .dark .auth-outlined-field.is-valid .auth-field-validation-icon {
+        color: rgb(110, 231, 183);
+    }
+
+    .dark .auth-outlined-field.is-invalid .auth-field-validation-icon,
+    .dark .auth-outlined-field.is-error .auth-field-validation-icon {
+        color: rgb(253, 164, 175);
+    }
+
+    .dark .auth-outlined-field.is-pending .auth-field-validation-icon {
+        color: rgb(252, 211, 77);
+    }
+
+    .auth-outlined-label {
+        position: absolute;
+        top: 50%;
+        left: 0.72rem;
+        z-index: 2;
+        max-width: calc(100% - 3.6rem);
+        display: inline-flex;
+        align-items: center;
+        padding: 0 0.2rem;
+        border-radius: 9999px;
+        background-color: transparent;
+        color: var(--field-label);
+        font-size: 0.9rem;
+        font-weight: 500;
+        line-height: 1;
+        transform: translateY(-50%);
+        transform-origin: left center;
+        pointer-events: none;
+        white-space: nowrap;
+        transition:
+            top 0.18s ease,
+            transform 0.18s ease,
+            color 0.18s ease,
+            background-color 0.18s ease,
+            font-size 0.18s ease;
+    }
+
+    .auth-outlined-field[data-filled='false'] .auth-outlined-label {
+        top: 50%;
+        background-color: transparent;
+        color: var(--field-label);
+        font-size: 0.9rem;
+        transform: translateY(-50%);
+    }
+
+    .auth-outlined-field:focus-within .auth-outlined-label,
+    .auth-outlined-field[data-filled='true'] .auth-outlined-label,
+    .auth-outlined-input:-webkit-autofill + .auth-outlined-label {
+        top: 0;
+        background-color: var(--field-cutout);
+        color: var(--field-border-active);
+        font-size: 0.74rem;
+        transform: translateY(-62%);
+    }
+}

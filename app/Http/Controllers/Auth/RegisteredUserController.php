@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\OTPVerificationMail;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use App\Models\User;
@@ -20,6 +23,45 @@ class RegisteredUserController extends Controller
     public function create(): View
     {
         return view('auth.register');
+    }
+
+    /**
+     * Validate live registration fields.
+     */
+    public function validateField(Request $request): JsonResponse
+    {
+        if ((string) $request->input('field') !== 'email') {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Unsupported validation field.',
+            ], 422);
+        }
+
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'email' => ['bail', 'required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)],
+            ],
+            [
+                'email.required' => 'Please enter your email address.',
+                'email.email' => 'Please enter a valid email address.',
+                'email.unique' => 'This email has already been taken.',
+                'email.max' => 'Email address must not exceed 255 characters.',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'valid' => false,
+                'message' => $validator->errors()->first('email'),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'message' => 'Email address is available.',
+        ]);
     }
 
     /**
@@ -52,8 +94,8 @@ class RegisteredUserController extends Controller
 
         // Send OTP via email
         try {
-            Mail::to($request->email)->queue(new OTPVerificationMail($otp, $request->name));
-            \Log::info('Queued registration OTP email', [
+            Mail::to($request->email)->send(new OTPVerificationMail($otp, $request->name));
+            \Log::info('Sent registration OTP email', [
                 'email' => $request->email,
             ]);
         } catch (\Exception $e) {
@@ -67,4 +109,3 @@ class RegisteredUserController extends Controller
             ->with('status', 'OTP has been sent to your email. Please verify to complete registration.');
     }
 }
-

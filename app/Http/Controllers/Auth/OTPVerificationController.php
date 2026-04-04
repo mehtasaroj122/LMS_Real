@@ -40,7 +40,16 @@ class OTPVerificationController extends Controller
             return redirect()->route('register')->withErrors(['email' => 'OTP has expired. Please register again.']);
         }
 
-        return view('auth.verify-otp', ['email' => $email]);
+        $expiresAt = \Carbon\Carbon::createFromTimestamp($regData['otp_expires_at']);
+        $allowResendAt = $expiresAt->copy()->subMinutes(9);
+        $resendCooldownSeconds = $allowResendAt->isFuture()
+            ? now()->diffInSeconds($allowResendAt)
+            : 0;
+
+        return view('auth.verify-otp', [
+            'email' => $email,
+            'resendCooldownSeconds' => $resendCooldownSeconds,
+        ]);
     }
 
     /**
@@ -171,7 +180,8 @@ class OTPVerificationController extends Controller
             $waitTime = $allowResendAt->diffInSeconds(now());
             return response()->json([
                 'success' => false,
-                'message' => "Please wait {$waitTime} seconds before requesting a new OTP"
+                'message' => "Please wait {$waitTime} seconds before requesting a new OTP",
+                'wait_seconds' => $waitTime,
             ], 429);
         }
 
@@ -185,14 +195,15 @@ class OTPVerificationController extends Controller
 
         // Send OTP via email
         try {
-            Mail::to($request->email)->queue(new OTPVerificationMail($newOTP, $regData['name']));
-            \Log::info('Queued OTP resend email', [
+            Mail::to($request->email)->send(new OTPVerificationMail($newOTP, $regData['name']));
+            \Log::info('Sent OTP resend email', [
                 'email' => $request->email,
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'OTP has been resent to your email'
+                'message' => 'OTP has been resent to your email.',
+                'cooldown_seconds' => 60,
             ]);
         } catch (\Exception $e) {
             \Log::error('Failed to send OTP email: ' . $e->getMessage());

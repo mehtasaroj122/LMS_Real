@@ -22,12 +22,12 @@ class CheckForcePasswordChange
         // Check if user is authenticated and needs to change password
         if ($user && $user->force_password_change) {
             // Allow access to password change routes
-            if ($request->routeIs('password.change') || $request->routeIs('password.update')) {
+            if ($request->routeIs('force-password.change') || $request->routeIs('force-password.update')) {
                 return $next($request);
             }
 
             // Redirect to password change page for all other routes
-            return redirect()->route('password.change');
+            return redirect()->route('force-password.change');
         }
 
         return $next($request);
