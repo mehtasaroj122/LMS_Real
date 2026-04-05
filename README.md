@@ -1,349 +1,386 @@
-# 📚 Library Management System (LMS) 
-# Created By Saroj Mehta
+# Library Management System
+Created By Saroj Mehta
 
-> A modern, secure, and feature-rich Library Management System built with Laravel, featuring advanced security protocols, comprehensive activity logging, and an intuitive admin dashboard.
+## Description
+Library Management System is a role-based web application for handling library operations from a single platform. It is built for administrators, library staff, and students.
 
-[![Laravel](https://img.shields.io/badge/Laravel-11-FF5A3D?style=flat-square&logo=laravel)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.2-777BB4?style=flat-square&logo=php)](https://php.net)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=flat-square)](#)
+The system helps libraries organize books, manage user accounts, process borrowing requests, issue and return books, track fines, send notifications, and maintain an audit trail of important actions.
 
----
+## Features
 
-## ✨ Features
+### Core Features
 
-### Core Functionality
-- 📖 **Book Management** - Add, update, delete, and search books with advanced filtering
-- 👥 **User Management** - Complete user lifecycle management with role-based access control
-- 📋 **Borrowing System** - Track book borrowing and returns with due date management
-- 📊 **Dashboard** - Real-time statistics and analytics for administrators
-- 📱 **Responsive Design** - Mobile-friendly interface built with Tailwind CSS
+#### Book Management
+- Add, edit, search, filter, sort, and categorize books
+- Upload book cover images
+- Track ISBN, author, publisher, shelf number, condition, total copies, and available copies
+- Notify users about newly added books and low inventory
+- Prevent direct deletion when a book still has active issues or open requests
+- Allow staff to submit deletion requests for admin review instead of deleting directly
+
+#### Student Management
+- Manage student records with department, batch, semester, contact, and profile details
+- View student summaries, borrowing history, requests, fines, and activity logs
+- Activate or deactivate student accounts
+- Reset student passwords from the admin panel
+- Override student borrowing rules through per-student privilege settings
+- Generate downloadable fine receipts for paid student fines
+
+#### Circulation
+- Student book request flow with `pending`, `approved`, `rejected`, `cancelled`, `issued`, and `returned` states
+- Admin and staff approval/rejection workflows
+- Book issue and return workflows for staff and admin
+- Due date tracking based on global fine settings or student-specific privilege overrides
+- Duplicate active requests and duplicate active borrowings are blocked
+- Student can cancel a request while it is still pending
+
+#### Fine and Payment System
+- Automatic overdue fine calculation with grace period support
+- Global fine rules for per-day fine, max fine amount, issue duration, and penalties
+- Extra penalties for fair-condition, damaged, and lost returns
+- Mark fines as paid
+- Waive fines with a required reason
+- Adjust fine amounts manually
+- View fine history and bulk process fine actions
+- Queue reminder or status emails for pending, paid, and waived fines
+
+#### Notifications System
+- Custom database-backed notification system for all roles
+- Notifications for request approvals/rejections, issued books, returned books, overdue books, fines, account events, and security events
+- Unread count, mark-as-read, mark-all-read, delete-one, and clear-read actions
+- Polling-based notification refresh in the role dashboards
+
+### Role-Based Access
+
+#### Admin Capabilities
+- Full access to books, users, students, circulation, fines, reports, activity logs, settings, and security management
+- Create admin users directly
+- Create invited staff and student accounts and send registration invitation emails
+- Manage role changes, account status, password resets, and student borrowing privileges
+- Configure library branding and fine/borrowing policy
+- Review account lockouts and unlock accounts
+- View reports for inventory, transactions, fines, users, and overdue items
+
+#### Staff Capabilities
+- Access a staff dashboard focused on daily circulation work
+- Manage books and categories
+- Issue and return books
+- Process book requests
+- Manage fines, including bulk actions and fine emails
+- View student profiles and activate/deactivate student accounts
+- Manage personal profile and password settings
+- Submit book deletion requests to administrators
+
+#### Student Capabilities
+- Access a student dashboard with issued books, requests, fines, and notifications
+- Search and filter books
+- Submit book requests
+- Cancel pending requests
+- View current and returned books
+- View fine history and outstanding amounts
+- Update profile details, password, and profile photo
+
+### Authentication and Access
+- Session-based authentication using Laravel's web guard
+- Invitation-based onboarding for staff and students
+- Current onboarding is invitation-based rather than open public registration
+- Staff and student registration is matched against an invited role, email, phone number, and staff/student ID
+- Role-based redirects after login
+- Role-based route protection using Laravel gates
+- Inactive accounts are blocked from signing in and redirected to an inactive-account page
+- Admin password resets can force the user to change password on next login
+- Password reset and email verification routes are included in the application
 
 ### Security Features
-- 🔒 **Account Lockout System** - Automatic account lockout after failed login attempts
-- ⏸️ **Account Inactivity** - Disable inactive accounts based on configurable thresholds
-- 📝 **Activity Logging** - Comprehensive audit trail for all user actions
-- 🔐 **Role-Based Access Control** - Fine-grained permission system
-- 🛡️ **Security Hardening** - XSS protection, CSRF tokens, SQL injection prevention
-- 🔑 **Two-Way Authentication** - Enhanced security for administrative functions
+- Email verification support through Laravel auth routes
+- Invitation identity checks during self-registration
+- Registration rate limiting: 5 attempts per minute per email and IP
+- Configurable login rate limiting and account lockout
+- Signed email unlock links for locked accounts
+- Admin account lock monitoring and unlock controls
+- CLI account unlock command: `php artisan auth:unlock-account`
+- Suspicious activity notifications after repeated failed logins
+- Activity logging with IP address, browser, device type, and metadata
+- Server-side validation across auth, books, students, requests, fines, and settings
+- Forced password change support after admin-initiated password reset
 
-### Administrative Features
-- 📊 **Admin Dashboard** - Comprehensive data tables with filtering, sorting, and pagination
-- 🔔 **Admin Notifications** - Real-time alerts for critical events
-- 📧 **Transaction Email Notifications** - Automated email notifications for important events
-- 📈 **Advanced Reporting** - Detailed reports on user activity, borrowing trends, and system usage
-- 🎯 **User Management Controls** - Unlock accounts, deactivate users, manage permissions
+### Technical Features
+- Database-backed sessions, cache, and queue by default
+- Queue-first email delivery using a dedicated `emails` queue with retries and delay
+- Scheduled commands for overdue fine calculation and reminder emails
+- AJAX-based tables, filters, stats panels, and notification panels
+- Responsive admin, staff, and student layouts
+- Light and dark theme toggle in all role portals
+- Broadcast notification event class exists, while the shipped UI currently refreshes notifications through API polling
 
----
+## Tech Stack
 
-## 🛠️ Tech Stack
+| Layer | Technology |
+| --- | --- |
+| Backend | Laravel 12, PHP 8.2 |
+| Frontend | Blade templates, Tailwind CSS, custom CSS/JavaScript, Vite |
+| UI Assets | Lucide icons, Font Awesome |
+| Database | MySQL (recommended), SQLite supported for quick local setup |
+| Queue | Database queue |
+| Email | SMTP (Gmail or any SMTP-compatible provider) |
+| Testing | Pest, PHPUnit |
 
-### Backend
-- **Laravel 11** - Modern PHP framework
-- **PHP 8.2+** - Server-side language
-- **MySQL** - Database management
-- **Composer** - Dependency management
+Note: the current codebase uses Blade + Tailwind CSS + custom CSS/JS. Bootstrap is not installed as a package dependency in this repository.
 
-### Frontend
-- **Blade Templates** - Laravel templating engine
-- **Tailwind CSS** - Utility-first CSS framework
-- **Vite** - Next-generation build tool
-- **JavaScript (Vanilla/Alpine.js)** - Interactivity
+## Installation Guide
 
-### Additional Tools
-- **PHPUnit** - Testing framework
-- **PostgreSQL Support** - Alternative database option
-- **Queue System** - Background job processing
-- **Mail System** - Email notifications
-
----
-
-## 📋 Prerequisites
-
-Before you begin, ensure you have the following installed:
-- PHP 8.2 or higher
-- Composer
-- MySQL 5.7+ or PostgreSQL 9.6+
-- Node.js 18+ and npm/yarn
-- Git
-
----
-
-## 🚀 Installation & Setup
-
-### 1. Clone the Repository
+### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/library-management-system.git
-cd Library_Management_System_V4
+git clone https://github.com/mehtasaroj122/LMS_Real.git
+cd LMS_Real
 ```
 
-### 2. Install Backend Dependencies
+### 2. Install backend dependencies
 ```bash
 composer install
 ```
 
-### 3. Install Frontend Dependencies
+### 3. Install frontend dependencies
 ```bash
 npm install
-# or
-yarn install
 ```
 
-### 4. Environment Configuration
+### 4. Create the environment file
 ```bash
 cp .env.example .env
+```
+
+If you are using Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+### 5. Generate the application key
+```bash
 php artisan key:generate
 ```
 
-Update your `.env` file with:
-```env
-APP_NAME=LibraryMS
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
+### 6. Configure `.env`
+- Update database settings
+- Update mail settings
+- Keep `QUEUE_CONNECTION=database`
+- Keep `SESSION_DRIVER=database`
+- Keep `CACHE_STORE=database` if you want account-lock monitoring to inspect active locks
 
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=library_ms
-DB_USERNAME=root
-DB_PASSWORD=
-
-MAIL_DRIVER=log
-MAIL_FROM_ADDRESS=noreply@libraryms.local
+### 7. Create the public storage symlink
+```bash
+php artisan storage:link
 ```
 
-### 5. Database Setup
+### 8. Run migrations
 ```bash
 php artisan migrate
+```
+
+### 9. Optional: seed sample data
+```bash
 php artisan db:seed
 ```
 
-This will create all necessary tables and populate initial data including default admin user.
+The repository includes JSON-backed seeders for users, students, staff, books, requests, issues, and fines. Review the files inside `database/JSON/` before using seeded accounts in a shared environment.
 
-### 6. Build Frontend Assets
+### 10. Build frontend assets
+For development:
+
 ```bash
-npm run build
-# For development with hot reload:
 npm run dev
 ```
 
-### 7. Start the Development Server
+For a production-style asset build:
+
+```bash
+npm run build
+```
+
+## Environment Variables
+
+Below are the most important environment values for this project:
+
+### Application
+```env
+APP_NAME="Library Management System"
+APP_ENV=local
+APP_DEBUG=true
+APP_URL=http://127.0.0.1:8000
+```
+
+### Database
+MySQL example:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=library_management_system
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Quick local default from `.env.example`:
+
+```env
+DB_CONNECTION=sqlite
+```
+
+### Session, Cache, and Queue
+```env
+SESSION_DRIVER=database
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+MAIL_QUEUE=emails
+MAIL_SEND_DELAY_SECONDS=3
+```
+
+### Mail
+Gmail SMTP example:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=your-email@gmail.com
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+### Security
+```env
+SECURITY_MAX_LOGIN_ATTEMPTS=5
+SECURITY_LOCKOUT_DURATION=60
+SECURITY_RATE_LIMITING_ENABLED=true
+SECURITY_EMAIL_UNLOCK_ENABLED=true
+SECURITY_LOG_FAILED_ATTEMPTS=true
+SECURITY_LOG_LOCKOUTS=true
+SECURITY_LOG_UNLOCKS=true
+```
+
+## Running the Project
+
+Start the Laravel development server:
+
 ```bash
 php artisan serve
 ```
 
-The application will be available at `http://localhost:8000`
+Start the queue worker for emails and default jobs:
 
----
-
-## 📖 Application Usage
-
-### Default Admin Credentials
-After running migrations and seeders:
-- **Email**: `admin@libraryms.local`
-- **Password**: Check `database/seeders/` for the seeded password
-
-⚠️ **Important**: Change the default password immediately after first login.
-
-### Key User Roles
-- **Admin** - Full system access, user management, reports
-- **Librarian** - Book management, user registration, borrowing approvals
-- **Member** - Browse books, place borrowing requests, manage profile
-
----
-
-## 📁 Project Structure
-
+```bash
+php artisan queue:work --queue=emails,default
 ```
-LibraryMS/
+
+Run the Vite development server in another terminal if you are working in development mode:
+
+```bash
+npm run dev
+```
+
+Optional: run the scheduler locally if you want overdue and fine reminder automation during development:
+
+```bash
+php artisan schedule:work
+```
+
+Optional: use the built-in combined dev command:
+
+```bash
+composer run dev
+```
+
+## Application Workflow
+
+### Admin -> Staff -> Student flow
+1. Admin sets up departments, users, library rules, branding, and security settings.
+2. Admin creates staff and student accounts. Staff and student accounts can be invited and remain inactive until registration is completed.
+3. Staff manages day-to-day operations such as catalog updates, issue/return work, request handling, and fine follow-up.
+4. Students sign in to search books, submit requests, track issued books, and view fines and notifications.
+
+### Request -> Approval -> Issue -> Return -> Fine flow
+1. Student searches the catalog and submits a request for an available book.
+2. The request enters `pending` state and staff/admin receive notifications.
+3. Staff or admin approves or rejects the request.
+4. Once approved, staff or admin issues the book and the request is marked `issued`.
+5. On return, the system updates stock, marks the issue as returned, and checks overdue days plus return condition.
+6. If needed, a fine record is created or updated based on overdue rules or return penalties.
+7. Staff or admin can mark the fine as paid, waive it with a reason, or send reminder emails.
+
+## Screenshots
+
+This repository does not currently ship project screenshots. You can add them here later, for example:
+
+```md
+![Admin Dashboard](docs/screenshots/admin-dashboard.png)
+![Staff Circulation](docs/screenshots/staff-circulation.png)
+![Student Portal](docs/screenshots/student-portal.png)
+```
+
+The `docs/` folder already contains system diagrams such as DFDs and ER diagrams that can also support project documentation.
+
+## Folder Structure
+
+```text
+LMS_Real/
 ├── app/
-│   ├── Console/           # Artisan commands
-│   ├── Events/            # Application events
-│   ├── Http/              # Controllers, Middleware, Requests
-│   ├── Jobs/              # Queued jobs
-│   ├── Mail/              # Mailable classes
-│   ├── Models/            # Eloquent models
-│   ├── Notifications/     # Notification classes
-│   ├── Observers/         # Model observers
-│   ├── Providers/         # Service providers
-│   └── Services/          # Business logic services
-├── bootstrap/             # Framework bootstrap files
-├── config/                # Application configuration
+│   ├── Console/              # Artisan commands and scheduled jobs
+│   ├── Events/               # Broadcastable application events
+│   ├── Helpers/              # Shared helpers such as activity logging
+│   ├── Http/
+│   │   ├── Controllers/      # Admin, Staff, Student, and Auth controllers
+│   │   ├── Middleware/       # Access and password-change middleware
+│   │   └── Requests/         # Form request validation classes
+│   ├── Jobs/                 # Queued email jobs
+│   ├── Mail/                 # Mailables for invitations, reminders, and account mail
+│   ├── Models/               # Eloquent models
+│   ├── Notifications/        # Laravel notification classes
+│   ├── Observers/            # Model observers
+│   ├── Providers/            # Service providers, gates, and event listeners
+│   ├── Services/             # Business logic for auth, students, fines, and requests
+│   └── Support/              # Supporting domain utilities
+├── config/                   # Auth, mail, queue, security, database, and app config
 ├── database/
-│   ├── factories/         # Model factories for testing
-│   ├── migrations/        # Database migrations
-│   └── seeders/           # Database seeders
-├── Implementation Guides/ # Comprehensive documentation
-├── public/                # Web root directory
+│   ├── migrations/           # Database schema
+│   ├── seeders/              # Seeders
+│   └── JSON/                 # Sample JSON data used by seeders
+├── docs/                     # DFDs, ER diagrams, and documentation assets
+├── Implementation Guides/    # Implementation notes and project guides
+├── public/
+│   ├── admin/                # Admin CSS and JavaScript
+│   ├── staff/                # Staff CSS and JavaScript
+│   ├── student/              # Student CSS and JavaScript
+│   └── shared/               # Shared frontend assets
 ├── resources/
-│   ├── css/               # Stylesheets
-│   ├── js/                # JavaScript files
-│   └── views/             # Blade templates
-├── routes/                # Application routes
-├── storage/               # Logs, cache, uploads
-├── tests/                 # Test files
-└── tools/                 # Utility scripts
+│   ├── css/                  # Vite-managed styles
+│   ├── js/                   # Vite-managed JavaScript bootstrap
+│   └── views/                # Blade templates
+├── routes/                   # Web, auth, and console routes
+├── storage/                  # Logs, cache, sessions, and uploaded files
+├── tests/                    # Pest feature tests
+├── tools/                    # Utility scripts
+└── README.md
 ```
 
----
+## Contribution
 
-## 🔐 Security Features in Detail
+Contributions are welcome. A simple workflow is:
 
-### Account Lockout System
-- Automatic lockout after 5 failed login attempts (configurable)
-- Customizable lockout duration (15, 30, 60 minutes)
-- Admin unlock functionality
-- Email notifications to locked-out users
-- Activity logging of lock/unlock events
+1. Fork the repository.
+2. Create a feature branch.
+3. Make your changes.
+4. Run the test suite:
 
-### Account Inactivity Feature
-- Automatic account deactivation after 90 days of inactivity (configurable)
-- Graceful user experience with warning notifications
-- Admin control panel for manual activation/deactivation
-- Secure reactivation process
-
-### Activity Logging
-- Comprehensive audit trail of all user actions
-- Tracks login attempts, permission changes, data modifications
-- Searchable and filterable logs
-- Security event categorization
-
----
-
-## 🧪 Testing
-
-### Run All Tests
 ```bash
 php artisan test
 ```
 
-### Run Specific Test Suite
-```bash
-php artisan test --filter=UserTest
-```
+5. Open a pull request with a clear description of the change.
 
-### Generate Test Coverage
-```bash
-php artisan test --coverage
-```
+## License
 
----
-
-## 📧 Email Configuration
-
-The system supports multiple mail drivers. Configure in `.env`:
-
-```env
-# Log emails to log file (development)
-MAIL_DRIVER=log
-
-# Send actual emails
-MAIL_DRIVER=smtp
-MAIL_HOST=smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=your_username
-MAIL_PASSWORD=your_password
-
-# Or use Mailgun, SendGrid, etc.
-```
-
-See [MAIL_SYSTEM_DISABLED_GUIDE.md](MAIL_SYSTEM_DISABLED_GUIDE.md) for disabling the mail system.
-
----
-
-## 📚 Documentation
-
-Comprehensive implementation guides are available in the `Implementation Guides/` directory:
-
-- [Account Lockout System](Implementation%20Guides/ACCOUNT_LOCKOUT_COMPLETE_GUIDE.md)
-- [Account Inactivity Feature](Implementation%20Guides/ACCOUNT_INACTIVE_COMPLETE_SUMMARY.md)
-- [Activity Logs Documentation](Implementation%20Guides/ACTIVITY_LOGS_DOCUMENTATION.md)
-- [Admin Notifications](Implementation%20Guides/ADMIN_NOTIFICATIONS_COMPLETE.md)
-- [API Documentation](Implementation%20Guides/ACCOUNT_LOCKOUT_API_DOCUMENTATION.md)
-- [Master Documentation Index](Implementation%20Guides/_DOCUMENTATION_MASTER_INDEX.md)
-
----
-
-## 🎯 Roadmap
-
-- ✅ Core library management features
-- ✅ Account security features
-- ✅ Activity logging system
-- ⏳ Mobile app (React Native)
-- ⏳ Advanced analytics dashboard
-- ⏳ Integration with external book databases
-- ⏳ Multi-language support
-- ⏳ REST API expansion
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome and appreciated! Here's how to get started:
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please ensure all tests pass and follow the project's code style guidelines.
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Problem**: "Cannot find database"
-```bash
-# Solution: Ensure database is created and .env is configured
-php artisan migrate:fresh --seed
-```
-
-**Problem**: "File not found" errors
-```bash
-# Solution: Set correct file permissions
-chmod -R 775 storage/
-chmod -R 775 bootstrap/cache/
-```
-
-**Problem**: Assets not loading
-```bash
-# Solution: Rebuild frontend assets
-npm run build
-```
-
-For more troubleshooting, see [ACCOUNT_LOCKOUT_FAQ_TROUBLESHOOTING.md](Implementation%20Guides/ACCOUNT_LOCKOUT_FAQ_TROUBLESHOOTING.md)
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Author & Support
-
-**Library Management System V4**
-
-For issues, questions, or suggestions:
-- 📧 Email: librarymanagementsystem270@gmail.com
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/library-management-system/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/library-management-system/discussions)
-
----
-
-## 🙏 Acknowledgments
-
-- Laravel community for the amazing framework
-- Tailwind CSS for beautiful styling
-- All contributors and users
-
----
-
-**Last Updated**: February 2026  
-**Current Version**: 4.0.0  
-**Status**: ✅ Production Ready
+This project is distributed under the MIT License, as declared in `composer.json`.
