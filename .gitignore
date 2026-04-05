@@ -27,4 +27,4 @@ Thumbs.db
 *.db
 LibraryMS
 # Large JSON seed data (use database seeders instead)
-database/JSON/
+# database/JSON/
