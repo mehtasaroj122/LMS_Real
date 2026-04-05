@@ -23,14 +23,18 @@ class StudentManagementActionService
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
+                'gender' => $validated['gender'] ?? null,
                 'date_of_birth' => $validated['date_of_birth'],
+                'address' => $validated['address'],
                 'role' => 'student',
-                'status' => 'active',
-                'password' => bcrypt('password'),
+                'status' => 'inactive',
+                'password' => null,
+                'is_verified' => false,
             ]);
 
             $student = Student::create([
                 'user_id' => $user->id,
+                'student_id' => $validated['roll_no'],
                 'roll_no' => $validated['roll_no'],
                 'department_id' => $validated['department_id'],
                 'batch' => $validated['batch'],
@@ -62,6 +66,10 @@ class StudentManagementActionService
 
         if ($oldStatus === $status) {
             return $student->load(['user', 'department']);
+        }
+
+        if ($status === 'active' && $student->user->requiresSelfRegistration()) {
+            throw new RuntimeException('This invited account must complete registration before it can be activated.');
         }
 
         $student->user->update(['status' => $status]);

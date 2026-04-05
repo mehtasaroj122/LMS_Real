@@ -7,6 +7,9 @@
     'heroCopy' => null,
     'heroTagline' => null,
     'heroFeatures' => null,
+    'shellMaxWidthClass' => 'max-w-5xl',
+    'panelGridClass' => 'lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]',
+    'contentMaxWidthClass' => 'max-w-md',
 ])
 
 @php
@@ -37,21 +40,17 @@
             ],
         ],
         'Register' => [
-            'title' => 'Create your library account and start exploring.',
-            'copy' => 'Register to borrow books, follow request updates, and receive library announcements through a verified student account.',
-            'tagline' => 'A verified account unlocks borrowing, requests, and library notifications in one place.',
+            'title' => 'Complete your invited library account.',
+            'copy' => 'Verify your invited details and set your password.',
+            'tagline' => 'Staff and students finish setup here.',
             'features' => [
                 [
-                    'title' => 'Borrowing ready',
-                    'copy' => 'Get set up for loans, renewals, and book discovery with your own account.',
+                    'title' => 'Invited identity',
+                    'copy' => 'Use the email, ID, and phone linked to your account.',
                 ],
                 [
-                    'title' => 'Request tracking',
-                    'copy' => 'Follow reservation and circulation updates without visiting the desk each time.',
-                ],
-                [
-                    'title' => 'Email notices',
-                    'copy' => 'Receive reminders, updates, and library announcements in your verified inbox.',
+                    'title' => 'Secure password',
+                    'copy' => 'Choose your own password to finish setup.',
                 ],
             ],
         ],
@@ -214,6 +213,12 @@
                 'copy' => 'Stay productive on large displays while keeping mobile access clean and focused.',
             ],
         ]);
+    $heroFeatureCount = count($heroFeatures);
+    $heroFeatureGridClass = match (true) {
+        $heroFeatureCount <= 1 => 'mt-6 grid gap-3 text-left',
+        $heroFeatureCount === 2 => 'mt-6 grid gap-3 text-left sm:grid-cols-2',
+        default => 'mt-6 grid gap-3 text-left sm:grid-cols-3',
+    };
 @endphp
 
 <!DOCTYPE html>
@@ -255,10 +260,10 @@
         <div class="pointer-events-none absolute bottom-[-8rem] right-[-6rem] -z-10 h-80 w-80 rounded-full bg-amber-200/70 blur-3xl dark:bg-amber-500/10"></div>
         <div class="pointer-events-none absolute left-[-6rem] top-1/3 -z-10 h-72 w-72 rounded-full bg-teal-200/60 blur-3xl dark:bg-teal-500/10"></div>
 
-        <main class="mx-auto flex min-h-screen max-w-5xl items-center px-3 py-4 sm:px-4 sm:py-6 lg:px-5">
-            <div class="grid w-full overflow-hidden rounded-[1.5rem] border border-white/70 bg-white/72 shadow-[0_28px_80px_-46px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/75 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]">
+        <main class="mx-auto flex min-h-screen {{ $shellMaxWidthClass }} items-center px-3 py-4 sm:px-4 sm:py-6 lg:px-5">
+            <div class="grid w-full overflow-hidden rounded-[1.5rem] border border-white/70 bg-white/72 shadow-[0_28px_80px_-46px_rgba(15,23,42,0.35)] backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/75 {{ $panelGridClass }}">
                 <section class="relative flex items-center justify-center px-5 py-7 sm:px-7 lg:px-8 xl:px-9">
-                    <div class="w-full max-w-md">
+                    <div class="w-full {{ $contentMaxWidthClass }}">
                         <a href="{{ url('/') }}" class="inline-flex items-center gap-3 rounded-full border border-slate-200/80 bg-white/75 px-3 py-2 text-[0.72rem] font-medium text-slate-600 shadow-sm shadow-slate-950/5 backdrop-blur transition hover:border-sky-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-sky-500/20 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-300 dark:hover:border-sky-400/40 dark:hover:text-white">
                             <x-logo size="sm" :lazy="false" />
                             <span class="truncate">{{ $brandName }}</span>
@@ -327,18 +332,20 @@
                                 {{ $resolvedHeroTagline }}
                             </div>
 
-                            <div class="mt-6 grid gap-3 text-left sm:grid-cols-3">
-                                @foreach ($heroFeatures as $feature)
-                                    <div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md">
-                                        <p class="text-sm font-semibold text-white">
-                                            {{ $feature['title'] ?? '' }}
-                                        </p>
-                                        <p class="mt-2 text-sm leading-6 text-slate-100/80">
-                                            {{ $feature['copy'] ?? '' }}
-                                        </p>
-                                    </div>
-                                @endforeach
-                            </div>
+                            @if ($heroFeatureCount > 0)
+                                <div class="{{ $heroFeatureGridClass }}">
+                                    @foreach ($heroFeatures as $feature)
+                                        <div class="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md">
+                                            <p class="text-sm font-semibold text-white">
+                                                {{ $feature['title'] ?? '' }}
+                                            </p>
+                                            <p class="mt-2 text-sm leading-6 text-slate-100/80">
+                                                {{ $feature['copy'] ?? '' }}
+                                            </p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </aside>

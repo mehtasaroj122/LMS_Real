@@ -12,6 +12,13 @@
         ?? data_get($user, 'staff.department.name')
         ?? '';
 
+    $identityValue = $user->role === 'staff'
+        ? data_get($user, 'staff.staff_id', '')
+        : data_get($user, 'student.student_id', data_get($user, 'student.roll_no', ''));
+
+    $hasPassword = $user->hasCompletedRegistration();
+    $registrationPending = $user->requiresSelfRegistration();
+
     $lastLoginLabel = $user->last_login_at
         ? \Carbon\Carbon::parse($user->last_login_at)->format('d-M-Y')
         : 'Never';
@@ -23,9 +30,13 @@
     data-name="{{ $user->name }}"
     data-email="{{ $user->email }}"
     data-phone="{{ $user->phone ?? '' }}"
+    data-gender="{{ $user->gender ?? '' }}"
     data-department-name="{{ $departmentName }}"
     data-student-roll-no="{{ data_get($user, 'student.roll_no', '') }}"
+    data-student-id="{{ data_get($user, 'student.student_id', data_get($user, 'student.roll_no', '')) }}"
+    data-staff-id="{{ data_get($user, 'staff.staff_id', '') }}"
     data-staff-designation="{{ data_get($user, 'staff.designation', '') }}"
+    data-has-password="{{ $hasPassword ? '1' : '0' }}"
     data-profile-photo-url="{{ $profilePhotoUrl ?? '' }}"
     data-last-login="{{ $lastLoginLabel }}"
     data-is-current-user="{{ $user->id === auth()->id() ? '1' : '0' }}">
@@ -71,19 +82,23 @@
         @endif
     </td>
     <td>
-        @if ($user->student && $user->student->department && $user->student->department->name)
-            {{ $user->student->department->name }}
-        @elseif($user->staff && $user->staff->department && $user->staff->department->name)
-            {{ $user->staff->department->name }}
-        @else
-            -
-        @endif
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-weight: 600;">
+                {{ $identityValue !== '' ? $identityValue : 'Not assigned' }}
+            </span>
+            <span class="text-muted">
+                {{ $departmentName !== '' ? $departmentName : 'No department assigned' }}
+            </span>
+        </div>
     </td>
     <td>
         <span class="status-badge {{ $user->status === 'active' ? 'status-active' : 'status-inactive' }}">
             <i class="fas {{ $user->status === 'active' ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
             {{ ucfirst($user->status) }}
         </span>
+        @if ($registrationPending)
+            <div class="text-muted" style="font-size: 11px; margin-top: 4px;">Registration pending</div>
+        @endif
     </td>
     <td>{{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->format('d-M-Y') : 'Never' }}</td>
     <td>
@@ -94,7 +109,12 @@
             <button type="button" class="action-btn edit" title="Edit User">
                 <i class="fas fa-edit"></i>
             </button>
-            <button type="button" class="action-btn password" title="Reset Password">
+            <button
+                type="button"
+                class="action-btn password"
+                title="{{ $registrationPending ? 'Complete registration first' : 'Reset Password' }}"
+                @disabled($registrationPending)
+            >
                 <i class="fas fa-key"></i>
             </button>
             <button type="button" class="action-btn toggle" title="Toggle Status" data-status="{{ $user->status }}">

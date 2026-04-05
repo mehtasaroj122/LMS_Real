@@ -18,9 +18,11 @@ Route::middleware('guest')->group(function () {
         ->name('register');
 
     Route::post('register/validate-field', [RegisteredUserController::class, 'validateField'])
+        ->middleware('throttle:registration')
         ->name('register.validate-field');
 
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::post('register', [RegisteredUserController::class, 'store'])
+        ->middleware('throttle:registration');
 
     // OTP Verification Routes
     Route::get('verify-otp', [OTPVerificationController::class, 'showVerificationPage'])

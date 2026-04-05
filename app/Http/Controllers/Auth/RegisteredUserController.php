@@ -3,64 +3,122 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\OTPVerificationMail;
+use App\Http\Requests\Auth\CompleteRegistrationRequest;
+use App\Services\Auth\InvitedUserRegistrationService;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(Request $request, InvitedUserRegistrationService $registrationService): View
     {
-        return view('auth.register');
+        $prefillRole = strtolower(trim((string) $request->query('role', 'staff')));
+        $prefillEmail = strtolower(trim((string) $request->query('email', '')));
+        $existingAccountMessage = null;
+
+        if (in_array($prefillRole, ['staff', 'student'], true) && $prefillEmail !== '') {
+            $emailValidation = $registrationService->validateEmailForRegistration($prefillRole, $prefillEmail);
+
+            if (($emailValidation['valid'] ?? false) !== true) {
+                $existingAccountMessage = $emailValidation['message'];
+            }
+        }
+
+        return view('auth.register', [
+            'prefillRole' => $prefillRole,
+            'prefillEmail' => $prefillEmail,
+            'existingAccountMessage' => $existingAccountMessage,
+        ]);
     }
 
     /**
      * Validate live registration fields.
      */
-    public function validateField(Request $request): JsonResponse
+    public function validateField(Request $request, InvitedUserRegistrationService $registrationService): JsonResponse
     {
-        if ((string) $request->input('field') !== 'email') {
+        $field = (string) $request->input('field');
+
+        if (!in_array($field, ['email', 'staff_id', 'student_id', 'phone'], true)) {
             return response()->json([
                 'valid' => false,
                 'message' => 'Unsupported validation field.',
             ], 422);
         }
 
+        $role = strtolower(trim((string) $request->input('role', '')));
+        $email = $registrationService->normalizeEmail($request->input('email'));
+        $phone = $registrationService->normalizePhone($request->input('phone'));
+        $identifier = $role === 'staff'
+            ? $request->input('staff_id')
+            : $request->input('student_id');
+
         $validator = Validator::make(
-            $request->all(),
             [
-                'email' => ['bail', 'required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)],
+                'role' => $role,
+                'email' => $email,
+                'phone' => $phone,
+                'staff_id' => $registrationService->normalizeIdentifier($request->input('staff_id')),
+                'student_id' => $registrationService->normalizeIdentifier($request->input('student_id')),
             ],
             [
-                'email.required' => 'Please enter your email address.',
+                'role' => ['bail', 'required', 'in:staff,student'],
+                'email' => ['bail', 'required', 'email:rfc', 'max:255'],
+                'phone' => ['bail', 'nullable', 'regex:/^\+[1-9]\d{7,14}$/'],
+                'staff_id' => ['bail', 'nullable', 'regex:/^[A-Za-z0-9-]+$/'],
+                'student_id' => ['bail', 'nullable', 'regex:/^[A-Za-z0-9-]+$/'],
+            ],
+            [
+                'role.required' => 'Please select the invitation role.',
+                'role.in' => 'Please select a valid registration role.',
+                'email.required' => 'Please enter the invited email address.',
                 'email.email' => 'Please enter a valid email address.',
-                'email.unique' => 'This email has already been taken.',
-                'email.max' => 'Email address must not exceed 255 characters.',
+                'phone.regex' => 'Please use an international phone format like +9779812345678.',
+                'staff_id.regex' => 'Staff ID can use letters, numbers, and hyphens only.',
+                'student_id.regex' => 'Student ID can use letters, numbers, and hyphens only.',
             ]
         );
 
         if ($validator->fails()) {
             return response()->json([
                 'valid' => false,
-                'message' => $validator->errors()->first('email'),
+                'message' => $validator->errors()->first(),
                 'errors' => $validator->errors(),
             ], 422);
         }
 
+        if ($field === 'email') {
+            $emailValidation = $registrationService->validateEmailForRegistration($role, $email);
+
+            if (($emailValidation['valid'] ?? false) !== true) {
+                return response()->json([
+                    'valid' => false,
+                    'message' => $emailValidation['message'] ?? 'This account is already active. Please sign in instead.',
+                ], 422);
+            }
+        }
+
+        if (in_array($field, ['staff_id', 'student_id', 'phone'], true) && $identifier && $email !== '') {
+            $validation = $registrationService->validateIdentity($role, $email, $phone, $identifier);
+
+            if (($validation['valid'] ?? false) !== true) {
+                return response()->json([
+                    'valid' => false,
+                    'message' => $validation['message'] ?? 'The invitation details do not match our records.',
+                ], 422);
+            }
+        }
+
         return response()->json([
             'valid' => true,
-            'message' => 'Email address is available.',
+            'message' => 'Registration details look valid.',
         ]);
     }
 
@@ -69,43 +127,37 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(
+        CompleteRegistrationRequest $request,
+        InvitedUserRegistrationService $registrationService
+    ): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        // Generate 6-digit OTP
-        $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-        $hashedPassword = Hash::make($request->password);
-
-        // Store registration data in session (NOT in database yet)
-        session([
-            'registration_data' => [
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => $hashedPassword,
-                'otp' => $otp,
-                'otp_expires_at' => now()->addMinutes(10)->timestamp,
-            ]
-        ]);
-
-        // Send OTP via email
         try {
-            Mail::to($request->email)->send(new OTPVerificationMail($otp, $request->name));
-            \Log::info('Sent registration OTP email', [
-                'email' => $request->email,
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Failed to send OTP email: ' . $e->getMessage());
-            return redirect()->route('register')
-                ->withErrors(['email' => 'Failed to send OTP. Please try again.']);
+            $user = $registrationService->completeRegistration($request->validated());
+        } catch (\RuntimeException $exception) {
+            $message = (string) $exception->getMessage();
+            $normalizedMessage = strtolower($message);
+            $errorField = $request->input('role') === 'staff' ? 'staff_id' : 'student_id';
+
+            if (str_contains($normalizedMessage, 'already active') || str_contains($normalizedMessage, 'sign in')) {
+                $errorField = 'email';
+            } elseif (str_contains($normalizedMessage, 'phone number')) {
+                $errorField = 'phone';
+            }
+
+            return redirect()
+                ->route('register')
+                ->withInput($request->except(['password', 'password_confirmation']))
+                ->withErrors([
+                    $errorField => $message,
+                ]);
         }
 
-        // Redirect to OTP verification page
-        return redirect()->route('verify.otp.page', ['email' => $request->email])
-            ->with('status', 'OTP has been sent to your email. Please verify to complete registration.');
+        event(new Registered($user));
+        Auth::login($user);
+
+        return redirect()
+            ->to($registrationService->dashboardRouteFor($user))
+            ->with('status', 'Registration completed successfully. Your account is now active.');
     }
 }

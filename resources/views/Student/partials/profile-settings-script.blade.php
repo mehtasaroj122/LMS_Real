@@ -18,7 +18,7 @@
             feedbackUI: null,
         };
 
-        const profileFields = ['name', 'email', 'phone', 'address'];
+        const profileFields = ['name', 'email', 'phone', 'gender', 'address'];
         const passwordFields = ['current_password', 'password', 'password_confirmation'];
         const requirementText = {
             reqLength: 'At least 8 characters',
@@ -48,6 +48,9 @@
                         : null,
             phone: (value) => phone(value) && !/^\+?\d{10,20}$/.test(phone(value))
                 ? 'Please enter a valid phone number'
+                : null,
+            gender: (value) => String(value || '').trim() && !['male', 'female', 'other'].includes(String(value || '').trim())
+                ? 'Please select a valid gender option'
                 : null,
             address: (value) => String(value || '').trim().length > 500
                 ? 'Address must be 500 characters or fewer'
@@ -513,6 +516,10 @@
 
             if ('phone' in user) {
                 document.getElementById('phone').value = user.phone || '';
+            }
+
+            if ('gender' in user && document.getElementById('gender')) {
+                document.getElementById('gender').value = user.gender || '';
             }
 
             if ('department' in user && els.department) {
@@ -1164,6 +1171,7 @@
                 name: text(document.getElementById('name')?.value || ''),
                 email: String(document.getElementById('email')?.value || '').trim().toLowerCase(),
                 phone: phone(document.getElementById('phone')?.value || ''),
+                gender: String(document.getElementById('gender')?.value || '').trim().toLowerCase(),
                 address: String(document.getElementById('address')?.value || '').trim(),
             };
         }

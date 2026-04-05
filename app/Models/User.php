@@ -22,6 +22,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'email_verified_at',
         'phone',
+        'gender',
         'date_of_birth',
         'address',
         'profile_photo',
@@ -85,6 +86,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function notificationPreferences()
     {
         return $this->hasOne(NotificationPreference::class);
+    }
+
+    public function hasCompletedRegistration(): bool
+    {
+        return filled($this->password);
+    }
+
+    public function requiresSelfRegistration(): bool
+    {
+        return in_array($this->role, ['staff', 'student'], true) && ! $this->hasCompletedRegistration();
     }
 
     public function getUnreadNotificationCount()

@@ -72,6 +72,10 @@
                     <span class="student-info-value">{{ $student->user?->phone ?? 'N/A' }}</span>
                 </div>
                 <div class="student-info-item">
+                    <span class="student-info-label">Gender</span>
+                    <span class="student-info-value">{{ $student->user?->gender ? ucfirst($student->user->gender) : 'N/A' }}</span>
+                </div>
+                <div class="student-info-item">
                     <span class="student-info-label">Department</span>
                     <span class="student-info-value">{{ $student->department?->name ?? 'N/A' }}</span>
                 </div>

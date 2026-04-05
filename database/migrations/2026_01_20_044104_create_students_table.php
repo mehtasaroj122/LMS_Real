@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
+            $table->string('student_id', 50)->nullable()->unique();
             $table->string('roll_no', 20)->unique();
             $table->string('batch', 20)->nullable();
             $table->string('semester', 20);

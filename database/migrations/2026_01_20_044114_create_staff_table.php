@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('staff', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('department_id')->constrained()->cascadeOnDelete();
-            $table->string('designation', 100);
-            $table->date('join_date');
+            $table->string('staff_id', 50)->nullable()->unique();
+            $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('designation', 100)->nullable();
+            $table->date('join_date')->nullable();
             $table->timestamps();
         });
     }

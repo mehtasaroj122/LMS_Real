@@ -13,7 +13,7 @@ class ActivityLogger
 {
     public static function userProfileAuditFields(): array
     {
-        return ['name', 'email', 'phone', 'address', 'date_of_birth', 'profile_photo'];
+        return ['name', 'email', 'phone', 'gender', 'address', 'date_of_birth', 'profile_photo'];
     }
 
     private static function resolveStudentName(Student $student): string
@@ -158,6 +158,7 @@ class ActivityLogger
     {
         return match ($field) {
             'date_of_birth' => 'date of birth',
+            'gender' => 'gender',
             'profile_photo' => 'profile picture',
             default => str_replace('_', ' ', $field),
         };

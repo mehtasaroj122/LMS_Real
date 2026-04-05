@@ -20,6 +20,7 @@ class StaffSeeder extends Seeder
         $staff->each(function ($member) {
             staff::create([
                 'user_id' => $member['user_id'],
+                'staff_id' => $member['staff_id'] ?? ('STAFF-' . str_pad((string) $member['user_id'], 6, '0', STR_PAD_LEFT)),
                 'department_id' => $member['department_id'],
                 'designation' => $member['designation'],
                 'join_date' => $member['join_date'],

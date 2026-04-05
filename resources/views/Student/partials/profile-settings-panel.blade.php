@@ -67,6 +67,18 @@
             </div>
 
             <div class="form-group">
+                <label for="gender" class="form-label">Gender</label>
+                <select id="gender" name="gender" data-validate="gender" class="form-input" aria-describedby="error_gender" aria-invalid="false" disabled>
+                    <option value="">Select gender</option>
+                    <option value="male" @selected(($user->gender ?? null) === 'male')>Male</option>
+                    <option value="female" @selected(($user->gender ?? null) === 'female')>Female</option>
+                    <option value="other" @selected(($user->gender ?? null) === 'other')>Other</option>
+                </select>
+                <div class="form-hint">Personal profile information used across your library account</div>
+                <div class="field-error" id="error_gender" aria-live="polite"></div>
+            </div>
+
+            <div class="form-group">
                 <label for="department" class="form-label">Department</label>
                 <input type="text" id="department" class="form-input" value="{{ $departmentName }}" disabled>
                 <div class="form-hint">Department is assigned by admin and cannot be edited here</div>

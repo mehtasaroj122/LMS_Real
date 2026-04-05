@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
                 'name' => $user['name'],
                 'email' => $user['email'],
                 'phone' => $user['phone'],
+                'gender' => $user['gender'] ?? null,
                 'profile_photo' => $user['profile_photo'],
                 'password' => bcrypt($user['password']),
                 'status' => $user['status'],

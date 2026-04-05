@@ -2,12 +2,13 @@
 
 namespace App\Http\Requests\StudentManagement;
 
+use App\Models\Student;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
-class StoreStudentRequest extends FormRequest
+class UpdateStudentRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -26,22 +27,26 @@ class StoreStudentRequest extends FormRequest
             'batch' => $this->cleanText($this->input('batch')),
             'semester' => $this->cleanText($this->input('semester')),
             'address' => $this->cleanText($this->input('address')),
+            'status' => strtolower($this->cleanText($this->input('status')) ?? ''),
         ]);
     }
 
     public function rules(): array
     {
+        $student = $this->resolveStudent();
+
         return [
             'name' => ['bail', 'required', 'string', 'min:2', 'max:100', 'regex:/^[A-Za-z ]+$/'],
-            'email' => ['bail', 'required', 'string', 'email:rfc', 'max:255', Rule::unique('users', 'email')],
-            'phone' => ['bail', 'required', 'string', 'min:8', 'max:20', 'regex:/^\+[1-9]\d{7,14}$/', Rule::unique('users', 'phone')],
+            'email' => ['bail', 'required', 'string', 'email:rfc', 'max:255', Rule::unique('users', 'email')->ignore($student?->user_id)],
+            'phone' => ['bail', 'required', 'string', 'min:8', 'max:20', 'regex:/^\+[1-9]\d{7,14}$/', Rule::unique('users', 'phone')->ignore($student?->user_id)],
             'gender' => ['bail', 'nullable', Rule::in(['male', 'female', 'other'])],
             'date_of_birth' => ['bail', 'required', 'date', 'before:today'],
-            'roll_no' => ['bail', 'required', 'string', 'min:3', 'max:30', 'regex:/^[A-Za-z0-9-]+$/', Rule::unique('students', 'roll_no')],
+            'roll_no' => ['bail', 'required', 'string', 'min:3', 'max:30', 'regex:/^[A-Za-z0-9-]+$/', Rule::unique('students', 'roll_no')->ignore($student?->id)],
             'department_id' => ['bail', 'required', 'integer', Rule::exists('departments', 'id')],
             'batch' => ['bail', 'required', 'regex:/^(19|20)\d{2}$/'],
             'semester' => ['bail', 'required', 'integer', 'between:1,12'],
             'address' => ['bail', 'required', 'string', 'min:10', 'max:255', 'not_regex:/<[^>]*>/'],
+            'status' => ['bail', 'required', Rule::in(['active', 'inactive'])],
         ];
     }
 
@@ -91,7 +96,31 @@ class StoreStudentRequest extends FormRequest
             'address.min' => 'Address must be at least 10 characters long.',
             'address.max' => 'Address must be 255 characters or fewer.',
             'address.not_regex' => 'Address contains unsupported characters. Remove any HTML or script-like content.',
+
+            'status.required' => 'Select the student status.',
+            'status.in' => 'Select a valid student status.',
         ];
+    }
+
+    protected function resolveStudent(): ?Student
+    {
+        $routeStudent = $this->route('student');
+
+        if ($routeStudent instanceof Student) {
+            return $routeStudent;
+        }
+
+        if (is_scalar($routeStudent) && $routeStudent !== '') {
+            return Student::find($routeStudent);
+        }
+
+        $routeId = $this->route('id');
+
+        if (is_scalar($routeId) && $routeId !== '') {
+            return Student::find($routeId);
+        }
+
+        return null;
     }
 
     public function withValidator(Validator $validator): void

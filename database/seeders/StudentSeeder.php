@@ -20,6 +20,7 @@ class StudentSeeder extends Seeder
         $students->each(function ($student) {
             Student::create([
                 'user_id' => $student['user_id'],
+                'student_id' => $student['student_id'] ?? $student['roll_no'],
                 'department_id' => $student['department_id'],
                 'roll_no' => $student['roll_no'],
                 'batch' => $student['batch'],

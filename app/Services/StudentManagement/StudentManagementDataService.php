@@ -95,15 +95,19 @@ class StudentManagementDataService
             'id' => $student->id,
             'name' => $name,
             'initials' => $this->initials($name),
-            'rollNo' => $student->roll_no ?? 'N/A',
+            'studentId' => $student->student_id ?? $student->roll_no ?? 'N/A',
+            'rollNo' => $student->student_id ?? $student->roll_no ?? 'N/A',
             'email' => $student->user?->email ?? 'N/A',
             'phone' => $student->user?->phone ?? 'N/A',
+            'gender' => $student->user?->gender ?? 'N/A',
             'departmentId' => $student->department_id,
             'department' => $student->department?->name ?? 'N/A',
             'batch' => $student->batch ?? 'N/A',
             'semester' => $student->semester ?? 'N/A',
             'status' => $status,
             'statusLabel' => ucfirst($status),
+            'hasPassword' => (bool) $student->user?->hasCompletedRegistration(),
+            'registrationPending' => (bool) $student->user?->requiresSelfRegistration(),
             'avatar' => $this->profilePhotoUrl($profilePhoto),
             'createdAt' => optional($student->created_at)->format('M d, Y'),
             'canView' => true,
@@ -150,7 +154,8 @@ class StudentManagementDataService
                     $userQuery->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%");
-                })->orWhere('roll_no', 'like', "%{$search}%");
+                })->orWhere('roll_no', 'like', "%{$search}%")
+                    ->orWhere('student_id', 'like', "%{$search}%");
             });
         }
 

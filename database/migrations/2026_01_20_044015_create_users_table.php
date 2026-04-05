@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('name', 100);
             $table->string('email')->unique();
             $table->string('phone', 15)->nullable()->unique();
+            $table->enum('gender', ['male', 'female', 'other'])->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('remember_token')->nullable();
             $table->string('otp')->nullable()->comment('6-digit OTP for email verification');

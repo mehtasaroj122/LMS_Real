@@ -2008,7 +2008,7 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Role</th>
-                                <th>Department</th>
+                                <th>Identity / Department</th>
                                 <th>Status</th>
                                 <th>Last Login</th>
                                 <th>Actions</th>
@@ -2038,7 +2038,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="modal-description">Create a new user account with appropriate role and permissions</p>
+                <p class="modal-description">Create an invited user account. Staff and students will finish registration themselves and set their own password.</p>
 
                 <form id="addUserForm" novalidate>
                     @csrf
@@ -2053,12 +2053,6 @@
                         <label class="form-label required">Email</label>
                         <input type="email" class="form-control" name="email" id="addEmail" placeholder="john@example.com">
                         <span class="field-error" id="addEmailError"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label required">Password</label>
-                        <input type="password" class="form-control" name="password" id="addPassword" placeholder="Min. 6 characters" minlength="6">
-                        <span class="field-error" id="addPasswordError"></span>
                     </div>
 
                     <div class="form-group">
@@ -2078,6 +2072,17 @@
                         <span class="field-error" id="addPhoneError"></span>
                     </div>
 
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select class="form-control" name="gender" id="addGender">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <span class="field-error" id="addGenderError"></span>
+                    </div>
+
                     <div class="form-group conditional-field" data-for="staff,student">
                         <label class="form-label required">Department</label>
                         <select class="form-control" name="department_id" id="addDepartmentSelect">
@@ -2087,6 +2092,12 @@
                             @endforeach
                         </select>
                         <span class="field-error" id="addDepartmentError"></span>
+                    </div>
+
+                    <div class="form-group conditional-field" data-for="staff">
+                        <label class="form-label required">Staff ID</label>
+                        <input type="text" class="form-control" name="staff_id" id="addStaffId" placeholder="STAFF-000001">
+                        <span class="field-error" id="addStaffIdError"></span>
                     </div>
 
                     <div class="form-group conditional-field" data-for="staff">
@@ -2204,6 +2215,17 @@
                         <span class="field-error" id="editPhoneError"></span>
                     </div>
 
+                    <div class="form-group">
+                        <label class="form-label">Gender</label>
+                        <select class="form-control" id="editGender" name="gender">
+                            <option value="">Select Gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <span class="field-error" id="editGenderError"></span>
+                    </div>
+
                     <div class="form-group" id="editDepartmentGroup" style="display: none;">
                         <label class="form-label required">Department</label>
                         <select class="form-control" id="editDepartment" name="department_id">
@@ -2213,6 +2235,12 @@
                             @endforeach
                         </select>
                         <span class="field-error" id="editDepartmentError"></span>
+                    </div>
+
+                    <div class="form-group" id="editStaffIdGroup" style="display: none;">
+                        <label class="form-label required">Staff ID</label>
+                        <input type="text" class="form-control" id="editStaffId" name="staff_id" placeholder="STAFF-000001">
+                        <span class="field-error" id="editStaffIdError"></span>
                     </div>
 
                     <div class="form-group" id="editStaffDesignationGroup" style="display: none;">
@@ -2317,8 +2345,16 @@
                             <div class="user-detail-value" id="viewUserPhone">Not provided</div>
                         </div>
                         <div class="user-detail-item">
+                            <div class="user-detail-label">Gender</div>
+                            <div class="user-detail-value" id="viewUserGender">Not provided</div>
+                        </div>
+                        <div class="user-detail-item">
                             <div class="user-detail-label">Department</div>
                             <div class="user-detail-value" id="viewUserDepartment">Not assigned</div>
+                        </div>
+                        <div class="user-detail-item" id="viewUserStaffIdItem" hidden>
+                            <div class="user-detail-label">Staff ID</div>
+                            <div class="user-detail-value" id="viewUserStaffId">-</div>
                         </div>
                         <div class="user-detail-item" id="viewUserDesignationItem" hidden>
                             <div class="user-detail-label">Designation</div>
@@ -2329,7 +2365,7 @@
                             <div class="user-detail-value" id="viewUserJoinDate">-</div>
                         </div>
                         <div class="user-detail-item" id="viewUserRollNoItem" hidden>
-                            <div class="user-detail-label">Roll Number</div>
+                            <div class="user-detail-label">Student ID</div>
                             <div class="user-detail-value" id="viewUserRollNo">-</div>
                         </div>
                         <div class="user-detail-item" id="viewUserBatchItem" hidden>
@@ -2420,10 +2456,6 @@
                 format: 'Enter a valid email address, like user@example.com.',
                 unique: 'This email is already assigned to another user.',
             },
-            password: {
-                required: 'Enter a password for the user.',
-                min: 'Password must be at least 6 characters long.',
-            },
             role: {
                 required: 'Select a user role.',
                 invalid: 'Select a valid user role.',
@@ -2432,6 +2464,9 @@
                 format: 'Enter a valid phone number with country code, like +9779812345678.',
                 unique: 'This phone number is already assigned to another user.',
             },
+            gender: {
+                invalid: 'Select a valid gender option.',
+            },
             address: {
                 min: 'Address must be at least 10 characters long.',
                 unsafe: 'Address contains unsupported characters. Remove any HTML or script-like content.',
@@ -2439,12 +2474,16 @@
             department_id: {
                 required: 'Select a department.',
             },
+            staff_id: {
+                required: 'Enter the staff ID.',
+                min: 'Staff ID must be at least 3 characters long.',
+                format: 'Staff ID can use letters, numbers, and hyphens only.',
+                unique: 'This staff ID is already in use.',
+            },
             designation: {
-                required: 'Enter the staff designation.',
                 min: 'Staff designation must be at least 2 characters long.',
             },
             join_date: {
-                required: 'Select the join date for the staff member.',
                 invalid: 'Enter a valid join date.',
                 future: 'Join date cannot be in the future.',
             },
@@ -2490,6 +2529,7 @@
 
                     return trimmed.startsWith('+') ? `+${digits}` : digits;
                 }
+                case 'staff_id':
                 case 'roll_no':
                     return rawValue.trim().toUpperCase();
                 default:
@@ -2856,13 +2896,11 @@
                     case 'email':
                     case 'role':
                         return true;
-                    case 'password':
                     case 'status':
                         return this.createMode;
                     case 'department_id':
-                        return ['student', 'staff'].includes(role);
-                    case 'designation':
-                    case 'join_date':
+                        return role === 'student';
+                    case 'staff_id':
                         return role === 'staff';
                     case 'roll_no':
                     case 'batch':
@@ -2887,11 +2925,6 @@
                         if (!value) return USER_VALIDATION_MESSAGES.email.required;
                         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return USER_VALIDATION_MESSAGES.email.format;
                         return '';
-                    case 'password':
-                        if (!this.createMode) return '';
-                        if (!value) return USER_VALIDATION_MESSAGES.password.required;
-                        if (value.length < 6) return USER_VALIDATION_MESSAGES.password.min;
-                        return '';
                     case 'role':
                         if (!value) return USER_VALIDATION_MESSAGES.role.required;
                         if (!['admin', 'staff', 'student'].includes(value)) return USER_VALIDATION_MESSAGES.role.invalid;
@@ -2900,22 +2933,32 @@
                         if (!value) return '';
                         if (!/^\+[1-9]\d{7,14}$/.test(value)) return USER_VALIDATION_MESSAGES.phone.format;
                         return '';
+                    case 'gender':
+                        if (!value) return '';
+                        if (!['male', 'female', 'other'].includes(value)) return USER_VALIDATION_MESSAGES.gender.invalid;
+                        return '';
                     case 'address':
                         if (!value) return '';
                         if (value.length < 10) return USER_VALIDATION_MESSAGES.address.min;
                         if (/<[^>]*>/.test(value)) return USER_VALIDATION_MESSAGES.address.unsafe;
                         return '';
                     case 'department_id':
-                        if (!['student', 'staff'].includes(role)) return '';
+                        if (role !== 'student') return '';
                         return value ? '' : USER_VALIDATION_MESSAGES.department_id.required;
+                    case 'staff_id':
+                        if (role !== 'staff') return '';
+                        if (!value) return USER_VALIDATION_MESSAGES.staff_id.required;
+                        if (value.length < 3) return USER_VALIDATION_MESSAGES.staff_id.min;
+                        if (!/^[A-Za-z0-9-]+$/.test(value)) return USER_VALIDATION_MESSAGES.staff_id.format;
+                        return '';
                     case 'designation':
                         if (role !== 'staff') return '';
-                        if (!value) return USER_VALIDATION_MESSAGES.designation.required;
+                        if (!value) return '';
                         if (value.length < 2) return USER_VALIDATION_MESSAGES.designation.min;
                         return '';
                     case 'join_date': {
                         if (role !== 'staff') return '';
-                        if (!value) return USER_VALIDATION_MESSAGES.join_date.required;
+                        if (!value) return '';
                         const joinDate = new Date(value);
                         if (Number.isNaN(joinDate.getTime())) return USER_VALIDATION_MESSAGES.join_date.invalid;
                         const today = new Date();
@@ -3118,7 +3161,7 @@
                     const normalized = this.normalizeValue(fieldName, value);
                     this.setValue(fieldName, normalized);
 
-                    if (['email', 'phone', 'roll_no'].includes(fieldName) && normalized) {
+                    if (['email', 'phone', 'roll_no', 'staff_id'].includes(fieldName) && normalized) {
                         this.verifiedValues[fieldName] = normalized;
                     }
                 });
@@ -3195,7 +3238,7 @@
                                 element.value = normalized;
                             }
 
-                            if (['email', 'phone', 'roll_no'].includes(fieldName) && this.verifiedValues[fieldName] !== normalized) {
+                            if (['email', 'phone', 'roll_no', 'staff_id'].includes(fieldName) && this.verifiedValues[fieldName] !== normalized) {
                                 delete this.verifiedValues[fieldName];
                             }
 
@@ -3265,6 +3308,8 @@
                 return;
             }
 
+            container.querySelectorAll('.student-toast').forEach((existingToast) => existingToast.remove());
+
             const normalizedType = ['success', 'error', 'warning', 'info'].includes(type)
                 ? type
                 : 'info';
@@ -3274,7 +3319,7 @@
                     title: normalizedType === 'error'
                         ? 'Action Failed'
                         : normalizedType === 'warning'
-                            ? 'Check Required'
+                            ? 'Check Required Fields'
                             : normalizedType === 'success'
                                 ? 'Success'
                                 : 'Notice',
@@ -3368,10 +3413,11 @@
                     fields: {
                         name: { id: 'addName', errorId: 'addNameError' },
                         email: { id: 'addEmail', errorId: 'addEmailError' },
-                        password: { id: 'addPassword', errorId: 'addPasswordError' },
                         role: { id: 'addRoleSelect', errorId: 'addRoleError' },
                         phone: { id: 'addPhone', errorId: 'addPhoneError' },
+                        gender: { id: 'addGender', errorId: 'addGenderError' },
                         department_id: { id: 'addDepartmentSelect', errorId: 'addDepartmentError', roles: ['student', 'staff'] },
+                        staff_id: { id: 'addStaffId', errorId: 'addStaffIdError', roles: ['staff'] },
                         designation: { id: 'addDesignation', errorId: 'addDesignationError', roles: ['staff'] },
                         join_date: { id: 'addJoinDate', errorId: 'addJoinDateError', roles: ['staff'] },
                         roll_no: { id: 'addRollNo', errorId: 'addRollNoError', roles: ['student'] },
@@ -3392,7 +3438,9 @@
                         email: { id: 'editEmail', errorId: 'editEmailError' },
                         role: { id: 'editRole', errorId: 'editRoleError' },
                         phone: { id: 'editPhone', errorId: 'editPhoneError' },
+                        gender: { id: 'editGender', errorId: 'editGenderError' },
                         department_id: { id: 'editDepartment', errorId: 'editDepartmentError', roles: ['student', 'staff'] },
+                        staff_id: { id: 'editStaffId', errorId: 'editStaffIdError', roles: ['staff'] },
                         designation: { id: 'editDesignation', errorId: 'editDesignationError', roles: ['staff'] },
                         join_date: { id: 'editJoinDate', errorId: 'editJoinDateError', roles: ['staff'] },
                         roll_no: { id: 'editRollNo', errorId: 'editRollNoError', roles: ['student'] },
@@ -3526,10 +3574,7 @@
                             'X-CSRF-TOKEN': this.csrf()
                         }
                     })
-                    .then(res => {
-                        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                        return res.json();
-                    })
+                    .then(res => this.parseJsonResponse(res, 'Unable to load users right now.'))
                     .then(data => {
                         console.log('Users data received:', data);
 
@@ -3626,10 +3671,7 @@
                             'X-CSRF-TOKEN': this.csrf()
                         }
                     })
-                    .then(res => {
-                        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                        return res.json();
-                    })
+                    .then(res => this.parseJsonResponse(res, 'Unable to refresh user statistics.'))
                     .then(data => {
                         console.log('Stats received:', data);
                         if (data.success) {
@@ -3658,10 +3700,7 @@
                             'X-CSRF-TOKEN': this.csrf()
                         }
                     })
-                    .then(res => {
-                        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                        return res.json();
-                    })
+                    .then(res => this.parseJsonResponse(res, 'Unable to refresh the user list.'))
                     .then(data => {
                         if (!data.success) return;
                         const paginationContainer = document.getElementById('paginationContainer');
@@ -4117,9 +4156,13 @@
                     name,
                     email,
                     phone: row.dataset.phone || '',
+                    gender: row.dataset.gender || '',
                     departmentName: row.dataset.departmentName || '',
+                    studentId: row.dataset.studentId || row.dataset.studentRollNo || '',
                     studentRollNo: row.dataset.studentRollNo || '',
+                    staffId: row.dataset.staffId || '',
                     staffDesignation: row.dataset.staffDesignation || '',
+                    hasPassword: row.dataset.hasPassword === '1',
                     profilePhotoUrl: row.dataset.profilePhotoUrl || '',
                     initial: (name.charAt(0) || 'U').toUpperCase(),
                     isCurrentUser: row.dataset.isCurrentUser === '1',
@@ -4136,12 +4179,7 @@
                         'Accept': 'application/json'
                     }
                 })
-                    .then(res => {
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! status: ${res.status}`);
-                        }
-                        return res.json();
-                    })
+                    .then(res => this.parseJsonResponse(res, 'Unable to load user details.'))
                     .then(data => {
                         if (!data.success || !data.user) {
                             throw new Error(data.message || 'Invalid response format');
@@ -4192,16 +4230,18 @@
                 const role = userMeta.role || 'student';
 
                 if (role === 'student') {
-                    return userMeta.studentRollNo
-                        ? `Student ID ${userMeta.studentRollNo}`
+                    return userMeta.studentId
+                        ? `Student ID ${userMeta.studentId}`
                         : userMeta.departmentName
                             ? `Student • ${userMeta.departmentName}`
                             : 'Student account';
                 }
 
                 if (role === 'staff') {
-                    return userMeta.staffDesignation
-                        ? `Staff • ${userMeta.staffDesignation}`
+                    return userMeta.staffId
+                        ? `Staff ID ${userMeta.staffId}`
+                        : userMeta.staffDesignation
+                            ? `Staff • ${userMeta.staffDesignation}`
                         : userMeta.departmentName
                             ? `Staff • ${userMeta.departmentName}`
                             : 'Staff account';
@@ -4226,6 +4266,15 @@
                 const email = userMeta.email && userMeta.email !== 'No email available'
                     ? userMeta.email
                     : 'this account';
+
+                if ((userMeta.role === 'staff' || userMeta.role === 'student') && !userMeta.hasPassword) {
+                    return {
+                        title: `Registration pending for ${userMeta.name}`,
+                        message: `${userMeta.name} has not completed self-registration yet, so password reset is not available.`,
+                        detail: this.getRoleConfirmDetail(userMeta),
+                        confirmLabel: 'Registration Pending',
+                    };
+                }
 
                 return {
                     title: `Reset password for ${userMeta.name}?`,
@@ -4402,10 +4451,12 @@
                 }
 
                 this.setUserDetailItem(null, 'viewUserPhone', user.phone, { placeholder: 'Not provided' });
+                this.setUserDetailItem(null, 'viewUserGender', user.gender ? `${user.gender.charAt(0).toUpperCase()}${user.gender.slice(1)}` : null, { placeholder: 'Not provided' });
                 this.setUserDetailItem(null, 'viewUserDepartment', departmentName, { placeholder: 'Not assigned' });
+                this.setUserDetailItem('viewUserStaffIdItem', 'viewUserStaffId', user.staff?.staff_id, { hideWhenEmpty: true });
                 this.setUserDetailItem('viewUserDesignationItem', 'viewUserDesignation', user.staff?.designation, { hideWhenEmpty: true });
                 this.setUserDetailItem('viewUserJoinDateItem', 'viewUserJoinDate', user.staff?.join_date_label || user.staff?.join_date, { hideWhenEmpty: true });
-                this.setUserDetailItem('viewUserRollNoItem', 'viewUserRollNo', user.student?.roll_no, { hideWhenEmpty: true });
+                this.setUserDetailItem('viewUserRollNoItem', 'viewUserRollNo', user.student?.student_id || user.student?.roll_no, { hideWhenEmpty: true });
                 this.setUserDetailItem('viewUserBatchItem', 'viewUserBatch', user.student?.batch, { hideWhenEmpty: true });
                 this.setUserDetailItem('viewUserSemesterItem', 'viewUserSemester', this.formatSemesterLabel(user.student?.semester), { hideWhenEmpty: true });
                 this.setUserDetailItem(null, 'viewUserLastLogin', user.last_login_label || 'Never', { placeholder: 'Never' });
@@ -4448,6 +4499,7 @@
                         document.getElementById('editFullName').value = user.name || '';
                         document.getElementById('editEmail').value = user.email || '';
                         document.getElementById('editPhone').value = user.phone || '';
+                        document.getElementById('editGender').value = user.gender || '';
                         document.getElementById('editAddress').value = user.address || '';
 
                         // Set role
@@ -4458,6 +4510,7 @@
                         this.toggleStudentFields(role);
 
                         document.getElementById('editDepartment').value = '';
+                        document.getElementById('editStaffId').value = '';
                         document.getElementById('editDesignation').value = '';
                         document.getElementById('editJoinDate').value = '';
                         document.getElementById('editRollNo').value = '';
@@ -4467,14 +4520,16 @@
                         // Populate role-specific fields
                         if (role === 'student' && user.student) {
                             document.getElementById('editDepartment').value = user.student.department_id || '';
-                            document.getElementById('editRollNo').value = user.student.roll_no || '';
+                            document.getElementById('editRollNo').value = user.student.student_id || user.student.roll_no || '';
                             document.getElementById('editBatch').value = user.student.batch || '';
                             document.getElementById('editSemester').value = user.student.semester || '';
                         } else if (role === 'staff' && user.staff) {
                             document.getElementById('editDepartment').value = user.staff.department_id || '';
+                            document.getElementById('editStaffId').value = user.staff.staff_id || '';
                             document.getElementById('editDesignation').value = user.staff.designation || '';
                             document.getElementById('editJoinDate').value = user.staff.join_date || '';
                         } else if (role === 'staff') {
+                            document.getElementById('editStaffId').value = '';
                             document.getElementById('editDesignation').value = 'Staff Member';
                             document.getElementById('editJoinDate').value = this.getTodayDate();
                         }
@@ -4484,11 +4539,13 @@
                             email: user.email || '',
                             role: user.role || 'student',
                             phone: user.phone || '',
+                            gender: user.gender || '',
                             address: user.address || '',
                             department_id: user.student?.department_id || user.staff?.department_id || '',
+                            staff_id: user.staff?.staff_id || '',
                             designation: user.staff?.designation || '',
                             join_date: user.staff?.join_date || '',
-                            roll_no: user.student?.roll_no || '',
+                            roll_no: user.student?.student_id || user.student?.roll_no || '',
                             batch: user.student?.batch || '',
                             semester: user.student?.semester || '',
                         });
@@ -4507,6 +4564,7 @@
              */
             toggleStudentFields(role) {
                 const deptGroup = document.getElementById('editDepartmentGroup');
+                const staffIdGroup = document.getElementById('editStaffIdGroup');
                 const designationGroup = document.getElementById('editStaffDesignationGroup');
                 const joinDateGroup = document.getElementById('editStaffJoinDateGroup');
                 const rollNoGroup = document.getElementById('editRollNoGroup');
@@ -4517,16 +4575,18 @@
 
                 if (role === 'student') {
                     deptGroup.style.display = 'block';
+                    staffIdGroup.style.display = 'none';
                     designationGroup.style.display = 'none';
                     joinDateGroup.style.display = 'none';
                     rollNoGroup.style.display = 'block';
                     batchGroup.style.display = 'block';
                     semesterGroup.style.display = 'block';
                     // Update Roll Number label for student
-                    if (rollNoLabel) rollNoLabel.textContent = 'Roll Number';
-                    if (rollNoInput) rollNoInput.placeholder = 'CSE-2021-001';
+                    if (rollNoLabel) rollNoLabel.textContent = 'Student ID';
+                    if (rollNoInput) rollNoInput.placeholder = 'STU-000001';
                 } else if (role === 'staff') {
                     deptGroup.style.display = 'block';
+                    staffIdGroup.style.display = 'block';
                     designationGroup.style.display = 'block';
                     joinDateGroup.style.display = 'block';
                     rollNoGroup.style.display = 'none';
@@ -4537,6 +4597,7 @@
                     }
                 } else {
                     deptGroup.style.display = 'none';
+                    staffIdGroup.style.display = 'none';
                     designationGroup.style.display = 'none';
                     joinDateGroup.style.display = 'none';
                     rollNoGroup.style.display = 'none';
@@ -4554,6 +4615,7 @@
                 const rollNoLabel = document.getElementById('rollNoLabel');
                 const rollNoInput = document.getElementById('addRollNo');
                 const addJoinDate = document.getElementById('addJoinDate');
+                const statusRadios = document.querySelectorAll('#addStatusRadio input[name="status"]');
 
                 conditionalFields.forEach(field => {
                     const allowedRoles = field.getAttribute('data-for');
@@ -4567,17 +4629,26 @@
                 // Update Roll Number label based on role
                 if (rollNoLabel) {
                     if (role === 'student') {
-                        rollNoLabel.textContent = 'Roll Number';
-                        rollNoInput.placeholder = 'CSE-2021-001';
+                        rollNoLabel.textContent = 'Student ID';
+                        rollNoInput.placeholder = 'STU-000001';
                     } else {
-                        rollNoLabel.textContent = 'Roll Number';
-                        rollNoInput.placeholder = 'CSE-2021-001';
+                        rollNoLabel.textContent = 'Student ID';
+                        rollNoInput.placeholder = 'STU-000001';
                     }
                 }
 
                 if (role === 'staff' && addJoinDate && !addJoinDate.value) {
                     addJoinDate.value = this.getTodayDate();
                 }
+
+                statusRadios.forEach((radio) => {
+                    const shouldLockStatus = role === 'staff' || role === 'student';
+                    radio.disabled = shouldLockStatus;
+
+                    if (shouldLockStatus) {
+                        radio.checked = radio.value === 'inactive';
+                    }
+                });
             }
 
             getTodayDate() {
@@ -4605,13 +4676,15 @@
             openResetPasswordModal() {
                 const userMeta = this.getRowUserMeta();
                 const modalCopy = this.getResetPasswordModalContent(userMeta);
+                const submitResetPassword = document.getElementById('submitResetPassword');
 
                 document.getElementById('resetPasswordModalTitle').textContent = modalCopy.title;
                 document.getElementById('resetPasswordModalMessage').textContent = modalCopy.message;
                 document.getElementById('resetPasswordModalDetail').textContent = modalCopy.detail;
-                document.getElementById('submitResetPassword').textContent = modalCopy.confirmLabel;
+                submitResetPassword.textContent = modalCopy.confirmLabel;
+                submitResetPassword.disabled = (userMeta.role === 'staff' || userMeta.role === 'student') && !userMeta.hasPassword;
                 this.openModal('resetPasswordModal');
-                document.getElementById('submitResetPassword')?.focus();
+                submitResetPassword?.focus();
             }
 
             /**
@@ -4621,6 +4694,19 @@
             csrf() {
                 const meta = document.querySelector('meta[name="csrf-token"]');
                 return meta ? meta.content : '';
+            }
+
+            parseJsonResponse(response, fallbackMessage = 'Request failed.') {
+                return response
+                    .json()
+                    .catch(() => ({}))
+                    .then((data) => {
+                        if (!response.ok) {
+                            throw new Error(data?.message || fallbackMessage || `HTTP error! status: ${response.status}`);
+                        }
+
+                        return data;
+                    });
             }
 
             /**
@@ -4815,10 +4901,10 @@
              * Clear all error states in the add user form
              */
             clearAddUserErrors() {
-                const errorFields = ['addNameError', 'addEmailError', 'addPasswordError', 'addRoleError',
-                    'addDepartmentError', 'addDesignationError', 'addJoinDateError', 'addRollNoError', 'addBatchError', 'addSemesterError'];
-                const inputFields = ['addName', 'addEmail', 'addPassword', 'addRoleSelect',
-                    'addDepartmentSelect', 'addDesignation', 'addJoinDate', 'addRollNo', 'addBatch', 'addSemester'];
+                const errorFields = ['addNameError', 'addEmailError', 'addRoleError', 'addPhoneError', 'addGenderError',
+                    'addDepartmentError', 'addStaffIdError', 'addDesignationError', 'addJoinDateError', 'addRollNoError', 'addBatchError', 'addSemesterError', 'addAddressError'];
+                const inputFields = ['addName', 'addEmail', 'addRoleSelect', 'addPhone', 'addGender',
+                    'addDepartmentSelect', 'addStaffId', 'addDesignation', 'addJoinDate', 'addRollNo', 'addBatch', 'addSemester', 'addAddress'];
 
                 errorFields.forEach(id => {
                     const errorEl = document.getElementById(id);
@@ -4853,10 +4939,11 @@
                 const fieldMap = {
                     addName: 'addNameError',
                     addEmail: 'addEmailError',
-                    addPassword: 'addPasswordError',
                     addRoleSelect: 'addRoleError',
                     addPhone: 'addPhoneError',
+                    addGender: 'addGenderError',
                     addDepartmentSelect: 'addDepartmentError',
+                    addStaffId: 'addStaffIdError',
                     addDesignation: 'addDesignationError',
                     addJoinDate: 'addJoinDateError',
                     addRollNo: 'addRollNoError',
@@ -4867,7 +4954,9 @@
                     editEmail: 'editEmailError',
                     editRole: 'editRoleError',
                     editPhone: 'editPhoneError',
+                    editGender: 'editGenderError',
                     editDepartment: 'editDepartmentError',
+                    editStaffId: 'editStaffIdError',
                     editDesignation: 'editDesignationError',
                     editJoinDate: 'editJoinDateError',
                     editRollNo: 'editRollNoError',
@@ -4897,10 +4986,11 @@
                 const fieldMap = {
                     name: 'addName',
                     email: 'addEmail',
-                    password: 'addPassword',
                     role: 'addRoleSelect',
                     phone: 'addPhone',
+                    gender: 'addGender',
                     department_id: 'addDepartmentSelect',
+                    staff_id: 'addStaffId',
                     designation: 'addDesignation',
                     join_date: 'addJoinDate',
                     roll_no: 'addRollNo',
@@ -4919,7 +5009,9 @@
                     email: 'editEmail',
                     role: 'editRole',
                     phone: 'editPhone',
+                    gender: 'editGender',
                     department_id: 'editDepartment',
+                    staff_id: 'editStaffId',
                     designation: 'editDesignation',
                     join_date: 'editJoinDate',
                     roll_no: 'editRollNo',
@@ -4963,18 +5055,7 @@
                             return null;
                         }
                     },
-                    // 3. Password validation
-                    {
-                        fieldId: 'addPassword',
-                        field: 'password',
-                        check: () => {
-                            const password = formData.get('password');
-                            if (!password) return 'Please enter a password';
-                            if (password.length < 6) return 'Password must be at least 6 characters';
-                            return null;
-                        }
-                    },
-                    // 4. Role validation
+                    // 3. Role validation
                     {
                         fieldId: 'addRoleSelect',
                         field: 'role',
@@ -4987,7 +5068,7 @@
                             return null;
                         }
                     },
-                    // 5. Role-specific validations
+                    // 4. Role-specific validations
                     ...(role === 'student' ? [
                         // Student: Department
                         {
@@ -5005,7 +5086,7 @@
                             field: 'roll_no',
                             check: () => {
                                 const rollNo = formData.get('roll_no')?.trim();
-                                if (!rollNo) return 'Please enter the student\'s roll number';
+                                if (!rollNo) return 'Please enter the student ID';
                                 return null;
                             }
                         },
@@ -5020,13 +5101,14 @@
                             }
                         }
                     ] : role === 'staff' ? [
-                        // Staff: Department
                         {
-                            fieldId: 'addDepartmentSelect',
-                            field: 'department_id',
+                            fieldId: 'addStaffId',
+                            field: 'staff_id',
                             check: () => {
-                                const dept = formData.get('department_id');
-                                if (!dept) return 'Please select a department for the staff member';
+                                const staffId = formData.get('staff_id')?.trim();
+                                if (!staffId) return 'Please enter the staff ID';
+                                if (staffId.length < 3) return 'Staff ID must be at least 3 characters';
+                                if (!/^[A-Za-z0-9-]+$/.test(staffId)) return 'Staff ID can only contain letters, numbers, and hyphens';
                                 return null;
                             }
                         },
@@ -5036,7 +5118,8 @@
                             field: 'designation',
                             check: () => {
                                 const designation = formData.get('designation')?.trim();
-                                if (!designation) return 'Please enter the staff designation';
+                                if (!designation) return null;
+                                if (designation.length < 2) return 'Staff designation must be at least 2 characters';
                                 return null;
                             }
                         },
@@ -5046,7 +5129,7 @@
                             field: 'join_date',
                             check: () => {
                                 const joinDate = formData.get('join_date');
-                                if (!joinDate) return 'Please select the join date for the staff member';
+                                if (!joinDate) return null;
                                 return null;
                             }
                         }
@@ -5189,10 +5272,10 @@
              * Clear all error states in the edit user form
              */
             clearEditUserErrors() {
-                const errorFields = ['editNameError', 'editEmailError', 'editRoleError',
-                    'editDepartmentError', 'editDesignationError', 'editJoinDateError', 'editRollNoError', 'editBatchError', 'editSemesterError'];
-                const inputFields = ['editFullName', 'editEmail', 'editRole',
-                    'editDepartment', 'editDesignation', 'editJoinDate', 'editRollNo', 'editBatch', 'editSemester'];
+                const errorFields = ['editNameError', 'editEmailError', 'editRoleError', 'editPhoneError', 'editGenderError',
+                    'editDepartmentError', 'editStaffIdError', 'editDesignationError', 'editJoinDateError', 'editRollNoError', 'editBatchError', 'editSemesterError', 'editAddressError'];
+                const inputFields = ['editFullName', 'editEmail', 'editRole', 'editPhone', 'editGender',
+                    'editDepartment', 'editStaffId', 'editDesignation', 'editJoinDate', 'editRollNo', 'editBatch', 'editSemester', 'editAddress'];
 
                 errorFields.forEach(id => {
                     const errorEl = document.getElementById(id);
@@ -5268,7 +5351,7 @@
                             fieldId: 'editRollNo',
                             check: () => {
                                 const rollNo = formData.get('roll_no')?.trim();
-                                if (!rollNo) return 'Please enter the student\'s roll number';
+                                if (!rollNo) return 'Please enter the student ID';
                                 return null;
                             }
                         },
@@ -5282,12 +5365,13 @@
                             }
                         }
                     ] : role === 'staff' ? [
-                        // Staff: Department
                         {
-                            fieldId: 'editDepartment',
+                            fieldId: 'editStaffId',
                             check: () => {
-                                const dept = formData.get('department_id');
-                                if (!dept) return 'Please select a department for the staff member';
+                                const staffId = formData.get('staff_id')?.trim();
+                                if (!staffId) return 'Please enter the staff ID';
+                                if (staffId.length < 3) return 'Staff ID must be at least 3 characters';
+                                if (!/^[A-Za-z0-9-]+$/.test(staffId)) return 'Staff ID can only contain letters, numbers, and hyphens';
                                 return null;
                             }
                         },
@@ -5296,7 +5380,8 @@
                             fieldId: 'editDesignation',
                             check: () => {
                                 const designation = formData.get('designation')?.trim();
-                                if (!designation) return 'Please enter the staff designation';
+                                if (!designation) return null;
+                                if (designation.length < 2) return 'Staff designation must be at least 2 characters';
                                 return null;
                             }
                         },
@@ -5305,7 +5390,7 @@
                             fieldId: 'editJoinDate',
                             check: () => {
                                 const joinDate = formData.get('join_date');
-                                if (!joinDate) return 'Please select the join date for the staff member';
+                                if (!joinDate) return null;
                                 return null;
                             }
                         }
@@ -5440,10 +5525,7 @@
                     })
                     .then(res => {
                         console.log('Response status:', res.status);
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! status: ${res.status}`);
-                        }
-                        return res.json();
+                        return this.parseJsonResponse(res, 'Unable to delete this user.');
                     })
                     .then(data => {
                         console.log('Response data:', data);
@@ -5498,10 +5580,7 @@
                     })
                     .then(res => {
                         console.log('Response status:', res.status);
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! status: ${res.status}`);
-                        }
-                        return res.json();
+                        return this.parseJsonResponse(res, 'Unable to send a reset email for this user.');
                     })
                     .then(data => {
                         console.log('Response data:', data);
@@ -5548,10 +5627,7 @@
                     })
                     .then(res => {
                         console.log('Response status:', res.status);
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! status: ${res.status}`);
-                        }
-                        return res.json();
+                        return this.parseJsonResponse(res, 'Unable to update the user status.');
                     })
                     .then(data => {
                         console.log('Response data:', data);
@@ -5607,10 +5683,7 @@
                     })
                     .then(res => {
                         console.log('Response status:', res.status);
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! status: ${res.status}`);
-                        }
-                        return res.json();
+                        return this.parseJsonResponse(res, 'Unable to update the user status.');
                     })
                     .then(data => {
                         console.log('Response data:', data);
@@ -5709,10 +5782,7 @@
                     })
                     .then(res => {
                         console.log('Response status:', res.status);
-                        if (!res.ok) {
-                            throw new Error(`HTTP error! status: ${res.status}`);
-                        }
-                        return res.json();
+                        return this.parseJsonResponse(res, 'Unable to send a reset email for this user.');
                     })
                     .then(data => {
                         console.log('Response data:', data);

@@ -45,11 +45,12 @@ class AdminUserRequest extends FormRequest
         return array_merge($input, [
             'name' => $cleanText($input['name'] ?? null),
             'email' => strtolower(trim((string) ($input['email'] ?? ''))),
-            'password' => (string) ($input['password'] ?? ''),
             'role' => $cleanText($input['role'] ?? null),
             'phone' => $normalizePhone($input['phone'] ?? null),
+            'gender' => $cleanText($input['gender'] ?? null),
             'address' => $cleanText($input['address'] ?? null),
             'department_id' => $cleanText($input['department_id'] ?? null),
+            'staff_id' => ($staffId = $cleanText($input['staff_id'] ?? null)) !== null ? strtoupper($staffId) : null,
             'designation' => $cleanText($input['designation'] ?? null),
             'join_date' => $cleanText($input['join_date'] ?? null),
             'roll_no' => ($rollNo = $cleanText($input['roll_no'] ?? null)) !== null ? strtoupper($rollNo) : null,
@@ -62,6 +63,7 @@ class AdminUserRequest extends FormRequest
     public static function rulesFor(?User $user = null, bool $isCreate = true): array
     {
         $studentId = $user?->student?->id;
+        $staffId = $user?->staff?->id;
 
         $rules = [
             'name' => ['bail', 'required', 'string', 'min:2', 'max:255', 'regex:/^[A-Za-z ]+$/'],
@@ -82,8 +84,19 @@ class AdminUserRequest extends FormRequest
                 'regex:/^\+[1-9]\d{7,14}$/',
                 Rule::unique('users', 'phone')->ignore($user?->id),
             ],
+            'gender' => ['bail', 'nullable', Rule::in(['male', 'female', 'other'])],
             'address' => ['bail', 'nullable', 'string', 'min:10', 'max:255', 'not_regex:/<[^>]*>/'],
-            'department_id' => ['bail', 'nullable', 'required_if:role,student,staff', 'integer', Rule::exists('departments', 'id')],
+            'department_id' => ['bail', 'nullable', 'required_if:role,student', 'integer', Rule::exists('departments', 'id')],
+            'staff_id' => [
+                'bail',
+                'nullable',
+                'required_if:role,staff',
+                'string',
+                'min:3',
+                'max:50',
+                'regex:/^[A-Za-z0-9-]+$/',
+                Rule::unique('staff', 'staff_id')->ignore($staffId),
+            ],
             'roll_no' => [
                 'bail',
                 'nullable',
@@ -95,13 +108,12 @@ class AdminUserRequest extends FormRequest
                 Rule::unique('students', 'roll_no')->ignore($studentId),
             ],
             'batch' => ['bail', 'nullable', 'required_if:role,student', 'regex:/^(19|20)\d{2}$/'],
-            'designation' => ['bail', 'nullable', 'required_if:role,staff', 'string', 'min:2', 'max:100'],
-            'join_date' => ['bail', 'nullable', 'required_if:role,staff', 'date', 'before_or_equal:today'],
+            'designation' => ['bail', 'nullable', 'string', 'min:2', 'max:100'],
+            'join_date' => ['bail', 'nullable', 'date', 'before_or_equal:today'],
             'semester' => ['bail', 'nullable', 'required_if:role,student', 'integer', 'between:1,8'],
         ];
 
         if ($isCreate) {
-            $rules['password'] = ['bail', 'required', 'string', 'min:6', 'max:255'];
             $rules['status'] = ['bail', 'required', Rule::in(['active', 'inactive'])];
         }
 
@@ -121,10 +133,6 @@ class AdminUserRequest extends FormRequest
             'email.max' => 'Email address must be 255 characters or fewer.',
             'email.unique' => 'This email is already assigned to another user.',
 
-            'password.required' => 'Enter a password for the user.',
-            'password.min' => 'Password must be at least 6 characters long.',
-            'password.max' => 'Password must be 255 characters or fewer.',
-
             'role.required' => 'Select a user role.',
             'role.in' => 'Select a valid user role.',
 
@@ -132,6 +140,8 @@ class AdminUserRequest extends FormRequest
             'phone.max' => 'Phone number is too long. Use international format like +9779812345678.',
             'phone.regex' => 'Enter a valid phone number with country code, like +9779812345678.',
             'phone.unique' => 'This phone number is already assigned to another user.',
+
+            'gender.in' => 'Select a valid gender option.',
 
             'address.min' => 'Address must be at least 10 characters long.',
             'address.max' => 'Address must be 255 characters or fewer.',
@@ -141,11 +151,15 @@ class AdminUserRequest extends FormRequest
             'department_id.integer' => 'Select a valid department.',
             'department_id.exists' => 'Select a valid department.',
 
-            'designation.required_if' => 'Enter the staff designation.',
+            'staff_id.required_if' => 'Enter the staff ID.',
+            'staff_id.min' => 'Staff ID must be at least 3 characters long.',
+            'staff_id.max' => 'Staff ID must be 50 characters or fewer.',
+            'staff_id.regex' => 'Staff ID can use letters, numbers, and hyphens only.',
+            'staff_id.unique' => 'This staff ID is already in use.',
+
             'designation.min' => 'Staff designation must be at least 2 characters long.',
             'designation.max' => 'Staff designation must be 100 characters or fewer.',
 
-            'join_date.required_if' => 'Select the join date for the staff member.',
             'join_date.date' => 'Enter a valid join date.',
             'join_date.before_or_equal' => 'Join date cannot be in the future.',
 

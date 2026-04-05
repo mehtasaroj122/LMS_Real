@@ -1574,6 +1574,18 @@
                 </div>
 
                 <div class="student-form-field" style="margin-bottom: 12px;">
+                    <label for="modal_gender" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Gender</label>
+                    <select id="modal_gender" name="gender" class="student-form-control"
+                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="error-message" style="font-size: 12px; display: none;"></span>
+                </div>
+
+                <div class="student-form-field" style="margin-bottom: 12px;">
                     <label for="modal_date_of_birth" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Date of Birth <span
                             class="required-asterisk">*</span></label>
                     <input type="date" id="modal_date_of_birth" name="date_of_birth" class="student-form-control" required
@@ -1686,6 +1698,18 @@
                     <input type="tel" id="edit_phone" name="phone" class="student-form-control" required
                         style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
                         placeholder="+9779812345678">
+                    <span class="error-message" style="font-size: 12px; display: none;"></span>
+                </div>
+
+                <div class="student-form-field" style="margin-bottom: 12px;">
+                    <label for="edit_gender" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Gender</label>
+                    <select id="edit_gender" name="gender" class="student-form-control"
+                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
                     <span class="error-message" style="font-size: 12px; display: none;"></span>
                 </div>
 
@@ -3069,7 +3093,12 @@
                         <td class="text-muted">${this.escapeHtml(student.phone)}</td>
                         <td class="text-muted">${this.escapeHtml(student.department)}</td>
                         <td class="text-muted">${this.escapeHtml(student.batch)}</td>
-                        <td><span class="status-badge ${statusClass}">${statusIconMarkup} ${this.escapeHtml(student.statusLabel || this.capitalize(student.status))}</span></td>
+                        <td>
+                            <span class="status-badge ${statusClass}">${statusIconMarkup} ${this.escapeHtml(student.statusLabel || this.capitalize(student.status))}</span>
+                            ${student.registrationPending
+                                ? '<div class="text-muted" style="font-size: 11px; margin-top: 4px;">Registration pending</div>'
+                                : ''}
+                        </td>
                         <td>
                             <div class="action-buttons">
                                 <a href="{{ url('admin/students') }}/${student.id}" class="action-btn btn-view" title="View details">
@@ -3078,9 +3107,13 @@
                                 <button type="button" class="action-btn btn-edit" onclick="openEditStudentModal(${student.id})" title="Edit student">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button type="button" class="action-btn btn-password" onclick="resetStudentPassword(${student.id})" title="Reset password">
-                                    <i class="fas fa-key"></i>
-                                </button>
+                                ${student.registrationPending
+                                    ? `<button type="button" class="action-btn btn-password" title="Complete registration first" disabled>
+                                            <i class="fas fa-key"></i>
+                                       </button>`
+                                    : `<button type="button" class="action-btn btn-password" onclick="resetStudentPassword(${student.id})" title="Reset password">
+                                            <i class="fas fa-key"></i>
+                                       </button>`}
                                 <button
                                     type="button"
                                     class="action-btn"
@@ -3902,6 +3935,7 @@
                         document.getElementById('edit_name').value = data.data.name || '';
                         document.getElementById('edit_email').value = data.data.email || '';
                         document.getElementById('edit_phone').value = data.data.phone || '';
+                        document.getElementById('edit_gender').value = data.data.gender || '';
                         document.getElementById('edit_roll_no').value = data.data.roll_no || '';
                         document.getElementById('edit_department_id').value = data.data.department_id || '';
                         document.getElementById('edit_batch').value = data.data.batch || '';

@@ -11,6 +11,7 @@ use App\Models\student;
 use App\Models\User;
 use App\Helpers\ActivityLogger;
 use App\Mail\PasswordResetEmail;
+use App\Services\Auth\InvitationEmailService;
 use App\Services\StudentManagement\StudentNotificationEmailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,7 @@ class UserController extends Controller
 {
     public function __construct(
         private StudentNotificationEmailService $studentNotificationEmailService,
+        private InvitationEmailService $invitationEmailService,
     )
     {
         Gate::authorize('access-admin');
@@ -265,7 +267,17 @@ class UserController extends Controller
         if ($search !== '') {
             $query->where(function ($builder) use ($search) {
                 $builder->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhereHas('staff', function ($staffQuery) use ($search) {
+                        $staffQuery->where('staff_id', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('student', function ($studentQuery) use ($search) {
+                        $studentQuery->where(function ($identifierQuery) use ($search) {
+                            $identifierQuery
+                                ->where('student_id', 'like', "%{$search}%")
+                                ->orWhere('roll_no', 'like', "%{$search}%");
+                        });
+                    });
             });
         }
 
@@ -312,11 +324,12 @@ class UserController extends Controller
         $allowedFields = [
             'name',
             'email',
-            'password',
             'role',
             'phone',
+            'gender',
             'address',
             'department_id',
+            'staff_id',
             'designation',
             'join_date',
             'roll_no',
@@ -373,28 +386,29 @@ class UserController extends Controller
     public function store(AdminUserRequest $request)
     {
         $data = $request->validated();
+        $invitationQueued = false;
 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'password' => null,
             'role' => $data['role'],
-            'status' => $data['status'],
+            'status' => $this->resolveManagedStatus($data['role'], $data['status'] ?? 'inactive'),
             'phone' => $data['phone'] ?? null,
+            'gender' => $data['gender'] ?? null,
             'address' => $data['address'] ?? null,
         ]);
 
         if ($data['role'] === 'student') {
-            Student::create([
-                'user_id' => $user->id,
-                'roll_no' => $data['roll_no'],
-                'batch' => $data['batch'] ?? null,
-                'department_id' => $data['department_id'],
-                'semester' => $data['semester'],
-                'address' => $data['address'] ?? null,
-            ]);
+            $this->syncStudentRecord($user, $data);
         } elseif ($data['role'] === 'staff') {
             $this->syncStaffRecord($user, $data);
+        }
+
+        $user->load('student.department', 'staff.department');
+
+        if (in_array($user->role, ['staff', 'student'], true)) {
+            $invitationQueued = $this->invitationEmailService->sendRegistrationInvite($user);
         }
 
         // Log the activity with full details
@@ -409,8 +423,12 @@ class UserController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'User created successfully',
-            'user' => $user->load('student.department', 'staff.department'),
+            'message' => in_array($user->role, ['staff', 'student'], true)
+                ? ($invitationQueued
+                    ? 'Invited user created successfully. Registration email sent. They must complete registration to activate the account.'
+                    : 'Invited user created successfully, but the registration email could not be queued. They must still complete registration to activate the account.')
+                : 'User created successfully',
+            'user' => $user,
             'rowHtml' => view('admin.partials.user-row', ['user' => $user])->render(),
         ]);
     }
@@ -434,9 +452,11 @@ class UserController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone,
+            'gender' => $user->gender,
             'address' => $user->address,
             'role' => $user->role,
             'status' => $user->status,
+            'has_password' => $user->hasCompletedRegistration(),
             'profile_photo_url' => $profilePhotoUrl,
             'initial' => strtoupper(substr($user->name, 0, 1)),
             'is_current_user' => $user->id === auth()->id(),
@@ -452,6 +472,7 @@ class UserController extends Controller
             $data['student'] = [
                 'department_id' => $user->student->department_id,
                 'department_name' => data_get($user, 'student.department.name'),
+                'student_id' => $user->student->student_id ?: $user->student->roll_no,
                 'roll_no' => $user->student->roll_no,
                 'batch' => $user->student->batch,
                 'semester' => $user->student->semester,
@@ -459,6 +480,7 @@ class UserController extends Controller
         } elseif ($user->role === 'staff' && $user->staff) {
             $data['department_name'] = data_get($user, 'staff.department.name');
             $data['staff'] = [
+                'staff_id' => $user->staff->staff_id,
                 'department_id' => $user->staff->department_id,
                 'department_name' => data_get($user, 'staff.department.name'),
                 'designation' => $user->staff->designation,
@@ -487,6 +509,7 @@ class UserController extends Controller
             'email' => $user->email,
             'role' => $user->role,
             'phone' => $user->phone,
+            'gender' => $user->gender,
             'address' => $user->address,
         ];
 
@@ -495,7 +518,11 @@ class UserController extends Controller
             'email' => $data['email'],
             'role' => $data['role'],
             'phone' => $data['phone'] ?? null,
+            'gender' => $data['gender'] ?? null,
             'address' => $data['address'] ?? null,
+            'status' => $user->hasCompletedRegistration()
+                ? $user->status
+                : $this->resolveManagedStatus($data['role'], $user->status),
         ]);
 
         // Handle student information
@@ -504,24 +531,7 @@ class UserController extends Controller
                 $user->staff->delete();
             }
 
-            if ($user->student) {
-                $user->student->update([
-                    'department_id' => $data['department_id'],
-                    'roll_no' => $data['roll_no'],
-                    'batch' => $data['batch'] ?? null,
-                    'semester' => $data['semester'],
-                    'address' => $data['address'] ?? null,
-                ]);
-            } else {
-                Student::create([
-                    'user_id' => $user->id,
-                    'department_id' => $data['department_id'],
-                    'roll_no' => $data['roll_no'],
-                    'batch' => $data['batch'] ?? null,
-                    'semester' => $data['semester'],
-                    'address' => $data['address'] ?? null,
-                ]);
-            }
+            $this->syncStudentRecord($user, $data);
         } elseif ($data['role'] === 'staff') {
             if ($user->student) {
                 $user->student->delete();
@@ -550,6 +560,9 @@ class UserController extends Controller
         if ($oldData['role'] !== $data['role']) {
             $changes[] = "role: {$oldData['role']} → {$data['role']}";
         }
+        if (($oldData['gender'] ?? null) !== ($data['gender'] ?? null)) {
+            $changes[] = 'gender updated';
+        }
 
         $changesText = !empty($changes) ? 'Changes: ' . implode(', ', $changes) : 'No changes detected';
 
@@ -574,9 +587,10 @@ class UserController extends Controller
     private function syncStaffRecord(User $user, array $data): void
     {
         $staffData = [
+            'staff_id' => $data['staff_id'],
             'department_id' => $data['department_id'],
-            'designation' => $data['designation'],
-            'join_date' => $data['join_date'],
+            'designation' => $data['designation'] ?? null,
+            'join_date' => $data['join_date'] ?? null,
         ];
 
         if ($user->staff) {
@@ -589,6 +603,36 @@ class UserController extends Controller
         ]);
     }
 
+    private function syncStudentRecord(User $user, array $data): void
+    {
+        $studentData = [
+            'department_id' => $data['department_id'],
+            'student_id' => $data['roll_no'],
+            'roll_no' => $data['roll_no'],
+            'batch' => $data['batch'] ?? null,
+            'semester' => $data['semester'],
+            'address' => $data['address'] ?? null,
+        ];
+
+        if ($user->student) {
+            $user->student->update($studentData);
+            return;
+        }
+
+        Student::create($studentData + [
+            'user_id' => $user->id,
+        ]);
+    }
+
+    private function resolveManagedStatus(string $role, string $requestedStatus): string
+    {
+        if (in_array($role, ['staff', 'student'], true)) {
+            return 'inactive';
+        }
+
+        return $requestedStatus === 'inactive' ? 'inactive' : 'active';
+    }
+
     /**
      * Toggle user status.
      */
@@ -596,6 +640,13 @@ class UserController extends Controller
     {
         $oldStatus = $user->status;
         $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+
+        if ($newStatus === 'active' && $user->requiresSelfRegistration()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This invited account must complete registration before it can be activated.',
+            ], 422);
+        }
 
         $user->update([
             'status' => $newStatus
@@ -659,6 +710,13 @@ class UserController extends Controller
      */
     public function resetPassword(User $user)
     {
+        if ($user->requiresSelfRegistration()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This invited account has not completed registration yet. Ask the user to finish registration instead.',
+            ], 422);
+        }
+
         // Generate temporary password
         $tempPassword = Str::random(10);
         try {

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StudentManagement\StoreStudentRequest;
+use App\Http\Requests\StudentManagement\UpdateStudentRequest;
 use Carbon\Carbon;
 use App\Models\FineSetting;
 use App\Models\Student;
@@ -12,6 +14,7 @@ use App\Models\Notification;
 use App\Models\ActivityLog;
 use App\Helpers\ActivityLogger;
 use App\Mail\PasswordResetEmail;
+use App\Services\Auth\InvitationEmailService;
 use App\Services\StudentManagement\StudentManagementDataService;
 use App\Services\StudentManagement\StudentNotificationEmailService;
 use Illuminate\Database\QueryException;
@@ -28,6 +31,7 @@ class StudentController extends Controller
 {
     public function __construct(
         private StudentNotificationEmailService $studentNotificationEmailService,
+        private InvitationEmailService $invitationEmailService,
     ) {}
 
     /**
@@ -111,12 +115,19 @@ class StudentController extends Controller
             $tableRows .= '<span class="status-badge ' . $statusClass . '">';
             $tableRows .= $statusIcon . ' ' . $statusText;
             $tableRows .= '</span>';
+            if ($student->user->requiresSelfRegistration()) {
+                $tableRows .= '<div class="text-muted" style="font-size: 11px; margin-top: 4px;">Registration pending</div>';
+            }
             $tableRows .= '</td>';
             $tableRows .= '<td>';
             $tableRows .= '<div class="action-buttons">';
             $tableRows .= '<a href="' . route('admin.students.show', $student->id) . '" class="action-btn" title="View details"><i class="fas fa-eye"></i></a>';
             $tableRows .= '<button onclick="openEditStudentModal(' . $student->id . ')" class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>';
-            $tableRows .= '<button onclick="resetStudentPassword(' . $student->id . ')" class="action-btn" title="Reset password"><i class="fas fa-key"></i></button>';
+            if ($student->user->requiresSelfRegistration()) {
+                $tableRows .= '<button class="action-btn" title="Complete registration first" disabled><i class="fas fa-key"></i></button>';
+            } else {
+                $tableRows .= '<button onclick="resetStudentPassword(' . $student->id . ')" class="action-btn" title="Reset password"><i class="fas fa-key"></i></button>';
+            }
             $toggleIcon = $student->user->status === 'active' ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
             $tableRows .= '<button onclick="toggleStudentStatus(' . $student->id . ')" class="action-btn" title="Toggle status"><i class="' . $toggleIcon . '"></i></button>';
             $tableRows .= '<button onclick="deleteStudent(' . $student->id . ')" class="action-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>';
@@ -239,6 +250,7 @@ class StudentController extends Controller
                     'name' => $student->user->name,
                     'email' => $student->user->email,
                     'phone' => $student->user->phone,
+                    'gender' => $student->user->gender,
                     'date_of_birth' => optional($student->user->date_of_birth)->format('Y-m-d'),
                     'roll_no' => $student->roll_no,
                     'department_id' => $student->department_id,
@@ -477,6 +489,10 @@ class StudentController extends Controller
             $errors['roll_no'] = ['This student ID is already in use.'];
         }
 
+        if (stripos($errorMsg, 'students_student_id_unique') !== false || (stripos($errorMsg, 'Duplicate entry') !== false && stripos($errorMsg, $validated['roll_no'] ?? '') !== false)) {
+            $errors['roll_no'] = ['This student ID is already in use.'];
+        }
+
         if (empty($errors)) {
             $errors['email'] = ['Unable to save the student with the provided details.'];
         }
@@ -487,11 +503,12 @@ class StudentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, StudentManagementDataService $dataService)
+    public function store(StoreStudentRequest $request, StudentManagementDataService $dataService)
     {
         Gate::authorize('access-admin');
 
-        $validated = $this->validateStudentData($request);
+        $validated = $request->validated();
+        $invitationQueued = false;
 
         try {
             $student = DB::transaction(function () use ($validated) {
@@ -499,14 +516,18 @@ class StudentController extends Controller
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'phone' => $validated['phone'],
+                    'gender' => $validated['gender'] ?? null,
                     'date_of_birth' => $validated['date_of_birth'],
+                    'address' => $validated['address'],
                     'role' => 'student',
-                    'status' => 'active',
-                    'password' => bcrypt('password'),
+                    'status' => 'inactive',
+                    'password' => null,
+                    'is_verified' => false,
                 ]);
 
                 $student = Student::create([
                     'user_id' => $user->id,
+                    'student_id' => $validated['roll_no'],
                     'roll_no' => $validated['roll_no'],
                     'department_id' => $validated['department_id'],
                     'batch' => $validated['batch'],
@@ -528,16 +549,25 @@ class StudentController extends Controller
             ], 422);
         }
 
+        $student->load('user', 'department');
+        if ($student->user) {
+            $invitationQueued = $this->invitationEmailService->sendRegistrationInvite($student->user);
+        }
+
+        $successMessage = $invitationQueued
+            ? 'Student invitation created successfully. Registration email sent. The student must complete registration to activate the account.'
+            : 'Student invitation created successfully, but the registration email could not be queued. The student must still complete registration to activate the account.';
+
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Student created successfully',
-                'student' => $dataService->serializeStudent($student->load(['user', 'department']), ['can_toggle_status' => true]),
+                'message' => $successMessage,
+                'student' => $dataService->serializeStudent($student, ['can_toggle_status' => true]),
                 'stats' => $dataService->getStats($this->currentStudentListingFilters($request)),
             ]);
         }
 
-        return redirect()->route('admin.students.index')->with('success', 'Student created successfully');
+        return redirect()->route('admin.students.index')->with('success', $successMessage);
     }
 
     /**
@@ -1168,42 +1198,49 @@ class StudentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id, StudentManagementDataService $dataService)
+    public function update(UpdateStudentRequest $request, string $id, StudentManagementDataService $dataService)
     {
         Gate::authorize('access-admin');
 
         $student = Student::findOrFail($id);
         $user = $student->user;
 
-        $validated = $this->validateStudentData($request, $student, true);
+        $validated = $request->validated();
 
         // Track changes in User model
         $userChanges = [];
         if ($user->name !== $validated['name']) $userChanges['name'] = $validated['name'];
         if ($user->email !== $validated['email']) $userChanges['email'] = $validated['email'];
         if ($user->phone !== $validated['phone']) $userChanges['phone'] = $validated['phone'];
+        if (($user->gender ?? null) !== ($validated['gender'] ?? null)) $userChanges['gender'] = $validated['gender'] ?? null;
         if (optional($user->date_of_birth)->format('Y-m-d') !== $validated['date_of_birth']) $userChanges['date_of_birth'] = $validated['date_of_birth'];
-        if ($user->status !== $validated['status']) $userChanges['status'] = $validated['status'];
+        $resolvedStatus = $user->hasCompletedRegistration() ? $validated['status'] : 'inactive';
+        if ($user->status !== $resolvedStatus) $userChanges['status'] = $resolvedStatus;
+        if (($user->address ?? null) !== ($validated['address'] ?? null)) $userChanges['address'] = $validated['address'];
 
         // Track changes in Student model
         $studentChanges = [];
         if ($student->roll_no !== $validated['roll_no']) $studentChanges['roll_no'] = $validated['roll_no'];
+        if (($student->student_id ?? null) !== ($validated['roll_no'] ?? null)) $studentChanges['student_id'] = $validated['roll_no'];
         if ($student->department_id != $validated['department_id']) $studentChanges['department_id'] = $validated['department_id'];
         if ($student->batch !== $validated['batch']) $studentChanges['batch'] = $validated['batch'];
         if ($student->semester !== $validated['semester']) $studentChanges['semester'] = $validated['semester'];
         if ($student->address !== $validated['address']) $studentChanges['address'] = $validated['address'];
 
         try {
-            DB::transaction(function () use ($user, $student, $validated) {
+            DB::transaction(function () use ($user, $student, $validated, $resolvedStatus) {
                 $user->update([
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'phone' => $validated['phone'],
+                    'gender' => $validated['gender'] ?? null,
                     'date_of_birth' => $validated['date_of_birth'],
-                    'status' => $validated['status'],
+                    'address' => $validated['address'],
+                    'status' => $resolvedStatus,
                 ]);
 
                 $student->update([
+                    'student_id' => $validated['roll_no'],
                     'roll_no' => $validated['roll_no'],
                     'department_id' => $validated['department_id'],
                     'batch' => $validated['batch'],
@@ -1228,23 +1265,23 @@ class StudentController extends Controller
         }
 
         if (isset($userChanges['status'])) {
-            $statusMessage = $validated['status'] === 'active' ? 'activated' : 'deactivated';
+            $statusMessage = $resolvedStatus === 'active' ? 'activated' : 'deactivated';
 
             Notification::notify(
                 user: $user,
                 type: 'account.status_changed',
                 title: 'Account Status Changed',
                 message: "Your account has been {$statusMessage} by admin",
-                data: ['status' => $validated['status'], 'changed_by' => auth()->user()?->name],
+                data: ['status' => $resolvedStatus, 'changed_by' => auth()->user()?->name],
                 relatedModel: 'Student',
                 relatedId: $student->id
             );
 
-            $this->queueStudentStatusEmail($student, $validated['status']);
+            $this->queueStudentStatusEmail($student, $resolvedStatus);
         }
 
         // Notify admin if status changed to inactive (critical action)
-        if (isset($userChanges['status']) && $validated['status'] === 'inactive') {
+        if (isset($userChanges['status']) && $resolvedStatus === 'inactive') {
             $adminUser = User::where('role', 'admin')->where('id', '!=', auth()->id())->first();
             if ($adminUser) {
                 Notification::notify(
@@ -1262,7 +1299,9 @@ class StudentController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Student updated successfully',
+                'message' => $user->hasCompletedRegistration()
+                    ? 'Student updated successfully'
+                    : 'Student invitation updated successfully. The account will stay inactive until registration is completed.',
                 'student' => $dataService->serializeStudent($student->load(['user', 'department']), ['can_toggle_status' => true]),
                 'stats' => $dataService->getStats($this->currentStudentListingFilters($request)),
             ]);
@@ -1318,6 +1357,13 @@ class StudentController extends Controller
 
         $student = Student::findOrFail($id);
         $user = $student->user;
+
+        if ($user && $user->requiresSelfRegistration()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This invited account has not completed registration yet. Ask the student to finish registration instead.',
+            ], 422);
+        }
 
         // Generate temporary password
         $tempPassword = Str::random(10);
@@ -1436,6 +1482,13 @@ class StudentController extends Controller
                 ], 404);
             }
 
+            if ($user->requiresSelfRegistration()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This invited account must complete registration before it can be activated.',
+                ], 422);
+            }
+
             $oldStatus = $user->status;
 
             // Update user status to active
@@ -1495,6 +1548,13 @@ class StudentController extends Controller
 
             $oldStatus = $user->status;
             $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+
+            if ($newStatus === 'active' && $user->requiresSelfRegistration()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This invited account must complete registration before it can be activated.',
+                ], 422);
+            }
 
             // Update user status
             $user->status = $newStatus;

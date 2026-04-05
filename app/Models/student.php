@@ -11,13 +11,32 @@ class Student extends Model
 
     protected $fillable = [
         'user_id',
+        'student_id',
         'department_id',
         'roll_no',
         'batch',
         'semester',
         'address',
-        'student_id',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Student $student): void {
+            $studentId = trim((string) ($student->student_id ?? ''));
+            $rollNo = trim((string) ($student->roll_no ?? ''));
+
+            if ($studentId === '' && $rollNo !== '') {
+                $studentId = $rollNo;
+            }
+
+            if ($rollNo === '' && $studentId !== '') {
+                $rollNo = $studentId;
+            }
+
+            $student->student_id = $studentId !== '' ? strtoupper($studentId) : null;
+            $student->roll_no = $rollNo !== '' ? strtoupper($rollNo) : null;
+        });
+    }
 
     public function user()
     {
@@ -60,5 +79,10 @@ class Student extends Model
     public function activityLogs()
     {
         return $this->morphMany(ActivityLog::class, 'model');
+    }
+
+    public function getDisplayStudentIdAttribute(): ?string
+    {
+        return $this->student_id ?: $this->roll_no;
     }
 }

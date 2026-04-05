@@ -88,6 +88,7 @@ class ProfileController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'phone' => ['nullable', 'string', 'max:20'],
+            'gender' => ['nullable', Rule::in(['male', 'female', 'other'])],
             'address' => ['nullable', 'string', 'max:500'],
         ]);
 
@@ -96,6 +97,7 @@ class ProfileController extends Controller
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'] ?? null,
+                'gender' => $validated['gender'] ?? null,
                 'address' => $validated['address'] ?? null,
             ]);
             $user->refresh();
@@ -151,6 +153,7 @@ class ProfileController extends Controller
                     'name' => $freshUser->name,
                     'email' => $freshUser->email,
                     'phone' => $freshUser->phone,
+                    'gender' => $freshUser->gender,
                     'address' => $freshUser->address,
                     'department' => $freshUser->student?->department?->name,
                     'profile_photo' => $freshUser->profile_photo,
