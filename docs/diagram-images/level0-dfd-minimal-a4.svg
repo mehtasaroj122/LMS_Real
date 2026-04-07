@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3508" height="2480" viewBox="0 0 3508 2480">
+  <defs>
+    <marker id="arrow" viewBox="0 0 16 16" refX="14" refY="8" markerWidth="16" markerHeight="16" orient="auto">
+      <path d="M1,1 L15,8 L1,15 Z" fill="#111111" />
+    </marker>
+  </defs>
+
+  <style>
+    .title {
+      font: 700 54px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+    .subtitle {
+      font: 600 28px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+    .entity-box, .process-box, .flow-arrow {
+      stroke: #111111;
+      stroke-width: 6;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .entity-text {
+      font: 700 36px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+    }
+    .process-number {
+      font: 700 28px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+    .process-text {
+      font: 700 40px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+    }
+    .flow-text {
+      font: 700 24px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+  </style>
+
+  <rect x="0" y="0" width="3508" height="2480" fill="#ffffff" />
+  <text x="1754" y="72" text-anchor="middle" class="title">Library Management System - Level 0 DFD</text>
+  <text x="1754" y="116" text-anchor="middle" class="subtitle">Simple context diagram for printing</text>
+
+  
+    <g>
+      <rect x="190" y="340" width="360" height="130" class="entity-box" />
+      <text x="370.0" y="417.0" text-anchor="middle" class="entity-text">Admin</text>
+    </g>
+    
+  
+    <g>
+      <rect x="190" y="1080" width="360" height="130" class="entity-box" />
+      <text x="370.0" y="1157.0" text-anchor="middle" class="entity-text">Staff</text>
+    </g>
+    
+  
+    <g>
+      <rect x="190" y="1820" width="360" height="130" class="entity-box" />
+      <text x="370.0" y="1897.0" text-anchor="middle" class="entity-text">Student</text>
+    </g>
+    
+
+  
+    <g>
+      <rect x="1120" y="920" rx="56" ry="56" width="1260" height="420" class="process-box" />
+      <text x="1750.0" y="968" text-anchor="middle" class="process-number">0</text><text x="1750.0" y="1110.0" text-anchor="middle" class="process-text">Library Management</text><text x="1750.0" y="1158.0" text-anchor="middle" class="process-text">System</text>
+    </g>
+    
+
+  <line x1="550" y1="405" x2="1120" y2="1015" class="flow-arrow" marker-end="url(#arrow)" />
+  <text x="830" y="670" text-anchor="middle" class="flow-text">manage users, reports, settings</text>
+  <line x1="550" y1="1145" x2="1120" y2="1130" class="flow-arrow" marker-end="url(#arrow)" />
+  <text x="830" y="1100" text-anchor="middle" class="flow-text">manage books, circulation, fines</text>
+  <line x1="550" y1="1885" x2="1120" y2="1245" class="flow-arrow" marker-end="url(#arrow)" />
+  <text x="830" y="1530" text-anchor="middle" class="flow-text">search, request, view books and fines</text>
+
+  <line x1="1120" y1="1080" x2="550" y2="470" class="flow-arrow" marker-end="url(#arrow)" />
+  <text x="820" y="860" text-anchor="middle" class="flow-text">dashboards, status, notifications</text>
+  <line x1="1120" y1="1130" x2="550" y2="1210" class="flow-arrow" marker-end="url(#arrow)" />
+  <text x="830" y="1188" text-anchor="middle" class="flow-text">task updates, records, alerts</text>
+  <line x1="1120" y1="1180" x2="550" y2="1950" class="flow-arrow" marker-end="url(#arrow)" />
+  <text x="835" y="1595" text-anchor="middle" class="flow-text">requests, fines, notifications</text>
+</svg>

@@ -129,7 +129,7 @@ test('invited student registration fails when phone does not match stored identi
 
     $response
         ->assertRedirect(route('register'))
-        ->assertSessionHasErrors('student_id');
+        ->assertSessionHasErrors('phone');
 
     $this->assertGuest();
 

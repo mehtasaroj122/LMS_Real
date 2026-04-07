@@ -1,0 +1,244 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2600" height="1700" viewBox="0 0 2600 1700">
+  <defs>
+    <marker id="openArrow" viewBox="0 0 14 14" refX="12" refY="7" markerWidth="14" markerHeight="14" orient="auto-start-reverse">
+      <path d="M1,1 L13,7 L1,13" fill="none" stroke="#111111" stroke-width="2.5"/>
+    </marker>
+  </defs>
+  <style>
+    .title {
+      font: 700 34px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+    .boundary-label {
+      font: 700 28px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+    .actor, .connector, .usecase-oval, .boundary {
+      stroke: #111111;
+      stroke-width: 5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .actor-label {
+      font: 700 28px Arial, Helvetica, sans-serif;
+      fill: #18a957;
+    }
+    .usecase-text {
+      font: 700 28px Arial, Helvetica, sans-serif;
+      fill: #18a957;
+    }
+    .relation-label {
+      font: 700 24px Arial, Helvetica, sans-serif;
+      fill: #18a957;
+    }
+  </style>
+  <rect x="0" y="0" width="2600" height="1700" fill="#ffffff" />
+  <text x="1300" y="42" text-anchor="middle" class="title">Library Management System - UML Use Case Diagram</text>
+  <rect x="620" y="70" width="1450" height="1520" class="boundary" />
+  <text x="652" y="112" class="boundary-label">Library Management System</text>
+
+  
+    <g class="actor">
+      <circle cx="220" cy="370" r="38" />
+      <line x1="220" y1="440" x2="220" y2="580" />
+      <line x1="150" y1="490" x2="290" y2="490" />
+      <line x1="220" y1="580" x2="165" y2="690" />
+      <line x1="220" y1="580" x2="275" y2="690" />
+      <text x="220" y="738" text-anchor="middle" class="actor-label">Student</text>
+    </g>
+    
+  
+    <g class="actor">
+      <circle cx="220" cy="900" r="38" />
+      <line x1="220" y1="970" x2="220" y2="1110" />
+      <line x1="150" y1="1020" x2="290" y2="1020" />
+      <line x1="220" y1="1110" x2="165" y2="1220" />
+      <line x1="220" y1="1110" x2="275" y2="1220" />
+      <text x="220" y="1268" text-anchor="middle" class="actor-label">Staff</text>
+    </g>
+    
+  
+    <g class="actor">
+      <circle cx="2330" cy="600" r="38" />
+      <line x1="2330" y1="670" x2="2330" y2="810" />
+      <line x1="2260" y1="720" x2="2400" y2="720" />
+      <line x1="2330" y1="810" x2="2275" y2="920" />
+      <line x1="2330" y1="810" x2="2385" y2="920" />
+      <text x="2330" y="968" text-anchor="middle" class="actor-label">Admin</text>
+    </g>
+    
+
+  
+    <g id="register">
+      <ellipse cx="980" cy="250" rx="165" ry="64" class="usecase-oval" />
+      <text x="980" y="228" text-anchor="middle" class="usecase-text">Complete</text><text x="980" y="272" text-anchor="middle" class="usecase-text">Invited Registration</text>
+    </g>
+    
+  
+    <g id="login">
+      <ellipse cx="980" cy="430" rx="145" ry="58" class="usecase-oval" />
+      <text x="980" y="440" text-anchor="middle" class="usecase-text">Login</text>
+    </g>
+    
+  
+    <g id="search_books">
+      <ellipse cx="980" cy="620" rx="155" ry="58" class="usecase-oval" />
+      <text x="980" y="630" text-anchor="middle" class="usecase-text">Search Books</text>
+    </g>
+    
+  
+    <g id="submit_request">
+      <ellipse cx="980" cy="810" rx="180" ry="64" class="usecase-oval" />
+      <text x="980" y="788" text-anchor="middle" class="usecase-text">Submit Book</text><text x="980" y="832" text-anchor="middle" class="usecase-text">Request</text>
+    </g>
+    
+  
+    <g id="cancel_request">
+      <ellipse cx="980" cy="1010" rx="180" ry="64" class="usecase-oval" />
+      <text x="980" y="988" text-anchor="middle" class="usecase-text">Cancel Pending</text><text x="980" y="1032" text-anchor="middle" class="usecase-text">Request</text>
+    </g>
+    
+
+  
+    <g id="notifications">
+      <ellipse cx="1360" cy="300" rx="160" ry="58" class="usecase-oval" />
+      <text x="1360" y="310" text-anchor="middle" class="usecase-text">View Notifications</text>
+    </g>
+    
+  
+    <g id="view_status">
+      <ellipse cx="1360" cy="520" rx="175" ry="64" class="usecase-oval" />
+      <text x="1360" y="498" text-anchor="middle" class="usecase-text">View Books and</text><text x="1360" y="542" text-anchor="middle" class="usecase-text">Fine Status</text>
+    </g>
+    
+  
+    <g id="approve_reject">
+      <ellipse cx="1360" cy="760" rx="175" ry="64" class="usecase-oval" />
+      <text x="1360" y="738" text-anchor="middle" class="usecase-text">Approve or Reject</text><text x="1360" y="782" text-anchor="middle" class="usecase-text">Requests</text>
+    </g>
+    
+  
+    <g id="issue_books">
+      <ellipse cx="1360" cy="980" rx="145" ry="58" class="usecase-oval" />
+      <text x="1360" y="990" text-anchor="middle" class="usecase-text">Issue Books</text>
+    </g>
+    
+  
+    <g id="return_books">
+      <ellipse cx="1360" cy="1200" rx="145" ry="58" class="usecase-oval" />
+      <text x="1360" y="1210" text-anchor="middle" class="usecase-text">Return Books</text>
+    </g>
+    
+
+  
+    <g id="manage_books">
+      <ellipse cx="1760" cy="250" rx="150" ry="58" class="usecase-oval" />
+      <text x="1760" y="260" text-anchor="middle" class="usecase-text">Manage Books</text>
+    </g>
+    
+  
+    <g id="manage_students">
+      <ellipse cx="1760" cy="450" rx="160" ry="58" class="usecase-oval" />
+      <text x="1760" y="460" text-anchor="middle" class="usecase-text">Manage Students</text>
+    </g>
+    
+  
+    <g id="manage_users">
+      <ellipse cx="1760" cy="650" rx="175" ry="64" class="usecase-oval" />
+      <text x="1760" y="628" text-anchor="middle" class="usecase-text">Manage Staff and</text><text x="1760" y="672" text-anchor="middle" class="usecase-text">Admin Users</text>
+    </g>
+    
+  
+    <g id="manage_fines">
+      <ellipse cx="1760" cy="860" rx="145" ry="58" class="usecase-oval" />
+      <text x="1760" y="870" text-anchor="middle" class="usecase-text">Manage Fines</text>
+    </g>
+    
+  
+    <g id="reports">
+      <ellipse cx="1760" cy="1060" rx="150" ry="58" class="usecase-oval" />
+      <text x="1760" y="1070" text-anchor="middle" class="usecase-text">Generate Reports</text>
+    </g>
+    
+  
+    <g id="settings">
+      <ellipse cx="1760" cy="1260" rx="150" ry="58" class="usecase-oval" />
+      <text x="1760" y="1270" text-anchor="middle" class="usecase-text">Update Settings</text>
+    </g>
+    
+
+  
+    <g id="privileges">
+      <ellipse cx="1220" cy="1400" rx="170" ry="64" class="usecase-oval" />
+      <text x="1220" y="1378" text-anchor="middle" class="usecase-text">Check Borrowing</text><text x="1220" y="1422" text-anchor="middle" class="usecase-text">Privileges</text>
+    </g>
+    
+  
+    <g id="calculate_fine">
+      <ellipse cx="1540" cy="1400" rx="150" ry="58" class="usecase-oval" />
+      <text x="1540" y="1410" text-anchor="middle" class="usecase-text">Calculate Fine</text>
+    </g>
+    
+  
+    <g id="email_notify">
+      <ellipse cx="1860" cy="1400" rx="160" ry="58" class="usecase-oval" />
+      <text x="1860" y="1378" text-anchor="middle" class="usecase-text">Send Email and</text><text x="1860" y="1422" text-anchor="middle" class="usecase-text">Notifications</text>
+    </g>
+    
+
+  <line x1="285" y1="390" x2="820" y2="270" class="connector" />
+  <line x1="285" y1="390" x2="835" y2="440" class="connector" />
+  <line x1="285" y1="390" x2="825" y2="630" class="connector" />
+  <line x1="285" y1="390" x2="790" y2="810" class="connector" />
+  <line x1="285" y1="390" x2="785" y2="1010" class="connector" />
+  <line x1="285" y1="390" x2="1185" y2="300" class="connector" />
+  <line x1="285" y1="390" x2="1190" y2="520" class="connector" />
+
+  <line x1="285" y1="920" x2="1195" y2="760" class="connector" />
+  <line x1="285" y1="920" x2="1225" y2="980" class="connector" />
+  <line x1="285" y1="920" x2="1220" y2="1200" class="connector" />
+  <line x1="285" y1="920" x2="1620" y2="860" class="connector" />
+
+  <line x1="2270" y1="620" x2="1910" y2="250" class="connector" />
+  <line x1="2270" y1="620" x2="1910" y2="450" class="connector" />
+  <line x1="2270" y1="620" x2="1930" y2="650" class="connector" />
+  <line x1="2270" y1="620" x2="1510" y2="760" class="connector" />
+  <line x1="2270" y1="620" x2="1510" y2="980" class="connector" />
+  <line x1="2270" y1="620" x2="1510" y2="1200" class="connector" />
+  <line x1="2270" y1="620" x2="1920" y2="860" class="connector" />
+  <line x1="2270" y1="620" x2="1920" y2="1060" class="connector" />
+  <line x1="2270" y1="620" x2="1920" y2="1260" class="connector" />
+  <line x1="2270" y1="620" x2="2015" y2="1400" class="connector" />
+
+  
+    <g>
+      <line x1="1115" y1="980" x2="1185" y2="1400" class="connector" stroke-dasharray="14 10" marker-end="url(#openArrow)" />
+      <text x="1150.0" y="1172.0" text-anchor="middle" class="relation-label">&lt;&lt;include&gt;&gt;</text>
+    </g>
+    
+  
+    <g>
+      <line x1="1435" y1="1200" x2="1490" y2="1400" class="connector" stroke-dasharray="14 10" marker-end="url(#openArrow)" />
+      <text x="1462.5" y="1282.0" text-anchor="middle" class="relation-label">&lt;&lt;include&gt;&gt;</text>
+    </g>
+    
+  
+    <g>
+      <line x1="1520" y1="760" x2="1780" y2="1400" class="connector" stroke-dasharray="14 10" marker-end="url(#openArrow)" />
+      <text x="1650.0" y="1062.0" text-anchor="middle" class="relation-label">&lt;&lt;include&gt;&gt;</text>
+    </g>
+    
+  
+    <g>
+      <line x1="1495" y1="980" x2="1770" y2="1400" class="connector" stroke-dasharray="14 10" marker-end="url(#openArrow)" />
+      <text x="1632.5" y="1172.0" text-anchor="middle" class="relation-label">&lt;&lt;include&gt;&gt;</text>
+    </g>
+    
+  
+    <g>
+      <line x1="1505" y1="1200" x2="1770" y2="1400" class="connector" stroke-dasharray="14 10" marker-end="url(#openArrow)" />
+      <text x="1637.5" y="1282.0" text-anchor="middle" class="relation-label">&lt;&lt;include&gt;&gt;</text>
+    </g>
+    
+</svg>

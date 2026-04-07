@@ -1,0 +1,369 @@
+graph TB
+    %% Use Case Diagram for Library Management System
+    %% Author: System Design Team
+    %% Date: 2026-04-06
+
+    %% Define Actors
+    Admin["👤 Administrator"]
+    Staff["👤 Library Staff"]
+    Student["👤 Student"]
+    System["⚙️ System<br/>(Background Jobs)"]
+
+    %% ==========================================
+    %% ADMIN USE CASES
+    %% ==========================================
+    subgraph AdminCases["ADMIN USE CASES"]
+        AdminDash["📊 View Dashboard"]
+        ManageBooks["📚 Manage Book Catalog"]
+        AddBook["Add Book"]
+        EditBook["Edit Book"]
+        DeleteBook["Delete Book"]
+        SearchBooks["Search Books"]
+        CreateCategory["Create Category"]
+        
+        ManageUsers["👥 Manage User Accounts"]
+        CreateUser["Create User"]
+        UpdateUser["Update User"]
+        DeleteUser["Delete User"]
+        ResetPassword["Reset User Password"]
+        UnlockAccount["Unlock Account"]
+        ManageLocks["Manage Account Locks"]
+        
+        ManageStudents["🎓 Manage Students"]
+        CreateStudent["Create Student"]
+        UpdateStudent["Update Student"]
+        ViewStudent["View Student Profile"]
+        ActivateStudent["Activate Student"]
+        DeactivateStudent["Deactivate Student"]
+        ChangeRole["Change Student Role"]
+        SetPrivileges["Set Student Privileges"]
+        ViewStudentFines["View Student Fines"]
+        GenerateReceipt["Generate Fine Receipt"]
+        
+        ProcessRequests["📋 Process Book Requests"]
+        ApproveRequest["Approve Request"]
+        RejectRequest["Reject Request"]
+        BulkUpdateRequests["Bulk Update Requests"]
+        
+        ManageTransactions["💳 Manage Transactions"]
+        IssueBooks["Issue Books"]
+        ReturnBooks["Return Books"]
+        
+        ManageFines["💰 Manage Fines"]
+        ViewFines["View Fines"]
+        MarkPaid["Mark Fine as Paid"]
+        WaiveFine["Waive Fine"]
+        AdjustFine["Adjust Fine Amount"]
+        ViewFineHistory["View Fine History"]
+        SendFineEmail["Send Fine Email"]
+        BulkFineActions["Bulk Process Fines"]
+        
+        ViewReports["📈 View Reports"]
+        InventoryReport["Inventory Report"]
+        TransactionReport["Transaction Report"]
+        FineReport["Fine Report"]
+        UserReport["User Report"]
+        OverdueReport["Overdue Items Report"]
+        
+        ViewLogs["📝 View Activity Logs"]
+        ConfigSettings["⚙️ Configure Settings"]
+        UpdateBranding["Update Library Branding"]
+        UpdateFineSettings["Update Fine Settings"]
+        UpdateSecuritySettings["Update Security Settings"]
+        
+        AdminNotifications["🔔 View Notifications"]
+    end
+
+    %% ==========================================
+    %% STAFF USE CASES
+    %% ==========================================
+    subgraph StaffCases["STAFF USE CASES"]
+        StaffDash["📊 View Dashboard"]
+        
+        StaffManageBooks["📚 Manage Book Catalog"]
+        StaffAddBook["Add Book"]
+        StaffEditBook["Edit Book"]
+        StaffDeleteBook["Request Book Deletion"]
+        StaffSearchBooks["Search Books"]
+        StaffCreateCategory["Create Category"]
+        
+        StaffIssueBooks["📤 Issue Books"]
+        SearchStudent["Search Student"]
+        SelectBooks["Select Available Books"]
+        IssueTransaction["Create Issue Transaction"]
+        
+        StaffReturnBooks["📥 Return Books"]
+        SearchIssuedBooks["Search Issued Books"]
+        ProcessReturn["Process Return Transaction"]
+        HandleDamage["Handle Damaged/Lost Items"]
+        
+        StaffProcessRequests["📋 Process Book Requests"]
+        StaffApproveRequest["Approve Request"]
+        StaffRejectRequest["Reject Request"]
+        StaffBulkUpdateRequests["Bulk Update Requests"]
+        
+        StaffManageFines["💰 Manage Fines"]
+        StaffViewFines["View Fines"]
+        StaffMarkPaid["Mark Fine as Paid"]
+        StaffWaiveFine["Waive Fine"]
+        StaffSendEmail["Send Fine Email"]
+        StaffBulkFineActions["Bulk Process Fines"]
+        
+        ManageStudentAccounts["🎓 Manage Student Accounts"]
+        ViewStudentProfile["View Student Profile"]
+        StaffActivateStudent["Activate Student"]
+        StaffDeactivateStudent["Deactivate Student"]
+        
+        StaffViewLogs["📝 View Activity Logs"]
+        
+        StaffSettings["⚙️ Update Profile Settings"]
+        StaffUpdateProfile["Update Profile Info"]
+        StaffChangePassword["Change Password"]
+        StaffUpdatePhoto["Upload Profile Photo"]
+        
+        StaffNotifications["🔔 View Notifications"]
+    end
+
+    %% ==========================================
+    %% STUDENT USE CASES
+    %% ==========================================
+    subgraph StudentCases["STUDENT USE CASES"]
+        StudentDash["📊 View Dashboard"]
+        
+        SearchBooksCatalog["🔍 Search Books"]
+        FilterBooks["Filter by Category/Author"]
+        ViewBookDetails["View Book Details"]
+        
+        RequestBooks["📥 Request Books"]
+        SubmitRequest["Submit Book Request"]
+        
+        MyRequests["📋 My Requests"]
+        ViewMyRequests["View My Requests"]
+        CancelRequest["Cancel Pending Request"]
+        
+        MyBooks["📚 My Books"]
+        ViewCurrentBooks["View Current Books"]
+        ViewReturnedBooks["View Returned Books"]
+        CheckDueDate["Check Due Date"]
+        
+        MyFines["💰 My Fines"]
+        ViewMyFines["View My Fines"]
+        PayFine["Pay Fine"]
+        DownloadReceipt["Download Fine Receipt"]
+        
+        StudentProfile["👤 My Profile"]
+        UpdateProfileInfo["Update Profile Info"]
+        ChangeStudentPassword["Change Password"]
+        UploadStudentPhoto["Upload Profile Photo"]
+        
+        StudentNotifications["🔔 View Notifications"]
+    end
+
+    %% ==========================================
+    %% SYSTEM USE CASES (Background Processes)
+    %% ==========================================
+    subgraph SystemCases["SYSTEM USE CASES"]
+        CalculateFines["💻 Calculate Overdue Fines"]
+        SendNotifications["📧 Send Email Notifications"]
+        CheckLockout["🔒 Check Account Lockout"]
+        VerifyEmail["✉️ Verify Email Address"]
+        QueueReminders["📬 Queue Reminder Emails"]
+    end
+
+    %% ==========================================
+    %% RELATIONSHIPS & INCLUSIONS
+    %% ==========================================
+
+    %% Admin Actor
+    Admin -->|"uses"| AdminDash
+    Admin -->|"uses"| ManageBooks
+    Admin -->|"uses"| ManageUsers
+    Admin -->|"uses"| ManageStudents
+    Admin -->|"uses"| ProcessRequests
+    Admin -->|"uses"| ManageTransactions
+    Admin -->|"uses"| ManageFines
+    Admin -->|"uses"| ViewReports
+    Admin -->|"uses"| ViewLogs
+    Admin -->|"uses"| ConfigSettings
+    Admin -->|"uses"| AdminNotifications
+
+    %% Admin Book Management
+    ManageBooks -->|"includes"| AddBook
+    ManageBooks -->|"includes"| EditBook
+    ManageBooks -->|"includes"| DeleteBook
+    ManageBooks -->|"includes"| SearchBooks
+    ManageBooks -->|"includes"| CreateCategory
+
+    %% Admin User Management
+    ManageUsers -->|"includes"| CreateUser
+    ManageUsers -->|"includes"| UpdateUser
+    ManageUsers -->|"includes"| DeleteUser
+    ManageUsers -->|"includes"| ResetPassword
+    ManageUsers -->|"includes"| ManageLocks
+    ManageLocks -->|"includes"| UnlockAccount
+
+    %% Admin Student Management
+    ManageStudents -->|"includes"| CreateStudent
+    ManageStudents -->|"includes"| UpdateStudent
+    ManageStudents -->|"includes"| ViewStudent
+    ManageStudents -->|"includes"| ActivateStudent
+    ManageStudents -->|"includes"| DeactivateStudent
+    ManageStudents -->|"includes"| ChangeRole
+    ManageStudents -->|"includes"| SetPrivileges
+    ManageStudents -->|"includes"| ViewStudentFines
+    ManageStudents -->|"includes"| GenerateReceipt
+
+    %% Admin Request Processing
+    ProcessRequests -->|"includes"| ApproveRequest
+    ProcessRequests -->|"includes"| RejectRequest
+    ProcessRequests -->|"includes"| BulkUpdateRequests
+
+    %% Admin Transactions
+    ManageTransactions -->|"includes"| IssueBooks
+    ManageTransactions -->|"includes"| ReturnBooks
+
+    %% Admin Fine Management
+    ManageFines -->|"includes"| ViewFines
+    ManageFines -->|"includes"| MarkPaid
+    ManageFines -->|"includes"| WaiveFine
+    ManageFines -->|"includes"| AdjustFine
+    ManageFines -->|"includes"| ViewFineHistory
+    ManageFines -->|"includes"| SendFineEmail
+    ManageFines -->|"includes"| BulkFineActions
+
+    %% Admin Reports
+    ViewReports -->|"includes"| InventoryReport
+    ViewReports -->|"includes"| TransactionReport
+    ViewReports -->|"includes"| FineReport
+    ViewReports -->|"includes"| UserReport
+    ViewReports -->|"includes"| OverdueReport
+
+    %% Admin Settings
+    ConfigSettings -->|"includes"| UpdateBranding
+    ConfigSettings -->|"includes"| UpdateFineSettings
+    ConfigSettings -->|"includes"| UpdateSecuritySettings
+
+    %% Staff Actor
+    Staff -->|"uses"| StaffDash
+    Staff -->|"uses"| StaffManageBooks
+    Staff -->|"uses"| StaffIssueBooks
+    Staff -->|"uses"| StaffReturnBooks
+    Staff -->|"uses"| StaffProcessRequests
+    Staff -->|"uses"| StaffManageFines
+    Staff -->|"uses"| ManageStudentAccounts
+    Staff -->|"uses"| StaffViewLogs
+    Staff -->|"uses"| StaffSettings
+    Staff -->|"uses"| StaffNotifications
+
+    %% Staff Book Management
+    StaffManageBooks -->|"includes"| StaffAddBook
+    StaffManageBooks -->|"includes"| StaffEditBook
+    StaffManageBooks -->|"includes"| StaffDeleteBook
+    StaffManageBooks -->|"includes"| StaffSearchBooks
+    StaffManageBooks -->|"includes"| StaffCreateCategory
+
+    %% Staff Issue Books
+    StaffIssueBooks -->|"includes"| SearchStudent
+    StaffIssueBooks -->|"includes"| SelectBooks
+    StaffIssueBooks -->|"includes"| IssueTransaction
+
+    %% Staff Return Books
+    StaffReturnBooks -->|"includes"| SearchIssuedBooks
+    StaffReturnBooks -->|"includes"| ProcessReturn
+    StaffReturnBooks -->|"includes"| HandleDamage
+
+    %% Staff Request Processing
+    StaffProcessRequests -->|"includes"| StaffApproveRequest
+    StaffProcessRequests -->|"includes"| StaffRejectRequest
+    StaffProcessRequests -->|"includes"| StaffBulkUpdateRequests
+
+    %% Staff Fine Management
+    StaffManageFines -->|"includes"| StaffViewFines
+    StaffManageFines -->|"includes"| StaffMarkPaid
+    StaffManageFines -->|"includes"| StaffWaiveFine
+    StaffManageFines -->|"includes"| StaffSendEmail
+    StaffManageFines -->|"includes"| StaffBulkFineActions
+
+    %% Staff Student Management
+    ManageStudentAccounts -->|"includes"| ViewStudentProfile
+    ManageStudentAccounts -->|"includes"| StaffActivateStudent
+    ManageStudentAccounts -->|"includes"| StaffDeactivateStudent
+
+    %% Staff Profile Settings
+    StaffSettings -->|"includes"| StaffUpdateProfile
+    StaffSettings -->|"includes"| StaffChangePassword
+    StaffSettings -->|"includes"| StaffUpdatePhoto
+
+    %% Student Actor
+    Student -->|"uses"| StudentDash
+    Student -->|"uses"| SearchBooksCatalog
+    Student -->|"uses"| RequestBooks
+    Student -->|"uses"| MyRequests
+    Student -->|"uses"| MyBooks
+    Student -->|"uses"| MyFines
+    Student -->|"uses"| StudentProfile
+    Student -->|"uses"| StudentNotifications
+
+    %% Student Search
+    SearchBooksCatalog -->|"includes"| FilterBooks
+    SearchBooksCatalog -->|"includes"| ViewBookDetails
+
+    %% Student Request Books
+    RequestBooks -->|"includes"| SubmitRequest
+
+    %% Student My Requests
+    MyRequests -->|"includes"| ViewMyRequests
+    MyRequests -->|"includes"| CancelRequest
+
+    %% Student My Books
+    MyBooks -->|"includes"| ViewCurrentBooks
+    MyBooks -->|"includes"| ViewReturnedBooks
+    MyBooks -->|"includes"| CheckDueDate
+
+    %% Student My Fines
+    MyFines -->|"includes"| ViewMyFines
+    MyFines -->|"includes"| PayFine
+    MyFines -->|"includes"| DownloadReceipt
+
+    %% Student Profile
+    StudentProfile -->|"includes"| UpdateProfileInfo
+    StudentProfile -->|"includes"| ChangeStudentPassword
+    StudentProfile -->|"includes"| UploadStudentPhoto
+
+    %% System Actor
+    System -->|"triggers"| CalculateFines
+    System -->|"triggers"| SendNotifications
+    System -->|"triggers"| CheckLockout
+    System -->|"triggers"| VerifyEmail
+    System -->|"triggers"| QueueReminders
+
+    %% Cross-Actor Relationships
+    CalculateFines -.->|"supports"| ManageFines
+    CalculateFines -.->|"supports"| MyFines
+    SendNotifications -.->|"supports"| AdminNotifications
+    SendNotifications -.->|"supports"| StaffNotifications
+    SendNotifications -.->|"supports"| StudentNotifications
+    CheckLockout -.->|"supports"| UnlockAccount
+    VerifyEmail -.->|"supports"| CreateUser
+    QueueReminders -.->|"supports"| SendFineEmail
+
+    %% ==========================================
+    %% STYLING
+    %% ==========================================
+    classDef actor fill:#4f46e5,stroke:#312e81,stroke-width:2px,color:#fff
+    classDef usecase fill:#ec4899,stroke:#be185d,stroke-width:1.5px,color:#fff
+    classDef subcasegroup fill:#f97316,stroke:#c2410c,stroke-width:1.5px,color:#fff
+    classDef subcase fill:#f59e0b,stroke:#b45309,stroke-width:1px,color:#fff
+    classDef system fill:#06b6d4,stroke:#0e7490,stroke-width:2px,color:#fff
+    classDef systemcase fill:#14b8a6,stroke:#0d9488,stroke-width:1.5px,color:#fff
+    
+    class Admin,Staff,Student actor
+    class System system
+    class AdminDash,ManageBooks,ManageUsers,ManageStudents,ProcessRequests,ManageTransactions,ManageFines,ViewReports,ViewLogs,ConfigSettings,AdminNotifications usecase
+    class StaffDash,StaffManageBooks,StaffIssueBooks,StaffReturnBooks,StaffProcessRequests,StaffManageFines,ManageStudentAccounts,StaffViewLogs,StaffSettings,StaffNotifications usecase
+    class StudentDash,SearchBooksCatalog,RequestBooks,MyRequests,MyBooks,MyFines,StudentProfile,StudentNotifications usecase
+    class AddBook,EditBook,DeleteBook,SearchBooks,CreateCategory,CreateUser,UpdateUser,DeleteUser,ResetPassword,ManageLocks,CreateStudent,UpdateStudent,ViewStudent,ActivateStudent,DeactivateStudent,ChangeRole,SetPrivileges,ViewStudentFines,GenerateReceipt,ApproveRequest,RejectRequest,BulkUpdateRequests,IssueBooks,ReturnBooks,ViewFines,MarkPaid,WaiveFine,AdjustFine,ViewFineHistory,SendFineEmail,BulkFineActions,InventoryReport,TransactionReport,FineReport,UserReport,OverdueReport,UpdateBranding,UpdateFineSettings,UpdateSecuritySettings subcase
+    class StaffAddBook,StaffEditBook,StaffDeleteBook,StaffSearchBooks,StaffCreateCategory,SearchStudent,SelectBooks,IssueTransaction,SearchIssuedBooks,ProcessReturn,HandleDamage,StaffApproveRequest,StaffRejectRequest,StaffBulkUpdateRequests,StaffViewFines,StaffMarkPaid,StaffWaiveFine,StaffSendEmail,StaffBulkFineActions,ViewStudentProfile,StaffActivateStudent,StaffDeactivateStudent,StaffUpdateProfile,StaffChangePassword,StaffUpdatePhoto subcase
+    class UnlockAccount subcase
+    class FilterBooks,ViewBookDetails,SubmitRequest,ViewMyRequests,CancelRequest,ViewCurrentBooks,ViewReturnedBooks,CheckDueDate,ViewMyFines,PayFine,DownloadReceipt,UpdateProfileInfo,ChangeStudentPassword,UploadStudentPhoto subcase
+    class CalculateFines,SendNotifications,CheckLockout,VerifyEmail,QueueReminders systemcase

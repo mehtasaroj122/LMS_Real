@@ -1,0 +1,572 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="4961" height="3508" viewBox="0 0 4961 3508">
+  <style>
+    .title {
+      font: 700 58px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+    .entity-box, .relationship-diamond, .attribute-oval, .connector {
+      stroke: #111111;
+      stroke-width: 6;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .entity-text {
+      font: 700 40px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+    }
+    .relationship-text {
+      font: 700 38px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+    }
+    .attribute-text {
+      font: 700 34px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+    }
+    .attribute-key-text {
+      font: 700 34px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+      text-decoration: underline;
+    }
+    .cardinality {
+      font: 700 34px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+    }
+  </style>
+
+  <rect x="0" y="0" width="4961" height="3508" fill="#ffffff" />
+  <text x="2480" y="88" text-anchor="middle" class="title">Library Management System - Chen Style ER Diagram</text>
+
+  <!-- Entities -->
+  
+    <g>
+      <rect x="350" y="520" width="360" height="130" class="entity-box" />
+      <text x="530.0" y="597.0" text-anchor="middle" class="entity-text">Departments</text>
+    </g>
+    
+  
+    <g>
+      <rect x="2050" y="360" width="360" height="130" class="entity-box" />
+      <text x="2230.0" y="437.0" text-anchor="middle" class="entity-text">Users</text>
+    </g>
+    
+  
+    <g>
+      <rect x="3950" y="520" width="420" height="130" class="entity-box" />
+      <text x="4160.0" y="597.0" text-anchor="middle" class="entity-text">Notifications</text>
+    </g>
+    
+
+  
+    <g>
+      <rect x="450" y="1430" width="340" height="130" class="entity-box" />
+      <text x="620.0" y="1507.0" text-anchor="middle" class="entity-text">Staff</text>
+    </g>
+    
+  
+    <g>
+      <rect x="1600" y="1430" width="380" height="130" class="entity-box" />
+      <text x="1790.0" y="1507.0" text-anchor="middle" class="entity-text">Students</text>
+    </g>
+    
+  
+    <g>
+      <rect x="2860" y="1430" width="520" height="130" class="entity-box" />
+      <text x="3120.0" y="1507.0" text-anchor="middle" class="entity-text">Student Privileges</text>
+    </g>
+    
+
+  
+    <g>
+      <rect x="520" y="2520" width="340" height="130" class="entity-box" />
+      <text x="690.0" y="2597.0" text-anchor="middle" class="entity-text">Categories</text>
+    </g>
+    
+  
+    <g>
+      <rect x="1670" y="2520" width="320" height="130" class="entity-box" />
+      <text x="1830.0" y="2597.0" text-anchor="middle" class="entity-text">Books</text>
+    </g>
+    
+  
+    <g>
+      <rect x="2720" y="2520" width="430" height="130" class="entity-box" />
+      <text x="2935.0" y="2597.0" text-anchor="middle" class="entity-text">Book Requests</text>
+    </g>
+    
+  
+    <g>
+      <rect x="3740" y="2520" width="420" height="130" class="entity-box" />
+      <text x="3950.0" y="2597.0" text-anchor="middle" class="entity-text">Issued Books</text>
+    </g>
+    
+  
+    <g>
+      <rect x="4300" y="1430" width="260" height="130" class="entity-box" />
+      <text x="4430.0" y="1507.0" text-anchor="middle" class="entity-text">Fines</text>
+    </g>
+    
+
+  <!-- Relationships -->
+  
+    <g>
+      <polygon points="1230,1360.0 1325.0,1435 1230,1510.0 1135.0,1435" class="relationship-diamond" />
+      <text x="1230" y="1425.0" text-anchor="middle" class="relationship-text">belongs</text><text x="1230" y="1469.0" text-anchor="middle" class="relationship-text">to</text>
+    </g>
+    
+  
+    <g>
+      <polygon points="1180,880.0 1290.0,960 1180,1040.0 1070.0,960" class="relationship-diamond" />
+      <text x="1180" y="928.0" text-anchor="middle" class="relationship-text">has</text><text x="1180" y="972.0" text-anchor="middle" class="relationship-text">staff</text><text x="1180" y="1016.0" text-anchor="middle" class="relationship-text">profile</text>
+    </g>
+    
+  
+    <g>
+      <polygon points="2200,880.0 2320.0,960 2200,1040.0 2080.0,960" class="relationship-diamond" />
+      <text x="2200" y="928.0" text-anchor="middle" class="relationship-text">has</text><text x="2200" y="972.0" text-anchor="middle" class="relationship-text">student</text><text x="2200" y="1016.0" text-anchor="middle" class="relationship-text">profile</text>
+    </g>
+    
+  
+    <g>
+      <polygon points="3220,880.0 3330.0,960 3220,1040.0 3110.0,960" class="relationship-diamond" />
+      <text x="3220" y="972.0" text-anchor="middle" class="relationship-text">receives</text>
+    </g>
+    
+  
+    <g>
+      <polygon points="2250,1355.0 2360.0,1435 2250,1515.0 2140.0,1435" class="relationship-diamond" />
+      <text x="2250" y="1447.0" text-anchor="middle" class="relationship-text">has</text>
+    </g>
+    
+
+  
+    <g>
+      <polygon points="1210,2445.0 1320.0,2525 1210,2605.0 1100.0,2525" class="relationship-diamond" />
+      <text x="1210" y="2537.0" text-anchor="middle" class="relationship-text">classifies</text>
+    </g>
+    
+  
+    <g>
+      <polygon points="2200,2445.0 2305.0,2525 2200,2605.0 2095.0,2525" class="relationship-diamond" />
+      <text x="2200" y="2537.0" text-anchor="middle" class="relationship-text">places</text>
+    </g>
+    
+  
+    <g>
+      <polygon points="3230,2060.0 3340.0,2140 3230,2220.0 3120.0,2140" class="relationship-diamond" />
+      <text x="3230" y="2130.0" text-anchor="middle" class="relationship-text">requested</text><text x="3230" y="2174.0" text-anchor="middle" class="relationship-text">for</text>
+    </g>
+    
+  
+    <g>
+      <polygon points="2790,2930.0 2900.0,3010 2790,3090.0 2680.0,3010" class="relationship-diamond" />
+      <text x="2790" y="3022.0" text-anchor="middle" class="relationship-text">borrows</text>
+    </g>
+    
+  
+    <g>
+      <polygon points="3580,2930.0 3685.0,3010 3580,3090.0 3475.0,3010" class="relationship-diamond" />
+      <text x="3580" y="3000.0" text-anchor="middle" class="relationship-text">issued</text><text x="3580" y="3044.0" text-anchor="middle" class="relationship-text">as</text>
+    </g>
+    
+  
+    <g>
+      <polygon points="4030,1900.0 4140.0,1980 4030,2060.0 3920.0,1980" class="relationship-diamond" />
+      <text x="4030" y="1992.0" text-anchor="middle" class="relationship-text">generates</text>
+    </g>
+    
+
+  <!-- Connectors -->
+  <line x1="710" y1="585" x2="1040" y2="585" class="connector" />
+  <line x1="450" y1="1495" x2="1040" y2="1495" class="connector" />
+
+  <line x1="2230" y1="490" x2="2230" y2="880" class="connector" />
+  <line x1="620" y1="1495" x2="620" y2="1035" class="connector" />
+  <line x1="2050" y1="490" x2="2050" y2="880" class="connector" />
+  <line x1="1790" y1="1495" x2="2080" y2="1495" class="connector" />
+  <line x1="2410" y1="1020" x2="1600" y2="1495" class="connector" />
+  <line x1="2410" y1="490" x2="3100" y2="880" class="connector" />
+  <line x1="3950" y1="585" x2="3340" y2="960" class="connector" />
+  <line x1="3190" y1="1035" x2="3190" y2="1365" class="connector" />
+
+  <line x1="860" y1="2585" x2="1100" y2="2585" class="connector" />
+  <line x1="1320" y1="2585" x2="1670" y2="2585" class="connector" />
+  <line x1="1988" y1="2585" x2="2095" y2="2585" class="connector" />
+  <line x1="2305" y1="2585" x2="2510" y2="2585" class="connector" />
+  <line x1="2930" y1="2520" x2="3160" y2="2215" class="connector" />
+  <line x1="1985" y1="2585" x2="2680" y2="3010" class="connector" />
+  <line x1="3150" y1="3010" x2="3475" y2="3010" class="connector" />
+  <line x1="3685" y1="3010" x2="3740" y2="2585" class="connector" />
+  <line x1="4140" y1="2585" x2="4140" y2="2060" class="connector" />
+  <line x1="4140" y1="1900" x2="4300" y2="1495" class="connector" />
+
+  <!-- Cardinalities -->
+  <text x="830" y="553" text-anchor="middle" class="cardinality">1</text>
+  <text x="830" y="1465" text-anchor="middle" class="cardinality">N</text>
+  <text x="620" y="1200" text-anchor="middle" class="cardinality">1</text>
+  <text x="2050" y="740" text-anchor="middle" class="cardinality">1</text>
+  <text x="1830" y="1150" text-anchor="middle" class="cardinality">1</text>
+  <text x="3190" y="1180" text-anchor="middle" class="cardinality">1</text>
+  <text x="990" y="2555" text-anchor="middle" class="cardinality">1</text>
+  <text x="1490" y="2555" text-anchor="middle" class="cardinality">N</text>
+  <text x="2140" y="2555" text-anchor="middle" class="cardinality">1</text>
+  <text x="2440" y="2555" text-anchor="middle" class="cardinality">N</text>
+  <text x="3035" y="2310" text-anchor="middle" class="cardinality">N</text>
+  <text x="2050" y="2810" text-anchor="middle" class="cardinality">1</text>
+  <text x="2590" y="2950" text-anchor="middle" class="cardinality">N</text>
+  <text x="3330" y="2990" text-anchor="middle" class="cardinality">1</text>
+  <text x="3715" y="2875" text-anchor="middle" class="cardinality">N</text>
+  <text x="4140" y="2250" text-anchor="middle" class="cardinality">1</text>
+  <text x="4255" y="1720" text-anchor="middle" class="cardinality">N</text>
+
+  <!-- Department attributes -->
+  
+    <g>
+      <ellipse cx="250" cy="335" rx="150" ry="62" class="attribute-oval" />
+      <text x="250" y="347.0" text-anchor="middle" class="attribute-key-text">department_id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="210" cy="585" rx="130" ry="56" class="attribute-oval" />
+      <text x="210" y="597.0" text-anchor="middle" class="attribute-text">name</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="280" cy="820" rx="120" ry="56" class="attribute-oval" />
+      <text x="280" y="832.0" text-anchor="middle" class="attribute-text">code</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="560" cy="290" rx="130" ry="56" class="attribute-oval" />
+      <text x="560" y="302.0" text-anchor="middle" class="attribute-text">status</text>
+    </g>
+    
+  <line x1="350" y1="520" x2="315" y2="395" class="connector" />
+  <line x1="350" y1="585" x2="340" y2="585" class="connector" />
+  <line x1="430" y1="650" x2="345" y2="790" class="connector" />
+  <line x1="600" y1="520" x2="585" y2="345" class="connector" />
+
+  <!-- User attributes -->
+  
+    <g>
+      <ellipse cx="1830" cy="170" rx="120" ry="56" class="attribute-oval" />
+      <text x="1830" y="182.0" text-anchor="middle" class="attribute-key-text">user_id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="2050" cy="150" rx="120" ry="56" class="attribute-oval" />
+      <text x="2050" y="162.0" text-anchor="middle" class="attribute-text">role</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="2270" cy="170" rx="130" ry="56" class="attribute-oval" />
+      <text x="2270" y="182.0" text-anchor="middle" class="attribute-text">name</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="1830" cy="700" rx="130" ry="56" class="attribute-oval" />
+      <text x="1830" y="712.0" text-anchor="middle" class="attribute-text">email</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="2050" cy="760" rx="130" ry="56" class="attribute-oval" />
+      <text x="2050" y="772.0" text-anchor="middle" class="attribute-text">phone</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="2270" cy="700" rx="130" ry="56" class="attribute-oval" />
+      <text x="2270" y="712.0" text-anchor="middle" class="attribute-text">status</text>
+    </g>
+    
+  <line x1="2050" y1="360" x2="1865" y2="225" class="connector" />
+  <line x1="2230" y1="360" x2="2235" y2="225" class="connector" />
+  <line x1="2410" y1="360" x2="2265" y2="225" class="connector" />
+  <line x1="2050" y1="490" x2="1870" y2="665" class="connector" />
+  <line x1="2230" y1="490" x2="2050" y2="705" class="connector" />
+  <line x1="2410" y1="490" x2="2275" y2="665" class="connector" />
+
+  <!-- Notification attributes -->
+  
+    <g>
+      <ellipse cx="3850" cy="320" rx="150" ry="62" class="attribute-oval" />
+      <text x="3850" y="332.0" text-anchor="middle" class="attribute-key-text">notification_id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="4380" cy="330" rx="120" ry="56" class="attribute-oval" />
+      <text x="4380" y="342.0" text-anchor="middle" class="attribute-text">type</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="4500" cy="585" rx="120" ry="56" class="attribute-oval" />
+      <text x="4500" y="597.0" text-anchor="middle" class="attribute-text">title</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="3860" cy="820" rx="130" ry="56" class="attribute-oval" />
+      <text x="3860" y="832.0" text-anchor="middle" class="attribute-text">read_at</text>
+    </g>
+    
+  <line x1="3950" y1="520" x2="3900" y2="380" class="connector" />
+  <line x1="4290" y1="520" x2="4365" y2="385" class="connector" />
+  <line x1="4370" y1="585" x2="4380" y2="585" class="connector" />
+  <line x1="4010" y1="650" x2="3900" y2="785" class="connector" />
+
+  <!-- Staff attributes -->
+  
+    <g>
+      <ellipse cx="280" cy="1320" rx="120" ry="56" class="attribute-oval" />
+      <text x="280" y="1332.0" text-anchor="middle" class="attribute-key-text">id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="280" cy="1495" rx="130" ry="56" class="attribute-oval" />
+      <text x="280" y="1507.0" text-anchor="middle" class="attribute-text">staff_id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="280" cy="1685" rx="160" ry="56" class="attribute-oval" />
+      <text x="280" y="1697.0" text-anchor="middle" class="attribute-text">designation</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="600" cy="1270" rx="150" ry="56" class="attribute-oval" />
+      <text x="600" y="1282.0" text-anchor="middle" class="attribute-text">join_date</text>
+    </g>
+    
+  <line x1="450" y1="1430" x2="340" y2="1335" class="connector" />
+  <line x1="450" y1="1495" x2="410" y2="1495" class="connector" />
+  <line x1="450" y1="1560" x2="360" y2="1655" class="connector" />
+  <line x1="650" y1="1430" x2="620" y2="1325" class="connector" />
+
+  <!-- Student attributes -->
+  
+    <g>
+      <ellipse cx="1430" cy="1320" rx="120" ry="56" class="attribute-oval" />
+      <text x="1430" y="1332.0" text-anchor="middle" class="attribute-key-text">id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="1430" cy="1495" rx="150" ry="56" class="attribute-oval" />
+      <text x="1430" y="1507.0" text-anchor="middle" class="attribute-text">student_id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="1430" cy="1685" rx="130" ry="56" class="attribute-oval" />
+      <text x="1430" y="1697.0" text-anchor="middle" class="attribute-text">roll_no</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="1850" cy="1320" rx="130" ry="56" class="attribute-oval" />
+      <text x="1850" y="1332.0" text-anchor="middle" class="attribute-text">batch</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="1850" cy="1685" rx="140" ry="56" class="attribute-oval" />
+      <text x="1850" y="1697.0" text-anchor="middle" class="attribute-text">semester</text>
+    </g>
+    
+  <line x1="1600" y1="1430" x2="1480" y2="1335" class="connector" />
+  <line x1="1600" y1="1495" x2="1480" y2="1495" class="connector" />
+  <line x1="1600" y1="1560" x2="1480" y2="1655" class="connector" />
+  <line x1="1790" y1="1430" x2="1820" y2="1375" class="connector" />
+  <line x1="1790" y1="1560" x2="1820" y2="1655" class="connector" />
+
+  <!-- Student privilege attributes -->
+  
+    <g>
+      <ellipse cx="2800" cy="1320" rx="130" ry="56" class="attribute-oval" />
+      <text x="2800" y="1332.0" text-anchor="middle" class="attribute-key-text">id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="2800" cy="1675" rx="170" ry="56" class="attribute-oval" />
+      <text x="2800" y="1687.0" text-anchor="middle" class="attribute-text">max_books</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="3240" cy="1310" rx="220" ry="62" class="attribute-oval" />
+      <text x="3240" y="1322.0" text-anchor="middle" class="attribute-text">issue_duration_days</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="3250" cy="1675" rx="190" ry="56" class="attribute-oval" />
+      <text x="3250" y="1687.0" text-anchor="middle" class="attribute-text">per_day_fine</text>
+    </g>
+    
+  <line x1="2860" y1="1430" x2="2825" y2="1375" class="connector" />
+  <line x1="2860" y1="1560" x2="2825" y2="1645" class="connector" />
+  <line x1="3380" y1="1430" x2="3270" y2="1370" class="connector" />
+  <line x1="3380" y1="1560" x2="3280" y2="1645" class="connector" />
+
+  <!-- Category attributes -->
+  
+    <g>
+      <ellipse cx="360" cy="2380" rx="150" ry="56" class="attribute-oval" />
+      <text x="360" y="2392.0" text-anchor="middle" class="attribute-key-text">category_id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="360" cy="2695" rx="130" ry="56" class="attribute-oval" />
+      <text x="360" y="2707.0" text-anchor="middle" class="attribute-text">name</text>
+    </g>
+    
+  <line x1="520" y1="2520" x2="430" y2="2410" class="connector" />
+  <line x1="520" y1="2585" x2="430" y2="2685" class="connector" />
+
+  <!-- Book attributes -->
+  
+    <g>
+      <ellipse cx="1510" cy="2380" rx="110" ry="56" class="attribute-oval" />
+      <text x="1510" y="2392.0" text-anchor="middle" class="attribute-key-text">id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="1510" cy="2695" rx="120" ry="56" class="attribute-oval" />
+      <text x="1510" y="2707.0" text-anchor="middle" class="attribute-text">title</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="1840" cy="2365" rx="120" ry="56" class="attribute-oval" />
+      <text x="1840" y="2377.0" text-anchor="middle" class="attribute-text">isbn</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="1840" cy="2695" rx="130" ry="56" class="attribute-oval" />
+      <text x="1840" y="2707.0" text-anchor="middle" class="attribute-text">author</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="2080" cy="2520" rx="190" ry="56" class="attribute-oval" />
+      <text x="2080" y="2532.0" text-anchor="middle" class="attribute-text">available_copies</text>
+    </g>
+    
+  <line x1="1670" y1="2520" x2="1560" y2="2410" class="connector" />
+  <line x1="1670" y1="2585" x2="1560" y2="2685" class="connector" />
+  <line x1="1990" y1="2520" x2="1880" y2="2395" class="connector" />
+  <line x1="1990" y1="2585" x2="1880" y2="2685" class="connector" />
+  <line x1="1990" y1="2520" x2="1890" y2="2520" class="connector" />
+
+  <!-- Book request attributes -->
+  
+    <g>
+      <ellipse cx="2650" cy="2360" rx="130" ry="56" class="attribute-oval" />
+      <text x="2650" y="2372.0" text-anchor="middle" class="attribute-key-text">request_id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="2650" cy="2695" rx="170" ry="56" class="attribute-oval" />
+      <text x="2650" y="2707.0" text-anchor="middle" class="attribute-text">request_date</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="3180" cy="2360" rx="130" ry="56" class="attribute-oval" />
+      <text x="3180" y="2372.0" text-anchor="middle" class="attribute-text">status</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="3180" cy="2695" rx="180" ry="56" class="attribute-oval" />
+      <text x="3180" y="2707.0" text-anchor="middle" class="attribute-text">processed_by</text>
+    </g>
+    
+  <line x1="2720" y1="2520" x2="2700" y2="2405" class="connector" />
+  <line x1="2720" y1="2585" x2="2700" y2="2675" class="connector" />
+  <line x1="3150" y1="2520" x2="3140" y2="2405" class="connector" />
+  <line x1="3150" y1="2585" x2="3140" y2="2675" class="connector" />
+
+  <!-- Issued book attributes -->
+  
+    <g>
+      <ellipse cx="3630" cy="2360" rx="130" ry="56" class="attribute-oval" />
+      <text x="3630" y="2372.0" text-anchor="middle" class="attribute-key-text">issue_id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="3650" cy="2695" rx="170" ry="56" class="attribute-oval" />
+      <text x="3650" y="2707.0" text-anchor="middle" class="attribute-text">issue_date</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="4080" cy="2360" rx="150" ry="56" class="attribute-oval" />
+      <text x="4080" y="2372.0" text-anchor="middle" class="attribute-text">due_date</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="4210" cy="2695" rx="160" ry="56" class="attribute-oval" />
+      <text x="4210" y="2707.0" text-anchor="middle" class="attribute-text">return_date</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="3960" cy="2860" rx="130" ry="56" class="attribute-oval" />
+      <text x="3960" y="2872.0" text-anchor="middle" class="attribute-text">status</text>
+    </g>
+    
+  <line x1="3740" y1="2520" x2="3675" y2="2405" class="connector" />
+  <line x1="3740" y1="2585" x2="3690" y2="2675" class="connector" />
+  <line x1="4160" y1="2520" x2="4095" y2="2405" class="connector" />
+  <line x1="4160" y1="2585" x2="4190" y2="2675" class="connector" />
+  <line x1="3950" y1="2650" x2="3950" y2="2805" class="connector" />
+
+  <!-- Fine attributes -->
+  
+    <g>
+      <ellipse cx="4450" cy="1180" rx="110" ry="56" class="attribute-oval" />
+      <text x="4450" y="1192.0" text-anchor="middle" class="attribute-key-text">fine_id</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="4620" cy="1430" rx="130" ry="56" class="attribute-oval" />
+      <text x="4620" y="1442.0" text-anchor="middle" class="attribute-text">amount</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="4450" cy="1710" rx="150" ry="56" class="attribute-oval" />
+      <text x="4450" y="1722.0" text-anchor="middle" class="attribute-text">days_late</text>
+    </g>
+    
+  
+    <g>
+      <ellipse cx="4180" cy="1430" rx="120" ry="56" class="attribute-oval" />
+      <text x="4180" y="1442.0" text-anchor="middle" class="attribute-text">status</text>
+    </g>
+    
+  <line x1="4430" y1="1430" x2="4450" y2="1235" class="connector" />
+  <line x1="4560" y1="1495" x2="4570" y2="1495" class="connector" />
+  <line x1="4430" y1="1560" x2="4450" y2="1655" class="connector" />
+  <line x1="4300" y1="1495" x2="4240" y2="1495" class="connector" />
+</svg>

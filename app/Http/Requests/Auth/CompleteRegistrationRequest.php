@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\User;
-use App\Rules\MatchesInvitedUserIdentity;
 use App\Services\Auth\InvitedUserRegistrationService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -45,7 +44,6 @@ class CompleteRegistrationRequest extends FormRequest
                 'min:3',
                 'max:50',
                 'regex:/^[A-Za-z0-9-]+$/',
-                new MatchesInvitedUserIdentity('staff'),
             ],
             'student_id' => [
                 'bail',
@@ -55,7 +53,6 @@ class CompleteRegistrationRequest extends FormRequest
                 'min:3',
                 'max:50',
                 'regex:/^[A-Za-z0-9-]+$/',
-                new MatchesInvitedUserIdentity('student'),
             ],
             'password' => [
                 'bail',
@@ -117,7 +114,48 @@ class CompleteRegistrationRequest extends FormRequest
 
             if (($emailValidation['valid'] ?? false) !== true) {
                 $validator->errors()->add('email', (string) ($emailValidation['message'] ?? 'This account is already active. Please sign in instead.'));
+
+                return;
             }
+
+            $role = (string) $this->input('role');
+            $identifierField = $role === 'staff' ? 'staff_id' : 'student_id';
+
+            if (
+                $validator->errors()->has('phone')
+                || $validator->errors()->has($identifierField)
+            ) {
+                return;
+            }
+
+            $identifier = $this->input($identifierField);
+
+            if (! is_string($identifier) || trim($identifier) === '') {
+                return;
+            }
+
+            $identityValidation = $service->validateIdentity(
+                $role,
+                (string) $this->input('email'),
+                $this->input('phone'),
+                $identifier,
+            );
+
+            if (($identityValidation['valid'] ?? false) === true) {
+                return;
+            }
+
+            $message = (string) ($identityValidation['message'] ?? 'The invitation details do not match our records.');
+            $normalizedMessage = strtolower($message);
+            $errorField = $identifierField;
+
+            if (str_contains($normalizedMessage, 'already active') || str_contains($normalizedMessage, 'sign in')) {
+                $errorField = 'email';
+            } elseif (str_contains($normalizedMessage, 'phone')) {
+                $errorField = 'phone';
+            }
+
+            $validator->errors()->add($errorField, $message);
         });
     }
 

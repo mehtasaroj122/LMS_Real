@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3508" height="2480" viewBox="0 0 3508 2480">
+  <defs>
+    <marker id="arrow" viewBox="0 0 16 16" refX="14" refY="8" markerWidth="16" markerHeight="16" orient="auto">
+      <path d="M1,1 L15,8 L1,15 Z" fill="#111111" />
+    </marker>
+  </defs>
+
+  <style>
+    .title {
+      font: 700 54px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+    .subtitle {
+      font: 600 28px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+    .entity-box, .process-box, .store-line, .flow-arrow {
+      stroke: #111111;
+      stroke-width: 6;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .entity-text {
+      font: 700 34px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+    }
+    .process-number {
+      font: 700 26px Arial, Helvetica, sans-serif;
+      fill: #111111;
+    }
+    .process-text {
+      font: 700 34px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+    }
+    .store-text {
+      font: 700 32px Arial, Helvetica, sans-serif;
+      fill: #0b7a37;
+    }
+  </style>
+
+  <rect x="0" y="0" width="3508" height="2480" fill="#ffffff" />
+  <text x="1754" y="72" text-anchor="middle" class="title">Library Management System - Level 1 DFD</text>
+  <text x="1754" y="116" text-anchor="middle" class="subtitle">Simple and minimal print-friendly version</text>
+
+  <!-- External entities -->
+  
+    <g>
+      <rect x="130" y="320" width="320" height="120" class="entity-box" />
+      <text x="290.0" y="392.0" text-anchor="middle" class="entity-text">Admin</text>
+    </g>
+    
+  
+    <g>
+      <rect x="130" y="980" width="320" height="120" class="entity-box" />
+      <text x="290.0" y="1052.0" text-anchor="middle" class="entity-text">Staff</text>
+    </g>
+    
+  
+    <g>
+      <rect x="130" y="1640" width="320" height="120" class="entity-box" />
+      <text x="290.0" y="1712.0" text-anchor="middle" class="entity-text">Student</text>
+    </g>
+    
+
+  <!-- Processes -->
+  
+    <g>
+      <rect x="960" y="240" rx="42" ry="42" width="820" height="190" class="process-box" />
+      <text x="1370.0" y="280" text-anchor="middle" class="process-number">1.0</text><text x="1370.0" y="315.0" text-anchor="middle" class="process-text">Authenticate</text><text x="1370.0" y="359.0" text-anchor="middle" class="process-text">Users</text>
+    </g>
+    
+  
+    <g>
+      <rect x="960" y="760" rx="42" ry="42" width="820" height="190" class="process-box" />
+      <text x="1370.0" y="800" text-anchor="middle" class="process-number">2.0</text><text x="1370.0" y="835.0" text-anchor="middle" class="process-text">Manage Books</text><text x="1370.0" y="879.0" text-anchor="middle" class="process-text">and Students</text>
+    </g>
+    
+  
+    <g>
+      <rect x="960" y="1280" rx="42" ry="42" width="820" height="190" class="process-box" />
+      <text x="1370.0" y="1320" text-anchor="middle" class="process-number">3.0</text><text x="1370.0" y="1355.0" text-anchor="middle" class="process-text">Process Requests</text><text x="1370.0" y="1399.0" text-anchor="middle" class="process-text">Issue and Return</text>
+    </g>
+    
+  
+    <g>
+      <rect x="960" y="1800" rx="42" ry="42" width="820" height="190" class="process-box" />
+      <text x="1370.0" y="1840" text-anchor="middle" class="process-number">4.0</text><text x="1370.0" y="1875.0" text-anchor="middle" class="process-text">Manage Fines</text><text x="1370.0" y="1919.0" text-anchor="middle" class="process-text">and Notifications</text>
+    </g>
+    
+
+  <!-- Data stores -->
+  
+    <g id="d1">
+      <line x1="2350" y1="220" x2="3110" y2="220" class="store-line" />
+      <line x1="2350" y1="390" x2="3110" y2="390" class="store-line" />
+      <line x1="2370" y1="220" x2="2370" y2="390" class="store-line" />
+      <line x1="3110" y1="220" x2="3110" y2="390" class="store-line" />
+      <text x="2730.0" y="296.0" text-anchor="middle" class="store-text">D1 Users</text><text x="2730.0" y="338.0" text-anchor="middle" class="store-text">and Roles</text>
+    </g>
+    
+  
+    <g id="d2">
+      <line x1="2350" y1="720" x2="3110" y2="720" class="store-line" />
+      <line x1="2350" y1="890" x2="3110" y2="890" class="store-line" />
+      <line x1="2370" y1="720" x2="2370" y2="890" class="store-line" />
+      <line x1="3110" y1="720" x2="3110" y2="890" class="store-line" />
+      <text x="2730.0" y="796.0" text-anchor="middle" class="store-text">D2 Books</text><text x="2730.0" y="838.0" text-anchor="middle" class="store-text">and Categories</text>
+    </g>
+    
+  
+    <g id="d3">
+      <line x1="2350" y1="1240" x2="3110" y2="1240" class="store-line" />
+      <line x1="2350" y1="1410" x2="3110" y2="1410" class="store-line" />
+      <line x1="2370" y1="1240" x2="2370" y2="1410" class="store-line" />
+      <line x1="3110" y1="1240" x2="3110" y2="1410" class="store-line" />
+      <text x="2730.0" y="1316.0" text-anchor="middle" class="store-text">D3 Requests</text><text x="2730.0" y="1358.0" text-anchor="middle" class="store-text">and Issued Books</text>
+    </g>
+    
+  
+    <g id="d4">
+      <line x1="2350" y1="1760" x2="3110" y2="1760" class="store-line" />
+      <line x1="2350" y1="1930" x2="3110" y2="1930" class="store-line" />
+      <line x1="2370" y1="1760" x2="2370" y2="1930" class="store-line" />
+      <line x1="3110" y1="1760" x2="3110" y2="1930" class="store-line" />
+      <text x="2730.0" y="1836.0" text-anchor="middle" class="store-text">D4 Fines</text><text x="2730.0" y="1878.0" text-anchor="middle" class="store-text">and Notifications</text>
+    </g>
+    
+
+  <!-- Actor to process flows -->
+  <line x1="450" y1="380" x2="960" y2="335" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="450" y1="380" x2="960" y2="855" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="450" y1="380" x2="960" y2="1375" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="450" y1="380" x2="960" y2="1895" class="flow-arrow" marker-end="url(#arrow)" />
+
+  <line x1="450" y1="1040" x2="960" y2="335" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="450" y1="1040" x2="960" y2="855" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="450" y1="1040" x2="960" y2="1375" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="450" y1="1040" x2="960" y2="1895" class="flow-arrow" marker-end="url(#arrow)" />
+
+  <line x1="450" y1="1700" x2="960" y2="335" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="450" y1="1700" x2="960" y2="1375" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="450" y1="1700" x2="960" y2="1895" class="flow-arrow" marker-end="url(#arrow)" />
+
+  <!-- Process to store flows -->
+  <line x1="1780" y1="335" x2="2350" y2="305" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="2350" y1="355" x2="1780" y2="385" class="flow-arrow" marker-end="url(#arrow)" />
+
+  <line x1="1780" y1="835" x2="2350" y2="805" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="2350" y1="855" x2="1780" y2="885" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="1780" y1="865" x2="2350" y2="305" class="flow-arrow" marker-end="url(#arrow)" />
+
+  <line x1="1780" y1="1355" x2="2350" y2="1325" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="2350" y1="1375" x2="1780" y2="1405" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="1780" y1="1385" x2="2350" y2="805" class="flow-arrow" marker-end="url(#arrow)" />
+
+  <line x1="1780" y1="1875" x2="2350" y2="1845" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="2350" y1="1895" x2="1780" y2="1925" class="flow-arrow" marker-end="url(#arrow)" />
+  <line x1="1780" y1="1845" x2="2350" y2="1325" class="flow-arrow" marker-end="url(#arrow)" />
+</svg>
