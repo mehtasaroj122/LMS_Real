@@ -2150,7 +2150,7 @@
                         <label class="form-label">Status</label>
                         <div class="status-radio" id="addStatusRadio">
                             <label class="status-option">
-                                <input type="radio" name="status" value="active" checked>
+                                <input type="radio" name="status" value="active" id="addStatusActiveRadio" checked>
                                 <span>Active</span>
                             </label>
                             <label class="status-option">
@@ -3804,6 +3804,25 @@
                     this.addUserValidator?.refreshVisibility();
                 });
 
+                const addStatusActiveRadio = document.getElementById('addStatusActiveRadio');
+                if (addStatusActiveRadio) {
+                    addStatusActiveRadio.addEventListener('change', (event) => {
+                        const role = document.getElementById('addRoleSelect')?.value || '';
+
+                        if (!this.isInvitationManagedRole(role) || !(event.target instanceof HTMLInputElement) || !event.target.checked) {
+                            return;
+                        }
+
+                        const inactiveRadio = document.querySelector('#addStatusRadio input[name="status"][value="inactive"]');
+                        if (inactiveRadio instanceof HTMLInputElement) {
+                            inactiveRadio.checked = true;
+                        }
+
+                        event.target.checked = false;
+                        this.showManagedStatusToast(role);
+                    });
+                }
+
                 document.getElementById('closeAddUserModal').addEventListener('click', () => {
                     this.closeModal('addUserModal');
                 });
@@ -4226,6 +4245,29 @@
                     };
             }
 
+            isInvitationManagedRole(role) {
+                return role === 'staff' || role === 'student';
+            }
+
+            getManagedStatusToast(role) {
+                const roleMeta = this.getUserRoleMeta(role);
+
+                return {
+                    type: 'warning',
+                    payload: {
+                        title: 'Status Set to Inactive',
+                        message: `${roleMeta.label} accounts cannot start as active.`,
+                        detail: 'They must complete registration from their invitation email before activation is allowed.',
+                        icon: 'fas fa-user-clock',
+                    },
+                };
+            }
+
+            showManagedStatusToast(role) {
+                const toast = this.getManagedStatusToast(role);
+                this.showNotification(toast.payload, toast.type);
+            }
+
             getRoleConfirmDetail(userMeta) {
                 const role = userMeta.role || 'student';
 
@@ -4297,13 +4339,23 @@
 
                 switch (action) {
                     case 'create':
-                        payload = {
-                            title: 'User Added',
-                            message: `Created a new account for ${name}.`,
-                            detail: email || roleMeta?.label || '',
-                            icon: 'fas fa-user-plus',
-                        };
-                        type = 'success';
+                        if (this.isInvitationManagedRole(data.role)) {
+                            payload = {
+                                title: `${roleMeta?.label || 'User'} Invitation Created`,
+                                message: `${name} was added as inactive until registration is completed.`,
+                                detail: 'Active is unavailable for invited staff and student accounts until self-registration is finished.',
+                                icon: 'fas fa-user-clock',
+                            };
+                            type = 'info';
+                        } else {
+                            payload = {
+                                title: 'User Added',
+                                message: `Created a new account for ${name}.`,
+                                detail: email || roleMeta?.label || '',
+                                icon: 'fas fa-user-plus',
+                            };
+                            type = 'success';
+                        }
                         break;
                     case 'update':
                         payload = {
@@ -4615,7 +4667,10 @@
                 const rollNoLabel = document.getElementById('rollNoLabel');
                 const rollNoInput = document.getElementById('addRollNo');
                 const addJoinDate = document.getElementById('addJoinDate');
+                const statusRadioGroup = document.getElementById('addStatusRadio');
                 const statusRadios = document.querySelectorAll('#addStatusRadio input[name="status"]');
+                const shouldLockStatus = this.isInvitationManagedRole(role);
+                const wasManagedRole = statusRadioGroup?.dataset.managedRole === 'true';
 
                 conditionalFields.forEach(field => {
                     const allowedRoles = field.getAttribute('data-for');
@@ -4641,12 +4696,17 @@
                     addJoinDate.value = this.getTodayDate();
                 }
 
+                if (statusRadioGroup) {
+                    statusRadioGroup.dataset.managedRole = shouldLockStatus ? 'true' : 'false';
+                }
+
                 statusRadios.forEach((radio) => {
-                    const shouldLockStatus = role === 'staff' || role === 'student';
-                    radio.disabled = shouldLockStatus;
+                    radio.disabled = false;
 
                     if (shouldLockStatus) {
                         radio.checked = radio.value === 'inactive';
+                    } else if (wasManagedRole) {
+                        radio.checked = radio.value === 'active';
                     }
                 });
             }
@@ -5225,6 +5285,7 @@
                                 name: data.user?.name,
                                 email: data.user?.email,
                                 role: data.user?.role,
+                                status: data.user?.status,
                             });
                             this.closeModal('addUserModal');
 

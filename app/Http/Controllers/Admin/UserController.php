@@ -260,7 +260,7 @@ class UserController extends Controller
         ];
     }
 
-    private function buildUserQuery(string $search, string $status, string $role, string $sort, int $currentUserId)
+    private function buildUserQuery(string $search, string $status, string $role, string $sort, ?int $currentUserId = null)
     {
         $query = User::query();
 
@@ -289,19 +289,23 @@ class UserController extends Controller
             $query->where('role', $role);
         }
 
-        $query->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$currentUserId]);
-        $query->orderByRaw("CASE WHEN role='admin' THEN 1 WHEN role='staff' THEN 2 WHEN role='student' THEN 3 END");
+        if ($currentUserId) {
+            $query->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$currentUserId]);
+        }
 
         switch ($sort) {
             case 'name-asc':
                 $query->orderBy('name', 'asc');
+                $query->orderBy('id', 'desc');
                 break;
             case 'name-desc':
                 $query->orderBy('name', 'desc');
+                $query->orderBy('id', 'desc');
                 break;
             case 'recently-added':
             default:
                 $query->orderBy('created_at', 'desc');
+                $query->orderBy('id', 'desc');
                 break;
         }
 
