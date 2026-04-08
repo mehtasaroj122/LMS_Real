@@ -2499,7 +2499,9 @@
                             }
 
                             if (input.type !== 'file' && input.name !== 'isbn') {
-                                const normalizedValue = this.normalizeBookFieldValue(input.name, input.value);
+                                const normalizedValue = triggerEvent === 'input'
+                                    ? this.normalizeBookLiveFieldValue(input.name, input.value)
+                                    : this.normalizeBookFieldValue(input.name, input.value);
                                 if (normalizedValue !== input.value) {
                                     input.value = normalizedValue;
                                 }
@@ -2513,6 +2515,7 @@
                                 showErrors: true,
                                 runRemote: false,
                                 activeInput: input,
+                                useLiveNormalization: triggerEvent === 'input',
                             });
 
                             if (input.name === 'total_copies') {
@@ -2522,6 +2525,7 @@
                                         showErrors: false,
                                         runRemote: false,
                                         activeInput: input,
+                                        useLiveNormalization: false,
                                     });
                                 }
                             }
@@ -2890,6 +2894,43 @@
                 }
             }
 
+            normalizeLiveSingleSpaceValue(value) {
+                const rawValue = String(value ?? '');
+                const withoutLeadingWhitespace = rawValue.replace(/^\s+/, '');
+
+                if (withoutLeadingWhitespace === '') {
+                    return '';
+                }
+
+                const hadTrailingWhitespace = /\s$/.test(withoutLeadingWhitespace);
+                const normalized = withoutLeadingWhitespace.replace(/\s{2,}/g, ' ');
+
+                if (!hadTrailingWhitespace) {
+                    return normalized;
+                }
+
+                return `${normalized.replace(/\s+$/, '')} `;
+            }
+
+            normalizeBookLiveFieldValue(fieldName, value) {
+                const rawValue = String(value ?? '');
+
+                switch (fieldName) {
+                    case 'isbn':
+                        return rawValue.replace(/[\/\-\s]/g, '');
+                    case 'title':
+                    case 'author':
+                    case 'publisher':
+                    case 'new_category':
+                    case 'description':
+                        return this.normalizeLiveSingleSpaceValue(rawValue);
+                    case 'shelf_no':
+                        return rawValue.replace(/\s+/g, '').toUpperCase();
+                    default:
+                        return rawValue.trim();
+                }
+            }
+
             getBookFieldRules() {
                 return {
                     isbn: {
@@ -3076,10 +3117,12 @@
                 });
             }
 
-            validateBookFieldValue(input, rules, form) {
+            validateBookFieldValue(input, rules, form, { useLiveNormalization = false } = {}) {
                 const value = input.type === 'file'
                     ? input.value
-                    : this.normalizeBookFieldValue(input.name, input.value);
+                    : (useLiveNormalization
+                        ? this.normalizeBookLiveFieldValue(input.name, input.value)
+                        : this.normalizeBookFieldValue(input.name, input.value));
                 const isRequired = input.hasAttribute('required');
 
                 if (input.type !== 'file' && input.name !== 'isbn') {
@@ -3148,7 +3191,7 @@
                 return null;
             }
 
-            validateCategoryState(form, { showErrors = false, activeInput = null } = {}) {
+            validateCategoryState(form, { showErrors = false, activeInput = null, useLiveNormalization = false } = {}) {
                 const categorySelect = form.querySelector('[name="category_id"]');
                 const newCategoryInput = form.querySelector('[name="new_category"]');
                 const categoryTarget = activeInput && ['category_id', 'new_category'].includes(activeInput.name)
@@ -3178,7 +3221,9 @@
                 }
 
                 const selectedCategory = categorySelect.value.trim();
-                const newCategory = this.normalizeBookFieldValue('new_category', newCategoryInput.value);
+                const newCategory = useLiveNormalization
+                    ? this.normalizeBookLiveFieldValue('new_category', newCategoryInput.value)
+                    : this.normalizeBookFieldValue('new_category', newCategoryInput.value);
                 newCategoryInput.value = newCategory;
 
                 this.clearFieldError(categorySelect, { clearValidityOnly: true });
@@ -3208,7 +3253,9 @@
 
                 if (newCategory) {
                     const categoryRules = this.getBookFieldRules().new_category;
-                    const categoryMessage = this.validateBookFieldValue(newCategoryInput, categoryRules, form);
+                    const categoryMessage = this.validateBookFieldValue(newCategoryInput, categoryRules, form, {
+                        useLiveNormalization,
+                    });
                     if (categoryMessage) {
                         if (showErrors) {
                             this.setBookFieldState(newCategoryInput, 'error', categoryMessage);
@@ -3270,11 +3317,11 @@
                 }
             }
 
-            async validateSingleBookField(form, input, { showErrors = false, runRemote = false, activeInput = input } = {}) {
+            async validateSingleBookField(form, input, { showErrors = false, runRemote = false, activeInput = input, useLiveNormalization = false } = {}) {
                 const rules = this.getBookFieldRules()[input.name];
 
                 if (input.name === 'category_id' || input.name === 'new_category') {
-                    return this.validateCategoryState(form, { showErrors, activeInput });
+                    return this.validateCategoryState(form, { showErrors, activeInput, useLiveNormalization });
                 }
 
                 if (!rules) {
@@ -3283,7 +3330,7 @@
                     return true;
                 }
 
-                const message = this.validateBookFieldValue(input, rules, form);
+                const message = this.validateBookFieldValue(input, rules, form, { useLiveNormalization });
                 if (message) {
                     if (showErrors) {
                         this.setBookFieldState(input, 'error', message);

@@ -133,6 +133,10 @@ class StudentManagementActionService
             $errors['phone'] = ['This phone number is already assigned to another user.'];
         }
 
+        if (stripos($errorMessage, "Data too long for column 'phone'") !== false || stripos($errorMessage, '`phone`') !== false && stripos($errorMessage, 'too long') !== false) {
+            $errors['phone'] = ['Phone number is too long. Use international format like +9779812345678.'];
+        }
+
         if (stripos($errorMessage, 'students_roll_no_unique') !== false || (stripos($errorMessage, 'Duplicate entry') !== false && stripos($errorMessage, (string) ($validated['roll_no'] ?? '')) !== false)) {
             $errors['roll_no'] = ['This student ID is already in use.'];
         }

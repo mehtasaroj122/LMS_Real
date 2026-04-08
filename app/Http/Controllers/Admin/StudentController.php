@@ -485,6 +485,10 @@ class StudentController extends Controller
             $errors['phone'] = ['This phone number is already assigned to another user.'];
         }
 
+        if (stripos($errorMsg, "Data too long for column 'phone'") !== false || stripos($errorMsg, '`phone`') !== false && stripos($errorMsg, 'too long') !== false) {
+            $errors['phone'] = ['Phone number is too long. Use international format like +9779812345678.'];
+        }
+
         if (stripos($errorMsg, 'students_roll_no_unique') !== false || (stripos($errorMsg, 'Duplicate entry') !== false && stripos($errorMsg, $validated['roll_no'] ?? '') !== false)) {
             $errors['roll_no'] = ['This student ID is already in use.'];
         }

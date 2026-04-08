@@ -4290,13 +4290,29 @@
             }
         }
 
+        function normalizeStudentLiveTextValue(value) {
+            const rawValue = String(value ?? '');
+            const withoutLeadingWhitespace = rawValue.replace(/^\s+/, '');
+
+            if (withoutLeadingWhitespace === '') {
+                return '';
+            }
+
+            const hadTrailingWhitespace = /\s$/.test(withoutLeadingWhitespace);
+            const normalized = withoutLeadingWhitespace.replace(/\s{2,}/g, ' ');
+
+            if (!hadTrailingWhitespace) {
+                return normalized;
+            }
+
+            return `${normalized.replace(/\s+$/, '')} `;
+        }
+
         function normalizeStudentLiveFieldValue(fieldName, value) {
             const rawValue = String(value ?? '');
 
-            if (fieldName === 'name') {
-                return rawValue
-                    .replace(/^\s+/, '')
-                    .replace(/\s{2,}/g, ' ');
+            if (fieldName === 'name' || fieldName === 'address') {
+                return normalizeStudentLiveTextValue(rawValue);
             }
 
             return normalizeStudentFieldValue(fieldName, value);

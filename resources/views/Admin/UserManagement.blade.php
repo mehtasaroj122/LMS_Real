@@ -2506,17 +2506,32 @@
             },
         };
 
+        function normalizeLiveSingleSpaceValue(value) {
+            const rawValue = String(value ?? '');
+            const withoutLeadingWhitespace = rawValue.replace(/^\s+/, '');
+
+            if (withoutLeadingWhitespace === '') {
+                return '';
+            }
+
+            const hadTrailingWhitespace = /\s$/.test(withoutLeadingWhitespace);
+            const normalized = withoutLeadingWhitespace.replace(/\s{2,}/g, ' ');
+
+            if (!hadTrailingWhitespace) {
+                return normalized;
+            }
+
+            return `${normalized.replace(/\s+$/, '')} `;
+        }
+
         function normalizeUserLiveFieldValue(fieldName, value) {
             const rawValue = String(value ?? '');
 
             switch (fieldName) {
                 case 'name':
-                    return rawValue
-                        .replace(/^\s+/, '')
-                        .replace(/\s{2,}/g, ' ');
                 case 'address':
                 case 'designation':
-                    return rawValue.replace(/\s+/g, ' ').trim();
+                    return normalizeLiveSingleSpaceValue(rawValue);
                 case 'email':
                     return rawValue.trim().toLowerCase();
                 case 'phone': {

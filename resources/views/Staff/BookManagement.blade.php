@@ -1472,11 +1472,13 @@
                     return false;
                 }
             };
-            p.validateSingleBookField = async function(form, input, { showErrors = false, runRemote = false, activeInput = input } = {}) {
+            p.validateSingleBookField = async function(form, input, { showErrors = false, runRemote = false, activeInput = input, useLiveNormalization = false } = {}) {
                 const rules = this.getBookFieldRules()[input.name];
-                if (input.name === 'category_id' || input.name === 'new_category') return this.validateCategoryState(form, { showErrors, activeInput });
+                if (input.name === 'category_id' || input.name === 'new_category') {
+                    return this.validateCategoryState(form, { showErrors, activeInput, useLiveNormalization });
+                }
                 if (!rules) { input.dataset.valid = 'true'; this.updateBookSubmitState(form); return true; }
-                const message = this.validateField(input, rules);
+                const message = this.validateField(input, rules, { useLiveNormalization });
                 if (message) { if (showErrors) this.setBookFieldState(input, 'error', message); else { input.dataset.valid = 'false'; this.updateBookSubmitState(form); } return false; }
                 if (input.name === 'isbn') {
                     const normalized = this.normalizeBookFieldValue('isbn', input.value);
@@ -1549,14 +1551,26 @@
                                 return;
                             }
                             if (input.type !== 'file' && input.name !== 'isbn') {
-                                const normalizedValue = this.normalizeBookFieldValue(input.name, input.value);
+                                const normalizedValue = triggerEvent === 'input'
+                                    ? this.normalizeBookLiveFieldValue(input.name, input.value)
+                                    : this.normalizeBookFieldValue(input.name, input.value);
                                 if (normalizedValue !== input.value) input.value = normalizedValue;
                             }
                             if (input.name === 'isbn') delete this.getBookFormState(form).verified.isbn;
-                            this.validateSingleBookField(form, input, { showErrors: true, runRemote: false, activeInput: input });
+                            this.validateSingleBookField(form, input, {
+                                showErrors: true,
+                                runRemote: false,
+                                activeInput: input,
+                                useLiveNormalization: triggerEvent === 'input',
+                            });
                             if (input.name === 'total_copies') {
                                 const availableInput = form.querySelector('[name="available_copies"]');
-                                if (availableInput) this.validateSingleBookField(form, availableInput, { showErrors: false, runRemote: false, activeInput: input });
+                                if (availableInput) this.validateSingleBookField(form, availableInput, {
+                                    showErrors: false,
+                                    runRemote: false,
+                                    activeInput: input,
+                                    useLiveNormalization: false,
+                                });
                             }
                         });
                         if (input.type !== 'file') {
@@ -1808,6 +1822,24 @@
                 if (fieldName === 'shelf_no') return raw.replace(/\s+/g, '').toUpperCase();
                 return raw.trim();
             };
+            p.normalizeLiveSingleSpaceValue = function(value) {
+                const raw = String(value ?? '');
+                const withoutLeadingWhitespace = raw.replace(/^\s+/, '');
+                if (withoutLeadingWhitespace === '') return '';
+                const hadTrailingWhitespace = /\s$/.test(withoutLeadingWhitespace);
+                const normalized = withoutLeadingWhitespace.replace(/\s{2,}/g, ' ');
+                if (!hadTrailingWhitespace) return normalized;
+                return `${normalized.replace(/\s+$/, '')} `;
+            };
+            p.normalizeBookLiveFieldValue = function(fieldName, value) {
+                const raw = String(value ?? '');
+                if (fieldName === 'isbn') return raw.replace(/[\/\-\s]/g, '');
+                if (['title', 'author', 'publisher', 'new_category', 'description'].includes(fieldName)) {
+                    return this.normalizeLiveSingleSpaceValue(raw);
+                }
+                if (fieldName === 'shelf_no') return raw.replace(/\s+/g, '').toUpperCase();
+                return raw.trim();
+            };
             p.getBookFieldRules = function() {
                 return {
                     isbn: { required: true, pattern: /^\d{5,13}$/, requiredMessage: 'Enter the book ISBN.', patternMessage: 'ISBN must contain 5 to 13 digits. You may use / or - as separators.' },
@@ -1871,9 +1903,13 @@
                     if (icon) icon.innerHTML = '';
                 }
             };
-            p.validateField = function(input, rules) {
+            p.validateField = function(input, rules, { useLiveNormalization = false } = {}) {
                 const form = input.closest('form');
-                const value = input.type === 'file' ? input.value : this.normalizeBookFieldValue(input.name, input.value);
+                const value = input.type === 'file'
+                    ? input.value
+                    : (useLiveNormalization
+                        ? this.normalizeBookLiveFieldValue(input.name, input.value)
+                        : this.normalizeBookFieldValue(input.name, input.value));
                 const isRequired = input.hasAttribute('required');
                 if (input.type !== 'file' && input.name !== 'isbn') input.value = value;
                 if (!isRequired && value === '') return null;
@@ -1900,7 +1936,7 @@
                 if (rules.maxSize && input.type === 'file' && input.files?.length && input.files[0].size > rules.maxSize * 1024 * 1024) return rules.maxSizeMessage;
                 return null;
             };
-            p.validateCategoryState = function(form, { showErrors = false, activeInput = null } = {}) {
+            p.validateCategoryState = function(form, { showErrors = false, activeInput = null, useLiveNormalization = false } = {}) {
                 const categorySelect = form.querySelector('[name="category_id"]');
                 const newCategoryInput = form.querySelector('[name="new_category"]');
                 const target = activeInput && ['category_id', 'new_category'].includes(activeInput.name) ? activeInput : categorySelect;
@@ -1911,12 +1947,15 @@
                     if (!selected) { if (showErrors) this.setBookFieldState(target, 'error', 'Select a valid category.'); else { categorySelect.dataset.valid = 'false'; this.updateBookSubmitState(form); } return false; }
                     this.setBookFieldState(categorySelect, 'valid'); return true;
                 }
-                const newCategory = this.normalizeBookFieldValue('new_category', newCategoryInput.value); newCategoryInput.value = newCategory;
+                const newCategory = useLiveNormalization
+                    ? this.normalizeBookLiveFieldValue('new_category', newCategoryInput.value)
+                    : this.normalizeBookFieldValue('new_category', newCategoryInput.value);
+                newCategoryInput.value = newCategory;
                 this.clearFieldError(categorySelect, { clearValidityOnly: true }); this.clearFieldError(newCategoryInput, { clearValidityOnly: true });
                 if (!selected && !newCategory) { if (showErrors) this.setBookFieldState(target, 'error', 'Select an existing category or create a new one.'); else { categorySelect.dataset.valid = 'false'; newCategoryInput.dataset.valid = 'false'; this.updateBookSubmitState(form); } return false; }
                 if (selected && newCategory) { if (showErrors) this.setBookFieldState(target, 'error', 'Choose either an existing category or a new category, not both.'); else { categorySelect.dataset.valid = 'false'; newCategoryInput.dataset.valid = 'false'; this.updateBookSubmitState(form); } return false; }
                 if (newCategory) {
-                    const message = this.validateField(newCategoryInput, this.getBookFieldRules().new_category);
+                    const message = this.validateField(newCategoryInput, this.getBookFieldRules().new_category, { useLiveNormalization });
                     if (message) { if (showErrors) this.setBookFieldState(newCategoryInput, 'error', message); else { newCategoryInput.dataset.valid = 'false'; this.updateBookSubmitState(form); } return false; }
                 }
                 this.setBookFieldState(categorySelect, selected ? 'valid' : 'neutral');

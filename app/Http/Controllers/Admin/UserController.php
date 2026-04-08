@@ -13,6 +13,7 @@ use App\Helpers\ActivityLogger;
 use App\Mail\PasswordResetEmail;
 use App\Services\Auth\InvitationEmailService;
 use App\Services\StudentManagement\StudentNotificationEmailService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -392,21 +393,35 @@ class UserController extends Controller
         $data = $request->validated();
         $invitationQueued = false;
 
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => null,
-            'role' => $data['role'],
-            'status' => $this->resolveManagedStatus($data['role'], $data['status'] ?? 'inactive'),
-            'phone' => $data['phone'] ?? null,
-            'gender' => $data['gender'] ?? null,
-            'address' => $data['address'] ?? null,
-        ]);
+        try {
+            $user = DB::transaction(function () use ($data) {
+                $user = User::create([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'password' => null,
+                    'role' => $data['role'],
+                    'status' => $this->resolveManagedStatus($data['role'], $data['status'] ?? 'inactive'),
+                    'phone' => $data['phone'] ?? null,
+                    'gender' => $data['gender'] ?? null,
+                    'address' => $data['address'] ?? null,
+                ]);
 
-        if ($data['role'] === 'student') {
-            $this->syncStudentRecord($user, $data);
-        } elseif ($data['role'] === 'staff') {
-            $this->syncStaffRecord($user, $data);
+                if ($data['role'] === 'student') {
+                    $this->syncStudentRecord($user, $data);
+                } elseif ($data['role'] === 'staff') {
+                    $this->syncStaffRecord($user, $data);
+                }
+
+                return $user;
+            });
+        } catch (QueryException $exception) {
+            $errors = $this->userPersistenceErrors($exception, $data);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $errors,
+            ], 422);
         }
 
         $user->load('student.department', 'staff.department');
@@ -517,40 +532,52 @@ class UserController extends Controller
             'address' => $user->address,
         ];
 
-        $user->update([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'role' => $data['role'],
-            'phone' => $data['phone'] ?? null,
-            'gender' => $data['gender'] ?? null,
-            'address' => $data['address'] ?? null,
-            'status' => $user->hasCompletedRegistration()
-                ? $user->status
-                : $this->resolveManagedStatus($data['role'], $user->status),
-        ]);
+        try {
+            DB::transaction(function () use ($user, $data) {
+                $user->update([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'role' => $data['role'],
+                    'phone' => $data['phone'] ?? null,
+                    'gender' => $data['gender'] ?? null,
+                    'address' => $data['address'] ?? null,
+                    'status' => $user->hasCompletedRegistration()
+                        ? $user->status
+                        : $this->resolveManagedStatus($data['role'], $user->status),
+                ]);
 
-        // Handle student information
-        if ($data['role'] === 'student') {
-            if ($user->staff) {
-                $user->staff->delete();
-            }
+                // Handle student information
+                if ($data['role'] === 'student') {
+                    if ($user->staff) {
+                        $user->staff->delete();
+                    }
 
-            $this->syncStudentRecord($user, $data);
-        } elseif ($data['role'] === 'staff') {
-            if ($user->student) {
-                $user->student->delete();
-            }
+                    $this->syncStudentRecord($user, $data);
+                } elseif ($data['role'] === 'staff') {
+                    if ($user->student) {
+                        $user->student->delete();
+                    }
 
-            $this->syncStaffRecord($user, $data);
-        } else {
-            // Delete role-specific records if role changed to admin
-            if ($user->student) {
-                $user->student->delete();
-            }
+                    $this->syncStaffRecord($user, $data);
+                } else {
+                    // Delete role-specific records if role changed to admin
+                    if ($user->student) {
+                        $user->student->delete();
+                    }
 
-            if ($user->staff) {
-                $user->staff->delete();
-            }
+                    if ($user->staff) {
+                        $user->staff->delete();
+                    }
+                }
+            });
+        } catch (QueryException $exception) {
+            $errors = $this->userPersistenceErrors($exception, $data);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $errors,
+            ], 422);
         }
 
         // Prepare changes description
@@ -626,6 +653,48 @@ class UserController extends Controller
         Student::create($studentData + [
             'user_id' => $user->id,
         ]);
+    }
+
+    protected function userPersistenceErrors(QueryException $exception, array $validated): array
+    {
+        $errorMessage = $exception->getMessage();
+        $errors = [];
+
+        if (stripos($errorMessage, 'users_email_unique') !== false
+            || (stripos($errorMessage, 'Duplicate entry') !== false
+                && stripos($errorMessage, (string) ($validated['email'] ?? '')) !== false)) {
+            $errors['email'] = ['This email is already assigned to another user.'];
+        }
+
+        if (stripos($errorMessage, 'users_phone_unique') !== false
+            || (stripos($errorMessage, 'Duplicate entry') !== false
+                && stripos($errorMessage, (string) ($validated['phone'] ?? '')) !== false)) {
+            $errors['phone'] = ['This phone number is already assigned to another user.'];
+        }
+
+        if (stripos($errorMessage, "Data too long for column 'phone'") !== false
+            || (stripos($errorMessage, '`phone`') !== false && stripos($errorMessage, 'too long') !== false)) {
+            $errors['phone'] = ['Phone number is too long. Use international format like +9779812345678.'];
+        }
+
+        if (stripos($errorMessage, 'staff_staff_id_unique') !== false
+            || (stripos($errorMessage, 'Duplicate entry') !== false
+                && stripos($errorMessage, (string) ($validated['staff_id'] ?? '')) !== false)) {
+            $errors['staff_id'] = ['This staff ID is already in use.'];
+        }
+
+        if (stripos($errorMessage, 'students_roll_no_unique') !== false
+            || stripos($errorMessage, 'students_student_id_unique') !== false
+            || (stripos($errorMessage, 'Duplicate entry') !== false
+                && stripos($errorMessage, (string) ($validated['roll_no'] ?? '')) !== false)) {
+            $errors['roll_no'] = ['This student ID is already in use.'];
+        }
+
+        if (empty($errors)) {
+            $errors['email'] = ['Unable to save the user with the provided details.'];
+        }
+
+        return $errors;
     }
 
     private function resolveManagedStatus(string $role, string $requestedStatus): string
