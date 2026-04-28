@@ -60,69 +60,6 @@
         }
 
         /* ================== */
-        /* HEADER SECTION */
-        /* ================== */
-        .header-section {
-            background: var(--bg-gradient);
-            border-radius: 0.75rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .header-content {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        @media (min-width: 768px) {
-            .header-content {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }
-        }
-
-        .header-text h1 {
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin-bottom: 0.25rem;
-        }
-
-        @media (min-width: 768px) {
-            .header-text h1 {
-                font-size: 1.5rem;
-            }
-        }
-
-        .header-text .subtitle {
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 0.125rem;
-        }
-
-        .header-text .student-id {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .profile-avatar {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid white;
-        }
-
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* ================== */
         /* STATS CARDS */
         /* ================== */
         .stats-grid {

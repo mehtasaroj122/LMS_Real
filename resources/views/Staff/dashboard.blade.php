@@ -4,33 +4,6 @@
 
 @push('styles')
     <style>
-        .page-header {
-            margin-bottom: 8px;
-        }
-
-        .page-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 2px;
-        }
-
-        body.light-theme .page-title {
-            color: #0f172a;
-        }
-
-        body.dark-theme .page-title {
-            color: #f1f5f9;
-        }
-
-        .page-description {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        body.dark-theme .page-description {
-            color: #94a3b8;
-        }
-
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(1, 1fr);
@@ -1492,11 +1465,6 @@
 
 @section('content')
     <div class="dashboard">
-        <div class="page-header">
-            <h1 class="page-title">Staff Dashboard</h1>
-            <p class="page-description">Manage daily library operations</p>
-        </div>
-
         <div class="dashboard-grid">
             <div class="stat-card status-blue">
                 <div class="stat-card-header">

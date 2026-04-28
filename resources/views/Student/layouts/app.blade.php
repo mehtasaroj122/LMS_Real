@@ -23,7 +23,7 @@
 @include('shared.library-branding.bootstrap')
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="flex h-screen overflow-hidden">
-    <aside class="flex flex-col w-64 border-r sidebar shrink-0" id="sidebar">
+    <aside class="flex min-h-0 flex-col w-64 border-r sidebar shrink-0" id="sidebar">
         <div class="flex items-center justify-between p-4 logo-section">
             <button class="close-sidebar-btn" id="closeSidebarBtn" aria-label="Close menu">
                 <i data-lucide="x" class="w-6 h-6"></i>
@@ -36,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <nav class="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
+        <nav class="flex-1 min-h-0 px-2 py-2 space-y-0.5 overflow-y-auto">
             {{-- Dashboard --}}
             <a href="{{ route('student.dashboard') }}" class="sidebar-item {{ request()->routeIs('student.dashboard') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-sm font-medium">Dashboard</span>
@@ -67,6 +67,7 @@
                 <i data-lucide="user" class="w-5 h-5"></i><span class="text-sm font-medium">Profile</span>
             </a>
         </nav>
+        <x-sidebar-profile :profile-url="route('student.profile')" />
     </aside>
 
     <main class="flex flex-col flex-1 min-w-0 overflow-hidden">
@@ -170,6 +171,7 @@
         </div>
 
         <div class="flex-1 p-3 overflow-y-auto md:p-2">
+            <x-dashboard-header class="mb-4" />
             @yield('content')
         </div>
     </main>

@@ -1,6 +1,6 @@
 @extends('Admin.layouts.app')
 
-@section('page-title', 'Dashboard')
+@section('title', 'Dashboard')
 
 @push('styles')
     <style>
@@ -275,11 +275,6 @@
 
 @section('content')
     <div class="w-full">
-
-        <div class="mb-2">
-            <h2 class="text-lg font-bold text-primary">Admin Dashboard</h2>
-            <p class="text-xs text-muted">Overview of library statistics and activities</p>
-        </div>
 
         <div class="grid grid-cols-1 gap-2 mb-4 md:grid-cols-2 lg:grid-cols-4">
 

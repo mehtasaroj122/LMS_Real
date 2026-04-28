@@ -251,6 +251,7 @@
                 <i data-lucide="settings" class="w-5 h-5"></i><span class="text-sm font-medium">Settings</span>
             </a>
         </nav>
+        <x-sidebar-profile :profile-url="route('admin.settings.index')" />
     </aside>
 
     <main class="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
@@ -387,6 +388,7 @@
         </div>
 
         <div class="flex-1 min-h-0 p-3 overflow-y-auto md:p-4">
+            <x-dashboard-header class="mb-4" />
             @yield('content')
         </div>
     </main>
