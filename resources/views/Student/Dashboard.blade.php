@@ -1,6 +1,7 @@
 @extends('student.layouts.app')
 
 @section('title', 'Dashboard')
+@section('hideDashboardHeader', '1')
 
 @push('styles')
     <style>
@@ -558,7 +559,23 @@
         @media (min-width: 640px) {
             .profile-card-content {
                 flex-direction: row;
-                align-items: center;
+                align-items: flex-start;
+                justify-content: space-between;
+            }
+        }
+
+        .profile-card-main {
+            display: flex;
+            flex: 1 1 auto;
+            align-items: center;
+            gap: 1rem;
+            min-width: 0;
+        }
+
+        @media (max-width: 639px) {
+            .profile-card-main {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
 
@@ -584,12 +601,40 @@
             margin-bottom: 0.35rem;
         }
 
+        .profile-card-greeting {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255, 255, 255, 0.78);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-card-role {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.75rem;
+            padding: 0.42rem 0.9rem;
+            border-radius: 9999px;
+            background: rgba(245, 158, 11, 0.16);
+            border: 1px solid rgba(253, 224, 71, 0.24);
+            backdrop-filter: blur(12px);
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #fef08a;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+        }
+
         .profile-card-meta {
             display: flex;
             flex-wrap: wrap;
             gap: 0.75rem;
             font-size: 0.875rem;
             opacity: 0.95;
+            margin-top: 0.85rem;
         }
 
         .profile-meta-item {
@@ -615,6 +660,20 @@
         .profile-meta-icon svg {
             width: 1rem;
             height: 1rem;
+        }
+
+        .profile-card-date-panel {
+            width: 100%;
+            max-width: 16rem;
+            flex-shrink: 0;
+            align-self: stretch;
+        }
+
+        @media (min-width: 640px) {
+            .profile-card-date-panel {
+                align-self: flex-start;
+                margin-left: 1rem;
+            }
         }
 
         .profile-card-stats {
@@ -1586,50 +1645,56 @@
     <div class="dashboard-page">
         <div class="profile-card">
             <div class="profile-card-content">
-                <div class="profile-card-avatar">
-                    <img src="{{ $user->profile_photo ? (str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset('storage/' . $user->profile_photo)) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=fff&color=667eea' }}" alt="Profile">
-                </div>
-                <div class="profile-card-info">
-                    <h1>{{ $user->name }}</h1>
-                    <div class="profile-card-meta">
-                        <span class="profile-meta-item">
-                            <span class="profile-meta-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
-                                    <rect x="3" y="6" width="18" height="12" rx="2"></rect>
-                                    <path d="M7 10h4M7 14h6M17 9h.01"></path>
-                                </svg>
+                <div class="profile-card-main">
+                    <div class="profile-card-avatar">
+                        <img src="{{ $user->profile_photo ? (str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset('storage/' . $user->profile_photo)) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=fff&color=667eea' }}" alt="Profile">
+                    </div>
+                    <div class="profile-card-info min-w-0 flex-1">
+                        <p class="profile-card-greeting" data-dashboard-greeting>Good Morning</p>
+                        <h1>{{ $user->name }}</h1>
+                        <span class="profile-card-role">STUDENT</span>
+                        <div class="profile-card-meta">
+                            <span class="profile-meta-item">
+                                <span class="profile-meta-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <rect x="3" y="6" width="18" height="12" rx="2"></rect>
+                                        <path d="M7 10h4M7 14h6M17 9h.01"></path>
+                                    </svg>
+                                </span>
+                                <span>{{ $student?->roll_no ?? 'N/A' }}</span>
                             </span>
-                            <span>{{ $student?->roll_no ?? 'N/A' }}</span>
-                        </span>
-                        <span class="profile-meta-item">
-                            <span class="profile-meta-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
-                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                    <path d="M6.5 17A2.5 2.5 0 0 0 4 19.5V6.5A2.5 2.5 0 0 1 6.5 4H20v13"></path>
-                                </svg>
+                            <span class="profile-meta-item">
+                                <span class="profile-meta-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                        <path d="M6.5 17A2.5 2.5 0 0 0 4 19.5V6.5A2.5 2.5 0 0 1 6.5 4H20v13"></path>
+                                    </svg>
+                                </span>
+                                <span>{{ $department?->name ?? 'N/A' }}</span>
                             </span>
-                            <span>{{ $department?->name ?? 'N/A' }}</span>
-                        </span>
-                        <span class="profile-meta-item">
-                            <span class="profile-meta-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
-                                    <rect x="3" y="5" width="18" height="16" rx="2"></rect>
-                                    <path d="M16 3v4M8 3v4M3 9h18"></path>
-                                </svg>
+                            <span class="profile-meta-item">
+                                <span class="profile-meta-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                                        <path d="M16 3v4M8 3v4M3 9h18"></path>
+                                    </svg>
+                                </span>
+                                <span>Year {{ $yearOfStudy }}</span>
                             </span>
-                            <span>Year {{ $yearOfStudy }}</span>
-                        </span>
-                        <span class="profile-meta-item">
-                            <span class="profile-meta-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
-                                    <rect x="3" y="5" width="18" height="14" rx="2"></rect>
-                                    <path d="m4 7 8 6 8-6"></path>
-                                </svg>
+                            <span class="profile-meta-item">
+                                <span class="profile-meta-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                                        <path d="m4 7 8 6 8-6"></path>
+                                    </svg>
+                                </span>
+                                <span>{{ $user->email }}</span>
                             </span>
-                            <span>{{ $user->email }}</span>
-                        </span>
+                        </div>
                     </div>
                 </div>
+
+                <x-dashboard-date-time-panel class="profile-card-date-panel text-right" />
             </div>
 
             <div class="profile-card-stats">
