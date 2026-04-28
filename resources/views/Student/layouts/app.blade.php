@@ -171,7 +171,7 @@
         </div>
 
         <div class="flex-1 p-3 overflow-y-auto md:p-2">
-            @if (! trim($__env->yieldContent('hideDashboardHeader')))
+            @if (trim($__env->yieldContent('showDashboardHeader')))
                 <x-dashboard-header class="mb-4" />
             @endif
             @yield('content')

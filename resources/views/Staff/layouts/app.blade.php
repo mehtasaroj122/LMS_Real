@@ -385,7 +385,9 @@
         </div>
 
         <div class="flex-1 min-h-0 p-3 overflow-y-auto md:p-2">
-            <x-dashboard-header class="mb-4" />
+            @if (trim($__env->yieldContent('showDashboardHeader')))
+                <x-dashboard-header class="mb-4" />
+            @endif
             @yield('content')
         </div>
     </main>

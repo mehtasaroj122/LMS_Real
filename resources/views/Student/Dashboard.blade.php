@@ -1,7 +1,6 @@
 @extends('student.layouts.app')
 
 @section('title', 'Dashboard')
-@section('hideDashboardHeader', '1')
 
 @push('styles')
     <style>
@@ -598,7 +597,7 @@
         .profile-card-info h1 {
             font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 0.35rem;
+            margin: 0;
         }
 
         .profile-card-greeting {
@@ -610,11 +609,18 @@
             margin-bottom: 0.25rem;
         }
 
+        .profile-card-title-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
         .profile-card-role {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-top: 0.75rem;
+            gap: 0.45rem;
             padding: 0.42rem 0.9rem;
             border-radius: 9999px;
             background: rgba(245, 158, 11, 0.16);
@@ -626,6 +632,20 @@
             text-transform: uppercase;
             color: #fef08a;
             box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+        }
+
+        .profile-card-role-icon {
+            width: 0.95rem;
+            height: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .profile-card-role-icon svg {
+            width: 0.95rem;
+            height: 0.95rem;
         }
 
         .profile-card-meta {
@@ -1651,8 +1671,19 @@
                     </div>
                     <div class="profile-card-info min-w-0 flex-1">
                         <p class="profile-card-greeting" data-dashboard-greeting>Good Morning</p>
-                        <h1>{{ $user->name }}</h1>
-                        <span class="profile-card-role">STUDENT</span>
+                        <div class="profile-card-title-row">
+                            <h1>{{ $user->name }}</h1>
+                            <span class="profile-card-role">
+                                <span class="profile-card-role-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m2 8 10-5 10 5-10 5L2 8Z"></path>
+                                        <path d="M6 10.5V15c0 1.4 2.7 3 6 3s6-1.6 6-3v-4.5"></path>
+                                        <path d="M22 8v6"></path>
+                                    </svg>
+                                </span>
+                                <span>STUDENT</span>
+                            </span>
+                        </div>
                         <div class="profile-card-meta">
                             <span class="profile-meta-item">
                                 <span class="profile-meta-icon" aria-hidden="true">
@@ -1689,6 +1720,16 @@
                                     </svg>
                                 </span>
                                 <span>{{ $user->email }}</span>
+                            </span>
+                            <span class="profile-meta-item">
+                                <span class="profile-meta-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                                        <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                                        <path d="M16 3v4M8 3v4M3 9h18"></path>
+                                        <path d="M8 13h3M8 17h8"></path>
+                                    </svg>
+                                </span>
+                                <span>Member Since {{ $user->created_at?->timezone('Asia/Kathmandu')->format('M Y') ?? 'N/A' }}</span>
                             </span>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 @extends('Admin.layouts.app')
 
 @section('title', 'Dashboard')
+@section('showDashboardHeader', '1')
 
 @push('styles')
     <style>

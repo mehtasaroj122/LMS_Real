@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "371b5cec7428b6be55b2ea08cae31ace",
+    "content-hash": "d74cdc888c5a2810c480df13e8fa8e9c",
     "packages": [
         {
             "name": "brick/math",
@@ -2499,6 +2499,84 @@
                 "source": "https://github.com/nikic/PHP-Parser/tree/v5.7.0"
             },
             "time": "2025-12-06T11:56:16+00:00"
+        },
+        {
+            "name": "nobelzsushank/nepali-date-converter",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/NobelzSushank/nepali-date-converter.git",
+                "reference": "9954db1da97e489e3dd4fe6ed6498ea1bce7adde"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/NobelzSushank/nepali-date-converter/zipball/9954db1da97e489e3dd4fe6ed6498ea1bce7adde",
+                "reference": "9954db1da97e489e3dd4fe6ed6498ea1bce7adde",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^9.0|^10.0|^11.0|^12.0",
+                "illuminate/support": "*",
+                "nesbot/carbon": "^2.0|^3.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^10.0|^10.5|^11.0|^12.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "NepaliDateConverter": "NobelzSushank\\Bsad\\Facades\\NepaliDateConverter"
+                    },
+                    "providers": [
+                        "NobelzSushank\\Bsad\\BsadServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "NobelzSushank\\Bsad\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "NobelzSushank",
+                    "email": "nobelsushank@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Laravel Nepali Date Converter (BS to AD and AD to BS) package with carbon like formatting and user-editable dataset.",
+            "homepage": "https://github.com/NobelzSushank/nepali-date-converter",
+            "keywords": [
+                "BS",
+                "ad",
+                "ad-to-bs",
+                "asToBs",
+                "bikram sambat",
+                "bs-to-ad",
+                "bsToAd",
+                "bsad",
+                "carbon",
+                "date-converter",
+                "laravel",
+                "laravel-nepali-date",
+                "nepal",
+                "nepali date converter",
+                "nepali-date",
+                "nepali-date-converter",
+                "nobelzsushank"
+            ],
+            "support": {
+                "issues": "https://github.com/NobelzSushank/nepali-date-converter/issues",
+                "source": "https://github.com/NobelzSushank/nepali-date-converter"
+            },
+            "time": "2026-03-02T06:34:26+00:00"
         },
         {
             "name": "nunomaduro/termwind",

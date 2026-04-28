@@ -34,6 +34,17 @@
       0 => 'Carbon\\Laravel\\ServiceProvider',
     ),
   ),
+  'nobelzsushank/nepali-date-converter' => 
+  array (
+    'aliases' => 
+    array (
+      'NepaliDateConverter' => 'NobelzSushank\\Bsad\\Facades\\NepaliDateConverter',
+    ),
+    'providers' => 
+    array (
+      0 => 'NobelzSushank\\Bsad\\BsadServiceProvider',
+    ),
+  ),
   'nunomaduro/collision' => 
   array (
     'providers' => 
