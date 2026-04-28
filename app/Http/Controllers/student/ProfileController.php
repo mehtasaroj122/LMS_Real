@@ -8,6 +8,7 @@ use App\Models\Student;
 use App\Models\Fine;
 use App\Models\User;
 use App\Models\Notification;
+use App\Services\Auth\AccountDeletionService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Gate;
@@ -17,6 +18,11 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        private readonly AccountDeletionService $accountDeletionService
+    ) {
+    }
+
     public function index()
     {
         Gate::authorize('access-student');
@@ -36,6 +42,7 @@ class ProfileController extends Controller
                 'totalFinesAmount' => 0,
                 'finesPaidAmount' => 0,
                 'approvedRequestsCount' => 0,
+                'accountDeletionState' => $this->accountDeletionService->eligibilityFor($user),
             ]);
         }
 
@@ -70,6 +77,7 @@ class ProfileController extends Controller
             'totalFinesAmount' => $totalFinesAmount,
             'finesPaidAmount' => $finesPaidAmount,
             'approvedRequestsCount' => $approvedRequestsCount,
+            'accountDeletionState' => $this->accountDeletionService->eligibilityFor($user),
         ]);
     }
 

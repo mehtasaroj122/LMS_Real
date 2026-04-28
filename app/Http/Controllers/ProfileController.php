@@ -28,11 +28,14 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
+        $originalEmail = $user->email;
         $changes = [];
 
-        // Track changes
+        $user->fill($request->validated());
+
+        // Track changes after applying the validated payload.
         if ($user->isDirty('email')) {
-            $changes['email'] = $user->email;
+            $changes['email'] = $originalEmail;
             $user->email_verified_at = null;
         }
         if ($user->isDirty('name')) {
@@ -42,7 +45,6 @@ class ProfileController extends Controller
             $changes['phone'] = $user->phone;
         }
 
-        $user->fill($request->validated());
         $user->save();
 
         // Notify user of profile update

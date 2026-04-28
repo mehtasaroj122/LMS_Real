@@ -34,6 +34,7 @@
 
 @push('styles')
     @include('shared.action-feedback.styles')
+    @include('shared.account-deletion.styles')
     <style>
         :root {
             --primary-color: #2563eb;
@@ -921,6 +922,8 @@
                     </div>
                 </div>
             </form>
+
+            @include('shared.account-deletion.panel', ['accountDeletionState' => $accountDeletionState])
         </section>
 
         <section class="settings-section {{ $activeTab === 'password' ? 'active' : '' }}" id="password-tab" role="tabpanel" aria-labelledby="tab-password" data-settings-section="password" data-start-editing="{{ $hasPasswordErrors ? 'true' : 'false' }}" {{ $activeTab === 'password' ? '' : 'hidden' }}>
@@ -1229,6 +1232,7 @@
 
 @push('scripts')
     @include('shared.action-feedback.scripts')
+    @include('shared.account-deletion.scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const settingsPage = document.getElementById('adminSettingsPage');

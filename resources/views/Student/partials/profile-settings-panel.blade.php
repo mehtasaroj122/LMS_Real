@@ -16,6 +16,10 @@
             <i data-lucide="lock"></i>
             <span>Security</span>
         </button>
+        <button type="button" class="tab-btn" id="deleteAccountTabButton" data-tab="deleteAccount" role="tab" aria-selected="false" aria-controls="deleteAccountTabPanel">
+            <i data-lucide="triangle-alert"></i>
+            <span>Delete Account</span>
+        </button>
     </div>
 
     <div class="tab-panels">
@@ -229,6 +233,11 @@
                     </ul>
                 </div>
             </form>
+        </div>
+    </div>
+
+        <div class="tab-content" id="deleteAccountTabPanel" role="tabpanel" aria-labelledby="deleteAccountTabButton" aria-hidden="true" hidden>
+            @include('shared.account-deletion.panel', ['accountDeletionState' => $accountDeletionState])
         </div>
     </div>
     </div>

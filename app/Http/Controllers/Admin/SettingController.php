@@ -11,6 +11,7 @@ use App\Models\FineSetting;
 use App\Models\Notification;
 use App\Support\LibraryBranding;
 use App\Models\User;
+use App\Services\Auth\AccountDeletionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -21,14 +22,20 @@ use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
+    public function __construct(
+        private readonly AccountDeletionService $accountDeletionService
+    ) {
+    }
+
     public function index()
     {
         Gate::authorize('access-admin');
 
         $user = Auth::user();
         $fineSetting = FineSetting::resolveActive();
+        $accountDeletionState = $this->accountDeletionService->eligibilityFor($user);
 
-        return view('Admin.Settings', compact('user', 'fineSetting'));
+        return view('Admin.Settings', compact('user', 'fineSetting', 'accountDeletionState'));
     }
 
     public function update(ProfileUpdateRequest $request)

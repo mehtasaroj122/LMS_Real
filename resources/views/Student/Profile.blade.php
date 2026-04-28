@@ -3,6 +3,7 @@
 @section('title', 'My Profile')
 
 @push('styles')
+    @include('shared.account-deletion.styles')
     <style>
         /* Profile Page Specific Styles */
         .profile-card {
@@ -1492,6 +1493,7 @@
                         'profilePhotoUrl' => $profilePhotoUrl,
                         'departmentName' => $departmentName,
                         'addressValue' => $addressValue,
+                        'accountDeletionState' => $accountDeletionState,
                     ])
                 </div>
             </div>
@@ -1501,5 +1503,6 @@
 @endsection
 
 @push('scripts')
+    @include('shared.account-deletion.scripts')
     @include('Student.partials.profile-settings-script')
 @endpush

@@ -8,6 +8,7 @@ use App\Http\Requests\Staff\UpdatePasswordRequest;
 use App\Http\Requests\Staff\UpdateProfileRequest;
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\Auth\AccountDeletionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -18,12 +19,18 @@ use Illuminate\Support\Str;
 
 class SettingController extends Controller
 {
+    public function __construct(
+        private readonly AccountDeletionService $accountDeletionService
+    ) {
+    }
+
     public function index()
     {
         Gate::authorize('access-staff');
         $user = Auth::user()->loadMissing('staff.department');
+        $accountDeletionState = $this->accountDeletionService->eligibilityFor($user);
 
-        return view('Staff.Setting', compact('user'));
+        return view('Staff.Setting', compact('user', 'accountDeletionState'));
     }
 
     public function update(UpdateProfileRequest $request)

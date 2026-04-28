@@ -4,6 +4,7 @@
 
 @push('styles')
     @include('shared.action-feedback.styles')
+    @include('shared.account-deletion.styles')
     <style>
         /* Settings Page Specific Styles */
         .settings-container {
@@ -1038,6 +1039,9 @@
                         <button type="button" class="tab-btn {{ $activeTab === 'security' ? 'active' : '' }}" data-tab="security" role="tab" aria-selected="{{ $activeTab === 'security' ? 'true' : 'false' }}">
                             <i class="fas fa-lock"></i> Security
                         </button>
+                        <button type="button" class="tab-btn" data-tab="delete-account" role="tab" aria-selected="false">
+                            <i class="fas fa-triangle-exclamation"></i> Delete Account
+                        </button>
                     </div>
 
                     <div class="tab-content {{ $activeTab === 'profile' ? 'active' : '' }}" id="profileTab" role="tabpanel">
@@ -1229,6 +1233,10 @@
                             </form>
                         </div>
                     </div>
+
+                    <div class="tab-content" id="delete-accountTab" role="tabpanel">
+                        @include('shared.account-deletion.panel', ['accountDeletionState' => $accountDeletionState])
+                    </div>
                 </div>
             </div>
         </div>
@@ -1257,6 +1265,7 @@
 
 @push('scripts')
     @include('shared.action-feedback.scripts')
+    @include('shared.account-deletion.scripts')
     <script>
         const StaffSettings = (() => {
             const state = {
