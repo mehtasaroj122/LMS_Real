@@ -113,7 +113,10 @@ class CompleteRegistrationRequest extends FormRequest
             );
 
             if (($emailValidation['valid'] ?? false) !== true) {
-                $validator->errors()->add('email', (string) ($emailValidation['message'] ?? 'This account is already active. Please sign in instead.'));
+                $validator->errors()->add(
+                    (string) ($emailValidation['field'] ?? 'email'),
+                    (string) ($emailValidation['message'] ?? 'This account is already active. Please sign in instead.')
+                );
 
                 return;
             }
@@ -146,14 +149,7 @@ class CompleteRegistrationRequest extends FormRequest
             }
 
             $message = (string) ($identityValidation['message'] ?? 'The invitation details do not match our records.');
-            $normalizedMessage = strtolower($message);
-            $errorField = $identifierField;
-
-            if (str_contains($normalizedMessage, 'already active') || str_contains($normalizedMessage, 'sign in')) {
-                $errorField = 'email';
-            } elseif (str_contains($normalizedMessage, 'phone')) {
-                $errorField = 'phone';
-            }
+            $errorField = (string) ($identityValidation['field'] ?? $identifierField);
 
             $validator->errors()->add($errorField, $message);
         });

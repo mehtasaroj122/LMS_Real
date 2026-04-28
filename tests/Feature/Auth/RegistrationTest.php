@@ -5,7 +5,12 @@ use App\Models\staff;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\department as Department;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Mail;
+
+beforeEach(function () {
+    $this->withoutMiddleware(ValidateCsrfToken::class);
+});
 
 test('registration screen can be rendered', function () {
     $response = $this->get('/register');
@@ -138,6 +143,98 @@ test('invited student registration fails when phone does not match stored identi
     expect($user->status)->toBe('inactive');
     expect($user->password)->toBeNull();
 
+    Mail::assertNothingQueued();
+});
+
+test('invited student registration returns a student ID specific error when the invited ID does not match', function () {
+    Mail::fake();
+
+    $department = Department::create([
+        'name' => 'Computer Science',
+        'code' => 'CSE',
+        'status' => 'active',
+    ]);
+
+    $user = User::create([
+        'name' => 'Student Invite',
+        'email' => 'student-id-mismatch@example.com',
+        'phone' => '+9779800000001',
+        'role' => 'student',
+        'status' => 'inactive',
+        'password' => null,
+    ]);
+
+    Student::create([
+        'user_id' => $user->id,
+        'student_id' => 'STU-000202',
+        'roll_no' => 'STU-000202',
+        'department_id' => $department->id,
+        'batch' => '2025',
+        'semester' => '2',
+        'address' => 'Kathmandu, Nepal',
+    ]);
+
+    $response = $this->postJson('/register', [
+        'role' => 'student',
+        'email' => 'student-id-mismatch@example.com',
+        'student_id' => 'STU-999999',
+        'phone' => '+9779800000001',
+        'password' => 'Password!123',
+        'password_confirmation' => 'Password!123',
+    ]);
+
+    $response
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('student_id')
+        ->assertJsonPath('errors.student_id.0', 'We could not find an invited student account with that student ID.');
+
+    expect(data_get($response->json(), 'errors.email'))->toBeNull();
+    Mail::assertNothingQueued();
+});
+
+test('invited student registration returns an email specific error when the invited email does not match', function () {
+    Mail::fake();
+
+    $department = Department::create([
+        'name' => 'Computer Science',
+        'code' => 'CSE',
+        'status' => 'active',
+    ]);
+
+    $user = User::create([
+        'name' => 'Student Invite',
+        'email' => 'student-email-match@example.com',
+        'phone' => '+9779800000002',
+        'role' => 'student',
+        'status' => 'inactive',
+        'password' => null,
+    ]);
+
+    Student::create([
+        'user_id' => $user->id,
+        'student_id' => 'STU-000203',
+        'roll_no' => 'STU-000203',
+        'department_id' => $department->id,
+        'batch' => '2025',
+        'semester' => '2',
+        'address' => 'Kathmandu, Nepal',
+    ]);
+
+    $response = $this->postJson('/register', [
+        'role' => 'student',
+        'email' => 'wrong-student-email@example.com',
+        'student_id' => 'STU-000203',
+        'phone' => '+9779800000002',
+        'password' => 'Password!123',
+        'password_confirmation' => 'Password!123',
+    ]);
+
+    $response
+        ->assertStatus(422)
+        ->assertJsonValidationErrors('email')
+        ->assertJsonPath('errors.email.0', 'We could not find an invited student account with that email address.');
+
+    expect(data_get($response->json(), 'errors.student_id'))->toBeNull();
     Mail::assertNothingQueued();
 });
 

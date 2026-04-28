@@ -11,6 +11,44 @@ use Illuminate\Support\Facades\Mail;
 
 class InvitedUserRegistrationService
 {
+    protected function normalizeRole(string $role): string
+    {
+        return strtolower(trim($role));
+    }
+
+    protected function identifierFieldForRole(string $role): string
+    {
+        return $this->normalizeRole($role) === 'staff' ? 'staff_id' : 'student_id';
+    }
+
+    protected function identifierLabelForRole(string $role): string
+    {
+        return $this->normalizeRole($role) === 'staff' ? 'staff ID' : 'student ID';
+    }
+
+    protected function invitedUserMatchesIdentifier(User $user, string $role, ?string $identifier): bool
+    {
+        $normalizedRole = $this->normalizeRole($role);
+        $normalizedIdentifier = $this->normalizeIdentifier($identifier);
+
+        if ($normalizedIdentifier === null) {
+            return false;
+        }
+
+        if ($normalizedRole === 'staff') {
+            return $this->normalizeIdentifier($user->staff?->staff_id) === $normalizedIdentifier;
+        }
+
+        if ($normalizedRole === 'student') {
+            return in_array($normalizedIdentifier, array_filter([
+                $this->normalizeIdentifier($user->student?->student_id),
+                $this->normalizeIdentifier($user->student?->roll_no),
+            ]), true);
+        }
+
+        return false;
+    }
+
     public function normalizeEmail(?string $value): string
     {
         return strtolower(trim((string) $value));
@@ -42,7 +80,7 @@ class InvitedUserRegistrationService
 
     public function findUserByRoleAndEmail(string $role, string $email): ?User
     {
-        $normalizedRole = strtolower(trim($role));
+        $normalizedRole = $this->normalizeRole($role);
         $normalizedEmail = $this->normalizeEmail($email);
 
         if ($normalizedEmail === '' || !in_array($normalizedRole, ['staff', 'student'], true)) {
@@ -64,6 +102,7 @@ class InvitedUserRegistrationService
             return [
                 'valid' => false,
                 'user' => $user,
+                'field' => 'email',
                 'message' => 'This account is already active. Please sign in with your email and password instead.',
             ];
         }
@@ -71,13 +110,14 @@ class InvitedUserRegistrationService
         return [
             'valid' => true,
             'user' => $user,
+            'field' => null,
             'message' => null,
         ];
     }
 
     public function findPendingUser(string $role, string $email, ?string $identifier): ?User
     {
-        $normalizedRole = strtolower(trim($role));
+        $normalizedRole = $this->normalizeRole($role);
         $normalizedEmail = $this->normalizeEmail($email);
         $normalizedIdentifier = $this->normalizeIdentifier($identifier);
 
@@ -111,17 +151,18 @@ class InvitedUserRegistrationService
 
     public function validateIdentity(string $role, string $email, ?string $phone, ?string $identifier): array
     {
-        $user = $this->findPendingUser($role, $email, $identifier);
-        $normalizedRole = strtolower(trim($role));
+        $normalizedRole = $this->normalizeRole($role);
         $normalizedPhone = $this->normalizePhone($phone);
+        $identifierField = $this->identifierFieldForRole($normalizedRole);
+        $identifierLabel = $this->identifierLabelForRole($normalizedRole);
+        $user = $this->findUserByRoleAndEmail($normalizedRole, $email);
 
-        if (!$user) {
-            $label = $normalizedRole === 'staff' ? 'staff ID' : 'student ID';
-
+        if (! $user) {
             return [
                 'valid' => false,
                 'user' => null,
-                'message' => "We could not find an invited {$normalizedRole} account with that email and {$label}.",
+                'field' => 'email',
+                'message' => "We could not find an invited {$normalizedRole} account with that email address.",
             ];
         }
 
@@ -129,7 +170,17 @@ class InvitedUserRegistrationService
             return [
                 'valid' => false,
                 'user' => $user,
+                'field' => 'email',
                 'message' => 'This account is already active. Please sign in with your email and password instead.',
+            ];
+        }
+
+        if (! $this->invitedUserMatchesIdentifier($user, $normalizedRole, $identifier)) {
+            return [
+                'valid' => false,
+                'user' => $user,
+                'field' => $identifierField,
+                'message' => "We could not find an invited {$normalizedRole} account with that {$identifierLabel}.",
             ];
         }
 
@@ -139,6 +190,7 @@ class InvitedUserRegistrationService
             return [
                 'valid' => false,
                 'user' => $user,
+                'field' => 'phone',
                 'message' => 'The phone number does not match the invited account details.',
             ];
         }
@@ -153,6 +205,7 @@ class InvitedUserRegistrationService
                 return [
                     'valid' => false,
                     'user' => $user,
+                    'field' => 'phone',
                     'message' => 'This phone number is already assigned to another user.',
                 ];
             }
@@ -161,6 +214,7 @@ class InvitedUserRegistrationService
         return [
             'valid' => true,
             'user' => $user,
+            'field' => null,
             'message' => null,
         ];
     }
