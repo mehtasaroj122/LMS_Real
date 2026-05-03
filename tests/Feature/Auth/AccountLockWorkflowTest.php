@@ -36,7 +36,7 @@ test('failed logins honor the configured lockout duration', function () {
     $this->post('/login', [
         'email' => $user->email,
         'password' => 'wrong-password',
-    ])->assertSessionHasErrors('email');
+    ])->assertSessionHasErrors('auth');
 
     $remainingSeconds = RateLimiter::availableIn($throttleKey);
 
@@ -63,12 +63,12 @@ test('account lockout queues a security email notification when email unlock is 
     $this->post('/login', [
         'email' => $user->email,
         'password' => 'wrong-password',
-    ])->assertSessionHasErrors('email');
+    ])->assertSessionHasErrors('auth');
 
     $this->post('/login', [
         'email' => $user->email,
         'password' => 'wrong-password',
-    ])->assertSessionHasErrors('email');
+    ])->assertSessionHasErrors('auth');
 
     Notification::assertSentTo($user, AccountLockedNotification::class);
 });

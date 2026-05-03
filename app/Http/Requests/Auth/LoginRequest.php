@@ -11,6 +11,9 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
+    public const FORM_ERROR_KEY = 'auth';
+    public const ACCOUNT_INACTIVE_ERROR = 'account_inactive';
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -46,7 +49,7 @@ class LoginRequest extends FormRequest
         
         if ($user && $user->status === 'inactive') {
             throw ValidationException::withMessages([
-                'email' => 'account_inactive',
+                self::FORM_ERROR_KEY => self::ACCOUNT_INACTIVE_ERROR,
             ]);
         }
 
@@ -54,7 +57,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey(), AccountLockoutManager::decaySeconds());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                self::FORM_ERROR_KEY => trans('auth.failed'),
             ]);
         }
 
@@ -84,7 +87,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            self::FORM_ERROR_KEY => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),

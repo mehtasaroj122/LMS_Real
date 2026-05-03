@@ -26,7 +26,29 @@ test('users can not authenticate with invalid password', function () {
     $this->post('/login', [
         'email' => $user->email,
         'password' => 'wrong-password',
+    ])->assertSessionHasErrors('auth')
+        ->assertSessionDoesntHaveErrors(['email', 'password']);
+
+    $this->assertGuest();
+});
+
+test('login validation errors stay attached to their fields', function () {
+    $this->post('/login', [
+        'email' => 'not-an-email',
+        'password' => '',
+    ])->assertSessionHasErrors(['email', 'password'])
+        ->assertSessionDoesntHaveErrors('auth');
+});
+
+test('inactive users are redirected to the account inactive page', function () {
+    $user = User::factory()->create([
+        'status' => 'inactive',
     ]);
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect(route('account.inactive'));
 
     $this->assertGuest();
 });

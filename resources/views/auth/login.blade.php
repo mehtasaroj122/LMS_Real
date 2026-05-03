@@ -1,8 +1,9 @@
 @php
+    $formErrorMessage = $errors->first(\App\Http\Requests\Auth\LoginRequest::FORM_ERROR_KEY);
     $emailErrorMessage = $errors->first('email');
-    $friendlyEmailError = $emailErrorMessage === 'account_inactive'
+    $friendlyFormError = $formErrorMessage === \App\Http\Requests\Auth\LoginRequest::ACCOUNT_INACTIVE_ERROR
         ? 'This account is currently inactive. Please contact the library administrator for help.'
-        : $emailErrorMessage;
+        : $formErrorMessage;
 @endphp
 
 <x-layouts.auth
@@ -17,10 +18,10 @@
                 <x-auth-alert variant="success" :message="session('status')" />
             @endif
 
-            @if ($errors->any())
+            @if ($friendlyFormError)
                 <x-auth-alert
                     variant="danger"
-                    :message="$friendlyEmailError ?: $errors->first('password') ?: $errors->first()"
+                    :message="$friendlyFormError"
                 />
             @endif
 
@@ -32,7 +33,7 @@
                         name="email"
                         label="Email address"
                         type="email"
-                        :error="$friendlyEmailError"
+                        :error="$emailErrorMessage"
                         required
                         autofocus
                         autocomplete="username"

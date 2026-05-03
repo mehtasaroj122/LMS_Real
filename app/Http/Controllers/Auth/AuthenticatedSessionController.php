@@ -31,7 +31,10 @@ class AuthenticatedSessionController extends Controller
             $request->authenticate();
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Check if the error is due to inactive account
-            if (isset($e->errors()['email']) && $e->errors()['email'][0] === 'account_inactive') {
+            if (
+                isset($e->errors()[LoginRequest::FORM_ERROR_KEY]) &&
+                $e->errors()[LoginRequest::FORM_ERROR_KEY][0] === LoginRequest::ACCOUNT_INACTIVE_ERROR
+            ) {
                 return redirect()->route('account.inactive');
             }
             throw $e;
