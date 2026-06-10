@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AccountDeletionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -49,6 +50,18 @@ Route::get('/', function () {
 Route::get('/login1', function () {
     return view('Loginpage');
 });
+
+// Profile photo serving route
+Route::get('/profile-photos/{path}', function ($path) {
+    $filename = urldecode($path);
+    $filepath = "Profile_pics/{$filename}";
+    
+    if (!Storage::disk('public')->exists($filepath)) {
+        return response('Not found', 404);
+    }
+    
+    return Storage::disk('public')->response($filepath);
+})->where('path', '.*')->name('profile-photo');
 
 // admin route
 Route::middleware(['auth', 'can:access-admin'])
