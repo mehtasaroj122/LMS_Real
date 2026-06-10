@@ -5,6 +5,7 @@ namespace App\Services\BookRequestManagement;
 use App\Models\Book;
 use App\Models\BookRequest;
 use App\Models\Student;
+use App\Support\ProfilePhoto;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
@@ -93,13 +94,7 @@ class BookRequestManagementDataService
     public function serializeRequest(BookRequest $bookRequest): array
     {
         $profilePhoto = $bookRequest->student?->user?->profile_photo;
-        $studentAvatar = null;
-
-        if (!empty($profilePhoto)) {
-            $studentAvatar = str_starts_with($profilePhoto, 'http')
-                ? $profilePhoto
-                : asset('storage/' . ltrim($profilePhoto, '/'));
-        }
+        $studentAvatar = ProfilePhoto::resolveUrl($profilePhoto);
 
         $status = strtolower((string) ($bookRequest->status ?? 'pending'));
 

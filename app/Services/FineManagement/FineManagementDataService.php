@@ -3,6 +3,7 @@
 namespace App\Services\FineManagement;
 
 use App\Models\Fine;
+use App\Support\ProfilePhoto;
 use Illuminate\Database\Eloquent\Builder;
 
 class FineManagementDataService
@@ -204,13 +205,7 @@ class FineManagementDataService
     protected function transformFine(Fine $fine): array
     {
         $profilePhoto = $fine->student?->user?->profile_photo;
-        $studentAvatar = null;
-
-        if (!empty($profilePhoto)) {
-            $studentAvatar = str_starts_with($profilePhoto, 'http')
-                ? $profilePhoto
-                : asset('storage/' . ltrim($profilePhoto, '/'));
-        }
+        $studentAvatar = ProfilePhoto::resolveUrl($profilePhoto);
 
         $status = strtolower((string) ($fine->status ?? 'pending'));
         $issuedBook = $fine->issuedBook;
