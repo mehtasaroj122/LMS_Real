@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class IssueResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'issue_id' => $this->id,
+            'student' => new StudentResource($this->whenLoaded('student')),
+            'book' => new BookResource($this->whenLoaded('book')),
+            'issue_date' => optional($this->issue_date)->toDateString(),
+            'due_date' => optional($this->due_date)->toDateString(),
+            'return_date' => optional($this->return_date)->toDateString(),
+            'fine_amount' => (float) $this->fine_amount,
+            'status' => $this->status,
+        ];
+    }
+}
