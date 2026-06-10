@@ -649,6 +649,7 @@
             background-color: #ffffff;
             border-color: #e5e7eb;
         }
+
         body.dark-theme .table-container {
             background-color: #1e293b;
             border-color: #334155;
@@ -804,7 +805,7 @@
             gap: 6px;
             justify-content: flex-start;
         }
-        
+
         .action-btn {
             width: 30px;
             height: 30px;
@@ -818,24 +819,24 @@
             cursor: pointer;
             text-decoration: none;
         }
-        
+
         body.light-theme .action-btn {
             color: #64748b;
             background-color: #f1f5f9;
         }
-        
+
         body.dark-theme .action-btn {
             color: #94a3b8;
             background-color: #334155;
         }
-        
+
         body.light-theme .action-btn:hover {
             background-color: #e0e7ff;
             color: #2563eb;
             transform: translateY(-1px);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        
+
         body.dark-theme .action-btn:hover {
             background-color: #1e40af;
             color: #93c5fd;
@@ -1119,6 +1120,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1450,6 +1452,7 @@
                 opacity: 0;
                 transform: scale(0.95) translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: scale(1) translateY(0);
@@ -1710,6 +1713,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -2583,9 +2587,17 @@
         }
 
         @keyframes popupIconPop {
-            0% { transform: scale(0); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .fine-popup-icon.paid {
@@ -2624,7 +2636,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .fine-popup-title {
@@ -3467,7 +3481,7 @@
             margin-top: 6px;
         }
 
-        .settings-actions > button {
+        .settings-actions>button {
             flex: 1;
         }
 
@@ -4741,6 +4755,7 @@
                 transform: translateX(100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -4751,6 +4766,7 @@
             from {
                 opacity: 1;
             }
+
             to {
                 opacity: 0;
             }
@@ -4790,6 +4806,7 @@
         }
 
         @media (max-width: 480px) {
+
             .account-btn,
             .generate-receipt-btn,
             .set-default-btn,
@@ -4813,8 +4830,9 @@
         <div class="page-header">
             <div class="header-left">
                 <a href="{{ route('admin.students.index') }}" class="back-link">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
                     </svg>
                     Back to Students
                 </a>
@@ -4822,10 +4840,11 @@
             </div>
             <div class="header-right">
                 <button class="btn btn-secondary" id="printReportBtn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 9V2h12v7"/>
-                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                        <path d="M6 14h12v8H6z"/>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M6 9V2h12v7" />
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                        <path d="M6 14h12v8H6z" />
                     </svg>
                     Print Report
                 </button>
@@ -4837,60 +4856,73 @@
             <!-- Left Column - Student Profile -->
             <div class="profile-column">
                 <div class="profile-card" id="adminStudentProfileCard">
-                            <div class="avatar-container">
-                                @if(optional($student->user)->profile_photo)
-                                    <div class="student-avatar">
-                                        <img src="{{ str_starts_with($student->user->profile_photo, 'http') ? $student->user->profile_photo : asset('storage/' . $student->user->profile_photo) }}" alt="{{ $student->user->name }}">
-                                    </div>
-                                @else
-                                    <div class="student-avatar">{{ substr($student->user->name, 0, 1) }}{{ strpos($student->user->name, ' ') !== false ? substr($student->user->name, strpos($student->user->name, ' ') + 1, 1) : '' }}</div>
-                                @endif
+                    <div class="avatar-container">
+                        @php
+                            $photoUrl = \App\Support\ProfilePhoto::resolveUrl($student->user?->profile_photo);
+                        @endphp
+                        @if ($photoUrl)
+                            <div class="student-avatar">
+                                <img src="{{ $photoUrl }}" alt="{{ $student->user->name }}" loading="lazy">
                             </div>
+                        @else
+                            <div class="student-avatar">
+                                {{ substr($student->user->name, 0, 1) }}{{ strpos($student->user->name, ' ') !== false ? substr($student->user->name, strpos($student->user->name, ' ') + 1, 1) : '' }}
+                            </div>
+                        @endif
+                    </div>
                     <div class="student-info">
                         <h2 class="student-name">{{ $student->user->name }}</h2>
                         <p class="student-id">{{ $student->roll_no ?? 'N/A' }}</p>
 
                         <div class="status-badges">
-                            <span class="badge {{ $student->user->status === 'inactive' ? 'badge-danger' : 'badge-success' }}" id="studentStatusBadge">{{ ucfirst($student->user->status ?? 'N/A') }}</span>
+                            <span
+                                class="badge {{ $student->user->status === 'inactive' ? 'badge-danger' : 'badge-success' }}"
+                                id="studentStatusBadge">{{ ucfirst($student->user->status ?? 'N/A') }}</span>
                             <span class="badge badge-info">{{ ucfirst($student->user->role ?? 'N/A') }}</span>
                         </div>
 
                         <div class="info-list">
                             <div class="info-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                    <polyline points="22,6 12,13 2,6"/>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                    <polyline points="22,6 12,13 2,6" />
                                 </svg>
                                 <span>{{ $student->user->email }}</span>
                             </div>
                             <div class="info-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                                 </svg>
                                 <span>{{ $student->user->phone ?? 'N/A' }}</span>
                             </div>
                             <div class="info-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 19l7-7 3 3-7 7-3-3z"/>
-                                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-                                    <path d="M2 2l7.586 7.586"/>
-                                    <circle cx="11" cy="11" r="2"/>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                                    <path d="M2 2l7.586 7.586" />
+                                    <circle cx="11" cy="11" r="2" />
                                 </svg>
                                 <span>{{ $student->department->name ?? 'N/A' }}</span>
                             </div>
                             <div class="info-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                                 </svg>
                                 <span>{{ $student->semester ?? 'N/A' }}</span>
                             </div>
                             <div class="info-item">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                    <line x1="16" y1="2" x2="16" y2="6"/>
-                                    <line x1="8" y1="2" x2="8" y2="6"/>
-                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
                                 </svg>
                                 <span>Batch {{ $student->batch ?? 'N/A' }}</span>
                             </div>
@@ -4902,11 +4934,13 @@
                         <div class="info-grid">
                             <div class="info-item">
                                 <span class="info-label">Created:</span>
-                                <span class="info-value">{{ optional($student->created_at)->format('M d, Y') ?? 'N/A' }}</span>
+                                <span
+                                    class="info-value">{{ optional($student->created_at)->format('M d, Y') ?? 'N/A' }}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Last Login:</span>
-                                <span class="info-value">{{ optional($student->user->last_login_at)->format('M d, Y h:i A') ?? 'Never' }}</span>
+                                <span
+                                    class="info-value">{{ optional($student->user->last_login_at)->format('M d, Y h:i A') ?? 'Never' }}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Created By:</span>
@@ -4927,8 +4961,9 @@
                 <div class="summary-cards-grid">
                     <div class="summary-card">
                         <div class="summary-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
                             </svg>
                         </div>
                         <div class="summary-content">
@@ -4938,50 +4973,61 @@
                     </div>
                     <div class="summary-card">
                         <div class="summary-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
                             </svg>
                         </div>
                         <div class="summary-content">
                             <div class="summary-title">Currently Issued</div>
-                            <div class="summary-value">{{ $student->issuedBooks()->whereNull('return_date')->count() }}</div>
+                            <div class="summary-value">{{ $student->issuedBooks()->whereNull('return_date')->count() }}
+                            </div>
                         </div>
                     </div>
                     <div class="summary-card">
                         <div class="summary-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <line x1="12" y1="8" x2="12" y2="12"/>
-                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
                             </svg>
                         </div>
                         <div class="summary-content">
                             <div class="summary-title">Overdue</div>
-                            <div class="summary-value">{{ $student->issuedBooks()->whereNull('return_date')->where('due_date','<', now()->toDateString())->count() }}</div>
+                            <div class="summary-value">
+                                {{ $student->issuedBooks()->whereNull('return_date')->where('due_date', '<', now()->toDateString())->count() }}
+                            </div>
                         </div>
                     </div>
                     <div class="summary-card">
                         <div class="summary-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="700" fill="currentColor" stroke="none">₹</text>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="700"
+                                    fill="currentColor" stroke="none">₹</text>
                             </svg>
                         </div>
                         <div class="summary-content">
                             <div class="summary-title">Pending Fine</div>
-                            <div class="summary-value" id="pendingFineValue">₹{{ number_format($student->fines->where('status','pending')->sum('amount'), 2) }}</div>
+                            <div class="summary-value" id="pendingFineValue">
+                                ₹{{ number_format($student->fines->where('status', 'pending')->sum('amount'), 2) }}</div>
                         </div>
                     </div>
                     <div class="summary-card">
                         <div class="summary-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
                             </svg>
                         </div>
                         <div class="summary-content">
                             <div class="summary-title">Last Activity</div>
-                            <div class="summary-value">{{ $student->issuedBooks->sortByDesc('created_at')->first()?->created_at?->format('M d') ?? 'N/A' }}</div>
+                            <div class="summary-value">
+                                {{ $student->issuedBooks->sortByDesc('created_at')->first()?->created_at?->format('M d') ?? 'N/A' }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4992,13 +5038,17 @@
                         <h3>Issued Books</h3>
                     </div>
 
-                    <div class="search-filter-container student-table-toolbar" aria-label="Issued books search and filters">
+                    <div class="search-filter-container student-table-toolbar"
+                        aria-label="Issued books search and filters">
                         <div class="search-box">
-                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
-                            <input type="text" class="search-input" id="bookSearch" placeholder="Search by title, author, or ISBN...">
+                            <input type="text" class="search-input" id="bookSearch"
+                                placeholder="Search by title, author, or ISBN...">
                         </div>
 
                         <div class="filters-container">
@@ -5010,14 +5060,16 @@
                             </select>
                         </div>
 
-                        <button type="button" class="student-toolbar-reset" id="bookResetFiltersBtn" aria-label="Reset issued books filters">
+                        <button type="button" class="student-toolbar-reset" id="bookResetFiltersBtn"
+                            aria-label="Reset issued books filters">
                             <i class="fas fa-rotate-left"></i>
                             Reset
                         </button>
 
                         <label class="admin-table-entries-control" for="booksEntriesSelect">
                             <span>Show</span>
-                            <select id="booksEntriesSelect" class="admin-table-entries-select" aria-label="Select issued book entries per page">
+                            <select id="booksEntriesSelect" class="admin-table-entries-select"
+                                aria-label="Select issued book entries per page">
                                 <option value="10" selected>10</option>
                                 <option value="20">20</option>
                                 <option value="50">50</option>
@@ -5031,19 +5083,19 @@
                     <div class="table-container paginated-table">
                         <table class="books-table">
                             <thead>
-                            <tr>
-                                <th>Book Title</th>
-                                <th>ISBN</th>
-                                <th>Issue Date</th>
-                                <th>Due Date</th>
-                                <th>Return Date</th>
-                                <th>Status</th>
-                                <th>Fine</th>
-                                <th>Action</th>
-                            </tr>
+                                <tr>
+                                    <th>Book Title</th>
+                                    <th>ISBN</th>
+                                    <th>Issue Date</th>
+                                    <th>Due Date</th>
+                                    <th>Return Date</th>
+                                    <th>Status</th>
+                                    <th>Fine</th>
+                                    <th>Action</th>
+                                </tr>
                             </thead>
                             <tbody id="booksTableBody">
-                            <!-- Data will be populated here -->
+                                <!-- Data will be populated here -->
                             </tbody>
                         </table>
                     </div>
@@ -5053,7 +5105,8 @@
                             <div class="admin-table-pagination-summary" id="booksTableSummary">Showing 0 books</div>
                             <div class="admin-table-pagination-page" id="booksTablePageInfo">Page 1 of 1</div>
                         </div>
-                        <div class="admin-table-pagination-nav" id="booksTablePagination" aria-label="Issued books pagination"></div>
+                        <div class="admin-table-pagination-nav" id="booksTablePagination"
+                            aria-label="Issued books pagination"></div>
                     </div>
                 </div>
             </div>
@@ -5072,55 +5125,61 @@
                 <div class="account-management-card">
                     <div class="card-header">
                         <div class="header-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                             </svg>
                         </div>
                         <h3>Account Management</h3>
                     </div>
                     <div class="account-actions">
                         <button class="account-btn btn-reset-password" id="resetPasswordBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M15 7h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v-4h-1"/>
-                                <path d="M10 7H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1"/>
-                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M15 7h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v-4h-1" />
+                                <path d="M10 7H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1" />
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                             </svg>
                             Reset Password
                         </button>
-                        @if($student->user->status === 'inactive')
-                        <button class="account-btn btn-activate" id="activateAccountBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                            </svg>
-                            Activate Account
-                        </button>
+                        @if ($student->user->status === 'inactive')
+                            <button class="account-btn btn-activate" id="activateAccountBtn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                </svg>
+                                Activate Account
+                            </button>
                         @else
-                        <button class="account-btn btn-deactivate" id="deactivateAccountBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 9.2 1"/>
-                            </svg>
-                            Deactivate Account
-                        </button>
+                            <button class="account-btn btn-deactivate" id="deactivateAccountBtn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 9.2 1" />
+                                </svg>
+                                Deactivate Account
+                            </button>
                         @endif
                         <button class="account-btn btn-change-role" id="changeRoleBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                             </svg>
                             Change Role
                         </button>
                         <button class="account-btn btn-delete" id="deleteAccountBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 6h18"/>
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
-                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                <line x1="10" y1="11" x2="10" y2="17"/>
-                                <line x1="14" y1="11" x2="14" y2="17"/>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M3 6h18" />
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                <line x1="10" y1="11" x2="10" y2="17" />
+                                <line x1="14" y1="11" x2="14" y2="17" />
                             </svg>
                             Delete Account
                         </button>
@@ -5134,24 +5193,29 @@
                     <div class="card-header">
                         <h3>Fine & Payment Management</h3>
                         <button class="generate-receipt-btn" id="generateReceiptBtn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                <polyline points="14 2 14 8 20 8"/>
-                                <line x1="16" y1="13" x2="8" y2="13"/>
-                                <line x1="16" y1="17" x2="8" y2="17"/>
-                                <polyline points="10 9 9 9 8 9"/>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <polyline points="10 9 9 9 8 9" />
                             </svg>
                             Generate Receipt
                         </button>
                     </div>
 
-                    <div class="search-filter-container student-table-toolbar" aria-label="Fine and payment search and filters">
+                    <div class="search-filter-container student-table-toolbar"
+                        aria-label="Fine and payment search and filters">
                         <div class="search-box">
-                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
-                            <input type="text" class="search-input" id="fineSearchInput" placeholder="Search by book, amount, status, or days overdue...">
+                            <input type="text" class="search-input" id="fineSearchInput"
+                                placeholder="Search by book, amount, status, or days overdue...">
                         </div>
 
                         <div class="filters-container">
@@ -5163,14 +5227,16 @@
                             </select>
                         </div>
 
-                        <button type="button" class="student-toolbar-reset" id="fineResetFiltersBtn" aria-label="Reset fine filters">
+                        <button type="button" class="student-toolbar-reset" id="fineResetFiltersBtn"
+                            aria-label="Reset fine filters">
                             <i class="fas fa-rotate-left"></i>
                             Reset
                         </button>
 
                         <label class="admin-table-entries-control" for="finesEntriesSelect">
                             <span>Show</span>
-                            <select id="finesEntriesSelect" class="admin-table-entries-select" aria-label="Select fine entries per page">
+                            <select id="finesEntriesSelect" class="admin-table-entries-select"
+                                aria-label="Select fine entries per page">
                                 <option value="10" selected>10</option>
                                 <option value="20">20</option>
                                 <option value="50">50</option>
@@ -5183,16 +5249,16 @@
                     <div class="table-container paginated-table">
                         <table class="fines-table">
                             <thead>
-                            <tr>
-                                <th>Book Name</th>
-                                <th>Days Overdue</th>
-                                <th>Fine Amount</th>
-                                <th>Payment Status</th>
-                                <th>Actions</th>
-                            </tr>
+                                <tr>
+                                    <th>Book Name</th>
+                                    <th>Days Overdue</th>
+                                    <th>Fine Amount</th>
+                                    <th>Payment Status</th>
+                                    <th>Actions</th>
+                                </tr>
                             </thead>
                             <tbody id="finesTableBody">
-                            <!-- Data will be populated here -->
+                                <!-- Data will be populated here -->
                             </tbody>
                         </table>
                     </div>
@@ -5202,7 +5268,8 @@
                             <div class="admin-table-pagination-summary" id="finesTableSummary">Showing 0 fines</div>
                             <div class="admin-table-pagination-page" id="finesTablePageInfo">Page 1 of 1</div>
                         </div>
-                        <div class="admin-table-pagination-nav" id="finesTablePagination" aria-label="Fines pagination"></div>
+                        <div class="admin-table-pagination-nav" id="finesTablePagination" aria-label="Fines pagination">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -5226,7 +5293,8 @@
                     </div>
                     <div class="form-group">
                         <label for="fineRate">Fine Rate Per Day (₹)</label>
-                        <input type="number" id="fineRate" value="10" min="0" max="100" step="0.5">
+                        <input type="number" id="fineRate" value="10" min="0" max="100"
+                            step="0.5">
                     </div>
                     <div class="form-group">
                         <label for="borrowingPermission">Borrowing Permission</label>
@@ -5237,9 +5305,10 @@
                     </div>
                     <div class="settings-actions">
                         <button type="button" class="set-default-btn" id="setDefaultPrivilegesBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path d="M3 12a9 9 0 1 0 3-6.7"/>
-                                <polyline points="3 3 3 9 9 9"/>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" aria-hidden="true">
+                                <path d="M3 12a9 9 0 1 0 3-6.7" />
+                                <polyline points="3 3 3 9 9 9" />
                             </svg>
                             <span data-privilege-reset-label>Set Default</span>
                         </button>
@@ -5269,7 +5338,8 @@
                         <h2 id="activityDetailsTitle">Activity Details</h2>
                         <p id="activityDetailsSubtitle">Review technical details and metadata for this activity.</p>
                     </div>
-                    <button type="button" class="activity-modal-close" id="closeActivityDetailsBtn" aria-label="Close activity details">
+                    <button type="button" class="activity-modal-close" id="closeActivityDetailsBtn"
+                        aria-label="Close activity details">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -5331,7 +5401,8 @@
                     </div>
                 </div>
                 <div class="activity-modal-actions">
-                    <a href="#" class="activity-action-btn view-resource" id="activityDetailsResourceLink" target="_blank" rel="noopener">
+                    <a href="#" class="activity-action-btn view-resource" id="activityDetailsResourceLink"
+                        target="_blank" rel="noopener">
                         <i class="fas fa-external-link-alt"></i>
                         View Resource
                     </a>
@@ -5354,9 +5425,10 @@
             <div class="role-options">
                 <div class="role-option student" data-role="student">
                     <div class="role-option-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
                         </svg>
                     </div>
                     <div class="role-option-content">
@@ -5366,11 +5438,12 @@
                 </div>
                 <div class="role-option staff" data-role="staff">
                     <div class="role-option-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                            <circle cx="9" cy="7" r="4"/>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                         </svg>
                     </div>
                     <div class="role-option-content">
@@ -5380,12 +5453,13 @@
                 </div>
                 <div class="role-option admin" data-role="admin">
                     <div class="role-option-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="1"/>
-                            <path d="M12 1v6m0 6v6"/>
-                            <path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24"/>
-                            <path d="M1 12h6m6 0h6"/>
-                            <path d="M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"/>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="1" />
+                            <path d="M12 1v6m0 6v6" />
+                            <path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24" />
+                            <path d="M1 12h6m6 0h6" />
+                            <path d="M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24" />
                         </svg>
                     </div>
                     <div class="role-option-content">
@@ -5416,12 +5490,14 @@
                 </div>
                 <div class="fine-form-group">
                     <label class="fine-form-label" for="adjustNewAmount">New Amount (₹)</label>
-                    <input type="number" id="adjustNewAmount" class="fine-form-input" placeholder="Enter new fine amount" min="0" step="0.01">
+                    <input type="number" id="adjustNewAmount" class="fine-form-input"
+                        placeholder="Enter new fine amount" min="0" step="0.01">
                 </div>
             </div>
             <div class="fine-modal-actions">
                 <button class="fine-modal-btn fine-modal-btn-cancel" onclick="closeFineModal('adjust')">Cancel</button>
-                <button class="fine-modal-btn fine-modal-btn-action" id="adjustFineSubmitBtn" onclick="submitAdjustFine()">Adjust Fine</button>
+                <button class="fine-modal-btn fine-modal-btn-action" id="adjustFineSubmitBtn"
+                    onclick="submitAdjustFine()">Adjust Fine</button>
             </div>
         </div>
     </div>
@@ -5445,7 +5521,8 @@
             </div>
             <div class="fine-modal-actions">
                 <button class="fine-modal-btn fine-modal-btn-cancel" onclick="closeFineModal('waive')">Cancel</button>
-                <button class="fine-modal-btn fine-modal-btn-action" id="waiveFineSubmitBtn" onclick="submitWaiveFine()">Waive Fine</button>
+                <button class="fine-modal-btn fine-modal-btn-action" id="waiveFineSubmitBtn"
+                    onclick="submitWaiveFine()">Waive Fine</button>
             </div>
         </div>
     </div>
@@ -5668,7 +5745,13 @@
                 ['key' => 'dueDate', 'label' => 'Due Date', 'width' => '12%', 'nowrap' => true],
                 ['key' => 'returnDate', 'label' => 'Return Date', 'width' => '12%', 'nowrap' => true],
                 ['key' => 'status', 'label' => 'Status', 'width' => '10%', 'align' => 'center', 'nowrap' => true],
-                ['key' => 'fineAmount', 'label' => 'Fine Amount', 'width' => '12%', 'align' => 'right', 'nowrap' => true],
+                [
+                    'key' => 'fineAmount',
+                    'label' => 'Fine Amount',
+                    'width' => '12%',
+                    'align' => 'right',
+                    'nowrap' => true,
+                ],
             ],
         ];
 
@@ -5703,9 +5786,27 @@
             ],
             'columns' => [
                 ['key' => 'bookName', 'label' => 'Book Name', 'width' => '40%', 'emphasis' => true],
-                ['key' => 'daysOverdue', 'label' => 'Days Overdue', 'width' => '16%', 'align' => 'center', 'nowrap' => true],
-                ['key' => 'fineAmount', 'label' => 'Fine Amount', 'width' => '18%', 'align' => 'right', 'nowrap' => true],
-                ['key' => 'paymentStatus', 'label' => 'Payment Status', 'width' => '26%', 'align' => 'center', 'nowrap' => true],
+                [
+                    'key' => 'daysOverdue',
+                    'label' => 'Days Overdue',
+                    'width' => '16%',
+                    'align' => 'center',
+                    'nowrap' => true,
+                ],
+                [
+                    'key' => 'fineAmount',
+                    'label' => 'Fine Amount',
+                    'width' => '18%',
+                    'align' => 'right',
+                    'nowrap' => true,
+                ],
+                [
+                    'key' => 'paymentStatus',
+                    'label' => 'Payment Status',
+                    'width' => '26%',
+                    'align' => 'center',
+                    'nowrap' => true,
+                ],
             ],
         ];
     @endphp
@@ -5749,9 +5850,9 @@
         const studentId = @json($student->id);
         let studentStatus = @json($student->user->status ?? 'active');
         const issuedBooksReportStudent = @json($issuedBooksReportStudent);
-        const issuedBooksReportBranding = window.LibraryBranding?.normalize
-            ? window.LibraryBranding.normalize(window.__LIBRARY_BRANDING__ ?? {})
-            : (window.__LIBRARY_BRANDING__ ?? {});
+        const issuedBooksReportBranding = window.LibraryBranding?.normalize ?
+            window.LibraryBranding.normalize(window.__LIBRARY_BRANDING__ ?? {}) :
+            (window.__LIBRARY_BRANDING__ ?? {});
         const issuedBooksReportSystemTitle = issuedBooksReportBranding?.name || 'Library Management System';
 
         // DOM Elements
@@ -5792,8 +5893,8 @@
             }
         }
 
-        const feedbackUI = typeof window.ActionFeedbackUI === 'function'
-            ? new window.ActionFeedbackUI({
+        const feedbackUI = typeof window.ActionFeedbackUI === 'function' ?
+            new window.ActionFeedbackUI({
                 confirm: {
                     modalId: 'confirmActionModal',
                     iconId: 'confirmActionIcon',
@@ -5808,8 +5909,8 @@
                     liveRegionId: 'fineLiveRegion',
                 },
                 setButtonBusy: setFeedbackButtonBusy,
-            })
-            : null;
+            }) :
+            null;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
@@ -6011,14 +6112,18 @@
         function handleFineSearch() {
             currentFineSearchTerm = fineSearchInput?.value.toLowerCase().trim() || '';
             currentFinesPage = 1;
-            fineReceiptExportWorkflow?.clearCache({ resetScope: false });
+            fineReceiptExportWorkflow?.clearCache({
+                resetScope: false
+            });
             renderFinesTable();
         }
 
         function handleFineStatusFilter() {
             currentFineStatusFilter = fineStatusFilterSelect?.value || 'all';
             currentFinesPage = 1;
-            fineReceiptExportWorkflow?.clearCache({ resetScope: false });
+            fineReceiptExportWorkflow?.clearCache({
+                resetScope: false
+            });
             renderFinesTable();
         }
 
@@ -6044,7 +6149,9 @@
             });
 
             currentBooksPage = 1;
-            issuedBooksExportWorkflow?.clearCache({ resetScope: false });
+            issuedBooksExportWorkflow?.clearCache({
+                resetScope: false
+            });
             renderBooksTable();
         }
 
@@ -6069,14 +6176,17 @@
             currentFineSearchTerm = '';
             currentFineStatusFilter = 'all';
             currentFinesPage = 1;
-            fineReceiptExportWorkflow?.clearCache({ resetScope: false });
+            fineReceiptExportWorkflow?.clearCache({
+                resetScope: false
+            });
             renderFinesTable();
         }
 
         function getFilteredFines() {
             return finesData.filter(fine => {
                 const normalizedStatus = String(fine.paymentStatus || 'pending').toLowerCase();
-                const matchesStatus = currentFineStatusFilter === 'all' || normalizedStatus === currentFineStatusFilter;
+                const matchesStatus = currentFineStatusFilter === 'all' || normalizedStatus ===
+                    currentFineStatusFilter;
                 const searchHaystack = [
                     fine.bookName || '',
                     normalizedStatus,
@@ -6134,7 +6244,7 @@
                 let statusClass = '';
                 let statusText = '';
                 let statusIcon = '';
-                switch(book.status) {
+                switch (book.status) {
                     case 'issued':
                         statusClass = 'issued';
                         statusText = 'Issued';
@@ -6227,18 +6337,57 @@
                     exportRouteMissingMessage: 'The full issued books report is not available right now.',
                     fullLoadFailedMessage: 'Something went wrong while preparing the issued books report.',
                 },
-                columns: [
-                    { key: 'title', label: 'Book Title', width: '28%', emphasis: true },
-                    { key: 'isbn', label: 'ISBN', width: '14%', nowrap: true },
-                    { key: 'issueDate', label: 'Issue Date', width: '12%', nowrap: true },
-                    { key: 'dueDate', label: 'Due Date', width: '12%', nowrap: true },
-                    { key: 'returnDate', label: 'Return Date', width: '12%', nowrap: true },
-                    { key: 'status', label: 'Status', width: '10%', align: 'center', nowrap: true },
-                    { key: 'fineAmount', label: 'Fine Amount', width: '12%', align: 'right', nowrap: true },
+                columns: [{
+                        key: 'title',
+                        label: 'Book Title',
+                        width: '28%',
+                        emphasis: true
+                    },
+                    {
+                        key: 'isbn',
+                        label: 'ISBN',
+                        width: '14%',
+                        nowrap: true
+                    },
+                    {
+                        key: 'issueDate',
+                        label: 'Issue Date',
+                        width: '12%',
+                        nowrap: true
+                    },
+                    {
+                        key: 'dueDate',
+                        label: 'Due Date',
+                        width: '12%',
+                        nowrap: true
+                    },
+                    {
+                        key: 'returnDate',
+                        label: 'Return Date',
+                        width: '12%',
+                        nowrap: true
+                    },
+                    {
+                        key: 'status',
+                        label: 'Status',
+                        width: '10%',
+                        align: 'center',
+                        nowrap: true
+                    },
+                    {
+                        key: 'fineAmount',
+                        label: 'Fine Amount',
+                        width: '12%',
+                        align: 'right',
+                        nowrap: true
+                    },
                 ],
                 openModal: (modalId, focusTarget) => openIssuedBooksExportModal(modalId, focusTarget),
                 closeModal: (modalId) => closeIssuedBooksExportModal(modalId),
-                showToast: (type, title, message, timeout) => showToast(message, type, { title, timeout }),
+                showToast: (type, title, message, timeout) => showToast(message, type, {
+                    title,
+                    timeout
+                }),
                 getCurrentRows: () => getCurrentBooksPageRows(),
                 getAllRows: () => ({
                     rows: filteredBooks,
@@ -6283,20 +6432,25 @@
             const closeButton = modal.querySelector('.report-export-close-btn');
 
             const activeElement = document.activeElement;
-            issuedBooksExportLastTrigger = activeElement && !modal.contains(activeElement)
-                ? activeElement
-                : focusTarget;
+            issuedBooksExportLastTrigger = activeElement && !modal.contains(activeElement) ?
+                activeElement :
+                focusTarget;
             modal.classList.add('is-open');
             modal.setAttribute('aria-hidden', 'false');
             modal.scrollTop = 0;
-            panel?.scrollTo?.({ top: 0, behavior: 'auto' });
+            panel?.scrollTo?.({
+                top: 0,
+                behavior: 'auto'
+            });
 
             window.setTimeout(() => {
                 const nextFocusTarget = closeButton || panel || focusTarget;
 
                 if (typeof nextFocusTarget?.focus === 'function') {
                     try {
-                        nextFocusTarget.focus({ preventScroll: true });
+                        nextFocusTarget.focus({
+                            preventScroll: true
+                        });
                     } catch (error) {
                         nextFocusTarget.focus();
                     }
@@ -6353,15 +6507,40 @@
                     exportRouteMissingMessage: 'The full fine receipt is not available right now.',
                     fullLoadFailedMessage: 'Something went wrong while preparing the fine receipt.',
                 },
-                columns: [
-                    { key: 'bookName', label: 'Book Name', width: '40%', emphasis: true },
-                    { key: 'daysOverdue', label: 'Days Overdue', width: '16%', align: 'center', nowrap: true },
-                    { key: 'fineAmount', label: 'Fine Amount', width: '18%', align: 'right', nowrap: true },
-                    { key: 'paymentStatus', label: 'Payment Status', width: '26%', align: 'center', nowrap: true },
+                columns: [{
+                        key: 'bookName',
+                        label: 'Book Name',
+                        width: '40%',
+                        emphasis: true
+                    },
+                    {
+                        key: 'daysOverdue',
+                        label: 'Days Overdue',
+                        width: '16%',
+                        align: 'center',
+                        nowrap: true
+                    },
+                    {
+                        key: 'fineAmount',
+                        label: 'Fine Amount',
+                        width: '18%',
+                        align: 'right',
+                        nowrap: true
+                    },
+                    {
+                        key: 'paymentStatus',
+                        label: 'Payment Status',
+                        width: '26%',
+                        align: 'center',
+                        nowrap: true
+                    },
                 ],
                 openModal: (modalId, focusTarget) => openFineReceiptExportModal(modalId, focusTarget),
                 closeModal: (modalId) => closeFineReceiptExportModal(modalId),
-                showToast: (type, title, message, timeout) => showToast(message, type, { title, timeout }),
+                showToast: (type, title, message, timeout) => showToast(message, type, {
+                    title,
+                    timeout
+                }),
                 getCurrentRows: () => getCurrentFinesPageRows(),
                 getAllRows: () => ({
                     rows: getFilteredFines(),
@@ -6406,20 +6585,25 @@
             const closeButton = modal.querySelector('.report-export-close-btn');
 
             const activeElement = document.activeElement;
-            fineReceiptExportLastTrigger = activeElement && !modal.contains(activeElement)
-                ? activeElement
-                : focusTarget;
+            fineReceiptExportLastTrigger = activeElement && !modal.contains(activeElement) ?
+                activeElement :
+                focusTarget;
             modal.classList.add('is-open');
             modal.setAttribute('aria-hidden', 'false');
             modal.scrollTop = 0;
-            panel?.scrollTo?.({ top: 0, behavior: 'auto' });
+            panel?.scrollTo?.({
+                top: 0,
+                behavior: 'auto'
+            });
 
             window.setTimeout(() => {
                 const nextFocusTarget = closeButton || panel || focusTarget;
 
                 if (typeof nextFocusTarget?.focus === 'function') {
                     try {
-                        nextFocusTarget.focus({ preventScroll: true });
+                        nextFocusTarget.focus({
+                            preventScroll: true
+                        });
                     } catch (error) {
                         nextFocusTarget.focus();
                     }
@@ -6474,20 +6658,37 @@
 
             return {
                 search: searchValue || 'All books',
-                status: currentStatusFilter === 'all'
-                    ? 'All statuses'
-                    : (selectedStatusLabel || formatDisplayLabel(currentStatusFilter, 'All statuses')),
+                status: currentStatusFilter === 'all' ?
+                    'All statuses' :
+                    (selectedStatusLabel || formatDisplayLabel(currentStatusFilter, 'All statuses')),
             };
         }
 
         function getIssuedBooksDocumentDetails() {
-            return [
-                { label: 'Student Name', value: issuedBooksReportStudent.name },
-                { label: 'Roll No', value: issuedBooksReportStudent.rollNo },
-                { label: 'Email', value: issuedBooksReportStudent.email },
-                { label: 'Department', value: issuedBooksReportStudent.department },
-                { label: 'Semester', value: String(issuedBooksReportStudent.semester || 'N/A') },
-                { label: 'Batch', value: issuedBooksReportStudent.batch },
+            return [{
+                    label: 'Student Name',
+                    value: issuedBooksReportStudent.name
+                },
+                {
+                    label: 'Roll No',
+                    value: issuedBooksReportStudent.rollNo
+                },
+                {
+                    label: 'Email',
+                    value: issuedBooksReportStudent.email
+                },
+                {
+                    label: 'Department',
+                    value: issuedBooksReportStudent.department
+                },
+                {
+                    label: 'Semester',
+                    value: String(issuedBooksReportStudent.semester || 'N/A')
+                },
+                {
+                    label: 'Batch',
+                    value: issuedBooksReportStudent.batch
+                },
             ];
         }
 
@@ -6512,12 +6713,12 @@
         }
 
         function buildIssuedBooksExportFilename(context) {
-            const generatedAt = context?.generatedAt instanceof Date
-                ? context.generatedAt
-                : new Date(context?.generatedAt || Date.now());
-            const dateStamp = Number.isNaN(generatedAt.getTime())
-                ? new Date().toISOString().slice(0, 10)
-                : generatedAt.toISOString().slice(0, 10);
+            const generatedAt = context?.generatedAt instanceof Date ?
+                context.generatedAt :
+                new Date(context?.generatedAt || Date.now());
+            const dateStamp = Number.isNaN(generatedAt.getTime()) ?
+                new Date().toISOString().slice(0, 10) :
+                generatedAt.toISOString().slice(0, 10);
             const scopeLabel = context?.isAllScope ? 'full' : 'page';
             const studentSlug = String(issuedBooksReportStudent.rollNo || issuedBooksReportStudent.name || 'student')
                 .toLowerCase()
@@ -6544,18 +6745,18 @@
 
             return {
                 search: searchValue || 'All fines',
-                status: currentFineStatusFilter === 'all'
-                    ? 'All statuses'
-                    : (selectedStatusLabel || formatDisplayLabel(currentFineStatusFilter, 'All statuses')),
+                status: currentFineStatusFilter === 'all' ?
+                    'All statuses' :
+                    (selectedStatusLabel || formatDisplayLabel(currentFineStatusFilter, 'All statuses')),
             };
         }
 
         function getFineReceiptTotals(fines = getFilteredFines()) {
             return fines.reduce((summary, fine) => {
                 const amountValue = fine?.fineAmount;
-                const amount = typeof amountValue === 'string'
-                    ? Number(String(amountValue).replace(/[^0-9.-]+/g, ''))
-                    : Number(amountValue || 0);
+                const amount = typeof amountValue === 'string' ?
+                    Number(String(amountValue).replace(/[^0-9.-]+/g, '')) :
+                    Number(amountValue || 0);
                 const safeAmount = Number.isFinite(amount) ? amount : 0;
                 const statusKey = getFineStatusMeta(fine?.paymentStatus).key;
 
@@ -6601,12 +6802,12 @@
         }
 
         function buildFineReceiptExportFilename(context) {
-            const generatedAt = context?.generatedAt instanceof Date
-                ? context.generatedAt
-                : new Date(context?.generatedAt || Date.now());
-            const dateStamp = Number.isNaN(generatedAt.getTime())
-                ? new Date().toISOString().slice(0, 10)
-                : generatedAt.toISOString().slice(0, 10);
+            const generatedAt = context?.generatedAt instanceof Date ?
+                context.generatedAt :
+                new Date(context?.generatedAt || Date.now());
+            const dateStamp = Number.isNaN(generatedAt.getTime()) ?
+                new Date().toISOString().slice(0, 10) :
+                generatedAt.toISOString().slice(0, 10);
             const scopeLabel = context?.isAllScope ? 'full' : 'page';
             const studentSlug = String(issuedBooksReportStudent.rollNo || issuedBooksReportStudent.name || 'student')
                 .toLowerCase()
@@ -6625,19 +6826,36 @@
                 badgeLabel: context.isAllScope ? 'Filtered receipt' : 'Current page',
                 headline: `${context.rowsReady} ${rowLabel} ready`,
                 subtext: `Print or download the fine receipt for ${issuedBooksReportStudent.name}.`,
-                previewCaption: context.isAllScope
-                    ? 'Preview of the first rows from the full filtered fine receipt.'
-                    : 'Preview of the current fine page that will be printed or downloaded.',
+                previewCaption: context.isAllScope ?
+                    'Preview of the first rows from the full filtered fine receipt.' :
+                    'Preview of the current fine page that will be printed or downloaded.',
                 previewCountText: `${context.rowsReady} ${context.rowsReady === 1 ? 'row' : 'rows'}`,
                 footerNote: `Filters applied: Search ${filters.search} | ${filters.status}.`,
                 emptyMessage: 'No fine records are available for this receipt.',
-                summaryItems: [
-                    { label: 'Student', value: issuedBooksReportStudent.name },
-                    { label: 'Scope', value: context.scopeLabel },
-                    { label: 'Rows included', value: `${context.rowsReady} ${rowLabel}` },
-                    { label: 'Receipt total', value: formatCurrency(totals.totalAmount) },
-                    { label: 'Pending total', value: formatCurrency(totals.pendingAmount) },
-                    { label: 'Status filter', value: filters.status },
+                summaryItems: [{
+                        label: 'Student',
+                        value: issuedBooksReportStudent.name
+                    },
+                    {
+                        label: 'Scope',
+                        value: context.scopeLabel
+                    },
+                    {
+                        label: 'Rows included',
+                        value: `${context.rowsReady} ${rowLabel}`
+                    },
+                    {
+                        label: 'Receipt total',
+                        value: formatCurrency(totals.totalAmount)
+                    },
+                    {
+                        label: 'Pending total',
+                        value: formatCurrency(totals.pendingAmount)
+                    },
+                    {
+                        label: 'Status filter',
+                        value: filters.status
+                    },
                 ],
             };
         }
@@ -6650,19 +6868,36 @@
                 badgeLabel: context.isAllScope ? 'Filtered report' : 'Current page',
                 headline: `${context.rowsReady} issued ${rowLabel} ready`,
                 subtext: `Print or download the issued books report for ${issuedBooksReportStudent.name}.`,
-                previewCaption: context.isAllScope
-                    ? 'Preview of the first rows from the full filtered issued books report.'
-                    : 'Preview of the current issued books page that will be printed or downloaded.',
+                previewCaption: context.isAllScope ?
+                    'Preview of the first rows from the full filtered issued books report.' :
+                    'Preview of the current issued books page that will be printed or downloaded.',
                 previewCountText: `${context.rowsReady} ${rowLabel}`,
                 footerNote: `Filters applied: Search ${filters.search} | ${filters.status}.`,
                 emptyMessage: 'No issued books are available for this report.',
-                summaryItems: [
-                    { label: 'Student', value: issuedBooksReportStudent.name },
-                    { label: 'Roll No', value: issuedBooksReportStudent.rollNo },
-                    { label: 'Scope', value: context.scopeLabel },
-                    { label: 'Rows included', value: `${context.rowsReady} ${rowLabel}` },
-                    { label: 'Search', value: filters.search },
-                    { label: 'Status filter', value: filters.status },
+                summaryItems: [{
+                        label: 'Student',
+                        value: issuedBooksReportStudent.name
+                    },
+                    {
+                        label: 'Roll No',
+                        value: issuedBooksReportStudent.rollNo
+                    },
+                    {
+                        label: 'Scope',
+                        value: context.scopeLabel
+                    },
+                    {
+                        label: 'Rows included',
+                        value: `${context.rowsReady} ${rowLabel}`
+                    },
+                    {
+                        label: 'Search',
+                        value: filters.search
+                    },
+                    {
+                        label: 'Status filter',
+                        value: filters.status
+                    },
                 ],
             };
         }
@@ -6687,9 +6922,9 @@
         }
 
         function getFineStatusMeta(status) {
-            const normalizedStatus = String(status || 'n/a').toLowerCase() === 'unpaid'
-                ? 'pending'
-                : String(status || 'n/a').toLowerCase();
+            const normalizedStatus = String(status || 'n/a').toLowerCase() === 'unpaid' ?
+                'pending' :
+                String(status || 'n/a').toLowerCase();
 
             const labels = {
                 pending: 'Pending',
@@ -6718,19 +6953,21 @@
             if (book.coverImage) {
                 const img = document.createElement('img');
                 const normalizedCoverPath = String(book.coverImage).replace(/^storage\//, '');
-                img.src = /^https?:\/\//i.test(book.coverImage)
-                    ? book.coverImage
-                    : '{{ asset("storage") }}/' + normalizedCoverPath;
+                img.src = /^https?:\/\//i.test(book.coverImage) ?
+                    book.coverImage :
+                    '{{ asset('storage') }}/' + normalizedCoverPath;
                 img.alt = book.title || '';
                 img.className = 'book-cover-image';
                 img.style.maxHeight = '240px';
                 img.style.maxWidth = '160px';
                 img.addEventListener('error', function() {
-                    coverContainer.innerHTML = `<div class="book-cover-avatar">${(book.title || '').charAt(0).toUpperCase()}</div>`;
+                    coverContainer.innerHTML =
+                        `<div class="book-cover-avatar">${(book.title || '').charAt(0).toUpperCase()}</div>`;
                 });
                 coverContainer.appendChild(img);
             } else {
-                coverContainer.innerHTML = `<div class="book-cover-avatar">${(book.title || '').charAt(0).toUpperCase()}</div>`;
+                coverContainer.innerHTML =
+                    `<div class="book-cover-avatar">${(book.title || '').charAt(0).toUpperCase()}</div>`;
             }
 
             // Populate book details
@@ -6771,7 +7008,8 @@
             if (book.hasFine) {
                 const fineStatus = getFineStatusMeta(book.fineStatus);
                 fineStatusInfo.hidden = false;
-                fineStatusBadge.innerHTML = `<span class="fine-status-badge fine-status-${fineStatus.key}">${fineStatus.label}</span>`;
+                fineStatusBadge.innerHTML =
+                    `<span class="fine-status-badge fine-status-${fineStatus.key}">${fineStatus.label}</span>`;
             } else {
                 fineStatusInfo.hidden = true;
                 fineStatusBadge.innerHTML = '';
@@ -6899,7 +7137,7 @@
             // Privilege Settings
             document.getElementById('saveChangesBtn')?.addEventListener('click', savePrivilegeSettings);
             document.getElementById('setDefaultPrivilegesBtn')?.addEventListener('click', resetPrivilegeSettings);
-            
+
             // Load privilege settings on page load
             loadPrivilegeSettings().catch(() => {});
 
@@ -7015,7 +7253,7 @@
                 let statusClass = '';
                 let statusText = '';
                 let statusIcon = '';
-                
+
                 if (normalizedPaymentStatus === 'paid') {
                     statusClass = 'paid';
                     statusText = 'Paid';
@@ -7037,7 +7275,7 @@
                     let buttonClass = '';
                     let iconClass = '';
 
-                    switch(action) {
+                    switch (action) {
                         case 'adjust':
                             buttonText = 'Adjust';
                             buttonClass = 'adjust';
@@ -7120,7 +7358,9 @@
 
         function getVisiblePaginationPages(currentPage, totalPages) {
             if (totalPages <= 7) {
-                return Array.from({ length: totalPages }, (_, index) => index + 1);
+                return Array.from({
+                    length: totalPages
+                }, (_, index) => index + 1);
             }
 
             const pages = [1];
@@ -7158,7 +7398,8 @@
 
             getVisiblePaginationPages(currentPage, totalPages).forEach(page => {
                 if (page === 'ellipsis') {
-                    controls.push('<span class="admin-table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
+                    controls.push(
+                        '<span class="admin-table-pagination-ellipsis" aria-hidden="true">&hellip;</span>');
                     return;
                 }
 
@@ -7317,13 +7558,13 @@
                             <div class="activity-actions">
                                 ${log.resourceUrl
                                     ? `<a class="activity-action-btn view-resource" href="${escapeHtml(log.resourceUrl)}" target="_blank" rel="noopener">
-                                            <i class="fas fa-external-link-alt"></i>
-                                            View Resource
-                                       </a>`
+                                                <i class="fas fa-external-link-alt"></i>
+                                                View Resource
+                                           </a>`
                                     : `<span class="activity-action-btn view-resource is-disabled">
-                                            <i class="fas fa-ban"></i>
-                                            View Resource
-                                       </span>`
+                                                <i class="fas fa-ban"></i>
+                                                View Resource
+                                           </span>`
                                 }
                                 <button type="button" class="activity-action-btn more-details" data-action="show-details">
                                     <i class="fas fa-info-circle"></i>
@@ -7335,8 +7576,10 @@
                 </div>
             `;
 
-            activityItem.querySelector('[data-action="toggle-details"]')?.addEventListener('click', () => toggleTechnicalDetails(log.id));
-            activityItem.querySelector('[data-action="show-details"]')?.addEventListener('click', () => showActivityDetails(log.id));
+            activityItem.querySelector('[data-action="toggle-details"]')?.addEventListener('click', () =>
+                toggleTechnicalDetails(log.id));
+            activityItem.querySelector('[data-action="show-details"]')?.addEventListener('click', () => showActivityDetails(
+                log.id));
             container.appendChild(activityItem);
         }
 
@@ -7377,7 +7620,8 @@
 
             document.getElementById('activityDetailsTitle').textContent = log.title || typeConfig.label;
             document.getElementById('activityDetailsSubtitle').textContent = typeConfig.label;
-            document.getElementById('activityDetailsStatus').innerHTML = `<span class="activity-status-badge status-${escapeHtml(statusConfig.key)}">${escapeHtml(statusConfig.label)}</span>`;
+            document.getElementById('activityDetailsStatus').innerHTML =
+                `<span class="activity-status-badge status-${escapeHtml(statusConfig.key)}">${escapeHtml(statusConfig.label)}</span>`;
             document.getElementById('activityDetailsResource').textContent = resourceLabel;
             document.getElementById('activityDetailsTimestamp').textContent = log.fullTimestamp || log.time || 'N/A';
             document.getElementById('activityDetailsSession').textContent = log.sessionId || 'Not captured';
@@ -7399,7 +7643,8 @@
 
             if (metadataList) {
                 const metadataMarkup = getActivityMetadataMarkup(log.metadata);
-                metadataList.innerHTML = metadataMarkup || '<div class="activity-modal-empty">No additional metadata was captured for this activity.</div>';
+                metadataList.innerHTML = metadataMarkup ||
+                    '<div class="activity-modal-empty">No additional metadata was captured for this activity.</div>';
             }
 
             if (resourceLink) {
@@ -7419,15 +7664,42 @@
 
         function getActivityTypeConfig(type) {
             const typeMap = {
-                'book-issued': { label: 'Book Issued', icon: 'fas fa-book-open' },
-                'book-returned': { label: 'Book Returned', icon: 'fas fa-undo-alt' },
-                'fine-applied': { label: 'Fine Applied', icon: 'fas fa-indian-rupee-sign' },
-                'fine-paid': { label: 'Fine Paid', icon: 'fas fa-check-circle' },
-                'fine-waived': { label: 'Fine Waived', icon: 'fas fa-ban' },
-                'account-status': { label: 'Account Status', icon: 'fas fa-user-shield' },
-                'profile-updated': { label: 'Profile Updated', icon: 'fas fa-user-edit' },
-                'privilege-change': { label: 'Privilege Change', icon: 'fas fa-user-cog' },
-                auth: { label: 'Authentication', icon: 'fas fa-shield-alt' },
+                'book-issued': {
+                    label: 'Book Issued',
+                    icon: 'fas fa-book-open'
+                },
+                'book-returned': {
+                    label: 'Book Returned',
+                    icon: 'fas fa-undo-alt'
+                },
+                'fine-applied': {
+                    label: 'Fine Applied',
+                    icon: 'fas fa-indian-rupee-sign'
+                },
+                'fine-paid': {
+                    label: 'Fine Paid',
+                    icon: 'fas fa-check-circle'
+                },
+                'fine-waived': {
+                    label: 'Fine Waived',
+                    icon: 'fas fa-ban'
+                },
+                'account-status': {
+                    label: 'Account Status',
+                    icon: 'fas fa-user-shield'
+                },
+                'profile-updated': {
+                    label: 'Profile Updated',
+                    icon: 'fas fa-user-edit'
+                },
+                'privilege-change': {
+                    label: 'Privilege Change',
+                    icon: 'fas fa-user-cog'
+                },
+                auth: {
+                    label: 'Authentication',
+                    icon: 'fas fa-shield-alt'
+                },
             };
 
             return typeMap[type] || typeMap.auth;
@@ -7436,9 +7708,18 @@
         function getActivityStatusConfig(status) {
             const normalizedStatus = String(status || 'success').toLowerCase();
             const statusMap = {
-                success: { key: 'success', label: 'Success' },
-                failed: { key: 'failed', label: 'Failed' },
-                warning: { key: 'warning', label: 'Warning' },
+                success: {
+                    key: 'success',
+                    label: 'Success'
+                },
+                failed: {
+                    key: 'failed',
+                    label: 'Failed'
+                },
+                warning: {
+                    key: 'warning',
+                    label: 'Warning'
+                },
             };
 
             return statusMap[normalizedStatus] || statusMap.success;
@@ -7510,9 +7791,9 @@
             const resourceType = log.resourceType || 'Resource';
             const resourceId = String(log.resourceId || '').trim();
 
-            return resourceId && resourceId !== 'N/A'
-                ? `${resourceType} #${resourceId}`
-                : resourceType;
+            return resourceId && resourceId !== 'N/A' ?
+                `${resourceType} #${resourceId}` :
+                resourceType;
         }
 
         // Toast notification system
@@ -7549,12 +7830,12 @@
         function showConfirmationModal(config) {
             const {
                 title = 'Confirm Action',
-                message = 'Are you sure you want to proceed with this action?',
-                iconType = 'warning',
-                confirmText = 'Confirm',
-                confirmClass = 'primary',
-                details = null,
-                onConfirm = () => {}
+                    message = 'Are you sure you want to proceed with this action?',
+                    iconType = 'warning',
+                    confirmText = 'Confirm',
+                    confirmClass = 'primary',
+                    details = null,
+                    onConfirm = () => {}
             } = config;
 
             pendingConfirmationAction = onConfirm;
@@ -7600,9 +7881,14 @@
                 iconType: 'warning',
                 confirmText: 'Reset Password',
                 confirmClass: 'primary',
-                details: [
-                    { label: 'Action', value: 'Password Reset' },
-                    { label: 'Impact', value: 'Student will receive new temporary password via email' }
+                details: [{
+                        label: 'Action',
+                        value: 'Password Reset'
+                    },
+                    {
+                        label: 'Impact',
+                        value: 'Student will receive new temporary password via email'
+                    }
                 ],
                 onConfirm: () => {
                     const resetBtn = document.getElementById('resetPasswordBtn');
@@ -7610,36 +7896,41 @@
                     resetBtn.textContent = 'Resetting...';
 
                     fetch(`/admin/students/${studentId}/reset-password`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to reset password');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Temporary password has been sent to the student\'s email address.', 'success');
-                            refreshStudentLiveSections({ refreshActivityLogs: true }).catch(error => {
-                                console.error('Live refresh failed after password reset:', error);
-                            });
-                        } else {
-                            showToast(data.message || 'Failed to reset password.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('An error occurred while resetting the password.', 'error');
-                    })
-                    .finally(() => {
-                        resetBtn.disabled = false;
-                        resetBtn.textContent = 'Reset Password';
-                    });
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to reset password');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showToast(
+                                    'Temporary password has been sent to the student\'s email address.',
+                                    'success');
+                                refreshStudentLiveSections({
+                                    refreshActivityLogs: true
+                                }).catch(error => {
+                                    console.error('Live refresh failed after password reset:',
+                                        error);
+                                });
+                            } else {
+                                showToast(data.message || 'Failed to reset password.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while resetting the password.', 'error');
+                        })
+                        .finally(() => {
+                            resetBtn.disabled = false;
+                            resetBtn.textContent = 'Reset Password';
+                        });
                 }
             });
         }
@@ -7651,15 +7942,24 @@
                 iconType: 'warning',
                 confirmText: 'Suspend Account',
                 confirmClass: 'warning',
-                details: [
-                    { label: 'Action', value: 'Account Suspension' },
-                    { label: 'Impact', value: 'Student will lose access to library services' },
-                    { label: 'Reversible', value: 'Yes, can be reactivated later' }
+                details: [{
+                        label: 'Action',
+                        value: 'Account Suspension'
+                    },
+                    {
+                        label: 'Impact',
+                        value: 'Student will lose access to library services'
+                    },
+                    {
+                        label: 'Reversible',
+                        value: 'Yes, can be reactivated later'
+                    }
                 ],
                 onConfirm: () => {
                     // Simulate API call
                     setTimeout(() => {
-                        showToast('Account suspended successfully! The student has been notified.', 'warning');
+                        showToast('Account suspended successfully! The student has been notified.',
+                            'warning');
                     }, 500);
                 }
             });
@@ -7672,40 +7972,53 @@
                 iconType: 'info',
                 confirmText: 'Activate Account',
                 confirmClass: 'success',
-                details: [
-                    { label: 'Action', value: 'Account Activation' },
-                    { label: 'Impact', value: 'Student will regain full access to library services' },
-                    { label: 'Status', value: 'Account will be set to Active' }
+                details: [{
+                        label: 'Action',
+                        value: 'Account Activation'
+                    },
+                    {
+                        label: 'Impact',
+                        value: 'Student will regain full access to library services'
+                    },
+                    {
+                        label: 'Status',
+                        value: 'Account will be set to Active'
+                    }
                 ],
                 onConfirm: () => {
                     // Make API call to activate account
                     fetch(`/admin/students/${studentId}/activate`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Account activated successfully! The student has been notified.', 'success');
-                            studentStatus = 'active';
-                            // Update the badge without page reload
-                            updateStatusBadge();
-                            // Update the button
-                            updateAccountStatusButton();
-                            refreshStudentLiveSections({ refreshActivityLogs: true }).catch(error => {
-                                console.error('Live refresh failed after account activation:', error);
-                            });
-                        } else {
-                            showToast(data.message || 'Failed to activate account.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('An error occurred while activating the account.', 'error');
-                    });
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    ?.content || ''
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showToast('Account activated successfully! The student has been notified.',
+                                    'success');
+                                studentStatus = 'active';
+                                // Update the badge without page reload
+                                updateStatusBadge();
+                                // Update the button
+                                updateAccountStatusButton();
+                                refreshStudentLiveSections({
+                                    refreshActivityLogs: true
+                                }).catch(error => {
+                                    console.error('Live refresh failed after account activation:',
+                                        error);
+                                });
+                            } else {
+                                showToast(data.message || 'Failed to activate account.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while activating the account.', 'error');
+                        });
                 }
             });
         }
@@ -7717,40 +8030,54 @@
                 iconType: 'warning',
                 confirmText: 'Deactivate Account',
                 confirmClass: 'warning',
-                details: [
-                    { label: 'Action', value: 'Account Deactivation' },
-                    { label: 'Impact', value: 'Student will lose access to library services' },
-                    { label: 'Reversible', value: 'Yes, can be reactivated later' }
+                details: [{
+                        label: 'Action',
+                        value: 'Account Deactivation'
+                    },
+                    {
+                        label: 'Impact',
+                        value: 'Student will lose access to library services'
+                    },
+                    {
+                        label: 'Reversible',
+                        value: 'Yes, can be reactivated later'
+                    }
                 ],
                 onConfirm: () => {
                     // Make API call to deactivate account
                     fetch(`/admin/students/${studentId}/deactivate`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Account deactivated successfully! The student has been notified.', 'warning');
-                            studentStatus = 'inactive';
-                            // Update the badge without page reload
-                            updateStatusBadge();
-                            // Update the button
-                            updateAccountStatusButton();
-                            refreshStudentLiveSections({ refreshActivityLogs: true }).catch(error => {
-                                console.error('Live refresh failed after account deactivation:', error);
-                            });
-                        } else {
-                            showToast(data.message || 'Failed to deactivate account.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('An error occurred while deactivating the account.', 'error');
-                    });
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    ?.content || ''
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showToast(
+                                    'Account deactivated successfully! The student has been notified.',
+                                    'warning');
+                                studentStatus = 'inactive';
+                                // Update the badge without page reload
+                                updateStatusBadge();
+                                // Update the button
+                                updateAccountStatusButton();
+                                refreshStudentLiveSections({
+                                    refreshActivityLogs: true
+                                }).catch(error => {
+                                    console.error('Live refresh failed after account deactivation:',
+                                        error);
+                                });
+                            } else {
+                                showToast(data.message || 'Failed to deactivate account.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while deactivating the account.', 'error');
+                        });
                 }
             });
         }
@@ -7788,7 +8115,7 @@
             // Create new button based on current status
             const newButton = document.createElement('button');
             newButton.className = 'account-btn';
-            
+
             if (studentStatus === 'inactive') {
                 newButton.id = 'activateAccountBtn';
                 newButton.className += ' btn-activate';
@@ -7836,41 +8163,43 @@
             confirmBtn.textContent = 'Changing...';
 
             fetch(`/admin/students/${studentId}/change-role`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ role: selectedRole })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to change role');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    closeRoleModal();
-                    showToast(`Role changed to ${formattedRole} successfully!`, 'success', {
-                        title: 'Role updated',
-                        detail: `New role: ${formattedRole}`,
-                    });
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showToast(data.message || 'Failed to change role.', 'error');
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        role: selectedRole
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to change role');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        closeRoleModal();
+                        showToast(`Role changed to ${formattedRole} successfully!`, 'success', {
+                            title: 'Role updated',
+                            detail: `New role: ${formattedRole}`,
+                        });
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showToast(data.message || 'Failed to change role.', 'error');
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'Change Role';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('An error occurred while changing the role.', 'error');
                     confirmBtn.disabled = false;
                     confirmBtn.textContent = 'Change Role';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('An error occurred while changing the role.', 'error');
-                confirmBtn.disabled = false;
-                confirmBtn.textContent = 'Change Role';
-            });
+                });
         }
 
         function selectRole(role) {
@@ -7914,11 +8243,22 @@
                 iconType: 'danger',
                 confirmText: 'Delete Permanently',
                 confirmClass: 'danger',
-                details: [
-                    { label: 'Action', value: 'Permanent Account Deletion' },
-                    { label: 'Impact', value: 'All student data will be permanently removed' },
-                    { label: 'Reversible', value: 'NO - This action cannot be undone' },
-                    { label: 'Data Affected', value: 'Profile, issued books, fines, activity logs' }
+                details: [{
+                        label: 'Action',
+                        value: 'Permanent Account Deletion'
+                    },
+                    {
+                        label: 'Impact',
+                        value: 'All student data will be permanently removed'
+                    },
+                    {
+                        label: 'Reversible',
+                        value: 'NO - This action cannot be undone'
+                    },
+                    {
+                        label: 'Data Affected',
+                        value: 'Profile, issued books, fines, activity logs'
+                    }
                 ],
                 onConfirm: () => {
                     const deleteBtn = document.getElementById('deleteAccountBtn');
@@ -7928,36 +8268,37 @@
                     showToast('Deleting account... This may take a few moments.', 'info');
 
                     fetch(`/admin/students/${studentId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        }
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to delete account');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Account deleted successfully! Redirecting to students list...', 'success');
-                            setTimeout(() => {
-                                window.location.href = '/admin/students';
-                            }, 3000);
-                        } else {
-                            showToast(data.message || 'Failed to delete account.', 'error');
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to delete account');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showToast('Account deleted successfully! Redirecting to students list...',
+                                    'success');
+                                setTimeout(() => {
+                                    window.location.href = '/admin/students';
+                                }, 3000);
+                            } else {
+                                showToast(data.message || 'Failed to delete account.', 'error');
+                                deleteBtn.disabled = false;
+                                deleteBtn.textContent = 'Delete Account';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('An error occurred while deleting the account.', 'error');
                             deleteBtn.disabled = false;
                             deleteBtn.textContent = 'Delete Account';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('An error occurred while deleting the account.', 'error');
-                        deleteBtn.disabled = false;
-                        deleteBtn.textContent = 'Delete Account';
-                    });
+                        });
                 }
             });
         }
@@ -7979,7 +8320,7 @@
                 return;
             }
 
-            switch(action) {
+            switch (action) {
                 case 'adjust':
                     adjustFine(fineId, fine);
                     break;
@@ -8007,9 +8348,9 @@
                 return null;
             }
 
-            const numericValue = typeof value === 'string'
-                ? Number.parseFloat(String(value).replace(/[^0-9.-]+/g, ''))
-                : Number(value);
+            const numericValue = typeof value === 'string' ?
+                Number.parseFloat(String(value).replace(/[^0-9.-]+/g, '')) :
+                Number(value);
 
             return Number.isFinite(numericValue) ? numericValue : null;
         }
@@ -8056,9 +8397,9 @@
                 id: Number(book.id),
                 status: normalizedStatus,
                 fine: Number.isFinite(fineAmount) ? fineAmount : 0,
-                daysOverdue: normalizedStatus === 'overdue'
-                    ? resolveStudentBookDaysOverdue(book)
-                    : 0,
+                daysOverdue: normalizedStatus === 'overdue' ?
+                    resolveStudentBookDaysOverdue(book) :
+                    0,
             };
         }
 
@@ -8070,16 +8411,16 @@
             return {
                 id: Number(fine.id),
                 bookName: fine.bookName ?? fine.bookTitle ?? 'Unknown',
-                daysOverdue: typeof fine.daysOverdue === 'string'
-                    ? fine.daysOverdue
-                    : `${overdueValue} day${overdueValue === 1 ? '' : 's'}`,
+                daysOverdue: typeof fine.daysOverdue === 'string' ?
+                    fine.daysOverdue :
+                    `${overdueValue} day${overdueValue === 1 ? '' : 's'}`,
                 fineAmount: Number(fine.fineAmount ?? fine.amount ?? 0),
                 paymentStatus: statusKey,
-                actions: Array.isArray(fine.actions)
-                    ? fine.actions
-                    : (['paid', 'waived'].includes(statusKey)
-                        ? ['view-history']
-                        : ['adjust', 'waive', 'mark-paid', 'view-history']),
+                actions: Array.isArray(fine.actions) ?
+                    fine.actions :
+                    (['paid', 'waived'].includes(statusKey) ?
+                        ['view-history'] :
+                        ['adjust', 'waive', 'mark-paid', 'view-history']),
             };
         }
 
@@ -8090,9 +8431,9 @@
             }
 
             const pendingTotal = finesData.reduce((total, fine) => {
-                return String(fine.paymentStatus || '').toLowerCase() === 'pending'
-                    ? total + Number(fine.fineAmount || 0)
-                    : total;
+                return String(fine.paymentStatus || '').toLowerCase() === 'pending' ?
+                    total + Number(fine.fineAmount || 0) :
+                    total;
             }, 0);
 
             pendingFineValue.textContent = `₹${pendingTotal.toFixed(2)}`;
@@ -8100,7 +8441,9 @@
 
         function syncStudentFines(nextFines = []) {
             replaceArrayContents(finesData, nextFines.map(normalizeStudentFineRecord));
-            fineReceiptExportWorkflow?.clearCache({ resetScope: false });
+            fineReceiptExportWorkflow?.clearCache({
+                resetScope: false
+            });
             renderFinesTable();
             updatePendingFineSummary();
         }
@@ -8124,45 +8467,57 @@
 
         function loadStudentFines() {
             return fetch(`/admin/students/${currentStudentId}/fines`, {
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => response.json().then(data => ({ ok: response.ok, data })))
-            .then(({ ok, data }) => {
-                if (!ok || !data.success) {
-                    throw new Error(data.message || 'Failed to load fines');
-                }
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json().then(data => ({
+                    ok: response.ok,
+                    data
+                })))
+                .then(({
+                    ok,
+                    data
+                }) => {
+                    if (!ok || !data.success) {
+                        throw new Error(data.message || 'Failed to load fines');
+                    }
 
-                syncStudentFines(Array.isArray(data.fines) ? data.fines : []);
-                return data;
-            });
+                    syncStudentFines(Array.isArray(data.fines) ? data.fines : []);
+                    return data;
+                });
         }
 
         function loadStudentActivityLogs() {
             return fetch(`/admin/students/${currentStudentId}/activity-logs`, {
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => response.json().then(data => ({ ok: response.ok, data })))
-            .then(({ ok, data }) => {
-                if (!ok || !data.success) {
-                    throw new Error(data.message || 'Failed to load activity logs');
-                }
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json().then(data => ({
+                    ok: response.ok,
+                    data
+                })))
+                .then(({
+                    ok,
+                    data
+                }) => {
+                    if (!ok || !data.success) {
+                        throw new Error(data.message || 'Failed to load activity logs');
+                    }
 
-                syncStudentActivityLogs(Array.isArray(data.activityLogs) ? data.activityLogs : []);
-                return data;
-            });
+                    syncStudentActivityLogs(Array.isArray(data.activityLogs) ? data.activityLogs : []);
+                    return data;
+                });
         }
 
         function refreshStudentLiveSections(options = {}) {
             const {
                 refreshFines = false,
-                refreshPrivileges = false,
-                refreshActivityLogs = true,
+                    refreshPrivileges = false,
+                    refreshActivityLogs = true,
             } = options;
 
             const tasks = [];
@@ -8263,31 +8618,42 @@
         function getPrivilegeDefaultDetails(defaults = window.privilegeDefaults || {}) {
             const normalizedDefaults = normalizePrivilegeSettingsPayload(defaults);
 
-            return [
-                { label: 'Max Books', value: `${normalizedDefaults.max_books ?? 5} books` },
-                { label: 'Issue Duration', value: `${normalizedDefaults.issue_duration_days ?? 14} days` },
-                { label: 'Fine Rate', value: `₹${normalizedDefaults.per_day_fine ?? 10} per day` },
-                { label: 'Borrowing', value: normalizedDefaults.borrowing_allowed ? 'Allowed' : 'Restricted' }
+            return [{
+                    label: 'Max Books',
+                    value: `${normalizedDefaults.max_books ?? 5} books`
+                },
+                {
+                    label: 'Issue Duration',
+                    value: `${normalizedDefaults.issue_duration_days ?? 14} days`
+                },
+                {
+                    label: 'Fine Rate',
+                    value: `₹${normalizedDefaults.per_day_fine ?? 10} per day`
+                },
+                {
+                    label: 'Borrowing',
+                    value: normalizedDefaults.borrowing_allowed ? 'Allowed' : 'Restricted'
+                }
             ];
         }
 
         // Load privilege settings when page loads
         function loadPrivilegeSettings() {
             return fetch(`/admin/students/${currentStudentId}/privileges`, {
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => parseJsonResponse(response, 'Failed to load privileges'))
-            .then(data => {
-                applyPrivilegeSettingsState(data);
-                return data;
-            })
-            .catch(error => {
-                console.error('Error loading privileges:', error);
-                throw error;
-            });
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => parseJsonResponse(response, 'Failed to load privileges'))
+                .then(data => {
+                    applyPrivilegeSettingsState(data);
+                    return data;
+                })
+                .catch(error => {
+                    console.error('Error loading privileges:', error);
+                    throw error;
+                });
         }
 
         function adjustFine(fineId, fine) {
@@ -8301,8 +8667,9 @@
 
         function submitAdjustFine() {
             const newAmount = document.getElementById('adjustNewAmount').value;
-            const oldAmount = parseFloat(document.getElementById('adjustCurrentAmount').textContent.replace(/[₹,]/g, '')) || 0;
-            
+            const oldAmount = parseFloat(document.getElementById('adjustCurrentAmount').textContent.replace(/[₹,]/g, '')) ||
+                0;
+
             if (!newAmount || isNaN(newAmount) || newAmount < 0) {
                 showToast('Please enter a valid amount.', 'error');
                 return;
@@ -8316,45 +8683,51 @@
             submitBtn.textContent = 'Adjusting...';
 
             fetch(`/admin/fines/${currentFineId}/adjust`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({ amount: newAmount, action: 'adjust' })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeFineModal('adjust');
-                    showToast(`Fine updated from ₹${oldAmount.toFixed(2)} to ₹${nextAmount.toFixed(2)}.`, 'success', {
-                        title: 'Fine adjusted',
-                        detail: `Change: ${delta >= 0 ? '+' : '-'}₹${Math.abs(delta).toFixed(2)}`,
-                    });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        amount: newAmount,
+                        action: 'adjust'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeFineModal('adjust');
+                        showToast(`Fine updated from ₹${oldAmount.toFixed(2)} to ₹${nextAmount.toFixed(2)}.`,
+                        'success', {
+                            title: 'Fine adjusted',
+                            detail: `Change: ${delta >= 0 ? '+' : '-'}₹${Math.abs(delta).toFixed(2)}`,
+                        });
+                        refreshStudentLiveSections({
+                            refreshFines: true,
+                            refreshActivityLogs: true,
+                        }).catch(error => {
+                            console.error('Live refresh failed after fine adjustment:', error);
+                            showToast(
+                                'Fine updated, but the page could not refresh live. Please refresh manually if needed.',
+                                'warning');
+                        });
+                    } else {
+                        showToast(data.message || 'Failed to adjust fine.', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Adjust Fine';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     refreshStudentLiveSections({
                         refreshFines: true,
                         refreshActivityLogs: true,
-                    }).catch(error => {
-                        console.error('Live refresh failed after fine adjustment:', error);
-                        showToast('Fine updated, but the page could not refresh live. Please refresh manually if needed.', 'warning');
-                    });
-                } else {
-                    showToast(data.message || 'Failed to adjust fine.', 'error');
+                    }).catch(() => {});
+                    showToast('Network issue - the fine may have been updated. Live refresh attempted.', 'warning');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Adjust Fine';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                refreshStudentLiveSections({
-                    refreshFines: true,
-                    refreshActivityLogs: true,
-                }).catch(() => {});
-                showToast('Network issue - the fine may have been updated. Live refresh attempted.', 'warning');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Adjust Fine';
-            });
+                });
         }
 
 
@@ -8371,7 +8744,7 @@
         function submitWaiveFine() {
             const reason = document.getElementById('waiveReason').value.trim();
             const amount = parseFloat(document.getElementById('waiveAmount').textContent.replace(/[₹,]/g, '')) || 0;
-            
+
             if (!reason) {
                 showToast('Please enter a reason for waiving this fine.', 'error');
                 return;
@@ -8382,45 +8755,49 @@
             submitBtn.textContent = 'Waiving...';
 
             fetch(`/admin/fines/${currentFineId}/waive`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({ reason: reason })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeFineModal('waive');
-                    showToast('The fine was waived successfully.', 'warning', {
-                        title: 'Fine waived',
-                        detail: `Amount: ₹${amount.toFixed(2)} | Reason: ${reason}`,
-                    });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        reason: reason
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        closeFineModal('waive');
+                        showToast('The fine was waived successfully.', 'warning', {
+                            title: 'Fine waived',
+                            detail: `Amount: ₹${amount.toFixed(2)} | Reason: ${reason}`,
+                        });
+                        refreshStudentLiveSections({
+                            refreshFines: true,
+                            refreshActivityLogs: true,
+                        }).catch(error => {
+                            console.error('Live refresh failed after fine waiver:', error);
+                            showToast(
+                                'Fine waived, but the page could not refresh live. Please refresh manually if needed.',
+                                'warning');
+                        });
+                    } else {
+                        showToast(data.message || 'Failed to waive fine.', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Waive Fine';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
                     refreshStudentLiveSections({
                         refreshFines: true,
                         refreshActivityLogs: true,
-                    }).catch(error => {
-                        console.error('Live refresh failed after fine waiver:', error);
-                        showToast('Fine waived, but the page could not refresh live. Please refresh manually if needed.', 'warning');
-                    });
-                } else {
-                    showToast(data.message || 'Failed to waive fine.', 'error');
+                    }).catch(() => {});
+                    showToast('Network issue - the fine may have been waived. Live refresh attempted.', 'warning');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Waive Fine';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                refreshStudentLiveSections({
-                    refreshFines: true,
-                    refreshActivityLogs: true,
-                }).catch(() => {});
-                showToast('Network issue - the fine may have been waived. Live refresh attempted.', 'warning');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Waive Fine';
-            });
+                });
         }
 
 
@@ -8435,46 +8812,59 @@
                 iconType: 'info',
                 confirmText: 'Mark as Paid',
                 confirmClass: 'success',
-                details: [
-                    { label: 'Book', value: fine.bookName || 'Unknown' },
-                    { label: 'Amount', value: `₹${amount.toFixed(2)}` },
-                    { label: 'Impact', value: 'Fine status will move to paid immediately' }
+                details: [{
+                        label: 'Book',
+                        value: fine.bookName || 'Unknown'
+                    },
+                    {
+                        label: 'Amount',
+                        value: `₹${amount.toFixed(2)}`
+                    },
+                    {
+                        label: 'Impact',
+                        value: 'Fine status will move to paid immediately'
+                    }
                 ],
                 onConfirm: () => {
                     fetch(`/admin/fines/${currentFineId}/mark-as-paid`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        credentials: 'same-origin',
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('The payment was recorded successfully.', 'success', {
-                                title: 'Fine marked as paid',
-                                detail: `Amount: ₹${amount.toFixed(2)}`,
-                            });
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            credentials: 'same-origin',
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showToast('The payment was recorded successfully.', 'success', {
+                                    title: 'Fine marked as paid',
+                                    detail: `Amount: ₹${amount.toFixed(2)}`,
+                                });
+                                refreshStudentLiveSections({
+                                    refreshFines: true,
+                                    refreshActivityLogs: true,
+                                }).catch(error => {
+                                    console.error('Live refresh failed after marking fine as paid:',
+                                        error);
+                                    showToast(
+                                        'Fine marked as paid, but the page could not refresh live. Please refresh manually if needed.',
+                                        'warning');
+                                });
+                            } else {
+                                showToast(data.message || 'Failed to mark fine as paid.', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
                             refreshStudentLiveSections({
                                 refreshFines: true,
                                 refreshActivityLogs: true,
-                            }).catch(error => {
-                                console.error('Live refresh failed after marking fine as paid:', error);
-                                showToast('Fine marked as paid, but the page could not refresh live. Please refresh manually if needed.', 'warning');
-                            });
-                        } else {
-                            showToast(data.message || 'Failed to mark fine as paid.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        refreshStudentLiveSections({
-                            refreshFines: true,
-                            refreshActivityLogs: true,
-                        }).catch(() => {});
-                        showToast('Network issue - the fine may have been marked as paid. Live refresh attempted.', 'warning');
-                    });
+                            }).catch(() => {});
+                            showToast(
+                                'Network issue - the fine may have been marked as paid. Live refresh attempted.',
+                                'warning');
+                        });
                 }
             });
         }
@@ -8494,62 +8884,72 @@
             document.getElementById('historyOverlay').classList.add('show');
 
             fetch(`/admin/fines/${fineId}/history`, {
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-                ,
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to load fine history');
-                }
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load fine history');
+                    }
 
-                return response.json();
-            })
-            .then(data => {
-                const historyList = document.getElementById('fineHistoryList');
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to load fine history');
-                }
+                    return response.json();
+                })
+                .then(data => {
+                    const historyList = document.getElementById('fineHistoryList');
+                    if (!data.success) {
+                        throw new Error(data.message || 'Failed to load fine history');
+                    }
 
-                const fineDetails = data.fineDetails || {};
-                const calculation = data.calculation || null;
-                const history = Array.isArray(data.history) ? data.history : [];
+                    const fineDetails = data.fineDetails || {};
+                    const calculation = data.calculation || null;
+                    const history = Array.isArray(data.history) ? data.history : [];
 
-                document.getElementById('historyAmount').textContent = formatCurrency(fineDetails.currentAmount ?? fine.fineAmount);
-                document.getElementById('historyOriginalAmount').textContent = formatCurrency(fineDetails.originalAmount ?? fine.fineAmount);
-                document.getElementById('historyStatus').innerHTML = renderHistoryStatusBadge(fineDetails.status || fine.paymentStatus || 'pending');
-                document.getElementById('historyDaysLate').textContent = `${fineDetails.daysLate ?? 0} day${Number(fineDetails.daysLate ?? 0) === 1 ? '' : 's'}`;
-                document.getElementById('historyBookTitle').textContent = fineDetails.bookTitle || fine.bookName || 'Unknown Book';
-                document.getElementById('historyBookIsbn').textContent = `ISBN: ${fineDetails.isbn || 'N/A'}`;
+                    document.getElementById('historyAmount').textContent = formatCurrency(fineDetails.currentAmount ??
+                        fine.fineAmount);
+                    document.getElementById('historyOriginalAmount').textContent = formatCurrency(fineDetails
+                        .originalAmount ?? fine.fineAmount);
+                    document.getElementById('historyStatus').innerHTML = renderHistoryStatusBadge(fineDetails.status ||
+                        fine.paymentStatus || 'pending');
+                    document.getElementById('historyDaysLate').textContent =
+                        `${fineDetails.daysLate ?? 0} day${Number(fineDetails.daysLate ?? 0) === 1 ? '' : 's'}`;
+                    document.getElementById('historyBookTitle').textContent = fineDetails.bookTitle || fine.bookName ||
+                        'Unknown Book';
+                    document.getElementById('historyBookIsbn').textContent = `ISBN: ${fineDetails.isbn || 'N/A'}`;
 
-                const calculationSection = document.getElementById('historyCalculationSection');
-                const adjustmentsRow = document.getElementById('historyCalcAdjustmentsRow');
-                if (calculation) {
-                    calculationSection.hidden = false;
-                    document.getElementById('historyCalcBaseRate').textContent = formatCurrency(calculation.baseRate);
-                    document.getElementById('historyCalcDaysLate').textContent = `${calculation.daysLate ?? 0}`;
-                    document.getElementById('historyCalcSubtotal').textContent = formatCurrency(calculation.subtotal);
+                    const calculationSection = document.getElementById('historyCalculationSection');
+                    const adjustmentsRow = document.getElementById('historyCalcAdjustmentsRow');
+                    if (calculation) {
+                        calculationSection.hidden = false;
+                        document.getElementById('historyCalcBaseRate').textContent = formatCurrency(calculation
+                            .baseRate);
+                        document.getElementById('historyCalcDaysLate').textContent = `${calculation.daysLate ?? 0}`;
+                        document.getElementById('historyCalcSubtotal').textContent = formatCurrency(calculation
+                            .subtotal);
 
-                    const adjustmentValue = Number(calculation.adjustments ?? 0);
-                    adjustmentsRow.hidden = adjustmentValue === 0;
-                    document.getElementById('historyCalcAdjustments').textContent = formatSignedCurrency(adjustmentValue);
-                    document.getElementById('historyCalcFinalAmount').textContent = formatCurrency(calculation.finalAmount);
-                } else {
-                    calculationSection.hidden = true;
-                }
+                        const adjustmentValue = Number(calculation.adjustments ?? 0);
+                        adjustmentsRow.hidden = adjustmentValue === 0;
+                        document.getElementById('historyCalcAdjustments').textContent = formatSignedCurrency(
+                            adjustmentValue);
+                        document.getElementById('historyCalcFinalAmount').textContent = formatCurrency(calculation
+                            .finalAmount);
+                    } else {
+                        calculationSection.hidden = true;
+                    }
 
-                if (history.length > 0) {
-                    historyList.innerHTML = history.map(renderFineHistoryItem).join('');
-                } else {
-                    historyList.innerHTML = '<li class="fine-history-empty">No history available for this fine yet.</li>';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('fineHistoryList').innerHTML = '<li class="fine-history-empty">Unable to load history. Please try again.</li>';
-            });
+                    if (history.length > 0) {
+                        historyList.innerHTML = history.map(renderFineHistoryItem).join('');
+                    } else {
+                        historyList.innerHTML =
+                            '<li class="fine-history-empty">No history available for this fine yet.</li>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('fineHistoryList').innerHTML =
+                        '<li class="fine-history-empty">Unable to load history. Please try again.</li>';
+                });
         }
 
         function formatCurrency(value) {
@@ -8583,10 +8983,22 @@
         function getFineHistoryActionConfig(actionType) {
             const normalizedType = String(actionType || 'created').toLowerCase();
             const actionMap = {
-                created: { label: 'Created', icon: 'fa-plus' },
-                adjusted: { label: 'Adjusted', icon: 'fa-sliders-h' },
-                paid: { label: 'Paid', icon: 'fa-check' },
-                waived: { label: 'Waived', icon: 'fa-ban' },
+                created: {
+                    label: 'Created',
+                    icon: 'fa-plus'
+                },
+                adjusted: {
+                    label: 'Adjusted',
+                    icon: 'fa-sliders-h'
+                },
+                paid: {
+                    label: 'Paid',
+                    icon: 'fa-check'
+                },
+                waived: {
+                    label: 'Waived',
+                    icon: 'fa-ban'
+                },
             };
 
             return {
@@ -8598,9 +9010,18 @@
         function getPaymentMethodMeta(paymentMethod) {
             const normalizedMethod = String(paymentMethod || '').toLowerCase();
             const methodMap = {
-                cash: { icon: 'fa-indian-rupee-sign', label: 'Cash' },
-                card: { icon: 'fa-credit-card', label: 'Card' },
-                online: { icon: 'fa-globe', label: 'Online' },
+                cash: {
+                    icon: 'fa-indian-rupee-sign',
+                    label: 'Cash'
+                },
+                card: {
+                    icon: 'fa-credit-card',
+                    label: 'Card'
+                },
+                online: {
+                    icon: 'fa-globe',
+                    label: 'Online'
+                },
             };
 
             return methodMap[normalizedMethod] || null;
@@ -8609,11 +9030,26 @@
         function getRoleMeta(userRole) {
             const normalizedRole = String(userRole || 'system').toLowerCase();
             const roleMap = {
-                admin: { icon: 'fa-user-shield', label: 'Admin' },
-                staff: { icon: 'fa-user-tie', label: 'Staff' },
-                student: { icon: 'fa-user-graduate', label: 'Student' },
-                system: { icon: 'fa-microchip', label: 'System' },
-                user: { icon: 'fa-user', label: 'User' },
+                admin: {
+                    icon: 'fa-user-shield',
+                    label: 'Admin'
+                },
+                staff: {
+                    icon: 'fa-user-tie',
+                    label: 'Staff'
+                },
+                student: {
+                    icon: 'fa-user-graduate',
+                    label: 'Student'
+                },
+                system: {
+                    icon: 'fa-microchip',
+                    label: 'System'
+                },
+                user: {
+                    icon: 'fa-user',
+                    label: 'User'
+                },
             };
 
             return {
@@ -8625,19 +9061,20 @@
         function renderFineHistoryItem(item) {
             const actionConfig = getFineHistoryActionConfig(item.actionType);
             const roleMeta = getRoleMeta(item.userRole);
-            const amountDelta = item.amountChange !== null
-                ? `<span>${escapeHtml(formatSignedCurrency(item.amountChange))}</span>`
-                : '';
-            const amountChangeMarkup = item.actionType === 'adjusted' && item.oldAmount !== null && item.newAmount !== null
-                ? `<div class="fine-history-amount-change">${formatCurrency(item.oldAmount)} &rarr; ${formatCurrency(item.newAmount)} ${amountDelta}</div>`
-                : '';
+            const amountDelta = item.amountChange !== null ?
+                `<span>${escapeHtml(formatSignedCurrency(item.amountChange))}</span>` :
+                '';
+            const amountChangeMarkup = item.actionType === 'adjusted' && item.oldAmount !== null && item.newAmount !==
+                null ?
+                `<div class="fine-history-amount-change">${formatCurrency(item.oldAmount)} &rarr; ${formatCurrency(item.newAmount)} ${amountDelta}</div>` :
+                '';
             const paymentMethod = getPaymentMethodMeta(item.paymentMethod);
-            const paymentMethodMarkup = paymentMethod
-                ? `<span class="fine-history-meta-item"><i class="fas ${paymentMethod.icon}"></i>${escapeHtml(paymentMethod.label)}</span>`
-                : '';
-            const remarksMarkup = item.remarks
-                ? `<div class="fine-history-remarks">"${escapeHtml(item.remarks)}"</div>`
-                : '';
+            const paymentMethodMarkup = paymentMethod ?
+                `<span class="fine-history-meta-item"><i class="fas ${paymentMethod.icon}"></i>${escapeHtml(paymentMethod.label)}</span>` :
+                '';
+            const remarksMarkup = item.remarks ?
+                `<div class="fine-history-remarks">"${escapeHtml(item.remarks)}"</div>` :
+                '';
 
             return `
                 <li class="fine-history-item">
@@ -8695,17 +9132,20 @@
             const privilegeValues = getPrivilegeFormValues();
 
             // Validate inputs
-            if (!privilegeValues.max_books || Number.isNaN(privilegeValues.max_books) || privilegeValues.max_books < 1 || privilegeValues.max_books > 20) {
+            if (!privilegeValues.max_books || Number.isNaN(privilegeValues.max_books) || privilegeValues.max_books < 1 ||
+                privilegeValues.max_books > 20) {
                 showToast('Maximum books must be between 1 and 20', 'error');
                 return;
             }
 
-            if (!privilegeValues.issue_duration_days || Number.isNaN(privilegeValues.issue_duration_days) || privilegeValues.issue_duration_days < 1 || privilegeValues.issue_duration_days > 90) {
+            if (!privilegeValues.issue_duration_days || Number.isNaN(privilegeValues.issue_duration_days) || privilegeValues
+                .issue_duration_days < 1 || privilegeValues.issue_duration_days > 90) {
                 showToast('Maximum issue duration must be between 1 and 90 days', 'error');
                 return;
             }
 
-            if (Number.isNaN(privilegeValues.per_day_fine) || privilegeValues.per_day_fine < 0 || privilegeValues.per_day_fine > 100) {
+            if (Number.isNaN(privilegeValues.per_day_fine) || privilegeValues.per_day_fine < 0 || privilegeValues
+                .per_day_fine > 100) {
                 showToast('Fine rate must be between ₹0 and ₹100 per day', 'error');
                 return;
             }
@@ -8716,11 +9156,22 @@
                 iconType: 'warning',
                 confirmText: 'Save Changes',
                 confirmClass: 'primary',
-                details: [
-                    { label: 'Max Books', value: `${privilegeValues.max_books} books` },
-                    { label: 'Issue Duration', value: `${privilegeValues.issue_duration_days} days` },
-                    { label: 'Fine Rate', value: `₹${privilegeValues.per_day_fine} per day` },
-                    { label: 'Borrowing', value: privilegeValues.borrowing_allowed ? 'Allowed' : 'Restricted' }
+                details: [{
+                        label: 'Max Books',
+                        value: `${privilegeValues.max_books} books`
+                    },
+                    {
+                        label: 'Issue Duration',
+                        value: `${privilegeValues.issue_duration_days} days`
+                    },
+                    {
+                        label: 'Fine Rate',
+                        value: `₹${privilegeValues.per_day_fine} per day`
+                    },
+                    {
+                        label: 'Borrowing',
+                        value: privilegeValues.borrowing_allowed ? 'Allowed' : 'Restricted'
+                    }
                 ],
                 onConfirm: () => {
                     setPrivilegeButtonsBusy('save', true);
@@ -8729,50 +9180,56 @@
                     });
 
                     fetch(`/admin/students/${currentStudentId}/privileges`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        credentials: 'same-origin',
-                        body: JSON.stringify({
-                            max_books: privilegeValues.max_books,
-                            issue_duration_days: privilegeValues.issue_duration_days,
-                            per_day_fine: privilegeValues.per_day_fine,
-                            borrowing_allowed: privilegeValues.borrowing_allowed
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            credentials: 'same-origin',
+                            body: JSON.stringify({
+                                max_books: privilegeValues.max_books,
+                                issue_duration_days: privilegeValues.issue_duration_days,
+                                per_day_fine: privilegeValues.per_day_fine,
+                                borrowing_allowed: privilegeValues.borrowing_allowed
+                            })
                         })
-                    })
-                    .then(response => parseJsonResponse(response, 'Failed to save privilege settings.'))
-                    .then(data => {
-                        applyPrivilegeSettingsState(data);
-                        showToast('Privilege settings saved successfully.', 'success', {
-                            title: 'Library settings updated',
-                            detail: 'Changes take effect immediately for this student.',
-                        });
+                        .then(response => parseJsonResponse(response, 'Failed to save privilege settings.'))
+                        .then(data => {
+                            applyPrivilegeSettingsState(data);
+                            showToast('Privilege settings saved successfully.', 'success', {
+                                title: 'Library settings updated',
+                                detail: 'Changes take effect immediately for this student.',
+                            });
 
-                        refreshStudentLiveSections({
-                            refreshActivityLogs: true,
-                        }).catch(error => {
-                            console.error('Live refresh failed after saving privilege settings:', error);
-                            showToast('Privileges saved, but activity logs could not refresh live. Please refresh manually if needed.', 'warning');
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        if (error instanceof TypeError) {
                             refreshStudentLiveSections({
-                                refreshPrivileges: true,
                                 refreshActivityLogs: true,
-                            }).catch(() => {});
-                            showToast('Network issue - privileges may have been saved. Live refresh attempted.', 'warning');
-                            return;
-                        }
+                            }).catch(error => {
+                                console.error(
+                                    'Live refresh failed after saving privilege settings:',
+                                    error);
+                                showToast(
+                                    'Privileges saved, but activity logs could not refresh live. Please refresh manually if needed.',
+                                    'warning');
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            if (error instanceof TypeError) {
+                                refreshStudentLiveSections({
+                                    refreshPrivileges: true,
+                                    refreshActivityLogs: true,
+                                }).catch(() => {});
+                                showToast(
+                                    'Network issue - privileges may have been saved. Live refresh attempted.',
+                                    'warning');
+                                return;
+                            }
 
-                        showToast(error.message || 'Failed to save privilege settings.', 'error');
-                    })
-                    .finally(() => {
-                        setPrivilegeButtonsBusy(null, false);
-                    });
+                            showToast(error.message || 'Failed to save privilege settings.', 'error');
+                        })
+                        .finally(() => {
+                            setPrivilegeButtonsBusy(null, false);
+                        });
                 }
             });
         }
@@ -8792,43 +9249,50 @@
                     });
 
                     fetch(`/admin/students/${currentStudentId}/privileges/reset`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        credentials: 'same-origin'
-                    })
-                    .then(response => parseJsonResponse(response, 'Failed to reset privilege settings.'))
-                    .then(data => {
-                        applyPrivilegeSettingsState(data);
-                        showToast('Library privileges have been reset to the default values.', 'success', {
-                            title: 'Defaults restored',
-                            detail: 'Custom overrides were cleared immediately.',
-                        });
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            credentials: 'same-origin'
+                        })
+                        .then(response => parseJsonResponse(response, 'Failed to reset privilege settings.'))
+                        .then(data => {
+                            applyPrivilegeSettingsState(data);
+                            showToast('Library privileges have been reset to the default values.',
+                                'success', {
+                                    title: 'Defaults restored',
+                                    detail: 'Custom overrides were cleared immediately.',
+                                });
 
-                        refreshStudentLiveSections({
-                            refreshActivityLogs: true,
-                        }).catch(error => {
-                            console.error('Live refresh failed after resetting privilege settings:', error);
-                            showToast('Defaults were restored, but activity logs could not refresh live. Please refresh manually if needed.', 'warning');
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        if (error instanceof TypeError) {
                             refreshStudentLiveSections({
-                                refreshPrivileges: true,
                                 refreshActivityLogs: true,
-                            }).catch(() => {});
-                            showToast('Network issue - privileges may have been reset. Live refresh attempted.', 'warning');
-                            return;
-                        }
+                            }).catch(error => {
+                                console.error(
+                                    'Live refresh failed after resetting privilege settings:',
+                                    error);
+                                showToast(
+                                    'Defaults were restored, but activity logs could not refresh live. Please refresh manually if needed.',
+                                    'warning');
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            if (error instanceof TypeError) {
+                                refreshStudentLiveSections({
+                                    refreshPrivileges: true,
+                                    refreshActivityLogs: true,
+                                }).catch(() => {});
+                                showToast(
+                                    'Network issue - privileges may have been reset. Live refresh attempted.',
+                                    'warning');
+                                return;
+                            }
 
-                        showToast(error.message || 'Failed to reset privilege settings.', 'error');
-                    })
-                    .finally(() => {
-                        setPrivilegeButtonsBusy(null, false);
-                    });
+                            showToast(error.message || 'Failed to reset privilege settings.', 'error');
+                        })
+                        .finally(() => {
+                            setPrivilegeButtonsBusy(null, false);
+                        });
                 }
             });
         }

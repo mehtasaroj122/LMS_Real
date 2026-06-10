@@ -1345,13 +1345,13 @@
             }
         }
 
-        .dashboard-bottom-row > .quick-actions-section,
-        .dashboard-bottom-row > .privileges-section {
+        .dashboard-bottom-row>.quick-actions-section,
+        .dashboard-bottom-row>.privileges-section {
             height: 100%;
         }
 
-        .dashboard-bottom-row > .quick-actions-section,
-        .dashboard-bottom-row > .privileges-section,
+        .dashboard-bottom-row>.quick-actions-section,
+        .dashboard-bottom-row>.privileges-section,
         .usage-progress-container {
             display: flex;
             flex-direction: column;
@@ -1667,7 +1667,11 @@
             <div class="profile-card-content">
                 <div class="profile-card-main">
                     <div class="profile-card-avatar">
-                        <img src="{{ $user->profile_photo ? (str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset('storage/' . $user->profile_photo)) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=fff&color=667eea' }}" alt="Profile">
+                        @php
+                            $photoUrl = \App\Support\ProfilePhoto::resolveUrl($user->profile_photo);
+                        @endphp
+                        <img src="{{ $photoUrl ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=fff&color=667eea' }}"
+                            alt="Profile">
                     </div>
                     <div class="profile-card-info min-w-0 flex-1">
                         <p class="profile-card-greeting" data-dashboard-greeting>Good Morning</p>
@@ -1675,7 +1679,8 @@
                             <h1>{{ $user->name }}</h1>
                             <span class="profile-card-role">
                                 <span class="profile-card-role-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <path d="m2 8 10-5 10 5-10 5L2 8Z"></path>
                                         <path d="M6 10.5V15c0 1.4 2.7 3 6 3s6-1.6 6-3v-4.5"></path>
                                         <path d="M22 8v6"></path>
@@ -1729,7 +1734,8 @@
                                         <path d="M8 13h3M8 17h8"></path>
                                     </svg>
                                 </span>
-                                <span>Member Since {{ $user->created_at?->timezone('Asia/Kathmandu')->format('M Y') ?? 'N/A' }}</span>
+                                <span>Member Since
+                                    {{ $user->created_at?->timezone('Asia/Kathmandu')->format('M Y') ?? 'N/A' }}</span>
                             </span>
                         </div>
                     </div>
@@ -1807,14 +1813,17 @@
                             Monthly Activity
                         </h3>
                         <p class="chart-description">
-                            @if(($activityOverview['movements_total'] ?? 0) > 0)
-                                {{ number_format($activityOverview['issued_total'] ?? 0) }} issues and {{ number_format($activityOverview['returned_total'] ?? 0) }} returns tracked across the last 30 days.
+                            @if (($activityOverview['movements_total'] ?? 0) > 0)
+                                {{ number_format($activityOverview['issued_total'] ?? 0) }} issues and
+                                {{ number_format($activityOverview['returned_total'] ?? 0) }} returns tracked across the
+                                last 30 days.
                             @else
                                 No issue or return activity recorded in the last 30 days.
                             @endif
                         </p>
                     </div>
-                    <span class="chart-count">{{ number_format($activityOverview['movements_total'] ?? 0) }} movements</span>
+                    <span class="chart-count">{{ number_format($activityOverview['movements_total'] ?? 0) }}
+                        movements</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="activityChart"></canvas>
@@ -1834,8 +1843,12 @@
                             Request Status Overview
                         </h3>
                         <p class="chart-description">
-                            @if(($requestOverview['total'] ?? 0) > 0)
-                                You have {{ number_format($requestOverview['total'] ?? 0) }} request{{ ($requestOverview['total'] ?? 0) === 1 ? '' : 's' }}: {{ number_format($requestOverview['active'] ?? 0) }} active, {{ number_format($requestOverview['returned'] ?? 0) }} returned{{ ($requestOverview['closed'] ?? 0) > 0 ? ', and ' . number_format($requestOverview['closed'] ?? 0) . ' closed' : '' }}.
+                            @if (($requestOverview['total'] ?? 0) > 0)
+                                You have {{ number_format($requestOverview['total'] ?? 0) }}
+                                request{{ ($requestOverview['total'] ?? 0) === 1 ? '' : 's' }}:
+                                {{ number_format($requestOverview['active'] ?? 0) }} active,
+                                {{ number_format($requestOverview['returned'] ?? 0) }}
+                                returned{{ ($requestOverview['closed'] ?? 0) > 0 ? ', and ' . number_format($requestOverview['closed'] ?? 0) . ' closed' : '' }}.
                             @else
                                 You have not made any requests yet.
                             @endif
@@ -1851,51 +1864,68 @@
 
         @php
             $todayStart = now()->startOfDay();
-            $issuedBookItems = $issuedBooks->map(function ($issuedBook) use ($todayStart) {
-                $dueDate = $issuedBook->due_date ? $issuedBook->due_date->copy()->startOfDay() : null;
-                $daysUntilDue = $dueDate ? $todayStart->diffInDays($dueDate, false) : null;
+            $issuedBookItems = $issuedBooks
+                ->map(function ($issuedBook) use ($todayStart) {
+                    $dueDate = $issuedBook->due_date ? $issuedBook->due_date->copy()->startOfDay() : null;
+                    $daysUntilDue = $dueDate ? $todayStart->diffInDays($dueDate, false) : null;
 
-                return [
-                    'id' => (int) $issuedBook->id,
-                    'title' => optional($issuedBook->book)->title ?? 'Untitled',
-                    'issue_date' => optional($issuedBook->issue_date)->format('M d, Y'),
-                    'due_date' => optional($issuedBook->due_date)->format('M d, Y'),
-                    'fine_amount' => $issuedBook->fine ? number_format((float) $issuedBook->fine->amount, 2) : null,
-                    'is_overdue' => $daysUntilDue !== null && $daysUntilDue < 0,
-                    'due_badge_class' => $daysUntilDue !== null && $daysUntilDue < 0
-                        ? 'today'
-                        : ($daysUntilDue !== null && $daysUntilDue <= 3 ? 'tomorrow' : null),
-                    'due_badge_text' => $daysUntilDue !== null && $daysUntilDue < 0
-                        ? 'OVERDUE'
-                        : ($daysUntilDue !== null && $daysUntilDue <= 3 ? 'DUE SOON' : null),
-                ];
-            })->values();
+                    return [
+                        'id' => (int) $issuedBook->id,
+                        'title' => optional($issuedBook->book)->title ?? 'Untitled',
+                        'issue_date' => optional($issuedBook->issue_date)->format('M d, Y'),
+                        'due_date' => optional($issuedBook->due_date)->format('M d, Y'),
+                        'fine_amount' => $issuedBook->fine ? number_format((float) $issuedBook->fine->amount, 2) : null,
+                        'is_overdue' => $daysUntilDue !== null && $daysUntilDue < 0,
+                        'due_badge_class' =>
+                            $daysUntilDue !== null && $daysUntilDue < 0
+                                ? 'today'
+                                : ($daysUntilDue !== null && $daysUntilDue <= 3
+                                    ? 'tomorrow'
+                                    : null),
+                        'due_badge_text' =>
+                            $daysUntilDue !== null && $daysUntilDue < 0
+                                ? 'OVERDUE'
+                                : ($daysUntilDue !== null && $daysUntilDue <= 3
+                                    ? 'DUE SOON'
+                                    : null),
+                    ];
+                })
+                ->values();
 
-            $dueSoonItems = $dueSoon->map(function ($book) use ($todayStart) {
-                $dueDate = $book->due_date ? $book->due_date->copy()->startOfDay() : null;
-                $daysLeft = $dueDate ? $todayStart->diffInDays($dueDate, false) : null;
+            $dueSoonItems = $dueSoon
+                ->map(function ($book) use ($todayStart) {
+                    $dueDate = $book->due_date ? $book->due_date->copy()->startOfDay() : null;
+                    $daysLeft = $dueDate ? $todayStart->diffInDays($dueDate, false) : null;
 
-                return [
-                    'id' => (int) $book->id,
-                    'title' => optional($book->book)->title ?? 'Untitled',
-                    'due_date' => optional($book->due_date)->format('M d, Y'),
-                    'alert_class' => $daysLeft === 0 ? 'danger' : ($daysLeft === 1 ? 'warning' : ''),
-                    'badge_class' => $daysLeft === 0 ? 'today' : ($daysLeft === 1 ? 'tomorrow' : 'soon'),
-                    'badge_text' => $daysLeft === 0
-                        ? 'TODAY'
-                        : ($daysLeft === 1 ? 'TOMORROW' : ($daysLeft !== null ? $daysLeft . ' DAYS' : 'SOON')),
-                ];
-            })->values();
+                    return [
+                        'id' => (int) $book->id,
+                        'title' => optional($book->book)->title ?? 'Untitled',
+                        'due_date' => optional($book->due_date)->format('M d, Y'),
+                        'alert_class' => $daysLeft === 0 ? 'danger' : ($daysLeft === 1 ? 'warning' : ''),
+                        'badge_class' => $daysLeft === 0 ? 'today' : ($daysLeft === 1 ? 'tomorrow' : 'soon'),
+                        'badge_text' =>
+                            $daysLeft === 0
+                                ? 'TODAY'
+                                : ($daysLeft === 1
+                                    ? 'TOMORROW'
+                                    : ($daysLeft !== null
+                                        ? $daysLeft . ' DAYS'
+                                        : 'SOON')),
+                    ];
+                })
+                ->values();
 
-            $notificationItems = $notifications->map(function ($notification) {
-                return [
-                    'id' => (int) $notification->id,
-                    'title' => $notification->title ?: 'Notification',
-                    'message' => $notification->message,
-                    'time' => optional($notification->created_at)->diffForHumans(),
-                    'is_unread' => $notification->read_at === null,
-                ];
-            })->values();
+            $notificationItems = $notifications
+                ->map(function ($notification) {
+                    return [
+                        'id' => (int) $notification->id,
+                        'title' => $notification->title ?: 'Notification',
+                        'message' => $notification->message,
+                        'time' => optional($notification->created_at)->diffForHumans(),
+                        'is_unread' => $notification->read_at === null,
+                    ];
+                })
+                ->values();
         @endphp
 
         <div class="tables-row">
@@ -1936,7 +1966,8 @@
                     <h3 class="data-card-title">
                         <span class="data-card-title-icon notifications" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
-                                <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"></path>
+                                <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5">
+                                </path>
                                 <path d="M10 20a2 2 0 0 0 4 0"></path>
                             </svg>
                         </span>
@@ -1955,8 +1986,8 @@
                     <a href="{{ route('student.search') }}" class="action-btn action-blue">
                         <div class="btn-content">
                             <div class="btn-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                 </svg>
@@ -1971,8 +2002,8 @@
                     <a href="{{ route('student.my-books') }}" class="action-btn action-teal">
                         <div class="btn-content">
                             <div class="btn-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
                                     </path>
@@ -1988,8 +2019,8 @@
                     <a href="{{ route('student.requests') }}" class="action-btn action-purple">
                         <div class="btn-content">
                             <div class="btn-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
@@ -2004,8 +2035,8 @@
                     <a href="{{ route('student.fines') }}" class="action-btn action-red">
                         <div class="btn-content">
                             <div class="btn-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
                                     </path>
@@ -2021,10 +2052,9 @@
                     <a href="{{ route('student.profile') }}" class="action-btn action-slate">
                         <div class="btn-content">
                             <div class="btn-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M20 21a8 8 0 0 0-16 0"></path>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 0 0-16 0"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
                             </div>
@@ -2048,7 +2078,7 @@
                             </svg>
                         </span>
                         Library Privilege Settings
-                        @if($privilegeSettings['is_custom'])
+                        @if ($privilegeSettings['is_custom'])
                             <span class="privilege-badge privilege-badge-custom">Custom</span>
                         @else
                             <span class="privilege-badge privilege-badge-default">Default</span>
@@ -2094,7 +2124,8 @@
                             </svg>
                         </div>
                         <div class="privilege-content">
-                            <span class="privilege-value">₹{{ number_format((float) $privilegeSettings['per_day_fine'], 2) }}</span>
+                            <span
+                                class="privilege-value">₹{{ number_format((float) $privilegeSettings['per_day_fine'], 2) }}</span>
                             <span class="privilege-label">Per Day Fine</span>
                         </div>
                     </div>
@@ -2102,7 +2133,7 @@
                     <div
                         class="privilege-card card-status {{ $privilegeSettings['borrowing_allowed'] ? 'status-active' : 'status-restricted' }}">
                         <div class="privilege-icon" aria-hidden="true">
-                            @if($privilegeSettings['borrowing_allowed'])
+                            @if ($privilegeSettings['borrowing_allowed'])
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="9"></circle>
                                     <path d="m8.5 12 2.5 2.5 4.5-5"></path>
@@ -2115,7 +2146,8 @@
                             @endif
                         </div>
                         <div class="privilege-content">
-                            <span class="privilege-value">{{ $privilegeSettings['borrowing_allowed'] ? 'Active' : 'Restricted' }}</span>
+                            <span
+                                class="privilege-value">{{ $privilegeSettings['borrowing_allowed'] ? 'Active' : 'Restricted' }}</span>
                             <span class="privilege-label">Borrowing</span>
                         </div>
                     </div>
@@ -2124,22 +2156,30 @@
                 <div class="usage-progress-container">
                     <div class="usage-progress-header">
                         <span>Current Usage</span>
-                        <span class="usage-fraction">{{ $privilegeSettings['books_issued'] }} / {{ $privilegeSettings['max_books'] }} Books</span>
+                        <span class="usage-fraction">{{ $privilegeSettings['books_issued'] }} /
+                            {{ $privilegeSettings['max_books'] }} Books</span>
                     </div>
                     <div class="usage-progress-bar">
                         @php
-                            $usagePercent = $privilegeSettings['max_books'] > 0
-                                ? min(100, ($privilegeSettings['books_issued'] / $privilegeSettings['max_books']) * 100)
-                                : 0;
-                            $usageColor = $usagePercent >= 90 ? 'danger' : ($usagePercent >= 70 ? 'warning' : 'success');
+                            $usagePercent =
+                                $privilegeSettings['max_books'] > 0
+                                    ? min(
+                                        100,
+                                        ($privilegeSettings['books_issued'] / $privilegeSettings['max_books']) * 100,
+                                    )
+                                    : 0;
+                            $usageColor =
+                                $usagePercent >= 90 ? 'danger' : ($usagePercent >= 70 ? 'warning' : 'success');
                         @endphp
-                        <div class="usage-progress-fill progress-{{ $usageColor }}" style="width: {{ $usagePercent }}%"></div>
+                        <div class="usage-progress-fill progress-{{ $usageColor }}"
+                            style="width: {{ $usagePercent }}%"></div>
                     </div>
                     <p class="usage-hint">
-                        @if(!$privilegeSettings['borrowing_allowed'])
+                        @if (!$privilegeSettings['borrowing_allowed'])
                             Borrowing is currently restricted for your account.
                         @elseif($privilegeSettings['remaining_slots'] > 0)
-                            You can borrow {{ $privilegeSettings['remaining_slots'] }} more book{{ $privilegeSettings['remaining_slots'] > 1 ? 's' : '' }}.
+                            You can borrow {{ $privilegeSettings['remaining_slots'] }} more
+                            book{{ $privilegeSettings['remaining_slots'] > 1 ? 's' : '' }}.
                         @else
                             You've reached your book limit. Return books to borrow more.
                         @endif
@@ -2218,7 +2258,8 @@
             const activityLabels = @json($monthlyActivity['labels'] ?? []);
             const activityIssued = @json($monthlyActivity['issued'] ?? []);
             const activityReturned = @json($monthlyActivity['returned'] ?? []);
-            const hasActivityData = activityIssued.some(value => Number(value) > 0) || activityReturned.some(value => Number(value) > 0);
+            const hasActivityData = activityIssued.some(value => Number(value) > 0) || activityReturned.some(value =>
+                Number(value) > 0);
             const requestStatusLabels = @json($requestStatusChart['labels'] ?? []);
             const requestStatusData = @json($requestStatusChart['data'] ?? []);
             const requestStatusColors = @json($requestStatusChart['colors'] ?? []);
@@ -2253,8 +2294,7 @@
                 type: 'line',
                 data: {
                     labels: activityLabels,
-                    datasets: [
-                        {
+                    datasets: [{
                             label: 'Issued',
                             data: activityIssued,
                             borderColor: '#3b82f6',
@@ -2500,9 +2540,9 @@
             container.innerHTML = state.data
                 .slice(0, state.visibleCount)
                 .map(item => state.renderItem(item))
-                .join('')
-                + (state.visibleCount < state.data.length
-                    ? `
+                .join('') +
+                (state.visibleCount < state.data.length ?
+                    `
                         <div class="dashboard-show-more-item">
                             <button type="button" class="dashboard-show-more" data-list-key="${listKey}">
                                 <span>Show More</span>
@@ -2511,8 +2551,8 @@
                                 </svg>
                             </button>
                         </div>
-                    `
-                    : '');
+                    ` :
+                    '');
         }
 
         function initializeDashboardLists() {
@@ -2570,7 +2610,8 @@
                 const response = await fetch(buildNotificationUrl(window.notificationAPI.delete, notificationId), {
                     method: 'DELETE',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') || '',
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
                     },
@@ -2614,7 +2655,8 @@
 
                 const deleteButton = event.target.closest('[data-notification-delete]');
                 if (deleteButton) {
-                    deleteDashboardNotification(Number(deleteButton.dataset.notificationDelete), deleteButton);
+                    deleteDashboardNotification(Number(deleteButton.dataset.notificationDelete),
+                        deleteButton);
                 }
             });
 

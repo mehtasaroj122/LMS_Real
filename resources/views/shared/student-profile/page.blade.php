@@ -3,22 +3,20 @@
     $status = strtolower((string) ($student->user?->status ?? 'inactive'));
     $fineActionsEnabled = ($config['features']['fineActions'] ?? false) === true;
     $studentRequestRows = $studentRequests ?? [];
-    $avatar = $student->user?->profile_photo
-        ? (str_starts_with($student->user->profile_photo, 'http')
-            ? $student->user->profile_photo
-            : asset('storage/' . ltrim($student->user->profile_photo, '/')))
-        : null;
+    $avatar = \App\Support\ProfilePhoto::resolveUrl($student->user?->profile_photo);
     $initials = collect(explode(' ', trim((string) ($student->user?->name ?? 'Student'))))
         ->filter()
         ->take(2)
-        ->map(fn ($part) => strtoupper(substr($part, 0, 1)))
+        ->map(fn($part) => strtoupper(substr($part, 0, 1)))
         ->implode('');
 @endphp
 
-<div class="student-profile-page" id="studentProfileRoot" data-student-id="{{ $student->id }}" data-student-status="{{ $status }}">
+<div class="student-profile-page" id="studentProfileRoot" data-student-id="{{ $student->id }}"
+    data-student-status="{{ $status }}">
     <div class="student-profile-header">
         <a href="{{ $config['routes']['back'] }}" class="student-back-link">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
                 <path d="M19 12H5" />
                 <path d="m12 19-7-7 7-7" />
             </svg>
@@ -50,14 +48,16 @@
                     </div>
 
                     <div class="student-badge-row">
-                        <span class="student-chip status-{{ $status }}" id="studentStatusBadge">{{ ucfirst($status) }}</span>
+                        <span class="student-chip status-{{ $status }}"
+                            id="studentStatusBadge">{{ ucfirst($status) }}</span>
                         <span class="student-chip role">{{ ucfirst($student->user?->role ?? 'student') }}</span>
                     </div>
                 </div>
             </div>
 
-            @if(($config['features']['toggleStatus'] ?? false) === true)
-                <button type="button" id="studentStatusActionBtn" class="student-account-action status-{{ $status }}">
+            @if (($config['features']['toggleStatus'] ?? false) === true)
+                <button type="button" id="studentStatusActionBtn"
+                    class="student-account-action status-{{ $status }}">
                     <span>{{ $status === 'active' ? 'Deactivate Account' : 'Activate Account' }}</span>
                 </button>
             @endif
@@ -73,7 +73,8 @@
                 </div>
                 <div class="student-info-item">
                     <span class="student-info-label">Gender</span>
-                    <span class="student-info-value">{{ $student->user?->gender ? ucfirst($student->user->gender) : 'N/A' }}</span>
+                    <span
+                        class="student-info-value">{{ $student->user?->gender ? ucfirst($student->user->gender) : 'N/A' }}</span>
                 </div>
                 <div class="student-info-item">
                     <span class="student-info-label">Department</span>
@@ -92,7 +93,8 @@
             <div class="student-system-grid">
                 <div class="student-system-card">
                     <span class="student-info-label">Last Login</span>
-                    <span class="student-info-value">{{ optional($student->user?->last_login_at)->format('M d, Y h:i A') ?? 'Never' }}</span>
+                    <span
+                        class="student-info-value">{{ optional($student->user?->last_login_at)->format('M d, Y h:i A') ?? 'Never' }}</span>
                 </div>
             </div>
         </aside>
@@ -113,11 +115,13 @@
                 </div>
                 <div class="student-summary-card">
                     <span class="student-summary-label">Pending Fine</span>
-                    <span class="student-summary-value" id="studentPendingFineValue">₹{{ number_format((float) ($studentSummary['pendingFineTotal'] ?? 0), 2) }}</span>
+                    <span class="student-summary-value"
+                        id="studentPendingFineValue">₹{{ number_format((float) ($studentSummary['pendingFineTotal'] ?? 0), 2) }}</span>
                 </div>
                 <div class="student-summary-card">
                     <span class="student-summary-label">Last Activity</span>
-                    <span class="student-summary-value">{{ $studentSummary['lastActivity'] ?? 'No activity yet' }}</span>
+                    <span
+                        class="student-summary-value">{{ $studentSummary['lastActivity'] ?? 'No activity yet' }}</span>
                 </div>
             </div>
 
@@ -129,16 +133,19 @@
                     </div>
                 </div>
 
-                <div class="search-filter-container student-profile-toolbar" aria-label="Issued books search and filters">
+                <div class="search-filter-container student-profile-toolbar"
+                    aria-label="Issued books search and filters">
                     <div class="search-box student-profile-search-box">
                         <div class="search-icon">
                             <i class="fas fa-search"></i>
                         </div>
-                        <input type="text" id="studentBookSearch" class="search-input" placeholder="Search by title, author, or ISBN..." aria-label="Search issued books">
+                        <input type="text" id="studentBookSearch" class="search-input"
+                            placeholder="Search by title, author, or ISBN..." aria-label="Search issued books">
                     </div>
 
                     <div class="filters-container student-profile-filters">
-                        <select id="studentBookStatusFilter" class="filter-select" aria-label="Filter issued books by status">
+                        <select id="studentBookStatusFilter" class="filter-select"
+                            aria-label="Filter issued books by status">
                             <option value="all">All Status</option>
                             <option value="issued">Issued</option>
                             <option value="overdue">Overdue</option>
@@ -151,15 +158,18 @@
                             <option value="title-desc">Title Z-A</option>
                             <option value="fine-desc">Highest Fine</option>
                         </select>
-                        <button type="button" id="studentBookResetFiltersBtn" class="student-toolbar-reset" aria-label="Reset issued book filters">
+                        <button type="button" id="studentBookResetFiltersBtn" class="student-toolbar-reset"
+                            aria-label="Reset issued book filters">
                             <i class="fas fa-rotate-left"></i>
                             Reset
                         </button>
                     </div>
 
-                    <label class="admin-table-entries-control student-profile-entries-control" for="studentBookEntries">
+                    <label class="admin-table-entries-control student-profile-entries-control"
+                        for="studentBookEntries">
                         <span>Show</span>
-                        <select id="studentBookEntries" class="admin-table-entries-select" aria-label="Select issued book entries per page">
+                        <select id="studentBookEntries" class="admin-table-entries-select"
+                            aria-label="Select issued book entries per page">
                             <option value="10" selected>10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
@@ -197,7 +207,8 @@
                         <div class="admin-table-pagination-summary" id="studentBookSummary">Showing 0 books</div>
                         <div class="admin-table-pagination-page" id="studentBookPageInfo">Page 1 of 1</div>
                     </div>
-                    <div class="admin-table-pagination-nav" id="studentBookPagination" aria-label="Issued books pagination"></div>
+                    <div class="admin-table-pagination-nav" id="studentBookPagination"
+                        aria-label="Issued books pagination"></div>
                 </div>
             </div>
         </section>
@@ -214,17 +225,20 @@
                             : 'Read-only summary here. Use Fine Management for updates.' }}
                     </p>
                 </div>
-                @if(($config['features']['fineManagementLink'] ?? false) === true)
-                    <a href="{{ $config['routes']['fineIndex'] }}" class="student-inline-link">Open Fine Management</a>
+                @if (($config['features']['fineManagementLink'] ?? false) === true)
+                    <a href="{{ $config['routes']['fineIndex'] }}" class="student-inline-link">Open Fine
+                        Management</a>
                 @endif
             </div>
 
-            <div class="search-filter-container student-profile-toolbar" aria-label="Fine overview search and filters">
+            <div class="search-filter-container student-profile-toolbar"
+                aria-label="Fine overview search and filters">
                 <div class="search-box student-profile-search-box">
                     <div class="search-icon">
                         <i class="fas fa-search"></i>
                     </div>
-                    <input type="text" id="studentFineSearch" class="search-input" placeholder="Search by book title or amount..." aria-label="Search fines">
+                    <input type="text" id="studentFineSearch" class="search-input"
+                        placeholder="Search by book title or amount..." aria-label="Search fines">
                 </div>
 
                 <div class="filters-container student-profile-filters">
@@ -234,21 +248,23 @@
                         <option value="paid">Paid</option>
                         <option value="waived">Waived</option>
                     </select>
-                    <button type="button" id="studentFineResetFiltersBtn" class="student-toolbar-reset" aria-label="Reset fine filters">
+                    <button type="button" id="studentFineResetFiltersBtn" class="student-toolbar-reset"
+                        aria-label="Reset fine filters">
                         <i class="fas fa-rotate-left"></i>
                         Reset
                     </button>
                 </div>
 
                 <label class="admin-table-entries-control student-profile-entries-control" for="studentFineEntries">
-                        <span>Show</span>
-                        <select id="studentFineEntries" class="admin-table-entries-select" aria-label="Select fine entries per page">
-                            <option value="10" selected>10</option>
-                            <option value="20">20</option>
-                            <option value="50">50</option>
-                            <option value="100">100</option>
-                        </select>
-                        <span>entries</span>
+                    <span>Show</span>
+                    <select id="studentFineEntries" class="admin-table-entries-select"
+                        aria-label="Select fine entries per page">
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span>entries</span>
                 </label>
             </div>
 
@@ -281,7 +297,8 @@
                     <div class="admin-table-pagination-summary" id="studentFineSummary">Showing 0 fines</div>
                     <div class="admin-table-pagination-page" id="studentFinePageInfo">Page 1 of 1</div>
                 </div>
-                <div class="admin-table-pagination-nav" id="studentFinePagination" aria-label="Fine overview pagination"></div>
+                <div class="admin-table-pagination-nav" id="studentFinePagination"
+                    aria-label="Fine overview pagination"></div>
             </div>
         </section>
 
@@ -294,12 +311,13 @@
             </div>
 
             <div class="student-privilege-grid" id="studentPrivilegeGrid">
-                @foreach (($studentPrivileges['items'] ?? []) as $item)
+                @foreach ($studentPrivileges['items'] ?? [] as $item)
                     <div class="student-privilege-card">
                         <span class="student-privilege-label">{{ $item['label'] }}</span>
                         <span class="student-privilege-value">{{ $item['value'] }}</span>
                         <div class="student-privilege-meta">
-                            <span class="student-privilege-source {{ strtolower($item['source'] ?? 'default') }}">{{ $item['source'] ?? 'Default' }}</span>
+                            <span
+                                class="student-privilege-source {{ strtolower($item['source'] ?? 'default') }}">{{ $item['source'] ?? 'Default' }}</span>
                         </div>
                     </div>
                 @endforeach
@@ -319,13 +337,15 @@
             <div class="student-pane-scroll student-pane-scroll-activity">
                 <div class="student-activity-list" id="studentActivityTimeline"></div>
                 <div class="student-activity-more-row">
-                    <button type="button" class="student-pane-action-btn student-activity-more-btn" id="studentActivityShowMoreBtn" hidden>
+                    <button type="button" class="student-pane-action-btn student-activity-more-btn"
+                        id="studentActivityShowMoreBtn" hidden>
                         Show More
                     </button>
                 </div>
                 <div id="studentActivityEmptyState" class="student-empty-card student-pane-empty" hidden>
                     <h3>No activity yet</h3>
-                    <p>Activity entries will appear here as this student's account is updated or used in the library workflow.</p>
+                    <p>Activity entries will appear here as this student's account is updated or used in the library
+                        workflow.</p>
                 </div>
             </div>
 
@@ -343,9 +363,11 @@
             </div>
 
             <div class="student-request-toolbar">
-                <label class="admin-table-entries-control student-profile-entries-control" for="studentRequestEntries">
+                <label class="admin-table-entries-control student-profile-entries-control"
+                    for="studentRequestEntries">
                     <span>Show</span>
-                    <select id="studentRequestEntries" class="admin-table-entries-select" aria-label="Select book request entries per page">
+                    <select id="studentRequestEntries" class="admin-table-entries-select"
+                        aria-label="Select book request entries per page">
                         <option value="10" selected>10</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
@@ -379,14 +401,17 @@
                     <div class="admin-table-pagination-summary" id="studentRequestSummary">Showing 0 requests</div>
                     <div class="admin-table-pagination-page" id="studentRequestPageInfo">Page 1 of 1</div>
                 </div>
-                <div class="admin-table-pagination-nav" id="studentRequestPagination" aria-label="Book request pagination"></div>
+                <div class="admin-table-pagination-nav" id="studentRequestPagination"
+                    aria-label="Book request pagination"></div>
             </div>
         </section>
     </div>
 
     @if ($fineActionsEnabled)
-        <div id="studentFineConfirmModal" class="student-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="studentFineConfirmTitle">
-            <button type="button" class="student-modal-backdrop" data-student-modal-close="studentFineConfirmModal" aria-label="Close fine action dialog"></button>
+        <div id="studentFineConfirmModal" class="student-modal" hidden aria-hidden="true" role="dialog"
+            aria-modal="true" aria-labelledby="studentFineConfirmTitle">
+            <button type="button" class="student-modal-backdrop" data-student-modal-close="studentFineConfirmModal"
+                aria-label="Close fine action dialog"></button>
 
             <div class="student-modal-dialog">
                 <div class="student-modal-header">
@@ -401,7 +426,8 @@
                 <p id="studentFineConfirmDetail" class="student-modal-detail"></p>
 
                 <div class="student-modal-actions">
-                    <button type="button" class="student-modal-btn secondary" data-student-modal-close="studentFineConfirmModal">
+                    <button type="button" class="student-modal-btn secondary"
+                        data-student-modal-close="studentFineConfirmModal">
                         Cancel
                     </button>
                     <button type="button" id="studentFineConfirmSubmit" class="student-modal-btn primary">
@@ -411,13 +437,16 @@
             </div>
         </div>
 
-        <div id="studentFineWaiveModal" class="student-modal" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="studentFineWaiveTitle">
-            <button type="button" class="student-modal-backdrop" data-student-modal-close="studentFineWaiveModal" aria-label="Close fine waiver dialog"></button>
+        <div id="studentFineWaiveModal" class="student-modal" hidden aria-hidden="true" role="dialog"
+            aria-modal="true" aria-labelledby="studentFineWaiveTitle">
+            <button type="button" class="student-modal-backdrop" data-student-modal-close="studentFineWaiveModal"
+                aria-label="Close fine waiver dialog"></button>
 
             <div class="student-modal-dialog">
                 <div class="student-modal-header">
                     <div class="student-modal-icon waive">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
                             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                         </svg>
                     </div>
@@ -429,19 +458,16 @@
                 </div>
 
                 <label for="studentFineWaiveReason" class="student-modal-field-label">Waiver Reason</label>
-                <textarea
-                    id="studentFineWaiveReason"
-                    class="student-modal-textarea"
-                    rows="4"
-                    maxlength="500"
-                    placeholder="Explain why this fine should be waived..."
-                    aria-describedby="studentFineWaiveError"
-                ></textarea>
-                <p class="student-modal-help">This note will be stored with the fine and used for the waiver update.</p>
-                <p id="studentFineWaiveError" class="student-modal-error" hidden>Please enter a reason for waiving this fine.</p>
+                <textarea id="studentFineWaiveReason" class="student-modal-textarea" rows="4" maxlength="500"
+                    placeholder="Explain why this fine should be waived..." aria-describedby="studentFineWaiveError"></textarea>
+                <p class="student-modal-help">This note will be stored with the fine and used for the waiver update.
+                </p>
+                <p id="studentFineWaiveError" class="student-modal-error" hidden>Please enter a reason for waiving
+                    this fine.</p>
 
                 <div class="student-modal-actions">
-                    <button type="button" class="student-modal-btn secondary" data-student-modal-close="studentFineWaiveModal">
+                    <button type="button" class="student-modal-btn secondary"
+                        data-student-modal-close="studentFineWaiveModal">
                         Cancel
                     </button>
                     <button type="button" id="studentFineWaiveSubmit" class="student-modal-btn primary">
@@ -452,6 +478,7 @@
         </div>
     @endif
 
-    <div id="studentProfileToastContainer" class="student-toast-container" aria-live="polite" aria-atomic="true"></div>
+    <div id="studentProfileToastContainer" class="student-toast-container" aria-live="polite" aria-atomic="true">
+    </div>
     <div id="studentProfileLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 </div>

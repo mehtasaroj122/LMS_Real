@@ -6,10 +6,11 @@
 
 <div class="admin-user-cell">
     <div class="admin-user-avatar">
-        @if ($user->profile_photo && str_starts_with($user->profile_photo, 'http'))
-            <img src="{{ $user->profile_photo }}" alt="{{ $user->name }}">
-        @elseif ($user->profile_photo)
-            <img src="{{ asset(str_starts_with($user->profile_photo, 'storage/') ? $user->profile_photo : 'storage/' . ltrim($user->profile_photo, '/')) }}" alt="{{ $user->name }}">
+        @php
+            $photoUrl = \App\Support\ProfilePhoto::resolveUrl($user->profile_photo);
+        @endphp
+        @if ($photoUrl)
+            <img src="{{ $photoUrl }}" alt="{{ $user->name }}">
         @else
             {{ strtoupper(substr($user->name, 0, 1)) }}
         @endif
