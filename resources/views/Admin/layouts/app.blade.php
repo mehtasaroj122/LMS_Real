@@ -288,7 +288,7 @@
                         <p class="text-xs text-secondary">{{ Auth::user()->email ?? 'admin@library.edu' }}</p>
                     </div>
                     @if(Auth::user()->profile_photo)
-                        <img src="{{ str_starts_with(Auth::user()->profile_photo, 'http') ? Auth::user()->profile_photo : asset(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" class="object-cover w-8 h-8 bg-blue-600 rounded-full md:w-10 md:h-10">
+                        <img src="{{ \App\Support\ProfilePhoto::resolveUrl(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" class="object-cover w-8 h-8 bg-blue-600 rounded-full md:w-10 md:h-10">
                     @else
                         <div class="flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-blue-600 rounded-full md:w-10 md:h-10 md:text-base">
                             {{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 1)) }}

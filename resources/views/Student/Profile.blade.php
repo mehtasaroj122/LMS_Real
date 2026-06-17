@@ -1310,12 +1310,8 @@
 
 @section('content')
     @php
-        $profilePhotoUrl = $user->profile_photo
-            ? (str_starts_with($user->profile_photo, 'http')
-                ? $user->profile_photo
-                : asset(str_starts_with($user->profile_photo, 'storage/')
-                    ? $user->profile_photo
-                    : 'storage/' . ltrim($user->profile_photo, '/')))
+        $profilePhotoUrl = filled($user->profile_photo) 
+            ? \App\Support\ProfilePhoto::resolveUrl($user->profile_photo) 
             : null;
         $departmentName = $student && $student->department ? $student->department->name : 'N/A';
         $studentIdentifier = $student ? ($student->roll_no ?: $student->student_id ?: 'N/A') : 'N/A';

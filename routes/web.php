@@ -53,14 +53,19 @@ Route::get('/login1', function () {
 
 // Profile photo serving route
 Route::get('/profile-photos/{path}', function ($path) {
-    $filename = urldecode($path);
-    $filepath = "Profile_pics/{$filename}";
+    $normalizedPath = urldecode($path);
     
-    if (!Storage::disk('public')->exists($filepath)) {
+    // Check if the path already contains the directory prefix
+    $lowerPath = strtolower($normalizedPath);
+    if (!str_starts_with($lowerPath, 'profile_pics/')) {
+        $normalizedPath = "profile_pics/{$normalizedPath}";
+    }
+    
+    if (!Storage::disk('public')->exists($normalizedPath)) {
         return response('Not found', 404);
     }
     
-    return Storage::disk('public')->response($filepath);
+    return Storage::disk('public')->response($normalizedPath);
 })->where('path', '.*')->name('profile-photo');
 
 // admin route

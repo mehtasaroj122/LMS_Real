@@ -1062,14 +1062,8 @@
                                     : null;
                                 $description = $activity->readable_description ?: $activity->description;
                                 $profilePhoto = $activity->user?->profile_photo;
-                                $profilePhotoUrl = $profilePhoto
-                                    ? (str_starts_with($profilePhoto, 'http')
-                                        ? $profilePhoto
-                                        : asset(
-                                            str_starts_with($profilePhoto, 'storage/')
-                                                ? $profilePhoto
-                                                : 'storage/' . ltrim($profilePhoto, '/'),
-                                        ))
+                                $profilePhotoUrl = filled($profilePhoto)
+                                    ? \App\Support\ProfilePhoto::resolveUrl($profilePhoto)
                                     : null;
                             @endphp
                             <tr>

@@ -19,14 +19,9 @@
         'student' => route('student.profile'),
         default => '#',
     };
-    $profilePhotoUrl = null;
-
-    if (filled($user?->profile_photo)) {
-        $photoPath = ltrim((string) $user->profile_photo, '/');
-        $profilePhotoUrl = str_starts_with((string) $user->profile_photo, 'http')
-            ? $user->profile_photo
-            : asset(str_starts_with($photoPath, 'storage/') ? $photoPath : 'storage/' . $photoPath);
-    }
+    $profilePhotoUrl = filled($user?->profile_photo) 
+        ? \App\Support\ProfilePhoto::resolveUrl($user->profile_photo) 
+        : null;
 
     $initials = collect(preg_split('/\s+/', $userName, -1, PREG_SPLIT_NO_EMPTY))
         ->filter()

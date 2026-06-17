@@ -200,7 +200,7 @@
 @include('shared.library-branding.bootstrap')
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="flex h-screen min-h-0 overflow-hidden">
-    <aside class="flex min-h-0 flex-col w-64 border-r sidebar shrink-0" id="sidebar">
+    <aside class="flex flex-col w-64 min-h-0 border-r sidebar shrink-0" id="sidebar">
         <div class="flex items-center justify-between p-4 logo-section">
             <button class="close-sidebar-btn" id="closeSidebarBtn" aria-label="Close menu">
                 <i data-lucide="x" class="w-6 h-6"></i>
@@ -257,7 +257,7 @@
         <x-sidebar-profile :profile-url="route('staff.settings.index')" />
     </aside>
 
-    <main class="flex min-h-0 flex-col flex-1 min-w-0 overflow-hidden">
+    <main class="flex flex-col flex-1 min-w-0 min-h-0 overflow-hidden">
         <header class="flex items-center justify-between px-3 border-b h-14 header md:px-4 shrink-0">
             <div class="flex items-center space-x-2">
                 <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
@@ -291,7 +291,7 @@
                         <p class="text-xs text-secondary">{{ Auth::user()->email ?? 'staff@library.edu' }}</p>
                     </div>
                     @if(Auth::user()->profile_photo)
-                        <img src="{{ str_starts_with(Auth::user()->profile_photo, 'http') ? Auth::user()->profile_photo : asset(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" class="object-cover w-8 h-8 bg-blue-600 rounded-full md:w-10 md:h-10">
+                        <img src="{{ \App\Support\ProfilePhoto::resolveUrl(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" class="object-cover w-8 h-8 bg-blue-600 rounded-full md:w-10 md:h-10">
                     @else
                         <div class="flex items-center justify-center w-8 h-8 text-sm font-bold text-white bg-blue-600 rounded-full md:w-10 md:h-10 md:text-base">
                             {{ strtoupper(substr(Auth::user()->name ?? 'S', 0, 1)) }}

@@ -3,8 +3,8 @@
 @section('title', 'Settings')
 
 @php
-    $profilePhotoUrl = $user->profile_photo
-        ? (str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset($user->profile_photo))
+    $profilePhotoUrl = filled($user->profile_photo)
+        ? \App\Support\ProfilePhoto::resolveUrl($user->profile_photo)
         : null;
 
     $profileErrorFields = ['name', 'email', 'phone', 'address', 'date_of_birth', 'profile_photo'];

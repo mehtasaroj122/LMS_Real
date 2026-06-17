@@ -198,12 +198,12 @@ class ProfileController extends Controller
                 Storage::disk('public')->delete($user->profile_photo);
             }
 
-            if (!Storage::disk('public')->exists('Profile_pics')) {
-                Storage::disk('public')->makeDirectory('Profile_pics');
+            if (!Storage::disk('public')->exists('profile_pics')) {
+                Storage::disk('public')->makeDirectory('profile_pics');
             }
 
             $fileName = 'user_' . $user->id . '_' . time() . '.' . $validated['profile_photo']->getClientOriginalExtension();
-            $path = $validated['profile_photo']->storeAs('Profile_pics', $fileName, 'public');
+            $path = $validated['profile_photo']->storeAs('profile_pics', $fileName, 'public');
 
             $user->update([
                 'profile_photo' => $path,

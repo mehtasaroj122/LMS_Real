@@ -973,8 +973,8 @@
         $photoHasErrors = $errors->has('profile_photo');
         $securityHasErrors = $errors->hasAny($securityFields);
         $activeTab = $securityHasErrors ? 'security' : ($photoHasErrors ? 'photo' : 'profile');
-        $profilePhotoUrl = isset($user) && $user->profile_photo
-            ? (str_starts_with($user->profile_photo, 'http') ? $user->profile_photo : asset($user->profile_photo))
+        $profilePhotoUrl = isset($user) && filled($user->profile_photo)
+            ? \App\Support\ProfilePhoto::resolveUrl($user->profile_photo)
             : null;
         $departmentName = old('department', $user->staff?->department?->name ?? '');
         $usernameValue = $user->username ?? (($user->email ?? null) ? explode('@', $user->email)[0] : 'staff1');

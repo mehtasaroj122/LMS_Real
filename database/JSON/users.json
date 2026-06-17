@@ -1,8 +1,8 @@
 [
     {
         "role": "admin",
-        "name": "Ranjit Ray",
-        "email": "rayranjit5758@gmail.com",
+        "name": "Saroj Mehta",
+        "email": "mehtasaroj122@gmail.com",
         "phone": "+9779829773057",
         "password": "12345678",
         "remember_token": null,
@@ -613,8 +613,8 @@
     },
     {
         "role": "student",
-        "name": "Ranjit ray",
-        "email": "ranjit4083978@gmail.com",
+        "name": "Saroj Mehta",
+        "email": "mehtasaroj315@gmail.com",
         "phone": "+9779821365485",
         "password": "12345678",
         "remember_token": null,

@@ -1,12 +1,7 @@
 @php
-    $profilePhotoUrl = null;
-    if ($user->profile_photo) {
-        $profilePhotoUrl = str_starts_with($user->profile_photo, 'http')
-            ? $user->profile_photo
-            : asset(str_starts_with($user->profile_photo, 'storage/')
-                ? $user->profile_photo
-                : 'storage/' . ltrim($user->profile_photo, '/'));
-    }
+    $profilePhotoUrl = filled($user->profile_photo)
+        ? \App\Support\ProfilePhoto::resolveUrl($user->profile_photo)
+        : null;
 
     $departmentName = data_get($user, 'student.department.name')
         ?? data_get($user, 'staff.department.name')
