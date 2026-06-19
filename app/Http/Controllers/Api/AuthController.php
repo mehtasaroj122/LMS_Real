@@ -59,6 +59,24 @@ class AuthController extends Controller
         );
     }
 
+    public function check(Request $request): JsonResponse
+    {
+        $user = $request->user()->load(['student', 'staff']);
+
+        return response()->json([
+            'authenticated' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'status' => $user->status,
+            ],
+            'student_id' => $user->student?->id,
+            'staff_id' => $user->staff?->id,
+        ]);
+    }
+
     public function testUnauthorized(): JsonResponse
     {
         return response()->json([

@@ -13,12 +13,9 @@ class BookController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
-        $perPage = $this->perPage($request);
-
-        $books = Book::query()
-            ->with('category')
-            ->latest()
-            ->paginate($perPage);
+        $books = $this->applyCatalogFilters(Book::query()->with('category'), $request)
+            ->paginate($this->perPage($request))
+            ->appends($request->query());
 
         return BookResource::collection($books);
     }
@@ -34,18 +31,21 @@ class BookController extends Controller
     {
         $query = $request->string('q')->toString();
 
-        $books = Book::query()
-            ->with('category')
-            ->where(function ($builder) use ($query) {
-                $builder
-                    ->where('title', 'like', "%{$query}%")
-                    ->orWhere('author', 'like', "%{$query}%")
-                    ->orWhere('publisher', 'like', "%{$query}%")
-                    ->orWhere('isbn', 'like', "%{$query}%")
-                    ->orWhereHas('category', fn ($category) => $category->where('name', 'like', "%{$query}%"));
-            })
-            ->orderBy('title')
-            ->paginate($this->perPage($request));
+        $books = $this->applyCatalogFilters(
+            Book::query()
+                ->with('category')
+                ->where(function ($builder) use ($query) {
+                    $builder
+                        ->where('title', 'like', "%{$query}%")
+                        ->orWhere('author', 'like', "%{$query}%")
+                        ->orWhere('publisher', 'like', "%{$query}%")
+                        ->orWhere('isbn', 'like', "%{$query}%")
+                        ->orWhereHas('category', fn ($category) => $category->where('name', 'like', "%{$query}%"));
+                }),
+            $request
+        )
+            ->paginate($this->perPage($request))
+            ->appends($request->query());
 
         return BookResource::collection($books);
     }
@@ -81,5 +81,39 @@ class BookController extends Controller
     private function perPage(Request $request): int
     {
         return min(max((int) $request->input('per_page', 20), 1), 100);
+    }
+
+    private function applyCatalogFilters($query, Request $request)
+    {
+        $category = trim($request->string('category')->toString());
+        if ($category !== '') {
+            $query->whereHas('category', function ($builder) use ($category) {
+                $builder->when(
+                    is_numeric($category),
+                    fn ($q) => $q->where('id', (int) $category),
+                    fn ($q) => $q->where('name', $category)
+                );
+            });
+        }
+
+        $availability = strtolower(trim($request->string('availability')->toString()));
+        if ($availability === 'available') {
+            $query->where('available_copies', '>', 0);
+        } elseif ($availability === 'unavailable') {
+            $query->where('available_copies', '<=', 0);
+        }
+
+        $condition = trim($request->string('condition')->toString());
+        if ($condition !== '') {
+            $query->where('condition', $condition);
+        }
+
+        return match ($request->string('sort')->toString()) {
+            'title_desc' => $query->orderByDesc('title'),
+            'author_asc' => $query->orderBy('author')->orderBy('title'),
+            'available_desc' => $query->orderByDesc('available_copies')->orderBy('title'),
+            'recently_added' => $query->orderByDesc('created_at')->orderByDesc('id'),
+            default => $query->orderBy('title'),
+        };
     }
 }

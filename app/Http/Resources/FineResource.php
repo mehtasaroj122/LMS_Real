@@ -18,6 +18,7 @@ class FineResource extends JsonResource
             'issue_id' => $this->issued_book_id,
             'student' => new StudentResource($this->whenLoaded('student')),
             'book' => $book ? new BookResource($book) : null,
+            'issue' => new IssueResource($this->whenLoaded('issuedBook')),
             'amount' => (float) $this->amount,
             'days_late' => (int) $this->days_late,
             'status' => $this->status,

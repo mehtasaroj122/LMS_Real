@@ -1,10 +1,23 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ActivityLogController;
+use App\Http\Controllers\Api\AdminDashboardController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\BookRequestController;
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\IssueController;
+use App\Http\Controllers\Api\LibrarySettingController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\StaffDashboardController;
+use App\Http\Controllers\Api\StudentBookController;
+use App\Http\Controllers\Api\StudentBookRequestController;
 use App\Http\Controllers\Api\StudentController;
+use App\Http\Controllers\Api\StudentDashboardController;
+use App\Http\Controllers\Api\StudentFineController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,64 +33,87 @@ use Illuminate\Support\Facades\Route;
 // Authenticate a mobile user and return a Sanctum bearer token.
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
+// Public password reset endpoints for Android.
+Route::post('/forgot-password', [PasswordResetController::class, 'forgot'])->middleware('throttle:5,1');
+Route::post('/reset-password', [PasswordResetController::class, 'reset'])->middleware('throttle:5,1');
+
 // Manually return a 401 JSON response for Android/Postman security testing.
 Route::get('/test-unauthorized', [AuthController::class, 'testUnauthorized']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Revoke the current mobile bearer token.
+    // Auth/session helpers.
     Route::post('/logout', [AuthController::class, 'logout']);
-
-    // Return the authenticated user's profile and linked student/staff record.
+    Route::get('/auth/check', [AuthController::class, 'check']);
     Route::get('/profile', [AuthController::class, 'profile']);
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
 
-    // List all books with Android-friendly inventory field names.
+    // Catalog APIs available to all authenticated roles.
     Route::get('/books', [BookController::class, 'index']);
-
-    // Search books by title, author, publisher, ISBN/accession number, or category.
     Route::get('/books/search', [BookController::class, 'search']);
-
-    // List books that currently have at least one available copy.
     Route::get('/books/available', [BookController::class, 'available']);
-
-    // List books in a category by category id or category name.
     Route::get('/books/category/{category}', [BookController::class, 'category']);
-
-    // Show one book record.
     Route::get('/books/{id}', [BookController::class, 'show'])->whereNumber('id');
+    Route::get('/categories', [CategoryController::class, 'index']);
 
-    // List all registered students with user and department data.
-    Route::get('/students', [StudentController::class, 'index']);
-
-    // Search students by name, roll number, email, phone, or faculty/department.
-    Route::get('/students/search', [StudentController::class, 'search']);
-
-    // Show one student record.
-    Route::get('/students/{id}', [StudentController::class, 'show'])->whereNumber('id');
-
-    // Issue one or more books to a student.
-    Route::post('/issues', [IssueController::class, 'store']);
-
-    // List issued book transactions.
-    Route::get('/issues', [IssueController::class, 'index']);
-
-    // Return an issued book and calculate any applicable fine.
-    Route::post('/issues/return/{id}', [IssueController::class, 'returnBook'])->whereNumber('id');
-
-    // List issue transactions for a specific student.
-    Route::get('/issues/student/{studentId}', [IssueController::class, 'studentIssues'])->whereNumber('studentId');
-
-    // Show one issue transaction.
-    Route::get('/issues/{id}', [IssueController::class, 'show'])->whereNumber('id');
-
-    // Return dashboard totals for Android home screens.
+    // Existing general dashboard totals for Android home screens.
     Route::get('/dashboard', [DashboardController::class, 'index']);
 
-    // List active issues whose due date has passed.
-    Route::get('/overdue', [IssueController::class, 'overdue']);
+    // Authenticated notification management.
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread', [NotificationController::class, 'unread']);
+    Route::get('/notifications/count', [NotificationController::class, 'count']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'read'])->whereNumber('id');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->whereNumber('id');
 
-    // List all fine records.
-    Route::get('/fines', [IssueController::class, 'fines']);
+    Route::get('/library/settings', LibrarySettingController::class);
 
-    // List fine records for a specific student.
-    Route::get('/fines/student/{id}', [IssueController::class, 'studentFines'])->whereNumber('id');
+    Route::middleware('role:student')->group(function () {
+        Route::get('/student/dashboard', StudentDashboardController::class);
+        Route::get('/student/my-books', [StudentBookController::class, 'index']);
+        Route::get('/student/my-books/summary', [StudentBookController::class, 'summary']);
+        Route::get('/student/my-books/current', [StudentBookController::class, 'current']);
+        Route::get('/student/my-books/history', [StudentBookController::class, 'history']);
+        Route::get('/student/my-books/due-soon', [StudentBookController::class, 'dueSoon']);
+
+        Route::get('/student/requests', [StudentBookRequestController::class, 'index']);
+        Route::post('/student/requests', [StudentBookRequestController::class, 'store']);
+        Route::get('/student/requests/summary', [StudentBookRequestController::class, 'summary']);
+        Route::get('/student/requests/{id}', [StudentBookRequestController::class, 'show'])->whereNumber('id');
+        Route::post('/student/requests/{id}/cancel', [StudentBookRequestController::class, 'cancel'])->whereNumber('id');
+
+        Route::get('/student/fines', [StudentFineController::class, 'index']);
+        Route::get('/student/fines/pending', [StudentFineController::class, 'pending']);
+        Route::get('/student/fines/paid', [StudentFineController::class, 'paid']);
+        Route::get('/student/fines/summary', [StudentFineController::class, 'summary']);
+        Route::get('/student/fines/{id}', [StudentFineController::class, 'show'])->whereNumber('id');
+    });
+
+    Route::middleware('role:admin,staff')->group(function () {
+        Route::get('/students', [StudentController::class, 'index']);
+        Route::get('/students/search', [StudentController::class, 'search']);
+        Route::get('/students/{id}', [StudentController::class, 'show'])->whereNumber('id');
+
+        Route::post('/issues', [IssueController::class, 'store']);
+        Route::get('/issues', [IssueController::class, 'index']);
+        Route::post('/issues/return/{id}', [IssueController::class, 'returnBook'])->whereNumber('id');
+        Route::get('/issues/student/{studentId}', [IssueController::class, 'studentIssues'])->whereNumber('studentId');
+        Route::get('/issues/{id}', [IssueController::class, 'show'])->whereNumber('id');
+
+        Route::get('/overdue', [IssueController::class, 'overdue']);
+        Route::get('/fines', [IssueController::class, 'fines']);
+        Route::get('/fines/student/{id}', [IssueController::class, 'studentFines'])->whereNumber('id');
+
+        Route::get('/staff/dashboard', StaffDashboardController::class);
+        Route::get('/book-requests', [BookRequestController::class, 'index']);
+        Route::get('/book-requests/{id}', [BookRequestController::class, 'show'])->whereNumber('id');
+        Route::post('/book-requests/{id}/approve', [BookRequestController::class, 'approve'])->whereNumber('id');
+        Route::post('/book-requests/{id}/reject', [BookRequestController::class, 'reject'])->whereNumber('id');
+    });
+
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/dashboard', AdminDashboardController::class);
+        Route::get('/activity-logs', ActivityLogController::class);
+    });
 });

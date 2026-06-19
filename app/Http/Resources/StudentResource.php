@@ -2,11 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class StudentResource extends JsonResource
 {
+    use IncludesProfilePhoto;
+
     public function toArray(Request $request): array
     {
         $user = $this->relationLoaded('user') ? $this->user : null;
@@ -20,6 +23,9 @@ class StudentResource extends JsonResource
             'phone' => $user?->phone,
             'faculty' => $department?->name,
             'semester' => $this->semester,
+            'status' => $user?->status,
+            'profile_photo' => $user?->profile_photo,
+            'profile_photo_url' => $this->profilePhotoUrl($user?->profile_photo),
         ];
     }
 }

@@ -10,6 +10,7 @@ class IssueResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'issue_id' => $this->id,
             'student' => new StudentResource($this->whenLoaded('student')),
             'book' => new BookResource($this->whenLoaded('book')),
@@ -18,6 +19,8 @@ class IssueResource extends JsonResource
             'return_date' => optional($this->return_date)->toDateString(),
             'fine_amount' => (float) $this->fine_amount,
             'status' => $this->status,
+            'condition' => $this->condition,
+            'remarks' => $this->remarks,
         ];
     }
 }
