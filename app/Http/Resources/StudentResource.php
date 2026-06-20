@@ -21,6 +21,8 @@ class StudentResource extends JsonResource
             'roll_no' => $this->roll_no,
             'email' => $user?->email,
             'phone' => $user?->phone,
+            'gender' => $user?->gender,
+            'address' => $user?->address,
             'faculty' => $department?->name,
             'semester' => $this->semester,
             'status' => $user?->status,

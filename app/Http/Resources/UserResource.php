@@ -17,10 +17,15 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
+            'gender' => $this->gender,
+            'address' => $this->address,
             'role' => $this->role,
             'status' => $this->status,
             'profile_photo' => $this->profile_photo,
             'profile_photo_url' => $this->profilePhotoUrl($this->profile_photo),
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'last_login_at' => $this->last_login_at,
         ];
 
         // Only include student data if user is a student

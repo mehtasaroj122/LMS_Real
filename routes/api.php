@@ -47,6 +47,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [ProfileController::class, 'update']);
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
+    Route::post('/profile/photo', [ProfileController::class, 'uploadPhoto']);
+    Route::delete('/profile/photo', [ProfileController::class, 'removePhoto']);
+    Route::get('/profile/delete-eligibility', [ProfileController::class, 'deleteEligibility']);
+    Route::delete('/profile', [ProfileController::class, 'destroy']);
 
     // Catalog APIs available to all authenticated roles.
     Route::get('/books', [BookController::class, 'index']);

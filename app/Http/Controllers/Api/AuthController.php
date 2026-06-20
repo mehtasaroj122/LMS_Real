@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\LoginRequest;
+use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    use IncludesProfilePhoto;
+
     public function login(LoginRequest $request): JsonResponse
     {
         $user = User::query()
@@ -71,6 +74,8 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
                 'status' => $user->status,
+                'profile_photo' => $user->profile_photo,
+                'profile_photo_url' => $this->profilePhotoUrl($user->profile_photo),
             ],
             'student_id' => $user->student?->id,
             'staff_id' => $user->staff?->id,

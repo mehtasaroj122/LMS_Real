@@ -57,7 +57,7 @@ Route::get('/profile-photos/{path}', function ($path) {
     
     // Check if the path already contains the directory prefix
     $lowerPath = strtolower($normalizedPath);
-    if (!str_starts_with($lowerPath, 'profile_pics/')) {
+    if (!str_starts_with($lowerPath, 'profile_pics/') && !str_starts_with($lowerPath, 'profile_photos/')) {
         $normalizedPath = "profile_pics/{$normalizedPath}";
     }
     

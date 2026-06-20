@@ -56,8 +56,9 @@ class ProfilePhoto
             return false;
         }
 
-        // Check for profile_pics/ or Profile_pics/ directories (case-insensitive check)
+        // Check for supported profile photo directories (case-insensitive).
         $lowerPath = strtolower($normalizedPhotoPath);
-        return str_starts_with($lowerPath, 'profile_pics/');
+        return str_starts_with($lowerPath, 'profile_pics/')
+            || str_starts_with($lowerPath, 'profile_photos/');
     }
 }

@@ -82,6 +82,85 @@ Revokes the current Sanctum token.
 
 Returns the authenticated user and linked student or staff data.
 
+The response includes:
+
+```json
+{
+  "profile_photo": "profile_photos/filename.jpg",
+  "profile_photo_url": "http://127.0.0.1:8000/storage/profile_photos/filename.jpg"
+}
+```
+
+If `profile_photo_url` is `null`, Android should show an initials avatar.
+
+### POST /api/profile/photo
+
+Uploads the authenticated user's profile photo.
+
+Content type: `multipart/form-data`
+
+Form-data field:
+
+```text
+photo: image file
+```
+
+Allowed formats: `jpg`, `jpeg`, `png`, `webp`. Maximum size: 2 MB.
+Profile photo URLs require the Laravel public storage link (`php artisan storage:link`).
+
+```json
+{
+  "message": "Profile photo uploaded successfully.",
+  "profile_photo": "profile_photos/filename.jpg",
+  "profile_photo_url": "http://127.0.0.1:8000/storage/profile_photos/filename.jpg"
+}
+```
+
+### DELETE /api/profile/photo
+
+Removes the authenticated user's profile photo.
+
+```json
+{
+  "message": "Profile photo removed successfully.",
+  "profile_photo": null,
+  "profile_photo_url": null
+}
+```
+
+### GET /api/profile/delete-eligibility
+
+Checks whether the authenticated student account can be deleted.
+
+```json
+{
+  "can_delete": false,
+  "message": "Account deletion is currently unavailable.",
+  "issued_books": 3,
+  "pending_fines": 50,
+  "active_requests": 2,
+  "reasons": [
+    "You have 3 issued books.",
+    "You have Rs. 50 pending fines.",
+    "You have 2 active book requests."
+  ]
+}
+```
+
+Admin and staff accounts cannot be deleted from mobile.
+
+### DELETE /api/profile
+
+Deactivates an eligible student account and revokes Sanctum tokens.
+
+```json
+{
+  "confirmation": "DELETE"
+}
+```
+
+Students with issued books, pending fines, or active book requests receive `422`. Admin and staff receive `403`.
+
 ### GET /api/test-unauthorized
 
 Returns a manual 401 JSON response for Android/Postman auth testing.
