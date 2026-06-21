@@ -12,7 +12,12 @@ use App\Http\Controllers\Api\LibrarySettingController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\StaffBookRequestController;
 use App\Http\Controllers\Api\StaffDashboardController;
+use App\Http\Controllers\Api\StaffFineController;
+use App\Http\Controllers\Api\StaffIssueController;
+use App\Http\Controllers\Api\StaffReturnController;
+use App\Http\Controllers\Api\StaffStudentController;
 use App\Http\Controllers\Api\StudentBookController;
 use App\Http\Controllers\Api\StudentBookRequestController;
 use App\Http\Controllers\Api\StudentController;
@@ -114,6 +119,29 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/book-requests/{id}', [BookRequestController::class, 'show'])->whereNumber('id');
         Route::post('/book-requests/{id}/approve', [BookRequestController::class, 'approve'])->whereNumber('id');
         Route::post('/book-requests/{id}/reject', [BookRequestController::class, 'reject'])->whereNumber('id');
+
+        Route::prefix('staff')->group(function () {
+            Route::get('/students', [StaffStudentController::class, 'index']);
+            Route::get('/students/search', [StaffStudentController::class, 'search']);
+            Route::get('/students/{student}', [StaffStudentController::class, 'show'])->whereNumber('student');
+            Route::get('/students/{student}/issue-privileges', [StaffIssueController::class, 'privileges'])->whereNumber('student');
+
+            Route::get('/books/search', [StaffIssueController::class, 'searchBooks']);
+            Route::post('/issues/preview', [StaffIssueController::class, 'preview']);
+            Route::post('/issues', [StaffIssueController::class, 'store']);
+            Route::get('/issues/search', [StaffReturnController::class, 'search']);
+            Route::post('/issues/{issue}/return', [StaffReturnController::class, 'returnBook'])->whereNumber('issue');
+
+            Route::get('/fines', [StaffFineController::class, 'index']);
+            Route::get('/fines/{fine}', [StaffFineController::class, 'show'])->whereNumber('fine');
+            Route::post('/fines/{fine}/pay', [StaffFineController::class, 'pay'])->whereNumber('fine');
+            Route::post('/fines/{fine}/waive', [StaffFineController::class, 'waive'])->whereNumber('fine');
+
+            Route::get('/book-requests', [StaffBookRequestController::class, 'index']);
+            Route::get('/book-requests/{bookRequest}', [StaffBookRequestController::class, 'show'])->whereNumber('bookRequest');
+            Route::post('/book-requests/{bookRequest}/approve', [StaffBookRequestController::class, 'approve'])->whereNumber('bookRequest');
+            Route::post('/book-requests/{bookRequest}/reject', [StaffBookRequestController::class, 'reject'])->whereNumber('bookRequest');
+        });
     });
 
     Route::middleware('role:admin')->group(function () {
