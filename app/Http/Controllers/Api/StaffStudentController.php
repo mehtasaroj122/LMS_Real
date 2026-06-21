@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\FormatsStaffStudentPayloads;
 use App\Http\Controllers\Controller;
 use App\Models\Fine;
 use App\Models\IssuedBook;
@@ -12,6 +13,8 @@ use Illuminate\Http\Request;
 
 class StaffStudentController extends Controller
 {
+    use FormatsStaffStudentPayloads;
+
     public function index(Request $request, StudentIssuePrivilegeService $privilegeService): JsonResponse
     {
         $students = $this->studentQuery($request->string('query')->toString())
@@ -152,6 +155,7 @@ class StaffStudentController extends Controller
             'current_issued' => (int) ($student->active_issued_books_count ?? $privileges['already_issued']),
             'max_books' => $privileges['max_books'],
             'can_issue' => $privileges['allowed'] && $privileges['can_issue'] > 0,
+            ...$this->staffStudentPhotoPayload($student),
         ];
     }
 

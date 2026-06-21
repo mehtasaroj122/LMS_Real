@@ -1922,7 +1922,7 @@ Request: optional `query`, `per_page`.
 Success Response:
 
 ```json
-{"success":true,"message":"Students fetched successfully.","data":[{"id":1,"user_id":37,"name":"Saroj Mehta","student_id":"CS-2023-001","current_issued":2,"max_books":5,"can_issue":true}],"meta":{"total":1}}
+{"success":true,"message":"Students fetched successfully.","data":[{"id":1,"user_id":37,"name":"Saroj Mehta","student_id":"CS-2023-001","current_issued":2,"max_books":5,"can_issue":true,"profile_photo":"profile_photos/student.jpg","profile_photo_url":"http://YOUR_SERVER/storage/profile_photos/student.jpg"}],"meta":{"total":1}}
 ```
 
 Error Response:
@@ -1933,7 +1933,7 @@ Error Response:
 
 Controller: `StaffStudentController@index`
 
-Notes: Includes issue capacity summary.
+Notes: Includes issue capacity summary and student photo fields from `users.profile_photo` when available. Run `php artisan storage:link` and set `APP_URL` to a phone-accessible server URL, not `localhost`, for Android devices.
 
 ### Search Students For Issue Book
 
@@ -1952,7 +1952,7 @@ Request: query `query` or `q`.
 Success Response:
 
 ```json
-{"success":true,"message":"Students fetched successfully.","data":[{"id":1,"user_id":37,"name":"Saroj Mehta","email":"student@example.com","student_id":"CS-2023-001","roll_no":"CS-2023-001","department":"Computer Science","status":"active","current_issued":2,"max_books":5,"can_issue":true}]}
+{"success":true,"message":"Students fetched successfully.","data":[{"id":1,"user_id":37,"name":"Saroj Mehta","email":"student@example.com","student_id":"CS-2023-001","roll_no":"CS-2023-001","department":"Computer Science","status":"active","current_issued":2,"max_books":5,"can_issue":true,"profile_photo":"profile_photos/student.jpg","profile_photo_url":"http://YOUR_SERVER/storage/profile_photos/student.jpg"}]}
 ```
 
 Error Response:
@@ -1963,7 +1963,7 @@ Error Response:
 
 Controller: `StaffStudentController@search`
 
-Notes: Returns at most 20 students.
+Notes: Returns at most 20 students. `profile_photo_url` is generated with `url(Storage::url($path))`; configure `APP_URL` for the Android device network.
 
 ### Staff Student Detail
 
@@ -1982,7 +1982,7 @@ Request: path `student`.
 Success Response:
 
 ```json
-{"success":true,"message":"Student fetched successfully.","data":{"id":1,"name":"Saroj Mehta","active_issued_books":[],"returned_books_count":3,"pending_fines_amount":0,"pending_requests_count":1}}
+{"success":true,"message":"Student fetched successfully.","data":{"id":1,"name":"Saroj Mehta","profile_photo":"profile_photos/student.jpg","profile_photo_url":"http://YOUR_SERVER/storage/profile_photos/student.jpg","active_issued_books":[],"returned_books_count":3,"pending_fines_amount":0,"pending_requests_count":1}}
 ```
 
 Error Response:
@@ -1993,7 +1993,7 @@ Error Response:
 
 Controller: `StaffStudentController@show`
 
-Notes: Includes active issues, pending requests, and pending fines.
+Notes: Includes active issues, pending requests, pending fines, and student photo fields.
 
 ### Student Issue Privileges
 
@@ -2012,7 +2012,7 @@ Request: path `student`.
 Success Response:
 
 ```json
-{"success":true,"message":"Issue privileges fetched successfully.","data":{"student":{"id":1,"name":"Saroj Mehta","email":"student@example.com","student_id":"CS-2023-001","department":"Computer Science","status":"active"},"privileges":{"allowed":true,"reason":null,"max_books":5,"already_issued":2,"can_issue":3,"duration_days":14,"fine_rate":5,"issue_date":"2026-06-21","due_date":"2026-07-05","has_pending_fines":false,"pending_fine_amount":0,"account_status":"active","policy_source":"fine_settings","policy_name":"Default library policy"}}}
+{"success":true,"message":"Issue privileges fetched successfully.","data":{"student":{"id":1,"name":"Saroj Mehta","email":"student@example.com","student_id":"CS-2023-001","department":"Computer Science","status":"active","profile_photo":"profile_photos/student.jpg","profile_photo_url":"http://YOUR_SERVER/storage/profile_photos/student.jpg"},"privileges":{"allowed":true,"reason":null,"max_books":5,"already_issued":2,"can_issue":3,"duration_days":14,"fine_rate":5,"issue_date":"2026-06-21","due_date":"2026-07-05","has_pending_fines":false,"pending_fine_amount":0,"account_status":"active","policy_source":"fine_settings","policy_name":"Default library policy"}}}
 ```
 
 Error Response:
@@ -2023,7 +2023,7 @@ Error Response:
 
 Controller: `StaffIssueController@privileges`
 
-Notes: Uses `StudentIssuePrivilegeService`; inactive account, suspended borrowing, or issue limit reached set `allowed=false`.
+Notes: Uses `StudentIssuePrivilegeService`; inactive account, suspended borrowing, or issue limit reached set `allowed=false`. The nested `student` object includes `profile_photo` and `profile_photo_url`.
 
 ### Search Books For Issue Book
 

@@ -131,6 +131,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/issues', [StaffIssueController::class, 'store']);
             Route::get('/issues/search', [StaffReturnController::class, 'search']);
             Route::post('/issues/{issue}/return', [StaffReturnController::class, 'returnBook'])->whereNumber('issue');
+            Route::get('/returns/settings', [StaffReturnController::class, 'settings']);
+            Route::get('/returns/students/search', [StaffReturnController::class, 'searchStudents']);
+            Route::get('/returns/students/{student}', [StaffReturnController::class, 'studentReturnData'])->whereNumber('student');
+            Route::post('/returns/preview', [StaffReturnController::class, 'preview']);
+            Route::post('/returns', [StaffReturnController::class, 'returnBooks']);
 
             Route::get('/fines', [StaffFineController::class, 'index']);
             Route::get('/fines/{fine}', [StaffFineController::class, 'show'])->whereNumber('fine');

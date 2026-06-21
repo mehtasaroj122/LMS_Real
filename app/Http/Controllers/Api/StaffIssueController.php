@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Helpers\ActivityLogger;
+use App\Http\Controllers\Api\Concerns\FormatsStaffStudentPayloads;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StaffIssuePreviewRequest;
 use App\Http\Requests\Api\StaffIssueStoreRequest;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\DB;
 
 class StaffIssueController extends Controller
 {
+    use FormatsStaffStudentPayloads;
+
     public function privileges(int $student, StudentIssuePrivilegeService $privilegeService): JsonResponse
     {
         $studentModel = Student::query()
@@ -248,6 +251,7 @@ class StaffIssueController extends Controller
             'roll_no' => $student->roll_no,
             'department' => $student->department?->name,
             'status' => $student->user?->status,
+            ...$this->staffStudentPhotoPayload($student),
         ];
     }
 
