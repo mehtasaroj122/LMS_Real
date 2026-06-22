@@ -51,15 +51,21 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()?->delete();
 
         return response()->json([
+            'success' => true,
             'message' => 'Logout successful.',
+            'data' => [],
         ], 200);
     }
 
-    public function profile(Request $request): UserResource
+    public function profile(Request $request): JsonResponse
     {
-        return new UserResource(
-            $request->user()->load(['student.user', 'student.department', 'staff'])
-        );
+        $user = $request->user()->load(['student.user', 'student.department', 'staff.department']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile fetched successfully.',
+            'data' => (new UserResource($user))->resolve($request),
+        ]);
     }
 
     public function check(Request $request): JsonResponse

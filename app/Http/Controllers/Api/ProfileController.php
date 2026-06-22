@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
@@ -26,15 +28,16 @@ class ProfileController extends Controller
         $user = $request->user();
         $original = $user->only(ActivityLogger::userProfileAuditFields());
 
-        $user->fill($request->safe()->only(['name', 'email', 'phone', 'gender', 'address']));
+        $user->fill($request->safe()->only(['name', 'phone', 'address']));
         $user->save();
 
         $changeSet = ActivityLogger::buildUserProfileChangeSet($original, $user->fresh()->only(ActivityLogger::userProfileAuditFields()));
         ActivityLogger::logUserProfileChanges($user, $changeSet, ['source' => 'mobile_api']);
 
         return response()->json([
+            'success' => true,
             'message' => 'Profile updated successfully.',
-            'data' => new UserResource($user->fresh(['student.user', 'student.department', 'staff'])),
+            'data' => (new UserResource($user->fresh(['student.user', 'student.department', 'staff.department'])))->resolve($request),
         ]);
     }
 
@@ -44,6 +47,7 @@ class ProfileController extends Controller
 
         if (! $user->password || ! Hash::check($request->string('current_password')->toString(), $user->password)) {
             return response()->json([
+                'success' => false,
                 'message' => 'The given data was invalid.',
                 'errors' => [
                     'current_password' => ['The current password is incorrect.'],
@@ -58,15 +62,27 @@ class ProfileController extends Controller
         ])->save();
 
         return response()->json([
+            'success' => true,
             'message' => 'Password changed successfully.',
+            'data' => [],
         ]);
     }
 
     public function uploadPhoto(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         $user = $request->user();
         $original = $user->only(ActivityLogger::userProfileAuditFields());
@@ -89,7 +105,12 @@ class ProfileController extends Controller
         );
 
         return response()->json([
+            'success' => true,
             'message' => 'Profile photo uploaded successfully.',
+            'data' => [
+                'profile_photo' => $path,
+                'profile_photo_url' => $this->profilePhotoUrl($path),
+            ],
             'profile_photo' => $path,
             'profile_photo_url' => $this->profilePhotoUrl($path),
         ], 200);
@@ -101,7 +122,12 @@ class ProfileController extends Controller
 
         if (! $user->profile_photo) {
             return response()->json([
+                'success' => true,
                 'message' => 'No profile photo found.',
+                'data' => [
+                    'profile_photo' => null,
+                    'profile_photo_url' => null,
+                ],
                 'profile_photo' => null,
                 'profile_photo_url' => null,
             ], 200);
@@ -125,7 +151,12 @@ class ProfileController extends Controller
         );
 
         return response()->json([
+            'success' => true,
             'message' => 'Profile photo removed successfully.',
+            'data' => [
+                'profile_photo' => null,
+                'profile_photo_url' => null,
+            ],
             'profile_photo' => null,
             'profile_photo_url' => null,
         ], 200);
@@ -197,6 +228,85 @@ class ProfileController extends Controller
 
         return response()->json([
             'message' => 'Your account has been deactivated successfully.',
+        ], 200);
+    }
+
+    public function destroyAccount(Request $request): JsonResponse
+    {
+        $user = $request->user()->loadMissing(['student', 'staff']);
+        $payload = $request->all();
+
+        if (! array_key_exists('confirmation_text', $payload) && array_key_exists('confirmation', $payload)) {
+            $payload['confirmation_text'] = $payload['confirmation'];
+        }
+
+        $validator = Validator::make($payload, [
+            'current_password' => ['required', 'string'],
+            'confirmation_text' => ['required', 'string', Rule::in(['DELETE'])],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        if (! $user->password || ! Hash::check((string) $payload['current_password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The given data was invalid.',
+                'errors' => [
+                    'current_password' => ['The current password is incorrect.'],
+                ],
+            ], 422);
+        }
+
+        if ($user->role === 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Admin accounts cannot be deleted from mobile.',
+            ], 403);
+        }
+
+        if ($user->role === 'student') {
+            if (! $user->student) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Student profile not found.',
+                ], 404);
+            }
+
+            $eligibility = $this->deleteEligibilityPayload($user->student->id);
+
+            if (! $eligibility['can_delete']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Account deletion is currently unavailable.',
+                    'errors' => [
+                        'issued_books' => $eligibility['issued_books'],
+                        'pending_fines' => $eligibility['pending_fines'],
+                        'active_requests' => $eligibility['active_requests'],
+                    ],
+                ], 422);
+            }
+        }
+
+        DB::transaction(function () use ($user): void {
+            $user->forceFill([
+                'status' => 'inactive',
+            ])->save();
+
+            $user->tokens()->delete();
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your account has been deactivated successfully.',
+            'data' => [
+                'status' => 'inactive',
+            ],
         ], 200);
     }
 

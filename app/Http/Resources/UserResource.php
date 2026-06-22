@@ -16,6 +16,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'username' => $this->username,
             'phone' => $this->phone,
             'gender' => $this->gender,
             'address' => $this->address,
@@ -35,7 +36,20 @@ class UserResource extends JsonResource
 
         // Only include staff data if user is staff or admin
         if (in_array($this->role, ['staff', 'admin'])) {
-            $data['staff'] = $this->whenLoaded('staff', fn () => $this->staff);
+            $data['staff'] = $this->whenLoaded('staff', function () {
+                if (! $this->staff) {
+                    return null;
+                }
+
+                return [
+                    'id' => $this->staff->id,
+                    'staff_id' => $this->staff->staff_id,
+                    'department_id' => $this->staff->department_id,
+                    'department' => $this->staff->department?->name,
+                    'designation' => $this->staff->designation,
+                    'join_date' => $this->staff->join_date,
+                ];
+            });
         }
 
         return $data;

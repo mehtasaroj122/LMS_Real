@@ -6,6 +6,7 @@ use App\Models\category as Category;
 use App\Models\department as Department;
 use App\Models\Fine;
 use App\Models\IssuedBook;
+use App\Models\Staff;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -48,6 +49,26 @@ function makeMobileProfileStudent(): User
     ]);
 
     return $user->fresh()->load('student');
+}
+
+function makeMobileProfileStaff(): User
+{
+    $user = makeMobileProfileUser('staff');
+    $department = Department::create([
+        'name' => 'Staff Mobile Department ' . Str::random(6),
+        'code' => Str::upper(Str::random(4)),
+        'status' => 'active',
+    ]);
+
+    Staff::create([
+        'user_id' => $user->id,
+        'department_id' => $department->id,
+        'staff_id' => 'STF-' . Str::upper(Str::random(6)),
+        'designation' => 'Librarian',
+        'join_date' => now()->toDateString(),
+    ]);
+
+    return $user->fresh()->load('staff.department');
 }
 
 function makeMobileProfileBook(): Book
@@ -183,4 +204,90 @@ test('admin and staff accounts cannot be deleted from mobile', function () {
             ->assertForbidden()
             ->assertJsonPath('message', 'Admin and staff accounts cannot be deleted from mobile.');
     }
+});
+
+test('staff profile returns real logged in staff data', function () {
+    $user = makeMobileProfileStaff();
+    Sanctum::actingAs($user);
+
+    $this->getJson('/api/profile')
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.id', $user->id)
+        ->assertJsonPath('data.email', $user->email)
+        ->assertJsonPath('data.role', 'staff')
+        ->assertJsonPath('data.staff.id', $user->staff->id)
+        ->assertJsonPath('data.staff.department', $user->staff->department->name);
+});
+
+test('mobile profile update only changes editable fields', function () {
+    $user = makeMobileProfileStaff();
+    Sanctum::actingAs($user);
+
+    $this->putJson('/api/profile', [
+        'name' => 'Updated Staff Mobile User',
+        'phone' => '9812345678',
+        'address' => 'Updated Address',
+        'email' => 'readonly@example.com',
+        'role' => 'admin',
+        'department' => 'Readonly Department',
+    ])
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.name', 'Updated Staff Mobile User')
+        ->assertJsonPath('data.phone', '9812345678')
+        ->assertJsonPath('data.address', 'Updated Address');
+
+    $user->refresh();
+
+    expect($user->name)->toBe('Updated Staff Mobile User');
+    expect($user->phone)->toBe('9812345678');
+    expect($user->address)->toBe('Updated Address');
+    expect($user->email)->not->toBe('readonly@example.com');
+    expect($user->role)->toBe('staff');
+});
+
+test('mobile password endpoint verifies current password', function () {
+    $user = makeMobileProfileStaff();
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/profile/password', [
+        'current_password' => 'wrong-password',
+        'password' => 'NewPassword!123',
+        'password_confirmation' => 'NewPassword!123',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonPath('success', false)
+        ->assertJsonValidationErrors('current_password');
+
+    $this->postJson('/api/profile/password', [
+        'current_password' => 'Password!123',
+        'password' => 'NewPassword!123',
+        'password_confirmation' => 'NewPassword!123',
+    ])
+        ->assertOk()
+        ->assertJsonPath('success', true);
+
+    expect(Hash::check('NewPassword!123', $user->fresh()->password))->toBeTrue();
+});
+
+test('staff account endpoint deactivates instead of deleting', function () {
+    $user = makeMobileProfileStaff();
+    $user->createToken('android-mobile');
+    Sanctum::actingAs($user);
+
+    $this->deleteJson('/api/profile/account', [
+        'current_password' => 'Password!123',
+        'confirmation_text' => 'DELETE',
+    ])
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.status', 'inactive');
+
+    $user->refresh();
+
+    expect($user->status)->toBe('inactive');
+    expect(User::query()->whereKey($user->id)->exists())->toBeTrue();
+    expect(Staff::query()->where('user_id', $user->id)->exists())->toBeTrue();
+    expect($user->tokens()->count())->toBe(0);
 });
