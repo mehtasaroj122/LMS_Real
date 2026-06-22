@@ -14,7 +14,21 @@ trait InteractsWithFineRecords
 
     protected function ensureFineIsActionable(Fine $fine): void
     {
-        if (strtolower((string) $fine->status) !== 'pending') {
+        $status = strtolower((string) $fine->status);
+
+        if ($status === 'paid') {
+            throw ValidationException::withMessages([
+                'fine' => 'This fine is already paid.',
+            ]);
+        }
+
+        if ($status === 'waived') {
+            throw ValidationException::withMessages([
+                'fine' => 'This fine is already waived.',
+            ]);
+        }
+
+        if ($status !== 'pending') {
             throw ValidationException::withMessages([
                 'fine' => 'Only pending fines can be updated from this page.',
             ]);

@@ -41,15 +41,20 @@ class StaffStudentController extends Controller
         $query = trim((string) ($request->query('query') ?? $request->query('q') ?? ''));
 
         $students = $this->studentQuery($query)
-            ->limit(20)
-            ->get()
-            ->map(fn (Student $student) => $this->summary($student, $privilegeService))
-            ->values();
+            ->paginate($this->perPage($request));
 
         return response()->json([
             'success' => true,
             'message' => 'Students fetched successfully.',
-            'data' => $students,
+            'data' => $students->getCollection()
+                ->map(fn (Student $student) => $this->summary($student, $privilegeService))
+                ->values(),
+            'meta' => [
+                'current_page' => $students->currentPage(),
+                'last_page' => $students->lastPage(),
+                'per_page' => $students->perPage(),
+                'total' => $students->total(),
+            ],
         ]);
     }
 

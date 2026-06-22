@@ -29,7 +29,9 @@ class FineManagementActionService
 
         $studentName = trim((string) ($fine->student?->user?->name ?? 'Student'));
         $status = strtolower(trim((string) ($fine->status ?? 'pending'))) ?: 'pending';
-        $reason = $status === 'waived' ? trim((string) ($fine->remarks ?? '')) : null;
+        $reason = $status === 'waived'
+            ? trim((string) ($fine->waive_reason ?? $fine->remarks ?? ''))
+            : null;
 
         $mailType = match ($status) {
             'paid' => 'paid',
@@ -73,6 +75,8 @@ class FineManagementActionService
         $fine->update([
             'status' => 'paid',
             'paid_on' => now(),
+            'paid_at' => now(),
+            'paid_by' => auth()->id(),
         ]);
 
         try {
@@ -143,6 +147,9 @@ class FineManagementActionService
 
         $fine->update([
             'status' => 'waived',
+            'waive_reason' => $normalizedReason,
+            'waived_at' => now(),
+            'waived_by' => auth()->id(),
             'remarks' => $normalizedReason,
         ]);
 

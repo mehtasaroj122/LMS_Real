@@ -13,10 +13,32 @@ use Illuminate\Validation\ValidationException;
 
 class StaffBookRequestController extends Controller
 {
+    public function summary(): JsonResponse
+    {
+        $counts = BookRequest::query()
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw("SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending")
+            ->selectRaw("SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved")
+            ->selectRaw("SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected")
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Book request summary fetched successfully.',
+            'data' => [
+                'total' => (int) ($counts->total ?? 0),
+                'pending' => (int) ($counts->pending ?? 0),
+                'approved' => (int) ($counts->approved ?? 0),
+                'rejected' => (int) ($counts->rejected ?? 0),
+            ],
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $requests = $this->filteredQuery($request)
             ->latest('request_date')
+            ->latest('created_at')
             ->paginate($this->perPage($request));
 
         return response()->json([
@@ -133,19 +155,24 @@ class StaffBookRequestController extends Controller
 
         return BookRequest::query()
             ->with(['student.user', 'student.department', 'book.category'])
-            ->when($request->filled('status'), fn ($builder) => $builder->where('status', $request->query('status')))
+            ->when($request->filled('status') && $request->query('status') !== 'all', fn ($builder) => $builder->where('status', $request->query('status')))
             ->when($request->filled('student_id'), fn ($builder) => $builder->where('student_id', $request->query('student_id')))
             ->when($query !== '', function ($builder) use ($query) {
                 $builder->where(function ($requestQuery) use ($query) {
                     $requestQuery
                         ->where('book_requests.id', 'like', "%{$query}%")
+                        ->orWhere('book_requests.status', 'like', "%{$query}%")
+                        ->orWhere('book_requests.request_date', 'like', "%{$query}%")
                         ->orWhereHas('student', function ($studentQuery) use ($query) {
                             $studentQuery
                                 ->where('student_id', 'like', "%{$query}%")
                                 ->orWhere('roll_no', 'like', "%{$query}%")
                                 ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', "%{$query}%")->orWhere('email', 'like', "%{$query}%"));
                         })
-                        ->orWhereHas('book', fn ($bookQuery) => $bookQuery->where('title', 'like', "%{$query}%")->orWhere('isbn', 'like', "%{$query}%"));
+                        ->orWhereHas('book', fn ($bookQuery) => $bookQuery
+                            ->where('title', 'like', "%{$query}%")
+                            ->orWhere('author', 'like', "%{$query}%")
+                            ->orWhere('isbn', 'like', "%{$query}%"));
                 });
             });
     }
@@ -161,16 +188,40 @@ class StaffBookRequestController extends Controller
             'student_id' => $bookRequest->student_id,
             'student_name' => $student?->user?->name,
             'student_roll_no' => $student?->roll_no,
+            'student_symbol_no' => $student?->roll_no,
             'department' => $student?->department?->name,
+            'student' => [
+                'id' => $student?->id,
+                'user_id' => $student?->user_id,
+                'name' => $student?->user?->name,
+                'student_id' => $student?->student_id,
+                'roll_no' => $student?->roll_no,
+                'symbol_no' => $student?->roll_no,
+                'department' => $student?->department?->name,
+                'photo' => $student?->user?->profile_photo,
+                'photo_url' => $student?->user?->profile_photo
+                    ? (str_starts_with($student->user->profile_photo, 'http')
+                        ? $student->user->profile_photo
+                        : asset('storage/' . $student->user->profile_photo))
+                    : null,
+            ],
             'book_id' => $bookRequest->book_id,
             'book_title' => $book?->title,
             'author' => $book?->author,
+            'book' => [
+                'id' => $book?->id,
+                'title' => $book?->title,
+                'author' => $book?->author,
+                'isbn' => $book?->isbn,
+            ],
             'isbn' => $book?->isbn,
             'available_copies' => (int) ($book?->available_copies ?? 0),
             'status' => $bookRequest->status,
             'request_date' => optional($bookRequest->request_date)->toDateTimeString(),
             'processed_by' => $bookRequest->processed_by,
             'processed_date' => optional($bookRequest->processed_date)->toDateTimeString(),
+            'processed_at' => optional($bookRequest->processed_date)->toDateTimeString(),
+            'created_at' => optional($bookRequest->created_at)->toDateTimeString(),
         ];
     }
 

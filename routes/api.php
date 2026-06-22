@@ -138,10 +138,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/returns', [StaffReturnController::class, 'returnBooks']);
 
             Route::get('/fines', [StaffFineController::class, 'index']);
+            Route::get('/fines/summary', [StaffFineController::class, 'summary']);
+            Route::get('/fines/students', [StaffFineController::class, 'students']);
+            Route::get('/fines/students/{student}', [StaffFineController::class, 'studentDetails'])->whereNumber('student');
             Route::get('/fines/{fine}', [StaffFineController::class, 'show'])->whereNumber('fine');
             Route::post('/fines/{fine}/pay', [StaffFineController::class, 'pay'])->whereNumber('fine');
             Route::post('/fines/{fine}/waive', [StaffFineController::class, 'waive'])->whereNumber('fine');
 
+            Route::get('/book-requests/summary', [StaffBookRequestController::class, 'summary']);
             Route::get('/book-requests', [StaffBookRequestController::class, 'index']);
             Route::get('/book-requests/{bookRequest}', [StaffBookRequestController::class, 'show'])->whereNumber('bookRequest');
             Route::post('/book-requests/{bookRequest}/approve', [StaffBookRequestController::class, 'approve'])->whereNumber('bookRequest');

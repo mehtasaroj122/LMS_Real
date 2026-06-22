@@ -68,15 +68,20 @@ class StaffIssueController extends Controller
             })
             ->orderByDesc('available_copies')
             ->orderBy('title')
-            ->limit(20)
-            ->get()
-            ->map(fn (Book $book) => $this->bookPayload($book, in_array($book->id, $studentIssuedBookIds, true)))
-            ->values();
+            ->paginate($this->perPage($request));
 
         return response()->json([
             'success' => true,
             'message' => 'Books fetched successfully.',
-            'data' => $books,
+            'data' => $books->getCollection()
+                ->map(fn (Book $book) => $this->bookPayload($book, in_array($book->id, $studentIssuedBookIds, true)))
+                ->values(),
+            'meta' => [
+                'current_page' => $books->currentPage(),
+                'last_page' => $books->lastPage(),
+                'per_page' => $books->perPage(),
+                'total' => $books->total(),
+            ],
         ]);
     }
 
@@ -285,6 +290,11 @@ class StaffIssueController extends Controller
             ->where('book_id', $bookId)
             ->whereNull('return_date')
             ->exists();
+    }
+
+    private function perPage(Request $request): int
+    {
+        return min(max((int) $request->input('per_page', 20), 1), 100);
     }
 
     private function notifyIssueCreated(Student $student, Book $book, IssuedBook $issue): void

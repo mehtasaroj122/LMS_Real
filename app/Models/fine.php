@@ -16,12 +16,19 @@ class Fine extends Model
         'days_late',
         'status',
         'paid_on',
+        'paid_at',
+        'paid_by',
+        'waive_reason',
+        'waived_at',
+        'waived_by',
         'payment_method',
         'remarks',
     ];
 
     protected $casts = [
         'paid_on' => 'date',
+        'paid_at' => 'datetime',
+        'waived_at' => 'datetime',
     ];
 
     public function issuedBook()
@@ -32,5 +39,15 @@ class Fine extends Model
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function paidBy()
+    {
+        return $this->belongsTo(User::class, 'paid_by');
+    }
+
+    public function waivedBy()
+    {
+        return $this->belongsTo(User::class, 'waived_by');
     }
 }
