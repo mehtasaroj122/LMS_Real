@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
-use App\Models\book;
+use App\Models\Book;
 use App\Models\Notification;
 use App\Models\User;
 use App\Helpers\ActivityLogger;

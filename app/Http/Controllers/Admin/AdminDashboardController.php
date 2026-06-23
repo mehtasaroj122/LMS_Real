@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
-use App\Models\book;
-use App\Models\category;
+use App\Models\Book;
+use App\Models\Category;
 use App\Models\Fine;
 use App\Models\BookRequest;
 use App\Models\IssuedBook;
-use App\Models\student;
+use App\Models\Student;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;

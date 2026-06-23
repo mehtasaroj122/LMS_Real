@@ -4,7 +4,7 @@ namespace App\Services\Auth;
 
 use App\Helpers\ActivityLogger;
 use App\Mail\WelcomeEmail;
-use App\Models\staff;
+use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;

@@ -9,7 +9,7 @@ use App\Http\Resources\BookRequestResource;
 use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use App\Http\Resources\IssueResource;
 use App\Models\ActivityLog;
-use App\Models\book as Book;
+use App\Models\Book;
 use App\Models\BookRequest;
 use App\Models\Fine;
 use App\Models\IssuedBook;
