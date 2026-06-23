@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AdminUserRequest;
 use App\Models\ActivityLog;
 use App\Models\Notification;
-use App\Models\staff;
-use App\Models\student;
+use App\Models\Staff;
+use App\Models\Student;
 use App\Models\User;
 use App\Helpers\ActivityLogger;
 use App\Mail\PasswordResetEmail;
@@ -629,7 +629,7 @@ class UserController extends Controller
             return;
         }
 
-        staff::create($staffData + [
+        Staff::create($staffData + [
             'user_id' => $user->id,
         ]);
     }

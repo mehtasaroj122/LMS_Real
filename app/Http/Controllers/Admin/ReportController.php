@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
-use App\Models\book as Book;
-use App\Models\category as Category;
+use App\Models\Book;
+use App\Models\Category;
 use App\Models\Fine;
 use App\Models\IssuedBook;
-use App\Models\student as Student;
+use App\Models\Student;
 use App\Models\User;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
