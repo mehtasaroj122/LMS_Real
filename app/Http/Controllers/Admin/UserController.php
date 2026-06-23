@@ -29,7 +29,7 @@ class UserController extends Controller
         private InvitationEmailService $invitationEmailService,
     )
     {
-        Gate::authorize('access-admin');
+        // Authorization is handled by route middleware 'can:access-admin'
     }
 
     /**
