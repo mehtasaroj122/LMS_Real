@@ -92,7 +92,7 @@ class ActivityLogController extends Controller
             ->limit(12)
             ->get();
 
-        return view('admin.ActivityLogs', compact(
+        return view('Admin.ActivityLogs', compact(
             'activities',
             'totalActivities',
             'adminActions',

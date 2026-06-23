@@ -36,7 +36,7 @@ class BookController extends Controller
             $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability)
         );
 
-        return view('admin.BookManagement', compact(
+        return view('Admin.BookManagement', compact(
             'categories',
             'initialBooks',
             'initialStats',

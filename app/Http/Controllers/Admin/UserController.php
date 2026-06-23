@@ -66,7 +66,7 @@ class UserController extends Controller
         // Get departments for the form
         $departments = \App\Models\Department::all();
 
-        return view('admin.UserManagement', compact(
+        return view('Admin.UserManagement', compact(
             'users',
             'totalUsers',
             'activeUsers',
@@ -110,7 +110,7 @@ class UserController extends Controller
             // Prepare HTML for table rows
             $tableRows = '';
             foreach ($users as $user) {
-                $tableRows .= view('admin.partials.user-row', compact('user'))->render();
+                $tableRows .= view('Admin.partials.user-row', compact('user'))->render();
             }
 
             // Prepare pagination HTML
@@ -448,7 +448,7 @@ class UserController extends Controller
                     : 'Invited user created successfully, but the registration email could not be queued. They must still complete registration to activate the account.')
                 : 'User created successfully',
             'user' => $user,
-            'rowHtml' => view('admin.partials.user-row', ['user' => $user])->render(),
+            'rowHtml' => view('Admin.partials.user-row', ['user' => $user])->render(),
         ]);
     }
 

@@ -41,7 +41,7 @@ class StudentController extends Controller
     {
         Gate::authorize('access-admin');
         $departments = $dataService->getDepartments();
-        return view('admin.Students', compact('departments'));
+        return view('Admin.Students', compact('departments'));
     }
 
     /**
@@ -657,7 +657,7 @@ class StudentController extends Controller
         $activityLogs = array_slice($allActivityLogs, 0, 10);
         $remainingActivityLogs = array_slice($allActivityLogs, 10);
         
-        return view('admin.StudentView', compact('student', 'booksData', 'finesData', 'activityLogs', 'remainingActivityLogs'));
+        return view('Admin.StudentView', compact('student', 'booksData', 'finesData', 'activityLogs', 'remainingActivityLogs'));
     }
 
     public function getStudentActivityLogs(Request $request, string $id)
