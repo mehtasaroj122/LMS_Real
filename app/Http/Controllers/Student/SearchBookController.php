@@ -141,7 +141,7 @@ class SearchBookController extends Controller
         \Log::info('Book request received for book_id: ' . $bookId);
         
         // Check if book exists
-        $book = \App\Models\book::find($bookId);
+        $book = \App\Models\Book::find($bookId);
         if (!$book) {
             \Log::error('Book not found with ID: ' . $bookId);
             return response()->json([

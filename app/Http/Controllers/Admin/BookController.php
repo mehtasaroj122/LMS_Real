@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookStoreRequest;
-use App\Models\book;
-use App\Models\category;
+use App\Models\Book;
+use App\Models\Category;
 use App\Models\Notification;
 use App\Models\User;
 use App\Helpers\ActivityLogger;
@@ -22,7 +22,7 @@ class BookController extends Controller
     public function index(Request $request)
     {
         Gate::authorize('access-admin');
-        $categories = category::orderBy('name')->get();
+        $categories = Category::orderBy('name')->get();
         ['search' => $search, 'condition' => $condition, 'category' => $selectedCategory, 'availability' => $availability, 'sort' => $sort, 'page' => $page, 'per_page' => $perPage] = $this->normalizeBookListFilters($request);
 
         $initialBooksQuery = $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability);
