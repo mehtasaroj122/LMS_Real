@@ -611,7 +611,7 @@ class UserController extends Controller
             'success' => true,
             'message' => 'User updated successfully',
             'user' => $user->load('student.department', 'staff.department'),
-            'rowHtml' => view('admin.partials.user-row', ['user' => $user])->render(),
+            'rowHtml' => view('Admin.partials.user-row', ['user' => $user])->render(),
         ]);
     }
 
