@@ -2016,7 +2016,7 @@
                         </thead>
                         <tbody id="usersTableBody">
                             @foreach ($users as $user)
-                                @include('admin.partials.user-row', compact('user'))
+                                @include('Admin.partials.user-row', compact('user'))
                             @endforeach
                         </tbody>
                     </table>
