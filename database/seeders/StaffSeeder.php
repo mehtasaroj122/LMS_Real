@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\staff;
+use App\Models\Staff;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;

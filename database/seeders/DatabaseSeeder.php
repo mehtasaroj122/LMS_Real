@@ -24,15 +24,15 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
            DepartmentSeeder::class,
-           userSeeder::class,
-           categorySeeder::class,
-           studentSeeder::class,
+           UserSeeder::class,
+           CategorySeeder::class,
+           StudentSeeder::class,
         //    StudentPrivilegeSeeder::class,
-           staffSeeder::class,
-           bookSeeder::class,
+           StaffSeeder::class,
+           BookSeeder::class,
            BookRequestSeeder::class,
-           issuedBookSeeder::class,
-           fineSeeder::class,
+           IssuedBookSeeder::class,
+           FineSeeder::class,
         ]);
     }
 }
