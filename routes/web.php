@@ -30,13 +30,13 @@ use App\Http\Controllers\Staff\ReturnBookController;
 use App\Http\Controllers\Staff\BookDeletionRequestController;
 use App\Http\Controllers\Staff\NotificationController as StaffNotificationController;
 
-use App\Http\Controllers\student\DashboardController;
-use App\Http\Controllers\student\SearchBookController;
-use App\Http\Controllers\student\ProfileController as StudentProfileController;
-use App\Http\Controllers\student\MyRequestsController;
-use App\Http\Controllers\student\MyFinesController;
-use App\Http\Controllers\student\MyBooksController;
-use App\Http\Controllers\student\NotificationController as StudentNotificationController;
+use App\Http\Controllers\Student\DashboardController;
+use App\Http\Controllers\Student\SearchBookController;
+use App\Http\Controllers\Student\ProfileController as StudentProfileController;
+use App\Http\Controllers\Student\MyRequestsController;
+use App\Http\Controllers\Student\MyFinesController;
+use App\Http\Controllers\Student\MyBooksController;
+use App\Http\Controllers\Student\NotificationController as StudentNotificationController;
 use App\Http\Controllers\PasswordChangeController;
 
 
