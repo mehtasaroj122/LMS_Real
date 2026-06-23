@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\student;
+namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookRequest;
-use App\Models\book;
-use App\Models\category;
+use App\Models\Book;
+use App\Models\Category;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;

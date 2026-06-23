@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\student;
+namespace App\Http\Controllers\Student;
 
 use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
