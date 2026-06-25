@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\Concerns\ResolvesApiUsers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\IssueResource;
+use App\Models\Fine;
 use App\Models\IssuedBook;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -89,26 +90,29 @@ class StudentBookController extends Controller
         }
 
         $baseQuery = IssuedBook::query()->where('student_id', $student->id);
+        $fineQuery = Fine::query()->where('student_id', $student->id);
 
         return response()->json([
-            'currently_issued' => (int) (clone $baseQuery)->whereNull('return_date')->count(),
-            'returned_books' => (int) (clone $baseQuery)->whereNotNull('return_date')->count(),
-            'overdue_books' => (int) (clone $baseQuery)
-                ->whereNull('return_date')
-                ->whereDate('due_date', '<', today())
-                ->count(),
-            'due_soon' => (int) (clone $baseQuery)
-                ->whereNull('return_date')
-                ->whereDate('due_date', '>=', today())
-                ->whereDate('due_date', '<=', Carbon::today()->addDays(3))
-                ->count(),
+            'status' => 'success',
+            'data' => [
+                'stats' => [
+                    'total_issued' => (int) (clone $baseQuery)->count(),
+                    'currently_borrowed' => (int) (clone $baseQuery)->whereNull('return_date')->count(),
+                    'overdue_books' => (int) (clone $baseQuery)
+                        ->whereNull('return_date')
+                        ->whereDate('due_date', '<', today())
+                        ->count(),
+                    'pending_fine' => (float) (clone $fineQuery)->where('status', 'pending')->sum('amount'),
+                    'paid_fines' => (float) (clone $fineQuery)->where('status', 'paid')->sum('amount'),
+                ]
+            ]
         ]);
     }
 
     protected function baseQuery(int $studentId)
     {
         return IssuedBook::query()
-            ->with(['student.user', 'student.department', 'book.category'])
+            ->with(['student.user', 'student.department', 'book.category', 'fine'])
             ->where('student_id', $studentId);
     }
 }

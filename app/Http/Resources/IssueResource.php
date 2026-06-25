@@ -9,6 +9,14 @@ class IssueResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $fine = null;
+        if ($this->relationLoaded('fine') && $this->fine) {
+            $fine = [
+                'amount' => (float) $this->fine->amount,
+                'status' => $this->fine->status,
+            ];
+        }
+
         return [
             'id' => $this->id,
             'issue_id' => $this->id,
@@ -18,6 +26,7 @@ class IssueResource extends JsonResource
             'due_date' => optional($this->due_date)->toDateString(),
             'return_date' => optional($this->return_date)->toDateString(),
             'fine_amount' => (float) $this->fine_amount,
+            'fine' => $fine,
             'status' => $this->status,
             'condition' => $this->condition,
             'remarks' => $this->remarks,

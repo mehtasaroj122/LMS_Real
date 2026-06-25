@@ -55,6 +55,10 @@ class AppServiceProvider extends ServiceProvider
         Fine::observe(FineObserver::class);
         BookRequest::observe(BookRequestObserver::class);
 
-        View::share('libraryBranding', LibraryBranding::resolve());
+        // View::share('libraryBranding', LibraryBranding::resolve());
+         // Only share branding for HTTP requests, not for console commands
+        if (!$this->app->runningInConsole()) {
+            View::share('libraryBranding', LibraryBranding::resolve());
+        }
     }
 }
