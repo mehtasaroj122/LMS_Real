@@ -11,6 +11,7 @@ use App\Http\Resources\UserResource;
 use App\Models\BookRequest;
 use App\Models\Fine;
 use App\Models\IssuedBook;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,10 @@ class ProfileController extends Controller
 {
     use IncludesProfilePhoto;
 
+    public function __construct(private readonly NotificationService $notifications)
+    {
+    }
+
     public function update(ProfileUpdateRequest $request): JsonResponse
     {
         $user = $request->user();
@@ -33,6 +38,7 @@ class ProfileController extends Controller
 
         $changeSet = ActivityLogger::buildUserProfileChangeSet($original, $user->fresh()->only(ActivityLogger::userProfileAuditFields()));
         ActivityLogger::logUserProfileChanges($user, $changeSet, ['source' => 'mobile_api']);
+        $this->notifications->notifyProfileUpdated($user->fresh(), $changeSet, $request);
 
         return response()->json([
             'success' => true,
@@ -60,6 +66,8 @@ class ProfileController extends Controller
             'password_reset_at' => now(),
             'force_password_change' => false,
         ])->save();
+
+        $this->notifications->notifyPasswordChanged($user->fresh(), $request);
 
         return response()->json([
             'success' => true,
@@ -103,6 +111,8 @@ class ProfileController extends Controller
             ),
             ['source' => 'mobile_api']
         );
+
+        $this->notifications->notifyPhotoUpdated($user->fresh(), $request);
 
         return response()->json([
             'success' => true,
@@ -149,6 +159,8 @@ class ProfileController extends Controller
             ),
             ['source' => 'mobile_api']
         );
+
+        $this->notifications->notifyPhotoRemoved($user->fresh(), $request);
 
         return response()->json([
             'success' => true,
@@ -218,10 +230,12 @@ class ProfileController extends Controller
             ], 422);
         }
 
-        DB::transaction(function () use ($user): void {
+        DB::transaction(function () use ($user, $request): void {
             $user->forceFill([
                 'status' => 'inactive',
             ])->save();
+
+            $this->notifications->notifyAccountDeactivated($user->fresh(['student', 'staff']), $request);
 
             $user->tokens()->delete();
         });
@@ -293,10 +307,12 @@ class ProfileController extends Controller
             }
         }
 
-        DB::transaction(function () use ($user): void {
+        DB::transaction(function () use ($user, $request): void {
             $user->forceFill([
                 'status' => 'inactive',
             ])->save();
+
+            $this->notifications->notifyAccountDeactivated($user->fresh(['student', 'staff']), $request);
 
             $user->tokens()->delete();
         });

@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StaffReturnRequest;
-use App\Jobs\SendBookReturnedEmail;
 use App\Models\BookRequest;
 use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\IssuedBook;
-use App\Models\Notification;
 use App\Models\Student;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -134,7 +133,7 @@ class StaffReturnController extends Controller
         ]);
     }
 
-    public function returnBooks(Request $request): JsonResponse
+    public function returnBooks(Request $request, NotificationService $notifications): JsonResponse
     {
         $validated = $request->validate([
             'issue_ids' => ['required', 'array', 'min:1'],
@@ -147,7 +146,7 @@ class StaffReturnController extends Controller
         $notes = $validated['notes'] ?? null;
         $user = $request->user();
 
-        $returnedIssues = DB::transaction(function () use ($validated, $condition, $notes, $user) {
+        $returnedIssues = DB::transaction(function () use ($validated, $condition, $notes, $user, $notifications) {
             $issues = IssuedBook::query()
                 ->with(['student.user', 'student.department', 'student.privileges', 'book.category'])
                 ->whereIn('id', $validated['issue_ids'])
@@ -157,8 +156,8 @@ class StaffReturnController extends Controller
             abort_if($issues->count() !== count($validated['issue_ids']), 404, 'One or more selected issue records were not found.');
             abort_if($issues->contains(fn (IssuedBook $issue) => $issue->return_date !== null), 422, 'One or more selected books have already been returned.');
 
-            return $issues->map(function (IssuedBook $issuedBook) use ($condition, $notes, $user) {
-                return $this->processReturnIssue($issuedBook, $condition, now(), $notes, $user);
+            return $issues->map(function (IssuedBook $issuedBook) use ($condition, $notes, $user, $notifications) {
+                return $this->processReturnIssue($issuedBook, $condition, now(), $notes, $user, $notifications);
             })->values();
         });
 
@@ -268,7 +267,14 @@ class StaffReturnController extends Controller
         return "{$count} selected book(s) will use Rs. {$rules['late_fine_per_day']}/day after {$rules['grace_days']} grace day(s), capped at Rs. {$rules['fine_cap_per_book']} per book, plus Rs. {$conditionFine} for " . ucfirst($condition) . ' condition.';
     }
 
-    private function processReturnIssue(IssuedBook $issuedBook, string $condition, Carbon $returnDate, ?string $remarks, $user): IssuedBook
+    private function processReturnIssue(
+        IssuedBook $issuedBook,
+        string $condition,
+        Carbon $returnDate,
+        ?string $remarks,
+        $user,
+        NotificationService $notifications
+    ): IssuedBook
     {
         $fineData = $this->calculateReturnFine($issuedBook, $condition, $returnDate);
 
@@ -316,7 +322,7 @@ class StaffReturnController extends Controller
             'source' => 'mobile_staff_api',
         ]);
 
-        $this->notifyReturned($issuedBook, $condition, $fineData['amount']);
+        $notifications->notifyBookReturned($issuedBook->load(['student.user', 'book']), $condition, (float) $fineData['amount']);
 
         return $issuedBook->fresh(['student.user', 'student.department', 'student.privileges', 'book.category', 'fine']);
     }
@@ -360,7 +366,7 @@ class StaffReturnController extends Controller
         ]);
     }
 
-    public function returnBook(int $issue, StaffReturnRequest $request): JsonResponse
+    public function returnBook(int $issue, StaffReturnRequest $request, NotificationService $notifications): JsonResponse
     {
         $issuedBook = IssuedBook::query()
             ->with(['student.user', 'student.privileges', 'book.category'])
@@ -376,13 +382,14 @@ class StaffReturnController extends Controller
         $condition = $request->input('condition', 'good');
         $returnDate = $request->date('return_date') ?? now();
 
-        $issuedBook = DB::transaction(function () use ($issuedBook, $condition, $returnDate, $request) {
+        $issuedBook = DB::transaction(function () use ($issuedBook, $condition, $returnDate, $request, $notifications) {
             return $this->processReturnIssue(
                 issuedBook: $issuedBook,
                 condition: $condition,
                 returnDate: Carbon::parse($returnDate),
                 remarks: $request->input('remarks', $request->input('notes')),
-                user: $request->user()
+                user: $request->user(),
+                notifications: $notifications
             );
         });
 
@@ -479,48 +486,4 @@ class StaffReturnController extends Controller
         return $date->greaterThan($dueDate) ? (int) $dueDate->diffInDays($date) : 0;
     }
 
-    private function notifyReturned(IssuedBook $issuedBook, string $condition, float $fineAmount): void
-    {
-        $student = $issuedBook->student;
-
-        if (! $student?->user) {
-            return;
-        }
-
-        $title = $fineAmount > 0 ? 'Book Returned with Fine' : 'Book Returned Successfully';
-        $message = $fineAmount > 0
-            ? "Your return of '{$issuedBook->book?->title}' has been processed. Fine amount: Rs. {$fineAmount}."
-            : "Your return of '{$issuedBook->book?->title}' has been accepted.";
-
-        Notification::notify(
-            user: $student->user,
-            type: $fineAmount > 0 ? 'fine.created' : 'book.returned',
-            title: $title,
-            message: $message,
-            data: [
-                'book_id' => $issuedBook->book_id,
-                'issued_book_id' => $issuedBook->id,
-                'condition' => $condition,
-                'fine_amount' => $fineAmount,
-            ],
-            relatedModel: 'IssuedBook',
-            relatedId: $issuedBook->id
-        );
-
-        if ($student->user->email) {
-            try {
-                SendBookReturnedEmail::dispatch(
-                    $student->user->email,
-                    $student->user->name,
-                    $issuedBook->book?->title ?? 'Book',
-                    $condition,
-                    $fineAmount
-                );
-            } catch (\Throwable $exception) {
-                \Log::warning('Unable to queue book returned email: ' . $exception->getMessage(), [
-                    'issued_book_id' => $issuedBook->id,
-                ]);
-            }
-        }
-    }
 }

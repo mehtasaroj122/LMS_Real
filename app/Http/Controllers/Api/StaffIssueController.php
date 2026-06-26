@@ -7,12 +7,11 @@ use App\Http\Controllers\Api\Concerns\FormatsStaffStudentPayloads;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StaffIssuePreviewRequest;
 use App\Http\Requests\Api\StaffIssueStoreRequest;
-use App\Jobs\SendBookIssuedEmail;
 use App\Models\book as Book;
 use App\Models\BookRequest;
 use App\Models\IssuedBook;
-use App\Models\Notification;
 use App\Models\Student;
+use App\Services\NotificationService;
 use App\Services\StudentIssuePrivilegeService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -139,7 +138,11 @@ class StaffIssueController extends Controller
         ], count($errors) === 0 ? 200 : 422);
     }
 
-    public function store(StaffIssueStoreRequest $request, StudentIssuePrivilegeService $privilegeService): JsonResponse
+    public function store(
+        StaffIssueStoreRequest $request,
+        StudentIssuePrivilegeService $privilegeService,
+        NotificationService $notifications
+    ): JsonResponse
     {
         $student = Student::query()->with(['user', 'department', 'privileges'])->findOrFail($request->integer('student_id'));
         $bookIds = $request->bookIds();
@@ -159,7 +162,7 @@ class StaffIssueController extends Controller
         }
 
         try {
-            $issuedBooks = DB::transaction(function () use ($request, $student, $bookIds, $issueCheck) {
+            $issuedBooks = DB::transaction(function () use ($request, $student, $bookIds, $issueCheck, $notifications) {
                 $issueDate = Carbon::parse($issueCheck['privileges']['issue_date']);
                 $dueDate = Carbon::parse($issueCheck['privileges']['due_date']);
                 $createdIssues = collect();
@@ -206,7 +209,7 @@ class StaffIssueController extends Controller
                             'processed_date' => now(),
                         ]);
 
-                    $this->notifyIssueCreated($student, $book, $issue);
+                    $notifications->notifyBookIssued($issue->load(['student.user', 'book']));
 
                     ActivityLogger::logBookIssued($student, $book->title, [
                         'book_id' => $book->id,
@@ -297,42 +300,4 @@ class StaffIssueController extends Controller
         return min(max((int) $request->input('per_page', 20), 1), 100);
     }
 
-    private function notifyIssueCreated(Student $student, Book $book, IssuedBook $issue): void
-    {
-        if (! $student->user) {
-            return;
-        }
-
-        Notification::notify(
-            user: $student->user,
-            type: 'book.issued',
-            title: 'Book Issued Successfully',
-            message: "You have been issued '{$book->title}' by {$book->author}.",
-            data: [
-                'book_id' => $book->id,
-                'issued_book_id' => $issue->id,
-                'issue_date' => optional($issue->issue_date)->toDateString(),
-                'due_date' => optional($issue->due_date)->toDateString(),
-            ],
-            relatedModel: 'IssuedBook',
-            relatedId: $issue->id
-        );
-
-        if ($student->user->email) {
-            try {
-                SendBookIssuedEmail::dispatch(
-                    $student->user->email,
-                    $student->user->name,
-                    $book->title,
-                    $book->author ?? 'Unknown',
-                    optional($issue->issue_date)->format('Y-m-d'),
-                    optional($issue->due_date)->format('Y-m-d')
-                );
-            } catch (\Throwable $exception) {
-                \Log::warning('Unable to queue book issued email: ' . $exception->getMessage(), [
-                    'issued_book_id' => $issue->id,
-                ]);
-            }
-        }
-    }
 }

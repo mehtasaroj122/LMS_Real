@@ -4,13 +4,16 @@ namespace App\Services\BookRequestManagement;
 
 use App\Jobs\SendBookRequestStatusEmail;
 use App\Models\BookRequest;
-use App\Models\Notification;
-use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 class BookRequestManagementActionService
 {
+    public function __construct(private readonly NotificationService $notifications)
+    {
+    }
+
     public function create(array $validated): BookRequest
     {
         $existingRequest = BookRequest::query()
@@ -53,10 +56,10 @@ class BookRequestManagementActionService
 
         $bookRequest->refresh()->loadMissing(['student.user', 'book']);
 
-        $this->notifyStudent($bookRequest, $status);
+        $this->notifications->notifyBookRequestStatusChanged($bookRequest, $status);
 
         if ($notifyAdmin) {
-            $this->notifyAdmin($bookRequest, $status);
+            $this->notifications->notifyBookRequestProcessedAdmin($bookRequest, $status);
         }
 
         if ($bookRequest->student?->user?->email) {
@@ -145,55 +148,4 @@ class BookRequestManagementActionService
         }
     }
 
-    protected function notifyStudent(BookRequest $bookRequest, string $status): void
-    {
-        if (!$bookRequest->student?->user) {
-            return;
-        }
-
-        $notificationType = $status === 'approved' ? 'request.approved' : 'request.rejected';
-        $title = $status === 'approved' ? 'Request Approved' : 'Request Rejected';
-        $message = $status === 'approved'
-            ? "Your request for '{$bookRequest->book?->title}' has been approved!"
-            : "Your request for '{$bookRequest->book?->title}' has been rejected.";
-
-        Notification::notify(
-            user: $bookRequest->student->user,
-            type: $notificationType,
-            title: $title,
-            message: $message,
-            data: [
-                'request_id' => $bookRequest->id,
-                'book_id' => $bookRequest->book_id,
-                'status' => $status,
-                'book_title' => $bookRequest->book?->title,
-            ],
-            relatedModel: 'BookRequest',
-            relatedId: $bookRequest->id
-        );
-    }
-
-    protected function notifyAdmin(BookRequest $bookRequest, string $status): void
-    {
-        $admin = User::query()->where('role', 'admin')->first();
-
-        if (!$admin) {
-            return;
-        }
-
-        Notification::notify(
-            user: $admin,
-            type: 'request.pending',
-            title: 'Book Request Processed',
-            message: "Request from {$bookRequest->student?->user?->name} for '{$bookRequest->book?->title}' has been {$status}",
-            data: [
-                'request_id' => $bookRequest->id,
-                'status' => $status,
-                'student_id' => $bookRequest->student_id,
-                'book_id' => $bookRequest->book_id,
-            ],
-            relatedModel: 'BookRequest',
-            relatedId: $bookRequest->id
-        );
-    }
 }

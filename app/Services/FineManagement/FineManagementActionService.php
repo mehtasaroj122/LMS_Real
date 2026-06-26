@@ -6,7 +6,7 @@ use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Concerns\InteractsWithFineRecords;
 use App\Jobs\SendFineEmail;
 use App\Models\Fine;
-use App\Models\Notification;
+use App\Services\NotificationService;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -14,6 +14,10 @@ use Throwable;
 class FineManagementActionService
 {
     use InteractsWithFineRecords;
+
+    public function __construct(private readonly NotificationService $notifications)
+    {
+    }
 
     public function sendEmailNotification(Fine $fine): array
     {
@@ -98,23 +102,7 @@ class FineManagementActionService
         }
 
         if ($options['notify_student']) {
-            $student = $fine->student;
-
-            if ($student && $student->user) {
-                Notification::notify(
-                    user: $student->user,
-                    type: 'payment.confirmed',
-                    title: 'Fine Payment Received',
-                    message: "Your fine payment of ₹{$fine->amount} has been received and marked as paid.",
-                    data: [
-                        'fine_id' => $fine->id,
-                        'amount' => $fine->amount,
-                        'student_id' => $student->id,
-                    ],
-                    relatedModel: 'Fine',
-                    relatedId: $fine->id
-                );
-            }
+            $this->notifications->notifyFinePaid($fine);
         }
 
         if ($options['log_email'] && $fine->student?->user?->email) {
@@ -173,23 +161,7 @@ class FineManagementActionService
         }
 
         if ($options['notify_student']) {
-            $student = $fine->student;
-
-            if ($student && $student->user) {
-                Notification::notify(
-                    user: $student->user,
-                    type: 'fine.reminder',
-                    title: 'Fine Waived',
-                    message: "Your fine of ₹{$fine->amount} has been waived. Reason: {$normalizedReason}",
-                    data: [
-                        'fine_id' => $fine->id,
-                        'amount' => $fine->amount,
-                        'reason' => $normalizedReason,
-                    ],
-                    relatedModel: 'Fine',
-                    relatedId: $fine->id
-                );
-            }
+            $this->notifications->notifyFineWaived($fine, $normalizedReason);
         }
 
         if ($options['log_email'] && $fine->student?->user?->email) {

@@ -13,6 +13,7 @@ use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\IssuedBook;
 use App\Models\Student;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ class IssueController extends Controller
         return IssueResource::collection($issues);
     }
 
-    public function store(IssueStoreRequest $request): JsonResponse
+    public function store(IssueStoreRequest $request, NotificationService $notifications): JsonResponse
     {
         $student = Student::query()->with(['user', 'department', 'privileges'])->findOrFail($request->integer('student_id'));
         $bookIds = $request->bookIds();
@@ -49,7 +50,7 @@ class IssueController extends Controller
             ], 422);
         }
 
-        $issuedBooks = DB::transaction(function () use ($request, $student, $bookIds) {
+        $issuedBooks = DB::transaction(function () use ($request, $student, $bookIds, $notifications) {
             $issueDate = $request->date('issue_date') ?? now();
             $dueDate = $request->date('due_date') ?? (clone $issueDate)->addDays($this->getEffectiveIssueDuration($student));
             $createdIssues = collect();
@@ -97,7 +98,10 @@ class IssueController extends Controller
                         'processed_date' => now(),
                     ]);
 
-                $createdIssues->push($issue->load(['student.user', 'student.department', 'book.category']));
+                $issue->load(['student.user', 'student.department', 'book.category']);
+                $notifications->notifyBookIssued($issue);
+
+                $createdIssues->push($issue);
             }
 
             return $createdIssues;
@@ -132,7 +136,7 @@ class IssueController extends Controller
         return IssueResource::collection($issues);
     }
 
-    public function returnBook(int $id, IssueReturnRequest $request): JsonResponse
+    public function returnBook(int $id, IssueReturnRequest $request, NotificationService $notifications): JsonResponse
     {
         $issue = IssuedBook::query()
             ->with(['student.user', 'student.department', 'student.privileges', 'book.category'])
@@ -147,7 +151,7 @@ class IssueController extends Controller
         $condition = $request->input('condition', 'good');
         $returnDate = $request->date('return_date') ?? now();
 
-        $issue = DB::transaction(function () use ($issue, $condition, $returnDate, $request) {
+        $issue = DB::transaction(function () use ($issue, $condition, $returnDate, $request, $notifications) {
             $bookFine = $this->calculateReturnFine($issue, $condition, $returnDate);
 
             if ($bookFine['amount'] > 0) {
@@ -183,7 +187,10 @@ class IssueController extends Controller
                 $issue->book()->lockForUpdate()->first()?->increment('available_copies');
             }
 
-            return $issue->fresh(['student.user', 'student.department', 'book.category']);
+            $freshIssue = $issue->fresh(['student.user', 'student.department', 'book.category']);
+            $notifications->notifyBookReturned($freshIssue, $condition, (float) $bookFine['amount']);
+
+            return $freshIssue;
         });
 
         return response()->json([

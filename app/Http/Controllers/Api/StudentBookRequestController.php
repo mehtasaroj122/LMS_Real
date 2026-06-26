@@ -9,8 +9,7 @@ use App\Http\Resources\BookRequestResource;
 use App\Models\book as Book;
 use App\Models\BookRequest;
 use App\Models\IssuedBook;
-use App\Models\Notification;
-use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -36,7 +35,7 @@ class StudentBookRequestController extends Controller
         return BookRequestResource::collection($requests);
     }
 
-    public function store(StudentBookRequestStoreRequest $request): JsonResponse
+    public function store(StudentBookRequestStoreRequest $request, NotificationService $notifications): JsonResponse
     {
         $student = $this->authenticatedStudent($request);
 
@@ -77,7 +76,7 @@ class StudentBookRequestController extends Controller
             'status' => 'pending',
         ])->load(['student.user', 'student.department', 'book.category']);
 
-        $this->notifyStaffAboutRequest($bookRequest, (string) $request->input('remarks', ''));
+        $notifications->notifyBookRequestCreated($bookRequest, (string) $request->input('remarks', ''));
 
         return response()->json([
             'message' => 'Book request submitted successfully.',
@@ -165,29 +164,4 @@ class StudentBookRequestController extends Controller
         ], 422);
     }
 
-    protected function notifyStaffAboutRequest(BookRequest $bookRequest, string $remarks): void
-    {
-        $bookRequest->loadMissing(['student.user', 'book']);
-
-        User::query()
-            ->whereIn('role', ['staff', 'admin'])
-            ->get()
-            ->each(function (User $user) use ($bookRequest, $remarks) {
-                Notification::notify(
-                    user: $user,
-                    type: 'student.book_request',
-                    title: 'New Book Request from Student',
-                    message: "{$bookRequest->student?->user?->name} requested book '{$bookRequest->book?->title}'",
-                    data: [
-                        'request_id' => $bookRequest->id,
-                        'student_id' => $bookRequest->student_id,
-                        'book_id' => $bookRequest->book_id,
-                        'book_title' => $bookRequest->book?->title,
-                        'remarks' => $remarks,
-                    ],
-                    relatedModel: 'BookRequest',
-                    relatedId: $bookRequest->id
-                );
-            });
-    }
 }

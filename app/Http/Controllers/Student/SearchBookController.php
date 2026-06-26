@@ -6,8 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BookRequest;
 use App\Models\Book;
 use App\Models\Category;
-use App\Models\Notification;
-use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -131,7 +130,7 @@ class SearchBookController extends Controller
         return Str::limit($normalized, 120);
     }
 
-    public function requestBook(Request $request)
+    public function requestBook(Request $request, NotificationService $notifications)
     {
         Gate::authorize('access-student');
 
@@ -205,27 +204,7 @@ class SearchBookController extends Controller
                 'status' => 'pending',
             ]);
 
-            // Notify all staff about the book request
-            $studentName = $user->name ?? 'A Student';
-            $staffMembers = User::where('role', 'staff')->get();
-            foreach ($staffMembers as $staff) {
-                Notification::notify(
-                    user: $staff,
-                    type: 'student.book_request',
-                    title: 'New Book Request from Student',
-                    message: "{$studentName} requested book '{$book->title}'",
-                    data: [
-                        'request_id' => $bookRequest->id,
-                        'student_id' => $student->id,
-                        'student_name' => $studentName,
-                        'book_id' => $book->id,
-                        'book_title' => $book->title,
-                        'isbn' => $book->isbn,
-                    ],
-                    relatedModel: 'BookRequest',
-                    relatedId: $bookRequest->id
-                );
-            }
+            $notifications->notifyBookRequestCreated($bookRequest->load(['student.user', 'book']), includeAdmins: false);
 
             return response()->json([
                 'success' => true,
