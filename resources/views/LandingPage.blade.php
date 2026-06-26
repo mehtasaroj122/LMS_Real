@@ -76,6 +76,7 @@
     <meta property="og:description" content="Manage books, students, requests, fines, and notifications in one secure system built for institutions.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
+    @include('partials.favicon')
     <meta property="og:image" content="{{ asset('favicon.ico') }}">
     <title>{{ $brandName }} | Secure, Role-Based Library Platform</title>
 

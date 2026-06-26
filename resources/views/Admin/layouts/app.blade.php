@@ -197,8 +197,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="light-theme">
-@include('shared.library-branding.bootstrap')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.favicon')
+    <title>@yield('title', 'Dashboard') - Library Management</title>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="flex h-screen min-h-0 overflow-hidden">
     <aside class="flex flex-col w-64 min-h-0 border-r sidebar shrink-0" id="sidebar">

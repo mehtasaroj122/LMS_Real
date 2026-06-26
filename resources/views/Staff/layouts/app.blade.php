@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.favicon')
     <title>@yield('title', 'Dashboard') - Library Management</title>
     <link rel="stylesheet" href="{{ asset('staff/CSS/staff-appLayout.css') }}">
     <link rel="stylesheet" href="{{ asset('shared/CSS/notification-list-animations.css') }}">
