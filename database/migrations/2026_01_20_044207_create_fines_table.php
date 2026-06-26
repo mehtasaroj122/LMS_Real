@@ -19,7 +19,12 @@ return new class extends Migration
             $table->integer('days_late');
             $table->enum('status', ['pending', 'paid', 'waived'])->default('pending');
             $table->date('paid_on')->nullable();
+            $table->timestamp('paid_at')->nullable();
+            $table->foreignId('paid_by')->nullable()->constrained('users')->nullOnDelete();
             $table->enum('payment_method', ['cash', 'card', 'online'])->nullable()->default('cash');
+            $table->text('waive_reason')->nullable();
+            $table->timestamp('waived_at')->nullable();
+            $table->foreignId('waived_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('remarks')->nullable();
             $table->timestamps();
         });
