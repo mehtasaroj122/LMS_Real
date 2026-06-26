@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\SearchRequest;
 use App\Http\Resources\BookResource;
-use App\Models\book as Book;
+use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -62,7 +62,8 @@ class BookController extends Controller
                 );
             })
             ->orderBy('title')
-            ->paginate($this->perPage($request));
+            ->paginate($this->perPage($request))
+            ->appends($request->query());
 
         return BookResource::collection($books);
     }
@@ -73,7 +74,8 @@ class BookController extends Controller
             ->with('category')
             ->where('available_copies', '>', 0)
             ->orderBy('title')
-            ->paginate($this->perPage($request));
+            ->paginate($this->perPage($request))
+            ->appends($request->query());
 
         return BookResource::collection($books);
     }

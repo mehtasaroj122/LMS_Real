@@ -2,8 +2,8 @@
 
 use App\Models\ActivityLog;
 use App\Models\BookRequest;
-use App\Models\book as Book;
-use App\Models\category as Category;
+use App\Models\Book;
+use App\Models\Category;
 use App\Models\department as Department;
 use App\Models\IssuedBook;
 use App\Models\Student;

@@ -20,7 +20,7 @@ class BookManagementController extends Controller
     {
         Gate::authorize('access-staff');
 
-        $categories = category::orderBy('name')->get();
+        $categories = Category::orderBy('name')->get();
         [
             'search' => $search,
             'condition' => $condition,
@@ -264,7 +264,7 @@ class BookManagementController extends Controller
             }
 
             if (!$categoryId && $newCategoryName) {
-                $categoryModel = category::firstOrCreate(['name' => $newCategoryName]);
+                $categoryModel = Category::firstOrCreate(['name' => $newCategoryName]);
                 $categoryId = $categoryModel->id;
             }
 
@@ -278,7 +278,7 @@ class BookManagementController extends Controller
                 ], 422);
             }
 
-            $book = book::create($validated);
+            $book = Book::create($validated);
 
             if ($request->hasFile('cover_image') && !$removeCoverImage) {
                 $path = $request->file('cover_image')->store('books/covers', 'public');
@@ -286,7 +286,7 @@ class BookManagementController extends Controller
                 $book->save();
             }
 
-            $category = category::find($validated['category_id']);
+            $category = Category::find($validated['category_id']);
 
             ActivityLogger::logActivity(
                 'book_created',
@@ -395,7 +395,7 @@ class BookManagementController extends Controller
         Gate::authorize('access-staff');
 
         try {
-            $book = book::findOrFail($id);
+            $book = Book::findOrFail($id);
             $validated = $request->validated();
             $removeCoverImage = (bool) ($validated['remove_cover_image'] ?? false);
 
@@ -419,7 +419,7 @@ class BookManagementController extends Controller
             }
 
             if (!$categoryId && $newCategoryName) {
-                $categoryModel = category::firstOrCreate(['name' => $newCategoryName]);
+                $categoryModel = Category::firstOrCreate(['name' => $newCategoryName]);
                 $categoryId = $categoryModel->id;
             }
 
@@ -448,7 +448,7 @@ class BookManagementController extends Controller
                 $book->save();
             }
 
-            $category = category::find($validated['category_id']);
+            $category = Category::find($validated['category_id']);
             $changes = [];
             if ($oldCondition !== $book->condition) {
                 $changes[] = "condition from {$oldCondition} to {$book->condition}";
@@ -472,8 +472,8 @@ class BookManagementController extends Controller
                 foreach ($validated as $field => $newValue) {
                     if ($field === 'category_id' && isset($book->getOriginal()[$field])) {
                         $oldCategoryId = $book->getOriginal()['category_id'];
-                        $oldCategoryName = category::find($oldCategoryId)?->name ?? 'N/A';
-                        $newCategoryName = category::find($newValue)?->name ?? 'N/A';
+                        $oldCategoryName = Category::find($oldCategoryId)?->name ?? 'N/A';
+                        $newCategoryName = Category::find($newValue)?->name ?? 'N/A';
                         if ($oldCategoryId !== $newValue) {
                             $detailedChanges[] = "category: {$oldCategoryName} → {$newCategoryName}";
                         }
@@ -591,7 +591,7 @@ class BookManagementController extends Controller
         ]);
 
         try {
-            $category = category::create($validated);
+            $category = Category::create($validated);
 
             ActivityLogger::logActivity(
                 'category_created',
@@ -735,7 +735,7 @@ class BookManagementController extends Controller
         $category = (string) ($category ?? 'all');
         $availability = (string) ($availability ?? 'all');
 
-        $query = book::query();
+        $query = Book::query();
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {

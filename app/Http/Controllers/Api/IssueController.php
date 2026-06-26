@@ -7,7 +7,7 @@ use App\Http\Requests\Api\IssueReturnRequest;
 use App\Http\Requests\Api\IssueStoreRequest;
 use App\Http\Resources\FineResource;
 use App\Http\Resources\IssueResource;
-use App\Models\book as Book;
+use App\Models\Book;
 use App\Models\BookRequest;
 use App\Models\Fine;
 use App\Models\FineSetting;

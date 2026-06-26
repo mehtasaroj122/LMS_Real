@@ -24,7 +24,7 @@ class BookDeletionRequestController extends Controller
             'reason.required' => 'Please enter a reason for this deletion request.',
         ]);
 
-        $book = book::find($bookId);
+        $book = Book::find($bookId);
         if (!$book) {
             return response()->json(['success' => false, 'message' => 'Book not found'], 404);
         }

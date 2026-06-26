@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\Concerns\FormatsStaffStudentPayloads;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StaffIssuePreviewRequest;
 use App\Http\Requests\Api\StaffIssueStoreRequest;
-use App\Models\book as Book;
+use App\Models\Book;
 use App\Models\BookRequest;
 use App\Models\IssuedBook;
 use App\Models\Student;

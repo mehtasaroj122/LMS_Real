@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Staff;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Gate;
-use App\Models\book;
+use App\Models\Book;
 use App\Models\IssuedBook;
 use App\Models\BookRequest;
 use App\Models\Fine;
@@ -59,7 +59,7 @@ class StaffDashboardController extends Controller
             $q->where('role', 'student');
         })->whereRaw('LOWER(status) = ?', ['pending'])->sum('amount');
 
-        $availableBooks = book::sum('available_copies');
+        $availableBooks = Book::sum('available_copies');
         $issuedOnTime = max($currentlyIssued - $overdueCount - $dueToday, 0);
         $circulationTotal = $availableBooks + $currentlyIssued;
 

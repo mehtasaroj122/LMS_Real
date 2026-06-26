@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\book as Book;
+use App\Models\Book;
 use App\Models\IssuedBook;
 use App\Models\Student;
 use Illuminate\Http\JsonResponse;

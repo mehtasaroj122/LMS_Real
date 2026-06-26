@@ -7,6 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -99,6 +100,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (\Throwable $e, Request $request) {
             if ($request->is('api/*')) {
+                Log::error('Unhandled API exception', [
+                    'exception' => $e::class,
+                    'message' => $e->getMessage(),
+                    'route' => $request->path(),
+                    'method' => $request->method(),
+                    'user_id' => $request->user()?->id,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
+
                 return response()->json([
                     'message' => 'Something went wrong.',
                 ], 500);

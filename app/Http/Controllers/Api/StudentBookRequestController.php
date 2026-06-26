@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\Concerns\ResolvesApiUsers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StudentBookRequestStoreRequest;
 use App\Http\Resources\BookRequestResource;
-use App\Models\book as Book;
+use App\Models\Book;
 use App\Models\BookRequest;
 use App\Models\IssuedBook;
 use App\Services\NotificationService;

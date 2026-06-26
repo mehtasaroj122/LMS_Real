@@ -1,8 +1,8 @@
 <?php
 
 use App\Jobs\SendFineEmail;
-use App\Models\book as Book;
-use App\Models\category as Category;
+use App\Models\Book;
+use App\Models\Category;
 use App\Models\department as Department;
 use App\Models\Fine;
 use App\Models\IssuedBook;

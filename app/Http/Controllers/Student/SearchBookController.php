@@ -23,7 +23,7 @@ class SearchBookController extends Controller
         $condition = $request->input('condition');
         $sort = $request->input('sort', 'title_asc');
 
-        $booksQuery = book::query()->with('category');
+        $booksQuery = Book::query()->with('category');
         if ($query) {
             $booksQuery->where(function ($q) use ($query) {
                 $q->where('title', 'like', "%$query%")
@@ -51,7 +51,7 @@ class SearchBookController extends Controller
 
         $books = $booksQuery->get();
 
-        $categories = category::orderBy('name')->get();
+        $categories = Category::orderBy('name')->get();
 
         // If AJAX request, return JSON
         if ($request->ajax()) {
