@@ -86,8 +86,8 @@ test('mobile invited student can complete registration with matching details', f
         'email' => 'mobile-student@example.com',
         'identifier' => 'STU-2023-001',
         'phone' => '9807044875',
-        'password' => 'Password123',
-        'password_confirmation' => 'Password123',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
     ]);
 
     $response
@@ -102,7 +102,7 @@ test('mobile invited student can complete registration with matching details', f
     expect($user->status)->toBe('active');
     expect($user->is_verified)->toBeTrue();
     expect($user->email_verified_at)->not->toBeNull();
-    expect(Hash::check('Password123', $user->password))->toBeTrue();
+    expect(Hash::check('Password123!', $user->password))->toBeTrue();
 
     expect(Notification::query()
         ->where('user_id', $user->id)
@@ -125,8 +125,8 @@ test('mobile invited staff can complete registration with matching details', fun
         'email' => 'mobile-staff@example.com',
         'identifier' => 'STAFF-001',
         'phone' => '9807044875',
-        'password' => 'Password123',
-        'password_confirmation' => 'Password123',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
     ]);
 
     $response
@@ -136,7 +136,7 @@ test('mobile invited staff can complete registration with matching details', fun
         ->assertJsonPath('data.email', 'mobile-staff@example.com');
 
     expect($user->fresh()->status)->toBe('active');
-    expect(Hash::check('Password123', $user->fresh()->password))->toBeTrue();
+    expect(Hash::check('Password123!', $user->fresh()->password))->toBeTrue();
 });
 
 test('mobile complete registration returns role specific error for wrong email', function () {
@@ -152,8 +152,8 @@ test('mobile complete registration returns role specific error for wrong email',
         'email' => 'wrong-student@example.com',
         'identifier' => 'STU-EMAIL-001',
         'phone' => '9807044875',
-        'password' => 'Password123',
-        'password_confirmation' => 'Password123',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
     ])
         ->assertUnprocessable()
         ->assertJsonPath('success', false)
@@ -174,8 +174,8 @@ test('mobile complete registration rejects wrong identifier', function () {
         'email' => 'identifier-staff@example.com',
         'identifier' => 'STAFF-WRONG',
         'phone' => '9807044875',
-        'password' => 'Password123',
-        'password_confirmation' => 'Password123',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
     ])
         ->assertUnprocessable()
         ->assertJsonPath('success', false)
@@ -196,8 +196,8 @@ test('mobile complete registration rejects wrong phone', function () {
         'email' => 'phone-student@example.com',
         'identifier' => 'STU-PHONE-001',
         'phone' => '9811111111',
-        'password' => 'Password123',
-        'password_confirmation' => 'Password123',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
     ])
         ->assertUnprocessable()
         ->assertJsonPath('success', false)
@@ -211,7 +211,7 @@ test('mobile complete registration rejects already registered account with sign 
         'identifier' => 'STU-ALREADY',
         'phone' => '+9779807044875',
         'status' => 'active',
-        'password' => Hash::make('Password123'),
+        'password' => Hash::make('Password123!'),
         'email_verified_at' => now(),
     ]);
 
@@ -220,8 +220,8 @@ test('mobile complete registration rejects already registered account with sign 
         'email' => 'already-mobile@example.com',
         'identifier' => 'STU-ALREADY',
         'phone' => '9807044875',
-        'password' => 'Password123',
-        'password_confirmation' => 'Password123',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
     ])
         ->assertUnprocessable()
         ->assertJsonPath('success', false)
@@ -244,7 +244,7 @@ test('mobile complete registration rejects password mismatch', function () {
         'email' => 'mismatch-staff@example.com',
         'identifier' => 'STAFF-MISMATCH',
         'phone' => '9807044875',
-        'password' => 'Password123',
+        'password' => 'Password123!',
         'password_confirmation' => 'Different123',
     ])
         ->assertUnprocessable()
@@ -265,13 +265,13 @@ test('mobile user can login after completing registration', function () {
         'email' => 'login-after-registration@example.com',
         'identifier' => 'STU-LOGIN-001',
         'phone' => '9807044875',
-        'password' => 'Password123',
-        'password_confirmation' => 'Password123',
+        'password' => 'Password123!',
+        'password_confirmation' => 'Password123!',
     ])->assertOk();
 
     $this->postJson('/api/login', [
         'email' => 'login-after-registration@example.com',
-        'password' => 'Password123',
+        'password' => 'Password123!',
         'device_name' => 'android-test',
     ])
         ->assertOk()

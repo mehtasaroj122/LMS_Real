@@ -144,13 +144,13 @@ Purpose: Allows invited/created Student or Staff records to complete account set
 Request body:
 
 ```json
-{"role":"student","email":"user@example.com","identifier":"STU-2023-001","phone":"9807044875","password":"Password123","password_confirmation":"Password123"}
+{"role":"student","email":"user@example.com","identifier":"STU-2023-001","phone":"9807044875","password":"Password123!","password_confirmation":"Password123!"}
 ```
 
 Staff request body:
 
 ```json
-{"role":"staff","email":"staff@example.com","identifier":"STAFF-001","phone":"9807044875","password":"Password123","password_confirmation":"Password123"}
+{"role":"staff","email":"staff@example.com","identifier":"STAFF-001","phone":"9807044875","password":"Password123!","password_confirmation":"Password123!"}
 ```
 
 Success Response:
@@ -179,7 +179,7 @@ Wrong Identifier Response:
 
 Controller: `AuthController@completeRegistration`
 
-Notes: Throttled by `throttle:registration`. Password minimum is 8 characters and must be confirmed. Student `identifier` matches `students.student_id` or `students.roll_no`; staff `identifier` matches `staff.staff_id`. Phone values are normalized before matching, so `9807044875` and `+9779807044875` can match the same invited account. On success the API hashes the password, activates/verifies the user, sets `email_verified_at`, queues the existing welcome email, logs registration activity, and creates an `account.registration_completed` notification.
+Notes: Throttled by `throttle:registration`. Password must match the web Complete Registration rule: minimum 8 characters, letters, mixed case, numbers, symbols, and confirmation. Student `identifier` matches `students.student_id` or `students.roll_no`; staff `identifier` matches `staff.staff_id`. Phone values are normalized before matching, so `9807044875` and `+9779807044875` can match the same invited account. On success the API hashes the password, activates/verifies the user, sets `email_verified_at`, queues the existing welcome email, logs registration activity, and creates an `account.registration_completed` notification.
 
 ### Login
 
