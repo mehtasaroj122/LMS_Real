@@ -7,6 +7,7 @@ use App\Mail\WelcomeEmail;
 use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 class InvitedUserRegistrationService
@@ -68,7 +69,15 @@ class InvitedUserRegistrationService
 
         $digits = preg_replace('/\D/', '', $raw);
 
-        return str_starts_with($raw, '+') ? '+' . $digits : $digits;
+        if (str_starts_with($raw, '+')) {
+            return '+' . $digits;
+        }
+
+        if (strlen($digits) === 10 && str_starts_with($digits, '9')) {
+            return '+977' . $digits;
+        }
+
+        return $digits;
     }
 
     public function normalizeIdentifier(?string $value): ?string
@@ -246,7 +255,7 @@ class InvitedUserRegistrationService
         DB::transaction(function () use ($user, $data, $role, $normalizedPhone, $normalizedIdentifier): void {
             $user->fill([
                 'phone' => $normalizedPhone,
-                'password' => $data['password'],
+                'password' => Hash::make($data['password']),
                 'status' => 'active',
                 'is_verified' => true,
                 'email_verified_at' => now(),

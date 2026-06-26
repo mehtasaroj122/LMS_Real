@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\CompleteRegistrationRequest;
 use App\Http\Requests\Api\LoginRequest;
 use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\Auth\InvitedUserRegistrationService;
+use App\Services\NotificationService;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -44,6 +48,64 @@ class AuthController extends Controller
             'access_token' => $token,
             'user' => new UserResource($user),
         ], 200);
+    }
+
+    public function completeRegistration(
+        CompleteRegistrationRequest $request,
+        InvitedUserRegistrationService $registrationService,
+        NotificationService $notificationService
+    ): JsonResponse {
+        $validated = $request->validated();
+        $role = (string) $validated['role'];
+        $identifierField = $role === 'staff' ? 'staff_id' : 'student_id';
+
+        try {
+            $user = $registrationService->completeRegistration([
+                'role' => $role,
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                $identifierField => $validated['identifier'],
+                'password' => $validated['password'],
+                'password_confirmation' => $validated['password_confirmation'],
+            ]);
+        } catch (\RuntimeException $exception) {
+            $message = $exception->getMessage() === 'This account is already active. Please sign in with your email and password instead.'
+                ? 'This account is already registered. Please sign in.'
+                : $exception->getMessage();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'The given data was invalid.',
+                'errors' => [
+                    'identifier' => [$message],
+                ],
+            ], 422);
+        }
+
+        event(new Registered($user));
+
+        $notificationService->create(
+            user: $user,
+            type: 'account.registration_completed',
+            title: 'Registration Completed',
+            message: 'Your account registration was completed successfully.',
+            data: [
+                'role' => $user->role,
+                'email' => $user->email,
+                'source' => 'mobile_api',
+            ],
+            relatedModel: 'User',
+            relatedId: $user->id
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration completed successfully. You can now sign in.',
+            'data' => [
+                'role' => $user->role,
+                'email' => $user->email,
+            ],
+        ]);
     }
 
     public function logout(Request $request): JsonResponse

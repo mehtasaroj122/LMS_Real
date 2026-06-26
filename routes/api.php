@@ -37,6 +37,7 @@ use Illuminate\Support\Facades\Route;
 
 // Authenticate a mobile user and return a Sanctum bearer token.
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/auth/complete-registration', [AuthController::class, 'completeRegistration'])->middleware('throttle:registration');
 
 // Public password reset endpoints for Android.
 Route::post('/forgot-password', [PasswordResetController::class, 'forgot'])->middleware('throttle:5,1');
