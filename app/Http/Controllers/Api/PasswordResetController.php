@@ -19,31 +19,65 @@ class PasswordResetController extends Controller
     public function forgot(ForgotPasswordRequest $request): JsonResponse
     {
         $email = $request->string('email')->lower()->toString();
-        $user = User::query()->where('email', $email)->first();
+        $user = User::query()
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->first();
 
-        if ($user) {
-            try {
-                Password::sendResetLink(['email' => $email]);
+        if (! $user) {
+            $message = "We can't find a user with that email address.";
 
-                Notification::notify(
-                    user: $user,
-                    type: 'account.password_reset',
-                    title: 'Password Reset Requested',
-                    message: 'A password reset link was sent to your email. If you did not request this, please ignore.',
-                    data: ['ip' => request()->ip(), 'timestamp' => now()],
-                    relatedModel: 'User',
-                    relatedId: $user->id
-                );
-            } catch (\Throwable $exception) {
-                Log::warning('Unable to send mobile password reset link', [
-                    'email' => $email,
-                    'error' => $exception->getMessage(),
-                ]);
-            }
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+                'errors' => [
+                    'email' => [$message],
+                ],
+            ], 422);
         }
 
+        try {
+            $status = Password::sendResetLink(['email' => $user->email]);
+        } catch (\Throwable $exception) {
+            Log::warning('Unable to send mobile password reset link', [
+                'email' => $email,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'We could not email your password reset link right now. Please try again shortly.',
+                'errors' => [
+                    'email' => ['We could not email your password reset link right now. Please try again shortly.'],
+                ],
+            ], 500);
+        }
+
+        if ($status !== Password::RESET_LINK_SENT) {
+            $message = __($status);
+
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+                'errors' => [
+                    'email' => [$message],
+                ],
+            ], 422);
+        }
+
+        Notification::notify(
+            user: $user,
+            type: 'account.password_reset',
+            title: 'Password Reset Requested',
+            message: 'A password reset link was sent to your email. If you did not request this, please ignore.',
+            data: ['ip' => request()->ip(), 'timestamp' => now()],
+            relatedModel: 'User',
+            relatedId: $user->id
+        );
+
         return response()->json([
-            'message' => 'Password reset instructions have been sent if the email exists.',
+            'success' => true,
+            'message' => 'We have emailed your password reset link.',
+            'data' => [],
         ]);
     }
 
