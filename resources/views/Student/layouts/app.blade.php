@@ -4,9 +4,10 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.favicon')
+    @include('partials.pwa-head')
     <title>@yield('title', 'Dashboard') - Library Management</title>
     <link rel="stylesheet" href="{{ asset('student/CSS/student-appLayout.css') }}">
     <link rel="stylesheet" href="{{ asset('shared/CSS/notification-list-animations.css') }}">
@@ -197,7 +198,7 @@
                 </div>
             </div>
 
-            <div class="flex-1 p-3 overflow-y-auto md:p-2">
+            <div class="flex-1 p-3 overflow-y-auto md:p-2 pwa-shell-content">
                 @if (trim($__env->yieldContent('showDashboardHeader')))
                     <x-dashboard-header class="mb-4" />
                 @endif
@@ -207,6 +208,8 @@
     </div>
 
     @include('shared.action-feedback.markup')
+    @include('partials.pwa-mobile-nav', ['role' => 'student'])
+    @include('partials.pwa-ui')
 
     <!-- API URLs for Notifications -->
     <script>

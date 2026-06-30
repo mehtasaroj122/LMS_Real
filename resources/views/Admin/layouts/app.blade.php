@@ -3,9 +3,10 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.favicon')
+    @include('partials.pwa-head')
     <title>@yield('title', 'Dashboard') - Library Management</title>
     <link rel="stylesheet" href="{{ asset('admin/CSS/admin-appLayout.css') }}">
     <link rel="stylesheet" href="{{ asset('shared/CSS/notification-list-animations.css') }}">
@@ -387,7 +388,7 @@
             </div>
         </div>
 
-        <div class="flex-1 min-h-0 p-3 overflow-y-auto md:p-4">
+        <div class="flex-1 min-h-0 p-3 overflow-y-auto md:p-4 pwa-shell-content">
             @if (trim($__env->yieldContent('showDashboardHeader')))
                 <x-dashboard-header class="mb-4" />
             @endif
@@ -395,6 +396,9 @@
         </div>
     </main>
 </div>
+
+@include('partials.pwa-mobile-nav', ['role' => 'admin'])
+@include('partials.pwa-ui')
 
 <script>
     window.notificationAPI = {

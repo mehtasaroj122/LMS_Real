@@ -69,7 +69,7 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="A secure, role-based Library Management System for institutions to manage books, students, requests, fines, notifications, and library workflows from one platform.">
     <meta property="og:title" content="{{ $brandName }} | Role-Based Library Platform">
@@ -77,6 +77,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
     @include('partials.favicon')
+    @include('partials.pwa-head')
     <meta property="og:image" content="{{ asset('favicon.ico') }}">
     <title>{{ $brandName }} | Secure, Role-Based Library Platform</title>
 
@@ -177,6 +178,7 @@
     </main>
 
     @include('landing.partials.footer', ['brandName' => $brandName, 'contactEmail' => $contactEmail])
+    @include('partials.pwa-ui')
     <script>
         (() => {
             const root = document.documentElement;
