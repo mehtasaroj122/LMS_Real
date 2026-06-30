@@ -834,7 +834,7 @@
                     </div>
                 </div>
                 <div class="stat-number" id="outstandingAmount">₹{{ $outstandingAmount }}</div>
-                <div class="stat-label" id="outstandingLabel">0 pending fines</div>
+                <div class="stat-label" id="outstandingLabel">{{ $outstandingCount ?? 0 }} pending {{ ($outstandingCount ?? 0) === 1 ? 'fine' : 'fines' }}</div>
             </div>
 
             <div class="stat-card card paid">
@@ -1515,10 +1515,11 @@
 
         // Update statistics based on filtered fines
         function updateStats(fines) {
-            const outstandingFines = fines.filter(fine => fine.status === 'unpaid');
+            const isOutstandingFine = (fine) => ['unpaid', 'pending'].includes(String(fine.status || '').toLowerCase());
+            const outstandingFines = fines.filter(isOutstandingFine);
             const paidFines = fines.filter(fine => fine.status === 'paid');
             const waivedFines = fines.filter(fine => fine.status === 'waived');
-            const overdueBooks = fines.filter(fine => fine.fineReason === 'overdue' && fine.status === 'unpaid');
+            const overdueBooks = fines.filter(fine => fine.fineReason === 'overdue' && isOutstandingFine(fine));
 
             const outstandingAmount = outstandingFines.reduce((sum, fine) => {
                 return sum + getNumericFineAmount(fine.fineAmount);
@@ -1557,7 +1558,8 @@
                     fine.bookTitle.toLowerCase().includes(searchTerm);
 
                 // Status filter
-                const matchesStatus = statusFilter === 'all' || fine.status === statusFilter;
+                const normalizedFineStatus = fine.status === 'pending' ? 'unpaid' : fine.status;
+                const matchesStatus = statusFilter === 'all' || normalizedFineStatus === statusFilter;
 
                 // Reason filter
                 const matchesReason = reasonFilter === 'all' || fine.fineReason === reasonFilter;

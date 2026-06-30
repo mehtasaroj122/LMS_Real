@@ -8,9 +8,9 @@ use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use App\Http\Resources\IssueResource;
 use App\Http\Resources\NotificationResource;
 use App\Models\BookRequest;
-use App\Models\Fine;
 use App\Models\IssuedBook;
 use App\Models\Student;
+use App\Services\StudentFineSummaryService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,7 +20,7 @@ class StudentDashboardController extends Controller
     use ResolvesApiUsers;
     use IncludesProfilePhoto;
 
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(Request $request, StudentFineSummaryService $studentFineSummary): JsonResponse
     {
         $student = $this->authenticatedStudent($request);
 
@@ -101,10 +101,7 @@ class StudentDashboardController extends Controller
                 'stats' => [
                     'issued_books' => $currentUsage,
                     'returned_books' => (clone $returnedIssuesQuery)->count(),
-                    'pending_fines' => (float) Fine::query()
-                        ->where('student_id', $student->id)
-                        ->where('status', 'pending')
-                        ->sum('amount'),
+                    'pending_fines' => $studentFineSummary->pendingAmount($student),
                     'active_requests' => $activeRequests,
                     'total_requests' => $totalRequests,
                     'approved_requests' => $approvedRequests,

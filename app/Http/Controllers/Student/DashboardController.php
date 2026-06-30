@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\FineSetting;
+use App\Services\StudentFineSummaryService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Gate;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(StudentFineSummaryService $studentFineSummary)
     {
         Gate::authorize('access-student');
         $user = auth()->user();
@@ -42,13 +43,7 @@ class DashboardController extends Controller
         ];
 
         $booksReturnedCount = $student ? $student->issuedBooks()->whereNotNull('return_date')->count() : 0;
-        $pendingFines = $student ? $student->issuedBooks()->whereHas('fine', function($q) {
-            $q->where('status', 'pending');
-        })->with(['fine' => function($q) {
-            $q->where('status', 'pending');
-        }])->get()->sum(function($issuedBook) {
-            return $issuedBook->fine ? $issuedBook->fine->amount : 0;
-        }) : 0;
+        $pendingFines = $student ? $studentFineSummary->pendingAmount($student) : 0;
         $activeRequestsCount = $student ? $student->bookRequests()->where('status', 'pending')->count() : 0;
 
         // Issued Books

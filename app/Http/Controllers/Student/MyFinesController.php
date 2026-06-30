@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
-use App\Models\Fine;
-use Illuminate\Http\Request;
+use App\Services\StudentFineSummaryService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 
 class MyFinesController extends Controller
 {
-    public function index()
+    public function index(StudentFineSummaryService $studentFineSummary)
     {
         Gate::authorize('access-student');
 
@@ -29,23 +28,14 @@ class MyFinesController extends Controller
             ]);
         }
 
-        // Get all fines for the student
-        $allFines = Fine::where('student_id', $student->id)
-            ->with([
-                'issuedBook' => function($q) {
-                    $q->with('book');
-                }
-            ])
-            ->latest('created_at')
-            ->get();
+        $allFines = $studentFineSummary->allFinesWithOpenOverdues($student);
 
         // Calculate statistics
-        $outstandingAmount = $allFines->where('status', 'pending')->sum('amount');
+        $outstandingAmount = $studentFineSummary->pendingAmount($student);
         $paidAmount = $allFines->where('status', 'paid')->sum('amount');
         $waivedAmount = $allFines->where('status', 'waived')->sum('amount');
-        
-        // Count overdue books (pending fines with days_late > 0)
-        $overdueCount = $allFines->where('status', 'pending')->where('days_late', '>', 0)->count();
+        $outstandingCount = $allFines->where('status', 'pending')->count();
+        $overdueCount = $studentFineSummary->openOverdueBookCount($student);
 
         // Transform fines data for JavaScript
         $finesJson = json_encode($allFines->map(function($fine) {
@@ -77,8 +67,8 @@ class MyFinesController extends Controller
                 'dueDate' => $dueDate,
                 'daysOverdue' => $daysOverdue,
                 'fineAmount' => '₹' . $fine->amount,
-                'status' => $fine->status,
-                'lastUpdated' => $fine->updated_at->format('Y-m-d'),
+                'status' => $fine->status === 'pending' ? 'unpaid' : $fine->status,
+                'lastUpdated' => optional($fine->updated_at)->format('Y-m-d') ?? now()->format('Y-m-d'),
             ];
         })->toArray());
 
@@ -86,6 +76,7 @@ class MyFinesController extends Controller
             'student' => $student,
             'finesJson' => $finesJson,
             'outstandingAmount' => $outstandingAmount,
+            'outstandingCount' => $outstandingCount,
             'paidAmount' => $paidAmount,
             'waivedAmount' => $waivedAmount,
             'overdueCount' => $overdueCount,

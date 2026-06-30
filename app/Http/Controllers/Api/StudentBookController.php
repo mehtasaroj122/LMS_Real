@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\IssueResource;
 use App\Models\Fine;
 use App\Models\IssuedBook;
+use App\Services\StudentFineSummaryService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -81,7 +82,7 @@ class StudentBookController extends Controller
         return IssueResource::collection($issues);
     }
 
-    public function summary(Request $request): JsonResponse
+    public function summary(Request $request, StudentFineSummaryService $studentFineSummary): JsonResponse
     {
         $student = $this->authenticatedStudent($request);
 
@@ -102,7 +103,7 @@ class StudentBookController extends Controller
                         ->whereNull('return_date')
                         ->whereDate('due_date', '<', today())
                         ->count(),
-                    'pending_fine' => (float) (clone $fineQuery)->where('status', 'pending')->sum('amount'),
+                    'pending_fine' => $studentFineSummary->pendingAmount($student),
                     'paid_fines' => (float) (clone $fineQuery)->where('status', 'paid')->sum('amount'),
                 ]
             ]

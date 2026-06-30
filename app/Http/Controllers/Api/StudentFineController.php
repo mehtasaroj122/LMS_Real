@@ -6,9 +6,7 @@ use App\Http\Controllers\Api\Concerns\ResolvesApiUsers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FineResource;
 use App\Models\Fine;
-use App\Models\IssuedBook;
-use App\Services\FineCalculator;
-use Carbon\Carbon;
+use App\Services\StudentFineSummaryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -32,7 +30,7 @@ class StudentFineController extends Controller
         );
     }
 
-    public function pending(Request $request): AnonymousResourceCollection|JsonResponse
+    public function pending(Request $request, StudentFineSummaryService $studentFineSummary): AnonymousResourceCollection|JsonResponse
     {
         $student = $this->authenticatedStudent($request);
 
@@ -40,46 +38,7 @@ class StudentFineController extends Controller
             return $student;
         }
 
-        // Get all explicit pending fines
-        $pendingFines = $this->baseQuery($student->id)
-            ->where('status', 'pending')
-            ->get();
-
-        // Get overdue books without pending fines
-        $overdueBooks = IssuedBook::query()
-            ->with(['student.user', 'student.department', 'book.category', 'fine'])
-            ->where('student_id', $student->id)
-            ->whereNull('return_date')
-            ->whereDate('due_date', '<', today())
-            ->get()
-            ->filter(function ($issue) {
-                // Only include if no pending fine exists
-                return !$issue->fine || $issue->fine->status !== 'pending';
-            });
-
-        // Convert overdue books to virtual Fine objects
-        $fineCalculator = new FineCalculator();
-        $overdueAsFines = $overdueBooks->map(function ($issuedBook) use ($fineCalculator) {
-            $fineCalculation = $fineCalculator->calculateFine($issuedBook);
-
-            // Create virtual Fine object
-            $fine = new Fine();
-            $fine->id = null;
-            $fine->issued_book_id = $issuedBook->id;
-            $fine->student_id = $issuedBook->student_id;
-            $fine->amount = $fineCalculation ? (float) $fineCalculation['amount'] : 0.0;
-            $fine->days_late = $fineCalculation ? (int) $fineCalculation['days_late'] : 0;
-            $fine->status = 'pending';
-            $fine->remarks = $fineCalculation && $fineCalculation['is_within_grace'] ? 'Within grace period' : null;
-            // Set relationships
-            $fine->setRelation('issuedBook', $issuedBook);
-            $fine->setRelation('student', $issuedBook->student);
-
-            return $fine;
-        });
-
-        // Combine pending fines and overdue books, then sort by due date (latest first)
-        $allItems = $pendingFines->merge($overdueAsFines)
+        $allItems = $studentFineSummary->pendingItems($student)
             ->sortByDesc(function ($item) {
                 return optional($item->issuedBook->due_date)->timestamp ?? now()->timestamp;
             })
@@ -135,7 +94,7 @@ class StudentFineController extends Controller
         return new FineResource($fine);
     }
 
-    public function summary(Request $request): JsonResponse
+    public function summary(Request $request, StudentFineSummaryService $studentFineSummary): JsonResponse
     {
         $student = $this->authenticatedStudent($request);
 
@@ -144,12 +103,13 @@ class StudentFineController extends Controller
         }
 
         $baseQuery = Fine::query()->where('student_id', $student->id);
+        $pendingItems = $studentFineSummary->pendingItems($student);
 
         return response()->json([
             'total_fines' => (int) (clone $baseQuery)->count(),
-            'pending_fines' => (int) (clone $baseQuery)->where('status', 'pending')->count(),
+            'pending_fines' => $pendingItems->count(),
             'paid_fines' => (int) (clone $baseQuery)->where('status', 'paid')->count(),
-            'pending_amount' => (float) (clone $baseQuery)->where('status', 'pending')->sum('amount'),
+            'pending_amount' => (float) $pendingItems->sum(fn (Fine $fine) => (float) $fine->amount),
             'paid_amount' => (float) (clone $baseQuery)->where('status', 'paid')->sum('amount'),
             'total_amount' => (float) (clone $baseQuery)->sum('amount'),
         ]);

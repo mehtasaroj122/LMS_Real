@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\IssuedBook;
+use App\Services\StudentFineSummaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 
 class MyBooksController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, StudentFineSummaryService $studentFineSummary)
     {
         Gate::authorize('access-student');
 
@@ -43,15 +44,12 @@ class MyBooksController extends Controller
             return $book->due_date < now();
         })->count();
 
-        // Calculate total unpaid fines
-        $totalFine = $allIssuedBooks->filter(function($book) {
-            return $book->fine && $book->fine->status === 'pending';
-        })->sum(function($book) {
-            return $book->fine ? $book->fine->amount : 0;
-        });
+        $totalFine = $studentFineSummary->pendingAmount($student);
 
         // Transform books data for JavaScript
-        $issuedBooksJson = json_encode($allIssuedBooks->map(function($issuedBook) {
+        $issuedBooksJson = json_encode($allIssuedBooks->map(function($issuedBook) use ($studentFineSummary) {
+            $displayFine = $studentFineSummary->displayFineForIssue($issuedBook);
+
             return [
                 'id' => $issuedBook->id,
                 'title' => $issuedBook->book->title,
@@ -62,8 +60,8 @@ class MyBooksController extends Controller
                 'dueDate' => $issuedBook->due_date->format('M d, Y'),
                 'returnDate' => $issuedBook->return_date ? $issuedBook->return_date->format('M d, Y') : null,
                 'status' => $issuedBook->return_date ? 'returned' : ($issuedBook->due_date < now() ? 'overdue' : $this->calculateStatus($issuedBook)),
-                'fine' => $issuedBook->fine ? ($issuedBook->fine->amount > 0 ? '₹' . $issuedBook->fine->amount : 'No Fine') : 'No Fine',
-                'fineStatus' => $issuedBook->fine ? ($issuedBook->fine->status === 'paid' ? 'paid' : ($issuedBook->fine->status === 'pending' ? 'unpaid' : 'waived')) : 'none'
+                'fine' => $displayFine['amount'] > 0 ? '₹' . $displayFine['amount'] : 'No Fine',
+                'fineStatus' => $displayFine['status'],
             ];
         })->toArray());
 

@@ -21,6 +21,14 @@
             overflow: hidden;
         }
 
+        .dashboard-pending-fine-accent {
+            color: #dc2626;
+        }
+
+        body.dark-theme .dashboard-pending-fine-accent {
+            color: #f87171;
+        }
+
         .fine-trend-card-shell {
             transition: opacity 0.18s ease;
             min-width: 0;
@@ -287,7 +295,18 @@
                     </div>
                     <i data-lucide="book" class="w-5 h-5 text-muted"></i>
                 </div>
-                <p class="text-xs text-muted">{{ $availableBooks }} available</p>
+                <p class="text-xs text-muted">{{ $totalBookCopies }} total copies</p>
+            </div>
+
+            <div class="p-4 shadow-sm card">
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <p class="text-xs font-medium text-muted">Available Copies</p>
+                        <h3 class="text-2xl font-bold">{{ $availableBooks }}</h3>
+                    </div>
+                    <i data-lucide="book-open-check" class="w-5 h-5 text-muted"></i>
+                </div>
+                <p class="text-xs text-muted">Copies ready to issue</p>
             </div>
 
             <div class="p-4 shadow-sm card">
@@ -298,40 +317,33 @@
                     </div>
                     <i data-lucide="trending-up" class="w-5 h-5 text-muted"></i>
                 </div>
-                <p class="text-xs text-muted">Currently issued</p>
-            </div>
-
-            <div class="p-4 shadow-sm card">
-                <div class="flex items-start justify-between mb-2">
-                    <div>
-                        <p class="text-xs font-medium text-muted">Overdue Fines</p>
-                        <h3 class="text-2xl font-bold text-danger">₹{{ number_format($pendingFines, 2) }}</h3>
-                    </div>
-                    <i data-lucide="alert-circle" class="w-5 h-5 text-danger"></i>
-                </div>
-                <p class="text-xs text-muted">Need attention</p>
+                <p class="text-xs text-muted">Currently issued to users</p>
             </div>
 
             <div class="p-4 shadow-sm card">
                 <div class="flex items-start justify-between mb-2">
                     <div>
                         <p class="text-xs font-medium text-muted">Total Users</p>
-                        <h3 class="text-2xl font-bold">{{ $totalStudents }}</h3>
+                        <h3 class="text-2xl font-bold">{{ $totalUsers }}</h3>
                     </div>
                     <i data-lucide="users" class="w-5 h-5 text-muted"></i>
                 </div>
-                <p class="text-xs text-muted">{{ $totalStudents }} students</p>
+                <p class="text-xs text-muted">
+                    {{ (int) ($userRoleCounts['admin'] ?? 0) }} admins,
+                    {{ (int) ($userRoleCounts['staff'] ?? 0) }} staff,
+                    {{ (int) ($userRoleCounts['student'] ?? 0) }} students
+                </p>
             </div>
 
             <div class="p-4 shadow-sm card">
                 <div class="flex items-start justify-between mb-2">
                     <div>
                         <p class="text-xs font-medium text-muted">Pending Fines</p>
-                        <h3 class="text-2xl font-bold">₹{{ number_format($pendingFines, 2) }}</h3>
+                        <h3 class="text-2xl font-bold dashboard-pending-fine-accent">₹{{ number_format($pendingFines, 2) }}</h3>
                     </div>
-                    <i data-lucide="indian-rupee" class="w-5 h-5 text-muted"></i>
+                    <i data-lucide="indian-rupee" class="w-5 h-5 dashboard-pending-fine-accent"></i>
                 </div>
-                <p class="text-xs text-muted">Unpaid fines</p>
+                <p class="text-xs text-muted">Unpaid fines needing attention</p>
             </div>
 
             <div class="p-4 shadow-sm card">

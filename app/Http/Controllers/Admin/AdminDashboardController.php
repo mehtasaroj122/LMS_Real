@@ -10,6 +10,7 @@ use App\Models\Fine;
 use App\Models\BookRequest;
 use App\Models\IssuedBook;
 use App\Models\Student;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
@@ -33,11 +34,21 @@ class AdminDashboardController extends Controller
         // Total books (all records)
         $totalBooks = Book::count();
 
+        // Total physical copies across all book records
+        $totalBookCopies = Book::sum('total_copies');
+
         // Available copies (real availability)
         $availableBooks = Book::sum('available_copies');
 
         // Total students
         $totalStudents = Student::count();
+
+        // Total users across all portal roles
+        $totalUsers = User::count();
+        $userRoleCounts = User::query()
+            ->selectRaw('LOWER(role) as role, COUNT(*) as total')
+            ->groupByRaw('LOWER(role)')
+            ->pluck('total', 'role');
 
         // Book categories
         $totalCategories = Category::count();
@@ -145,11 +156,14 @@ class AdminDashboardController extends Controller
             $fineTrendViewData,
             compact(
                 'totalBooks',
+                'totalBookCopies',
                 'availableBooks',
                 'issuedBooks',
                 'overdueBooks',
                 'reservedBooks',
                 'totalStudents',
+                'totalUsers',
+                'userRoleCounts',
                 'pendingFines',
                 'collectedFines',
                 'waivedFines',
