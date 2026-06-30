@@ -133,7 +133,7 @@ SVG,
         <x-dashboard-date-time-panel
             :date="DateHelper::formatAsBikramSambat()"
             :time="DateHelper::formatAsTime()"
-            class="w-full max-w-sm text-right xl:w-auto"
+            class="hidden w-full max-w-sm text-right sm:block xl:w-auto"
         />
     </div>
 </section>

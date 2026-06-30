@@ -73,9 +73,21 @@
         /* ===== STATS CARDS - Consistent with My Books page ===== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: 1fr;
             gap: 0.5rem;
             margin-bottom: 0.75rem;
+        }
+
+        @media (min-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
         }
 
         .stat-card {
@@ -321,12 +333,15 @@
             border-radius: var(--radius);
             padding: 0.5rem;
             border: 1px solid var(--border-color);
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Desktop Table */
         .requests-table {
             width: 100%;
+            min-width: 760px;
             border-collapse: collapse;
             display: table;
         }
@@ -631,18 +646,6 @@
                 font-size: 1.125rem;
             }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .requests-table {
-                display: none;
-            }
-
-            .requests-mobile {
-                display: flex;
-            }
-
             .search-filter-container {
                 flex-direction: column;
                 align-items: stretch;
@@ -654,6 +657,11 @@
             .filters-container,
             .entries-control {
                 width: 100%;
+            }
+
+            .search-box {
+                flex: 0 0 auto;
+                min-width: 0;
             }
 
             .filter-select {
@@ -700,11 +708,6 @@
             }
         }
 
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
     </style>
 @endpush
 

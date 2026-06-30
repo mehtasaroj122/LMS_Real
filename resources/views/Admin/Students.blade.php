@@ -26,7 +26,8 @@
         }
 
         .table-wrapper {
-            overflow-x: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .students-table {

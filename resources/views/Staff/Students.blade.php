@@ -32,6 +32,18 @@
 
 @push('styles')
     @include('shared.student-management.styles')
+    <style>
+        #studentTableWrapper {
+            max-width: 100%;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x pan-y;
+        }
+
+        #studentTableWrapper .students-table {
+            min-width: 1080px;
+        }
+    </style>
 @endpush
 
 @section('content')

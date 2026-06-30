@@ -1741,7 +1741,7 @@
                     </div>
                 </div>
 
-                <x-dashboard-date-time-panel class="profile-card-date-panel text-right" />
+                <x-dashboard-date-time-panel class="profile-card-date-panel hidden text-right sm:block" />
             </div>
 
             <div class="profile-card-stats">

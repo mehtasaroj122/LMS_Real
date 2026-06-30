@@ -1,10 +1,11 @@
 {{-- resources/views/layouts/admin.blade.php --}}
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-{{--    <meta name="viewport" content="width=device-width, initial-scale=1">--}}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.favicon')
     <title>@yield('title', 'Dashboard') - Library Management</title>
     <link rel="stylesheet" href="{{ asset('admin/CSS/admin-appLayout.css') }}">
     <link rel="stylesheet" href="{{ asset('shared/CSS/notification-list-animations.css') }}">
@@ -197,9 +198,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    @include('partials.favicon')
-    <title>@yield('title', 'Dashboard') - Library Management</title>
+<body class="light-theme">
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="flex h-screen min-h-0 overflow-hidden">
     <aside class="flex flex-col w-64 min-h-0 border-r sidebar shrink-0" id="sidebar">

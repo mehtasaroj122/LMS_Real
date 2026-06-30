@@ -183,9 +183,21 @@
         /* ===== STATS CARDS - Consistent with other pages ===== */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: 1fr;
             gap: 0.5rem;
             margin-bottom: 0.75rem;
+        }
+
+        @media (min-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
         }
 
         .stat-card {
@@ -416,7 +428,9 @@
         /* Fines Table */
         .fines-table-container {
             border-radius: var(--radius);
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
             margin-bottom: 0.75rem;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -722,10 +736,6 @@
                 width: 100%;
             }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
             .search-filter-container {
                 padding: 0.5rem;
             }
@@ -743,6 +753,11 @@
                 width: 100%;
             }
 
+            .search-box {
+                flex: 0 0 auto;
+                min-width: 0;
+            }
+
             .filter-select {
                 min-width: 100%;
             }
@@ -750,11 +765,6 @@
             .entries-control {
                 margin-left: 0;
                 justify-content: flex-start;
-            }
-
-            .fines-table {
-                display: block;
-                overflow-x: auto;
             }
 
             .fines-table th,
@@ -782,11 +792,6 @@
             }
         }
 
-        @media (min-width: 769px) and (max-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
     </style>
 @endpush
 

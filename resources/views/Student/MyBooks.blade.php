@@ -230,9 +230,21 @@
         /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: 1fr;
             gap: 0.75rem;
             margin-bottom: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
         }
 
         .stat-card {
@@ -499,7 +511,9 @@
         /* Books Table */
         .books-table-container {
             border-radius: 0.5rem;
-            overflow: hidden;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
             margin-bottom: 1rem;
         }
 
@@ -815,19 +829,9 @@
         }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
         @media (max-width: 768px) {
             .main-content {
                 padding: 0.75rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
             }
 
             .search-filter-container {
@@ -844,6 +848,11 @@
                 width: 100%;
             }
 
+            .search-box {
+                flex: 0 0 auto;
+                min-width: 0;
+            }
+
             .filter-select {
                 min-width: 100%;
             }
@@ -853,9 +862,9 @@
                 justify-content: flex-start;
             }
 
-            .books-table {
-                display: block;
+            .books-table-container {
                 overflow-x: auto;
+                overflow-y: hidden;
             }
 
             .books-table th,
