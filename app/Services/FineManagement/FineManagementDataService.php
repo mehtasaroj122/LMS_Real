@@ -3,12 +3,21 @@
 namespace App\Services\FineManagement;
 
 use App\Models\Fine;
+use App\Models\IssuedBook;
+use App\Services\FineCalculator;
 use Illuminate\Database\Eloquent\Builder;
 
 class FineManagementDataService
 {
+    public function __construct(
+        private readonly FineCalculator $fineCalculator
+    ) {
+    }
+
     public function getListingData(array $filters = []): array
     {
+        $this->syncOutstandingOverdueFines();
+
         $filters = $this->normalizeFilters($filters);
         $query = $this->buildFilteredQuery($filters);
 
@@ -31,6 +40,8 @@ class FineManagementDataService
 
     public function getExportData(array $filters = []): array
     {
+        $this->syncOutstandingOverdueFines();
+
         $filters = $this->normalizeFilters($filters);
         $collection = $this->buildFilteredQuery($filters)->get();
 
@@ -76,6 +87,29 @@ class FineManagementDataService
             ->with(['student.user', 'issuedBook.book'])
             ->whereHas('student.user', function (Builder $query) {
                 $query->where('role', 'student');
+            });
+    }
+
+    protected function syncOutstandingOverdueFines(): void
+    {
+        IssuedBook::query()
+            ->with(['student.user', 'student.privileges', 'fine'])
+            ->whereNull('return_date')
+            ->whereDate('due_date', '<', today())
+            ->whereHas('student.user', function (Builder $query) {
+                $query->where('role', 'student');
+            })
+            ->whereDoesntHave('fine')
+            ->chunkById(100, function ($issuedBooks) {
+                foreach ($issuedBooks as $issuedBook) {
+                    $calculation = $this->fineCalculator->calculateFine($issuedBook);
+
+                    if (!$calculation || (float) ($calculation['amount'] ?? 0) <= 0) {
+                        continue;
+                    }
+
+                    $this->fineCalculator->applyFine($issuedBook);
+                }
             });
     }
 

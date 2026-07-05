@@ -8,12 +8,18 @@ use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\IssuedBook;
 use App\Models\Student;
+use App\Services\StudentFineSummaryService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class StudentProfileDataService
 {
+    public function __construct(
+        private readonly StudentFineSummaryService $studentFineSummary
+    ) {
+    }
+
     public function loadStudent(string $id): Student
     {
         return Student::with([
@@ -30,15 +36,20 @@ class StudentProfileDataService
 
     public function buildStaffProfile(Student $student): array
     {
+        $this->studentFineSummary->syncPendingOpenOverdueFines($student);
+
         $student->loadMissing([
             'user',
             'department',
+            'privileges',
+        ]);
+
+        $student->load([
             'issuedBooks.book.category',
             'issuedBooks.issuer',
             'issuedBooks.fine',
             'bookRequests.book',
             'fines.issuedBook.book',
-            'privileges',
         ]);
 
         $books = $student->issuedBooks
@@ -101,7 +112,9 @@ class StudentProfileDataService
             ? now()->diffInDays($dueDate)
             : 0;
         $fine = $issuedBook->fine;
-        $fineAmount = (float) ($fine?->amount ?? $issuedBook->fine_amount ?? 0);
+        $displayFine = $this->studentFineSummary->displayFineForIssue($issuedBook);
+        $fineAmount = (float) ($displayFine['amount'] ?? 0);
+        $fineStatus = strtolower((string) ($displayFine['status'] ?? $fine?->status ?? 'none'));
 
         return [
             'id' => $issuedBook->id,
@@ -117,8 +130,8 @@ class StudentProfileDataService
             'daysOverdue' => $daysOverdue,
             'fineAmount' => $fineAmount,
             'fineLabel' => 'Rs. ' . number_format($fineAmount, 2),
-            'fineStatus' => strtolower((string) ($fine?->status ?? 'n/a')),
-            'fineStatusLabel' => $fine ? ucfirst((string) $fine->status) : 'No fine',
+            'fineStatus' => $fineStatus,
+            'fineStatusLabel' => $fineStatus === 'none' ? 'No fine' : ucfirst($fineStatus),
             'issuedBy' => $issuedBook->issuer?->name ?? 'System',
             'remarks' => $issuedBook->remarks ?? 'No remarks',
         ];

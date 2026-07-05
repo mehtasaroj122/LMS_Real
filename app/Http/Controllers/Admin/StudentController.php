@@ -15,6 +15,7 @@ use App\Models\ActivityLog;
 use App\Helpers\ActivityLogger;
 use App\Mail\PasswordResetEmail;
 use App\Services\Auth\InvitationEmailService;
+use App\Services\StudentFineSummaryService;
 use App\Services\StudentManagement\StudentManagementDataService;
 use App\Services\StudentManagement\StudentNotificationEmailService;
 use Illuminate\Database\QueryException;
@@ -577,7 +578,7 @@ class StudentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id, StudentFineSummaryService $studentFineSummary)
     {
         Gate::authorize('access-admin');
         $student = Student::with([
@@ -594,9 +595,17 @@ class StudentController extends Controller
         if ($student->user->role !== 'student') {
             return redirect()->route('admin.students.index')->with('error', 'This user is not a student.');
         }
+
+        $studentFineSummary->syncPendingOpenOverdueFines($student);
+        $student->load([
+            'issuedBooks.book.category',
+            'issuedBooks.issuer',
+            'issuedBooks.fine',
+            'fines.issuedBook.book',
+        ]);
         
         // Transform issued books for frontend
-        $booksData = $student->issuedBooks->map(function($issued) {
+        $booksData = $student->issuedBooks->map(function($issued) use ($studentFineSummary) {
             $issueDate = $issued->issue_date ? \Carbon\Carbon::parse($issued->issue_date) : null;
             $dueDate = $issued->due_date ? \Carbon\Carbon::parse($issued->due_date)->startOfDay() : null;
             $returnDate = $issued->return_date ? \Carbon\Carbon::parse($issued->return_date) : null;
@@ -608,7 +617,8 @@ class StudentController extends Controller
             $daysOverdue = $status === 'overdue' && $dueDate
                 ? (int) $dueDate->diffInDays($today)
                 : 0;
-            $fineAmount = $issued->fine?->amount ?? $issued->fine_amount ?? 0;
+            $displayFine = $studentFineSummary->displayFineForIssue($issued);
+            $fineAmount = (float) ($displayFine['amount'] ?? 0);
             
             return [
                 'id' => $issued->id,
@@ -632,8 +642,8 @@ class StudentController extends Controller
                 'renewalCount' => $issued->renewal_count ?? 0,
                 'status' => $status,
                 'fine' => $fineAmount,
-                'hasFine' => (bool) $issued->fine,
-                'fineStatus' => strtolower((string) ($issued->fine?->status ?? 'n/a')),
+                'hasFine' => (bool) $issued->fine || $fineAmount > 0,
+                'fineStatus' => strtolower((string) ($displayFine['status'] ?? $issued->fine?->status ?? 'n/a')),
                 'daysOverdue' => (int) $daysOverdue,
                 'remarks' => $issued->remarks ?? 'No remarks'
             ];
@@ -643,7 +653,7 @@ class StudentController extends Controller
         $finesData = $student->fines->map(function($fine) {
             return [
                 'id' => $fine->id,
-                'bookName' => optional($fine->issuedBook && $fine->issuedBook->book) ? $fine->issuedBook->book->title : 'Unknown',
+                'bookName' => $fine->issuedBook?->book?->title ?? 'Unknown',
                 'daysOverdue' => ($fine->days_late ?? 0) . ' days',
                 'fineAmount' => $fine->amount ?? 0,
                 'paymentStatus' => $fine->status,
@@ -1632,13 +1642,18 @@ class StudentController extends Controller
     /**
      * Get student fines (AJAX)
      */
-    public function getStudentFines(Request $request, string $id)
+    public function getStudentFines(Request $request, string $id, StudentFineSummaryService $studentFineSummary)
     {
         Gate::authorize('access-admin');
         
         $student = Student::with(['fines' => function($q) {
             $q->with('issuedBook.book')->orderBy('created_at', 'desc');
         }])->findOrFail($id);
+
+        $studentFineSummary->syncPendingOpenOverdueFines($student);
+        $student->load(['fines' => function($q) {
+            $q->with('issuedBook.book')->orderBy('created_at', 'desc');
+        }]);
         
         $fines = $student->fines->map(function($fine) {
             $dueDate = $fine->issuedBook && $fine->issuedBook->due_date
@@ -1647,9 +1662,7 @@ class StudentController extends Controller
             
             return [
                 'id' => $fine->id,
-                'bookName' => $fine->issuedBook && $fine->issuedBook->book 
-                    ? $fine->issuedBook->book->title 
-                    : 'Unknown',
+                'bookName' => $fine->issuedBook?->book?->title ?? 'Unknown',
                 'daysOverdue' => (int)$fine->days_late,
                 'dueDate' => $dueDate,
                 'fineAmount' => (float)$fine->amount,

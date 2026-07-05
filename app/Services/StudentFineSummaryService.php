@@ -56,6 +56,28 @@ class StudentFineSummaryService
             ->count();
     }
 
+    public function syncPendingOpenOverdueFines(Student $student): Collection
+    {
+        return IssuedBook::query()
+            ->with(['student.privileges', 'book', 'fine'])
+            ->where('student_id', $student->id)
+            ->whereNull('return_date')
+            ->whereDate('due_date', '<', today())
+            ->get()
+            ->filter(fn (IssuedBook $issuedBook) => !$issuedBook->fine)
+            ->map(function (IssuedBook $issuedBook) {
+                $calculation = $this->fineCalculator->calculateFine($issuedBook);
+
+                if (!$calculation || (float) ($calculation['amount'] ?? 0) <= 0) {
+                    return null;
+                }
+
+                return $this->fineCalculator->applyFine($issuedBook);
+            })
+            ->filter()
+            ->values();
+    }
+
     public function displayFineForIssue(IssuedBook $issuedBook): array
     {
         $fine = $issuedBook->fine;

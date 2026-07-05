@@ -128,3 +128,25 @@ test('student fine summary combines pending fines with current overdue book fine
             'status' => 'unpaid',
         ]);
 });
+
+test('student fine summary sync creates pending fine records for open overdues', function () {
+    FineSetting::create([
+        'per_day_fine' => 30,
+        'grace_period_days' => 0,
+        'max_fine_amount' => 1000,
+        'is_active' => true,
+    ]);
+
+    $student = makeStudentFineSummaryStudent();
+    $overdueIssue = makeStudentFineSummaryIssue($student, 'Admin Actionable Overdue Fine', 5);
+
+    $summary = app(StudentFineSummaryService::class);
+    $syncedFines = $summary->syncPendingOpenOverdueFines($student);
+    $storedFine = Fine::where('issued_book_id', $overdueIssue->id)->first();
+
+    expect($syncedFines)->toHaveCount(1)
+        ->and($storedFine)->not->toBeNull()
+        ->and((float) $storedFine->amount)->toBe(150.0)
+        ->and($storedFine->status)->toBe('pending')
+        ->and((float) $overdueIssue->fresh()->fine_amount)->toBe(150.0);
+});
