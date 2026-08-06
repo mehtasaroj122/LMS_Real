@@ -28,8 +28,11 @@ trait DeduplicatesFineRecords
      */
     protected function distinctIssuedBookCount(Builder $query): int
     {
-        $result = (clone $query)
-            ->toBase()
+        $base = (clone $query)->reorder()->toBase();
+        $base->limit = null;
+        $base->offset = null;
+
+        $result = $base
             ->selectRaw('COUNT(DISTINCT issued_book_id) AS aggregate')
             ->first();
 

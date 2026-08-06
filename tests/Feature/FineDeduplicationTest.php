@@ -27,6 +27,17 @@ class DeduplicatesFineRecordsHarness
         return $this->distinctIssuedBookCount($query);
     }
 
+    public function distinctCountSql(Builder $query): string
+    {
+        $base = (clone $query)->reorder()->toBase();
+        $base->limit = null;
+        $base->offset = null;
+
+        return $base
+            ->selectRaw('COUNT(DISTINCT issued_book_id) AS aggregate')
+            ->toSql();
+    }
+
     public function collapseQuery(Builder $query): Collection
     {
         return $this->collapseFineRecordsQuery($query);
@@ -271,6 +282,32 @@ test('distinct issued book count reflects one record per issued book', function 
     $harness = new DeduplicatesFineRecordsHarness();
 
     expect($harness->distinctCount(Fine::query()))->toBe(2);
+});
+
+test('distinct issued book count strips ordering and limits from the source query for MySQL', function () {
+    $student = makeFineDedupStudent();
+    $issue = makeFineDedupIssuedBook($student);
+
+    Fine::create([
+        'issued_book_id' => $issue->id,
+        'student_id' => $student->id,
+        'amount' => 50,
+        'days_late' => 3,
+        'status' => 'pending',
+    ]);
+
+    $harness = new DeduplicatesFineRecordsHarness();
+    $query = Fine::query()
+        ->whereHas('student.user', function (Builder $builder) {
+            $builder->where('role', 'student');
+        })
+        ->orderBy('created_at', 'desc');
+
+    $sql = strtolower($harness->distinctCountSql($query));
+
+    expect($sql)->not->toContain('order by')
+        ->and($sql)->not->toContain('offset')
+        ->and($harness->distinctCount($query))->toBe(1);
 });
 
 test('collapse fine query collapses persisted rows one per issued book', function () {
