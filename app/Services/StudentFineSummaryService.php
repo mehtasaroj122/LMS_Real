@@ -59,6 +59,13 @@ class StudentFineSummaryService
             ->count();
     }
 
+    public function unpaidOverdueBookCount(Student $student): int
+    {
+        return $this->pendingItems($student)
+            ->filter(fn (Fine $fine) => $this->isOverdueFine($fine))
+            ->count();
+    }
+
     public function syncPendingOpenOverdueFines(Student $student): Collection
     {
         return IssuedBook::query()
@@ -129,7 +136,7 @@ class StudentFineSummaryService
             ->where('student_id', $student->id)
             ->whereNull('return_date')
             ->whereDate('due_date', '<', today())
-            ->whereDoesntHave('fine', fn (Builder $query) => $query->where('status', 'pending'))
+            ->whereDoesntHave('fine')
             ->get()
             ->map(function (IssuedBook $issuedBook) {
                 $calculation = $this->fineCalculator->calculateFine($issuedBook);
@@ -169,5 +176,12 @@ class StudentFineSummaryService
         return $issuedBook->return_date === null
             && $issuedBook->due_date
             && $issuedBook->due_date->startOfDay()->lt(today());
+    }
+
+    private function isOverdueFine(Fine $fine): bool
+    {
+        $condition = strtolower((string) ($fine->issuedBook?->condition ?? ''));
+
+        return !in_array($condition, ['damaged', 'fair', 'lost'], true);
     }
 }

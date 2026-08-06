@@ -35,7 +35,7 @@ class MyFinesController extends Controller
         $paidAmount = $allFines->where('status', 'paid')->sum('amount');
         $waivedAmount = $allFines->where('status', 'waived')->sum('amount');
         $outstandingCount = $allFines->where('status', 'pending')->count();
-        $overdueCount = $studentFineSummary->openOverdueBookCount($student);
+        $overdueCount = $studentFineSummary->unpaidOverdueBookCount($student);
 
         // Transform fines data for JavaScript
         $finesJson = json_encode($allFines->map(function($fine) {

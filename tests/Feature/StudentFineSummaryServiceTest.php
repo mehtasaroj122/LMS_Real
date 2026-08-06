@@ -120,13 +120,52 @@ test('student fine summary combines pending fines with current overdue book fine
 
     $summary = app(StudentFineSummaryService::class);
 
-    expect($summary->pendingAmount($student))->toBe(395.0)
-        ->and($summary->pendingItems($student))->toHaveCount(4)
+    expect($summary->pendingAmount($student))->toBe(365.0)
+        ->and($summary->pendingItems($student))->toHaveCount(3)
         ->and($summary->openOverdueBookCount($student))->toBe(4)
+        ->and($summary->unpaidOverdueBookCount($student))->toBe(3)
         ->and($summary->displayFineForIssue($overdueIssue->fresh(['student.privileges', 'fine'])))->toMatchArray([
             'amount' => 40.0,
             'status' => 'unpaid',
         ]);
+});
+
+test('student fine summary does not treat a paid or waived open-overdue book as an unpaid fine', function () {
+    FineSetting::create([
+        'per_day_fine' => 10,
+        'grace_period_days' => 0,
+        'max_fine_amount' => 500,
+        'is_active' => true,
+    ]);
+
+    $student = makeStudentFineSummaryStudent();
+    $paidIssue = makeStudentFineSummaryIssue($student, 'Paid Still Overdue', 6);
+    $waivedIssue = makeStudentFineSummaryIssue($student, 'Waived Still Overdue', 5);
+
+    Fine::create([
+        'issued_book_id' => $paidIssue->id,
+        'student_id' => $student->id,
+        'amount' => 60,
+        'days_late' => 6,
+        'status' => 'paid',
+        'paid_on' => now()->subDay()->toDateString(),
+    ]);
+
+    Fine::create([
+        'issued_book_id' => $waivedIssue->id,
+        'student_id' => $student->id,
+        'amount' => 50,
+        'days_late' => 5,
+        'status' => 'waived',
+        'waived_at' => now()->subDay(),
+    ]);
+
+    $summary = app(StudentFineSummaryService::class);
+
+    expect($summary->pendingItems($student))->toHaveCount(0)
+        ->and($summary->pendingAmount($student))->toBe(0.0)
+        ->and($summary->unpaidOverdueBookCount($student))->toBe(0)
+        ->and($summary->openOverdueBookCount($student))->toBe(2);
 });
 
 test('student fine summary sync creates pending fine records for open overdues', function () {
