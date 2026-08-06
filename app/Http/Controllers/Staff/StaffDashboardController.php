@@ -9,10 +9,13 @@ use App\Models\Book;
 use App\Models\IssuedBook;
 use App\Models\BookRequest;
 use App\Models\Fine;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use Carbon\Carbon;
 
 class StaffDashboardController extends Controller
 {
+    use DeduplicatesFineRecords;
+
     private const DASHBOARD_LIST_BATCH = 10;
 
     /**
@@ -55,9 +58,11 @@ class StaffDashboardController extends Controller
 
         // Count only fines that are actually pending (exclude paid/waived)
         // Match the logic used in Staff\FineController::getFinesData by restricting to student users
-        $pendingFinesAmount = Fine::whereHas('student.user', function($q) {
-            $q->where('role', 'student');
-        })->whereRaw('LOWER(status) = ?', ['pending'])->sum('amount');
+        $pendingFinesAmount = (float) $this->collapseFineRecordsQuery(
+            Fine::whereHas('student.user', function ($q) {
+                $q->where('role', 'student');
+            })->whereRaw('LOWER(status) = ?', ['pending'])
+        )->sum('amount');
 
         $availableBooks = Book::sum('available_copies');
         $issuedOnTime = max($currentlyIssued - $overdueCount - $dueToday, 0);

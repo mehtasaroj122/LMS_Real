@@ -11,6 +11,7 @@ use App\Models\BookRequest;
 use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Http\Request;
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\Gate;
 
 class AdminDashboardController extends Controller
 {
+    use DeduplicatesFineRecords;
+
     /**
      * Display a listing of the resource.
      */
@@ -74,19 +77,25 @@ class AdminDashboardController extends Controller
          |=========================*/
 
         // Pending fines (not paid) - only for students to match fines view logic
-        $pendingFines = Fine::whereHas('student.user', function ($q) {
-            $q->where('role', 'student');
-        })->whereRaw('LOWER(status) = ?', ['pending'])->sum('amount');
+        $pendingFines = (float) $this->collapseFineRecordsQuery(
+            Fine::whereHas('student.user', function ($q) {
+                $q->where('role', 'student');
+            })->whereRaw('LOWER(status) = ?', ['pending'])
+        )->sum('amount');
 
         // Collected fines (paid) - only for students
-        $collectedFines = Fine::whereHas('student.user', function ($q) {
-            $q->where('role', 'student');
-        })->whereRaw('LOWER(status) = ?', ['paid'])->sum('amount');
+        $collectedFines = (float) $this->collapseFineRecordsQuery(
+            Fine::whereHas('student.user', function ($q) {
+                $q->where('role', 'student');
+            })->whereRaw('LOWER(status) = ?', ['paid'])
+        )->sum('amount');
 
         // Waived fines (waived) - only for students
-        $waivedFines = Fine::whereHas('student.user', function ($q) {
-            $q->where('role', 'student');
-        })->whereRaw('LOWER(status) = ?', ['waived'])->sum('amount');
+        $waivedFines = (float) $this->collapseFineRecordsQuery(
+            Fine::whereHas('student.user', function ($q) {
+                $q->where('role', 'student');
+            })->whereRaw('LOWER(status) = ?', ['waived'])
+        )->sum('amount');
 
         $fineStatusLegend = [
             [
@@ -134,11 +143,15 @@ class AdminDashboardController extends Controller
          |=========================*/
 
         // Pending fines list (for dashboard display)
-        $pendingFinesList = Fine::with(['student.user', 'issuedBook.book'])
-            ->whereRaw('LOWER(status) = ?', ['pending'])
-            ->latest('created_at')
-            ->limit(5)
-            ->get();
+        $pendingFinesList = $this->collapseDuplicateFineRecords(
+            Fine::with(['student.user', 'issuedBook.book'])
+                ->whereRaw('LOWER(status) = ?', ['pending'])
+                ->latest('created_at')
+                ->get()
+        )
+            ->sortByDesc(fn (Fine $fine) => $fine->created_at?->timestamp ?? 0)
+            ->take(5)
+            ->values();
 
         $fineTrendViewData = $this->fineTrendViewData($selectedFineTrendPeriod);
 

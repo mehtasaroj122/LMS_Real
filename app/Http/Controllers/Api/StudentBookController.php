@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\IssueResource;
 use App\Models\Fine;
 use App\Models\IssuedBook;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use App\Services\StudentFineSummaryService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +17,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class StudentBookController extends Controller
 {
     use ResolvesApiUsers;
+    use DeduplicatesFineRecords;
 
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
@@ -91,7 +93,7 @@ class StudentBookController extends Controller
         }
 
         $baseQuery = IssuedBook::query()->where('student_id', $student->id);
-        $fineQuery = Fine::query()->where('student_id', $student->id);
+        $fines = $this->collapseFineRecordsQuery(Fine::query()->where('student_id', $student->id));
 
         return response()->json([
             'status' => 'success',
@@ -104,7 +106,7 @@ class StudentBookController extends Controller
                         ->whereDate('due_date', '<', today())
                         ->count(),
                     'pending_fine' => $studentFineSummary->pendingAmount($student),
-                    'paid_fines' => (float) (clone $fineQuery)->where('status', 'paid')->sum('amount'),
+                    'paid_fines' => (float) $fines->where('status', 'paid')->sum('amount'),
                 ]
             ]
         ]);

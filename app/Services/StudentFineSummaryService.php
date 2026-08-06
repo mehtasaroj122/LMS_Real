@@ -5,11 +5,14 @@ namespace App\Services;
 use App\Models\Fine;
 use App\Models\IssuedBook;
 use App\Models\Student;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 class StudentFineSummaryService
 {
+    use DeduplicatesFineRecords;
+
     public function __construct(
         private readonly FineCalculator $fineCalculator
     ) {
@@ -159,43 +162,6 @@ class StudentFineSummaryService
                         $issueQuery->where('student_id', $student->id);
                     });
             });
-    }
-
-    private function collapseDuplicateFineRecords(Collection $fines): Collection
-    {
-        return $fines
-            ->groupBy(fn (Fine $fine) => (string) ($fine->issued_book_id ?? 'fine-' . $fine->id))
-            ->map(fn (Collection $duplicates) => $duplicates
-                ->sort(fn (Fine $first, Fine $second) => $this->compareFineRecords($first, $second))
-                ->first())
-            ->values();
-    }
-
-    private function compareFineRecords(Fine $first, Fine $second): int
-    {
-        return [
-            $this->fineRecordPriority($second),
-            (int) ($second->days_late ?? 0),
-            (float) ($second->amount ?? 0),
-            $second->updated_at?->timestamp ?? 0,
-            (int) ($second->id ?? 0),
-        ] <=> [
-            $this->fineRecordPriority($first),
-            (int) ($first->days_late ?? 0),
-            (float) ($first->amount ?? 0),
-            $first->updated_at?->timestamp ?? 0,
-            (int) ($first->id ?? 0),
-        ];
-    }
-
-    private function fineRecordPriority(Fine $fine): int
-    {
-        return match (strtolower((string) $fine->status)) {
-            'paid' => 4,
-            'waived' => 3,
-            'pending' => 2,
-            default => 1,
-        };
     }
 
     private function isOpenOverdue(IssuedBook $issuedBook): bool

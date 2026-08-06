@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Concerns\ResolvesApiUsers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FineResource;
 use App\Models\Fine;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use App\Services\StudentFineSummaryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class StudentFineController extends Controller
 {
     use ResolvesApiUsers;
+    use DeduplicatesFineRecords;
 
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
@@ -23,11 +25,11 @@ class StudentFineController extends Controller
             return $student;
         }
 
-        return FineResource::collection(
-            $this->baseQuery($student->id)
-                ->latest()
-                ->paginate($this->perPage($request))
+        $items = $this->collapseDuplicateFineRecords(
+            $this->baseQuery($student->id)->latest()->get()
         );
+
+        return $this->paginateFineItems($items, $request);
     }
 
     public function pending(Request $request, StudentFineSummaryService $studentFineSummary): AnonymousResourceCollection|JsonResponse
@@ -44,19 +46,7 @@ class StudentFineController extends Controller
             })
             ->values();
 
-        // Manual pagination
-        $perPage = $this->perPage($request);
-        $page = $request->get('page', 1);
-        $paginated = $allItems->forPage($page, $perPage);
-
-        return FineResource::collection($paginated)
-            ->additional([
-                'meta' => [
-                    'current_page' => $page,
-                    'per_page' => $perPage,
-                    'total' => $allItems->count(),
-                ]
-            ]);
+        return $this->paginateFineItems($allItems, $request);
     }
 
     public function paid(Request $request): AnonymousResourceCollection|JsonResponse
@@ -67,12 +57,14 @@ class StudentFineController extends Controller
             return $student;
         }
 
-        return FineResource::collection(
+        $items = $this->collapseDuplicateFineRecords(
             $this->baseQuery($student->id)
                 ->where('status', 'paid')
                 ->latest()
-                ->paginate($this->perPage($request))
+                ->get()
         );
+
+        return $this->paginateFineItems($items, $request);
     }
 
     public function show(Request $request, int $id): FineResource|JsonResponse
@@ -102,17 +94,33 @@ class StudentFineController extends Controller
             return $student;
         }
 
-        $baseQuery = Fine::query()->where('student_id', $student->id);
+        $fines = $this->collapseFineRecordsQuery(Fine::query()->where('student_id', $student->id));
         $pendingItems = $studentFineSummary->pendingItems($student);
 
         return response()->json([
-            'total_fines' => (int) (clone $baseQuery)->count(),
+            'total_fines' => $fines->count(),
             'pending_fines' => $pendingItems->count(),
-            'paid_fines' => (int) (clone $baseQuery)->where('status', 'paid')->count(),
+            'paid_fines' => $fines->where('status', 'paid')->count(),
             'pending_amount' => (float) $pendingItems->sum(fn (Fine $fine) => (float) $fine->amount),
-            'paid_amount' => (float) (clone $baseQuery)->where('status', 'paid')->sum('amount'),
-            'total_amount' => (float) (clone $baseQuery)->sum('amount'),
+            'paid_amount' => (float) $fines->where('status', 'paid')->sum('amount'),
+            'total_amount' => (float) $fines->sum('amount'),
         ]);
+    }
+
+    protected function paginateFineItems($items, Request $request): AnonymousResourceCollection
+    {
+        $perPage = $this->perPage($request);
+        $page = $request->integer('page', 1);
+        $paginated = $items->forPage($page, $perPage);
+
+        return FineResource::collection($paginated)
+            ->additional([
+                'meta' => [
+                    'current_page' => $page,
+                    'per_page' => $perPage,
+                    'total' => $items->count(),
+                ],
+            ]);
     }
 
     protected function baseQuery(int $studentId)

@@ -8,6 +8,7 @@ use App\Http\Requests\Api\StaffFineWaiveRequest;
 use App\Models\Fine;
 use App\Models\IssuedBook;
 use App\Models\Student;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use App\Services\FineCalculator;
 use App\Services\FineManagement\FineManagementActionService;
 use Illuminate\Http\JsonResponse;
@@ -18,25 +19,29 @@ use Illuminate\Validation\ValidationException;
 
 class StaffFineController extends Controller
 {
+    use DeduplicatesFineRecords;
+
     public function summary(FineCalculator $fineCalculator): JsonResponse
     {
         $this->syncOverdueFines($fineCalculator);
 
-        $baseQuery = Fine::query()->whereHas('student.user', fn ($query) => $query->where('role', 'student'));
+        $fines = $this->collapseFineRecordsQuery(
+            Fine::query()->whereHas('student.user', fn ($query) => $query->where('role', 'student'))
+        );
 
         return response()->json([
             'success' => true,
             'message' => 'Fine summary fetched successfully.',
             'data' => [
-                'total_fines' => $this->money((clone $baseQuery)->sum('amount')),
-                'collected' => $this->money((clone $baseQuery)->where('status', 'paid')->sum('amount')),
-                'pending' => $this->money((clone $baseQuery)->where('status', 'pending')->sum('amount')),
-                'waived' => $this->money((clone $baseQuery)->where('status', 'waived')->sum('amount')),
-                'total_records' => (int) (clone $baseQuery)->count(),
-                'paid_records' => (int) (clone $baseQuery)->where('status', 'paid')->count(),
-                'pending_records' => (int) (clone $baseQuery)->where('status', 'pending')->count(),
-                'waived_records' => (int) (clone $baseQuery)->where('status', 'waived')->count(),
-                'overdue_records' => (int) (clone $baseQuery)->where('days_late', '>', 0)->count(),
+                'total_fines' => $this->money($fines->sum('amount')),
+                'collected' => $this->money($fines->where('status', 'paid')->sum('amount')),
+                'pending' => $this->money($fines->where('status', 'pending')->sum('amount')),
+                'waived' => $this->money($fines->where('status', 'waived')->sum('amount')),
+                'total_records' => $fines->count(),
+                'paid_records' => $fines->where('status', 'paid')->count(),
+                'pending_records' => $fines->where('status', 'pending')->count(),
+                'waived_records' => $fines->where('status', 'waived')->count(),
+                'overdue_records' => $fines->filter(fn (Fine $fine) => (int) $fine->days_late > 0)->count(),
             ],
         ]);
     }
@@ -45,8 +50,9 @@ class StaffFineController extends Controller
     {
         $this->syncOverdueFines($fineCalculator);
 
-        $fines = $this->studentFineQuery($request)
-            ->get()
+        $fines = $this->collapseDuplicateFineRecords(
+            $this->studentFineQuery($request)->get()
+        )
             ->groupBy('student_id')
             ->map(function (Collection $studentFines) {
                 /** @var Fine $firstFine */
@@ -88,11 +94,13 @@ class StaffFineController extends Controller
 
         $this->syncOverdueFines($fineCalculator, $studentModel);
 
-        $fines = Fine::query()
-            ->with(['student.user', 'student.department', 'issuedBook.book.category'])
-            ->where('student_id', $studentModel->id)
-            ->latest()
-            ->get();
+        $fines = $this->collapseDuplicateFineRecords(
+            Fine::query()
+                ->with(['student.user', 'student.department', 'issuedBook.book.category'])
+                ->where('student_id', $studentModel->id)
+                ->latest()
+                ->get()
+        );
 
         return response()->json([
             'success' => true,
@@ -107,19 +115,21 @@ class StaffFineController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $fines = $this->filteredQuery($request)
-            ->latest()
-            ->paginate($this->perPage($request));
+        $query = $this->filteredQuery($request)->latest();
+
+        $total = $this->distinctIssuedBookCount($query);
+        $paginated = $query->paginate($this->perPage($request));
+        $fines = $this->collapseDuplicateFineRecords($paginated->getCollection())->values();
 
         return response()->json([
             'success' => true,
             'message' => 'Fines fetched successfully.',
-            'data' => $fines->getCollection()->map(fn (Fine $fine) => $this->finePayload($fine))->values(),
+            'data' => $fines->map(fn (Fine $fine) => $this->finePayload($fine))->values(),
             'meta' => [
-                'current_page' => $fines->currentPage(),
-                'last_page' => $fines->lastPage(),
-                'per_page' => $fines->perPage(),
-                'total' => $fines->total(),
+                'current_page' => $paginated->currentPage(),
+                'last_page' => max(1, (int) ceil($total / max(1, $paginated->perPage()))),
+                'per_page' => $paginated->perPage(),
+                'total' => $total,
             ],
         ]);
     }

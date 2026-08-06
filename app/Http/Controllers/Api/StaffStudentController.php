@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Fine;
 use App\Models\IssuedBook;
 use App\Models\Student;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use App\Services\StudentIssuePrivilegeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 class StaffStudentController extends Controller
 {
     use FormatsStaffStudentPayloads;
+    use DeduplicatesFineRecords;
 
     public function index(Request $request, StudentIssuePrivilegeService $privilegeService): JsonResponse
     {
@@ -79,6 +81,8 @@ class StaffStudentController extends Controller
             ->whereIn('status', ['pending', 'approved'])
             ->values();
 
+        $studentFines = $this->collapseDuplicateFineRecords($studentModel->fines)->values();
+
         return response()->json([
             'success' => true,
             'message' => 'Student fetched successfully.',
@@ -90,7 +94,7 @@ class StaffStudentController extends Controller
                 'semester' => $studentModel->semester,
                 'address' => $studentModel->address ?: $studentModel->user?->address,
                 'returned_books_count' => $studentModel->issuedBooks->whereNotNull('return_date')->count(),
-                'pending_fines_amount' => (float) $studentModel->fines->where('status', 'pending')->sum('amount'),
+                'pending_fines_amount' => (float) $studentFines->where('status', 'pending')->sum('amount'),
                 'pending_requests_count' => $pendingRequests->count(),
                 'active_issued_books' => $activeIssues->map(fn (IssuedBook $issue) => $this->issueSummary($issue))->values(),
                 'pending_requests' => $pendingRequests->map(fn ($bookRequest) => [
@@ -101,7 +105,7 @@ class StaffStudentController extends Controller
                     'status' => $bookRequest->status,
                     'request_date' => optional($bookRequest->request_date)->toDateTimeString(),
                 ])->values(),
-                'pending_fines' => $studentModel->fines
+                'pending_fines' => $studentFines
                     ->where('status', 'pending')
                     ->map(fn (Fine $fine) => [
                         'id' => $fine->id,

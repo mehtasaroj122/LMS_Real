@@ -13,15 +13,18 @@ use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\IssuedBook;
 use App\Models\Student;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class IssueController extends Controller
 {
+    use DeduplicatesFineRecords;
     public function index(Request $request): AnonymousResourceCollection
     {
         $issues = IssuedBook::query()
@@ -214,25 +217,43 @@ class IssueController extends Controller
 
     public function fines(Request $request): AnonymousResourceCollection
     {
-        $fines = Fine::query()
+        $query = Fine::query()
             ->with(['student.user', 'student.department', 'issuedBook.book.category'])
-            ->latest()
-            ->paginate($this->perPage($request));
+            ->latest();
 
-        return FineResource::collection($fines);
+        return $this->paginateCollapsedFines($query, $request);
     }
 
     public function studentFines(int $id, Request $request): AnonymousResourceCollection
     {
         Student::query()->findOrFail($id);
 
-        $fines = Fine::query()
+        $query = Fine::query()
             ->with(['student.user', 'student.department', 'issuedBook.book.category'])
             ->where('student_id', $id)
-            ->latest()
-            ->paginate($this->perPage($request));
+            ->latest();
 
-        return FineResource::collection($fines);
+        return $this->paginateCollapsedFines($query, $request);
+    }
+
+    protected function paginateCollapsedFines($query, Request $request): AnonymousResourceCollection
+    {
+        $total = $this->distinctIssuedBookCount($query);
+        $paginated = $query->paginate($this->perPage($request));
+        $items = $this->collapseDuplicateFineRecords($paginated->getCollection())->values();
+
+        return FineResource::collection(
+            new LengthAwarePaginator(
+                $items,
+                $total,
+                $paginated->perPage(),
+                $paginated->currentPage(),
+                [
+                    'path' => $request->url(),
+                    'query' => $request->query(),
+                ]
+            )
+        );
     }
 
     private function calculateReturnFine(IssuedBook $issue, string $condition, Carbon $returnDate): array

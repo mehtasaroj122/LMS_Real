@@ -11,6 +11,7 @@ use App\Http\Resources\UserResource;
 use App\Models\BookRequest;
 use App\Models\Fine;
 use App\Models\IssuedBook;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,7 @@ use Illuminate\Validation\Rule;
 class ProfileController extends Controller
 {
     use IncludesProfilePhoto;
+    use DeduplicatesFineRecords;
 
     public function __construct(private readonly NotificationService $notifications)
     {
@@ -333,10 +335,11 @@ class ProfileController extends Controller
             ->whereNull('return_date')
             ->count();
 
-        $pendingFines = (float) Fine::query()
-            ->where('student_id', $studentId)
-            ->where('status', 'pending')
-            ->sum('amount');
+        $pendingFines = (float) $this->collapseFineRecordsQuery(
+            Fine::query()
+                ->where('student_id', $studentId)
+                ->where('status', 'pending')
+        )->sum('amount');
 
         $activeRequests = BookRequest::query()
             ->where('student_id', $studentId)

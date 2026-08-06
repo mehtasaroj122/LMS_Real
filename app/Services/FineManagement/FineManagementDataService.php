@@ -4,11 +4,14 @@ namespace App\Services\FineManagement;
 
 use App\Models\Fine;
 use App\Models\IssuedBook;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use App\Services\FineCalculator;
 use Illuminate\Database\Eloquent\Builder;
 
 class FineManagementDataService
 {
+    use DeduplicatesFineRecords;
+
     public function __construct(
         private readonly FineCalculator $fineCalculator
     ) {
@@ -21,18 +24,20 @@ class FineManagementDataService
         $filters = $this->normalizeFilters($filters);
         $query = $this->buildFilteredQuery($filters);
 
+        $total = $this->distinctIssuedBookCount($query);
         $paginated = $query->paginate($filters['per_page'], ['*'], 'page', $filters['page']);
+        $fines = $this->collapseDuplicateFineRecords($paginated->getCollection())->values();
 
         return [
-            'fines' => $paginated->getCollection()
+            'fines' => $fines
                 ->map(fn (Fine $fine) => $this->transformFine($fine))
                 ->values()
                 ->all(),
             'pagination' => [
                 'current_page' => $paginated->currentPage(),
-                'last_page' => $paginated->lastPage(),
+                'last_page' => max(1, (int) ceil($total / max(1, $paginated->perPage()))),
                 'per_page' => $paginated->perPage(),
-                'total' => $paginated->total(),
+                'total' => $total,
             ],
             'stats' => $this->buildStats($filters),
         ];
@@ -43,15 +48,15 @@ class FineManagementDataService
         $this->syncOutstandingOverdueFines();
 
         $filters = $this->normalizeFilters($filters);
-        $collection = $this->buildFilteredQuery($filters)->get();
+        $fines = $this->collapseDuplicateFineRecords($this->buildFilteredQuery($filters)->get());
 
         return [
-            'fines' => $collection
+            'fines' => $fines
                 ->map(fn (Fine $fine) => $this->transformFine($fine))
                 ->values()
                 ->all(),
             'meta' => [
-                'count' => $collection->count(),
+                'count' => $fines->count(),
                 'generated_at' => now()->toIso8601String(),
             ],
         ];
@@ -204,18 +209,26 @@ class FineManagementDataService
 
     protected function buildStats(array $filters): array
     {
-        $statsQuery = $this->baseQuery();
+        $statsQuery = Fine::query()
+            ->whereHas('student.user', function (Builder $query) {
+                $query->where('role', 'student');
+            });
         $this->applyFilters($statsQuery, $filters);
 
+        $fines = $this->collapseFineRecordsQuery($statsQuery);
+        $paid = $fines->where('status', 'paid');
+        $pending = $fines->where('status', 'pending');
+        $waived = $fines->where('status', 'waived');
+
         return [
-            'total' => round((float) (clone $statsQuery)->sum('amount'), 2),
-            'collected' => round((float) (clone $statsQuery)->where('status', 'paid')->sum('amount'), 2),
-            'pending' => round((float) (clone $statsQuery)->where('status', 'pending')->sum('amount'), 2),
-            'waived' => round((float) (clone $statsQuery)->where('status', 'waived')->sum('amount'), 2),
-            'count' => (clone $statsQuery)->count(),
-            'paid_count' => (clone $statsQuery)->where('status', 'paid')->count(),
-            'unpaid_count' => (clone $statsQuery)->where('status', 'pending')->count(),
-            'waived_count' => (clone $statsQuery)->where('status', 'waived')->count(),
+            'total' => round((float) $fines->sum('amount'), 2),
+            'collected' => round((float) $paid->sum('amount'), 2),
+            'pending' => round((float) $pending->sum('amount'), 2),
+            'waived' => round((float) $waived->sum('amount'), 2),
+            'count' => $fines->count(),
+            'paid_count' => $paid->count(),
+            'unpaid_count' => $pending->count(),
+            'waived_count' => $waived->count(),
             'overdue_count' => $this->countOverdue(clone $statsQuery),
         ];
     }
@@ -224,7 +237,7 @@ class FineManagementDataService
     {
         $this->applyOverdueConstraint($query);
 
-        return $query->count();
+        return $this->distinctIssuedBookCount($query);
     }
 
     protected function applyOverdueConstraint(Builder $query): void

@@ -15,6 +15,7 @@ use App\Models\Fine;
 use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -22,6 +23,7 @@ class AdminDashboardController extends Controller
 {
     use ResolvesApiUsers;
     use IncludesProfilePhoto;
+    use DeduplicatesFineRecords;
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -62,12 +64,19 @@ class AdminDashboardController extends Controller
                     ->whereNull('return_date')
                     ->whereDate('due_date', '<', today())
                     ->count(),
-                'pending_fines' => (float) Fine::query()->where('status', 'pending')->sum('amount'),
+                'pending_fines' => $this->pendingFinesAmount(),
                 'pending_requests' => (int) BookRequest::query()->where('status', 'pending')->count(),
                 'latest_issues' => IssueResource::collection($latestIssues),
                 'latest_requests' => BookRequestResource::collection($latestRequests),
                 'latest_activity_logs' => ActivityLogResource::collection($latestLogs),
             ],
         ]);
+    }
+
+    protected function pendingFinesAmount(): float
+    {
+        return (float) $this->collapseFineRecordsQuery(
+            Fine::query()->where('status', 'pending')
+        )->sum('amount');
     }
 }

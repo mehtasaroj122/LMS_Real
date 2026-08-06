@@ -12,6 +12,7 @@ use App\Models\BookRequest;
 use App\Models\Fine;
 use App\Models\IssuedBook;
 use App\Models\Student;
+use App\Services\Concerns\DeduplicatesFineRecords;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -20,6 +21,7 @@ class StaffDashboardController extends Controller
 {
     use ResolvesApiUsers;
     use IncludesProfilePhoto;
+    use DeduplicatesFineRecords;
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -104,7 +106,7 @@ class StaffDashboardController extends Controller
                 'issued_books' => $currentlyIssued,
                 'returned_books' => (int) IssuedBook::query()->whereNotNull('return_date')->count(),
                 'overdue_books' => $overdueCount,
-                'pending_fines' => (float) Fine::query()->where('status', 'pending')->sum('amount'),
+                'pending_fines' => $this->pendingFinesAmount(),
                 'pending_requests' => (int) BookRequest::query()->where('status', 'pending')->count(),
                 'summary' => [
                     'issued_books' => $currentlyIssued,
@@ -113,7 +115,7 @@ class StaffDashboardController extends Controller
                     'overdue_books' => $overdueCount,
                     'overdue' => $overdueCount,
                     'pending_requests' => (int) BookRequest::query()->where('status', 'pending')->count(),
-                    'pending_fines_amount' => (float) Fine::query()->where('status', 'pending')->sum('amount'),
+                    'pending_fines_amount' => $this->pendingFinesAmount(),
                 ],
                 'circulation' => [
                     'available_books' => $availableBooks,
@@ -138,6 +140,13 @@ class StaffDashboardController extends Controller
                 'latest_requests' => BookRequestResource::collection($latestRequests),
             ],
         ]);
+    }
+
+    protected function pendingFinesAmount(): float
+    {
+        return (float) $this->collapseFineRecordsQuery(
+            Fine::query()->where('status', 'pending')
+        )->sum('amount');
     }
 
     private function formatRequests($requests): array
