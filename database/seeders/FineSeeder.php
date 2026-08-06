@@ -18,8 +18,9 @@ class FineSeeder extends Seeder
         $fines = collect(json_decode($json, true));
 
         $fines->each(function ($fine) {
-            Fine::create([
+            Fine::updateOrCreate([
                 'issued_book_id' => $fine['issued_book_id'],
+            ], [
                 'student_id' => $fine['student_id'],
                 'amount' => $fine['amount'],
                 'days_late' => $fine['days_late'],

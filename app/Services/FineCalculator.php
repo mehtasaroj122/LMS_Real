@@ -6,6 +6,8 @@ use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\IssuedBook;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
 class FineCalculator
 {
@@ -88,25 +90,11 @@ class FineCalculator
             return null;
         }
 
-        // Check if fine record already exists
-        $fine = Fine::where('issued_book_id', $issuedBook->id)->first();
-
-        if ($fine) {
-            // Update existing fine
-            $fine->update([
-                'amount' => $fineCalculation['amount'],
-                'days_late' => $fineCalculation['days_late'],
-            ]);
-        } else {
-            // Create new fine record
-            $fine = Fine::create([
-                'issued_book_id' => $issuedBook->id,
-                'student_id' => $issuedBook->student_id,
-                'amount' => $fineCalculation['amount'],
-                'days_late' => $fineCalculation['days_late'],
-                'status' => 'pending',
-            ]);
-        }
+        $fine = $this->saveFineForIssue($issuedBook, [
+            'amount' => $fineCalculation['amount'],
+            'days_late' => $fineCalculation['days_late'],
+            'status' => 'pending',
+        ]);
 
         // Update IssuedBook fine_amount
         $issuedBook->update(['fine_amount' => $fineCalculation['amount']]);
@@ -119,9 +107,7 @@ class FineCalculator
      */
     public function applyLostBookPenalty(IssuedBook $issuedBook): Fine
     {
-        $fine = Fine::create([
-            'issued_book_id' => $issuedBook->id,
-            'student_id' => $issuedBook->student_id,
+        $fine = $this->saveFineForIssue($issuedBook, [
             'amount' => $this->fineSetting->lost_book_penalty,
             'days_late' => 0,
             'status' => 'pending',
@@ -141,9 +127,7 @@ class FineCalculator
      */
     public function applyDamagedBookPenalty(IssuedBook $issuedBook): Fine
     {
-        $fine = Fine::create([
-            'issued_book_id' => $issuedBook->id,
-            'student_id' => $issuedBook->student_id,
+        $fine = $this->saveFineForIssue($issuedBook, [
             'amount' => $this->fineSetting->damaged_book_penalty,
             'days_late' => 0,
             'status' => 'pending',
@@ -202,5 +186,58 @@ class FineCalculator
 
         // Fall back to global setting
         return (float) $this->fineSetting->per_day_fine;
+    }
+
+    private function saveFineForIssue(IssuedBook $issuedBook, array $attributes): Fine
+    {
+        $values = [
+            'student_id' => $issuedBook->student_id,
+            ...$attributes,
+        ];
+
+        try {
+            return DB::transaction(function () use ($issuedBook, $values) {
+                $fine = Fine::where('issued_book_id', $issuedBook->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($fine) {
+                    if ($this->shouldLeaveExistingFineUntouched($fine, $values)) {
+                        return $fine;
+                    }
+
+                    $fine->fill($values);
+                    $fine->save();
+
+                    return $fine;
+                }
+
+                return Fine::create([
+                    'issued_book_id' => $issuedBook->id,
+                    ...$values,
+                ]);
+            });
+        } catch (QueryException $exception) {
+            $fine = Fine::where('issued_book_id', $issuedBook->id)->first();
+
+            if (!$fine) {
+                throw $exception;
+            }
+
+            if ($this->shouldLeaveExistingFineUntouched($fine, $values)) {
+                return $fine;
+            }
+
+            $fine->fill($values);
+            $fine->save();
+
+            return $fine;
+        }
+    }
+
+    private function shouldLeaveExistingFineUntouched(Fine $fine, array $values): bool
+    {
+        return ($values['status'] ?? null) === 'pending'
+            && in_array(strtolower((string) $fine->status), ['paid', 'waived'], true);
     }
 }

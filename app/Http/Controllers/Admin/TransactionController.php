@@ -314,7 +314,7 @@ class TransactionController extends Controller
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'issued_book_ids' => 'required|array|min:1',
-            'issued_book_ids.*' => 'exists:issued_books,id',
+            'issued_book_ids.*' => 'exists:issued_books,id|distinct',
             'condition' => 'required|in:good,fair,damaged,lost',
         ]);
         
@@ -336,8 +336,9 @@ class TransactionController extends Controller
                 if ($condition === 'lost') {
                     // Lost book penalty (no overdue fine added)
                     $bookFine = $fineSetting->lost_book_penalty ?? 0;
-                    Fine::create([
+                    Fine::updateOrCreate([
                         'issued_book_id' => $issuedBook->id,
+                    ], [
                         'student_id' => $issuedBook->student_id,
                         'amount' => $bookFine,
                         'days_late' => 0,
@@ -350,8 +351,9 @@ class TransactionController extends Controller
                     $damageCharge = $fineSetting->damaged_book_penalty ?? 0;
                     $bookFine = ($overdueFine['amount'] ?? 0) + $damageCharge;
                     
-                    Fine::create([
+                    Fine::updateOrCreate([
                         'issued_book_id' => $issuedBook->id,
+                    ], [
                         'student_id' => $issuedBook->student_id,
                         'amount' => $bookFine,
                         'days_late' => $overdueFine['days_late'] ?? 0,
@@ -364,8 +366,9 @@ class TransactionController extends Controller
                     $fairCharge = $fineSetting->fair_condition_penalty ?? 0;
                     $bookFine = ($overdueFine['amount'] ?? 0) + $fairCharge;
                     
-                    Fine::create([
+                    Fine::updateOrCreate([
                         'issued_book_id' => $issuedBook->id,
+                    ], [
                         'student_id' => $issuedBook->student_id,
                         'amount' => $bookFine,
                         'days_late' => $overdueFine['days_late'] ?? 0,
@@ -378,8 +381,9 @@ class TransactionController extends Controller
                     if ($overdueFine) {
                         $bookFine = $overdueFine['amount'] ?? 0;
                         if ($bookFine > 0) {
-                            Fine::create([
+                            Fine::updateOrCreate([
                                 'issued_book_id' => $issuedBook->id,
+                            ], [
                                 'student_id' => $issuedBook->student_id,
                                 'amount' => $bookFine,
                                 'days_late' => $overdueFine['days_late'] ?? 0,

@@ -27,7 +27,7 @@ class StudentFineSummaryService
             ->where('status', 'pending')
             ->get();
 
-        return $pendingFines
+        return $this->collapseDuplicateFineRecords($pendingFines)
             ->concat($this->virtualOverdueFines($student))
             ->values();
     }
@@ -39,7 +39,7 @@ class StudentFineSummaryService
             ->latest('created_at')
             ->get();
 
-        return $fines
+        return $this->collapseDuplicateFineRecords($fines)
             ->concat($this->virtualOverdueFines($student))
             ->sortByDesc(fn (Fine $fine) => $fine->created_at?->timestamp
                 ?? $fine->issuedBook?->due_date?->timestamp
@@ -126,8 +126,8 @@ class StudentFineSummaryService
             ->where('student_id', $student->id)
             ->whereNull('return_date')
             ->whereDate('due_date', '<', today())
+            ->whereDoesntHave('fine', fn (Builder $query) => $query->where('status', 'pending'))
             ->get()
-            ->filter(fn (IssuedBook $issuedBook) => $issuedBook->fine?->status !== 'pending')
             ->map(function (IssuedBook $issuedBook) {
                 $calculation = $this->fineCalculator->calculateFine($issuedBook);
 
@@ -159,6 +159,43 @@ class StudentFineSummaryService
                         $issueQuery->where('student_id', $student->id);
                     });
             });
+    }
+
+    private function collapseDuplicateFineRecords(Collection $fines): Collection
+    {
+        return $fines
+            ->groupBy(fn (Fine $fine) => (string) ($fine->issued_book_id ?? 'fine-' . $fine->id))
+            ->map(fn (Collection $duplicates) => $duplicates
+                ->sort(fn (Fine $first, Fine $second) => $this->compareFineRecords($first, $second))
+                ->first())
+            ->values();
+    }
+
+    private function compareFineRecords(Fine $first, Fine $second): int
+    {
+        return [
+            $this->fineRecordPriority($second),
+            (int) ($second->days_late ?? 0),
+            (float) ($second->amount ?? 0),
+            $second->updated_at?->timestamp ?? 0,
+            (int) ($second->id ?? 0),
+        ] <=> [
+            $this->fineRecordPriority($first),
+            (int) ($first->days_late ?? 0),
+            (float) ($first->amount ?? 0),
+            $first->updated_at?->timestamp ?? 0,
+            (int) ($first->id ?? 0),
+        ];
+    }
+
+    private function fineRecordPriority(Fine $fine): int
+    {
+        return match (strtolower((string) $fine->status)) {
+            'paid' => 4,
+            'waived' => 3,
+            'pending' => 2,
+            default => 1,
+        };
     }
 
     private function isOpenOverdue(IssuedBook $issuedBook): bool

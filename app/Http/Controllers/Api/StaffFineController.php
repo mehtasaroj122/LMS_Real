@@ -346,27 +346,13 @@ class StaffFineController extends Controller
                 continue;
             }
 
-            $existingFine = $issuedBook->fine;
-
-            if ($existingFine) {
-                if ($this->mobileStatus($existingFine->status) === 'pending') {
-                    $existingFine->forceFill([
-                        'amount' => $amount,
-                        'days_late' => $daysLate,
-                        'remarks' => $existingFine->remarks ?: 'Overdue fine',
-                    ])->save();
-
-                    $issuedBook->forceFill([
-                        'fine_amount' => $amount,
-                        'status' => 'overdue',
-                    ])->save();
-                }
-
+            if (Fine::query()->where('issued_book_id', $issuedBook->id)->exists()) {
                 continue;
             }
 
-            Fine::query()->create([
+            Fine::query()->updateOrCreate([
                 'issued_book_id' => $issuedBook->id,
+            ], [
                 'student_id' => $issuedBook->student_id,
                 'amount' => $amount,
                 'days_late' => $daysLate,

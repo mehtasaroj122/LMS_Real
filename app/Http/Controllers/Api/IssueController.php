@@ -155,8 +155,9 @@ class IssueController extends Controller
             $bookFine = $this->calculateReturnFine($issue, $condition, $returnDate);
 
             if ($bookFine['amount'] > 0) {
-                Fine::create([
+                Fine::updateOrCreate([
                     'issued_book_id' => $issue->id,
+                ], [
                     'student_id' => $issue->student_id,
                     'amount' => $bookFine['amount'],
                     'days_late' => $bookFine['days_late'],
