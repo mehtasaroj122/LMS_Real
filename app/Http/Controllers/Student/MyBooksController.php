@@ -41,7 +41,7 @@ class MyBooksController extends Controller
         $totalIssued = $allIssuedBooks->count();
         $currentlyBorrowed = $allIssuedBooks->whereNull('return_date')->count();
         $overdueBooks = $allIssuedBooks->whereNull('return_date')->filter(function($book) {
-            return $book->due_date < now();
+            return $book->due_date < now() && !$this->fineIsSettled($book);
         })->count();
 
         $totalFine = $studentFineSummary->pendingAmount($student);
@@ -59,7 +59,7 @@ class MyBooksController extends Controller
                 'issueDate' => $issuedBook->issue_date->format('M d, Y'),
                 'dueDate' => $issuedBook->due_date->format('M d, Y'),
                 'returnDate' => $issuedBook->return_date ? $issuedBook->return_date->format('M d, Y') : null,
-                'status' => $issuedBook->return_date ? 'returned' : ($issuedBook->due_date < now() ? 'overdue' : $this->calculateStatus($issuedBook)),
+                'status' => $issuedBook->return_date ? 'returned' : ($issuedBook->due_date < now() ? ($this->fineIsSettled($issuedBook) ? 'issued' : 'overdue') : $this->calculateStatus($issuedBook)),
                 'fine' => $displayFine['amount'] > 0 ? '₹' . $displayFine['amount'] : 'No Fine',
                 'fineStatus' => $displayFine['status'],
             ];
@@ -87,5 +87,13 @@ class MyBooksController extends Controller
         $percentagePassed = ($elapsedDays / $totalDays) * 100;
 
         return $percentagePassed >= 80 ? 'due-soon' : 'issued';
+    }
+
+    private function fineIsSettled($issuedBook): bool
+    {
+        $fine = $issuedBook->fine;
+
+        return $fine !== null
+            && in_array(strtolower((string) $fine->status), ['paid', 'waived'], true);
     }
 }

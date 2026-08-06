@@ -99,7 +99,7 @@ class StudentFineSummaryService
             ];
         }
 
-        if ($this->isOpenOverdue($issuedBook)) {
+        if (!$fine && $this->isOpenOverdue($issuedBook)) {
             $calculation = $this->fineCalculator->calculateFine($issuedBook);
             $amount = (float) ($calculation['amount'] ?? 0);
 
