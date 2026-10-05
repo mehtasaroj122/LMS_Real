@@ -18,7 +18,11 @@ return new class extends Migration
 
     public function down(): void
     {
+        // MySQL may be using the unique index to satisfy the child-side
+        // issued_book_id foreign key. Add a replacement ordinary index first
+        // so the unique index can be removed safely during rollback.
         Schema::table('fines', function (Blueprint $table) {
+            $table->index('issued_book_id', 'fines_issued_book_id_index');
             $table->dropUnique('fines_issued_book_id_unique');
         });
     }

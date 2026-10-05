@@ -230,7 +230,7 @@
 
             renderBooks() {
                 const filteredBooks = this.books.filter((book) => {
-                    const matchesSearch = !this.bookSearch || [book.title, book.author, book.isbn].filter(Boolean).some((value) => String(value).toLowerCase().includes(this.bookSearch));
+                    const matchesSearch = !this.bookSearch || [book.title, book.author, book.accessionNumber].filter(Boolean).some((value) => String(value).toLowerCase().includes(this.bookSearch));
                     const matchesStatus = this.bookStatus === 'all' || book.status === this.bookStatus;
                     return matchesSearch && matchesStatus;
                 });
@@ -260,7 +260,7 @@
                 this.elements.booksBody.innerHTML = pageItems.map((book) => `
                     <tr>
                         <td><div class="student-table-book"><strong>${this.escapeHtml(book.title)}</strong><span>${this.escapeHtml(book.author || book.category || 'Unknown')}</span></div></td>
-                        <td>${this.escapeHtml(book.isbn || 'N/A')}</td>
+                        <td>${this.escapeHtml(book.accessionNumber || 'N/A')}</td>
                         <td>${this.escapeHtml(book.issueDate || 'N/A')}</td>
                         <td>${this.escapeHtml(book.dueDate || 'N/A')}</td>
                         <td>${this.escapeHtml(book.returnDate || '-')}</td>

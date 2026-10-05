@@ -30,6 +30,7 @@ class BookResource extends JsonResource
                     : asset('storage/' . $this->cover_image))
                 : null,
             'created_at' => $this->created_at?->toDateTimeString(),
+            'copies' => BookCopyResource::collection($this->whenLoaded('copies')),
         ];
     }
 }

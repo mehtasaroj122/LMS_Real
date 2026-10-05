@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\PhysicalCopyException;
 use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Api\Concerns\FormatsStaffStudentPayloads;
 use App\Http\Controllers\Controller;
@@ -12,6 +13,7 @@ use App\Models\BookRequest;
 use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Services\NotificationService;
+use App\Services\PhysicalBookCopyService;
 use App\Services\StudentIssuePrivilegeService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -141,10 +143,57 @@ class StaffIssueController extends Controller
     public function store(
         StaffIssueStoreRequest $request,
         StudentIssuePrivilegeService $privilegeService,
-        NotificationService $notifications
+        NotificationService $notifications,
+        PhysicalBookCopyService $copies
     ): JsonResponse
     {
         $student = Student::query()->with(['user', 'department', 'privileges'])->findOrFail($request->integer('student_id'));
+        $accessionNumbers = $request->accessionNumbers();
+
+        if ($accessionNumbers !== []) {
+            $issueCheck = $privilegeService->canIssue($student, count($accessionNumbers));
+            if (! $issueCheck['allowed']) {
+                return response()->json(['success' => false, 'message' => $issueCheck['message']], 422);
+            }
+
+            try {
+                $issuedBooks = DB::transaction(function () use ($accessionNumbers, $student, $request, $copies, $notifications): array {
+                    $created = [];
+                    foreach ($accessionNumbers as $accessionNumber) {
+                        $issue = $copies->issue($student, $accessionNumber, $request->user(), $request->only(['remarks', 'notes']));
+                        $notifications->notifyBookIssued($issue);
+                        $created[] = $issue;
+                    }
+                    return $created;
+                });
+            } catch (PhysicalCopyException $exception) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $exception->getMessage(),
+                    'code' => $exception->errorCode,
+                ], $exception->status);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Book copies issued successfully.',
+                'data' => [
+                    'student' => $this->studentPayload($student),
+                    'issued_count' => count($issuedBooks),
+                    'issued_books' => collect($issuedBooks)->map(fn (IssuedBook $issue) => [
+                        'issue_id' => $issue->id,
+                        'book_id' => $issue->book_id,
+                        'book_copy_id' => $issue->book_copy_id,
+                        'accession_number' => $issue->bookCopy?->accession_number,
+                        'title' => $issue->book?->title,
+                        'author' => $issue->book?->author,
+                        'due_date' => optional($issue->due_date)->toDateString(),
+                        'status' => $issue->status,
+                    ])->values(),
+                ],
+            ], 201);
+        }
+
         $bookIds = $request->bookIds();
         $issueCheck = $privilegeService->canIssue($student, count($bookIds));
 

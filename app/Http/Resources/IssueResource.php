@@ -22,6 +22,8 @@ class IssueResource extends JsonResource
             'issue_id' => $this->id,
             'student' => new StudentResource($this->whenLoaded('student')),
             'book' => new BookResource($this->whenLoaded('book')),
+            'book_copy' => BookCopyResource::make($this->whenLoaded('bookCopy')),
+            'accession_number' => $this->relationLoaded('bookCopy') ? $this->bookCopy?->accession_number : null,
             'issue_date' => optional($this->issue_date)->toDateString(),
             'due_date' => optional($this->due_date)->toDateString(),
             'return_date' => optional($this->return_date)->toDateString(),

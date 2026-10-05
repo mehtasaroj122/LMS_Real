@@ -11,6 +11,7 @@ class IssuedBook extends Model
 
     protected $fillable = [
         'book_id',
+        'book_copy_id',
         'student_id',
         'issued_by',
         'issue_date',
@@ -31,6 +32,11 @@ class IssuedBook extends Model
     public function book()
     {
         return $this->belongsTo(Book::class);
+    }
+
+    public function bookCopy()
+    {
+        return $this->belongsTo(BookCopy::class);
     }
 
     public function student()

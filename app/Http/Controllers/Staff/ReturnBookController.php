@@ -10,6 +10,7 @@ use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\Notification;
 use App\Services\FineCalculator;
+use App\Services\PhysicalBookCopyService;
 use App\Jobs\SendBookReturnedEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -42,7 +43,7 @@ class ReturnBookController extends Controller
             return response()->json(['count' => $query->count()]);
         }
         
-        $issuedBooks = $query->with('book')
+        $issuedBooks = $query->with(['book', 'bookCopy'])
             ->get()
             ->map(function($issued) {
                 $overdueDays = max(0, Carbon::parse($issued->due_date)->diffInDays(Carbon::now()));
@@ -50,6 +51,8 @@ class ReturnBookController extends Controller
                 return [
                     'id' => $issued->id,
                     'bookId' => $issued->book_id,
+                    'bookCopyId' => $issued->book_copy_id,
+                    'accessionNumber' => $issued->bookCopy?->accession_number,
                     'book_title' => $issued->book->title,
                     'title' => $issued->book->title,
                     'author' => $issued->book->author ?? 'Unknown',
@@ -65,7 +68,7 @@ class ReturnBookController extends Controller
         return response()->json($issuedBooks);
     }
 
-    public function returnBooks(Request $request)
+    public function returnBooks(Request $request, PhysicalBookCopyService $copyService)
     {
         Gate::authorize('access-staff');
         
@@ -90,6 +93,7 @@ class ReturnBookController extends Controller
             
             foreach ($request->issued_book_ids as $issuedBookId) {
                 $issuedBook = IssuedBook::findOrFail($issuedBookId);
+                $issuedBook->loadMissing(['book', 'bookCopy', 'student.user']);
                 $bookFine = 0;
                 
                 // Calculate fine based on condition
@@ -161,6 +165,18 @@ class ReturnBookController extends Controller
                     'condition' => $condition,
                     'fine_amount' => $bookFine,
                 ]);
+
+                if ($issuedBook->bookCopy) {
+                    $issuedBook->bookCopy->update([
+                        'status' => match ($condition) {
+                            'lost' => 'lost',
+                            'damaged' => 'damaged',
+                            default => 'available',
+                        },
+                        'condition' => $condition,
+                    ]);
+                    $copyService->refreshBookCounters($issuedBook->book);
+                }
                 
                 // Update BookRequest status to returned
                 $bookRequest = \App\Models\BookRequest::where('student_id', $student->id)
@@ -176,7 +192,7 @@ class ReturnBookController extends Controller
                 }
                 
                 // Update book availability
-                if ($condition !== 'lost' && $condition !== 'damaged') {
+                if (! $issuedBook->bookCopy && $condition !== 'lost' && $condition !== 'damaged') {
                     $issuedBook->book->increment('available_copies');
                 }
                 

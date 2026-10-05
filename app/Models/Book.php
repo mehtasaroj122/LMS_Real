@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Book extends Model
 {
@@ -42,6 +43,16 @@ class Book extends Model
     public function issuedBooks()
     {
         return $this->hasMany(IssuedBook::class);
+    }
+
+    public function copies(): HasMany
+    {
+        return $this->hasMany(BookCopy::class);
+    }
+
+    public function bookCopies(): HasMany
+    {
+        return $this->copies();
     }
 
     public function requests()

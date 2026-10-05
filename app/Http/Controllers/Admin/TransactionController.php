@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\BookCopy;
 use App\Models\BookRequest;
 use App\Models\IssuedBook;
 use App\Models\Student;
@@ -13,6 +14,8 @@ use App\Models\Notification;
 use App\Jobs\SendBookIssuedEmail;
 use App\Jobs\SendBookReturnedEmail;
 use App\Services\FineCalculator;
+use App\Services\PhysicalBookCopyService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
@@ -122,7 +125,7 @@ class TransactionController extends Controller
             
             // Build query
             $booksQuery = Book::with('category')
-                ->where('available_copies', '>', 0)
+                ->whereHas('copies', fn ($copyQuery) => $copyQuery->where('status', 'available')->where('book_type', '!=', 'reference'))
                 ->whereNotIn('id', $issuedBookIds);
             
             // Add search filter if provided
@@ -171,7 +174,7 @@ class TransactionController extends Controller
             return response()->json(['count' => $query->count()]);
         }
         
-        $issuedBooks = $query->with('book')
+        $issuedBooks = $query->with(['book', 'bookCopy'])
             ->get()
             ->map(function($issued) {
                 $overdueDays = max(0, Carbon::parse($issued->due_date)->diffInDays(Carbon::now()));
@@ -179,6 +182,7 @@ class TransactionController extends Controller
                 return [
                     'id' => $issued->id,
                     'bookId' => $issued->book_id,
+                    'accessionNumber' => $issued->bookCopy?->accession_number,
                     'bookTitle' => $issued->book->title,
                     'title' => $issued->book->title,
                     'author' => $issued->book->author ?? 'Unknown',
@@ -196,7 +200,7 @@ class TransactionController extends Controller
     /**
      * Issue books to a student
      */
-    public function issueBooks(Request $request)
+    public function issueBooks(Request $request, PhysicalBookCopyService $copyService, NotificationService $notifications)
     {
         Gate::authorize('access-admin');
         
@@ -225,19 +229,42 @@ class TransactionController extends Controller
             $issueDuration = $this->getEffectiveIssueDuration($student);
             
             foreach ($bookIds as $bookId) {
-                // Create issued book record
-                $issuedBook = IssuedBook::create([
-                    'book_id' => $bookId,
-                    'student_id' => $student->id,
-                    'issued_by' => Auth::id(),
-                    'issue_date' => Carbon::now(),
-                    'due_date' => Carbon::now()->addDays($issueDuration),
-                    'status' => 'issued',
-                ]);
-                
-                // Update book availability
-                $book = Book::findOrFail($bookId);
-                $book->decrement('available_copies');
+                $copy = BookCopy::query()
+                    ->where('book_id', $bookId)
+                    ->where('status', 'available')
+                    ->where('book_type', '!=', 'reference')
+                    ->first();
+
+                if ($copy) {
+                    $issuedBook = $copyService->issue($student, $copy->accession_number, Auth::user(), [
+                        'issue_date' => Carbon::now(),
+                        'due_date' => Carbon::now()->addDays($issueDuration),
+                    ]);
+                    $book = $issuedBook->book;
+                    $notifications->notifyBookIssued($issuedBook);
+                } else {
+                    // Compatibility path for legacy records that have not yet
+                    // been assigned physical copies.
+                    $issuedBook = IssuedBook::create([
+                        'book_id' => $bookId,
+                        'student_id' => $student->id,
+                        'issued_by' => Auth::id(),
+                        'issue_date' => Carbon::now(),
+                        'due_date' => Carbon::now()->addDays($issueDuration),
+                        'status' => 'issued',
+                    ]);
+                    $book = Book::findOrFail($bookId);
+                    $book->decrement('available_copies');
+                    Notification::notify(
+                        user: $student->user,
+                        type: 'book.issued',
+                        title: 'Book(s) Issued',
+                        message: "'{$book->title}' has been issued to you.",
+                        data: ['book_id' => $book->id, 'issued_book_id' => $issuedBook->id],
+                        relatedModel: 'IssuedBook',
+                        relatedId: $issuedBook->id
+                    );
+                }
                 
                 // Update BookRequest status to 'issued'
                 $bookRequest = BookRequest::where('student_id', $student->id)
@@ -251,45 +278,10 @@ class TransactionController extends Controller
                     ]);
                 }
                 
-                if ($student->user?->email) {
-                    try {
-                        SendBookIssuedEmail::dispatch(
-                            $student->user->email,
-                            $student->user->name,
-                            $book->title,
-                            $book->author ?? 'Unknown',
-                            $issuedBook->issue_date->format('Y-m-d'),
-                            $issuedBook->due_date->format('Y-m-d')
-                        );
-                    } catch (\Throwable $e) {
-                        \Log::warning('Unable to queue book issued email: ' . $e->getMessage(), [
-                            'issued_book_id' => $issuedBook->id,
-                        ]);
-                    }
-                }
-                
                 $issuedBooks[] = $book->title;
                 $issuedCount++;
             }
             
-            // Notify student about book issue
-            if ($student->user) {
-                $bookTitles = implode(', ', $issuedBooks);
-                Notification::notify(
-                    user: $student->user,
-                    type: 'book.issued',
-                    title: 'Book(s) Issued',
-                    message: count($issuedBooks) . " book(s) have been issued to you: " . $bookTitles,
-                    data: [
-                        'student_id' => $student->id,
-                        'issued_count' => $issuedCount,
-                        'due_date' => Carbon::now()->addDays($issueDuration)->format('Y-m-d'),
-                    ],
-                    relatedModel: 'IssuedBook',
-                    relatedId: $issuedCount
-                );
-                
-            }
             
             return response()->json([
                 'success' => true,
@@ -307,7 +299,7 @@ class TransactionController extends Controller
     /**
      * Return books from a student
      */
-    public function returnBooks(Request $request)
+    public function returnBooks(Request $request, PhysicalBookCopyService $copyService)
     {
         Gate::authorize('access-admin');
         
@@ -324,12 +316,13 @@ class TransactionController extends Controller
             $returnedCount = 0;
             $totalFine = 0;
             $returnedBooks = [];
+            $returnedAccessions = [];
             
             $fineCalculator = new FineCalculator();
             $fineSetting = FineSetting::resolveActive();
             
             foreach ($request->issued_book_ids as $issuedBookId) {
-                $issuedBook = IssuedBook::findOrFail($issuedBookId);
+                $issuedBook = IssuedBook::with(['book', 'bookCopy'])->findOrFail($issuedBookId);
                 $bookFine = 0;
                 
                 // Calculate fine based on condition
@@ -401,6 +394,18 @@ class TransactionController extends Controller
                     'condition' => $condition,
                     'fine_amount' => $bookFine,
                 ]);
+
+                if ($issuedBook->bookCopy) {
+                    $issuedBook->bookCopy->update([
+                        'status' => match ($condition) {
+                            'lost' => 'lost',
+                            'damaged' => 'damaged',
+                            default => 'available',
+                        },
+                        'condition' => $condition,
+                    ]);
+                    $copyService->refreshBookCounters($issuedBook->book);
+                }
                 
                 // Update BookRequest status to 'returned'
                 $bookRequest = BookRequest::where('student_id', $issuedBook->student_id)
@@ -415,12 +420,15 @@ class TransactionController extends Controller
                 }
                 
                 // Update book availability
-                if ($condition !== 'lost' && $condition !== 'damaged') {
+                if (! $issuedBook->bookCopy && $condition !== 'lost' && $condition !== 'damaged') {
                     $issuedBook->book->increment('available_copies');
                 }
                 
                 $totalFine += $bookFine;
                 $returnedBooks[] = $issuedBook->book->title;
+                if ($issuedBook->bookCopy?->accession_number) {
+                    $returnedAccessions[] = $issuedBook->bookCopy->accession_number;
+                }
                 
                 if ($student->user) {
                     try {
@@ -449,12 +457,13 @@ class TransactionController extends Controller
                     user: $student->user,
                     type: 'book.returned',
                     title: 'Book(s) Returned',
-                    message: count($returnedBooks) . " book(s) have been accepted: " . $bookTitles . $fineMessage,
+                    message: count($returnedBooks) . " book(s) have been accepted" . ($returnedAccessions !== [] ? ' (' . implode(', ', $returnedAccessions) . ')' : '') . ': ' . $bookTitles . $fineMessage,
                     data: [
                         'student_id' => $student->id,
                         'returned_count' => $returnedCount,
                         'total_fine' => $totalFine,
                         'condition' => $condition,
+                        'accession_numbers' => $returnedAccessions,
                     ],
                     relatedModel: 'IssuedBook',
                     relatedId: $returnedCount

@@ -2099,6 +2099,15 @@
                         </div>
                     </div>
 
+                    <div class="mb-4" style="border-top:1px solid #e5e7eb;padding-top:16px;">
+                        <label class="form-label">Or enter/scan accession number</label>
+                        <div class="search-container">
+                            <input type="text" id="accessionNumber" class="search-input" placeholder="Type any 3+ digits, e.g. 001" autocomplete="off">
+                            <div class="search-results" id="accessionResults"></div>
+                        </div>
+                        <div id="accessionDetails" class="text-sm text-secondary" style="margin-top:8px;" aria-live="polite"></div>
+                    </div>
+
                     <!-- Selected Books List -->
                     <div class="selected-books-list" id="selectedBooksList" style="display: none;">
                         <div class="mb-2 text-sm text-secondary" id="selectedBooksHeader">Selected Books</div>
@@ -2312,6 +2321,7 @@
 
     let selectedStudent = null;
     let selectedBooks = [];
+    let selectedCopy = null;
     let studentPrivileges = null;
     let issueStudentSearchRequest = 0;
 
@@ -2333,6 +2343,9 @@
     const issueSelectionHint = document.getElementById('issueSelectionHint');
     const issueButton = document.getElementById('issueButton');
     const issueForm = document.getElementById('issueForm');
+    const accessionNumberInput = document.getElementById('accessionNumber');
+    const accessionResults = document.getElementById('accessionResults');
+    const accessionDetails = document.getElementById('accessionDetails');
     const privilegeInfoCard = document.getElementById('privilegeInfoCard');
     const privilegeStatusBadge = document.getElementById('privilegeStatusBadge');
     const privilegeWarningBanner = document.getElementById('privilegeWarningBanner');
@@ -2581,6 +2594,7 @@
         studentName,
         studentRollNo,
         bookIds,
+        accessionNumber,
         selectedCount,
         dueDatePreview,
         remainingAfterIssue,
@@ -2592,7 +2606,7 @@
         setIssueSubmitting(true);
 
         try {
-            const response = await fetch('{{ route('staff.transactions.issue') }}', {
+            const response = await fetch(accessionNumber ? '{{ route('staff.transactions.issue-copy') }}' : '{{ route('staff.transactions.issue') }}', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -2601,7 +2615,7 @@
                 },
                 body: JSON.stringify({
                     student_id: studentId,
-                    book_ids: bookIds,
+                    ...(accessionNumber ? { accession_number: accessionNumber } : { book_ids: bookIds }),
                 })
             });
 
@@ -3084,7 +3098,7 @@
 
             const rules = getIssueRules();
 
-            if (!selectedStudent || selectedBooks.length === 0) {
+            if (!selectedStudent || (selectedBooks.length === 0 && !selectedCopy)) {
                 showCustomAlert('Missing Information', 'Please select a student and at least one book.', 'warning');
                 return;
             }
@@ -3100,12 +3114,12 @@
             }
 
             const canIssueMore = getIssueCapacity(rules, selectedStudent);
-            if (selectedBooks.length > canIssueMore) {
+            const selectedCount = selectedCopy ? 1 : selectedBooks.length;
+            if (selectedCount > canIssueMore) {
                 showCustomAlert('Exceeds Borrowing Limit', `Student can only issue ${canIssueMore} more book(s).`, 'error');
                 return;
             }
 
-            const selectedCount = selectedBooks.length;
             const bookIds = selectedBooks.map(book => book.id);
             const dueDatePreview = getIssueDueDatePreview(rules);
             const remainingAfterIssue = Math.max(0, getIssueCapacity(rules, selectedStudent) - selectedCount);
@@ -3124,6 +3138,7 @@
                     studentName: selectedStudent.name,
                     studentRollNo: selectedStudent.roll_no,
                     bookIds,
+                    accessionNumber: selectedCopy?.accession_number ?? null,
                     selectedCount,
                     dueDatePreview,
                     remainingAfterIssue,
@@ -3135,6 +3150,7 @@
             if (!event.target.closest('.search-container')) {
                 studentResults.style.display = 'none';
                 bookResults.style.display = 'none';
+                accessionResults.style.display = 'none';
             }
         });
 
@@ -3155,10 +3171,80 @@
         });
     });
 
+    let accessionLookupTimer;
+    let accessionLookupRequest = 0;
+    accessionNumberInput?.addEventListener('input', function () {
+        window.clearTimeout(accessionLookupTimer);
+        const requestId = ++accessionLookupRequest;
+        selectedCopy = null;
+        accessionDetails.textContent = '';
+        accessionResults.innerHTML = '';
+        accessionResults.style.display = 'none';
+        selectedBooks = [];
+        updateSelectedBooksList();
+        updateIssueButton();
+        const value = this.value.trim();
+        if (!value) return;
+
+        if (value.length < 3) {
+            accessionDetails.textContent = 'Type at least 3 characters or digits to search.';
+            return;
+        }
+
+        accessionLookupTimer = window.setTimeout(async () => {
+            accessionDetails.textContent = 'Searching physical copies...';
+            accessionResults.innerHTML = '<div class="result-item"><div class="result-title">Searching...</div></div>';
+            accessionResults.style.display = 'block';
+            try {
+                const response = await fetch(`{{ route('staff.book-copies.search') }}?query=${encodeURIComponent(value)}&mode=issue`, { credentials: 'include', headers: { 'Accept': 'application/json' } });
+                const data = await response.json();
+                if (requestId !== accessionLookupRequest) return;
+                if (!response.ok) throw new Error(data.message || 'No matching accession numbers found.');
+
+                const matches = Array.isArray(data.data) ? data.data : [];
+                if (matches.length === 0) {
+                    accessionResults.innerHTML = '<div class="result-item"><div class="result-title">No available copies found</div></div>';
+                    accessionDetails.textContent = '';
+                    return;
+                }
+
+                accessionResults.innerHTML = '';
+                matches.forEach((match) => {
+                    const copy = match.copy;
+                    const item = document.createElement('div');
+                    item.className = 'result-item';
+                    item.innerHTML = `
+                        <div class="result-title">${escapeHtml(copy.book?.title || 'Unknown book')}</div>
+                        <div class="result-subtitle">${escapeHtml(copy.accession_number)} · ${escapeHtml(copy.book?.author || 'Unknown author')} · Shelf ${escapeHtml(copy.shelf_location || 'N/A')}</div>
+                    `;
+                    item.addEventListener('click', () => {
+                        selectedCopy = copy;
+                        accessionNumberInput.value = copy.accession_number;
+                        accessionResults.style.display = 'none';
+                        accessionDetails.textContent = `${copy.book?.title || 'Unknown book'} · ${copy.accession_number} · Ready to issue`;
+                        updateIssueButton();
+                    });
+                    accessionResults.appendChild(item);
+                });
+                accessionDetails.textContent = 'Select a physical copy from the results.';
+            } catch (error) {
+                if (requestId !== accessionLookupRequest) return;
+                selectedCopy = null;
+                accessionResults.innerHTML = `<div class="result-item"><div class="result-title">${escapeHtml(error.message)}</div></div>`;
+                accessionResults.style.display = 'block';
+                accessionDetails.textContent = error.message;
+                updateIssueButton();
+            }
+        }, 250);
+    });
+
     window.selectStudentForIssue = function(student) {
         selectedStudent = student;
         studentPrivileges = null;
         selectedBooks = [];
+        if (!accessionNumberInput?.value.trim()) {
+            selectedCopy = null;
+        }
         selectedStudentId.value = student.id;
         searchStudentInput.value = `${student.name} (${student.roll_no})`;
         studentResults.style.display = 'none';
@@ -3216,6 +3302,14 @@
     window.addBookToSelection = function(book) {
         const rules = getIssueRules();
         if (!selectedStudent || !rules) return;
+
+        selectedCopy = null;
+        if (accessionNumberInput) accessionNumberInput.value = '';
+        if (accessionDetails) accessionDetails.textContent = '';
+        if (accessionResults) {
+            accessionResults.innerHTML = '';
+            accessionResults.style.display = 'none';
+        }
 
         const canIssueMore = getIssueCapacity(rules, selectedStudent);
         if (!rules.borrowing_allowed) {
@@ -3301,7 +3395,7 @@
     window.updateIssueButton = function() {
         const rules = getIssueRules();
         const canIssueMore = selectedStudent && rules ? getIssueCapacity(rules, selectedStudent) : 0;
-        const selectedCount = selectedBooks.length;
+        const selectedCount = selectedCopy ? 1 : selectedBooks.length;
 
         if (selectedStudent && rules && rules.borrowing_allowed && selectedCount > 0) {
             issueButton.disabled = false;
@@ -3332,6 +3426,7 @@
         selectedStudent = null;
         studentPrivileges = null;
         selectedBooks = [];
+        selectedCopy = null;
         issueForm?.reset();
         selectedStudentId.value = '';
         searchStudentInput.value = '';
@@ -3343,6 +3438,12 @@
         resetIssuePrivilegeSummary();
         setBookSearchState();
         searchBookInput.value = '';
+        if (accessionNumberInput) accessionNumberInput.value = '';
+        if (accessionDetails) accessionDetails.textContent = '';
+        if (accessionResults) {
+            accessionResults.innerHTML = '';
+            accessionResults.style.display = 'none';
+        }
         bookResults.style.display = 'none';
     };
 </script>

@@ -9,6 +9,7 @@ use App\Models\Book;
 use App\Models\Category;
 use App\Models\Notification;
 use App\Models\User;
+use App\Services\PhysicalBookCopyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -236,7 +237,7 @@ class BookManagementController extends Controller
         ]);
     }
 
-    public function store(BookStoreRequest $request)
+    public function store(BookStoreRequest $request, PhysicalBookCopyService $copyService)
     {
         Gate::authorize('access-staff');
 
@@ -279,6 +280,10 @@ class BookManagementController extends Controller
             }
 
             $book = Book::create($validated);
+            $copyService->createCopies($book, (int) $book->total_copies, [
+                'shelf_location' => $book->shelf_no,
+                'condition' => $book->condition,
+            ]);
 
             if ($request->hasFile('cover_image') && !$removeCoverImage) {
                 $path = $request->file('cover_image')->store('books/covers', 'public');

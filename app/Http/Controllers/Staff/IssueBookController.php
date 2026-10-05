@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\BookCopy;
 use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\Notification;
 use App\Services\FineCalculator;
+use App\Services\PhysicalBookCopyService;
+use App\Services\NotificationService;
 use App\Jobs\SendBookIssuedEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -91,7 +94,9 @@ class IssueBookController extends Controller
             if (!$studentId) return response()->json([], 400);
             
             $issuedBookIds = IssuedBook::where('student_id', $studentId)->whereNull('return_date')->pluck('book_id')->toArray();
-            $booksQuery = Book::with('category')->where('available_copies', '>', 0)->whereNotIn('id', $issuedBookIds);
+            $booksQuery = Book::with('category')
+                ->whereNotIn('id', $issuedBookIds)
+                ->whereHas('copies', fn ($copyQuery) => $copyQuery->where('status', 'available')->where('book_type', '!=', 'reference'));
             if ($query) {
                 $booksQuery->where(function($q) use ($query) {
                     $q->where('title', 'like', "%$query%")->orWhere('isbn', 'like', "%$query%")->orWhere('author', 'like', "%$query%");
@@ -124,7 +129,7 @@ class IssueBookController extends Controller
             return response()->json(['count' => $query->count()]);
         }
         
-        $issuedBooks = $query->with('book')
+        $issuedBooks = $query->with(['book', 'bookCopy'])
             ->get()
             ->map(function($issued) {
                 $overdueDays = max(0, Carbon::parse($issued->due_date)->diffInDays(Carbon::now()));
@@ -132,6 +137,8 @@ class IssueBookController extends Controller
                 return [
                     'id' => $issued->id,
                     'bookId' => $issued->book_id,
+                    'bookCopyId' => $issued->book_copy_id,
+                    'accessionNumber' => $issued->bookCopy?->accession_number,
                     'bookTitle' => $issued->book->title,
                     'book_title' => $issued->book->title,
                     'title' => $issued->book->title,
@@ -152,7 +159,7 @@ class IssueBookController extends Controller
         return response()->json($issuedBooks);
     }
 
-    public function issueBooks(Request $request)
+    public function issueBooks(Request $request, PhysicalBookCopyService $copyService, NotificationService $notifications)
     {
         Gate::authorize('access-staff');
         $request->validate([
@@ -177,16 +184,48 @@ class IssueBookController extends Controller
             $issueDuration = $this->getEffectiveIssueDuration($student);
             
             foreach ($bookIds as $bookId) {
-                $issuedBook = IssuedBook::create([
-                    'book_id' => $bookId,
-                    'student_id' => $student->id,
-                    'issued_by' => Auth::id(),
-                    'issue_date' => Carbon::now(),
-                    'due_date' => Carbon::now()->addDays($issueDuration),
-                    'status' => 'issued',
-                ]);
-                $book = Book::findOrFail($bookId);
-                $book->decrement('available_copies');
+                $copy = BookCopy::query()
+                    ->where('book_id', $bookId)
+                    ->where('status', 'available')
+                    ->where('book_type', '!=', 'reference')
+                    ->first();
+
+                if ($copy) {
+                    $issuedBook = $copyService->issue($student, $copy->accession_number, Auth::user(), [
+                        'issue_date' => Carbon::now(),
+                        'due_date' => Carbon::now()->addDays($issueDuration),
+                    ]);
+                    $book = $issuedBook->book;
+                    $notifications->notifyBookIssued($issuedBook);
+                } else {
+                    // Compatibility path for legacy test/import records that
+                    // predate physical-copy registration. New records use the
+                    // copy-aware path above.
+                    $book = Book::findOrFail($bookId);
+                    $issuedBook = IssuedBook::create([
+                        'book_id' => $book->id,
+                        'student_id' => $student->id,
+                        'issued_by' => Auth::id(),
+                        'issue_date' => Carbon::now(),
+                        'due_date' => Carbon::now()->addDays($issueDuration),
+                        'status' => 'issued',
+                    ]);
+                    $book->decrement('available_copies');
+                    Notification::notify(
+                        user: $student->user,
+                        type: 'book.issued',
+                        title: 'Book Issued Successfully',
+                        message: "You have been issued '{$book->title}' by {$book->author}",
+                        data: [
+                            'book_id' => $book->id,
+                            'issued_book_id' => $issuedBook->id,
+                            'issue_date' => $issuedBook->issue_date,
+                            'due_date' => $issuedBook->due_date,
+                        ],
+                        relatedModel: 'IssuedBook',
+                        relatedId: $issuedBook->id
+                    );
+                }
                 
                 // Update BookRequest status to issued if it exists
                 $bookRequest = \App\Models\BookRequest::where('student_id', $student->id)
@@ -200,22 +239,6 @@ class IssueBookController extends Controller
                         'processed_date' => Carbon::now(),
                     ]);
                 }
-                
-                // Send notification to student
-                Notification::notify(
-                    user: $student->user,
-                    type: 'book.issued',
-                    title: 'Book Issued Successfully',
-                    message: "You have been issued '{$book->title}' by {$book->author}",
-                    data: [
-                        'book_id' => $book->id,
-                        'issued_book_id' => $issuedBook->id,
-                        'issue_date' => $issuedBook->issue_date,
-                        'due_date' => $issuedBook->due_date,
-                    ],
-                    relatedModel: 'IssuedBook',
-                    relatedId: $issuedBook->id
-                );
                 
                 if ($student->user->email) {
                     try {

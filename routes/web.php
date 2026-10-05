@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\AccountLockController;
 use App\Http\Controllers\Admin\UiShowcaseController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\BookCopyController;
+use App\Http\Controllers\Api\BookCopyController as ApiBookCopyController;
 
 use App\Http\Controllers\Staff\StaffDashboardController;
 use App\Http\Controllers\Staff\BookRequestController as StaffBookRequestController;
@@ -108,6 +110,8 @@ Route::middleware(['auth', 'can:access-admin'])
             ->name('students.change-role');
 
         Route::resource('books', BookController::class);
+        Route::get('/books/{book}/copies', [BookCopyController::class, 'index'])->name('books.copies.index');
+        Route::post('/books/{book}/copies', [BookCopyController::class, 'store'])->name('books.copies.store');
         Route::post('/users/validate-field', [UserController::class, 'validateField'])->name('users.validate-field');
         Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::get('/users/{user}/details', [UserController::class, 'getDetails'])->name('users.details');
@@ -128,6 +132,11 @@ Route::middleware(['auth', 'can:access-admin'])
         Route::get('/transactions/books/available', [TransactionController::class, 'getAvailableBooks'])->name('transactions.books');
         Route::get('/transactions/books/issued', [TransactionController::class, 'getIssuedBooks'])->name('transactions.issued-books');
         Route::post('/transactions/issue', [TransactionController::class, 'issueBooks'])->name('transactions.issue');
+        Route::get('/book-copies/search', [ApiBookCopyController::class, 'search'])->name('book-copies.search');
+        Route::get('/book-copies/{accessionNumber}', [ApiBookCopyController::class, 'show'])->name('book-copies.show');
+        Route::post('/transactions/issue-copy', [ApiBookCopyController::class, 'issue'])->name('transactions.issue-copy');
+        Route::get('/transactions/return-copy', [ApiBookCopyController::class, 'activeIssue'])->name('transactions.return-copy.lookup');
+        Route::post('/transactions/return-copy', [ApiBookCopyController::class, 'returnCopy'])->name('transactions.return-copy');
         Route::post('/transactions/return', [TransactionController::class, 'returnBooks'])->name('transactions.return');
         Route::resource('fines', FineController::class)->only(['index', 'update']);
         Route::get('/fines/data/list', [FineController::class, 'getFinesData'])->name('fines.data');
@@ -200,6 +209,8 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::post('/categories', [BookManagementController::class, 'createCategory'])->name('categories.store');
         Route::post('/books/categories', [BookManagementController::class, 'createCategory'])->name('books.categories.store');
         Route::resource('books', BookManagementController::class);
+        Route::get('/books/{book}/copies', [BookCopyController::class, 'index'])->name('books.copies.index');
+        Route::post('/books/{book}/copies', [BookCopyController::class, 'store'])->name('books.copies.store');
         Route::post('/books/{book}/request-deletion', [BookDeletionRequestController::class, 'store'])->name('books.request-deletion');
         
         // Transaction routes for issue book feature
@@ -208,10 +219,15 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::get('/transactions/books', [IssueBookController::class, 'getAvailableBooks'])->name('transactions.books');
         Route::get('/transactions/issued-books', [IssueBookController::class, 'getIssuedBooks'])->name('transactions.issued-books');
         Route::post('/transactions/issue', [IssueBookController::class, 'issueBooks'])->name('transactions.issue');
+        Route::get('/book-copies/search', [ApiBookCopyController::class, 'search'])->name('book-copies.search');
+        Route::get('/book-copies/{accessionNumber}', [ApiBookCopyController::class, 'show'])->name('book-copies.show');
+        Route::post('/transactions/issue-copy', [ApiBookCopyController::class, 'issue'])->name('transactions.issue-copy');
         
         // Transaction routes for return book feature
         Route::get('/return-book', [ReturnBookController::class, 'index'])->name('return-book.index');
         Route::post('/transactions/return', [ReturnBookController::class, 'returnBooks'])->name('transactions.return');
+        Route::get('/transactions/return-copy', [ApiBookCopyController::class, 'activeIssue'])->name('transactions.return-copy.lookup');
+        Route::post('/transactions/return-copy', [ApiBookCopyController::class, 'returnCopy'])->name('transactions.return-copy');
         
         // Fine management routes
         Route::get('/fines', [StaffFineController::class, 'index'])->name('fines.index');

@@ -279,6 +279,109 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         }
 
+        .return-search-mode {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: center;
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        body.dark-theme .return-search-mode {
+            border-color: #334155;
+            background: #1e293b;
+        }
+
+        .return-search-mode-label,
+        .return-search-mode-option {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+        }
+
+        body.dark-theme .return-search-mode-label,
+        body.dark-theme .return-search-mode-option {
+            color: #e2e8f0;
+        }
+
+        .return-search-mode-option input {
+            accent-color: #2563eb;
+        }
+
+        .return-accession-search-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .return-accession-search-row .search-container {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .return-accession-result {
+            margin-top: 12px;
+            padding: 14px;
+            border: 1px solid #dbeafe;
+            border-radius: 10px;
+            background: #f8fbff;
+        }
+
+        body.dark-theme .return-accession-result {
+            border-color: #1e40af;
+            background: #172554;
+        }
+
+        .return-accession-result-title {
+            margin: 0 0 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        body.dark-theme .return-accession-result-title {
+            color: #bfdbfe;
+        }
+
+        .return-accession-result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 14px;
+        }
+
+        .return-accession-result-item {
+            min-width: 0;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .return-accession-result-item strong {
+            display: block;
+            margin-bottom: 2px;
+            color: #0f172a;
+        }
+
+        body.dark-theme .return-accession-result-item {
+            color: #cbd5e1;
+        }
+
+        body.dark-theme .return-accession-result-item strong {
+            color: #f8fafc;
+        }
+
+        @media (max-width: 640px) {
+            .return-accession-result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .result-item {
             padding: 8px 10px;
             cursor: pointer;
@@ -2461,8 +2564,23 @@
                     <h2 class="mb-6 text-lg font-semibold text-primary">Return Form</h2>
 
                     <form id="returnForm" autocomplete="off">
-                        <!-- Search Student -->
                         <div class="mb-5">
+                            <label class="form-label">Return Book By:</label>
+                            <div class="return-search-mode" role="radiogroup" aria-label="Return book search method">
+                                <span class="return-search-mode-label">Search using</span>
+                                <label class="return-search-mode-option">
+                                    <input type="radio" name="admin_return_search_mode" value="student" checked>
+                                    Student Name
+                                </label>
+                                <label class="return-search-mode-option">
+                                    <input type="radio" name="admin_return_search_mode" value="accession">
+                                    Accession Number
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Search Student -->
+                        <div class="mb-5" id="studentReturnSearchPanel">
                             <label class="form-label">
                                 Search Student<span class="text-danger">*</span>
                             </label>
@@ -2478,6 +2596,25 @@
                                 <div class="search-results" id="returnStudentResults"></div>
                             </div>
                             <input type="hidden" id="selectedReturnStudentId">
+                        </div>
+
+                        <div class="mb-5" id="accessionReturnSearchPanel" style="display: none;">
+                            <label class="form-label">Search/Scan Accession Number<span class="text-danger">*</span></label>
+                            <div class="return-accession-search-row">
+                                <div class="search-container">
+                                    <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0a7 7 0 0114 0z" />
+                                    </svg>
+                                    <input type="text" id="returnAccessionNumber" class="search-input search-input-clearable"
+                                        placeholder="ACC-000001 or last 3 digits" autocomplete="off">
+                                    <button type="button" id="clearReturnAccessionBtn" class="clear-btn"
+                                        style="display: none;" aria-label="Clear accession number">Clear</button>
+                                    <div class="search-results" id="returnAccessionResults"></div>
+                                </div>
+                            </div>
+                            <div id="returnAccessionDetails" class="text-sm text-secondary" style="margin-top:8px;" aria-live="polite"></div>
+                            <div id="returnAccessionResult" class="return-accession-result" hidden aria-live="polite"></div>
                         </div>
 
                         <!-- Issued Books List -->
@@ -2592,7 +2729,6 @@
                             <div class="return-rules-section">
                                 <div class="return-rules-heading">
                                     <h4 class="text-sm font-semibold text-primary">Effective Return Rules</h4>
-                                    <span class="return-rules-caption">Compact policy view for the selected borrower</span>
                                 </div>
 
                                 <div class="return-rules-grid">
@@ -2622,9 +2758,6 @@
                                     </div>
                                 </div>
 
-                                <div class="policy-note" id="returnPrivilegeNote">
-                                    Return fine calculations use the student's effective rules first, then the active default library settings when no override exists.
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -2707,6 +2840,11 @@
         let returnStudentPrivileges = null; // Store return student privileges
         let selectedIssuedBooks = [];
         let selectedCondition = null;
+        let selectedAccessionIssue = null;
+        let selectedAccessionCopy = null;
+        let returnSearchMode = 'student';
+        let returnAccessionLookupTimer = null;
+        let returnAccessionLookupRequest = 0;
         let returnSearchDebounceTimer = null;
         let issueStudentSearchRequest = 0;
         let returnStudentSearchRequest = 0;
@@ -2940,6 +3078,9 @@
             const searchReturnStudentInput = document.getElementById('searchReturnStudent');
             const returnStudentResults = document.getElementById('returnStudentResults');
             const selectedReturnStudentId = document.getElementById('selectedReturnStudentId');
+            const studentReturnSearchPanel = document.getElementById('studentReturnSearchPanel');
+            const accessionReturnSearchPanel = document.getElementById('accessionReturnSearchPanel');
+            const returnSearchModeInputs = Array.from(document.querySelectorAll('input[name="admin_return_search_mode"]'));
             const returnStudentCard = document.getElementById('returnStudentCard');
             const issuedBooksSection = document.getElementById('issuedBooksSection');
             const issuedBooksToolbar = document.getElementById('issuedBooksToolbar');
@@ -2958,6 +3099,11 @@
             const fineHelperText = document.getElementById('fineHelperText');
             const selectedBooksHeader = document.getElementById('selectedBooksHeader');
             const issueSelectionHint = document.getElementById('issueSelectionHint');
+            const returnAccessionInput = document.getElementById('returnAccessionNumber');
+            const returnAccessionResults = document.getElementById('returnAccessionResults');
+            const returnAccessionDetails = document.getElementById('returnAccessionDetails');
+            const returnAccessionResult = document.getElementById('returnAccessionResult');
+            const clearReturnAccessionBtn = document.getElementById('clearReturnAccessionBtn');
 
             const privilegeFields = ['max_books', 'issue_duration_days', 'per_day_fine', 'grace_period_days',
                 'max_fine_amount', 'borrowing_allowed'
@@ -3368,47 +3514,31 @@
                 if (!selectedReturnStudent || !rules) return;
 
                 const conditionFine = getConditionFine(selectedCondition);
-                const overrideCount = returnStudentPrivileges?.overrideCount?.() ?? 0;
 
                 setDetailValue(
                     'returnConditionSummary',
-                    selectedCondition ? toTitleCase(selectedCondition) : 'Not selected',
-                    selectedCondition ? 'This condition fine is applied to each selected book.' :
-                    'Choose a condition to complete the fine preview.'
+                    selectedCondition ? toTitleCase(selectedCondition) : 'Not selected'
                 );
                 setDetailValue(
                     'returnIssueDurationRule',
-                    `${rules.issue_duration_days} day${Number(rules.issue_duration_days) === 1 ? '' : 's'}`,
-                    returnStudentPrivileges.source('issue_duration_days')
+                    `${rules.issue_duration_days} day${Number(rules.issue_duration_days) === 1 ? '' : 's'}`
                 );
                 setDetailValue(
                     'returnLateFineRule',
-                    `${formatCurrency(rules.per_day_fine)}/day after grace`,
-                    returnStudentPrivileges.source('per_day_fine')
+                    `${formatCurrency(rules.per_day_fine)}/day after grace`
                 );
                 setDetailValue(
                     'returnGraceRule',
-                    `${rules.grace_period_days} day${Number(rules.grace_period_days) === 1 ? '' : 's'} grace`,
-                    returnStudentPrivileges.source('grace_period_days')
+                    `${rules.grace_period_days} day${Number(rules.grace_period_days) === 1 ? '' : 's'} grace`
                 );
                 setDetailValue(
                     'returnMaxFineRule',
-                    `${formatCurrency(rules.max_fine_amount)} per book`,
-                    returnStudentPrivileges.source('max_fine_amount')
+                    `${formatCurrency(rules.max_fine_amount)} per book`
                 );
                 setDetailValue(
                     'returnConditionFineRule',
-                    selectedCondition ? `${formatCurrency(conditionFine)} per book` : formatCurrency(0),
-                    selectedCondition ? 'Condition penalties come from the active return settings.' :
-                    'Select a return condition to see the matching penalty.'
+                    selectedCondition ? `${formatCurrency(conditionFine)} per book` : formatCurrency(0)
                 );
-
-                const note = document.getElementById('returnPrivilegeNote');
-                if (note) {
-                    note.textContent = overrideCount > 0 ?
-                        `This return preview is using ${overrideCount} student-specific privilege override${overrideCount === 1 ? '' : 's'} where available, then default library settings for the rest.` :
-                        'No student-specific return overrides were found, so the preview is using the active default library settings.';
-                }
             }
 
             function resetIssuePrivilegeSummary() {
@@ -3443,11 +3573,6 @@
                     'returnConditionSummary', 'returnIssueDurationRule', 'returnLateFineRule', 'returnGraceRule',
                     'returnMaxFineRule', 'returnConditionFineRule'
                 ].forEach(id => setDetailValue(id, id === 'returnConditionSummary' ? 'Not selected' : '-'));
-                const note = document.getElementById('returnPrivilegeNote');
-                if (note) {
-                    note.textContent =
-                        'Return fine calculations use the student\'s effective rules first, then the active default library settings when no override exists.';
-                }
                 finePolicySummary.textContent =
                     'Select at least one issued book and a return condition to preview the fine calculation.';
                 fineHelperText.textContent = 'Select books and condition to calculate total fine';
@@ -3627,6 +3752,9 @@
             // ========== RETURN BOOK SEARCH FUNCTIONALITY ==========
             // Search Students for Return (with debouncing to improve performance)
             searchReturnStudentInput.addEventListener('input', function() {
+                if (returnSearchMode !== 'student') {
+                    return;
+                }
                 console.log('Return student search input event fired:', this.value);
                 const query = this.value;
                 const requestId = ++returnStudentSearchRequest;
@@ -3978,6 +4106,140 @@
             };
 
             // ========== RETURN BOOK FUNCTIONS ==========
+
+            function renderReturnAccessionResult(copy, issue) {
+                const overdueDays = Math.max(0, Math.floor((Date.now() - new Date(`${issue.due_date}T00:00:00`).getTime()) / (1000 * 60 * 60 * 24)));
+                returnAccessionResult.innerHTML = `
+                    <div class="return-accession-result-title">Book, Copy, Borrower and Issue Information</div>
+                    <div class="return-accession-result-grid">
+                        <div class="return-accession-result-item"><strong>Book</strong>${escapeHtml(copy.book?.title || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>Author</strong>${escapeHtml(copy.book?.author || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>ISBN</strong>${escapeHtml(copy.book?.isbn || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>Accession Number</strong>${escapeHtml(copy.accession_number || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>Book Type</strong>${escapeHtml(copy.book_type || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>Copy Status</strong>${escapeHtml(copy.status || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>Student</strong>${escapeHtml(issue.student?.name || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>Roll No</strong>${escapeHtml(issue.student?.roll_no || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>Department</strong>${escapeHtml(issue.student?.department || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>Email</strong>${escapeHtml(issue.student?.email || 'N/A')}</div>
+                        <div class="return-accession-result-item"><strong>Issue Date</strong>${escapeHtml(formatDate(issue.issue_date))}</div>
+                        <div class="return-accession-result-item"><strong>Due Date</strong>${escapeHtml(formatDate(issue.due_date))}</div>
+                        <div class="return-accession-result-item"><strong>Overdue</strong>${overdueDays > 0 ? `${overdueDays} day${overdueDays === 1 ? '' : 's'}` : 'On time'}</div>
+                    </div>
+                `;
+                returnAccessionResult.hidden = false;
+            }
+
+            function loadReturnRulesForAccession(student) {
+                returnStudentPrivileges = createPrivilegeState();
+
+                return fetch(`/admin/students/${student.id}/privileges`, { credentials: 'include' })
+                    .then(response => response.json())
+                    .then(data => {
+                        returnStudentPrivileges = data.success ? createPrivilegeState(data) : createPrivilegeState();
+                    })
+                    .catch(() => {
+                        returnStudentPrivileges = createPrivilegeState();
+                    })
+                    .finally(() => {
+                        renderReturnPrivilegeSummary();
+                        calculateTotalFine();
+                    });
+            }
+
+            function selectReturnAccession(match) {
+                const copy = match.copy;
+                const issue = match.issue;
+
+                if (!copy || !issue?.student) {
+                    return;
+                }
+
+                selectedAccessionIssue = issue;
+                selectedAccessionCopy = copy;
+                selectedReturnStudent = issue.student;
+                selectedReturnStudentId.value = issue.student.id;
+                searchReturnStudentInput.value = `${issue.student.name} (${issue.student.roll_no || 'N/A'})`;
+                document.getElementById('clearReturnStudentBtn').style.display = 'block';
+                returnStudentResults.style.display = 'none';
+                returnAccessionInput.value = copy.accession_number;
+                clearReturnAccessionBtn.style.display = 'block';
+                returnAccessionResults.style.display = 'none';
+                returnAccessionDetails.textContent = `${copy.book?.title || 'Unknown book'} · ${copy.accession_number} · ${issue.student.name} · Due ${issue.due_date}`;
+                renderReturnAccessionResult(copy, issue);
+
+                document.getElementById('returnStudentName').textContent = issue.student.name || 'N/A';
+                document.getElementById('returnStudentID').textContent = issue.student.roll_no || 'N/A';
+                document.getElementById('returnStudentDepartment').textContent = issue.student.department || 'N/A';
+                document.getElementById('returnStudentEmail').textContent = issue.student.email || 'N/A';
+                document.getElementById('returnStudentIssued').textContent = 'Loading...';
+                returnStudentCard.style.display = 'block';
+                fineCalculationCard.style.display = 'block';
+
+                const overdueDays = Math.max(0, Math.floor((Date.now() - new Date(`${issue.due_date}T00:00:00`).getTime()) / (1000 * 60 * 60 * 24)));
+                selectedIssuedBooks = [{
+                    id: issue.id,
+                    bookId: copy.book_id,
+                    title: copy.book?.title || 'Unknown book',
+                    accessionNumber: copy.accession_number,
+                    overdueDays,
+                    issueDate: issue.issue_date,
+                    dueDate: issue.due_date,
+                    condition: null,
+                    conditionFine: 0,
+                }];
+                selectedCondition = null;
+                resetConditionSelection();
+                loadReturnRulesForAccession(issue.student);
+                updateReturnButton();
+
+                fetch(`{{ route('admin.transactions.issued-books') }}?studentId=${encodeURIComponent(issue.student.id)}`, { credentials: 'include' })
+                    .then(response => {
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        return response.json();
+                    })
+                    .then(issuedBooks => {
+                        if (returnSearchMode !== 'accession'
+                            || selectedAccessionIssue?.id !== issue.id
+                            || selectedAccessionCopy?.id !== copy.id) {
+                            return;
+                        }
+
+                        const activeIssuedBooks = Array.isArray(issuedBooks)
+                            ? issuedBooks.filter(book => !book.returned)
+                            : [];
+                        document.getElementById('returnStudentIssued').textContent = String(activeIssuedBooks.length);
+
+                        if (activeIssuedBooks.length === 0) {
+                            issuedBooksSection.style.display = 'none';
+                            selectedIssuedBooks = [];
+                            updateReturnButton();
+                            return;
+                        }
+
+                        issuedBooksSection.style.display = 'block';
+                        displayIssuedBooks(activeIssuedBooks);
+                        selectedIssuedBooks = [];
+
+                        const searchedIssuedBook = activeIssuedBooks.find(book =>
+                            Number(book.id) === Number(issue.id)
+                            || Number(book.bookCopyId) === Number(copy.id)
+                            || String(book.accessionNumber || '').toUpperCase() === String(copy.accession_number || '').toUpperCase()
+                        );
+
+                        if (searchedIssuedBook) {
+                            const checkbox = document.getElementById(`book-${searchedIssuedBook.id}`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                                toggleIssuedBookSelection(searchedIssuedBook.id, true);
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('returnStudentIssued').textContent = 'N/A';
+                    });
+            }
+
             window.selectStudentForReturn = function(student, issuedBooks) {
                 selectedReturnStudent = student;
                 selectedReturnStudentId.value = student.id;
@@ -4046,6 +4308,92 @@
                     });
             };
 
+            returnAccessionInput?.addEventListener('input', function() {
+                if (returnSearchMode !== 'accession') return;
+
+                window.clearTimeout(returnAccessionLookupTimer);
+                const requestId = ++returnAccessionLookupRequest;
+                const value = this.value.trim();
+                clearReturnAccessionBtn.style.display = value ? 'block' : 'none';
+                selectedAccessionIssue = null;
+                selectedAccessionCopy = null;
+                selectedReturnStudent = null;
+                selectedReturnStudentId.value = '';
+                searchReturnStudentInput.value = '';
+                document.getElementById('clearReturnStudentBtn').style.display = 'none';
+                returnStudentCard.style.display = 'none';
+                issuedBooksSection.style.display = 'none';
+                bookConditionSection.style.display = 'none';
+                fineCalculationCard.style.display = 'none';
+                returnAccessionResult.hidden = true;
+                returnAccessionResult.innerHTML = '';
+                returnAccessionDetails.textContent = '';
+                returnAccessionResults.innerHTML = '';
+                returnAccessionResults.style.display = 'none';
+                selectedIssuedBooks = [];
+                selectedCondition = null;
+                resetConditionSelection();
+                updateReturnButton();
+
+                if (!value) return;
+                if (value.length < 3) {
+                    returnAccessionDetails.textContent = 'Type at least 3 characters or digits to search.';
+                    return;
+                }
+
+                returnAccessionLookupTimer = window.setTimeout(async () => {
+                    returnAccessionDetails.textContent = 'Searching active borrowing records...';
+                    returnAccessionResults.innerHTML = '<div class="result-item"><div class="result-title">Searching...</div></div>';
+                    returnAccessionResults.style.display = 'block';
+
+                    try {
+                        const response = await fetch(`{{ route('admin.book-copies.search') }}?query=${encodeURIComponent(value)}&mode=return`, {
+                            credentials: 'include',
+                            headers: { 'Accept': 'application/json' },
+                        });
+                        const data = await response.json();
+                        if (requestId !== returnAccessionLookupRequest) return;
+                        if (!response.ok) throw new Error(data.message || 'No active borrowing record found.');
+
+                        const matches = Array.isArray(data.data) ? data.data : [];
+                        if (matches.length === 0) {
+                            returnAccessionResults.innerHTML = '<div class="result-item"><div class="result-title">No active borrowing records found</div></div>';
+                            returnAccessionDetails.textContent = '';
+                            return;
+                        }
+
+                        returnAccessionResults.innerHTML = '';
+                        matches.forEach(match => {
+                            const copy = match.copy;
+                            const issue = match.issue;
+                            const item = document.createElement('div');
+                            item.className = 'result-item';
+                            item.innerHTML = `
+                                <div class="result-title">${escapeHtml(copy.book?.title || 'Unknown book')} · ${escapeHtml(copy.accession_number)}</div>
+                                <div class="result-subtitle">${escapeHtml(issue?.student?.name || 'Unknown student')} (${escapeHtml(issue?.student?.roll_no || 'N/A')}) · Due ${escapeHtml(issue?.due_date || 'N/A')}</div>
+                            `;
+                            item.addEventListener('click', () => selectReturnAccession(match));
+                            returnAccessionResults.appendChild(item);
+                        });
+                        returnAccessionDetails.textContent = 'Select a borrowing record from the results.';
+                    } catch (error) {
+                        if (requestId !== returnAccessionLookupRequest) return;
+                        selectedAccessionIssue = null;
+                        selectedAccessionCopy = null;
+                        returnAccessionResults.innerHTML = `<div class="result-item"><div class="result-title">${escapeHtml(error.message)}</div></div>`;
+                        returnAccessionResults.style.display = 'block';
+                        returnAccessionDetails.textContent = error.message;
+                        updateReturnButton();
+                    }
+                }, 250);
+            });
+
+            returnAccessionInput?.addEventListener('keydown', event => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                returnAccessionInput.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+
             window.displayIssuedBooks = function(issuedBooks) {
                 issuedBooksContainer.innerHTML = '';
 
@@ -4084,6 +4432,7 @@
                         <div class="book-info-full">
                             <div class="book-title">${issuedBook.bookTitle}</div>
                             <div class="book-meta">
+                                <span>Accession: ${escapeHtml(issuedBook.accessionNumber || issuedBook.accession_number || 'N/A')}</span>
                                 <span>${issuedBook.author}</span>
                                 <span>Issued: ${formatDate(issuedBook.issueDate)}</span>
                                 <span>Due: ${formatDate(issuedBook.dueDate)}</span>
@@ -4325,8 +4674,14 @@
             };
 
             window.clearReturnStudentSelection = function() {
+                returnStudentSearchRequest++;
+                returnAccessionLookupRequest++;
+                window.clearTimeout(returnAccessionLookupTimer);
+                returnAccessionLookupTimer = null;
                 selectedReturnStudent = null;
                 returnStudentPrivileges = null;
+                selectedAccessionIssue = null;
+                selectedAccessionCopy = null;
                 selectedReturnStudentId.value = '';
                 document.getElementById('clearReturnStudentBtn').style.display = 'none';
                 returnStudentCard.style.display = 'none';
@@ -4349,8 +4704,34 @@
 
                 searchReturnStudentInput.value = '';
                 returnStudentResults.style.display = 'none';
+                returnAccessionInput.value = '';
+                clearReturnAccessionBtn.style.display = 'none';
+                returnAccessionDetails.textContent = '';
+                returnAccessionResults.innerHTML = '';
+                returnAccessionResults.style.display = 'none';
+                returnAccessionResult.innerHTML = '';
+                returnAccessionResult.hidden = true;
                 syncIssuedBooksBulkState();
             };
+
+            function setReturnSearchMode(mode, shouldReset = true) {
+                const nextMode = mode === 'accession' ? 'accession' : 'student';
+
+                if (shouldReset) {
+                    clearReturnStudentSelection();
+                }
+
+                returnSearchMode = nextMode;
+                studentReturnSearchPanel.style.display = nextMode === 'student' ? 'block' : 'none';
+                accessionReturnSearchPanel.style.display = nextMode === 'accession' ? 'block' : 'none';
+                searchReturnStudentInput.required = nextMode === 'student';
+                returnAccessionInput.required = nextMode === 'accession';
+            }
+
+            returnSearchModeInputs.forEach(radio => {
+                radio.addEventListener('change', () => setReturnSearchMode(radio.value));
+            });
+            setReturnSearchMode('student', false);
 
             function resetTransactionPageState() {
                 issueForm?.reset();
@@ -4713,6 +5094,7 @@
                     studentResults.style.display = 'none';
                     bookResults.style.display = 'none';
                     returnStudentResults.style.display = 'none';
+                    returnAccessionResults.style.display = 'none';
                 }
             });
         });

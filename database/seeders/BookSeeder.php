@@ -18,7 +18,7 @@ class BookSeeder extends Seeder
         $books = collect(json_decode($json, true));
 
         $books->each(function ($book) {
-            Book::create([
+            Book::updateOrCreate(['isbn' => $book['isbn']], [
                 'category_id' => $book['category_id'],
                 'title' => $book['title'],
                 'author' => $book['author'],

@@ -26,6 +26,7 @@ class StudentProfileDataService
             'user',
             'department',
             'issuedBooks.book.category',
+            'issuedBooks.bookCopy',
             'issuedBooks.issuer',
             'issuedBooks.fine',
             'bookRequests.book',
@@ -46,6 +47,7 @@ class StudentProfileDataService
 
         $student->load([
             'issuedBooks.book.category',
+            'issuedBooks.bookCopy',
             'issuedBooks.issuer',
             'issuedBooks.fine',
             'bookRequests.book',
@@ -121,6 +123,7 @@ class StudentProfileDataService
             'title' => $issuedBook->book?->title ?? 'Unknown',
             'author' => $issuedBook->book?->author ?? 'Unknown Author',
             'isbn' => $issuedBook->book?->isbn ?? 'N/A',
+            'accessionNumber' => $issuedBook->bookCopy?->accession_number ?? 'N/A',
             'category' => $issuedBook->book?->category?->name ?? 'Uncategorized',
             'issueDate' => $issueDate?->format('M d, Y') ?? 'N/A',
             'dueDate' => $dueDate?->format('M d, Y') ?? 'N/A',

@@ -8,11 +8,13 @@
         "due_date": "2024-01-15",
         "return_date": "2024-01-17",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 1,
+        "book_copy_accession": "ACC-000001"
     },
     {
         "id": 2,
@@ -27,7 +29,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 5,
+        "book_copy_accession": "ACC-000005"
     },
     {
         "id": 3,
@@ -42,7 +46,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 15,
+        "book_copy_accession": "ACC-000015"
     },
     {
         "id": 4,
@@ -57,7 +63,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 20,
+        "book_copy_accession": "ACC-000020"
     },
     {
         "id": 5,
@@ -72,7 +80,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 29,
+        "book_copy_accession": "ACC-000029"
     },
     {
         "id": 6,
@@ -87,7 +97,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 39,
+        "book_copy_accession": "ACC-000039"
     },
     {
         "id": 7,
@@ -102,7 +114,9 @@
         "fine_amount": 396,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 51,
+        "book_copy_accession": "ACC-000051"
     },
     {
         "id": 8,
@@ -117,7 +131,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 54,
+        "book_copy_accession": "ACC-000054"
     },
     {
         "id": 9,
@@ -132,7 +148,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 64,
+        "book_copy_accession": "ACC-000064"
     },
     {
         "id": 10,
@@ -147,7 +165,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 75,
+        "book_copy_accession": "ACC-000075"
     },
     {
         "id": 11,
@@ -162,7 +182,9 @@
         "fine_amount": 210,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 85,
+        "book_copy_accession": "ACC-000085"
     },
     {
         "id": 12,
@@ -177,7 +199,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 93,
+        "book_copy_accession": "ACC-000093"
     },
     {
         "id": 13,
@@ -192,7 +216,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 97,
+        "book_copy_accession": "ACC-000097"
     },
     {
         "id": 14,
@@ -207,7 +233,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 104,
+        "book_copy_accession": "ACC-000104"
     },
     {
         "id": 15,
@@ -218,11 +246,13 @@
         "due_date": "2024-01-29",
         "return_date": "2024-01-31",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 107,
+        "book_copy_accession": "ACC-000107"
     },
     {
         "id": 16,
@@ -237,7 +267,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 119,
+        "book_copy_accession": "ACC-000119"
     },
     {
         "id": 17,
@@ -252,7 +284,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 131,
+        "book_copy_accession": "ACC-000131"
     },
     {
         "id": 18,
@@ -263,11 +297,13 @@
         "due_date": "2024-02-01",
         "return_date": "2024-02-03",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 136,
+        "book_copy_accession": "ACC-000136"
     },
     {
         "id": 19,
@@ -282,7 +318,9 @@
         "fine_amount": 316,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 142,
+        "book_copy_accession": "ACC-000142"
     },
     {
         "id": 20,
@@ -297,7 +335,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 145,
+        "book_copy_accession": "ACC-000145"
     },
     {
         "id": 21,
@@ -308,11 +348,13 @@
         "due_date": "2024-02-04",
         "return_date": "2024-02-06",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 147,
+        "book_copy_accession": "ACC-000147"
     },
     {
         "id": 22,
@@ -327,7 +369,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 152,
+        "book_copy_accession": "ACC-000152"
     },
     {
         "id": 23,
@@ -342,7 +386,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 159,
+        "book_copy_accession": "ACC-000159"
     },
     {
         "id": 24,
@@ -357,7 +403,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 165,
+        "book_copy_accession": "ACC-000165"
     },
     {
         "id": 25,
@@ -372,7 +420,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 169,
+        "book_copy_accession": "ACC-000169"
     },
     {
         "id": 26,
@@ -383,11 +433,13 @@
         "due_date": "2024-02-09",
         "return_date": "2024-02-11",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 174,
+        "book_copy_accession": "ACC-000174"
     },
     {
         "id": 27,
@@ -402,7 +454,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 180,
+        "book_copy_accession": "ACC-000180"
     },
     {
         "id": 28,
@@ -413,11 +467,13 @@
         "due_date": "2024-02-11",
         "return_date": "2024-02-13",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 185,
+        "book_copy_accession": "ACC-000185"
     },
     {
         "id": 29,
@@ -432,7 +488,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 194,
+        "book_copy_accession": "ACC-000194"
     },
     {
         "id": 30,
@@ -447,7 +505,9 @@
         "fine_amount": 496,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 202,
+        "book_copy_accession": "ACC-000202"
     },
     {
         "id": 31,
@@ -462,7 +522,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 204,
+        "book_copy_accession": "ACC-000204"
     },
     {
         "id": 32,
@@ -473,11 +535,13 @@
         "due_date": "2024-02-15",
         "return_date": "2024-02-17",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 210,
+        "book_copy_accession": "ACC-000210"
     },
     {
         "id": 33,
@@ -492,7 +556,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 217,
+        "book_copy_accession": "ACC-000217"
     },
     {
         "id": 34,
@@ -507,7 +573,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 228,
+        "book_copy_accession": "ACC-000228"
     },
     {
         "id": 35,
@@ -522,7 +590,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 232,
+        "book_copy_accession": "ACC-000232"
     },
     {
         "id": 36,
@@ -537,7 +607,9 @@
         "fine_amount": 64,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 244,
+        "book_copy_accession": "ACC-000244"
     },
     {
         "id": 37,
@@ -552,7 +624,9 @@
         "fine_amount": 145,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 255,
+        "book_copy_accession": "ACC-000255"
     },
     {
         "id": 38,
@@ -567,7 +641,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 266,
+        "book_copy_accession": "ACC-000266"
     },
     {
         "id": 39,
@@ -582,7 +658,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 274,
+        "book_copy_accession": "ACC-000274"
     },
     {
         "id": 40,
@@ -593,11 +671,13 @@
         "due_date": "2024-02-23",
         "return_date": "2024-02-25",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 281,
+        "book_copy_accession": "ACC-000281"
     },
     {
         "id": 41,
@@ -612,7 +692,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 289,
+        "book_copy_accession": "ACC-000289"
     },
     {
         "id": 42,
@@ -627,7 +709,9 @@
         "fine_amount": 213,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 294,
+        "book_copy_accession": "ACC-000294"
     },
     {
         "id": 43,
@@ -642,7 +726,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 298,
+        "book_copy_accession": "ACC-000298"
     },
     {
         "id": 44,
@@ -653,11 +739,13 @@
         "due_date": "2024-02-27",
         "return_date": "2024-02-29",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 308,
+        "book_copy_accession": "ACC-000308"
     },
     {
         "id": 45,
@@ -672,7 +760,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 314,
+        "book_copy_accession": "ACC-000314"
     },
     {
         "id": 46,
@@ -687,7 +777,9 @@
         "fine_amount": 248,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 317,
+        "book_copy_accession": "ACC-000317"
     },
     {
         "id": 47,
@@ -702,7 +794,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 322,
+        "book_copy_accession": "ACC-000322"
     },
     {
         "id": 48,
@@ -717,7 +811,9 @@
         "fine_amount": 311,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 334,
+        "book_copy_accession": "ACC-000334"
     },
     {
         "id": 49,
@@ -732,7 +828,9 @@
         "fine_amount": 426,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 342,
+        "book_copy_accession": "ACC-000342"
     },
     {
         "id": 50,
@@ -747,7 +845,9 @@
         "fine_amount": 223,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 345,
+        "book_copy_accession": "ACC-000345"
     },
     {
         "id": 51,
@@ -762,7 +862,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 357,
+        "book_copy_accession": "ACC-000357"
     },
     {
         "id": 52,
@@ -777,7 +879,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 368,
+        "book_copy_accession": "ACC-000368"
     },
     {
         "id": 53,
@@ -792,7 +896,9 @@
         "fine_amount": 394,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 372,
+        "book_copy_accession": "ACC-000372"
     },
     {
         "id": 54,
@@ -807,7 +913,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 379,
+        "book_copy_accession": "ACC-000379"
     },
     {
         "id": 55,
@@ -822,7 +930,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 385,
+        "book_copy_accession": "ACC-000385"
     },
     {
         "id": 56,
@@ -833,11 +943,13 @@
         "due_date": "2024-03-10",
         "return_date": "2024-03-12",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 393,
+        "book_copy_accession": "ACC-000393"
     },
     {
         "id": 57,
@@ -852,7 +964,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 400,
+        "book_copy_accession": "ACC-000400"
     },
     {
         "id": 58,
@@ -867,7 +981,9 @@
         "fine_amount": 406,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 403,
+        "book_copy_accession": "ACC-000403"
     },
     {
         "id": 59,
@@ -882,7 +998,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 407,
+        "book_copy_accession": "ACC-000407"
     },
     {
         "id": 60,
@@ -897,7 +1015,9 @@
         "fine_amount": 215,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 413,
+        "book_copy_accession": "ACC-000413"
     },
     {
         "id": 61,
@@ -912,7 +1032,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 420,
+        "book_copy_accession": "ACC-000420"
     },
     {
         "id": 62,
@@ -927,7 +1049,9 @@
         "fine_amount": 219,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 426,
+        "book_copy_accession": "ACC-000426"
     },
     {
         "id": 63,
@@ -942,7 +1066,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 433,
+        "book_copy_accession": "ACC-000433"
     },
     {
         "id": 64,
@@ -957,7 +1083,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 435,
+        "book_copy_accession": "ACC-000435"
     },
     {
         "id": 65,
@@ -972,7 +1100,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 438,
+        "book_copy_accession": "ACC-000438"
     },
     {
         "id": 66,
@@ -987,7 +1117,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 444,
+        "book_copy_accession": "ACC-000444"
     },
     {
         "id": 67,
@@ -1002,7 +1134,9 @@
         "fine_amount": 366,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 454,
+        "book_copy_accession": "ACC-000454"
     },
     {
         "id": 68,
@@ -1013,11 +1147,13 @@
         "due_date": "2024-03-22",
         "return_date": "2024-03-24",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 457,
+        "book_copy_accession": "ACC-000457"
     },
     {
         "id": 69,
@@ -1032,7 +1168,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 469,
+        "book_copy_accession": "ACC-000469"
     },
     {
         "id": 70,
@@ -1047,7 +1185,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 477,
+        "book_copy_accession": "ACC-000477"
     },
     {
         "id": 71,
@@ -1062,7 +1202,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 482,
+        "book_copy_accession": "ACC-000482"
     },
     {
         "id": 72,
@@ -1077,7 +1219,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 484,
+        "book_copy_accession": "ACC-000484"
     },
     {
         "id": 73,
@@ -1092,7 +1236,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 493,
+        "book_copy_accession": "ACC-000493"
     },
     {
         "id": 74,
@@ -1107,7 +1253,9 @@
         "fine_amount": 254,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 500,
+        "book_copy_accession": "ACC-000500"
     },
     {
         "id": 75,
@@ -1118,11 +1266,13 @@
         "due_date": "2024-03-29",
         "return_date": "2024-03-31",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 511,
+        "book_copy_accession": "ACC-000511"
     },
     {
         "id": 76,
@@ -1137,7 +1287,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 518,
+        "book_copy_accession": "ACC-000518"
     },
     {
         "id": 77,
@@ -1152,7 +1304,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 529,
+        "book_copy_accession": "ACC-000529"
     },
     {
         "id": 78,
@@ -1167,7 +1321,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 535,
+        "book_copy_accession": "ACC-000535"
     },
     {
         "id": 79,
@@ -1182,7 +1338,9 @@
         "fine_amount": 473,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 546,
+        "book_copy_accession": "ACC-000546"
     },
     {
         "id": 80,
@@ -1193,11 +1351,13 @@
         "due_date": "2024-04-03",
         "return_date": "2024-04-05",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 555,
+        "book_copy_accession": "ACC-000555"
     },
     {
         "id": 81,
@@ -1212,7 +1372,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 565,
+        "book_copy_accession": "ACC-000565"
     },
     {
         "id": 82,
@@ -1223,11 +1385,13 @@
         "due_date": "2024-04-05",
         "return_date": "2024-04-07",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 572,
+        "book_copy_accession": "ACC-000572"
     },
     {
         "id": 83,
@@ -1242,7 +1406,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 580,
+        "book_copy_accession": "ACC-000580"
     },
     {
         "id": 84,
@@ -1257,7 +1423,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 582,
+        "book_copy_accession": "ACC-000582"
     },
     {
         "id": 85,
@@ -1272,7 +1440,9 @@
         "fine_amount": 214,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 587,
+        "book_copy_accession": "ACC-000587"
     },
     {
         "id": 86,
@@ -1287,7 +1457,9 @@
         "fine_amount": 434,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 595,
+        "book_copy_accession": "ACC-000595"
     },
     {
         "id": 87,
@@ -1302,7 +1474,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 607,
+        "book_copy_accession": "ACC-000607"
     },
     {
         "id": 88,
@@ -1317,7 +1491,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 614,
+        "book_copy_accession": "ACC-000614"
     },
     {
         "id": 89,
@@ -1332,7 +1508,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 616,
+        "book_copy_accession": "ACC-000616"
     },
     {
         "id": 90,
@@ -1347,7 +1525,9 @@
         "fine_amount": 353,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 620,
+        "book_copy_accession": "ACC-000620"
     },
     {
         "id": 91,
@@ -1362,7 +1542,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 625,
+        "book_copy_accession": "ACC-000625"
     },
     {
         "id": 92,
@@ -1377,7 +1559,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 631,
+        "book_copy_accession": "ACC-000631"
     },
     {
         "id": 93,
@@ -1392,7 +1576,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 634,
+        "book_copy_accession": "ACC-000634"
     },
     {
         "id": 94,
@@ -1407,7 +1593,9 @@
         "fine_amount": 64,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 638,
+        "book_copy_accession": "ACC-000638"
     },
     {
         "id": 95,
@@ -1418,11 +1606,13 @@
         "due_date": "2024-04-18",
         "return_date": "2024-04-20",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 642,
+        "book_copy_accession": "ACC-000642"
     },
     {
         "id": 96,
@@ -1437,7 +1627,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 653,
+        "book_copy_accession": "ACC-000653"
     },
     {
         "id": 97,
@@ -1452,7 +1644,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 658,
+        "book_copy_accession": "ACC-000658"
     },
     {
         "id": 98,
@@ -1463,11 +1657,13 @@
         "due_date": "2024-04-21",
         "return_date": "2024-04-23",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 661,
+        "book_copy_accession": "ACC-000661"
     },
     {
         "id": 99,
@@ -1482,7 +1678,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 673,
+        "book_copy_accession": "ACC-000673"
     },
     {
         "id": 100,
@@ -1497,7 +1695,9 @@
         "fine_amount": 168,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 682,
+        "book_copy_accession": "ACC-000682"
     },
     {
         "id": 101,
@@ -1512,7 +1712,9 @@
         "fine_amount": 266,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 687,
+        "book_copy_accession": "ACC-000687"
     },
     {
         "id": 102,
@@ -1527,7 +1729,9 @@
         "fine_amount": 382,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 696,
+        "book_copy_accession": "ACC-000696"
     },
     {
         "id": 103,
@@ -1542,7 +1746,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 700,
+        "book_copy_accession": "ACC-000700"
     },
     {
         "id": 104,
@@ -1557,7 +1763,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 707,
+        "book_copy_accession": "ACC-000707"
     },
     {
         "id": 105,
@@ -1568,11 +1776,13 @@
         "due_date": "2024-04-28",
         "return_date": "2024-04-30",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 712,
+        "book_copy_accession": "ACC-000712"
     },
     {
         "id": 106,
@@ -1583,11 +1793,13 @@
         "due_date": "2024-04-29",
         "return_date": "2024-05-01",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 715,
+        "book_copy_accession": "ACC-000715"
     },
     {
         "id": 107,
@@ -1602,7 +1814,9 @@
         "fine_amount": 211,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 722,
+        "book_copy_accession": "ACC-000722"
     },
     {
         "id": 108,
@@ -1617,7 +1831,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 730,
+        "book_copy_accession": "ACC-000730"
     },
     {
         "id": 109,
@@ -1632,7 +1848,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 738,
+        "book_copy_accession": "ACC-000738"
     },
     {
         "id": 110,
@@ -1647,7 +1865,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 743,
+        "book_copy_accession": "ACC-000743"
     },
     {
         "id": 111,
@@ -1662,7 +1882,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 753,
+        "book_copy_accession": "ACC-000753"
     },
     {
         "id": 112,
@@ -1673,11 +1895,13 @@
         "due_date": "2024-05-05",
         "return_date": "2024-05-07",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 761,
+        "book_copy_accession": "ACC-000761"
     },
     {
         "id": 113,
@@ -1692,7 +1916,9 @@
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 772,
+        "book_copy_accession": "ACC-000772"
     },
     {
         "id": 114,
@@ -1707,7 +1933,9 @@
         "fine_amount": 43,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 776,
+        "book_copy_accession": "ACC-000776"
     },
     {
         "id": 115,
@@ -1722,7 +1950,9 @@
         "fine_amount": 109,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 778,
+        "book_copy_accession": "ACC-000778"
     },
     {
         "id": 116,
@@ -1737,7 +1967,9 @@
         "fine_amount": 334,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 783,
+        "book_copy_accession": "ACC-000783"
     },
     {
         "id": 117,
@@ -1752,7 +1984,9 @@
         "fine_amount": 484,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 792,
+        "book_copy_accession": "ACC-000792"
     },
     {
         "id": 118,
@@ -1763,11 +1997,13 @@
         "due_date": "2024-05-11",
         "return_date": "2024-05-13",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 799,
+        "book_copy_accession": "ACC-000799"
     },
     {
         "id": 119,
@@ -1778,11 +2014,13 @@
         "due_date": "2024-05-12",
         "return_date": "2024-05-14",
         "status": "returned",
-        "condition": "worn",
+        "condition": "fair",
         "fine_amount": 0,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 806,
+        "book_copy_accession": "ACC-000806"
     },
     {
         "id": 120,
@@ -1797,6 +2035,8 @@
         "fine_amount": 36,
         "remarks": "Standard checkout",
         "created_at": "2026-02-13 12:00:51",
-        "updated_at": "2026-02-13 12:00:51"
+        "updated_at": "2026-02-13 12:00:51",
+        "book_copy_id": 817,
+        "book_copy_accession": "ACC-000817"
     }
 ]

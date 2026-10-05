@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\AdminDashboardController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\BookCopyController;
 use App\Http\Controllers\Api\BookRequestController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\DashboardController;
@@ -67,6 +68,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/books/category/{category}', [BookController::class, 'category']);
     Route::get('/books/{id}', [BookController::class, 'show'])->whereNumber('id');
     Route::get('/categories', [CategoryController::class, 'index']);
+
+    // Physical-copy and accession-number APIs used by staff/admin clients.
+    Route::middleware('role:admin,staff')->group(function () {
+        Route::get('/book-copies', [BookCopyController::class, 'index']);
+        Route::get('/book-copies/{accessionNumber}', [BookCopyController::class, 'show']);
+        Route::post('/issues/by-accession', [BookCopyController::class, 'issue']);
+        Route::get('/issues/by-accession', [BookCopyController::class, 'activeIssue']);
+        Route::post('/returns/by-accession', [BookCopyController::class, 'returnCopy']);
+    });
 
     // Existing general dashboard totals for Android home screens.
     Route::get('/dashboard', [DashboardController::class, 'index']);
@@ -132,6 +142,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/books/search', [StaffIssueController::class, 'searchBooks']);
             Route::post('/issues/preview', [StaffIssueController::class, 'preview']);
             Route::post('/issues', [StaffIssueController::class, 'store']);
+            Route::get('/book-copies', [BookCopyController::class, 'index']);
+            Route::get('/book-copies/{accessionNumber}', [BookCopyController::class, 'show']);
+            Route::post('/issues/by-accession', [BookCopyController::class, 'issue']);
+            Route::get('/issues/by-accession', [BookCopyController::class, 'activeIssue']);
+            Route::post('/returns/by-accession', [BookCopyController::class, 'returnCopy']);
             Route::get('/issues/search', [StaffReturnController::class, 'search']);
             Route::post('/issues/{issue}/return', [StaffReturnController::class, 'returnBook'])->whereNumber('issue');
             Route::get('/returns/settings', [StaffReturnController::class, 'settings']);

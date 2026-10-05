@@ -23,7 +23,7 @@ class BookController extends Controller
     public function show(int $id): BookResource
     {
         return new BookResource(
-            Book::query()->with('category')->findOrFail($id)
+            Book::query()->with(['category', 'copies'])->findOrFail($id)
         );
     }
 

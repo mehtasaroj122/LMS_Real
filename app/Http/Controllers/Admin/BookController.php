@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Services\PhysicalBookCopyService;
 
 class BookController extends Controller
 {
@@ -232,7 +233,7 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(BookStoreRequest $request)
+    public function store(BookStoreRequest $request, PhysicalBookCopyService $copyService)
     {
         Gate::authorize('access-admin');
 
@@ -279,6 +280,10 @@ class BookController extends Controller
             }
 
             $book = Book::create($validated);
+            $copyService->createCopies($book, (int) $book->total_copies, [
+                'shelf_location' => $book->shelf_no,
+                'condition' => $book->condition,
+            ]);
 
             // Handle optional cover upload
             if ($request->hasFile('cover_image') && !$removeCoverImage) {

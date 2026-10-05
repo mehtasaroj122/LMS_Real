@@ -140,7 +140,7 @@
                             <i class="fas fa-search"></i>
                         </div>
                         <input type="text" id="studentBookSearch" class="search-input"
-                            placeholder="Search by title, author, or ISBN..." aria-label="Search issued books">
+                            placeholder="Search by title, author, or accession number..." aria-label="Search issued books">
                     </div>
 
                     <div class="filters-container student-profile-filters">
@@ -185,7 +185,7 @@
                             <thead>
                                 <tr>
                                     <th scope="col">Book</th>
-                                    <th scope="col">ISBN</th>
+                                    <th scope="col">Accession Number</th>
                                     <th scope="col">Issue Date</th>
                                     <th scope="col">Due Date</th>
                                     <th scope="col">Return Date</th>

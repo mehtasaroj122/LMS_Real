@@ -18,7 +18,7 @@ class StudentPrivilegeSeeder extends Seeder
         $privileges = collect(json_decode($json, true));
 
         $privileges->each(function ($privilege) {
-            StudentPrivilege::create([
+            StudentPrivilege::updateOrCreate(['student_id' => $privilege['student_id']], [
                 'student_id' => $privilege['student_id'],
                 'max_books' => $privilege['max_books'],
                 'issue_duration_days' => $privilege['issue_duration_days'],

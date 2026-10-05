@@ -10,6 +10,7 @@ use App\Models\IssuedBook;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -126,91 +127,108 @@ class NotificationService
 
     public function notifyBookIssued(IssuedBook $issuedBook): void
     {
-        $issuedBook->loadMissing(['student.user', 'book']);
-        $student = $issuedBook->student;
-        $book = $issuedBook->book;
+        DB::afterCommit(function () use ($issuedBook): void {
+            $issuedBook->loadMissing(['student.user', 'book', 'bookCopy']);
+            $student = $issuedBook->student;
+            $book = $issuedBook->book;
+            $accession = $issuedBook->bookCopy?->accession_number;
 
-        if (! $student?->user || ! $book) {
-            return;
-        }
-
-        $this->create(
-            user: $student->user,
-            type: 'book.issued',
-            title: 'Book Issued Successfully',
-            message: "You have been issued '{$book->title}' by {$book->author}.",
-            data: [
-                'book_id' => $book->id,
-                'issued_book_id' => $issuedBook->id,
-                'issue_date' => optional($issuedBook->issue_date)->toDateString(),
-                'due_date' => optional($issuedBook->due_date)->toDateString(),
-            ],
-            relatedModel: 'IssuedBook',
-            relatedId: $issuedBook->id
-        );
-
-        if ($student->user->email) {
-            try {
-                SendBookIssuedEmail::dispatch(
-                    $student->user->email,
-                    $student->user->name,
-                    $book->title,
-                    $book->author ?? 'Unknown',
-                    optional($issuedBook->issue_date)->format('Y-m-d'),
-                    optional($issuedBook->due_date)->format('Y-m-d')
-                );
-            } catch (Throwable $exception) {
-                Log::warning('Unable to queue book issued email: ' . $exception->getMessage(), [
-                    'issued_book_id' => $issuedBook->id,
-                ]);
+            if (! $student?->user || ! $book) {
+                return;
             }
-        }
+
+            $suffix = $accession ? " ({$accession})" : '';
+            $message = $accession
+                ? "{$book->title}{$suffix} has been issued to you."
+                : "You have been issued '{$book->title}' by {$book->author}.";
+            $this->create(
+                user: $student->user,
+                type: 'book.issued',
+                title: 'Book Issued Successfully',
+                message: $message,
+                data: [
+                    'book_id' => $book->id,
+                    'book_copy_id' => $issuedBook->book_copy_id,
+                    'accession_number' => $accession,
+                    'issued_book_id' => $issuedBook->id,
+                    'issue_date' => optional($issuedBook->issue_date)->toDateString(),
+                    'due_date' => optional($issuedBook->due_date)->toDateString(),
+                ],
+                relatedModel: 'IssuedBook',
+                relatedId: $issuedBook->id
+            );
+
+            if ($student->user->email) {
+                try {
+                    SendBookIssuedEmail::dispatch(
+                        $student->user->email,
+                        $student->user->name,
+                        $book->title,
+                        $book->author ?? 'Unknown',
+                        optional($issuedBook->issue_date)->format('Y-m-d'),
+                        optional($issuedBook->due_date)->format('Y-m-d')
+                    );
+                } catch (Throwable $exception) {
+                    Log::warning('Unable to queue book issued email: ' . $exception->getMessage(), [
+                        'issued_book_id' => $issuedBook->id,
+                    ]);
+                }
+            }
+        });
     }
 
     public function notifyBookReturned(IssuedBook $issuedBook, string $condition, float $fineAmount): void
     {
-        $issuedBook->loadMissing(['student.user', 'book']);
-        $student = $issuedBook->student;
+        DB::afterCommit(function () use ($issuedBook, $condition, $fineAmount): void {
+            $issuedBook->loadMissing(['student.user', 'book', 'bookCopy']);
+            $student = $issuedBook->student;
 
-        if (! $student?->user) {
-            return;
-        }
-
-        $title = $fineAmount > 0 ? 'Book Returned with Fine' : 'Book Returned Successfully';
-        $message = $fineAmount > 0
-            ? "Your return of '{$issuedBook->book?->title}' has been processed. Fine amount: Rs. {$fineAmount}."
-            : "Your return of '{$issuedBook->book?->title}' has been accepted.";
-
-        $this->create(
-            user: $student->user,
-            type: $fineAmount > 0 ? 'fine.created' : 'book.returned',
-            title: $title,
-            message: $message,
-            data: [
-                'book_id' => $issuedBook->book_id,
-                'issued_book_id' => $issuedBook->id,
-                'condition' => $condition,
-                'fine_amount' => $fineAmount,
-            ],
-            relatedModel: 'IssuedBook',
-            relatedId: $issuedBook->id
-        );
-
-        if ($student->user->email) {
-            try {
-                SendBookReturnedEmail::dispatch(
-                    $student->user->email,
-                    $student->user->name,
-                    $issuedBook->book?->title ?? 'Book',
-                    $condition,
-                    $fineAmount
-                );
-            } catch (Throwable $exception) {
-                Log::warning('Unable to queue book returned email: ' . $exception->getMessage(), [
-                    'issued_book_id' => $issuedBook->id,
-                ]);
+            if (! $student?->user) {
+                return;
             }
-        }
+
+            $accession = $issuedBook->bookCopy?->accession_number;
+            $suffix = $accession ? " ({$accession})" : '';
+            $title = $fineAmount > 0 ? 'Book Returned with Fine' : 'Book Returned Successfully';
+            $message = $fineAmount > 0
+                ? "Your return of '{$issuedBook->book?->title}'{$suffix} has been processed. Fine amount: Rs. {$fineAmount}."
+                : ($accession
+                    ? "{$issuedBook->book?->title}{$suffix} has been successfully returned."
+                    : "Your return of '{$issuedBook->book?->title}' has been accepted.");
+
+            $this->create(
+                user: $student->user,
+                type: $fineAmount > 0 ? 'fine.created' : 'book.returned',
+                title: $title,
+                message: $message,
+                data: [
+                    'book_id' => $issuedBook->book_id,
+                    'book_copy_id' => $issuedBook->book_copy_id,
+                    'accession_number' => $accession,
+                    'issued_book_id' => $issuedBook->id,
+                    'condition' => $condition,
+                    'fine_amount' => $fineAmount,
+                ],
+                relatedModel: 'IssuedBook',
+                relatedId: $issuedBook->id
+            );
+
+            if ($student->user->email) {
+                try {
+                    SendBookReturnedEmail::dispatch(
+                        $student->user->email,
+                        $student->user->name,
+                        $issuedBook->book?->title ?? 'Book',
+                        $condition,
+                        $fineAmount
+                    );
+                } catch (Throwable $exception) {
+                    Log::warning('Unable to queue book returned email: ' . $exception->getMessage(), [
+                        'issued_book_id' => $issuedBook->id,
+                    ]);
+                }
+            }
+        });
     }
 
     public function notifyFinePaid(Fine $fine): void
