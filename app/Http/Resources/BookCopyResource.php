@@ -18,6 +18,7 @@ class BookCopyResource extends JsonResource
             'status' => $this->status,
             'shelf_location' => $this->shelf_location,
             'condition' => $this->condition,
+            'price' => $this->price,
             'remarks' => $this->remarks,
             'book' => $this->whenLoaded('book', fn () => [
                 'id' => $this->book->id,

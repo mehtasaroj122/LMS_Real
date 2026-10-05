@@ -1262,7 +1262,6 @@
                     search: this.currentSearch,
                     condition: this.currentConditionFilter,
                     category: this.currentCategoryFilter,
-                    availability: this.currentAvailabilityFilter,
                     sort: this.currentSortFilter,
                     page: requestedPage,
                     per_page: this.currentPerPage,
@@ -1305,7 +1304,7 @@
                     .catch((error) => { console.error('Error fetching books:', error); this.showNotification('Error loading books', 'error'); });
             };
             p.refreshStats = function() {
-                const params = new URLSearchParams({ search: this.currentSearch, condition: this.currentConditionFilter, category: this.currentCategoryFilter, availability: this.currentAvailabilityFilter });
+                const params = new URLSearchParams({ search: this.currentSearch, condition: this.currentConditionFilter, category: this.currentCategoryFilter });
                 fetch(`{{ route('staff.books.stats') }}?${params.toString()}`, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
                     .then((response) => response.json())
                     .then((data) => this.updateStats(data))
@@ -1383,13 +1382,14 @@
                             <p style="margin:0 0 8px 0;color:#6b7280;"><strong>Publisher:</strong> ${d.publisher || 'Unknown'}</p>
                             <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px;">
                                 <div><p style="color:#6b7280;font-size:10px;margin:0 0 2px;">ISBN</p><p style="font-weight:600;margin:0;">${d.isbn || cells[0].textContent || ''}</p></div>
-                                <div><p style="color:#6b7280;font-size:10px;margin:0 0 2px;">Shelf / Rack</p><p style="font-weight:600;margin:0;">${d.shelf || cells[4].textContent || ''}</p></div>
+                                <div><p style="color:#6b7280;font-size:10px;margin:0 0 2px;">Book ID</p><p style="font-weight:600;margin:0;">${this.currentBookId}</p></div>
                             </div>
                             <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px;">
                                 <div><p style="color:#6b7280;font-size:10px;margin:0 0 2px;">Total Copies</p><p style="font-weight:600;margin:0;">${d.totalCopies || cells[5].querySelector('.copy-total')?.textContent || '0'}</p></div>
                                 <div><p style="color:#6b7280;font-size:10px;margin:0 0 2px;">Available Copies</p><p style="font-weight:600;margin:0;">${d.availableCopies || cells[6].querySelector('.copy-available')?.textContent || '0'}</p></div>
                             </div>
                             <div style="margin-top:12px;"><p style="color:#6b7280;font-size:12px;margin:0 0 4px;">Description</p><p style="margin:0;color:#374151;line-height:1.5;font-size:14px;">${d.description ? d.description : '<em>No description available.</em>'}</p></div>
+                            <a href="{{ url('staff/books') }}/${this.currentBookId}/copies" style="display:inline-block;margin-top:14px;padding:9px 12px;border-radius:7px;background:#2563eb;color:#fff;text-decoration:none;font-size:12px;font-weight:600;"><i class="fas fa-layer-group"></i> Add Physical Copies</a>
                         </div>
                     </div>`;
                 document.getElementById('bookDetailsContent').innerHTML = details;
@@ -1409,10 +1409,6 @@
                 document.getElementById('editTitle').value = row.cells[1].querySelector('strong').textContent;
                 document.getElementById('editAuthor').value = row.cells[2].textContent;
                 document.getElementById('editCategory').value = row.dataset.categoryId || '';
-                document.getElementById('editRack').value = row.dataset.shelf || row.cells[4].textContent;
-                document.getElementById('editTotalCopies').value = row.dataset.totalCopies || row.cells[5].querySelector('.copy-total').textContent;
-                document.getElementById('editAvailableCopies').value = row.dataset.availableCopies || row.cells[6].querySelector('.copy-available').textContent;
-                document.getElementById('editCondition').value = row.dataset.condition || 'good';
                 document.getElementById('editPublisher').value = row.dataset.publisher || '';
                 document.getElementById('editDescription').value = row.dataset.description || '';
                 const coverUrl = this.resolveCoverUrl(row.dataset.cover || '');
@@ -1979,7 +1975,6 @@
                 this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
                 this.currentConditionFilter = document.getElementById('conditionFilter')?.value || 'all';
                 this.currentCategoryFilter = document.getElementById('categoryFilter')?.value || 'all';
-                this.currentAvailabilityFilter = document.getElementById('availabilityFilter')?.value || 'all';
                 this.currentSortFilter = document.getElementById('sortFilter')?.value || 'recently-added';
                 this.currentPerPage = this.normalizePerPage(document.getElementById('bookEntriesSelect')?.value || this.currentPerPage);
             };
@@ -1989,7 +1984,6 @@
                 if (this.currentSearch) params.set('search', this.currentSearch);
                 if (this.currentConditionFilter !== 'all') params.set('condition', this.currentConditionFilter);
                 if (this.currentCategoryFilter !== 'all') params.set('category', this.currentCategoryFilter);
-                if (this.currentAvailabilityFilter !== 'all') params.set('availability', this.currentAvailabilityFilter);
                 if (this.currentSortFilter !== 'recently-added') params.set('sort', this.currentSortFilter);
                 if ((Number(this.currentPage) || 1) > 1) params.set('page', String(this.currentPage));
                 if (this.normalizePerPage(this.currentPerPage) !== 10) params.set('per_page', String(this.currentPerPage));
@@ -2004,20 +1998,17 @@
                 this.currentSearch = '';
                 this.currentConditionFilter = 'all';
                 this.currentCategoryFilter = 'all';
-                this.currentAvailabilityFilter = 'all';
                 this.currentSortFilter = 'recently-added';
                 this.currentPage = 1;
 
                 const searchInput = document.getElementById('searchInput');
                 const conditionFilter = document.getElementById('conditionFilter');
                 const categoryFilter = document.getElementById('categoryFilter');
-                const availabilityFilter = document.getElementById('availabilityFilter');
                 const sortFilter = document.getElementById('sortFilter');
 
                 if (searchInput) searchInput.value = '';
                 if (conditionFilter) conditionFilter.value = 'all';
                 if (categoryFilter) categoryFilter.value = 'all';
-                if (availabilityFilter) availabilityFilter.value = 'all';
                 if (sortFilter) sortFilter.value = 'recently-added';
 
                 this.fetchBooksData(1);
@@ -2032,7 +2023,7 @@
                 });
             };
             p.initFilters = function() {
-                [['conditionFilter', 'currentConditionFilter'], ['categoryFilter', 'currentCategoryFilter'], ['availabilityFilter', 'currentAvailabilityFilter'], ['sortFilter', 'currentSortFilter']].forEach(([id, prop]) => {
+                [['conditionFilter', 'currentConditionFilter'], ['categoryFilter', 'currentCategoryFilter'], ['sortFilter', 'currentSortFilter']].forEach(([id, prop]) => {
                     const el = document.getElementById(id);
                     if (!el) return;
                     el.addEventListener('change', (e) => {
@@ -2132,7 +2123,6 @@
                 this.currentBookISBN = null;
                 this.currentSearch = '';
                 this.currentCategoryFilter = 'all';
-                this.currentAvailabilityFilter = 'all';
                 this.currentSortFilter = 'recently-added';
                 this.currentPage = Number(new URLSearchParams(window.location.search).get('page')) || 1;
                 this.currentPerPage = this.normalizePerPage(document.getElementById('bookEntriesSelect')?.value || new URLSearchParams(window.location.search).get('per_page'));
@@ -2277,10 +2267,6 @@
 
         #categoryFilter {
             width: 166px;
-        }
-
-        #availabilityFilter {
-            width: 132px;
         }
 
         #sortFilter {
@@ -2896,13 +2882,6 @@
                         @endforeach
                     </select>
 
-                    <select class="filter-select" id="availabilityFilter" aria-label="Filter by availability">
-                        <option value="all" {{ ($availability ?? 'all') === 'all' ? 'selected' : '' }}>All Stock</option>
-                        <option value="out-of-stock" {{ ($availability ?? 'all') === 'out-of-stock' ? 'selected' : '' }}>Out of Stock</option>
-                        <option value="low-stock" {{ ($availability ?? 'all') === 'low-stock' ? 'selected' : '' }}>Low Stock (1-5)</option>
-                        <option value="in-stock" {{ ($availability ?? 'all') === 'in-stock' ? 'selected' : '' }}>In Stock (6+)</option>
-                    </select>
-
                     <select class="filter-select" id="sortFilter" aria-label="Sort books">
                         <option value="recently-added" {{ ($sort ?? 'recently-added') === 'recently-added' ? 'selected' : '' }}>Recently Added</option>
                         <option value="title-asc" {{ ($sort ?? 'recently-added') === 'title-asc' ? 'selected' : '' }}>Title (A-Z)</option>
@@ -2929,10 +2908,16 @@
                 </label>
 
                 <div class="search-add-wrapper">
-                    <button class="btn btn-primary" id="addBookBtn" type="button">
-                        <i class="fas fa-plus"></i>
-                        Add New Book
-                    </button>
+                    <div class="physical-book-actions">
+                        <button class="btn btn-primary" id="addBookBtn" type="button">
+                            <i class="fas fa-plus"></i>
+                            Add New Book
+                        </button>
+                        <button class="btn btn-outline" id="addPhysicalBookBtn" type="button">
+                            <i class="fas fa-plus"></i>
+                            Add Physical Book
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -3013,6 +2998,7 @@
                                         <div class="action-buttons">
                                             <button class="action-btn view" title="View Details" aria-label="View book details"><i class="fas fa-eye"></i></button>
                                             <button class="action-btn edit" title="Edit Book" aria-label="Edit book"><i class="fas fa-edit"></i></button>
+                                        <a class="action-btn copies" href="{{ route('staff.books.copies.index', $book) }}" title="Add Physical Copies" aria-label="Add physical copies"><i class="fas fa-layer-group"></i></a>
                                             <button class="action-btn delete" title="Request Deletion" aria-label="Request book deletion"><i class="fas fa-trash-alt"></i></button>
                                         </div>
                                     </td>
@@ -3050,7 +3036,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="modal-description">Enter the details of the new book to add to the library.</p>
+                <p class="modal-description">Enter general book information. Physical copies and accession numbers are added separately.</p>
 
                 <form id="addBookForm" novalidate>
                     <div class="form-row">
@@ -3060,10 +3046,6 @@
                                 required>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label required">Rack Number</label>
-                            <input type="text" name="shelf_no" class="form-control" placeholder="A-12" required>
-                        </div>
                     </div>
 
                     <div class="form-group">
@@ -3109,32 +3091,6 @@
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label required">Condition</label>
-                            <select name="condition" class="form-control" required>
-                                <option value="">Select condition</option>
-                                <option value="new">New</option>
-                                <option value="good" selected>Good</option>
-                                <option value="damaged">Damaged</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label required">Total Copies</label>
-                            <input type="number" name="total_copies" class="form-control" placeholder="1"
-                                min="1" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label required">Available Copies</label>
-                            <input type="number" name="available_copies" class="form-control" placeholder="1"
-                                min="0" required>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <label class="form-label">Description</label>
                         <textarea name="description" class="form-control" placeholder="Enter book description" rows="4"></textarea>
@@ -3174,8 +3130,8 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" id="cancelAddBook">Cancel</button>
                 <button type="button" class="btn btn-primary" id="submitAddBook">
-                    <i class="fas fa-plus"></i>
-                    Add Book
+                    <i class="fas fa-save"></i>
+                    Save Book
                 </button>
             </div>
         </div>
@@ -3191,7 +3147,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p class="modal-description">Update book information and inventory details.</p>
+                <p class="modal-description">Update general book information. Manage physical copies from the copy-management page.</p>
 
                 <form id="editBookForm" novalidate>
                     <div class="form-row">
@@ -3201,11 +3157,6 @@
                                 value="978-0-13-595785-9" required>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label required">Rack Number</label>
-                            <input type="text" name="shelf_no" class="form-control" id="editRack" value="A-15"
-                                required>
-                        </div>
                     </div>
 
                     <div class="form-group">
@@ -3237,31 +3188,6 @@
                                     <option value="">No categories available</option>
                                 @endforelse
                             </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label required">Condition</label>
-                            <select name="condition" class="form-control" id="editCondition" required>
-                                <option value="new">New</option>
-                                <option value="good" selected>Good</option>
-                                <option value="damaged">Damaged</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label required">Total Copies</label>
-                            <input type="number" name="total_copies" class="form-control" id="editTotalCopies"
-                                value="5" min="1" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label required">Available Copies</label>
-                            <input type="number" name="available_copies" class="form-control" id="editAvailableCopies"
-                                value="2" min="0" required>
                         </div>
                     </div>
 
@@ -3383,6 +3309,7 @@
             </div>
         </div>
     </div>
+    @include('partials.physical-book-modal')
 @endsection
 
 @push('scripts')
@@ -3774,8 +3701,8 @@
                                     <p style="font-weight: 600; font-size: 12px;">${cells[0].textContent}</p>
                                 </div>
                                 <div>
-                                    <p style="color: #6b7280; font-size: 10px; margin-bottom: 2px;">Rack Number</p>
-                                    <p style="font-weight: 600; font-size: 12px;">${cells[4].textContent}</p>
+                                    <p style="color: #6b7280; font-size: 10px; margin-bottom: 2px;">Book ID</p>
+                                    <p style="font-weight: 600; font-size: 12px;">${this.currentBookId}</p>
                                 </div>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
@@ -3788,6 +3715,7 @@
                                     <p style="font-weight: 600; font-size: 12px;">${cells[6].querySelector('.copy-available').textContent}</p>
                                 </div>
                             </div>
+                            <a href="{{ url('staff/books') }}/${this.currentBookId}/copies" style="display:inline-block;margin-top:14px;padding:9px 12px;border-radius:7px;background:#2563eb;color:#fff;text-decoration:none;font-size:12px;font-weight:600;"><i class="fas fa-layer-group"></i> Add Physical Copies</a>
                         </div>
                     </div>
                 `;
@@ -3823,11 +3751,6 @@
                 document.getElementById('editTitle').value = titleCell.querySelector('strong').textContent;
                 document.getElementById('editAuthor').value = cells[2].textContent;
                 document.getElementById('editCategory').value = row.dataset.category;
-                document.getElementById('editRack').value = cells[4].textContent;
-                document.getElementById('editTotalCopies').value = cells[5].querySelector('.copy-total').textContent;
-                document.getElementById('editAvailableCopies').value = cells[6].querySelector('.copy-available')
-                    .textContent;
-                document.getElementById('editCondition').value = row.dataset.condition;
                 document.getElementById('editPublisher').value = publisher;
                 // If the row has a cover path, show it in the edit preview
                 const cover = row.dataset.cover || '';
@@ -3878,8 +3801,8 @@
                 const form = document.getElementById('addBookForm');
                 const newCategoryInput = document.getElementById('addNewCategory');
                 this.clearFieldErrors(form);
-                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id',
-                    'new_category', 'condition', 'total_copies', 'available_copies', 'description',
+                const fieldOrder = ['isbn', 'title', 'author', 'publisher', 'category_id',
+                    'new_category', 'description',
                     'cover_image'
                 ];
                 const validationError = this.validateFormOneByOne(form, fieldOrder);
@@ -4004,7 +3927,7 @@
 
                         console.log('Book submission response:', data);
                         if (data.success) {
-                            this.showNotification('Book added successfully', 'success');
+                            this.showNotification(`Book created successfully. Book ID: ${data.book.id}. <a href="${data.copies_url}">Add Physical Copies</a>`, 'success');
                             this.closeModal('addBookModal');
                             form.reset();
                             document.getElementById('addNewCategory').value = '';
@@ -4023,8 +3946,8 @@
             submitEditBook() {
                 const form = document.getElementById('editBookForm');
                 this.clearFieldErrors(form);
-                const fieldOrder = ['isbn', 'shelf_no', 'title', 'author', 'publisher', 'category_id',
-                    'condition', 'total_copies', 'available_copies', 'description', 'cover_image'
+                const fieldOrder = ['isbn', 'title', 'author', 'publisher', 'category_id',
+                    'description', 'cover_image'
                 ];
                 const validationError = this.validateFormOneByOne(form, fieldOrder);
                 if (validationError) {

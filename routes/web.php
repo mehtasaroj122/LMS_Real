@@ -110,8 +110,14 @@ Route::middleware(['auth', 'can:access-admin'])
             ->name('students.change-role');
 
         Route::resource('books', BookController::class);
+        Route::get('/book-copies/search-books', [BookCopyController::class, 'searchBooks'])->name('book-copies.search-books');
+        Route::get('/book-copies/next-accession', [BookCopyController::class, 'previewNextAccession'])->name('book-copies.next-accession');
+        Route::post('/book-copies', [BookCopyController::class, 'storeSelected'])->name('book-copies.store-selected');
         Route::get('/books/{book}/copies', [BookCopyController::class, 'index'])->name('books.copies.index');
+        Route::post('/books/{book}/copies/preview', [BookCopyController::class, 'preview'])->name('books.copies.preview');
         Route::post('/books/{book}/copies', [BookCopyController::class, 'store'])->name('books.copies.store');
+        Route::match(['put', 'patch'], '/book-copies/{bookCopy}', [BookCopyController::class, 'update'])->name('book-copies.update');
+        Route::delete('/book-copies/{bookCopy}', [BookCopyController::class, 'destroy'])->name('book-copies.destroy');
         Route::post('/users/validate-field', [UserController::class, 'validateField'])->name('users.validate-field');
         Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::get('/users/{user}/details', [UserController::class, 'getDetails'])->name('users.details');
@@ -209,8 +215,14 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::post('/categories', [BookManagementController::class, 'createCategory'])->name('categories.store');
         Route::post('/books/categories', [BookManagementController::class, 'createCategory'])->name('books.categories.store');
         Route::resource('books', BookManagementController::class);
+        Route::get('/book-copies/search-books', [BookCopyController::class, 'searchBooks'])->name('book-copies.search-books');
+        Route::get('/book-copies/next-accession', [BookCopyController::class, 'previewNextAccession'])->name('book-copies.next-accession');
+        Route::post('/book-copies', [BookCopyController::class, 'storeSelected'])->name('book-copies.store-selected');
         Route::get('/books/{book}/copies', [BookCopyController::class, 'index'])->name('books.copies.index');
+        Route::post('/books/{book}/copies/preview', [BookCopyController::class, 'preview'])->name('books.copies.preview');
         Route::post('/books/{book}/copies', [BookCopyController::class, 'store'])->name('books.copies.store');
+        Route::match(['put', 'patch'], '/book-copies/{bookCopy}', [BookCopyController::class, 'update'])->name('book-copies.update');
+        Route::delete('/book-copies/{bookCopy}', [BookCopyController::class, 'destroy'])->name('book-copies.destroy');
         Route::post('/books/{book}/request-deletion', [BookDeletionRequestController::class, 'store'])->name('books.request-deletion');
         
         // Transaction routes for issue book feature

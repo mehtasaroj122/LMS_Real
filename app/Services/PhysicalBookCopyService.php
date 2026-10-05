@@ -14,6 +14,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\QueryException;
 
 class PhysicalBookCopyService
 {
@@ -40,21 +41,43 @@ class PhysicalBookCopyService
             throw new PhysicalCopyException('At least one physical copy is required.', 422, 'invalid_copy_quantity');
         }
 
-        return DB::transaction(function () use ($book, $quantity, $attributes): Collection {
+        $bookType = $attributes['book_type'] ?? 'borrowing';
+
+        if (! in_array($bookType, ['borrowing', 'reference'], true)) {
+            throw new PhysicalCopyException('Invalid physical book type.', 422, 'invalid_book_type');
+        }
+
+        return $this->createCopyBatch(
+            $book,
+            $bookType === 'borrowing' ? $quantity : 0,
+            $bookType === 'reference' ? $quantity : 0,
+            $attributes
+        );
+    }
+
+    public function createCopyBatch(
+        Book $book,
+        int $borrowingQuantity,
+        int $referenceQuantity,
+        array $attributes = []
+    ): Collection {
+        $totalQuantity = $borrowingQuantity + $referenceQuantity;
+
+        if ($totalQuantity < 1) {
+            throw new PhysicalCopyException('At least one physical copy is required.', 422, 'invalid_copy_quantity');
+        }
+
+        return DB::transaction(function () use ($book, $borrowingQuantity, $referenceQuantity, $attributes): Collection {
             $lockedBook = Book::query()->lockForUpdate()->findOrFail($book->id);
             $copies = collect();
 
-            for ($index = 0; $index < $quantity; $index++) {
-                $copies->push(BookCopy::create([
-                    'book_id' => $lockedBook->id,
-                    'accession_number' => $this->accessions->next(),
-                    'entry_date' => $attributes['entry_date'] ?? today(),
-                    'book_type' => $attributes['book_type'] ?? 'borrowing',
-                    'status' => $attributes['status'] ?? 'available',
-                    'shelf_location' => $attributes['shelf_location'] ?? $lockedBook->shelf_no,
-                    'condition' => $attributes['condition'] ?? $lockedBook->condition ?? 'good',
-                    'remarks' => $attributes['remarks'] ?? null,
-                ]));
+            foreach ([
+                'borrowing' => $borrowingQuantity,
+                'reference' => $referenceQuantity,
+            ] as $bookType => $quantity) {
+                for ($index = 0; $index < $quantity; $index++) {
+                    $copies->push($this->createOneCopy($lockedBook, $bookType, $attributes));
+                }
             }
 
             $this->refreshBookCounters($lockedBook);
@@ -63,18 +86,49 @@ class PhysicalBookCopyService
         });
     }
 
+    private function createOneCopy(Book $book, string $bookType, array $attributes): BookCopy
+    {
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            $accessionNumber = $this->accessions->next();
+
+            try {
+                return BookCopy::create([
+                    'book_id' => $book->id,
+                    'accession_number' => $accessionNumber,
+                    'entry_date' => $attributes['entry_date'] ?? today(),
+                    'book_type' => $bookType,
+                    // A newly registered physical copy always starts available.
+                    'status' => 'available',
+                    'shelf_location' => $attributes['shelf_location'] ?? $book->shelf_no,
+                    'condition' => $attributes['condition'] ?? $book->condition ?? 'good',
+                    'price' => $attributes['price'] ?? null,
+                    'remarks' => $attributes['remarks'] ?? null,
+                ]);
+            } catch (QueryException $exception) {
+                if (! $this->isAccessionUniqueViolation($exception) || $attempt === 2) {
+                    throw $exception;
+                }
+            }
+        }
+
+        throw new PhysicalCopyException('Unable to allocate a unique accession number.', 503, 'accession_generation_failed');
+    }
+
+    public function previewAccessions(int $quantity): array
+    {
+        return $this->accessions->preview($quantity);
+    }
+
     public function refreshBookCounters(Book $book): Book
     {
         $total = BookCopy::query()->where('book_id', $book->id)->count();
         $available = BookCopy::query()->where('book_id', $book->id)->where('status', 'available')->count();
 
-        if ($total > 0) {
-            $book->forceFill([
-                'total_copies' => $total,
-                'available_copies' => $available,
-                'status' => $available > 0 ? 'available' : 'unavailable',
-            ])->saveQuietly();
-        }
+        $book->forceFill([
+            'total_copies' => $total,
+            'available_copies' => $available,
+            'status' => $available > 0 ? 'available' : 'unavailable',
+        ])->saveQuietly();
 
         return $book->refresh();
     }
@@ -302,5 +356,13 @@ class PhysicalBookCopyService
                 default => 'Overdue fine',
             },
         ];
+    }
+
+    private function isAccessionUniqueViolation(QueryException $exception): bool
+    {
+        $message = strtolower($exception->getMessage());
+
+        return in_array((string) $exception->getCode(), ['19', '1062', '23000'], true)
+            && str_contains($message, 'accession_number');
     }
 }

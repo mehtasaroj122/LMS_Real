@@ -19,11 +19,13 @@ class BookCopy extends Model
         'status',
         'shelf_location',
         'condition',
+        'price',
         'remarks',
     ];
 
     protected $casts = [
         'entry_date' => 'date',
+        'price' => 'decimal:2',
     ];
 
     public function book(): BelongsTo

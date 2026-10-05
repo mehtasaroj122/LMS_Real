@@ -9,7 +9,6 @@ use App\Models\Book;
 use App\Models\Category;
 use App\Models\Notification;
 use App\Models\User;
-use App\Services\PhysicalBookCopyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -26,13 +25,12 @@ class BookManagementController extends Controller
             'search' => $search,
             'condition' => $condition,
             'category' => $selectedCategory,
-            'availability' => $availability,
             'sort' => $sort,
             'page' => $page,
             'per_page' => $perPage,
         ] = $this->normalizeBookListFilters($request);
 
-        $initialBooksQuery = $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability);
+        $initialBooksQuery = $this->buildFilteredBooksQuery($search, $condition, $selectedCategory);
         $this->applyBookSorting($initialBooksQuery, $sort);
 
         $initialBooks = $initialBooksQuery
@@ -41,7 +39,7 @@ class BookManagementController extends Controller
             ->appends($request->query());
 
         $initialStats = $this->calculateBookStats(
-            $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability)
+            $this->buildFilteredBooksQuery($search, $condition, $selectedCategory)
         );
 
         return view('Staff.BookManagement', compact(
@@ -51,7 +49,6 @@ class BookManagementController extends Controller
             'search',
             'condition',
             'selectedCategory',
-            'availability',
             'sort',
             'perPage'
         ));
@@ -65,13 +62,12 @@ class BookManagementController extends Controller
             'search' => $search,
             'condition' => $condition,
             'category' => $category,
-            'availability' => $availability,
             'sort' => $sort,
             'page' => $page,
             'per_page' => $perPage,
         ] = $this->normalizeBookListFilters($request);
 
-        $query = $this->buildFilteredBooksQuery($search, $condition, $category, $availability);
+        $query = $this->buildFilteredBooksQuery($search, $condition, $category);
         $this->applyBookSorting($query, $sort);
 
         $books = $query
@@ -143,6 +139,7 @@ class BookManagementController extends Controller
             $tableRows .= '<div class="action-buttons">';
             $tableRows .= '<button class="action-btn view" title="View Details" aria-label="View book details"><i class="fas fa-eye"></i></button>';
             $tableRows .= '<button class="action-btn edit" title="Edit Book" aria-label="Edit book"><i class="fas fa-edit"></i></button>';
+            $tableRows .= '<a class="action-btn copies" href="' . route('staff.books.copies.index', $book) . '" title="Add Physical Copies" aria-label="Add physical copies"><i class="fas fa-layer-group"></i></a>';
             $tableRows .= '<button class="action-btn delete" title="Request Deletion" aria-label="Request book deletion"><i class="fas fa-trash-alt"></i></button>';
             $tableRows .= '</div>';
             $tableRows .= '</td>';
@@ -150,7 +147,7 @@ class BookManagementController extends Controller
         }
 
         $filteredStats = $this->calculateBookStats(
-            $this->buildFilteredBooksQuery($search, $condition, $category, $availability)
+            $this->buildFilteredBooksQuery($search, $condition, $category)
         );
 
         return response()->json([
@@ -173,11 +170,10 @@ class BookManagementController extends Controller
             'search' => $search,
             'condition' => $condition,
             'category' => $category,
-            'availability' => $availability,
         ] = $this->normalizeBookListFilters($request);
 
         $stats = $this->calculateBookStats(
-            $this->buildFilteredBooksQuery($search, $condition, $category, $availability)
+            $this->buildFilteredBooksQuery($search, $condition, $category)
         );
 
         if ($request && $request->expectsJson()) {
@@ -194,15 +190,11 @@ class BookManagementController extends Controller
         $field = (string) $request->input('field');
         $allowedFields = [
             'isbn',
-            'shelf_no',
             'title',
             'author',
             'publisher',
             'category_id',
             'new_category',
-            'total_copies',
-            'available_copies',
-            'condition',
             'description',
             'cover_image',
         ];
@@ -237,7 +229,7 @@ class BookManagementController extends Controller
         ]);
     }
 
-    public function store(BookStoreRequest $request, PhysicalBookCopyService $copyService)
+    public function store(BookStoreRequest $request)
     {
         Gate::authorize('access-staff');
 
@@ -270,6 +262,12 @@ class BookManagementController extends Controller
             }
 
             $validated['category_id'] = $categoryId;
+            // Inventory is created separately through the BookCopy workflow.
+            $validated['total_copies'] = 0;
+            $validated['available_copies'] = 0;
+            $validated['condition'] = 'good';
+            $validated['shelf_no'] = null;
+            $validated['status'] = 'unavailable';
             unset($validated['new_category'], $validated['cover_image'], $validated['remove_cover_image']);
 
             if (empty($validated['category_id'])) {
@@ -280,10 +278,6 @@ class BookManagementController extends Controller
             }
 
             $book = Book::create($validated);
-            $copyService->createCopies($book, (int) $book->total_copies, [
-                'shelf_location' => $book->shelf_no,
-                'condition' => $book->condition,
-            ]);
 
             if ($request->hasFile('cover_image') && !$removeCoverImage) {
                 $path = $request->file('cover_image')->store('books/covers', 'public');
@@ -332,7 +326,7 @@ class BookManagementController extends Controller
                         'title' => $book->title,
                         'isbn' => $book->isbn,
                         'category' => $category->name ?? 'N/A',
-                        'total_copies' => $book->total_copies,
+                        'total_copies' => 0,
                     ],
                     relatedModel: 'Book',
                     relatedId: $book->id
@@ -359,30 +353,12 @@ class BookManagementController extends Controller
                 );
             }
 
-            if ($book->available_copies < 5) {
-                $admin = User::where('role', 'admin')->first();
-                if ($admin) {
-                    Notification::notify(
-                        user: $admin,
-                        type: 'book.low_inventory',
-                        title: 'Low Stock Alert',
-                        message: "New book '{$book->title}' added with only {$book->available_copies} copy(ies)",
-                        data: [
-                            'book_id' => $book->id,
-                            'available_copies' => $book->available_copies,
-                            'title' => $book->title,
-                        ],
-                        relatedModel: 'Book',
-                        relatedId: $book->id
-                    );
-                }
-            }
-
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Book created successfully',
+                    'message' => 'Book created successfully.',
                     'book' => $book,
+                    'copies_url' => route('staff.books.copies.index', $book),
                 ]);
             }
 
@@ -431,9 +407,6 @@ class BookManagementController extends Controller
             $validated['category_id'] = $categoryId;
             unset($validated['new_category'], $validated['cover_image'], $validated['remove_cover_image']);
 
-            $oldCondition = $book->condition;
-            $oldCopies = $book->available_copies;
-
             $book->update($validated);
 
             if ($request->hasFile('cover_image')) {
@@ -455,9 +428,6 @@ class BookManagementController extends Controller
 
             $category = Category::find($validated['category_id']);
             $changes = [];
-            if ($oldCondition !== $book->condition) {
-                $changes[] = "condition from {$oldCondition} to {$book->condition}";
-            }
             $changeDetails = !empty($changes) ? ' (' . implode(', ', $changes) . ')' : '';
 
             ActivityLogger::logActivity(
@@ -482,8 +452,6 @@ class BookManagementController extends Controller
                         if ($oldCategoryId !== $newValue) {
                             $detailedChanges[] = "category: {$oldCategoryName} → {$newCategoryName}";
                         }
-                    } elseif ($field === 'available_copies' && $oldCopies !== $newValue) {
-                        $detailedChanges[] = "available copies: {$oldCopies} → {$newValue}";
                     } elseif (isset($book->getOriginal()[$field]) && $book->getOriginal()[$field] !== $newValue) {
                         $detailedChanges[] = "{$field}: {$book->getOriginal()[$field]} → {$newValue}";
                     }
@@ -529,25 +497,6 @@ class BookManagementController extends Controller
                     relatedModel: 'Book',
                     relatedId: $book->id
                 );
-            }
-
-            if ($book->available_copies < 5 && $oldCopies >= 5) {
-                $admin = User::where('role', 'admin')->first();
-                if ($admin) {
-                    Notification::notify(
-                        user: $admin,
-                        type: 'book.low_inventory',
-                        title: 'Low Book Inventory Alert',
-                        message: "{$book->title} now has only {$book->available_copies} copy(ies) remaining in stock",
-                        data: [
-                            'book_id' => $book->id,
-                            'available_copies' => $book->available_copies,
-                            'title' => $book->title,
-                        ],
-                        relatedModel: 'Book',
-                        relatedId: $book->id
-                    );
-                }
             }
 
             if ($request->expectsJson()) {
@@ -679,14 +628,12 @@ class BookManagementController extends Controller
 
         $condition = (string) ($request?->input('condition') ?? 'all');
         $category = (string) ($request?->input('category') ?? 'all');
-        $availability = (string) ($request?->input('availability') ?? 'all');
         $sort = (string) ($request?->input('sort') ?? 'recently-added');
 
         return [
             'search' => trim((string) ($request?->input('search') ?? '')),
             'condition' => $condition !== '' ? $condition : 'all',
             'category' => $category !== '' ? $category : 'all',
-            'availability' => $availability !== '' ? $availability : 'all',
             'sort' => $sort !== '' ? $sort : 'recently-added',
             'page' => max(1, (int) ($request?->input('page') ?? 1)),
             'per_page' => $this->normalizeStaffPerPage($request?->input('per_page') ?? 10),
@@ -732,13 +679,11 @@ class BookManagementController extends Controller
     private function buildFilteredBooksQuery(
         ?string $search = '',
         ?string $condition = 'all',
-        ?string $category = 'all',
-        ?string $availability = 'all'
+        ?string $category = 'all'
     ) {
         $search = trim((string) ($search ?? ''));
         $condition = (string) ($condition ?? 'all');
         $category = (string) ($category ?? 'all');
-        $availability = (string) ($availability ?? 'all');
 
         $query = Book::query();
 
@@ -759,20 +704,6 @@ class BookManagementController extends Controller
             $query->whereHas('category', function ($q) use ($category) {
                 $q->where('name', $category);
             });
-        }
-
-        if ($availability !== 'all') {
-            switch ($availability) {
-                case 'out-of-stock':
-                    $query->where('available_copies', 0);
-                    break;
-                case 'low-stock':
-                    $query->whereBetween('available_copies', [1, 5]);
-                    break;
-                case 'in-stock':
-                    $query->where('available_copies', '>=', 6);
-                    break;
-            }
         }
 
         return $query;
