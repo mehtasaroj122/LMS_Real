@@ -98,11 +98,29 @@ class PhysicalBookCopyService
             $book = Book::query()->lockForUpdate()->findOrFail($copy->book_id);
 
             if ($copy->status !== 'available') {
-                throw new PhysicalCopyException('This book copy is already issued.', 409, 'copy_unavailable');
+                [$message, $status, $code] = match (strtolower((string) $copy->status)) {
+                    'issued' => ['This book copy is already issued.', 409, 'copy_issued'],
+                    'lost' => ['This book copy is marked as lost and cannot be issued.', 409, 'copy_lost'],
+                    'damaged' => ['This book copy is marked as damaged and cannot be issued.', 409, 'copy_damaged'],
+                    'maintenance', 'under_maintenance' => ['This book copy is currently under maintenance.', 409, 'copy_maintenance'],
+                    'withdrawn' => ['This book copy has been withdrawn from circulation.', 409, 'copy_withdrawn'],
+                    default => ['This book copy is unavailable.', 409, 'copy_unavailable'],
+                };
+
+                throw new PhysicalCopyException($message, $status, $code);
             }
 
             if (! $copy->isBorrowable()) {
                 throw new PhysicalCopyException('This book is reference-only and cannot be borrowed.', 422, 'reference_only');
+            }
+
+            if (strtolower((string) $copy->condition) === 'damaged') {
+                throw new PhysicalCopyException('This book copy is marked as damaged and cannot be issued.', 409, 'copy_damaged');
+            }
+
+            $rawBookStatus = strtolower((string) $book->getRawOriginal('status'));
+            if (in_array($rawBookStatus, ['inactive', 'withdrawn'], true)) {
+                throw new PhysicalCopyException('This book is not available for borrowing.', 422, 'book_not_borrowable');
             }
 
             $alreadyIssued = IssuedBook::query()

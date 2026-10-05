@@ -43,9 +43,6 @@ class BookCopyController extends Controller
 
         $copies = BookCopy::query()
             ->with(['book.category'])
-            ->when($mode === 'issue', fn ($query) => $query
-                ->where('status', 'available')
-                ->where('book_type', '!=', 'reference'))
             ->when($mode === 'return', fn ($query) => $query
                 ->where('status', 'issued')
                 ->whereHas(

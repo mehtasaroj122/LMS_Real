@@ -13,10 +13,12 @@ use App\Models\Notification;
 use App\Services\FineCalculator;
 use App\Services\PhysicalBookCopyService;
 use App\Services\NotificationService;
+use App\Services\StudentIssuePrivilegeService;
 use App\Jobs\SendBookIssuedEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class IssueBookController extends Controller
@@ -67,6 +69,14 @@ class IssueBookController extends Controller
                 $privileges = $student->privileges;
                 $maxBooks = $privileges->max_books ?? $defaultMaxBooks;
                 $canIssueMore = max(0, $maxBooks - $issuedCount);
+                $hasPrivilegeOverride = $privileges !== null && (
+                    $privileges->max_books !== null
+                    || $privileges->issue_duration_days !== null
+                    || $privileges->per_day_fine !== null
+                    || $privileges->grace_period_days !== null
+                    || $privileges->max_fine_amount !== null
+                    || $privileges->borrowing_allowed === false
+                );
 
                 return [
                     'id' => $student->id,
@@ -78,7 +88,7 @@ class IssueBookController extends Controller
                     'issued' => $issuedCount,
                     'maxBooks' => $maxBooks,
                     'borrowingAllowed' => $privileges->borrowing_allowed ?? true,
-                    'hasPrivilegeOverride' => $privileges !== null,
+                    'hasPrivilegeOverride' => $hasPrivilegeOverride,
                     'canIssueMore' => $canIssueMore,
                 ];
             });
@@ -95,15 +105,47 @@ class IssueBookController extends Controller
             
             $issuedBookIds = IssuedBook::where('student_id', $studentId)->whereNull('return_date')->pluck('book_id')->toArray();
             $booksQuery = Book::with('category')
-                ->whereNotIn('id', $issuedBookIds)
-                ->whereHas('copies', fn ($copyQuery) => $copyQuery->where('status', 'available')->where('book_type', '!=', 'reference'));
+                ->whereNotIn('id', $issuedBookIds);
             if ($query) {
                 $booksQuery->where(function($q) use ($query) {
-                    $q->where('title', 'like', "%$query%")->orWhere('isbn', 'like', "%$query%")->orWhere('author', 'like', "%$query%");
+                    $q->where('title', 'like', "%$query%")
+                        ->orWhere('publisher', 'like', "%$query%")
+                        ->orWhere('author', 'like', "%$query%");
                 });
             }
-            $books = $booksQuery->limit(15)->get()->map(function($book) {
-                return ['id' => $book->id, 'title' => $book->title, 'isbn' => $book->isbn, 'author' => $book->author ?? 'Unknown', 'category' => $book->category->name ?? 'N/A'];
+            $books = $booksQuery->with(['copies' => function ($copyQuery) {
+                $copyQuery->orderBy('accession_number');
+            }])->limit(15)->get()->map(function($book) {
+                return [
+                    'id' => $book->id,
+                    'title' => $book->title,
+                    'isbn' => $book->isbn,
+                    'author' => $book->author ?? 'Unknown',
+                    'publisher' => $book->publisher ?? 'N/A',
+                    'category' => $book->category->name ?? 'N/A',
+                    'total_copies' => (int) $book->total_copies,
+                    'available_copies' => $book->copies->filter(fn (BookCopy $copy) =>
+                        $copy->status === 'available'
+                        && $copy->book_type !== 'reference'
+                        && $copy->condition !== 'damaged'
+                    )->count(),
+                    'copies' => $book->copies->map(fn (BookCopy $copy) => [
+                        'id' => $copy->id,
+                        'book_id' => $copy->book_id,
+                        'accession_number' => $copy->accession_number,
+                        'book_type' => $copy->book_type,
+                        'status' => $copy->status,
+                        'condition' => $copy->condition,
+                        'shelf_location' => $copy->shelf_location,
+                        'book' => [
+                            'id' => $book->id,
+                            'title' => $book->title,
+                            'author' => $book->author,
+                            'isbn' => $book->isbn,
+                            'category' => $book->category->name ?? 'N/A',
+                        ],
+                    ])->values(),
+                ];
             });
             return response()->json($books);
         } catch (\Exception $e) {
@@ -159,113 +201,213 @@ class IssueBookController extends Controller
         return response()->json($issuedBooks);
     }
 
-    public function issueBooks(Request $request, PhysicalBookCopyService $copyService, NotificationService $notifications)
+    public function getPrivileges(int $student, StudentIssuePrivilegeService $privilegeService)
+    {
+        Gate::authorize('access-staff');
+
+        $studentModel = Student::query()->with(['user', 'department', 'privileges'])->findOrFail($student);
+        $effective = $privilegeService->getPrivileges($studentModel);
+        $defaults = FineSetting::resolveActive();
+        $raw = $studentModel->privileges;
+
+        $hasPrivilegeOverride = $raw !== null && (
+            $raw->max_books !== null
+            || $raw->issue_duration_days !== null
+            || $raw->per_day_fine !== null
+            || $raw->grace_period_days !== null
+            || $raw->max_fine_amount !== null
+            || $raw->borrowing_allowed === false
+        );
+
+        return response()->json([
+            'success' => true,
+            'privileges' => [
+                'max_books' => $raw?->max_books,
+                'issue_duration_days' => $raw?->issue_duration_days,
+                'per_day_fine' => $raw?->per_day_fine,
+                'borrowing_allowed' => $raw ? (bool) ($raw->borrowing_allowed ?? true) : true,
+                'grace_period_days' => $raw?->grace_period_days,
+                'max_fine_amount' => $raw?->max_fine_amount,
+            ],
+            'defaults' => [
+                'max_books' => (int) $defaults->max_books_per_student,
+                'issue_duration_days' => (int) $defaults->issue_duration_days,
+                'per_day_fine' => (float) $defaults->per_day_fine,
+                'borrowing_allowed' => true,
+                'grace_period_days' => (int) $defaults->grace_period_days,
+                'max_fine_amount' => (float) $defaults->max_fine_amount,
+            ],
+            'effective' => [
+                'max_books' => $effective['max_books'],
+                'issue_duration_days' => $effective['duration_days'],
+                'per_day_fine' => $effective['fine_rate'],
+                'borrowing_allowed' => $effective['allowed'],
+                'grace_period_days' => $raw?->grace_period_days ?? $defaults->grace_period_days,
+                'max_fine_amount' => $raw?->max_fine_amount ?? $defaults->max_fine_amount,
+            ],
+            'has_custom_overrides' => $hasPrivilegeOverride,
+            'hasPrivilegeOverride' => $hasPrivilegeOverride,
+        ]);
+    }
+
+    public function issueBooks(
+        Request $request,
+        PhysicalBookCopyService $copyService,
+        NotificationService $notifications,
+        StudentIssuePrivilegeService $privilegeService
+    )
     {
         Gate::authorize('access-staff');
         $request->validate([
             'student_id' => 'required|exists:students,id',
-            'book_ids' => 'required|array|min:1|max:50',
-            'book_ids.*' => 'exists:books,id',
+            'book_copy_ids' => 'required_without:book_ids|array|min:1|max:50',
+            'book_copy_ids.*' => 'integer|distinct|exists:book_copies,id',
+            'book_ids' => 'required_without:book_copy_ids|array|min:1|max:50',
+            'book_ids.*' => 'integer|distinct|exists:books,id',
         ]);
-        try {
-            $student = Student::findOrFail($request->student_id);
-            
-            // Check if student is allowed to borrow
-            if (!$this->isStudentAllowedToBorrow($student)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'This student is not allowed to borrow books at this time.'
-                ], 403);
-            }
-            
-            $bookIds = $request->book_ids;
-            $issuedCount = 0;
-            // Get effective issue duration for this student (per-student override or global default)
-            $issueDuration = $this->getEffectiveIssueDuration($student);
-            
-            foreach ($bookIds as $bookId) {
-                $copy = BookCopy::query()
-                    ->where('book_id', $bookId)
-                    ->where('status', 'available')
-                    ->where('book_type', '!=', 'reference')
-                    ->first();
 
-                if ($copy) {
-                    $issuedBook = $copyService->issue($student, $copy->accession_number, Auth::user(), [
-                        'issue_date' => Carbon::now(),
-                        'due_date' => Carbon::now()->addDays($issueDuration),
-                    ]);
-                    $book = $issuedBook->book;
-                    $notifications->notifyBookIssued($issuedBook);
+        try {
+            $copyIds = array_values(array_map('intval', $request->input('book_copy_ids', [])));
+            $legacyBookIds = array_values(array_map('intval', $request->input('book_ids', [])));
+            $requestedCount = count($copyIds) > 0 ? count($copyIds) : count($legacyBookIds);
+
+            $issuedBooks = DB::transaction(function () use ($copyIds, $legacyBookIds, $requestedCount, $request, $copyService, $notifications, $privilegeService): array {
+                $student = Student::query()
+                    ->lockForUpdate()
+                    ->with(['user', 'department', 'privileges'])
+                    ->findOrFail($request->integer('student_id'));
+                $issueCheck = $privilegeService->canIssue($student, $requestedCount);
+
+                if (! $issueCheck['allowed']) {
+                    abort(response()->json([
+                        'success' => false,
+                        'message' => $issueCheck['message'],
+                        'data' => ['privileges' => $issueCheck['privileges']],
+                    ], 422));
+                }
+
+                $issueDate = Carbon::parse($issueCheck['privileges']['issue_date']);
+                $dueDate = Carbon::parse($issueCheck['privileges']['due_date']);
+                $created = [];
+
+                // Lock in a stable order so concurrent staff requests cannot
+                // issue the same physical copy or deadlock on different orders.
+                $targets = [];
+
+                if ($copyIds !== []) {
+                    $copies = BookCopy::query()
+                        ->whereIn('id', $copyIds)
+                        ->orderBy('id')
+                        ->lockForUpdate()
+                        ->get()
+                        ->keyBy('id');
+
+                    if ($copies->count() !== count($copyIds)) {
+                        abort(response()->json(['success' => false, 'message' => 'One or more selected book copies were not found.'], 422));
+                    }
+
+                    foreach ($copyIds as $copyId) {
+                        $targets[] = ['copy' => $copies->get($copyId), 'book' => null];
+                    }
                 } else {
-                    // Compatibility path for legacy test/import records that
-                    // predate physical-copy registration. New records use the
-                    // copy-aware path above.
-                    $book = Book::findOrFail($bookId);
-                    $issuedBook = IssuedBook::create([
-                        'book_id' => $book->id,
-                        'student_id' => $student->id,
-                        'issued_by' => Auth::id(),
-                        'issue_date' => Carbon::now(),
-                        'due_date' => Carbon::now()->addDays($issueDuration),
-                        'status' => 'issued',
-                    ]);
-                    $book->decrement('available_copies');
-                    Notification::notify(
-                        user: $student->user,
-                        type: 'book.issued',
-                        title: 'Book Issued Successfully',
-                        message: "You have been issued '{$book->title}' by {$book->author}",
-                        data: [
-                            'book_id' => $book->id,
-                            'issued_book_id' => $issuedBook->id,
-                            'issue_date' => $issuedBook->issue_date,
-                            'due_date' => $issuedBook->due_date,
-                        ],
-                        relatedModel: 'IssuedBook',
-                        relatedId: $issuedBook->id
-                    );
-                }
-                
-                // Update BookRequest status to issued if it exists
-                $bookRequest = \App\Models\BookRequest::where('student_id', $student->id)
-                    ->where('book_id', $bookId)
-                    ->where('status', 'approved')
-                    ->first();
-                
-                if ($bookRequest) {
-                    $bookRequest->update([
-                        'status' => 'issued',
-                        'processed_date' => Carbon::now(),
-                    ]);
-                }
-                
-                if ($student->user->email) {
-                    try {
-                        SendBookIssuedEmail::dispatch(
-                            $student->user->email,
-                            $student->user->name,
-                            $book->title,
-                            $book->author ?? 'Unknown',
-                            $issuedBook->issue_date->format('Y-m-d'),
-                            $issuedBook->due_date->format('Y-m-d')
-                        );
-                    } catch (\Throwable $e) {
-                        \Log::warning('Unable to queue book issued email: ' . $e->getMessage(), [
-                            'issued_book_id' => $issuedBook->id,
-                        ]);
+                    // Compatibility for older staff clients that only know a
+                    // book id. When physical copies exist, still resolve one
+                    // real copy and send it through the same copy-aware issue
+                    // service. The title-only fallback is limited to legacy
+                    // books that have no book_copies rows at all.
+                    foreach ($legacyBookIds as $bookId) {
+                        $book = Book::query()->lockForUpdate()->findOrFail($bookId);
+                        $copy = BookCopy::query()
+                            ->where('book_id', $book->id)
+                            ->where('status', 'available')
+                            ->where('book_type', '!=', 'reference')
+                            ->orderBy('id')
+                            ->lockForUpdate()
+                            ->first();
+
+                        if ($copy) {
+                            $targets[] = ['copy' => $copy, 'book' => null];
+                            continue;
+                        }
+
+                        if (BookCopy::query()->where('book_id', $book->id)->exists()) {
+                            abort(response()->json(['success' => false, 'message' => "The book '{$book->title}' is not available."], 409));
+                        }
+
+                        $targets[] = ['copy' => null, 'book' => $book];
                     }
                 }
-                
-                $issuedCount++;
-            }
+
+                foreach ($targets as $target) {
+                    if ($target['copy']) {
+                        $issue = $copyService->issue($student, $target['copy']->accession_number, Auth::user(), [
+                            'issue_date' => $issueDate,
+                            'due_date' => $dueDate,
+                            'remarks' => $request->input('remarks'),
+                        ]);
+                    } else {
+                        $book = $target['book'];
+                        $issue = IssuedBook::create([
+                            'book_id' => $book->id,
+                            'student_id' => $student->id,
+                            'issued_by' => Auth::id(),
+                            'issue_date' => $issueDate,
+                            'due_date' => $dueDate,
+                            'status' => 'issued',
+                            'remarks' => $request->input('remarks'),
+                        ])->fresh(['student.user', 'student.department', 'book.category', 'bookCopy']);
+                        $book->decrement('available_copies');
+                    }
+
+                    $notifications->notifyBookIssued($issue);
+                    $bookRequest = \App\Models\BookRequest::query()
+                        ->where('student_id', $student->id)
+                        ->where('book_id', $issue->book_id)
+                        ->where('status', 'approved')
+                        ->first();
+                    $bookRequest?->update([
+                        'status' => 'issued',
+                        'processed_date' => now(),
+                    ]);
+
+
+                    if ($student->user?->email) {
+                        try {
+                            SendBookIssuedEmail::dispatch(
+                                $student->user->email,
+                                $student->user->name,
+                                $issue->book?->title,
+                                $issue->book?->author ?? 'Unknown',
+                                $issue->issue_date->format('Y-m-d'),
+                                $issue->due_date->format('Y-m-d')
+                            );
+                        } catch (\Throwable $e) {
+                            \Log::warning('Unable to queue book issued email: ' . $e->getMessage(), ['issued_book_id' => $issue->id]);
+                        }
+                    }
+
+                    $created[] = $issue;
+                }
+
+                return $created;
+            });
             return response()->json([
                 'success' => true,
-                'message' => "Successfully issued $issuedCount book(s) to {$student->user->name}",
-                'issued_count' => $issuedCount,
+                'message' => "Successfully issued " . count($issuedBooks) . ' book(s).',
+                'issued_count' => count($issuedBooks),
+                'issued_books' => collect($issuedBooks)->map(fn (IssuedBook $issue) => [
+                    'issue_id' => $issue->id,
+                    'book_id' => $issue->book_id,
+                    'book_copy_id' => $issue->book_copy_id,
+                    'accession_number' => $issue->bookCopy?->accession_number,
+                    'title' => $issue->book?->title,
+                    'due_date' => optional($issue->due_date)->toDateString(),
+                ])->values(),
             ]);
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpExceptionInterface $e) {
+            throw $e;
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error issuing books: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => $e->getMessage() ?: 'Error issuing books.'], 422);
         }
     }
 

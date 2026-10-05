@@ -21,6 +21,35 @@
         color: #dc2626;
     }
 
+    .issue-search-mode {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f8fafc;
+    }
+
+    .issue-search-mode-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        cursor: pointer;
+    }
+
+    body.dark-theme .issue-search-mode {
+        border-color: #334155;
+        background: #0f172a;
+    }
+
+    body.dark-theme .issue-search-mode-option {
+        color: #e2e8f0;
+    }
+
     body.dark-theme .text-danger {
         color: #f87171;
     }
@@ -2085,27 +2114,45 @@
                         <input type="hidden" id="selectedStudentId">
                     </div>
 
-                    <!-- Search Books -->
+                    <!-- Book search method -->
                     <div class="mb-4">
                         <label class="form-label">
-                            Search Books<span class="text-danger">*</span>
+                            Issue Book By<span class="text-danger">*</span>
                         </label>
+                        <div class="issue-search-mode" role="radiogroup" aria-label="Issue book search method">
+                            <label class="issue-search-mode-option">
+                                <input type="radio" name="issue_book_by" value="accession" checked>
+                                <span>Accession Number</span>
+                            </label>
+                            <label class="issue-search-mode-option">
+                                <input type="radio" name="issue_book_by" value="book">
+                                <span>Book Name</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4" id="accessionSearchPanel">
+                        <label class="form-label">Search/Scan Accession Number<span class="text-danger">*</span></label>
+                        <div class="search-container">
+                            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" id="accessionNumber" class="search-input search-input-clearable" placeholder="ACC-000001 or last 3 digits" autocomplete="off" disabled>
+                            <button type="button" id="clearAccessionBtn" class="clear-btn" style="display:none;" aria-label="Clear accession number">Clear</button>
+                            <div class="search-results" id="accessionResults"></div>
+                        </div>
+                        <div id="accessionDetails" class="text-sm text-secondary" style="margin-top:8px;" aria-live="polite"></div>
+                    </div>
+
+                    <div class="mb-4" id="bookSearchPanel" style="display:none;">
+                        <label class="form-label">Search Books<span class="text-danger">*</span></label>
                         <div class="search-container">
                             <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            <input type="text" id="searchBook" class="search-input" placeholder="Select a student first..." autocomplete="off" disabled>
+                            <input type="text" id="searchBook" class="search-input" placeholder="Search by book name, publisher, or author..." autocomplete="off" disabled>
                             <div class="search-results" id="bookResults"></div>
                         </div>
-                    </div>
-
-                    <div class="mb-4" style="border-top:1px solid #e5e7eb;padding-top:16px;">
-                        <label class="form-label">Or enter/scan accession number</label>
-                        <div class="search-container">
-                            <input type="text" id="accessionNumber" class="search-input" placeholder="Type any 3+ digits, e.g. 001" autocomplete="off">
-                            <div class="search-results" id="accessionResults"></div>
-                        </div>
-                        <div id="accessionDetails" class="text-sm text-secondary" style="margin-top:8px;" aria-live="polite"></div>
                     </div>
 
                     <!-- Selected Books List -->
@@ -2321,9 +2368,9 @@
 
     let selectedStudent = null;
     let selectedBooks = [];
-    let selectedCopy = null;
     let studentPrivileges = null;
     let issueStudentSearchRequest = 0;
+    let issueSearchMode = 'accession';
 
     const privilegeFields = ['max_books', 'issue_duration_days', 'per_day_fine', 'grace_period_days',
         'max_fine_amount', 'borrowing_allowed'
@@ -2346,6 +2393,10 @@
     const accessionNumberInput = document.getElementById('accessionNumber');
     const accessionResults = document.getElementById('accessionResults');
     const accessionDetails = document.getElementById('accessionDetails');
+    const clearAccessionBtn = document.getElementById('clearAccessionBtn');
+    const accessionSearchPanel = document.getElementById('accessionSearchPanel');
+    const bookSearchPanel = document.getElementById('bookSearchPanel');
+    const issueSearchModeInputs = Array.from(document.querySelectorAll('input[name="issue_book_by"]'));
     const privilegeInfoCard = document.getElementById('privilegeInfoCard');
     const privilegeStatusBadge = document.getElementById('privilegeStatusBadge');
     const privilegeWarningBanner = document.getElementById('privilegeWarningBanner');
@@ -2383,6 +2434,28 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    }
+
+    function isCopySelectable(copy) {
+        return String(copy?.status || '').toLowerCase() === 'available'
+            && String(copy?.book_type || '').toLowerCase() !== 'reference'
+            && String(copy?.condition || '').toLowerCase() !== 'damaged';
+    }
+
+    function copyAvailabilityLabel(copy) {
+        if (String(copy?.book_type || '').toLowerCase() === 'reference') return 'Reference-only';
+        if (String(copy?.condition || '').toLowerCase() === 'damaged') return 'Damaged';
+
+        const status = String(copy?.status || '').toLowerCase();
+        return ({
+            available: 'Available',
+            issued: 'Already issued',
+            lost: 'Lost',
+            damaged: 'Damaged',
+            maintenance: 'Under maintenance',
+            under_maintenance: 'Under maintenance',
+            withdrawn: 'Withdrawn',
+        })[status] || 'Unavailable';
     }
 
     function formatCurrency(amount, minimumFractionDigits = 2) {
@@ -2593,8 +2666,7 @@
         studentId,
         studentName,
         studentRollNo,
-        bookIds,
-        accessionNumber,
+        bookCopyIds,
         selectedCount,
         dueDatePreview,
         remainingAfterIssue,
@@ -2606,7 +2678,7 @@
         setIssueSubmitting(true);
 
         try {
-            const response = await fetch(accessionNumber ? '{{ route('staff.transactions.issue-copy') }}' : '{{ route('staff.transactions.issue') }}', {
+            const response = await fetch('{{ route('staff.transactions.issue') }}', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -2615,7 +2687,7 @@
                 },
                 body: JSON.stringify({
                     student_id: studentId,
-                    ...(accessionNumber ? { accession_number: accessionNumber } : { book_ids: bookIds }),
+                    book_copy_ids: bookCopyIds,
                 })
             });
 
@@ -2723,17 +2795,39 @@
         if (!student || !rules) {
             searchBookInput.disabled = true;
             searchBookInput.placeholder = 'Select a student first...';
+            accessionNumberInput.disabled = true;
             return;
         }
 
         if (!rules.borrowing_allowed) {
             searchBookInput.disabled = true;
             searchBookInput.placeholder = 'Borrowing is restricted for this student';
+            accessionNumberInput.disabled = true;
             return;
         }
 
         searchBookInput.disabled = false;
-        searchBookInput.placeholder = 'Search books to issue...';
+        searchBookInput.placeholder = 'Search by book name, publisher, or author...';
+        accessionNumberInput.disabled = false;
+    }
+
+    function clearTemporaryIssueSearch() {
+        searchBookInput.value = '';
+        bookResults.innerHTML = '';
+        bookResults.style.display = 'none';
+        accessionNumberInput.value = '';
+        if (clearAccessionBtn) clearAccessionBtn.style.display = 'none';
+        accessionResults.innerHTML = '';
+        accessionResults.style.display = 'none';
+        accessionDetails.textContent = '';
+    }
+
+    function setIssueSearchMode(mode) {
+        issueSearchMode = mode === 'book' ? 'book' : 'accession';
+        accessionSearchPanel.style.display = issueSearchMode === 'accession' ? 'block' : 'none';
+        bookSearchPanel.style.display = issueSearchMode === 'book' ? 'block' : 'none';
+        clearTemporaryIssueSearch();
+        setBookSearchState();
     }
 
     function buildStudentResultMarkup(student) {
@@ -2977,6 +3071,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        issueSearchModeInputs.forEach(input => {
+            input.addEventListener('change', () => setIssueSearchMode(input.value));
+        });
+        setIssueSearchMode('accession');
+
         searchStudentInput.addEventListener('input', function() {
             const query = this.value.trim();
             const requestId = ++issueStudentSearchRequest;
@@ -3060,24 +3159,60 @@
                     return response.json();
                 })
                 .then(books => {
-                    const availableBooks = (books || []).filter(book => !selectedBooks.some(selectedBook => selectedBook.id === book.id));
+                    const availableBooks = (books || []).map(book => ({
+                        ...book,
+                        copies: (book.copies || []).filter(copy =>
+                            !selectedBooks.some(selectedBook => Number(selectedBook.id) === Number(copy.id))
+                        ),
+                    }));
 
                     if (availableBooks.length === 0) {
                         bookResults.innerHTML = '<div class="result-item"><div class="result-title">No available books found</div></div>';
                     } else {
                         availableBooks.forEach(book => {
                             const item = document.createElement('div');
-                            item.className = 'result-item';
+                            item.className = 'result-item book-search-result';
                             item.dataset.id = book.id;
                             item.innerHTML = `
                                 <div class="result-title">${escapeHtml(book.title)}</div>
-                                <div class="result-subtitle">${escapeHtml(book.author)} • ISBN: ${escapeHtml(book.isbn)}</div>
+                                <div class="result-subtitle">${escapeHtml(book.author)} • ISBN: ${escapeHtml(book.isbn || 'N/A')} • ${escapeHtml(book.category || 'N/A')}</div>
+                                <div class="result-subtitle">Available: ${book.copies.filter(isCopySelectable).length} / ${book.copies.length} copies</div>
+                                <div class="book-copy-options"></div>
                             `;
 
-                            item.addEventListener('click', function() {
-                                addBookToSelection(book);
-                                searchBookInput.value = '';
-                                bookResults.style.display = 'none';
+                            const copyOptions = item.querySelector('.book-copy-options');
+                            if (book.copies.length === 0) {
+                                copyOptions.innerHTML = '<span class="text-secondary">Currently unavailable</span>';
+                            } else {
+                                book.copies.forEach(copy => {
+                                    if (isCopySelectable(copy)) {
+                                        const copyButton = document.createElement('button');
+                                        copyButton.type = 'button';
+                                        copyButton.className = 'btn-primary';
+                                        copyButton.style.cssText = 'width:auto;margin:6px 6px 0 0;padding:5px 9px;font-size:12px;';
+                                        copyButton.textContent = `Add ${copy.accession_number}`;
+                                        copyButton.addEventListener('click', event => {
+                                            event.stopPropagation();
+                                            if (addBookToSelection(copy)) {
+                                                searchBookInput.value = '';
+                                                bookResults.style.display = 'none';
+                                            }
+                                        });
+                                        copyOptions.appendChild(copyButton);
+                                    } else {
+                                        const copyStatus = document.createElement('span');
+                                        copyStatus.className = 'text-secondary';
+                                        copyStatus.style.cssText = 'display:inline-block;margin:6px 6px 0 0;padding:5px 9px;font-size:12px;opacity:.8;';
+                                        copyStatus.textContent = `${copy.accession_number} — ${copyAvailabilityLabel(copy)}`;
+                                        copyOptions.appendChild(copyStatus);
+                                    }
+                                });
+                            }
+
+                            item.addEventListener('click', function(event) {
+                                if (!event.target.closest('button')) {
+                                    copyOptions.scrollIntoView({ block: 'nearest' });
+                                }
                             });
 
                             bookResults.appendChild(item);
@@ -3098,7 +3233,7 @@
 
             const rules = getIssueRules();
 
-            if (!selectedStudent || (selectedBooks.length === 0 && !selectedCopy)) {
+            if (!selectedStudent || selectedBooks.length === 0) {
                 showCustomAlert('Missing Information', 'Please select a student and at least one book.', 'warning');
                 return;
             }
@@ -3114,13 +3249,13 @@
             }
 
             const canIssueMore = getIssueCapacity(rules, selectedStudent);
-            const selectedCount = selectedCopy ? 1 : selectedBooks.length;
+            const selectedCount = selectedBooks.length;
             if (selectedCount > canIssueMore) {
                 showCustomAlert('Exceeds Borrowing Limit', `Student can only issue ${canIssueMore} more book(s).`, 'error');
                 return;
             }
 
-            const bookIds = selectedBooks.map(book => book.id);
+            const bookCopyIds = selectedBooks.map(book => book.id);
             const dueDatePreview = getIssueDueDatePreview(rules);
             const remainingAfterIssue = Math.max(0, getIssueCapacity(rules, selectedStudent) - selectedCount);
 
@@ -3137,8 +3272,7 @@
                     studentId: selectedStudent.id,
                     studentName: selectedStudent.name,
                     studentRollNo: selectedStudent.roll_no,
-                    bookIds,
-                    accessionNumber: selectedCopy?.accession_number ?? null,
+                    bookCopyIds,
                     selectedCount,
                     dueDatePreview,
                     remainingAfterIssue,
@@ -3173,17 +3307,24 @@
 
     let accessionLookupTimer;
     let accessionLookupRequest = 0;
+
     accessionNumberInput?.addEventListener('input', function () {
+        if (issueSearchMode !== 'accession') return;
+
         window.clearTimeout(accessionLookupTimer);
         const requestId = ++accessionLookupRequest;
-        selectedCopy = null;
+        const value = this.value.trim();
+        if (clearAccessionBtn) clearAccessionBtn.style.display = value ? 'block' : 'none';
+
         accessionDetails.textContent = '';
         accessionResults.innerHTML = '';
         accessionResults.style.display = 'none';
-        selectedBooks = [];
-        updateSelectedBooksList();
-        updateIssueButton();
-        const value = this.value.trim();
+
+        if (!selectedStudent) {
+            if (value) accessionDetails.textContent = 'Please select a student first.';
+            return;
+        }
+
         if (!value) return;
 
         if (value.length < 3) {
@@ -3195,11 +3336,15 @@
             accessionDetails.textContent = 'Searching physical copies...';
             accessionResults.innerHTML = '<div class="result-item"><div class="result-title">Searching...</div></div>';
             accessionResults.style.display = 'block';
+
             try {
-                const response = await fetch(`{{ route('staff.book-copies.search') }}?query=${encodeURIComponent(value)}&mode=issue`, { credentials: 'include', headers: { 'Accept': 'application/json' } });
-                const data = await response.json();
+                const response = await fetch(`{{ route('staff.book-copies.search') }}?query=${encodeURIComponent(value)}&mode=issue`, {
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' },
+                });
+                const data = await response.json().catch(() => ({}));
                 if (requestId !== accessionLookupRequest) return;
-                if (!response.ok) throw new Error(data.message || 'No matching accession numbers found.');
+                if (!response.ok) throw new Error(data.message || 'Unable to search accession numbers.');
 
                 const matches = Array.isArray(data.data) ? data.data : [];
                 if (matches.length === 0) {
@@ -3209,42 +3354,64 @@
                 }
 
                 accessionResults.innerHTML = '';
-                matches.forEach((match) => {
+                matches.forEach(match => {
                     const copy = match.copy;
                     const item = document.createElement('div');
                     item.className = 'result-item';
+                    const selectable = isCopySelectable(copy);
                     item.innerHTML = `
-                        <div class="result-title">${escapeHtml(copy.book?.title || 'Unknown book')}</div>
-                        <div class="result-subtitle">${escapeHtml(copy.accession_number)} · ${escapeHtml(copy.book?.author || 'Unknown author')} · Shelf ${escapeHtml(copy.shelf_location || 'N/A')}</div>
+                        <div class="result-title">${escapeHtml(copy.book?.title || 'Unknown book')} · ${escapeHtml(copy.accession_number)}</div>
+                        <div class="result-subtitle">${escapeHtml(copy.book?.author || 'Unknown author')} · Shelf ${escapeHtml(copy.shelf_location || 'N/A')} · Status: ${escapeHtml(copyAvailabilityLabel(copy))}</div>
                     `;
-                    item.addEventListener('click', () => {
-                        selectedCopy = copy;
-                        accessionNumberInput.value = copy.accession_number;
-                        accessionResults.style.display = 'none';
-                        accessionDetails.textContent = `${copy.book?.title || 'Unknown book'} · ${copy.accession_number} · Ready to issue`;
-                        updateIssueButton();
-                    });
+                    if (selectable) {
+                        item.addEventListener('click', () => {
+                            if (addBookToSelection(copy)) {
+                                accessionNumberInput.value = '';
+                                if (clearAccessionBtn) clearAccessionBtn.style.display = 'none';
+                                accessionResults.innerHTML = '';
+                                accessionResults.style.display = 'none';
+                                accessionDetails.textContent = `${copy.book?.title || 'Unknown book'} · ${copy.accession_number} added.`;
+                            }
+                        });
+                    } else {
+                        item.style.cursor = 'not-allowed';
+                        item.style.opacity = '0.72';
+                    }
                     accessionResults.appendChild(item);
                 });
                 accessionDetails.textContent = 'Select a physical copy from the results.';
             } catch (error) {
                 if (requestId !== accessionLookupRequest) return;
-                selectedCopy = null;
-                accessionResults.innerHTML = `<div class="result-item"><div class="result-title">${escapeHtml(error.message)}</div></div>`;
+                accessionResults.innerHTML = `<div class="result-item"><div class="result-title">${escapeHtml(error.message || 'Network/server error.')}</div></div>`;
                 accessionResults.style.display = 'block';
-                accessionDetails.textContent = error.message;
-                updateIssueButton();
+                accessionDetails.textContent = error.message || 'Network/server error.';
             }
         }, 250);
+    });
+
+    accessionNumberInput?.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            accessionNumberInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    });
+
+    clearAccessionBtn?.addEventListener('click', () => {
+        accessionLookupRequest++;
+        window.clearTimeout(accessionLookupTimer);
+        accessionNumberInput.value = '';
+        accessionResults.innerHTML = '';
+        accessionResults.style.display = 'none';
+        accessionDetails.textContent = '';
+        clearAccessionBtn.style.display = 'none';
+        accessionNumberInput.focus();
     });
 
     window.selectStudentForIssue = function(student) {
         selectedStudent = student;
         studentPrivileges = null;
         selectedBooks = [];
-        if (!accessionNumberInput?.value.trim()) {
-            selectedCopy = null;
-        }
+        clearTemporaryIssueSearch();
         selectedStudentId.value = student.id;
         searchStudentInput.value = `${student.name} (${student.roll_no})`;
         studentResults.style.display = 'none';
@@ -3252,14 +3419,12 @@
         selectedStudentCard.style.display = 'none';
         availableBooksCard.style.display = 'none';
         resetIssuePrivilegeSummary();
-        searchBookInput.value = '';
-        bookResults.style.display = 'none';
         setBookSearchState();
         updateSelectedBooksList();
         updateIssueButton();
         updateAvailableBooksInfo();
 
-        fetch(`/admin/students/${student.id}/privileges`, { credentials: 'include' })
+        fetch(`/staff/students/${student.id}/privileges`, { credentials: 'include' })
             .then(response => response.json())
             .then(data => {
                 if (!data.success) {
@@ -3303,12 +3468,24 @@
         const rules = getIssueRules();
         if (!selectedStudent || !rules) return;
 
-        selectedCopy = null;
-        if (accessionNumberInput) accessionNumberInput.value = '';
-        if (accessionDetails) accessionDetails.textContent = '';
-        if (accessionResults) {
-            accessionResults.innerHTML = '';
-            accessionResults.style.display = 'none';
+        const copy = book?.copy ?? book;
+        const bookDetails = copy?.book ?? book;
+        const normalizedBook = {
+            id: copy?.id ?? copy?.copy_id,
+            book_id: copy?.book_id ?? bookDetails?.id ?? book?.book_id,
+            accession_number: copy?.accession_number,
+            title: bookDetails?.title ?? book?.title ?? 'Unknown book',
+            author: bookDetails?.author ?? book?.author ?? 'Unknown author',
+            isbn: bookDetails?.isbn ?? book?.isbn ?? '',
+            category: bookDetails?.category ?? book?.category ?? 'N/A',
+            book_type: copy?.book_type,
+            status: copy?.status,
+            condition: copy?.condition,
+        };
+
+        if (!normalizedBook.id || !normalizedBook.accession_number) {
+            showCustomAlert('Copy Required', 'Select a physical book copy before adding it.', 'error');
+            return false;
         }
 
         const canIssueMore = getIssueCapacity(rules, selectedStudent);
@@ -3326,27 +3503,46 @@
             return;
         }
 
-        if (selectedBooks.some(currentBook => currentBook.id === book.id)) {
-            showCustomAlert('Book Already Selected', 'This book is already in the selection list.', 'warning');
-            return;
+        if (selectedBooks.some(currentBook => Number(currentBook.id) === Number(normalizedBook.id))) {
+            showCustomAlert('Copy Already Selected', 'This book copy is already selected.', 'warning');
+            return false;
         }
 
-        if (Number(book.available ?? 1) <= 0) {
-            showCustomAlert('Book Unavailable', 'This book is currently unavailable. No copies in stock.', 'error');
-            return;
+        if (normalizedBook.status && normalizedBook.status !== 'available') {
+            const statusMessage = {
+                issued: 'This book copy is already issued.',
+                lost: 'This book copy is marked as lost and cannot be issued.',
+                damaged: 'This book copy is marked as damaged and cannot be issued.',
+                maintenance: 'This book copy is currently under maintenance.',
+                under_maintenance: 'This book copy is currently under maintenance.',
+                withdrawn: 'This book copy has been withdrawn from circulation.',
+            }[String(normalizedBook.status).toLowerCase()] || 'This book copy is unavailable.';
+            showCustomAlert('Copy Unavailable', statusMessage, 'error');
+            return false;
         }
 
-        selectedBooks.push(book);
+        if (String(normalizedBook.book_type || '').toLowerCase() === 'reference') {
+            showCustomAlert('Not Borrowable', 'This book is reference-only and cannot be borrowed.', 'error');
+            return false;
+        }
+
+        if (String(normalizedBook.condition || '').toLowerCase() === 'damaged') {
+            showCustomAlert('Copy Unavailable', 'This book copy is marked as damaged and cannot be issued.', 'error');
+            return false;
+        }
+
+        selectedBooks.push(normalizedBook);
         updateSelectedBooksList();
         updateIssueButton();
         updateAvailableBooksInfo();
         const remainingCount = getRemainingIssueCapacity(rules, selectedStudent);
         showTransactionToast({
             title: 'Book Added',
-            message: `Added ${book.title} to the issue selection.`,
+            message: `Added ${normalizedBook.title} (${normalizedBook.accession_number}) to the issue selection.`,
             detail: `${remainingCount} issue slot${remainingCount === 1 ? '' : 's'} remaining`,
             icon: 'fas fa-book',
         }, 'info');
+        return true;
     };
 
     window.removeBookFromSelection = function(bookId) {
@@ -3373,9 +3569,9 @@
             bookItem.innerHTML = `
                 <div class="book-info">
                     <div class="book-title">${escapeHtml(book.title)}</div>
-                    <div class="book-details">${escapeHtml(book.author)} • ${escapeHtml(book.category || 'N/A')}</div>
+                    <div class="book-details">${escapeHtml(book.author)} • ${escapeHtml(book.category || 'N/A')} • Accession: ${escapeHtml(book.accession_number)}</div>
                 </div>
-                <button type="button" class="remove-book" data-book-id="${book.id}">
+                <button type="button" class="remove-book" data-book-copy-id="${book.id}">
                     Remove
                 </button>
             `;
@@ -3385,7 +3581,7 @@
         document.querySelectorAll('.remove-book').forEach(button => {
             button.addEventListener('click', function(event) {
                 event.preventDefault();
-                removeBookFromSelection(Number(this.getAttribute('data-book-id')));
+                removeBookFromSelection(Number(this.getAttribute('data-book-copy-id')));
             });
         });
 
@@ -3395,7 +3591,7 @@
     window.updateIssueButton = function() {
         const rules = getIssueRules();
         const canIssueMore = selectedStudent && rules ? getIssueCapacity(rules, selectedStudent) : 0;
-        const selectedCount = selectedCopy ? 1 : selectedBooks.length;
+        const selectedCount = selectedBooks.length;
 
         if (selectedStudent && rules && rules.borrowing_allowed && selectedCount > 0) {
             issueButton.disabled = false;
@@ -3426,8 +3622,8 @@
         selectedStudent = null;
         studentPrivileges = null;
         selectedBooks = [];
-        selectedCopy = null;
         issueForm?.reset();
+        setIssueSearchMode('accession');
         selectedStudentId.value = '';
         searchStudentInput.value = '';
         clearStudentBtn.style.display = 'none';

@@ -5,6 +5,7 @@ use App\Models\Book;
 use App\Models\BookCopy;
 use App\Models\Category;
 use App\Models\Department;
+use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\PhysicalBookCopyService;
@@ -174,4 +175,100 @@ test('staff accession search accepts a partial suffix and returns the borrower',
         ->assertOk()
         ->assertJsonPath('data.0.issue.student.name', $student->user->name)
         ->assertJsonPath('data.0.issue.accession_number', $copy->accession_number);
+});
+
+test('staff and admin issue searches show unavailable copies by accession and title', function () {
+    $book = accessionTestBook();
+    $copy = app(PhysicalBookCopyService::class)->createCopies($book, 1)->first();
+    $borrower = accessionTestStudent();
+    $targetStudent = accessionTestStudent();
+    $staff = User::create([
+        'role' => 'staff',
+        'name' => 'Unavailable Search Staff ' . Str::random(6),
+        'email' => 'unavailable-search-staff-' . Str::lower(Str::random(8)) . '@example.com',
+        'password' => Hash::make('password'),
+        'status' => 'active',
+        'is_verified' => true,
+    ]);
+    $admin = User::create([
+        'role' => 'admin',
+        'name' => 'Unavailable Search Admin ' . Str::random(6),
+        'email' => 'unavailable-search-admin-' . Str::lower(Str::random(8)) . '@example.com',
+        'password' => Hash::make('password'),
+        'status' => 'active',
+        'is_verified' => true,
+    ]);
+
+    app(PhysicalBookCopyService::class)->issue($borrower, $copy->accession_number, $staff);
+
+    foreach ([
+        [$staff, '/staff/book-copies/search', '/staff/transactions/books'],
+        [$admin, '/admin/book-copies/search', '/admin/transactions/books/available'],
+    ] as [$user, $accessionSearchUrl, $bookSearchUrl]) {
+        $this->actingAs($user)
+            ->getJson($accessionSearchUrl . '?query=' . $copy->accession_number . '&mode=issue')
+            ->assertOk()
+            ->assertJsonPath('data.0.copy.accession_number', $copy->accession_number)
+            ->assertJsonPath('data.0.copy.status', 'issued');
+
+        $this->actingAs($user)
+            ->getJson($bookSearchUrl . '?query=' . urlencode($book->title) . '&studentId=' . $targetStudent->id)
+            ->assertOk()
+            ->assertJsonPath('0.available_copies', 0)
+            ->assertJsonPath('0.copies.0.accession_number', $copy->accession_number)
+            ->assertJsonPath('0.copies.0.status', 'issued');
+    }
+});
+
+test('staff issue workflow issues the selected physical copy rather than an arbitrary title copy', function () {
+    $book = accessionTestBook(['total_copies' => 2]);
+    $copies = app(PhysicalBookCopyService::class)->createCopies($book, 2);
+    $student = accessionTestStudent();
+    $staff = User::create([
+        'role' => 'staff',
+        'name' => 'Physical Selection Staff',
+        'email' => 'physical-selection-staff@example.com',
+        'password' => Hash::make('password'),
+        'status' => 'active',
+        'is_verified' => true,
+    ]);
+
+    $this->actingAs($staff)
+        ->postJson('/staff/transactions/issue', [
+            'student_id' => $student->id,
+            'book_copy_ids' => [$copies->last()->id],
+        ])
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('issued_count', 1)
+        ->assertJsonPath('issued_books.0.book_copy_id', $copies->last()->id)
+        ->assertJsonPath('issued_books.0.accession_number', $copies->last()->accession_number);
+
+    expect($copies->first()->fresh()->status)->toBe('available')
+        ->and($copies->last()->fresh()->status)->toBe('issued')
+        ->and(IssuedBook::query()->where('book_copy_id', $copies->last()->id)->whereNull('return_date')->exists())->toBeTrue();
+});
+
+test('admin transaction issue workflow also issues the selected physical copy', function () {
+    $book = accessionTestBook(['total_copies' => 2]);
+    $copies = app(PhysicalBookCopyService::class)->createCopies($book, 2);
+    $student = accessionTestStudent();
+    $admin = User::create([
+        'role' => 'admin',
+        'name' => 'Physical Selection Admin',
+        'email' => 'physical-selection-admin@example.com',
+        'password' => Hash::make('password'),
+        'status' => 'active',
+        'is_verified' => true,
+    ]);
+
+    $this->actingAs($admin)
+        ->postJson('/admin/transactions/issue', [
+            'student_id' => $student->id,
+            'book_copy_ids' => [$copies->first()->id],
+        ])
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('issued_books.0.book_copy_id', $copies->first()->id)
+        ->assertJsonPath('issued_books.0.accession_number', $copies->first()->accession_number);
 });

@@ -216,6 +216,7 @@ Route::middleware(['auth', 'can:access-staff'])
         // Transaction routes for issue book feature
         Route::get('/issue-book', [IssueBookController::class, 'index'])->name('issue-book.index');
         Route::get('/transactions/students', [IssueBookController::class, 'getStudents'])->name('transactions.students');
+        Route::get('/students/{student}/privileges', [IssueBookController::class, 'getPrivileges'])->whereNumber('student')->name('transactions.privileges');
         Route::get('/transactions/books', [IssueBookController::class, 'getAvailableBooks'])->name('transactions.books');
         Route::get('/transactions/issued-books', [IssueBookController::class, 'getIssuedBooks'])->name('transactions.issued-books');
         Route::post('/transactions/issue', [IssueBookController::class, 'issueBooks'])->name('transactions.issue');
