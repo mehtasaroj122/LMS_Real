@@ -277,6 +277,49 @@
             color: #fca5a5;
         }
 
+        body .navy-sidebar .sidebar-profile-shell {
+            border-top-color: #1f2937;
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0), rgba(17, 24, 39, 0.96) 18%, #111827 100%);
+        }
+
+        body .navy-sidebar .sidebar-profile-card {
+            border-color: #1f2937;
+            background: #172033;
+            box-shadow: 0 18px 34px rgba(2, 6, 23, 0.26);
+        }
+
+        body .navy-sidebar .sidebar-profile-card:hover,
+        body .navy-sidebar .sidebar-profile-card:focus-within {
+            border-color: rgba(96, 165, 250, 0.35);
+            background: #172033;
+        }
+
+        body .navy-sidebar .sidebar-profile-avatar {
+            border-color: #172033;
+        }
+
+        body .navy-sidebar .sidebar-profile-name {
+            color: #ffffff;
+        }
+
+        body .navy-sidebar .sidebar-profile-role {
+            background: rgba(37, 99, 235, 0.22);
+            border-color: rgba(96, 165, 250, 0.35);
+            color: #bfdbfe;
+        }
+
+        body .navy-sidebar .sidebar-profile-logout-button {
+            border-color: #1f2937;
+            background: rgba(17, 24, 39, 0.84);
+            color: #cbd5e1;
+        }
+
+        body .navy-sidebar .sidebar-profile-logout-button:hover {
+            border-color: #334155;
+            background: #1f2937;
+            color: #ffffff;
+        }
+
         .sidebar.is-collapsed .sidebar-profile-shell {
             padding-inline: 0.5rem;
         }

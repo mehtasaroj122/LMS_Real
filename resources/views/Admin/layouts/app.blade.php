@@ -8,7 +8,7 @@
     @include('partials.favicon')
     @include('partials.pwa-head')
     <title>@yield('title', 'Dashboard') - Library Management</title>
-    <link rel="stylesheet" href="{{ asset('admin/CSS/admin-appLayout.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin/CSS/admin-appLayout.css') }}?v={{ filemtime(public_path('admin/CSS/admin-appLayout.css')) }}">
     <link rel="stylesheet" href="{{ asset('shared/CSS/notification-list-animations.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -202,7 +202,7 @@
 <body class="light-theme">
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="flex h-screen min-h-0 overflow-hidden">
-    <aside class="flex flex-col w-64 min-h-0 border-r sidebar shrink-0" id="sidebar">
+    <aside class="flex flex-col w-64 min-h-0 border-r sidebar admin-sidebar navy-sidebar shrink-0" id="sidebar">
         <div class="flex items-center justify-between p-4 logo-section">
             <button class="close-sidebar-btn" id="closeSidebarBtn" aria-label="Close menu">
                 <i data-lucide="x" class="w-6 h-6"></i>

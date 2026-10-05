@@ -9,7 +9,7 @@
     @include('partials.favicon')
     @include('partials.pwa-head')
     <title>@yield('title', 'Dashboard') - Library Management</title>
-    <link rel="stylesheet" href="{{ asset('student/CSS/student-appLayout.css') }}">
+    <link rel="stylesheet" href="{{ asset('student/CSS/student-appLayout.css') }}?v={{ filemtime(public_path('student/CSS/student-appLayout.css')) }}">
     <link rel="stylesheet" href="{{ asset('shared/CSS/notification-list-animations.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +27,7 @@
     @include('shared.library-branding.bootstrap')
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="flex h-screen overflow-hidden">
-        <aside class="flex min-h-0 flex-col w-64 border-r sidebar shrink-0" id="sidebar">
+        <aside class="flex min-h-0 flex-col w-64 border-r sidebar navy-sidebar shrink-0" id="sidebar">
             <div class="flex items-center justify-between p-4 logo-section">
                 <button class="close-sidebar-btn" id="closeSidebarBtn" aria-label="Close menu">
                     <i data-lucide="x" class="w-6 h-6"></i>
