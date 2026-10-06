@@ -27,6 +27,7 @@
 
 @push('styles')
     @include('shared.student-profile.styles')
+    <link rel="stylesheet" href="{{ asset('admin/CSS/issued-book-details.css') }}?v={{ filemtime(public_path('admin/CSS/issued-book-details.css')) }}">
 @endpush
 
 @section('content')
@@ -40,9 +41,11 @@
         'studentPrivileges' => $studentPrivileges,
         'studentProfileConfig' => $studentProfileConfig,
     ])
+    @include('partials.admin-issued-book-details-modal')
 @endsection
 
 @push('scripts')
+    <script src="{{ asset('admin/JS/issued-book-details.js') }}?v={{ filemtime(public_path('admin/JS/issued-book-details.js')) }}"></script>
     @include('shared.student-profile.scripts', [
         'student' => $student,
         'studentSummary' => $studentSummary,

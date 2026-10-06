@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\BookCopy;
+use App\Services\PhysicalBookCopyDeletionService;
 use App\Services\PhysicalBookCopyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 
 class BookCopyController extends Controller
 {
@@ -192,10 +194,8 @@ class BookCopyController extends Controller
 
         $copiesQuery = BookCopy::query()
             ->where('book_id', $book->id)
-            ->with(['issuedBooks' => fn ($issueQuery) => $issueQuery
-                ->whereNull('return_date')
-                ->latest('issue_date')
-                ->with('student.user')]);
+            ->withCount('issuedBooks')
+            ->with('activeIssue.student.user');
 
         if ($status !== 'all') {
             $copiesQuery->where('status', $status);
@@ -356,27 +356,97 @@ class BookCopyController extends Controller
         return response()->json(['success' => true, 'data' => ['copy' => $bookCopy->fresh('book')]]);
     }
 
-    public function destroy(BookCopy $bookCopy): JsonResponse
-    {
-        $hasHistory = $bookCopy->issuedBooks()->exists();
+    public function bulkPreview(
+        Request $request,
+        Book $book,
+        PhysicalBookCopyDeletionService $deletions
+    ): JsonResponse {
+        $validated = $this->validateBulkAction($request);
+        $preview = $deletions->preview(
+            $book,
+            $validated['action'],
+            $validated['copy_ids'] ?? []
+        );
 
-        if ($hasHistory) {
+        return response()->json(['success' => true, 'data' => $preview]);
+    }
+
+    public function bulkDelete(
+        Request $request,
+        Book $book,
+        PhysicalBookCopyDeletionService $deletions
+    ): JsonResponse {
+        $validated = $this->validateBulkAction($request, true);
+        $result = $deletions->delete(
+            $book,
+            $validated['action'],
+            $validated['copy_ids'] ?? [],
+            $validated['reason'] ?? null
+        );
+
+        $message = $result['deleted_count'] > 0
+            ? "Bulk deletion completed. Deleted {$result['deleted_count']} and skipped {$result['skipped_count']} protected copy/copies."
+            : 'No copies were deleted because all matching copies are protected or unavailable.';
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $result,
+        ]);
+    }
+
+    public function destroy(
+        BookCopy $bookCopy,
+        PhysicalBookCopyDeletionService $deletions
+    ): JsonResponse
+    {
+        $result = $deletions->delete(
+            $bookCopy->book,
+            PhysicalBookCopyDeletionService::DELETE_SELECTED,
+            [$bookCopy->id]
+        );
+
+        if ($result['deleted_count'] === 0) {
+            $skipped = $result['skipped'][0] ?? null;
+
             return response()->json([
                 'success' => false,
-                'message' => 'This physical copy cannot be deleted because it has borrowing history.',
-            ], 422);
+                'message' => $skipped
+                    ? "{$bookCopy->accession_number} could not be deleted: {$skipped['reason']}."
+                    : 'This physical copy could not be deleted because it is protected.',
+                'data' => $result,
+            ], ($skipped['code'] ?? null) === 'currently_borrowed' ? 409 : 422);
         }
-
-        DB::transaction(function () use ($bookCopy): void {
-            $book = $bookCopy->book()->lockForUpdate()->firstOrFail();
-            $bookCopy->delete();
-            app(PhysicalBookCopyService::class)->refreshBookCounters($book);
-        });
 
         return response()->json([
             'success' => true,
             'message' => 'Physical copy deleted successfully.',
+            'data' => $result,
         ]);
+    }
+
+    private function validateBulkAction(Request $request, bool $includeReason = false): array
+    {
+        $rules = [
+            'action' => ['required', Rule::in(PhysicalBookCopyDeletionService::ACTIONS)],
+            'copy_ids' => ['nullable', 'array', 'max:500'],
+            'copy_ids.*' => ['integer', 'distinct', 'min:1'],
+        ];
+
+        if ($includeReason) {
+            $rules['reason'] = ['nullable', 'string', 'max:500'];
+        }
+
+        $validated = $request->validate($rules);
+
+        if (($validated['action'] ?? null) === PhysicalBookCopyDeletionService::DELETE_SELECTED
+            && empty($validated['copy_ids'])) {
+            throw ValidationException::withMessages([
+                'copy_ids' => 'Select at least one physical copy.',
+            ]);
+        }
+
+        return $validated;
     }
 
     private function summary(Book $book): array

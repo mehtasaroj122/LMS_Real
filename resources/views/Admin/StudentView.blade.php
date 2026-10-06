@@ -4390,6 +4390,7 @@
     @include('shared.action-feedback.scripts')
     <script src="{{ asset('admin/JS/fine-history.js') }}?v={{ filemtime(public_path('admin/JS/fine-history.js')) }}"></script>
     <script src="{{ asset('admin/JS/audit-event-details.js') }}?v={{ filemtime(public_path('admin/JS/audit-event-details.js')) }}"></script>
+    <script src="{{ asset('admin/JS/issued-book-details.js') }}?v={{ filemtime(public_path('admin/JS/issued-book-details.js')) }}"></script>
     <script>
         // Data provided by server (transformed in controller)
         const booksData = (@json($booksData ?? []) || []).map(normalizeStudentBookRecord);
@@ -5497,6 +5498,12 @@
                 return;
             }
             issuedBookDetailsTrigger = trigger;
+            if (window.LMSIssuedBookDetails) {
+                window.LMSIssuedBookDetails.open(book, trigger, {
+                    storageBase: @json(asset('storage')),
+                });
+                return;
+            }
             const setText = (id, value, fallback = 'N/A') => {
                 document.getElementById(id).textContent = value === null || value === undefined || value === '' ? fallback : String(value);
             };
@@ -5595,6 +5602,11 @@
         }
 
         function closeBookDetailsModal() {
+            if (window.LMSIssuedBookDetails) {
+                window.LMSIssuedBookDetails.close();
+                issuedBookDetailsTrigger = null;
+                return;
+            }
             const overlay = document.getElementById('bookDetailsOverlay');
             overlay.classList.remove('show');
             overlay.setAttribute('aria-hidden', 'true');

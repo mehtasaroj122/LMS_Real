@@ -112,3 +112,57 @@ test('book detail data remains restricted to admins and missing books return not
     $this->actingAs(User::factory()->create(['role' => 'admin']))
         ->getJson(route('admin.books.show', 999999))->assertNotFound();
 });
+
+test('staff book details use the complete admin detail payload with staff actions', function () {
+    $this->actingAs(User::factory()->create(['role' => 'staff']));
+    $book = detailsTestBook([
+        'publisher' => 'Shared Details Publisher',
+        'description' => 'The Staff portal should show this complete description.',
+        'cover_image' => 'books/covers/staff-details.jpg',
+    ]);
+
+    foreach ([
+        ['available', 'borrowing', 'A-01'],
+        ['issued', 'borrowing', 'B-02'],
+        ['damaged', 'reference', 'C-03'],
+    ] as $index => [$status, $type, $location]) {
+        BookCopy::create([
+            'book_id' => $book->id,
+            'accession_number' => sprintf('STAFF-DETAIL-%03d', $index + 1),
+            'status' => $status,
+            'book_type' => $type,
+            'shelf_location' => $location,
+        ]);
+    }
+
+    $this->getJson(route('staff.books.show', $book))->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.book.title', $book->title)
+        ->assertJsonPath('data.book.publisher', 'Shared Details Publisher')
+        ->assertJsonPath('data.book.description', $book->description)
+        ->assertJsonPath('data.book.category', $book->category->name)
+        ->assertJsonPath('data.book.cover_url', asset('storage/books/covers/staff-details.jpg'))
+        ->assertJsonPath('data.inventory.total', 3)
+        ->assertJsonPath('data.inventory.available', 1)
+        ->assertJsonPath('data.inventory.issued', 1)
+        ->assertJsonPath('data.inventory.unavailable', 1)
+        ->assertJsonPath('data.inventory.statuses.damaged', 1)
+        ->assertJsonPath('data.inventory.types.borrowing', 2)
+        ->assertJsonPath('data.inventory.types.reference', 1)
+        ->assertJsonPath('data.inventory.shelf_locations', ['A-01', 'B-02', 'C-03'])
+        ->assertJsonPath('data.manage_copies_url', route('staff.books.copies.index', $book));
+});
+
+test('staff book management renders the shared admin detail presentation', function () {
+    $this->actingAs(User::factory()->create(['role' => 'staff']))
+        ->get(route('staff.book-management.index'))
+        ->assertOk()
+        ->assertSee('book-details-panel', false)
+        ->assertSee('bookDetailsLoadedTemplate', false)
+        ->assertSee('admin/CSS/book-details.css', false)
+        ->assertSee('admin/JS/book-details.js', false)
+        ->assertSee(route('staff.books.show', '__BOOK__'), false)
+        ->assertSee('Inventory Overview')
+        ->assertSee('Book Information')
+        ->assertSee('About This Book');
+});

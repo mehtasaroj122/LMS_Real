@@ -1,6 +1,23 @@
 @forelse($copies as $copy)
-    @php($student = $copy->issuedBooks->first()?->student)
+    @php
+        $student = $copy->activeIssue?->student;
+        $deletionEligibility = app(\App\Services\PhysicalBookCopyDeletionService::class)->eligibility($copy);
+    @endphp
     <tr>
+        <td class="book-copies-select-cell">
+            <input
+                type="checkbox"
+                class="copy-select-checkbox"
+                value="{{ $copy->id }}"
+                data-accession="{{ $copy->accession_number }}"
+                aria-label="Select copy {{ $copy->accession_number }}"
+                @disabled(! $deletionEligibility['eligible'])
+                @if(! $deletionEligibility['eligible']) title="{{ $deletionEligibility['reason'] }}" aria-describedby="copy-protection-{{ $copy->id }}" @endif
+            >
+            @if(! $deletionEligibility['eligible'])
+                <span class="book-copies-protected" id="copy-protection-{{ $copy->id }}" title="{{ $deletionEligibility['reason'] }}"><i class="fas fa-lock" aria-hidden="true"></i><span class="book-copies-sr-only">{{ $deletionEligibility['reason'] }}</span></span>
+            @endif
+        </td>
         <td class="accession">{{ $copy->accession_number }}</td>
         <td>{{ $copy->entry_date?->toDateString() }}</td>
         <td>{{ ucfirst($copy->book_type) }}</td>
@@ -10,9 +27,9 @@
         <td>{{ ucfirst($copy->condition) }}</td>
         <td>{{ $copy->price !== null ? number_format((float) $copy->price, 2) : '—' }}</td>
         <td>{{ $copy->remarks ?: '—' }}</td>
-        <td><button type="button" class="book-copies-action edit-copy-btn" data-copy-id="{{ $copy->id }}">Edit</button> <button type="button" class="book-copies-action delete delete-copy-btn" data-copy-id="{{ $copy->id }}">Delete</button></td>
+        <td><button type="button" class="book-copies-action edit-copy-btn" data-copy-id="{{ $copy->id }}">Edit</button> <button type="button" class="book-copies-action delete delete-copy-btn" data-copy-id="{{ $copy->id }}" @disabled(! $deletionEligibility['eligible']) @if(! $deletionEligibility['eligible']) title="{{ $deletionEligibility['reason'] }}" @endif>Delete</button></td>
     </tr>
-    <tr class="book-copies-edit-row" id="edit-row-{{ $copy->id }}"><td colspan="10">
+    <tr class="book-copies-edit-row" id="edit-row-{{ $copy->id }}"><td colspan="11">
         <form class="book-copies-edit-form copy-edit-form" data-copy-id="{{ $copy->id }}">
             <label>Accession<input value="{{ $copy->accession_number }}" readonly></label>
             <label>Entry Date<input name="entry_date" type="date" value="{{ $copy->entry_date?->toDateString() }}" required></label>
@@ -25,5 +42,5 @@
         </form>
     </td></tr>
 @empty
-    <tr><td colspan="10" class="book-copies-empty">{{ $search !== '' || $status !== 'all' || $bookType !== 'all' ? 'No copies match these filters.' : 'No physical copies have been registered.' }}</td></tr>
+    <tr><td colspan="11" class="book-copies-empty">{{ $search !== '' || $status !== 'all' || $bookType !== 'all' ? 'No copies match these filters.' : 'No physical copies have been registered.' }}</td></tr>
 @endforelse

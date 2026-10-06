@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BookCopy extends Model
 {
@@ -36,6 +37,13 @@ class BookCopy extends Model
     public function issuedBooks(): HasMany
     {
         return $this->hasMany(IssuedBook::class);
+    }
+
+    public function activeIssue(): HasOne
+    {
+        return $this->hasOne(IssuedBook::class)
+            ->whereNull('return_date')
+            ->latestOfMany('issue_date');
     }
 
     public function scopeAvailable($query)

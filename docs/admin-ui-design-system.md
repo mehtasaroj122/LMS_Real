@@ -1,6 +1,6 @@
-# Admin UI design system
+# Admin and Staff UI design system
 
-The Admin layout loads `public/admin/CSS/admin-design-system.css` after existing styles and `public/admin/JS/admin-ui.js` after existing scripts. Both are scoped to `body.admin-portal`. Staff, Student, authentication and public pages retain their existing UI.
+The Admin and Staff layouts load `public/admin/CSS/admin-design-system.css` after existing styles and `public/admin/JS/admin-ui.js` after existing scripts. Both are scoped to `body.admin-portal`; Staff also uses `body.staff-portal` for its dashboard-specific list cards and white popup headers. Student, authentication and public pages retain their existing UI.
 
 ## Reuse
 
@@ -32,6 +32,8 @@ Book Management's existing Details dialog uses `partials.admin-book-details-moda
 The adapter adds names to legacy icon buttons, one shared tooltip for hover and keyboard focus, column scope to table headers, label associations and references to existing inline errors. It keeps focus inside an open modal, restores focus on closing, and forwards Escape to an existing close control when a legacy modal has no Escape handler. Busy dialogs retain their existing cancellation guards.
 
 Existing modules remain responsible for validation, disabling submission controls, request processing and clearing their busy state. The adapter reflects existing busy states with `aria-busy`, a spinner and stable width; it never submits forms or performs AJAX requests. Short controls show a spinner when their loading label cannot fit, while retaining that label in the accessibility tree.
+
+The Staff dashboard's list-based record cards receive the same soft header, alternating rows, separators and complete-row hover treatment as semantic data tables. Staff shortcuts use the shared blue/slate palette rather than introducing per-link accent colors.
 
 Placeholder text uses Secondary Text (`#64748B`) for readability. Keyboard focus has an outline in addition to the blue ring. Reduced motion overrides legacy component transitions and animations through the `admin-accessibility` CSS layer.
 

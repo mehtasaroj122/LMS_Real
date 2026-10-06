@@ -1929,10 +1929,7 @@
 
                     <a href="{{ route('staff.fines.index') }}" class="quick-action-btn" style="--quick-accent: #dc2626; --quick-accent-strong: #b91c1c; --quick-soft: rgba(220, 38, 38, 0.16); --quick-border: rgba(220, 38, 38, 0.2);">
                         <span class="quick-action-icon" aria-hidden="true">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 1v22" />
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                            </svg>
+                            <span class="quick-action-currency-mark">{{ \App\Support\Currency::SYMBOL }}</span>
                         </span>
                         <span class="quick-action-content">
                             <span class="quick-action-top">

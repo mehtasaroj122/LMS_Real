@@ -1,4 +1,4 @@
-/* Scoped to the Student Details transaction popup; shared admin tokens/buttons apply. */
+/* Shared Admin/Staff Student Details transaction popup; portal tokens/buttons apply. */
 .admin-portal #bookDetailsOverlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; overflow: hidden; }
 .admin-portal #bookDetailsOverlay.show { display: flex; }
 .admin-portal #bookDetailsOverlay .book-details-modal {

@@ -197,11 +197,12 @@
 
     @stack('styles')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('admin/CSS/admin-design-system.css') }}?v={{ filemtime(public_path('admin/CSS/admin-design-system.css')) }}">
     <link rel="stylesheet" href="{{ asset('shared/CSS/popup-headers.css') }}?v={{ filemtime(public_path('shared/CSS/popup-headers.css')) }}">
     @include('shared.currency')
 </head>
 
-<body class="light-theme">
+<body class="light-theme admin-portal staff-portal">
 @include('shared.library-branding.bootstrap')
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="flex h-screen min-h-0 overflow-hidden">
@@ -420,5 +421,6 @@
 <script src="{{ asset('staff/JS/staff-appLayout.js') }}"></script>
 
 @stack('scripts')
+<script src="{{ asset('admin/JS/admin-ui.js') }}?v={{ filemtime(public_path('admin/JS/admin-ui.js')) }}" defer></script>
 </body>
 </html>

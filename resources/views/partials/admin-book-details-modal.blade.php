@@ -1,5 +1,10 @@
+@php
+    $bookDetailsUrl = $bookDetailsUrl ?? route('admin.books.show', '__BOOK__');
+    $bookDetailsCanManage = $bookDetailsCanManage ?? auth()->user()?->can('access-admin');
+@endphp
+
 <div id="viewBookModal" class="modal-overlay" aria-hidden="true"
-     data-details-url="{{ route('admin.books.show', '__BOOK__') }}" data-time-zone="{{ config('app.timezone') }}">
+     data-details-url="{{ $bookDetailsUrl }}" data-time-zone="{{ config('app.timezone') }}">
     <div class="modal book-details-panel" role="dialog" aria-modal="true" aria-labelledby="bookDetailsTitle" aria-describedby="bookDetailsSubtitle" tabindex="-1">
         <div class="modal-header book-details-header">
             <div>
@@ -15,7 +20,7 @@
         </div>
         <div class="modal-footer book-details-footer">
             <button class="btn btn-secondary" id="closeViewBookBtn" type="button">Close</button>
-            @can('access-admin')
+            @if($bookDetailsCanManage)
                 <a class="btn btn-secondary" id="bookDetailsManageCopies" aria-disabled="true" tabindex="-1">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"></path></svg>
                     Manage Copies
@@ -24,7 +29,7 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
                     Add Physical Copies
                 </button>
-            @endcan
+            @endif
         </div>
         <span class="book-details-sr-only" id="bookDetailsStatus" role="status" aria-live="polite"></span>
     </div>
@@ -73,12 +78,12 @@
     <section class="book-details-section" aria-labelledby="bookDetailsInformationHeading">
         <div class="book-details-section-heading">
             <h3 id="bookDetailsInformationHeading">Book Information</h3>
-            @can('access-admin')
+            @if($bookDetailsCanManage)
                 <button type="button" class="btn btn-secondary book-details-edit" data-book-action="edit">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m16 3 5 5-12 12-6 1 1-6L16 3ZM13 6l5 5"></path></svg>
                     Edit Book
                 </button>
-            @endcan
+            @endif
         </div>
         <dl class="book-details-information">
             <div><dt>Catalogue Shelf / Rack</dt><dd data-book-detail="shelf_no"></dd></div>

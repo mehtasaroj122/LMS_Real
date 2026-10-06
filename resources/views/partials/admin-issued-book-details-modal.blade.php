@@ -1,4 +1,4 @@
-{{-- Uses the Student Details page's existing modal and embedded transaction data. --}}
+{{-- Shared read-only transaction modal for Admin and Staff Student Details pages. --}}
 <div class="book-details-overlay" id="bookDetailsOverlay" aria-hidden="true">
     <div class="book-details-modal" role="dialog" aria-modal="true" aria-labelledby="issuedBookDetailsHeading" aria-describedby="issuedBookDetailsSubtitle" tabindex="-1">
         <header class="book-details-header">

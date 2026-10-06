@@ -113,7 +113,7 @@ body.admin-portal.dark-theme {
 .admin-portal main :is(.text-success, .text-green-500, .text-green-600, .text-emerald-500, .text-emerald-600, .copy-available, .fine-amount.paid) { color: var(--ui-success-text) !important; }
 .admin-portal main :is(.text-danger, .text-red-500, .text-red-600, .fine-amount.pending) { color: var(--ui-danger-text) !important; }
 .admin-portal main :is(.text-warning, .text-amber-500, .text-amber-600) { color: var(--ui-warning-text) !important; }
-.admin-portal main :is(.card, .stat-card, .request-stat-card, .book-copies-stat, .settings-profile-card, .settings-main-card, .table-card, .chart-card, .filters-card, .lock-summary-card) {
+.admin-portal main :is(.card, .stat-card, .request-stat-card, .book-copies-stat, .settings-profile-card, .settings-main-card, .settings-card, .profile-card, .section-card, .table-card, .chart-card, .filters-card, .lock-summary-card, .privilege-info-card) {
     background: var(--ui-surface) !important;
     border: 1px solid var(--ui-border) !important;
     border-radius: 10px !important;
@@ -163,13 +163,17 @@ body.admin-portal.dark-theme {
     border: 0 !important;
     border-bottom: 1px solid var(--ui-row-border) !important;
     vertical-align: middle;
-    color: var(--ui-text);
+    color: var(--ui-heading) !important;
 }
 .admin-portal main table tbody tr:last-child td { border-bottom: 0 !important; }
 .admin-portal main table tbody tr:hover { background: var(--ui-soft) !important; }
+.admin-portal main table tbody[data-admin-ui-rows] tr:hover { background: var(--ui-soft) !important; }
 .admin-portal main table tbody tr.book-copies-edit-row { background: var(--ui-soft) !important; }
 .admin-portal main table :is(strong, .book-title, .student-name, .user-name, .accession) { color: var(--ui-heading) !important; font-weight: 500 !important; }
-.admin-portal main table :is(small, .book-author, .book-publisher, .book-copies-muted, .user-email, .student-email) { color: var(--ui-secondary) !important; font-size: 12px; }
+.admin-portal main table :is(small, .book-author, .book-publisher, .book-copies-muted, .user-email, .student-email) { color: var(--ui-heading) !important; font-size: 12px; }
+.admin-portal main table tbody :is(.text-secondary, .text-muted, .text-gray-400, .text-gray-500, .text-gray-600, .text-slate-400, .text-slate-500) { color: var(--ui-heading) !important; }
+.admin-portal main table tbody :is([style*="font-size: 10px"], [style*="font-size: 12px"]):not(.admin-ui-button) { color: var(--ui-heading) !important; }
+.admin-portal main table td > small { display: block; margin-top: 2px; }
 .admin-portal :is(.action-buttons, .admin-table-actions, .request-row-actions, .fine-row-actions) { gap: 6px !important; align-items: center; }
 
 /* Reusable buttons. JS only maps legacy class names to these presentation classes. */
@@ -312,7 +316,7 @@ body.admin-portal.dark-theme {
 @keyframes admin-ui-spin { to { transform: rotate(360deg); } }
 
 /* Forms. Placeholder text uses Secondary Text to meet normal-text contrast. */
-.admin-portal main :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="submit"]):not([type="button"]), select, textarea, .request-selectbox-trigger) {
+.admin-portal main :is(input:where(:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="submit"]):not([type="button"])), select, textarea, .request-selectbox-trigger) {
     background-color: var(--ui-surface) !important;
     border: 1px solid var(--ui-strong-border) !important;
     border-radius: 7px !important;
@@ -340,10 +344,28 @@ body.admin-portal.dark-theme {
 .admin-portal :is(.field-error, .request-field-error, .student-field-error, .physical-field-error, .form-error, .invalid-feedback, .student-modal-error, .account-deletion-modal__field-error) { color: var(--ui-danger) !important; font-size: 12px !important; }
 .admin-portal :is(.form-group, .modal-body .input-group) { margin-bottom: 14px; }
 .admin-portal :is(.search-icon, .lock-input-shell i) { color: var(--ui-secondary) !important; }
-.admin-portal :is(.search-filter-container, .request-toolbar, .book-copies-toolbar, .lock-filter-bar, .activity-filter-panel, .issued-books-toolbar) { background: var(--ui-surface) !important; border: 1px solid var(--ui-border) !important; border-radius: 10px !important; padding: 14px !important; box-shadow: none !important; gap: 12px; }
+.admin-portal :is(.search-filter-container, .request-toolbar, .book-copies-toolbar, .lock-filter-bar, .activity-filter-panel, .filters-section, .issued-books-toolbar) { background: var(--ui-surface) !important; border: 1px solid var(--ui-border) !important; border-radius: 10px !important; padding: 14px !important; box-shadow: none !important; gap: 12px; }
 .admin-portal :is(.filters-container, .request-filters, .request-toolbar-actions, .lock-filter-actions) { gap: 10px !important; flex-wrap: wrap; align-items: center; }
 .admin-portal :is(.fine-bulk-bar, .request-bulk-bar) { background: var(--ui-page) !important; border-color: var(--ui-border) !important; box-shadow: none !important; }
 .admin-portal :is(.search-input, .filter-select, .request-search-input, .request-filter-select, .admin-table-entries-select, .book-copies-toolbar .book-copies-control, .activity-filter-grid input, .activity-filter-grid select) { height: 38px !important; }
+.admin-portal .search-container .search-input-clearable { padding-right: 76px !important; }
+.admin-portal .search-container .clear-btn {
+    position: absolute;
+    z-index: 2;
+    top: 4px;
+    right: 6px;
+    bottom: 4px;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 10px !important;
+    border-radius: 4px !important;
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+    transform: none !important;
+}
+.admin-portal .search-container .clear-btn:hover,
+.admin-portal .search-container .clear-btn:active { transform: none !important; }
 .admin-portal .book-copies-search { position: relative; width: min(280px, 100%); flex-basis: 280px; min-width: 0; }
 .admin-portal .book-copies-search #copySearch { padding-left: 36px !important; }
 .admin-portal .book-copies-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ui-secondary); pointer-events: none; }
@@ -363,7 +385,7 @@ body.admin-portal.dark-theme {
     z-index: var(--ui-toast-layer) !important;
 }
 .admin-portal .student-modal-backdrop { background: transparent !important; }
-.admin-portal :is(.modal, .modal-panel, .modal-container, .request-modal-panel, .fine-modal, .activity-modal, .book-details-modal, .role-modal, .student-modal-dialog, .student-confirm-modal, .notification-detail-panel, .action-feedback-confirm-card, .transaction-confirm-card, .role-confirm-card, .account-deletion-modal__panel, .report-export-panel, .report-pdf-panel, .logo-cropper-panel, #addStudentModal > div) {
+.admin-portal :is(.modal, .modal-dialog, .modal-panel, .modal-container, .request-modal-panel, .fine-modal, .activity-modal, .book-details-modal, .role-modal, .student-modal-dialog, .student-confirm-modal, .notification-detail-panel, .action-feedback-confirm-card, .transaction-confirm-card, .role-confirm-card, .account-deletion-modal__panel, .report-export-panel, .report-pdf-panel, .logo-cropper-panel, #addStudentModal > div) {
     background: var(--ui-surface) !important;
     color: var(--ui-text) !important;
     border: 1px solid var(--ui-border) !important;
@@ -378,7 +400,7 @@ body.admin-portal.dark-theme {
     overflow-y: auto;
     animation: none !important;
 }
-.admin-portal :is(.action-feedback-confirm-card, .transaction-confirm-card, .role-confirm-card, .student-confirm-modal, .student-modal-dialog, .account-deletion-modal__panel, .delete-book-modal, .modal-sm) { --ui-modal-width: 480px; }
+.admin-portal :is(.modal-dialog, .action-feedback-confirm-card, .transaction-confirm-card, .role-confirm-card, .student-confirm-modal, .student-modal-dialog, .account-deletion-modal__panel, .delete-book-modal, .modal-sm) { --ui-modal-width: 480px; }
 .admin-portal .notification-detail-modal-danger .notification-detail-panel { --ui-modal-width: 480px; }
 /* Report previews and image cropping need more room, while remaining bounded. */
 .admin-portal :is(.report-export-panel, .report-pdf-panel, .logo-cropper-panel, .fine-modal.wide) { --ui-modal-width: 864px; }
@@ -428,6 +450,20 @@ body.admin-portal.dark-theme {
 .admin-portal .admin-ui-badge-info { --badge-bg: var(--ui-info-bg); --badge-color: var(--ui-info-text); }
 .admin-portal :is(.admin-ui-badge, .admin-ui-button) :is(svg, i) { color: inherit !important; }
 
+/* Dashboard activity roles use explicit paired foreground/background tokens.
+   This avoids OS-level Tailwind dark variants producing red-on-red or blue-on-blue text. */
+.admin-portal .dashboard-role-badge {
+    padding: 3px 7px !important;
+    border: 0 !important;
+    border-radius: 5px !important;
+    line-height: 1.35;
+    white-space: nowrap;
+}
+.admin-portal .dashboard-role-admin { background: var(--ui-danger-bg) !important; color: var(--ui-danger-badge-text) !important; }
+.admin-portal .dashboard-role-staff { background: var(--ui-info-bg) !important; color: var(--ui-info-text) !important; }
+.admin-portal .dashboard-role-student { background: var(--ui-success-bg) !important; color: var(--ui-success-text) !important; }
+.admin-portal .dashboard-role-unknown { background: var(--ui-soft) !important; color: var(--ui-icon) !important; }
+
 .admin-portal :is(.admin-table-pagination, .admin-pagination, #studentPaginationContainer) { background: var(--ui-surface) !important; border-color: var(--ui-border) !important; }
 .admin-portal :is(.admin-table-pagination-link, .admin-pagination-btn, .pagination-btn, .table-pagination-btn, .admin-ui-pagination) {
     display: inline-flex;
@@ -467,6 +503,59 @@ body.admin-portal.dark-theme {
 }
 .admin-portal .admin-ui-tooltip[hidden] { display: none; }
 .admin-portal .admin-ui-icon-button :is(.admin-action-btn-tooltip, .action-tooltip) { display: none !important; }
+
+/* Staff dashboard uses compact list cards instead of semantic tables. Give those
+   records the same header, stripe, separator and row-hover hierarchy. */
+.staff-portal .table-card {
+    padding: 0 !important;
+    overflow: hidden;
+}
+.staff-portal .table-card-header {
+    margin: 0 !important;
+    padding: 13px 14px !important;
+    border-bottom: 1px solid var(--ui-border) !important;
+    background: var(--ui-page) !important;
+}
+.staff-portal .table-card-title {
+    color: var(--ui-icon) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase;
+}
+.staff-portal .table-list > .table-item {
+    margin: 0 !important;
+    padding: 12px 14px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--ui-row-border) !important;
+    border-radius: 0 !important;
+    background: var(--ui-surface) !important;
+    transition: background-color 0.15s ease !important;
+}
+.staff-portal .table-list > .table-item:nth-child(even) { background: var(--ui-stripe) !important; }
+.staff-portal .table-list > .table-item:hover { background: var(--ui-soft) !important; }
+.staff-portal .table-list > .table-item:last-of-type { border-bottom: 0 !important; }
+.staff-portal :is(.table-item-title, .overdue-book, .quick-action-title) { color: var(--ui-heading) !important; font-weight: 500 !important; }
+.staff-portal :is(.table-item-subtitle, .table-item-meta, .overdue-student, .overdue-date, .quick-action-meta) { color: var(--ui-secondary) !important; font-size: 12px !important; }
+
+/* Keep dashboard shortcuts in the portal palette instead of introducing a
+   different accent color per destination. */
+.staff-portal .quick-action-btn {
+    --quick-accent: var(--ui-primary) !important;
+    --quick-accent-strong: var(--ui-primary-hover) !important;
+    --quick-soft: var(--ui-blue-soft) !important;
+    --quick-border: var(--ui-border) !important;
+}
+.staff-portal .quick-action-currency-mark {
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+.staff-portal :is(.modal-header, .request-modal-header, .fine-modal-header, .activity-modal-header, .role-modal-header, .student-modal-header, .notification-detail-header, .action-feedback-confirm-header, .transaction-confirm-header, .role-confirm-header, .account-deletion-modal__header, .report-export-header, .report-pdf-header, .logo-cropper-header, .delete-modal-hero) {
+    background: var(--ui-surface) !important;
+    border-bottom-color: var(--ui-border) !important;
+}
 
 @media (max-width: 640px) {
     body.admin-portal { --ui-modal-gutter: 12px; }

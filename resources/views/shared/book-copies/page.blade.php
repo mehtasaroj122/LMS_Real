@@ -1,4 +1,12 @@
-<div class="book-copies-page" id="bookCopiesPage" data-base-url="{{ url('/' . $role . '/book-copies') }}">
+<div
+    class="book-copies-page"
+    id="bookCopiesPage"
+    data-base-url="{{ url('/' . $role . '/book-copies') }}"
+    data-bulk-preview-url="{{ route($role . '.books.copies.bulk-preview', $book) }}"
+    data-bulk-delete-url="{{ route($role . '.books.copies.bulk-delete', $book) }}"
+    data-book-title="{{ $book->title }}"
+    data-book-isbn="{{ $book->isbn }}"
+>
     <div class="book-copies-header">
         <div>
             <p class="book-copies-crumb">Book Management / Physical Copies</p>
@@ -34,11 +42,29 @@
         <button type="button" class="book-copies-button primary book-copies-add" id="addPhysicalBookBtn"><i class="fas fa-plus" aria-hidden="true"></i> Add Copies</button>
     </form>
 
-    <template id="copyTableSkeleton"><x-table-skeleton :rows="5" :columns="10" label="Loading copies..." /></template>
+    <div class="book-copies-bulk-bar" id="copyBulkBar" aria-label="Bulk copy actions">
+        <div class="book-copies-selection-count" aria-live="polite"><i class="fas fa-check-square" aria-hidden="true"></i> <span id="copySelectionCount">0 copies selected</span></div>
+        <label class="book-copies-bulk-select" for="copyBulkAction">
+            <span class="book-copies-sr-only">Bulk action</span>
+            <select class="book-copies-control" id="copyBulkAction">
+                <option value="">Bulk Actions</option>
+                <option value="delete_selected">Delete Selected</option>
+                <option value="delete_available">Delete Available Copies</option>
+                <option value="delete_damaged">Delete Damaged Copies</option>
+                <option value="delete_lost">Delete Lost Copies</option>
+                <option value="delete_all_eligible">Delete All Eligible Copies</option>
+            </select>
+        </label>
+        <button type="button" class="book-copies-button danger" id="applyCopyBulkAction" disabled>Apply</button>
+        <button type="button" class="book-copies-button" id="clearCopySelection" disabled>Clear Selection</button>
+        <span class="book-copies-bulk-note">Borrowed and historically protected copies always remain.</span>
+    </div>
+
+    <template id="copyTableSkeleton"><x-table-skeleton :rows="5" :columns="11" label="Loading copies..." /></template>
 
     <div class="book-copies-table-wrap">
         <table class="book-copies-table" id="copyTable">
-            <thead><tr><th>Accession No.</th><th>Entry Date</th><th>Book Type</th><th>Status</th><th>Borrowed By</th><th>Shelf</th><th>Condition</th><th>Price</th><th>Remarks</th><th>Actions</th></tr></thead>
+            <thead><tr><th class="book-copies-select-column"><label class="book-copies-select-all-label"><input type="checkbox" id="selectAllCopies" aria-label="Select all eligible copies on this page"><span>Select All</span></label></th><th>Accession No.</th><th>Entry Date</th><th>Book Type</th><th>Status</th><th>Borrowed By</th><th>Shelf</th><th>Condition</th><th>Price</th><th>Remarks</th><th>Actions</th></tr></thead>
             <tbody id="copyTableBody">
                 @include('shared.book-copies.rows')
             </tbody>

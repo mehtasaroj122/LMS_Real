@@ -489,27 +489,27 @@
                                 </p>
 
                                 @if($activity->user)
-                                    <span class="inline-flex items-center px-1.5 py-0.5 text-xs font-semibold rounded-full flex-shrink-0 {{ 
+                                    <span class="dashboard-role-badge inline-flex items-center px-1.5 py-0.5 text-xs font-semibold rounded flex-shrink-0 {{
                                         $activity->user->role === 'admin' 
-                                            ? 'bg-white text-red-600 dark:bg-red-600 dark:text-white' :
+                                            ? 'dashboard-role-admin' :
                                         ($activity->user->role === 'staff' 
-                                            ? 'bg-white text-blue-600 dark:bg-blue-600 dark:text-white' :
-                                            'bg-white text-green-600 dark:bg-green-600 dark:text-white')
+                                            ? 'dashboard-role-staff' :
+                                            'dashboard-role-student')
                                     }}">
                                         {{ ucfirst($activity->user->role) }}
                                     </span>
                                 @elseif($activity->user_role)
-                                    <span class="inline-flex items-center px-1.5 py-0.5 text-xs font-semibold rounded-full flex-shrink-0 {{ 
+                                    <span class="dashboard-role-badge inline-flex items-center px-1.5 py-0.5 text-xs font-semibold rounded flex-shrink-0 {{
                                         $activity->user_role === 'admin' 
-                                            ? 'bg-white text-red-600 dark:bg-red-600 dark:text-white' :
+                                            ? 'dashboard-role-admin' :
                                         ($activity->user_role === 'staff' 
-                                            ? 'bg-white text-blue-600 dark:bg-blue-600 dark:text-white' :
-                                            'bg-white text-green-600 dark:bg-green-600 dark:text-white')
+                                            ? 'dashboard-role-staff' :
+                                            'dashboard-role-student')
                                     }}">
                                         {{ ucfirst($activity->user_role) }}
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center flex-shrink-0 px-1.5 py-0.5 text-xs font-semibold text-gray-600 bg-white rounded-full dark:bg-gray-600 dark:text-white">
+                                    <span class="dashboard-role-badge dashboard-role-unknown inline-flex items-center flex-shrink-0 px-1.5 py-0.5 text-xs font-semibold rounded">
                                         Unknown
                                     </span>
                                 @endif

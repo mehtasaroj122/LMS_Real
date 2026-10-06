@@ -18,9 +18,10 @@
         '.fine-status-badge', '.activity-status-badge', '.activity-role-badge',
         '.history-status-badge', '.history-action-badge', '.fine-history-role-badge',
         '.lock-status-badge', '.result-badge', '.book-detail-badge', '.section-status', '.row-indicator',
+        '.activity-insight-badge', '.quick-action-badge', '.section-count', '.privilege-status-badge',
     ].join(',');
     const panelSelector = [
-        '.modal', '.modal-panel', '.modal-container', '.request-modal-panel',
+        '.modal', '.modal-dialog', '.modal-panel', '.modal-container', '.request-modal-panel',
         '.fine-modal', '.activity-modal', '.book-details-modal', '.role-modal',
         '.student-modal-dialog', '.student-confirm-modal', '.notification-detail-panel',
         '.action-feedback-confirm-card', '.transaction-confirm-card', '.role-confirm-card',
@@ -28,7 +29,7 @@
         '.logo-cropper-panel', '#addStudentModal > div',
     ].join(',');
     const actionSelector = '.action-btn, .admin-action-btn, .book-copies-action, .request-action-btn, .student-fine-action-btn, .activity-action-btn, .action-btn-small';
-    const primarySelector = '.btn-primary, .btn-success, .btn-info, .save-changes-btn, .student-submit-btn, .generate-receipt-btn, .report-export-btn-primary, .report-export-btn-download, .report-pdf-btn-primary, .reports-error-retry, .export-btn, .btn-paid, .btn-activate, #studentCreateSubmitBtn, #studentCreateBtn';
+    const primarySelector = '.btn-primary, .btn-success, .btn-info, .btn-accept, .modal-btn-approve, .save-changes-btn, .student-submit-btn, .generate-receipt-btn, .report-export-btn-primary, .report-export-btn-download, .report-pdf-btn-primary, .reports-error-retry, .export-btn, .btn-paid, .btn-activate, #modalConfirmBtn, #studentCreateSubmitBtn, #studentCreateBtn';
     const dangerSelector = '.btn-danger, .btn-confirm-danger, .btn-delete, .btn-deactivate, .account-deletion-zone__button, .delete-modal-primary, .remove-book';
     const unstyledSelector = '.sidebar-item, .tab-btn, .chart-view-btn, .request-selectbox-option, .physical-book-result, .palette-btn, .fine-period-label, .activity-toggle-btn, .privilege-details-toggle, .student-modal-backdrop';
     const variants = ['primary', 'secondary', 'danger', 'neutral'];
@@ -66,7 +67,7 @@
     }
 
     function styleButton(button) {
-        if (button.closest('.admin-sidebar')) return;
+        if (button.closest('.sidebar')) return;
         button.querySelectorAll('i, svg').forEach(icon => {
             if (icon.getAttribute('aria-hidden') !== 'true') icon.setAttribute('aria-hidden', 'true');
             if (icon.tagName.toLowerCase() === 'svg') icon.setAttribute('focusable', 'false');
@@ -105,9 +106,16 @@
         button.classList.toggle('admin-ui-action', action || (close && iconOnly));
         button.classList.toggle('admin-ui-icon-button', iconOnly);
         if (iconOnly) {
-            const name = button.getAttribute('aria-label') || button.getAttribute('title') || (close ? 'Close dialog' : iconName(button));
+            const nativeTitle = button.getAttribute('title');
+            const name = button.getAttribute('aria-label') || nativeTitle || button.dataset.adminUiTooltip
+                || (close ? 'Close dialog' : iconName(button));
             if (name && !button.hasAttribute('aria-label')) button.setAttribute('aria-label', name);
-            if (name && !button.hasAttribute('title')) button.setAttribute('title', name);
+            // The portal provides one positioned tooltip below. Keeping a native title
+            // as well makes browsers display a second tooltip after their hover delay.
+            // Preserve its text for the shared tooltip, then suppress the native one.
+            const tooltipText = nativeTitle || button.dataset.adminUiTooltip || name;
+            if (tooltipText) button.dataset.adminUiTooltip = tooltipText;
+            if (button.hasAttribute('title')) button.removeAttribute('title');
         }
 
         // Existing modules already disable controls and set busy text/spinners. Reflect that
@@ -140,9 +148,9 @@
     function styleBadge(badge) {
         const source = `${[...badge.classList].filter(name => !name.startsWith('admin-ui-')).join(' ')} ${badge.textContent}`.toLowerCase();
         let tone = 'neutral';
-        if (/\b(success|active|available|paid|approved|good|returned|waived|ontime|is-live)\b/.test(source)) tone = 'success';
+        if (/\b(success|active|available|paid|approved|allowed|eligible|good|returned|waived|ontime|is-live)\b/.test(source)) tone = 'success';
         if (/\b(info|new|processing|primary|admin)\b/.test(source)) tone = 'info';
-        if (/\b(warning|pending|issued|borrowed|due soon|fair|override)\b/.test(source)) tone = 'warning';
+        if (/\b(warning|pending|issued|borrowed|due soon|due today|fair|override)\b/.test(source)) tone = 'warning';
         if (/\b(danger|damaged|lost|overdue|rejected|inactive|restricted|unavailable)\b/.test(source)) tone = 'danger';
         badge.classList.add('admin-ui-badge');
         ['success', 'warning', 'danger', 'info'].forEach(name => badge.classList.toggle(`admin-ui-badge-${name}`, tone === name));
@@ -310,7 +318,7 @@
         tooltipButton = null;
     }
     function showTooltip(button) {
-        const text = button.getAttribute('title') || button.getAttribute('aria-label');
+        const text = button.dataset.adminUiTooltip || button.getAttribute('aria-label');
         if (!text || button.disabled) return;
         hideTooltip();
         tooltipButton = button;

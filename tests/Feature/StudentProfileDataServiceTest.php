@@ -102,3 +102,52 @@ test('staff student profile shows overdue fine amounts and fine management rows'
         ->and($storedFine)->not->toBeNull()
         ->and($storedFine->status)->toBe('pending');
 });
+
+test('staff student details renders the shared issued book details interaction', function () {
+    $staff = User::forceCreate([
+        'role' => 'staff',
+        'name' => 'Profile Staff',
+        'email' => 'profile-staff@example.com',
+        'phone' => '9800000001',
+        'password' => Hash::make('Password!123'),
+        'status' => 'active',
+        'is_verified' => true,
+    ]);
+    $student = makeStudentProfileDataStudent();
+    makeStudentProfileDataIssue($student, 'Shared Modal Book', 3);
+
+    $response = $this->actingAs($staff)->get(route('staff.students.show', $student));
+
+    $response->assertOk()
+        ->assertSee('Academic Information')
+        ->assertSee('Contact Information')
+        ->assertSee('Account Information')
+        ->assertSee('<th scope="col">Actions</th>', false)
+        ->assertSee('data-book-view=', false)
+        ->assertSee('View issued book details for', false)
+        ->assertSee('Issued Book Details')
+        ->assertSee('admin/JS/issued-book-details.js', false)
+        ->assertSee('admin/CSS/issued-book-details.css', false);
+});
+
+test('admin student details keeps using the shared issued book modal after the staff redesign', function () {
+    $admin = User::forceCreate([
+        'role' => 'admin',
+        'name' => 'Profile Admin',
+        'email' => 'profile-admin@example.com',
+        'phone' => '9800000002',
+        'password' => Hash::make('Password!123'),
+        'status' => 'active',
+        'is_verified' => true,
+    ]);
+    $student = makeStudentProfileDataStudent();
+    makeStudentProfileDataIssue($student, 'Admin Shared Modal Book', 2);
+    \Illuminate\Support\Facades\View::share('libraryBranding', \App\Support\LibraryBranding::resolve());
+
+    $response = $this->actingAs($admin)->get(route('admin.students.show', $student));
+
+    $response->assertOk()
+        ->assertSee('Issued Book Details')
+        ->assertSee('admin/JS/issued-book-details.js', false)
+        ->assertSee('admin/CSS/issued-book-details.css', false);
+});

@@ -49,6 +49,7 @@
                 this.elements = {
                     root: document.getElementById('studentProfileRoot'),
                     statusBadge: document.getElementById('studentStatusBadge'),
+                    inlineStatus: document.getElementById('studentInlineStatus'),
                     statusAction: document.getElementById('studentStatusActionBtn'),
                     pendingFine: document.getElementById('studentPendingFineValue'),
                     bookSearch: document.getElementById('studentBookSearch'),
@@ -173,6 +174,11 @@
                 });
                 this.elements.statusAction?.addEventListener('click', () => this.toggleStatus());
                 this.elements.root.addEventListener('click', (event) => {
+                    const bookViewButton = event.target.closest('[data-book-view]');
+                    if (bookViewButton) {
+                        this.viewBookDetails(bookViewButton);
+                        return;
+                    }
                     const fineActionButton = event.target.closest('[data-fine-action]');
                     if (fineActionButton) {
                         this.handleFineAction(fineActionButton);
@@ -230,7 +236,7 @@
 
             renderBooks() {
                 const filteredBooks = this.books.filter((book) => {
-                    const matchesSearch = !this.bookSearch || [book.title, book.author, book.accessionNumber].filter(Boolean).some((value) => String(value).toLowerCase().includes(this.bookSearch));
+                    const matchesSearch = !this.bookSearch || [book.title, book.author, book.isbn, book.accessionNumber].filter(Boolean).some((value) => String(value).toLowerCase().includes(this.bookSearch));
                     const matchesStatus = this.bookStatus === 'all' || book.status === this.bookStatus;
                     return matchesSearch && matchesStatus;
                 });
@@ -258,14 +264,15 @@
                 if (this.elements.bookTableScroller) this.elements.bookTableScroller.hidden = false;
                 this.elements.booksEmpty.hidden = true;
                 this.elements.booksBody.innerHTML = pageItems.map((book) => `
-                    <tr>
+                    <tr class="${book.status === 'overdue' ? 'is-overdue' : ''}">
                         <td><div class="student-table-book"><strong>${this.escapeHtml(book.title)}</strong><span>${this.escapeHtml(book.author || book.category || 'Unknown')}</span></div></td>
                         <td>${this.escapeHtml(book.accessionNumber || 'N/A')}</td>
                         <td>${this.escapeHtml(book.issueDate || 'N/A')}</td>
                         <td>${this.escapeHtml(book.dueDate || 'N/A')}</td>
-                        <td>${this.escapeHtml(book.returnDate || '-')}</td>
+                        <td>${this.escapeHtml(book.returnDate || '—')}</td>
                         <td><span class="student-status-pill status-${this.escapeHtml(book.status)}">${this.escapeHtml(book.statusLabel || book.status)}</span></td>
                         <td class="${book.status === 'overdue' ? 'student-amount overdue' : ''}">${this.escapeHtml(book.fineLabel || '{{ \App\Support\Currency::PREFIX }}0.00')}</td>
+                        <td><button type="button" class="student-book-view-btn" data-book-view="${this.escapeHtml(book.id)}" aria-label="View issued book details for ${this.escapeHtml(book.title)}"><i class="far fa-eye" aria-hidden="true"></i><span>View</span></button></td>
                     </tr>
                 `).join('');
 
@@ -278,6 +285,19 @@
                 }
 
                 this.renderBookPagination(totalPages);
+            }
+
+            viewBookDetails(button) {
+                const bookId = Number(button.getAttribute('data-book-view'));
+                const book = this.books.find((item) => Number(item.id) === bookId);
+                if (!book || !window.LMSIssuedBookDetails) {
+                    this.showToast('Unable to load issued book details. Please try again.', 'error');
+                    return;
+                }
+
+                window.LMSIssuedBookDetails.open(book, button, {
+                    storageBase: @json(asset('storage')),
+                });
             }
 
             compareBooks(left, right) {
@@ -792,6 +812,10 @@
                 if (this.elements.statusBadge) {
                     this.elements.statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
                     this.elements.statusBadge.className = `student-chip status-${status}`;
+                }
+                if (this.elements.inlineStatus) {
+                    this.elements.inlineStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                    this.elements.inlineStatus.className = `student-inline-status status-${status}`;
                 }
                 if (this.elements.statusAction) {
                     this.elements.statusAction.className = `student-account-action status-${status}`;

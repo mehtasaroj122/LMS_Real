@@ -116,6 +116,8 @@ Route::middleware(['auth', 'can:access-admin'])
         Route::get('/books/{book}/copies', [BookCopyController::class, 'index'])->name('books.copies.index');
         Route::post('/books/{book}/copies/preview', [BookCopyController::class, 'preview'])->name('books.copies.preview');
         Route::post('/books/{book}/copies', [BookCopyController::class, 'store'])->name('books.copies.store');
+        Route::post('/books/{book}/copies/bulk-preview', [BookCopyController::class, 'bulkPreview'])->name('books.copies.bulk-preview');
+        Route::delete('/books/{book}/copies/bulk', [BookCopyController::class, 'bulkDelete'])->name('books.copies.bulk-delete');
         Route::match(['put', 'patch'], '/book-copies/{bookCopy}', [BookCopyController::class, 'update'])->name('book-copies.update');
         Route::delete('/book-copies/{bookCopy}', [BookCopyController::class, 'destroy'])->name('book-copies.destroy');
         Route::post('/users/validate-field', [UserController::class, 'validateField'])->name('users.validate-field');
@@ -221,6 +223,8 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::get('/books/{book}/copies', [BookCopyController::class, 'index'])->name('books.copies.index');
         Route::post('/books/{book}/copies/preview', [BookCopyController::class, 'preview'])->name('books.copies.preview');
         Route::post('/books/{book}/copies', [BookCopyController::class, 'store'])->name('books.copies.store');
+        Route::post('/books/{book}/copies/bulk-preview', [BookCopyController::class, 'bulkPreview'])->name('books.copies.bulk-preview');
+        Route::delete('/books/{book}/copies/bulk', [BookCopyController::class, 'bulkDelete'])->name('books.copies.bulk-delete');
         Route::match(['put', 'patch'], '/book-copies/{bookCopy}', [BookCopyController::class, 'update'])->name('book-copies.update');
         Route::delete('/book-copies/{bookCopy}', [BookCopyController::class, 'destroy'])->name('book-copies.destroy');
         Route::post('/books/{book}/request-deletion', [BookDeletionRequestController::class, 'store'])->name('books.request-deletion');

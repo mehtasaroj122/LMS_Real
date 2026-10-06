@@ -25,7 +25,7 @@
 
         <div class="student-header-copy">
             <h1>Student Details</h1>
-            <p>Review issued books, fines, activity, and library privileges.</p>
+            <p>Review circulation, fines, account status and library activity.</p>
         </div>
     </div>
 
@@ -42,10 +42,6 @@
 
                 <div class="student-profile-title">
                     <h2>{{ $student->user?->name ?? 'Unknown Student' }}</h2>
-                    <div class="student-id-card">
-                        <span class="student-id-label">Student ID</span>
-                        <span class="student-id-value">{{ $student->roll_no ?? 'N/A' }}</span>
-                    </div>
 
                     <div class="student-badge-row">
                         <span class="student-chip status-{{ $status }}"
@@ -55,73 +51,85 @@
                 </div>
             </div>
 
+            <div class="student-profile-section">
+                <h3 class="student-profile-section-title">Academic Information</h3>
+                <dl class="student-profile-definition-list">
+                    <div><dt>Student ID</dt><dd>{{ $student->roll_no ?? 'Not provided' }}</dd></div>
+                    <div><dt>Department</dt><dd>{{ $student->department?->name ?? 'Not provided' }}</dd></div>
+                    <div><dt>Semester</dt><dd>{{ $student->semester ? (str_starts_with(strtolower((string) $student->semester), 'semester') ? $student->semester : 'Semester ' . $student->semester) : 'Not provided' }}</dd></div>
+                    <div><dt>Batch</dt><dd>{{ $student->batch ?? 'Not provided' }}</dd></div>
+                </dl>
+            </div>
+
+            <div class="student-profile-section">
+                <h3 class="student-profile-section-title">Contact Information</h3>
+                <dl class="student-profile-contact-list">
+                    <div>
+                        <dt><i class="far fa-envelope" aria-hidden="true"></i><span>Email</span></dt>
+                        <dd @class(['is-missing' => !$student->user?->email])>{{ $student->user?->email ?? 'Not provided' }}</dd>
+                    </div>
+                    <div>
+                        <dt><i class="fas fa-phone" aria-hidden="true"></i><span>Phone</span></dt>
+                        <dd @class(['is-missing' => !$student->user?->phone])>{{ $student->user?->phone ?? 'Not provided' }}</dd>
+                    </div>
+                    <div>
+                        <dt><i class="far fa-user" aria-hidden="true"></i><span>Gender</span></dt>
+                        <dd @class(['is-missing' => !$student->user?->gender])>{{ $student->user?->gender ? ucfirst($student->user->gender) : 'Not provided' }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div class="student-profile-section">
+                <h3 class="student-profile-section-title">Account Information</h3>
+                <dl class="student-profile-definition-list">
+                    <div><dt>Status</dt><dd><span class="student-inline-status status-{{ $status }}" id="studentInlineStatus">{{ ucfirst($status) }}</span></dd></div>
+                    <div><dt>Last Login</dt><dd @class(['is-missing' => !$student->user?->last_login_at])>{{ optional($student->user?->last_login_at)->format('M d, Y h:i A') ?? 'Never logged in' }}</dd></div>
+                    <div><dt>Created</dt><dd>{{ optional($student->created_at)->format('M d, Y') ?? 'Not provided' }}</dd></div>
+                </dl>
+            </div>
+
             @if (($config['features']['toggleStatus'] ?? false) === true)
-                <button type="button" id="studentStatusActionBtn"
-                    class="student-account-action status-{{ $status }}">
-                    <span>{{ $status === 'active' ? 'Deactivate Account' : 'Activate Account' }}</span>
-                </button>
+                <div class="student-profile-section student-account-actions">
+                    <h3 class="student-profile-section-title">Account Actions</h3>
+                    <button type="button" id="studentStatusActionBtn"
+                        class="student-account-action status-{{ $status }}">
+                        <span>{{ $status === 'active' ? 'Deactivate Account' : 'Activate Account' }}</span>
+                    </button>
+                </div>
             @endif
-
-            <div class="student-info-list">
-                <div class="student-info-item">
-                    <span class="student-info-label">Email</span>
-                    <span class="student-info-value">{{ $student->user?->email ?? 'N/A' }}</span>
-                </div>
-                <div class="student-info-item">
-                    <span class="student-info-label">Phone</span>
-                    <span class="student-info-value">{{ $student->user?->phone ?? 'N/A' }}</span>
-                </div>
-                <div class="student-info-item">
-                    <span class="student-info-label">Gender</span>
-                    <span
-                        class="student-info-value">{{ $student->user?->gender ? ucfirst($student->user->gender) : 'N/A' }}</span>
-                </div>
-                <div class="student-info-item">
-                    <span class="student-info-label">Department</span>
-                    <span class="student-info-value">{{ $student->department?->name ?? 'N/A' }}</span>
-                </div>
-                <div class="student-info-item">
-                    <span class="student-info-label">Semester</span>
-                    <span class="student-info-value">{{ $student->semester ?? 'N/A' }}</span>
-                </div>
-                <div class="student-info-item">
-                    <span class="student-info-label">Batch</span>
-                    <span class="student-info-value">{{ $student->batch ?? 'N/A' }}</span>
-                </div>
-            </div>
-
-            <div class="student-system-grid">
-                <div class="student-system-card">
-                    <span class="student-info-label">Last Login</span>
-                    <span
-                        class="student-info-value">{{ optional($student->user?->last_login_at)->format('M d, Y h:i A') ?? 'Never' }}</span>
-                </div>
-            </div>
         </aside>
 
         <section class="student-pane-stack">
             <div class="student-summary-grid">
-                <div class="student-summary-card">
-                    <span class="student-summary-label">Total Issued</span>
-                    <span class="student-summary-value">{{ $studentSummary['totalIssued'] ?? 0 }}</span>
+                <div class="student-summary-card summary-total">
+                    <span class="student-summary-icon"><i class="fas fa-book" aria-hidden="true"></i></span>
+                    <span class="student-summary-copy"><span class="student-summary-label">Total Issued</span>
+                    <span class="student-summary-value">{{ $studentSummary['totalIssued'] ?? 0 }}</span></span>
                 </div>
-                <div class="student-summary-card">
-                    <span class="student-summary-label">Currently Issued</span>
-                    <span class="student-summary-value">{{ $studentSummary['currentlyIssued'] ?? 0 }}</span>
+                <div class="student-summary-card summary-current">
+                    <span class="student-summary-icon"><i class="fas fa-book-open" aria-hidden="true"></i></span>
+                    <span class="student-summary-copy"><span class="student-summary-label">Currently Issued</span>
+                    <span class="student-summary-value">{{ $studentSummary['currentlyIssued'] ?? 0 }}</span></span>
                 </div>
-                <div class="student-summary-card">
-                    <span class="student-summary-label">Overdue</span>
-                    <span class="student-summary-value">{{ $studentSummary['overdueCount'] ?? 0 }}</span>
+                <div class="student-summary-card summary-overdue {{ ($studentSummary['overdueCount'] ?? 0) > 0 ? 'has-value' : 'is-clear' }}">
+                    <span class="student-summary-icon"><i class="fas fa-clock" aria-hidden="true"></i></span>
+                    <span class="student-summary-copy"><span class="student-summary-label">Overdue</span>
+                    <span class="student-summary-value">{{ $studentSummary['overdueCount'] ?? 0 }}</span></span>
                 </div>
-                <div class="student-summary-card">
-                    <span class="student-summary-label">Pending Fine</span>
+                <div class="student-summary-card summary-fine">
+                    <span class="student-summary-icon"><i class="fas fa-receipt" aria-hidden="true"></i></span>
+                    <span class="student-summary-copy"><span class="student-summary-label">Pending Fine</span>
                     <span class="student-summary-value"
-                        id="studentPendingFineValue">{{ \App\Support\Currency::format((float) ($studentSummary['pendingFineTotal'] ?? 0), 2) }}</span>
+                        id="studentPendingFineValue">{{ \App\Support\Currency::format((float) ($studentSummary['pendingFineTotal'] ?? 0), 2) }}</span></span>
                 </div>
-                <div class="student-summary-card">
-                    <span class="student-summary-label">Last Activity</span>
+                <div class="student-summary-card summary-activity">
+                    <span class="student-summary-icon"><i class="far fa-clock" aria-hidden="true"></i></span>
+                    <span class="student-summary-copy"><span class="student-summary-label">Last Activity</span>
                     <span
                         class="student-summary-value">{{ $studentSummary['lastActivity'] ?? 'No activity yet' }}</span>
+                    @if (!empty($studentSummary['lastActivityTimestamp']))
+                        <span class="student-summary-secondary">{{ $studentSummary['lastActivityTimestamp'] }}</span>
+                    @endif</span>
                 </div>
             </div>
 
@@ -129,7 +137,7 @@
                 <div class="student-pane-header">
                     <div>
                         <h3>Issued Books</h3>
-                        <p>Search and review the student's circulation status.</p>
+                        <p>Review issued, returned and overdue books for this student.</p>
                     </div>
                 </div>
 
@@ -140,13 +148,13 @@
                             <i class="fas fa-search"></i>
                         </div>
                         <input type="text" id="studentBookSearch" class="search-input"
-                            placeholder="Search by title, author, or accession number..." aria-label="Search issued books">
+                            placeholder="Search title, author, ISBN or accession..." aria-label="Search issued books">
                     </div>
 
                     <div class="filters-container student-profile-filters">
                         <select id="studentBookStatusFilter" class="filter-select"
                             aria-label="Filter issued books by status">
-                            <option value="all">All Status</option>
+                            <option value="all">All Statuses</option>
                             <option value="issued">Issued</option>
                             <option value="overdue">Overdue</option>
                             <option value="returned">Returned</option>
@@ -191,6 +199,7 @@
                                     <th scope="col">Return Date</th>
                                     <th scope="col">Status</th>
                                     <th scope="col">Fine</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="studentBooksTableBody"></tbody>
