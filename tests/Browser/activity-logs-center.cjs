@@ -15,7 +15,7 @@ function html(source) {
     return source.replaceAll('localhost:8000', 'localhost')
         .replace(/http:\/\/127\.0\.0\.1:5173\/resources\/css\/app.css/g, `/build/${manifest['resources/css/app.css'].file}`)
         .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, tag => /data-audit-payload/.test(tag) ? tag : '')
-        .replace('</body>', `<script src="https://unpkg.com/lucide@latest"></script>${scripts.map(name => `<script src="/admin/JS/${name}.js"></script>`).join('')}</body>`);
+        .replace('</body>', `<script src="/shared/currency.js"></script><script src="https://unpkg.com/lucide@latest"></script>${scripts.map(name => `<script src="/admin/JS/${name}.js"></script>`).join('')}</body>`);
 }
 let delay = 0;
 (async () => {

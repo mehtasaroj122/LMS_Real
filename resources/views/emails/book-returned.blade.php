@@ -28,7 +28,7 @@
         </tr>
         <tr>
             <td class="label">Fine amount</td>
-            <td class="value">Rs. {{ number_format($resolvedFineAmount, 2) }}</td>
+            <td class="value">{{ \App\Support\Currency::format($resolvedFineAmount, 2) }}</td>
         </tr>
     </table>
 

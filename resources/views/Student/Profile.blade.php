@@ -1463,13 +1463,13 @@
 
                         <!-- Total Fines -->
                         <div class="stat-card stat-card-red">
-                            <p class="text-2xl font-bold text-red-600 dark:text-red-400">₹{{ $totalFinesAmount }}</p>
+                            <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ \App\Support\Currency::PREFIX }}{{ $totalFinesAmount }}</p>
                             <p class="mt-1 text-sm text-secondary">Total Fines</p>
                         </div>
 
                         <!-- Fines Paid -->
                         <div class="stat-card stat-card-green">
-                            <p class="text-2xl font-bold text-green-600 dark:text-green-400">₹{{ $finesPaidAmount }}</p>
+                            <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ \App\Support\Currency::PREFIX }}{{ $finesPaidAmount }}</p>
                             <p class="mt-1 text-sm text-secondary">Fines Paid</p>
                         </div>
 

@@ -176,7 +176,7 @@ class StaffReturnController extends Controller
                     'amount' => (float) $issue->fine->amount,
                     'days_late' => (int) $issue->fine->days_late,
                     'status' => $issue->fine->status,
-                    'remarks' => $issue->fine->remarks,
+                    'remarks' => \App\Support\Currency::normalizeText($issue->fine->remarks),
                 ] : null)->filter()->values(),
             ],
         ]);
@@ -264,7 +264,7 @@ class StaffReturnController extends Controller
         $rules = $this->returnRulesPayload($student);
         $conditionFine = $rules['condition_fines'][$condition] ?? 0;
 
-        return "{$count} selected book(s) will use Rs. {$rules['late_fine_per_day']}/day after {$rules['grace_days']} grace day(s), capped at Rs. {$rules['fine_cap_per_book']} per book, plus Rs. {$conditionFine} for " . ucfirst($condition) . ' condition.';
+        return "{$count} selected book(s) will use रु {$rules['late_fine_per_day']}/day after {$rules['grace_days']} grace day(s), capped at रु {$rules['fine_cap_per_book']} per book, plus रु {$conditionFine} for " . ucfirst($condition) . ' condition.';
     }
 
     private function processReturnIssue(
@@ -403,7 +403,7 @@ class StaffReturnController extends Controller
                     'amount' => (float) $issuedBook->fine->amount,
                     'days_late' => (int) $issuedBook->fine->days_late,
                     'status' => $issuedBook->fine->status,
-                    'remarks' => $issuedBook->fine->remarks,
+                    'remarks' => \App\Support\Currency::normalizeText($issuedBook->fine->remarks),
                 ] : null,
             ],
         ]);

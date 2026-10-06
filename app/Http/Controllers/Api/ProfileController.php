@@ -353,7 +353,7 @@ class ProfileController extends Controller
         }
 
         if ($pendingFines > 0) {
-            $reasons[] = 'You have Rs. ' . $this->formatAmount($pendingFines) . ' pending fines.';
+            $reasons[] = 'You have रु ' . $this->formatAmount($pendingFines) . ' pending fines.';
         }
 
         if ($activeRequests > 0) {

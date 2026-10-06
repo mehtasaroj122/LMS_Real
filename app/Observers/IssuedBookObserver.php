@@ -67,7 +67,7 @@ class IssuedBookObserver
                         $issuedBook->student->id,
                         'student',
                         'fine_generated',
-                        "Fine of ₹{$fine->amount} generated for overdue book: {$issuedBook->book->title}",
+                        "Fine of रु {$fine->amount} generated for overdue book: {$issuedBook->book->title}",
                         'Fine'
                     );
                 }
@@ -88,7 +88,7 @@ class IssuedBookObserver
                         $issuedBook->student->id,
                         'student',
                         'lost_book_penalty',
-                        "Lost book penalty of ₹{$fine->amount} applied for: {$issuedBook->book->title}",
+                        "Lost book penalty of रु {$fine->amount} applied for: {$issuedBook->book->title}",
                         'Fine'
                     );
                 }
@@ -102,7 +102,7 @@ class IssuedBookObserver
                         $issuedBook->student->id,
                         'student',
                         'damaged_book_penalty',
-                        "Damaged book penalty of ₹{$fine->amount} applied for: {$issuedBook->book->title}",
+                        "Damaged book penalty of रु {$fine->amount} applied for: {$issuedBook->book->title}",
                         'Fine'
                     );
                 }

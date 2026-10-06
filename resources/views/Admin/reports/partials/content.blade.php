@@ -1,5 +1,5 @@
 @php
-    $formatCurrency = fn ($value) => '₹' . number_format((float) $value, 2);
+    $formatCurrency = fn ($value) => \App\Support\Currency::format($value);
 @endphp
 
 @switch($reportType)

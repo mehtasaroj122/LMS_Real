@@ -202,7 +202,7 @@ class ReturnBookController extends Controller
                 $notificationType = ($bookFine > 0) ? 'fine.created' : 'book.returned';
                 $title = ($bookFine > 0) ? 'Book Returned with Fine' : 'Book Returned Successfully';
                 $message = ($bookFine > 0) 
-                    ? "Your return of '{$issuedBook->book->title}' has been processed. Fine amount: ₹{$bookFine}"
+                    ? "Your return of '{$issuedBook->book->title}' has been processed. Fine amount: रु {$bookFine}"
                     : "Your return of '{$issuedBook->book->title}' has been accepted.";
                 
                 Notification::notify(

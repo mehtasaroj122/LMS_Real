@@ -199,6 +199,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('admin/CSS/admin-design-system.css') }}?v={{ filemtime(public_path('admin/CSS/admin-design-system.css')) }}">
     <link rel="stylesheet" href="{{ asset('shared/CSS/popup-headers.css') }}?v={{ filemtime(public_path('shared/CSS/popup-headers.css')) }}">
+    @include('shared.currency')
 </head>
 
 <body class="light-theme admin-portal">
@@ -231,7 +232,7 @@
                 <i data-lucide="file-text" class="w-5 h-5"></i><span class="text-sm font-medium">Transactions</span>
             </a>
             <a href="{{ route('admin.fines.index') }}" class="sidebar-item {{ request()->routeIs('admin.fines.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
-                <i data-lucide="indian-rupee" class="w-5 h-5"></i><span class="text-sm font-medium">Fines</span>
+                <i data-lucide="coins" class="w-5 h-5"></i><span class="text-sm font-medium">Fines</span>
             </a>
             <a href="{{ route('admin.book-requests.index') }}" class="sidebar-item {{ request()->routeIs('admin.book-requests.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="clipboard-list" class="w-5 h-5"></i><span class="text-sm font-medium">Book Requests</span>

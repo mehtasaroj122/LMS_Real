@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-BKjK5Zhm.css",
+    "file": "assets/app-Baeb0klB.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -8,13 +8,37 @@
       "app.css"
     ]
   },
+  "resources/fonts/NotoSansDevanagari-Bold.ttf": {
+    "file": "assets/NotoSansDevanagari-Bold-DfrE1wQa.ttf",
+    "src": "resources/fonts/NotoSansDevanagari-Bold.ttf"
+  },
+  "resources/fonts/NotoSansDevanagari-Regular.ttf": {
+    "file": "assets/NotoSansDevanagari-Regular-v1Tz4pSI.ttf",
+    "src": "resources/fonts/NotoSansDevanagari-Regular.ttf"
+  },
   "resources/js/app.js": {
-    "file": "assets/app-1v4M3_lt.js",
+    "file": "assets/app-CkhoEKLg.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
+    "dynamicImports": [
+      "resources/js/report-pdf-fonts.js"
+    ],
     "css": [
       "assets/app-D0aDPu-n.css"
+    ]
+  },
+  "resources/js/report-pdf-fonts.js": {
+    "file": "assets/report-pdf-fonts-DWlqtGQx.js",
+    "name": "report-pdf-fonts",
+    "src": "resources/js/report-pdf-fonts.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "assets": [
+      "assets/NotoSansDevanagari-Regular-v1Tz4pSI.ttf",
+      "assets/NotoSansDevanagari-Bold-DfrE1wQa.ttf"
     ]
   }
 }

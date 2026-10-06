@@ -19,7 +19,7 @@
     <table role="presentation" class="panel" width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td class="label">Amount due</td>
-            <td class="value">Rs. {{ number_format($resolvedFineAmount, 2) }}</td>
+            <td class="value">{{ \App\Support\Currency::format($resolvedFineAmount, 2) }}</td>
         </tr>
         <tr>
             <td class="label">Related item</td>

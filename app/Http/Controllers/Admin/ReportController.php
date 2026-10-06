@@ -328,7 +328,7 @@ class ReportController extends Controller
             ],
             [
                 'metric' => 'Avg. Top Balance',
-                'value_display' => '₹' . number_format($averageTopBalance, 2),
+                'value_display' => \App\Support\Currency::format($averageTopBalance, 2),
                 'insight' => $topDefaulters->isNotEmpty()
                     ? 'Average pending balance across the current top defaulters'
                     : 'No current pending defaulters to benchmark',

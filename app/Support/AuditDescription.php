@@ -14,7 +14,7 @@ final class AuditDescription
             ->filter(fn ($value) => is_string($value) && $value !== '')
             ->unique()->sortByDesc(fn ($value) => mb_strlen($value))
             ->map(fn ($value) => preg_quote($value, '/'))->implode('|');
-        $pattern = '/('.($entities !== '' ? $entities.'|' : '').'₹[\d,.]+|Rs\.\s*[\d,.]+|[“\"][^”\"]+[”\"])/u';
+        $pattern = '/('.($entities !== '' ? $entities.'|' : '').'रु\s*[\d,.]+|[“\"][^”\"]+[”\"])/u';
         $parts = preg_split($pattern, $log->readable_description, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         return collect($parts ?: [$log->readable_description])

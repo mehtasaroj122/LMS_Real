@@ -46,7 +46,7 @@ class SendFineReminders extends Command
                 user: $fine->student->user,
                 type: 'fine.reminder',
                 title: 'Fine Payment Reminder',
-                message: "You have an unpaid fine of ₹{$fine->amount} for '{$bookTitle}'. Please pay it as soon as possible.",
+                message: "You have an unpaid fine of रु {$fine->amount} for '{$bookTitle}'. Please pay it as soon as possible.",
                 data: [
                     'fine_id' => $fine->id,
                     'amount' => $fine->amount,

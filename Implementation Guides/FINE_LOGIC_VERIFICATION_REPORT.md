@@ -231,7 +231,7 @@ Route::get('/fines/overdue/books', [FineController::class, 'overdueBooksSummary'
 Days Late = Return Date - Due Date (or Today - Due Date if not returned)
 
 If Days Late ≤ Grace Period:
-    Fine Amount = ₹0
+    Fine Amount = रु 0
 Else:
     Chargeable Days = Days Late - Grace Period
     Fine Amount = Chargeable Days × Per Day Fine
@@ -245,10 +245,10 @@ Else:
 Days Late: 5
 Grace Period: 2 days
 Chargeable Days: 5 - 2 = 3
-Per Day Fine: ₹5
-Fine Amount: 3 × ₹5 = ₹15
-Max Cap: ₹500
-Final Fine: ₹15 ✓
+Per Day Fine: रु 5
+Fine Amount: 3 × रु 5 = रु 15
+Max Cap: रु 500
+Final Fine: रु 15 ✓
 ```
 
 **Example 2: Within Grace Period (1 day late, 2-day grace)**
@@ -256,7 +256,7 @@ Final Fine: ₹15 ✓
 Days Late: 1
 Grace Period: 2 days
 Since 1 ≤ 2: No fine charged
-Final Fine: ₹0 ✓
+Final Fine: रु 0 ✓
 ```
 
 **Example 3: Maximum Fine Cap (30 days late, 2-day grace)**
@@ -264,24 +264,24 @@ Final Fine: ₹0 ✓
 Days Late: 30
 Grace Period: 2 days
 Chargeable Days: 30 - 2 = 28
-Per Day Fine: ₹5
-Fine Amount: 28 × ₹5 = ₹140
-Max Cap: ₹500
-Final Fine: ₹140 ✓
+Per Day Fine: रु 5
+Fine Amount: 28 × रु 5 = रु 140
+Max Cap: रु 500
+Final Fine: रु 140 ✓
 ```
 
 **Example 4: Lost Book**
 ```
 Status: lost
-Fixed Penalty: ₹1000
-Final Fine: ₹1000 ✓
+Fixed Penalty: रु 1000
+Final Fine: रु 1000 ✓
 ```
 
 **Example 5: Damaged Book**
 ```
 Status: damaged
-Fixed Penalty: ₹250
-Final Fine: ₹250 ✓
+Fixed Penalty: रु 250
+Final Fine: रु 250 ✓
 ```
 
 ---
@@ -290,13 +290,13 @@ Final Fine: ₹250 ✓
 
 ### Fine Settings Management
 ✅ **Form Fields in Settings.blade.php:**
-- Fine Per Day (₹) - input: per_day_fine
+- Fine Per Day (रु) - input: per_day_fine
 - Issue Duration (days) - input: issue_duration_days ✅ ADDED
 - Grace Period (days) - input: grace_period_days
 - Maximum Books Per Student - input: max_books_per_student ✅ ADDED
-- Lost Book Penalty (₹) - input: lost_book_penalty
-- Damaged Book Penalty (₹) - input: damaged_book_penalty
-- Maximum Fine Amount (₹) - input: max_fine_amount
+- Lost Book Penalty (रु) - input: lost_book_penalty
+- Damaged Book Penalty (रु) - input: damaged_book_penalty
+- Maximum Fine Amount (रु) - input: max_fine_amount
 - Enable Book Requests - toggle
 - Enable Email Notifications - toggle
 
@@ -334,11 +334,11 @@ Final Fine: ₹250 ✓
 
 ✅ **Default values stored in fine_settings table:**
 ```
-per_day_fine: 5.00 (₹5 per day)
+per_day_fine: 5.00 (रु 5 per day)
 grace_period_days: 2 (2 days before fine starts)
-max_fine_amount: 500.00 (₹500 maximum)
-lost_book_penalty: 1000.00 (₹1000 for lost books)
-damaged_book_penalty: 250.00 (₹250 for damaged books)
+max_fine_amount: 500.00 (रु 500 maximum)
+lost_book_penalty: 1000.00 (रु 1000 for lost books)
+damaged_book_penalty: 250.00 (रु 250 for damaged books)
 issue_duration_days: 14 (14 days standard borrowing)
 max_books_per_student: 5 (Max 5 books per student)
 is_active: true

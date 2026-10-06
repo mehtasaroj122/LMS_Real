@@ -1027,13 +1027,13 @@ class StudentController extends Controller
                     $messages[] = 'issue duration set to ' . $value . ' days';
                     break;
                 case 'per_day_fine':
-                    $messages[] = 'per-day fine set to Rs. ' . number_format((float) $value, 2);
+                    $messages[] = 'per-day fine set to ' . \App\Support\Currency::format((float) $value, 2);
                     break;
                 case 'grace_period_days':
                     $messages[] = 'grace period set to ' . $value . ' days';
                     break;
                 case 'max_fine_amount':
-                    $messages[] = 'maximum fine amount set to Rs. ' . number_format((float) $value, 2);
+                    $messages[] = 'maximum fine amount set to ' . \App\Support\Currency::format((float) $value, 2);
                     break;
                 default:
                     $messages[] = strtolower($this->formatActivityLabel($field)) . ' set to ' . (is_bool($value)
@@ -1051,7 +1051,7 @@ class StudentController extends Controller
         return match ($field) {
             'borrowing_allowed' => (bool) $value ? 'allowed' : 'restricted',
             'issue_duration_days', 'grace_period_days' => $value . ' days',
-            'per_day_fine', 'max_fine_amount' => 'Rs. ' . number_format((float) $value, 2),
+            'per_day_fine', 'max_fine_amount' => \App\Support\Currency::format((float) $value, 2),
             default => (string) $value,
         };
     }
@@ -1691,7 +1691,7 @@ class StudentController extends Controller
                 'fineAmount' => (float)$fine->amount,
                 'status' => $fine->status, // pending, paid, waived - THIS IS THE KEY FIELD
                 'createdAt' => $fine->created_at->format('Y-m-d H:i:s'),
-                'remarks' => $fine->remarks ?? '',
+                'remarks' => \App\Support\Currency::normalizeText($fine->remarks ?? ''),
                 'actions' => $fine->status === 'pending' ? ['adjust', 'waive', 'mark-paid', 'view-history'] : ['view-history']
             ];
         });
@@ -1726,8 +1726,9 @@ class StudentController extends Controller
 
             // Generate simple HTML receipt
             $receipt = "<html>";
-            $receipt .= "<head><style>";
-            $receipt .= "body { font-family: Arial, sans-serif; margin: 20px; }";
+            $receipt .= "<head><meta charset='utf-8'><style>";
+            $receipt .= view('shared.currency-print-font')->render();
+            $receipt .= "body { font-family: Arial, 'LmsCurrencyPrint', sans-serif; margin: 20px; }";
             $receipt .= ".header { text-align: center; margin-bottom: 20px; }";
             $receipt .= ".section { margin-bottom: 15px; }";
             $receipt .= "table { width: 100%; border-collapse: collapse; }";
@@ -1757,12 +1758,12 @@ class StudentController extends Controller
             foreach ($student->fines as $fine) {
                 $receipt .= "<tr>";
                 $receipt .= "<td>" . ($fine->issuedBook?->book?->title ?? 'Unknown Book') . "</td>";
-                $receipt .= "<td>₹" . number_format($fine->amount, 2) . "</td>";
+                $receipt .= "<td>" . \App\Support\Currency::format($fine->amount) . "</td>";
                 $receipt .= "<td>" . ($fine->paid_on ? $fine->paid_on->format('Y-m-d') : 'N/A') . "</td>";
                 $receipt .= "</tr>";
             }
             
-            $receipt .= "<tr><td colspan='2' class='total'>Total Paid:</td><td class='total'>₹" . number_format($totalPaid, 2) . "</td></tr>";
+            $receipt .= "<tr><td colspan='2' class='total'>Total Paid:</td><td class='total'>" . \App\Support\Currency::format($totalPaid) . "</td></tr>";
             $receipt .= "</table>";
             $receipt .= "</div>";
             

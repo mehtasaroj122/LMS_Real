@@ -1842,7 +1842,7 @@
 
 @section('content')
     @php
-        $formatCurrency = fn ($value) => '₹' . number_format((float) $value, 2);
+        $formatCurrency = fn ($value) => \App\Support\Currency::format($value);
         $reportExportConfig = [
             'modalId' => 'reportExportModal',
             'idPrefix' => 'reportExport',
@@ -2793,18 +2793,17 @@
         }
 
         function getReportPdfLib() {
-            const { PDFDocument, StandardFonts, rgb } = window.PDFLib || {};
+            const { PDFDocument, rgb } = window.PDFLib || {};
 
-            if (!PDFDocument || !StandardFonts || !rgb) {
+            if (!PDFDocument || !rgb) {
                 throw new Error('PDF export support is not available right now.');
             }
 
-            return { PDFDocument, StandardFonts, rgb };
+            return { PDFDocument, rgb };
         }
 
         function normalizePdfTextValue(value) {
-            return String(value ?? '')
-                .replace(/\u20B9/g, 'Rs.')
+            return window.LmsCurrency.normalizeText(value)
                 .replace(/[\u2013\u2014]/g, '-')
                 .replace(/[\u2018\u2019]/g, "'")
                 .replace(/[\u201C\u201D]/g, '"')
@@ -2947,7 +2946,7 @@
         }
 
         async function downloadReportPdf(scope = 'all', generatedAt = new Date()) {
-            const { PDFDocument, StandardFonts, rgb } = getReportPdfLib();
+            const { PDFDocument, rgb } = getReportPdfLib();
             const timestamp = generatedAt instanceof Date ? generatedAt : new Date(generatedAt);
             const snapshot = buildReportSnapshot(scope, Number.isNaN(timestamp.getTime()) ? new Date() : timestamp);
             const totalRows = snapshot.tables.reduce((sum, table) => sum + table.rows.length, 0);
@@ -2958,10 +2957,7 @@
                 { label: 'Tables Included', value: `${formatNumber(snapshot.tables.length)} tables` },
             ];
             const pdfDoc = await PDFDocument.create();
-            const fonts = {
-                regular: await pdfDoc.embedFont(StandardFonts.Helvetica),
-                bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold),
-            };
+            const fonts = await window.loadReportPdfFonts(pdfDoc);
             const toColor = (hex, fallback = '#0f172a') => {
                 const raw = String(hex || fallback).replace('#', '').trim();
                 const normalized = raw.length === 3
@@ -3107,7 +3103,9 @@
             };
 
             const drawSectionTitle = (title) => {
-                ensureSpace(24);
+                // Leave room above the title for the Unicode font's taller ascenders.
+                ensureSpace(32);
+                y -= 8;
                 page.drawText(normalizePdfTextValue(title), {
                     x: margins.left,
                     y,
@@ -3548,12 +3546,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(snapshot.heading.title)}</title>
     <style>
+        @include('shared.currency-print-font')
         @page { size: A4 portrait; margin: 10mm; }
         * { box-sizing: border-box; }
         body {
             margin: 0;
             padding: 0;
-            font-family: Inter, Arial, sans-serif;
+            font-family: Inter, Arial, "LmsCurrencyPrint", sans-serif;
             color: #0f172a;
             background: #ffffff;
         }

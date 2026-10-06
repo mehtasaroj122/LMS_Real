@@ -78,7 +78,7 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="stat-number loading-line" id="totalFines">₹0.00</div>
+                    <div class="stat-number loading-line" id="totalFines">{{ \App\Support\Currency::PREFIX }}0.00</div>
                     <div class="stat-label" id="totalFinesMeta">0 records</div>
                 </div>
 
@@ -96,7 +96,7 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="stat-number loading-line" id="collectedFines">₹0.00</div>
+                    <div class="stat-number loading-line" id="collectedFines">{{ \App\Support\Currency::PREFIX }}0.00</div>
                     <div class="stat-label" id="collectedFinesMeta">0 paid fines</div>
                 </div>
 
@@ -111,7 +111,7 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="stat-number loading-line" id="pendingFines">₹0.00</div>
+                    <div class="stat-number loading-line" id="pendingFines">{{ \App\Support\Currency::PREFIX }}0.00</div>
                     <div class="stat-label" id="pendingFinesMeta">0 unpaid fines • 0 overdue</div>
                 </div>
 
@@ -124,7 +124,7 @@
                             </svg>
                         </div>
                     </div>
-                    <div class="stat-number loading-line" id="waivedFines">₹0.00</div>
+                    <div class="stat-number loading-line" id="waivedFines">{{ \App\Support\Currency::PREFIX }}0.00</div>
                     <div class="stat-label" id="waivedFinesMeta">0 waived fines</div>
                 </div>
             </div>

@@ -42,12 +42,12 @@ class CalculateOverdueFines extends Command
                 $finesApplied++;
                 $totalAmount += $fine->amount;
                 
-                $this->line("Fine applied: {$book->student->name} - ₹{$fine->amount} ({$fine->days_late} days late)");
+                $this->line("Fine applied: {$book->student->name} - रु {$fine->amount} ({$fine->days_late} days late)");
             }
         }
 
         $this->info("-----------------------------------");
         $this->info("Total fines applied: {$finesApplied}");
-        $this->info("Total amount: ₹{$totalAmount}");
+        $this->info("Total amount: रु {$totalAmount}");
     }
 }

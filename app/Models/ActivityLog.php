@@ -109,7 +109,7 @@ class ActivityLog extends Model
     {
         // If description already has proper format, return as is
         if (str_contains((string) $this->description, '•')) {
-            return (string) $this->description;
+            return \App\Support\Currency::normalizeText((string) $this->description);
         }
 
         // Format based on action type
@@ -128,7 +128,7 @@ class ActivityLog extends Model
      */
     public function getReadableDescriptionAttribute(): string
     {
-        $description = trim((string) ($this->description ?? 'Activity recorded'));
+        $description = \App\Support\Currency::normalizeText(trim((string) ($this->description ?? 'Activity recorded')));
         if ($description === '') {
             return 'Activity recorded';
         }
@@ -205,13 +205,13 @@ class ActivityLog extends Model
                     $messages[] = 'issue duration set to ' . $value . ' days';
                     break;
                 case 'per_day_fine':
-                    $messages[] = 'per-day fine set to Rs. ' . number_format((float) $value, 2);
+                    $messages[] = 'per-day fine set to ' . \App\Support\Currency::format((float) $value, 2);
                     break;
                 case 'grace_period_days':
                     $messages[] = 'grace period set to ' . $value . ' days';
                     break;
                 case 'max_fine_amount':
-                    $messages[] = 'maximum fine amount set to Rs. ' . number_format((float) $value, 2);
+                    $messages[] = 'maximum fine amount set to ' . \App\Support\Currency::format((float) $value, 2);
                     break;
                 default:
                     $messages[] = $this->formatFieldLabel($field) . ' set to ' . $this->formatValue($value);

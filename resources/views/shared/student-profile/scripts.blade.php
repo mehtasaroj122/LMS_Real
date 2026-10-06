@@ -265,7 +265,7 @@
                         <td>${this.escapeHtml(book.dueDate || 'N/A')}</td>
                         <td>${this.escapeHtml(book.returnDate || '-')}</td>
                         <td><span class="student-status-pill status-${this.escapeHtml(book.status)}">${this.escapeHtml(book.statusLabel || book.status)}</span></td>
-                        <td class="${book.status === 'overdue' ? 'student-amount overdue' : ''}">${this.escapeHtml(book.fineLabel || '₹0.00')}</td>
+                        <td class="${book.status === 'overdue' ? 'student-amount overdue' : ''}">${this.escapeHtml(book.fineLabel || '{{ \App\Support\Currency::PREFIX }}0.00')}</td>
                     </tr>
                 `).join('');
 
@@ -866,7 +866,7 @@
             }
 
             formatCurrency(value) {
-                return `₹${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                return window.LmsCurrency.format(Number(value || 0), { minimumFractionDigits: 2, maximumFractionDigits: 2 }, undefined);
             }
 
             showToast(message, type = 'info') {

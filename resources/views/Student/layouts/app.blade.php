@@ -22,6 +22,7 @@
     @include('shared.action-feedback.styles')
     @stack('styles')
     <link rel="stylesheet" href="{{ asset('shared/CSS/popup-headers.css') }}?v={{ filemtime(public_path('shared/CSS/popup-headers.css')) }}">
+    @include('shared.currency')
 </head>
 
 <body class="light-theme">
@@ -71,7 +72,7 @@
                 {{-- My Fines --}}
                 <a href="{{ route('student.fines') }}"
                     class="sidebar-item {{ request()->routeIs('student.fines') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
-                    <i data-lucide="indian-rupee" class="w-5 h-5"></i><span class="text-sm font-medium">My Fines</span>
+                    <i data-lucide="coins" class="w-5 h-5"></i><span class="text-sm font-medium">My Fines</span>
                 </a>
 
                 {{-- Profile --}}

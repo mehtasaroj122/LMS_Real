@@ -111,7 +111,7 @@ If `profile_photo_url` is `null`, Android should show an initials avatar.
   "active_requests": 2,
   "reasons": [
     "You have 3 issued books.",
-    "You have Rs. 50 pending fines.",
+    "You have रु 50 pending fines.",
     "You have 2 active book requests."
   ]
 }

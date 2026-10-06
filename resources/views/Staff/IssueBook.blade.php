@@ -2460,10 +2460,10 @@
 
     function formatCurrency(amount, minimumFractionDigits = 2) {
         const number = Number(amount ?? 0);
-        return `₹${number.toLocaleString(undefined, {
+        return window.LmsCurrency.format(number, {
             minimumFractionDigits,
             maximumFractionDigits: 2
-        })}`;
+        }, undefined);
     }
 
     function formatDate(dateValue) {

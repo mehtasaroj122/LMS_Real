@@ -281,7 +281,7 @@ class FineManagementDataService
             'status' => $status,
             'statusLabel' => ucfirst($status),
             'createdAt' => $fine->created_at?->format('M d, Y') ?? 'N/A',
-            'remarks' => $fine->remarks ?? '',
+            'remarks' => \App\Support\Currency::normalizeText($fine->remarks ?? ''),
             'isOverdue' => $isOverdue,
         ];
     }

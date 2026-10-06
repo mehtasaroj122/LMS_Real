@@ -2068,15 +2068,15 @@
                     <div class="setting-label">Issue Duration</div>
                 </div>
                 <div class="setting-card">
-                    <div class="setting-value">₹{{ $fineSettings->per_day_fine ?? 5 }}/day</div>
+                    <div class="setting-value">{{ \App\Support\Currency::PREFIX }}{{ $fineSettings->per_day_fine ?? 5 }}/day</div>
                     <div class="setting-label">Late Fine</div>
                 </div>
                 <div class="setting-card">
-                    <div class="setting-value">₹{{ $fineSettings->lost_book_penalty ?? 500 }}</div>
+                    <div class="setting-value">{{ \App\Support\Currency::PREFIX }}{{ $fineSettings->lost_book_penalty ?? 500 }}</div>
                     <div class="setting-label">Lost Book Fine</div>
                 </div>
                 <div class="setting-card">
-                    <div class="setting-value">₹{{ $fineSettings->damaged_book_penalty ?? 200 }}</div>
+                    <div class="setting-value">{{ \App\Support\Currency::PREFIX }}{{ $fineSettings->damaged_book_penalty ?? 200 }}</div>
                     <div class="setting-label">Damaged Book Fine</div>
                 </div>
             </div>
@@ -2169,20 +2169,20 @@
                                     data-fine="{{ $fineSettings->fair_condition_penalty ?? 50 }}"
                                     onclick="selectCondition('fair')">
                                     <div class="condition-label">Fair</div>
-                                    <div class="condition-fine">₹{{ $fineSettings->fair_condition_penalty ?? 50 }} Fine
+                                    <div class="condition-fine">{{ \App\Support\Currency::PREFIX }}{{ $fineSettings->fair_condition_penalty ?? 50 }} Fine
                                     </div>
                                 </div>
                                 <div class="condition-option" data-condition="damaged"
                                     data-fine="{{ $fineSettings->damaged_book_penalty ?? 200 }}"
                                     onclick="selectCondition('damaged')">
                                     <div class="condition-label">Damaged</div>
-                                    <div class="condition-fine">₹{{ $fineSettings->damaged_book_penalty ?? 200 }} Fine</div>
+                                    <div class="condition-fine">{{ \App\Support\Currency::PREFIX }}{{ $fineSettings->damaged_book_penalty ?? 200 }} Fine</div>
                                 </div>
                                 <div class="condition-option" data-condition="lost"
                                     data-fine="{{ $fineSettings->lost_book_penalty ?? 500 }}"
                                     onclick="selectCondition('lost')">
                                     <div class="condition-label">Lost</div>
-                                    <div class="condition-fine">₹{{ $fineSettings->lost_book_penalty ?? 500 }} Fine</div>
+                                    <div class="condition-fine">{{ \App\Support\Currency::PREFIX }}{{ $fineSettings->lost_book_penalty ?? 500 }} Fine</div>
                                 </div>
                             </div>
                             <input type="hidden" id="selectedCondition" value="">
@@ -2196,7 +2196,7 @@
                         <div class="return-total-summary" id="returnTotalSummary" aria-live="polite">
                             <div class="return-total-summary-row">
                                 <span class="return-total-summary-label">Total Fine</span>
-                                <span class="total-fine" id="returnFormTotalFine">₹0</span>
+                                <span class="total-fine" id="returnFormTotalFine">{{ \App\Support\Currency::PREFIX }}0</span>
                             </div>
                             <p class="return-total-summary-note" id="returnTotalSummaryNote">
                                 Select books and a return condition to preview the payable fine.
@@ -2300,7 +2300,7 @@
                         <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                             <div class="detail-row">
                                 <span class="text-lg font-bold text-primary">Total Fine:</span>
-                                <span class="total-fine" id="totalFine">₹0</span>
+                                <span class="total-fine" id="totalFine">{{ \App\Support\Currency::PREFIX }}0</span>
                             </div>
                         </div>
 
@@ -2422,10 +2422,10 @@
 
         function formatCurrency(amount, minimumFractionDigits = 2) {
             const number = Number(amount ?? 0);
-            return `₹${number.toLocaleString(undefined, {
+            return window.LmsCurrency.format(number, {
                 minimumFractionDigits,
                 maximumFractionDigits: 2
-            })}`;
+            }, undefined);
         }
 
         function formatDate(dateValue) {

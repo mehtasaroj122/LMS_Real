@@ -39,7 +39,7 @@ The fine calculation system automatically calculates and manages fines for overd
 Days Late = Return Date - Due Date
 
 If Days Late ≤ Grace Period Days:
-    Fine Amount = ₹0 (No charge)
+    Fine Amount = रु 0 (No charge)
 Else:
     Chargeable Days = Days Late - Grace Period Days
     Fine Amount = Chargeable Days × Per Day Fine
@@ -48,9 +48,9 @@ Final Amount = MIN(Fine Amount, Max Fine Amount)
 ```
 
 **Parameters from `fine_settings` table:**
-- `per_day_fine`: Amount charged per day of overdue (Default: ₹5.00)
+- `per_day_fine`: Amount charged per day of overdue (Default: रु 5.00)
 - `grace_period_days`: Days allowed before fine starts (Default: 2 days)
-- `max_fine_amount`: Maximum cap on total fine (Default: ₹500.00)
+- `max_fine_amount`: Maximum cap on total fine (Default: रु 500.00)
 - `issue_duration_days`: Standard borrowing period (Default: 14 days)
 
 ### 2. Lost Book Penalty
@@ -63,7 +63,7 @@ Remarks: "Lost book penalty"
 ```
 
 **Parameters:**
-- `lost_book_penalty`: Fixed penalty for lost books (Default: ₹1000.00)
+- `lost_book_penalty`: Fixed penalty for lost books (Default: रु 1000.00)
 
 ### 3. Damaged Book Penalty
 
@@ -75,7 +75,7 @@ Remarks: "Damaged book penalty"
 ```
 
 **Parameters:**
-- `damaged_book_penalty`: Fixed penalty for damaged books (Default: ₹250.00)
+- `damaged_book_penalty`: Fixed penalty for damaged books (Default: रु 250.00)
 
 ---
 
@@ -139,20 +139,20 @@ status ENUM('issued', 'returned', 'lost', 'damaged', 'pending')
 **Scenario:**
 - Book due date: January 20, 2026
 - Book returned: January 25, 2026
-- Per day fine: ₹5
+- Per day fine: रु 5
 - Grace period: 2 days
-- Max fine: ₹500
+- Max fine: रु 500
 
 **Calculation:**
 ```
 Days Late = Jan 25 - Jan 20 = 5 days
 Days within grace period = 2 days
 Chargeable days = 5 - 2 = 3 days
-Fine amount = 3 × ₹5 = ₹15
-Final fine = MIN(₹15, ₹500) = ₹15
+Fine amount = 3 × रु 5 = रु 15
+Final fine = MIN(रु 15, रु 500) = रु 15
 ```
 
-**Result:** Fine of **₹15** is generated with status "pending"
+**Result:** Fine of **रु 15** is generated with status "pending"
 
 ---
 
@@ -161,20 +161,20 @@ Final fine = MIN(₹15, ₹500) = ₹15
 **Scenario:**
 - Book due date: January 1, 2026
 - Book returned: January 30, 2026
-- Per day fine: ₹5
+- Per day fine: रु 5
 - Grace period: 2 days
-- Max fine: ₹500
+- Max fine: रु 500
 
 **Calculation:**
 ```
 Days Late = Jan 30 - Jan 1 = 29 days
 Days within grace period = 2 days
 Chargeable days = 29 - 2 = 27 days
-Fine amount = 27 × ₹5 = ₹135
-Final fine = MIN(₹135, ₹500) = ₹135
+Fine amount = 27 × रु 5 = रु 135
+Final fine = MIN(रु 135, रु 500) = रु 135
 ```
 
-**Result:** Fine of **₹135** is generated
+**Result:** Fine of **रु 135** is generated
 
 ---
 
@@ -183,20 +183,20 @@ Final fine = MIN(₹135, ₹500) = ₹135
 **Scenario:**
 - Book due date: January 1, 2026
 - Book returned: August 1, 2026 (Very late!)
-- Per day fine: ₹5
+- Per day fine: रु 5
 - Grace period: 2 days
-- Max fine: ₹500
+- Max fine: रु 500
 
 **Calculation:**
 ```
 Days Late = Aug 1 - Jan 1 = 212 days
 Days within grace period = 2 days
 Chargeable days = 212 - 2 = 210 days
-Fine amount = 210 × ₹5 = ₹1050
-Final fine = MIN(₹1050, ₹500) = ₹500  ← CAPPED
+Fine amount = 210 × रु 5 = रु 1050
+Final fine = MIN(रु 1050, रु 500) = रु 500  ← CAPPED
 ```
 
-**Result:** Fine of **₹500** (capped) is generated
+**Result:** Fine of **रु 500** (capped) is generated
 
 ---
 
@@ -204,17 +204,17 @@ Final fine = MIN(₹1050, ₹500) = ₹500  ← CAPPED
 
 **Scenario:**
 - Book marked as lost
-- Lost book penalty: ₹1000
+- Lost book penalty: रु 1000
 - Grace period: Not applicable
 
 **Calculation:**
 ```
-Fine amount = ₹1000 (Fixed)
+Fine amount = रु 1000 (Fixed)
 Status = "lost"
 Remarks = "Lost book penalty"
 ```
 
-**Result:** Fine of **₹1000** is generated immediately
+**Result:** Fine of **रु 1000** is generated immediately
 
 ---
 
@@ -222,17 +222,17 @@ Remarks = "Lost book penalty"
 
 **Scenario:**
 - Book returned damaged
-- Damaged book penalty: ₹250
+- Damaged book penalty: रु 250
 - Grace period: Not applicable
 
 **Calculation:**
 ```
-Fine amount = ₹250 (Fixed)
+Fine amount = रु 250 (Fixed)
 Status = "damaged"
 Remarks = "Damaged book penalty"
 ```
 
-**Result:** Fine of **₹250** is generated immediately
+**Result:** Fine of **रु 250** is generated immediately
 
 ---
 
@@ -241,16 +241,16 @@ Remarks = "Damaged book penalty"
 **Scenario:**
 - Book due date: January 20, 2026
 - Book returned: January 21, 2026 (1 day late)
-- Per day fine: ₹5
+- Per day fine: रु 5
 - Grace period: 2 days
-- Max fine: ₹500
+- Max fine: रु 500
 
 **Calculation:**
 ```
 Days Late = Jan 21 - Jan 20 = 1 day
 Grace period = 2 days
 Since 1 day ≤ 2 days → No fine charged
-Fine amount = ₹0
+Fine amount = रु 0
 ```
 
 **Result:** **No fine** is generated, book marked as returned
@@ -302,12 +302,12 @@ php artisan fines:calculate-overdue
 **Example Output:**
 ```
 Found 5 overdue books.
-Fine applied: John Doe - ₹15 (5 days late)
-Fine applied: Jane Smith - ₹50 (12 days late)
-Fine applied: Mike Johnson - ₹100 (25 days late)
+Fine applied: John Doe - रु 15 (5 days late)
+Fine applied: Jane Smith - रु 50 (12 days late)
+Fine applied: Mike Johnson - रु 100 (25 days late)
 -----------------------------------
 Total fines applied: 3
-Total amount: ₹165
+Total amount: रु 165
 ```
 
 ---
@@ -418,11 +418,11 @@ Route::get('/fines/overdue/books', [FineController::class, 'overdueBooksSummary'
 Go to Admin Dashboard → Settings → Library Settings
 
 Update the following:
-- **Fine Per Day:** ₹5 (or your preferred amount)
+- **Fine Per Day:** रु 5 (or your preferred amount)
 - **Grace Period:** 2 days
-- **Maximum Fine Amount:** ₹500
-- **Lost Book Penalty:** ₹1000
-- **Damaged Book Penalty:** ₹250
+- **Maximum Fine Amount:** रु 500
+- **Lost Book Penalty:** रु 1000
+- **Damaged Book Penalty:** रु 250
 - **Issue Duration:** 14 days
 
 ### 2. Process Overdue Books
@@ -563,7 +563,7 @@ Check if book returned?
 Issue date: Jan 1
 Due date: Jan 15
 Return date: Jan 20
-Expected fine: (20-15-2) × 5 = ₹15 ✓
+Expected fine: (20-15-2) × 5 = रु 15 ✓
 ```
 
 ### Test Case 2: Within Grace Period
@@ -571,19 +571,19 @@ Expected fine: (20-15-2) × 5 = ₹15 ✓
 Issue date: Jan 1
 Due date: Jan 15
 Return date: Jan 16 (1 day late)
-Expected fine: ₹0 (within 2-day grace) ✓
+Expected fine: रु 0 (within 2-day grace) ✓
 ```
 
 ### Test Case 3: Lost Book
 ```
 Status: lost
-Expected fine: ₹1000 ✓
+Expected fine: रु 1000 ✓
 ```
 
 ### Test Case 4: Damaged Book
 ```
 Status: damaged
-Expected fine: ₹250 ✓
+Expected fine: रु 250 ✓
 ```
 
 ---

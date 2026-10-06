@@ -84,7 +84,7 @@ class FineController extends Controller
                     user: $fine->student->user,
                     type: 'fine.waived_by_staff',
                     title: 'Fine Waived',
-                    message: "Your fine of ₹{$fine->amount} has been waived by staff. Reason: {$waiverReason}",
+                    message: "Your fine of रु {$fine->amount} has been waived by staff. Reason: {$waiverReason}",
                     data: [
                         'fine_id' => $fine->id,
                         'amount' => $fine->amount,
@@ -104,7 +104,7 @@ class FineController extends Controller
                     user: $admin,
                     type: 'staff.fine_waived',
                     title: 'Fine Waived by Staff',
-                    message: "{$staffName} waived fine of ₹{$fine->amount} for {$fine->student?->user?->name}",
+                    message: "{$staffName} waived fine of रु {$fine->amount} for {$fine->student?->user?->name}",
                     data: [
                         'fine_id' => $fine->id,
                         'amount' => $fine->amount,
@@ -301,7 +301,7 @@ class FineController extends Controller
     protected function buildBulkActionMessage(string $status, int $processedCount, int $skippedCount, float $totalAmount): string
     {
         $actionLabel = $status === 'paid' ? 'marked as paid' : 'waived';
-        $amountLabel = '₹' . number_format($totalAmount, 2);
+        $amountLabel = \App\Support\Currency::format($totalAmount, 2);
 
         if ($processedCount === 0 && $skippedCount > 0) {
             return "No selected fines were {$actionLabel} because they were no longer pending.";

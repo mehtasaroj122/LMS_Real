@@ -1167,7 +1167,7 @@
                         <div class="stat-icon issued">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M7 15h0M2 9.5h20"></path></svg>
                         </div>
-                        <div class="stat-value">₹8,350</div>
+                        <div class="stat-value">{{ \App\Support\Currency::PREFIX }}8,350</div>
                     </div>
                     <div class="stat-label">Total Generated</div>
                     <div class="stat-subtitle">In month period</div>
@@ -1178,7 +1178,7 @@
                         <div class="stat-icon available">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                         </div>
-                        <div class="stat-value">₹2,110</div>
+                        <div class="stat-value">{{ \App\Support\Currency::PREFIX }}2,110</div>
                     </div>
                     <div class="stat-label">Total Collected</div>
                     <div class="stat-subtitle">Paid fines</div>
@@ -1189,7 +1189,7 @@
                         <div class="stat-icon overdue">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         </div>
-                        <div class="stat-value">₹6,255</div>
+                        <div class="stat-value">{{ \App\Support\Currency::PREFIX }}6,255</div>
                     </div>
                     <div class="stat-label">Total Pending</div>
                     <div class="stat-subtitle">Unpaid fines</div>
@@ -1200,7 +1200,7 @@
                         <div class="stat-icon additions">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
                         </div>
-                        <div class="stat-value">₹0</div>
+                        <div class="stat-value">{{ \App\Support\Currency::PREFIX }}0</div>
                     </div>
                     <div class="stat-label">Total Waived</div>
                     <div class="stat-subtitle">Waived fines</div>
@@ -1253,17 +1253,17 @@
                                 <tr>
                                     <td>Alice Johnson</td>
                                     <td>STU2024001</td>
-                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">₹4165</span></td>
+                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}4165</span></td>
                                 </tr>
                                 <tr>
                                     <td>Bob Smith</td>
                                     <td>STU2024002</td>
-                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">₹2075</span></td>
+                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}2075</span></td>
                                 </tr>
                                 <tr>
                                     <td>Charlie Brown</td>
                                     <td>STU2024003</td>
-                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">₹15</span></td>
+                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}15</span></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1452,7 +1452,7 @@
                         <div class="stat-icon books">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                         </div>
-                        <div class="stat-value">₹1,450</div>
+                        <div class="stat-value">{{ \App\Support\Currency::PREFIX }}1,450</div>
                     </div>
                     <div class="stat-label">Total Fine Amount</div>
                     <div class="stat-subtitle">Accumulated fines</div>
@@ -1520,49 +1520,49 @@
                                     <td>Alice Johnson</td>
                                     <td>Clean Code</td>
                                     <td class="table-count"><span style="color: #ef4444; font-weight: 600;">45</span></td>
-                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">₹450</span></td>
+                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}450</span></td>
                                 </tr>
                                 <tr>
                                     <td>Bob Smith</td>
                                     <td>Design Patterns</td>
                                     <td class="table-count"><span style="color: #f97316; font-weight: 600;">28</span></td>
-                                    <td class="table-count"><span style="color: #f97316; font-weight: 600;">₹280</span></td>
+                                    <td class="table-count"><span style="color: #f97316; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}280</span></td>
                                 </tr>
                                 <tr>
                                     <td>Charlie Brown</td>
                                     <td>The Pragmatic Programmer</td>
                                     <td class="table-count"><span style="color: #ef4444; font-weight: 600;">38</span></td>
-                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">₹380</span></td>
+                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}380</span></td>
                                 </tr>
                                 <tr>
                                     <td>Diana Lee</td>
                                     <td>Introduction to Algorithms</td>
                                     <td class="table-count"><span style="color: #f97316; font-weight: 600;">15</span></td>
-                                    <td class="table-count"><span style="color: #f97316; font-weight: 600;">₹150</span></td>
+                                    <td class="table-count"><span style="color: #f97316; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}150</span></td>
                                 </tr>
                                 <tr>
                                     <td>Emma Wilson</td>
                                     <td>Software Engineering</td>
                                     <td class="table-count"><span style="color: #fbbf24; font-weight: 600;">8</span></td>
-                                    <td class="table-count"><span style="color: #fbbf24; font-weight: 600;">₹80</span></td>
+                                    <td class="table-count"><span style="color: #fbbf24; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}80</span></td>
                                 </tr>
                                 <tr>
                                     <td>Frank Miller</td>
                                     <td>Database Design</td>
                                     <td class="table-count"><span style="color: #ef4444; font-weight: 600;">52</span></td>
-                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">₹520</span></td>
+                                    <td class="table-count"><span style="color: #ef4444; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}520</span></td>
                                 </tr>
                                 <tr>
                                     <td>Grace Taylor</td>
                                     <td>Artificial Intelligence</td>
                                     <td class="table-count"><span style="color: #fbbf24; font-weight: 600;">12</span></td>
-                                    <td class="table-count"><span style="color: #fbbf24; font-weight: 600;">₹120</span></td>
+                                    <td class="table-count"><span style="color: #fbbf24; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}120</span></td>
                                 </tr>
                                 <tr>
                                     <td>Henry Adams</td>
                                     <td>Code Complete</td>
                                     <td class="table-count"><span style="color: #f97316; font-weight: 600;">22</span></td>
-                                    <td class="table-count"><span style="color: #f97316; font-weight: 600;">₹220</span></td>
+                                    <td class="table-count"><span style="color: #f97316; font-weight: 600;">{{ \App\Support\Currency::PREFIX }}220</span></td>
                                 </tr>
                             </tbody>
                         </table>

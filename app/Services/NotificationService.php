@@ -191,7 +191,7 @@ class NotificationService
             $suffix = $accession ? " ({$accession})" : '';
             $title = $fineAmount > 0 ? 'Book Returned with Fine' : 'Book Returned Successfully';
             $message = $fineAmount > 0
-                ? "Your return of '{$issuedBook->book?->title}'{$suffix} has been processed. Fine amount: Rs. {$fineAmount}."
+                ? "Your return of '{$issuedBook->book?->title}'{$suffix} has been processed. Fine amount: रु {$fineAmount}."
                 : ($accession
                     ? "{$issuedBook->book?->title}{$suffix} has been successfully returned."
                     : "Your return of '{$issuedBook->book?->title}' has been accepted.");
@@ -244,7 +244,7 @@ class NotificationService
             user: $student->user,
             type: 'payment.confirmed',
             title: 'Fine Payment Received',
-            message: "Your fine payment of Rs. {$fine->amount} has been received and marked as paid.",
+            message: "Your fine payment of रु {$fine->amount} has been received and marked as paid.",
             data: [
                 'fine_id' => $fine->id,
                 'amount' => $fine->amount,
@@ -268,7 +268,7 @@ class NotificationService
             user: $student->user,
             type: 'fine.reminder',
             title: 'Fine Waived',
-            message: "Your fine of Rs. {$fine->amount} has been waived. Reason: {$reason}",
+            message: "Your fine of रु {$fine->amount} has been waived. Reason: {$reason}",
             data: [
                 'fine_id' => $fine->id,
                 'amount' => $fine->amount,

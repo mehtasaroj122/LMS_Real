@@ -91,25 +91,27 @@ class ActivityLogger
         $newAmount = array_key_exists('new_amount', $details) ? (float) $details['new_amount'] : null;
 
         return match (strtolower($action)) {
-            'applied' => "Fine of ₹{$amountLabel} applied{$bookTarget} to {$studentLabel}",
-            'payment' => "Fine payment of ₹{$amountLabel}{$bookInfo} processed for {$studentLabel}",
-            'paid' => 'Fine of ₹' . $amountLabel . $bookInfo . ' marked as paid for ' . $studentLabel
+            'applied' => "Fine of {$amountLabel} applied{$bookTarget} to {$studentLabel}",
+            'payment' => "Fine payment of {$amountLabel}{$bookInfo} processed for {$studentLabel}",
+            'paid' => 'Fine of ' . $amountLabel . $bookInfo . ' marked as paid for ' . $studentLabel
                 . ($paymentMethod !== '' ? " via {$paymentMethod}" : ''),
-            'waived' => 'Fine of ₹' . $amountLabel . $bookInfo . ' waived for ' . $studentLabel
+            'waived' => 'Fine of ' . $amountLabel . $bookInfo . ' waived for ' . $studentLabel
                 . ($reason !== '' ? ". Reason: {$reason}" : ''),
             'adjusted' => 'Fine' . $bookInfo . ' adjusted for ' . $studentLabel
                 . ($oldAmount !== null && $newAmount !== null
-                    ? ' from ₹' . self::formatCurrencyAmount($oldAmount) . ' to ₹' . self::formatCurrencyAmount($newAmount)
+                    ? ' from ' . self::formatCurrencyAmount($oldAmount) . ' to ' . self::formatCurrencyAmount($newAmount)
                     : ''),
-            default => "Fine of ₹{$amountLabel}{$bookInfo} updated for {$studentLabel}",
+            default => "Fine of {$amountLabel}{$bookInfo} updated for {$studentLabel}",
         };
     }
 
     private static function formatCurrencyAmount(float $amount): string
     {
-        return abs($amount - round($amount)) < 0.00001
+        $formatted = abs($amount - round($amount)) < 0.00001
             ? number_format($amount, 0, '.', '')
             : number_format($amount, 2, '.', '');
+
+        return \App\Support\Currency::PREFIX . $formatted;
     }
 
     private static function formatFineBookContext(string $bookName = '', ?string $isbn = null): string

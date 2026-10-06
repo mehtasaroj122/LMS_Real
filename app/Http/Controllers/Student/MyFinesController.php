@@ -66,7 +66,7 @@ class MyFinesController extends Controller
                 'fineReason' => $fineReason,
                 'dueDate' => $dueDate,
                 'daysOverdue' => $daysOverdue,
-                'fineAmount' => '₹' . $fine->amount,
+                'fineAmount' => \App\Support\Currency::PREFIX . $fine->amount,
                 'status' => $fine->status === 'pending' ? 'unpaid' : $fine->status,
                 'lastUpdated' => optional($fine->updated_at)->format('Y-m-d') ?? now()->format('Y-m-d'),
             ];

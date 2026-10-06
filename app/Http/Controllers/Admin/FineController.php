@@ -140,7 +140,7 @@ class FineController extends Controller
                     user: $fine->student->user,
                     type: 'fine.waived_by_admin',
                     title: 'Fine Waived',
-                    message: "Your fine of ₹{$fine->amount} has been waived by administrator. Reason: {$waiverReason}",
+                    message: "Your fine of रु {$fine->amount} has been waived by administrator. Reason: {$waiverReason}",
                     data: [
                         'fine_id' => $fine->id,
                         'amount' => $fine->amount,
@@ -351,7 +351,7 @@ class FineController extends Controller
             
             $fine->update([
                 'amount' => $validated['amount'],
-                'remarks' => ($fine->remarks ? $fine->remarks . ' | ' : '') . "Adjusted from ₹{$oldAmount} to ₹{$validated['amount']}"
+                'remarks' => ($fine->remarks ? $fine->remarks . ' | ' : '') . "Adjusted from रु {$oldAmount} to रु {$validated['amount']}"
             ]);
 
             // Log the activity
@@ -368,7 +368,7 @@ class FineController extends Controller
                             'old_amount' => (float) $oldAmount,
                             'new_amount' => (float) $validated['amount'],
                             'amount_change' => round((float) $validated['amount'] - (float) $oldAmount, 2),
-                            'remarks' => "Adjusted from ₹{$oldAmount} to ₹{$validated['amount']}",
+                            'remarks' => "Adjusted from रु {$oldAmount} to रु {$validated['amount']}",
                         ])
                     );
                 }
@@ -378,7 +378,7 @@ class FineController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => "Fine amount adjusted to ₹{$validated['amount']}"
+                'message' => "Fine amount adjusted to रु {$validated['amount']}"
             ]);
         } catch (Throwable $e) {
             \Log::error('Error adjusting fine: ' . $e->getMessage());
@@ -467,7 +467,7 @@ class FineController extends Controller
                     'amount' => $currentAmount,
                     'date' => $fine->waived_at?->format('M d, Y h:i A'),
                     'waivedBy' => $fine->waivedBy?->name,
-                    'reason' => $fine->waive_reason ?? $fine->remarks,
+                    'reason' => \App\Support\Currency::normalizeText($fine->waive_reason ?? $fine->remarks),
                 ] : null,
                 'history' => $history->values()->all(),
             ]);
@@ -567,14 +567,14 @@ class FineController extends Controller
             'date' => optional($log->created_at)->format('M d, Y h:i A') ?? 'N/A',
             'actionType' => $actionType,
             'action' => $this->getFineHistoryActionLabel($actionType),
-            'description' => $metadata['description'] ?? $log->description,
+            'description' => \App\Support\Currency::normalizeText($metadata['description'] ?? $log->description),
             'user' => $log->user?->name ?? $log->user_name ?? 'System',
             'userRole' => $log->user?->role ?? $log->user_role ?? 'system',
             'amountChange' => $amountChange,
             'oldAmount' => $oldAmount,
             'newAmount' => $newAmount,
             'paymentMethod' => $paymentMethod,
-            'remarks' => $remarks,
+            'remarks' => \App\Support\Currency::normalizeText($remarks),
             '_dedupe' => implode('|', [
                 $actionType,
                 optional($log->created_at)->format('Y-m-d H:i:s') ?? 'N/A',
@@ -602,7 +602,7 @@ class FineController extends Controller
             return (float) $earliestAdjustment['oldAmount'];
         }
 
-        if ($fine->remarks && preg_match('/Adjusted from\s*₹?([0-9]+(?:\.[0-9]{1,2})?)/i', $fine->remarks, $matches)) {
+        if ($fine->remarks && preg_match('/Adjusted from\s*(?:\x{20B9}|रु|Rs\.?|INR)?\s*([0-9]+(?:\.[0-9]{1,2})?)/iu', $fine->remarks, $matches)) {
             return (float) $matches[1];
         }
 
@@ -634,7 +634,7 @@ class FineController extends Controller
             'date' => optional($fine->created_at)->format('M d, Y h:i A') ?? 'N/A',
             'actionType' => 'created',
             'action' => 'Created',
-            'description' => "Fine created for ₹{$originalAmount}" . ($fine->issuedBook?->book?->title ? " on '{$fine->issuedBook->book->title}'" : ''),
+            'description' => "Fine created for रु {$originalAmount}" . ($fine->issuedBook?->book?->title ? " on '{$fine->issuedBook->book->title}'" : ''),
             'user' => $createdActor['name'],
             'userRole' => $createdActor['role'],
             'amountChange' => null,
@@ -656,7 +656,7 @@ class FineController extends Controller
                 'oldAmount' => $originalAmount,
                 'newAmount' => $currentAmount,
                 'paymentMethod' => null,
-                'remarks' => preg_match('/Adjusted from/i', (string) $fine->remarks) ? $fine->remarks : null,
+                'remarks' => preg_match('/Adjusted from/i', (string) $fine->remarks) ? \App\Support\Currency::normalizeText($fine->remarks) : null,
             ];
         }
 
@@ -688,7 +688,7 @@ class FineController extends Controller
                 'oldAmount' => null,
                 'newAmount' => $currentAmount,
                 'paymentMethod' => null,
-                'remarks' => $fine->remarks,
+                'remarks' => \App\Support\Currency::normalizeText($fine->remarks),
             ];
         }
 
@@ -736,7 +736,7 @@ class FineController extends Controller
                         user: $adminUser,
                         type: 'system.bulk_operation',
                         title: 'Bulk Fine Waived',
-                        message: "{$currentAdmin->name} waived {$count} fine(s) totaling ₹{$totalAmount}",
+                        message: "{$currentAdmin->name} waived {$count} fine(s) totaling रु {$totalAmount}",
                         data: [
                             'count' => $count,
                             'total_amount' => $totalAmount,
@@ -802,7 +802,7 @@ class FineController extends Controller
                         user: $adminUser,
                         type: 'system.bulk_operation',
                         title: 'Bulk Fine Marked as Paid',
-                        message: "{$currentAdmin->name} marked {$count} fine(s) as paid, totaling ₹{$totalAmount}",
+                        message: "{$currentAdmin->name} marked {$count} fine(s) as paid, totaling रु {$totalAmount}",
                         data: [
                             'count' => $count,
                             'total_amount' => $totalAmount,
@@ -831,7 +831,7 @@ class FineController extends Controller
     protected function buildBulkActionMessage(string $status, int $processedCount, int $skippedCount, float $totalAmount): string
     {
         $actionLabel = $status === 'paid' ? 'marked as paid' : 'waived';
-        $amountLabel = '₹' . number_format($totalAmount, 2);
+        $amountLabel = \App\Support\Currency::format($totalAmount, 2);
 
         if ($processedCount === 0 && $skippedCount > 0) {
             return "No selected fines were {$actionLabel} because they were no longer pending.";

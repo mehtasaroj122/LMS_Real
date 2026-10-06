@@ -139,7 +139,7 @@ class StudentNotificationEmailService
             return 'N/A';
         }
 
-        return 'Rs. ' . number_format((float) $value, 2);
+        return \App\Support\Currency::format((float) $value, 2);
     }
 
     protected function resolveActorName(?string $changedByName): string

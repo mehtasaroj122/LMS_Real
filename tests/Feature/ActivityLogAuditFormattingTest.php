@@ -253,7 +253,7 @@ test('fine applied log includes student name with roll number', function () {
 
     expect(ActivityLog::query()->where('action', 'fine_applied')->count())->toBe(1);
     expect(ActivityLog::query()->where('action', 'fine_applied')->value('description'))
-        ->toBe("Fine of ₹50 applied for 'Strength of Materials' (ISBN: {$book->isbn}) to Riya Sharma ({$student->roll_no})");
+        ->toBe("Fine of रु 50 applied for 'Strength of Materials' (ISBN: {$book->isbn}) to Riya Sharma ({$student->roll_no})");
 });
 
 test('fine paid and fine payment logs include book isbn and student label', function () {
@@ -290,10 +290,10 @@ test('fine paid and fine payment logs include book isbn and student label', func
         ->assertJsonPath('success', true);
 
     expect(ActivityLog::query()->where('action', 'fine_payment')->value('description'))
-        ->toBe("Fine payment of ₹30 for 'Natural Language Processing with Python' (ISBN: {$book->isbn}) processed for Saroj Mehta ({$student->roll_no})");
+        ->toBe("Fine payment of रु 30 for 'Natural Language Processing with Python' (ISBN: {$book->isbn}) processed for Saroj Mehta ({$student->roll_no})");
 
     expect(ActivityLog::query()->where('action', 'fine_paid')->value('description'))
-        ->toBe("Fine of ₹30 for 'Natural Language Processing with Python' (ISBN: {$book->isbn}) marked as paid for Saroj Mehta ({$student->roll_no}) via cash");
+        ->toBe("Fine of रु 30 for 'Natural Language Processing with Python' (ISBN: {$book->isbn}) marked as paid for Saroj Mehta ({$student->roll_no}) via cash");
 });
 
 test('fine waived log includes book isbn, student label, and reason', function () {
@@ -331,7 +331,7 @@ test('fine waived log includes book isbn, student label, and reason', function (
         ->assertJsonPath('success', true);
 
     expect(ActivityLog::query()->where('action', 'fine_waived')->value('description'))
-        ->toBe("Fine of ₹15 for 'Strength of Materials' (ISBN: {$book->isbn}) waived for Riya Sharma ({$student->roll_no}). Reason: Approved by admin after review");
+        ->toBe("Fine of रु 15 for 'Strength of Materials' (ISBN: {$book->isbn}) waived for Riya Sharma ({$student->roll_no}). Reason: Approved by admin after review");
 });
 
 test('fine adjusted log includes book isbn and student label', function () {
@@ -370,5 +370,5 @@ test('fine adjusted log includes book isbn and student label', function () {
         ->assertJsonPath('success', true);
 
     expect(ActivityLog::query()->where('action', 'fine_adjusted')->value('description'))
-        ->toBe("Fine for 'HTTP-2 in Action' (ISBN: {$book->isbn}) adjusted for Aarav Gautam ({$student->roll_no}) from ₹20 to ₹35");
+        ->toBe("Fine for 'HTTP-2 in Action' (ISBN: {$book->isbn}) adjusted for Aarav Gautam ({$student->roll_no}) from रु 20 to रु 35");
 });

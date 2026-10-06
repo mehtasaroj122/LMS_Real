@@ -40,7 +40,7 @@ class ActivityLogSeeder extends Seeder
 
         $descriptions = [
             'Book "The Great Gatsby" issued to student',
-            'Fine payment of ₹500 processed',
+            'Fine payment of रु 500 processed',
             'User logged in from new device',
             'Student profile updated with new address',
             'Book request approved for "1984"',

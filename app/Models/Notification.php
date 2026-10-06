@@ -28,6 +28,12 @@ class Notification extends Model
         'updated_at' => 'datetime',
     ];
 
+    /** Present historical messages without modifying the recorded text. */
+    public function getMessageAttribute($value): ?string
+    {
+        return \App\Support\Currency::normalizeText($value);
+    }
+
     /**
      * Get the user that owns the notification
      */
@@ -106,7 +112,7 @@ class Notification extends Model
         return match($this->type) {
             'book.overdue' => 'alert-circle',
             'book.due_soon' => 'clock',
-            'fine.created' => 'indian-rupee',
+            'fine.created' => 'coins',
             'fine.reminder' => 'alert-circle',
             'request.approved' => 'check-circle',
             'request.rejected' => 'x-circle',

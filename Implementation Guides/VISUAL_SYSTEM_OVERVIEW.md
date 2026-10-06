@@ -62,7 +62,7 @@
 │     Action: Bulk waive/mark paid                            │
 │     Trigger: system.bulk_operation                          │
 │     Recipient: Other admin                                  │
-│     Message: "Waived 5 fines totaling ₹500"                │
+│     Message: "Waived 5 fines totaling रु 500"                │
 │                                                              │
 │  3. Low Inventory Alert                                      │
 │     Action: Add/Update book (stock < 5)                     │

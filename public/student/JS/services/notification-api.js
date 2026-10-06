@@ -88,7 +88,7 @@
             'book.due_soon': 'clock',
             'book.returned': 'book-open',
             'book.new': 'book-open',
-            'fine.created': 'indian-rupee',
+            'fine.created': 'coins',
             'fine.reminder': 'alert-triangle',
             'fine.waived_by_staff': 'shield-check',
             'request.approved': 'check-circle',

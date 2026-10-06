@@ -526,7 +526,7 @@ class TransactionController extends Controller
             // Notify student about book return
             if ($student->user) {
                 $bookTitles = implode(', ', $returnedBooks);
-                $fineMessage = $totalFine > 0 ? " A fine of Rs. {$totalFine} has been applied." : '';
+                $fineMessage = $totalFine > 0 ? " A fine of रु {$totalFine} has been applied." : '';
                 Notification::notify(
                     user: $student->user,
                     type: 'book.returned',

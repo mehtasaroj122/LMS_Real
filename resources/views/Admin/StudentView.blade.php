@@ -3802,14 +3802,13 @@
                         <div class="summary-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
-                                <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="700"
-                                    fill="currentColor" stroke="none">₹</text>
+                                <ellipse cx="9" cy="6" rx="7" ry="3"/><path d="M2 6v6c0 1.66 3.13 3 7 3s7-1.34 7-3V6M2 9c0 1.66 3.13 3 7 3s7-1.34 7-3M9 15v3c0 1.66 3.13 3 7 3s7-1.34 7-3v-6c0-1.66-3.13-3-7-3M9 18c0 1.66 3.13 3 7 3s7-1.34 7-3"/>
                             </svg>
                         </div>
                         <div class="summary-content">
                             <div class="summary-title">Pending Fine</div>
                             <div class="summary-value" id="pendingFineValue">
-                                ₹{{ number_format($student->fines->where('status', 'pending')->sum('amount'), 2) }}</div>
+                                {{ \App\Support\Currency::format($student->fines->where('status', 'pending')->sum('amount'), 2) }}</div>
                         </div>
                     </div>
                     <div class="summary-card">
@@ -4089,7 +4088,7 @@
                         <input type="number" id="maxDays" value="14" min="1" max="90">
                     </div>
                     <div class="form-group">
-                        <label for="fineRate">Fine Rate Per Day (₹)</label>
+                        <label for="fineRate">Fine Rate Per Day ({{ \App\Support\Currency::SYMBOL }})</label>
                         <input type="number" id="fineRate" value="10" min="0" max="100"
                             step="0.5">
                     </div>
@@ -4202,10 +4201,10 @@
             <div class="fine-modal-body">
                 <div class="fine-info-box">
                     <div class="fine-info-label">Current Amount</div>
-                    <div class="fine-info-value" id="adjustCurrentAmount">₹0</div>
+                    <div class="fine-info-value" id="adjustCurrentAmount">{{ \App\Support\Currency::PREFIX }}0</div>
                 </div>
                 <div class="fine-form-group">
-                    <label class="fine-form-label" for="adjustNewAmount">New Amount (₹)</label>
+                    <label class="fine-form-label" for="adjustNewAmount">New Amount ({{ \App\Support\Currency::SYMBOL }})</label>
                     <input type="number" id="adjustNewAmount" class="fine-form-input"
                         placeholder="Enter new fine amount" min="0" step="0.01">
                 </div>
@@ -4228,7 +4227,7 @@
             <div class="fine-modal-body">
                 <div class="fine-info-box">
                     <div class="fine-info-label">Fine Amount to Waive</div>
-                    <div class="fine-info-value" id="waiveAmount">₹0</div>
+                    <div class="fine-info-value" id="waiveAmount">{{ \App\Support\Currency::PREFIX }}0</div>
                 </div>
                 <div class="fine-form-group">
                     <label class="fine-form-label" for="waiveReason">Reason for Waiving</label>
@@ -4825,7 +4824,7 @@
             </td>
             <td>
                 <span class="fine-amount ${book.fine > 0 ? 'has-fine' : ''}">
-                    ₹${book.fine}
+                    ${window.LmsCurrency.prefix}${book.fine}
                 </span>
             </td>
             <td>
@@ -5501,7 +5500,7 @@
             const setText = (id, value, fallback = 'N/A') => {
                 document.getElementById(id).textContent = value === null || value === undefined || value === '' ? fallback : String(value);
             };
-            const money = `₹${Number(book.fine).toFixed(2)}`;
+            const money = `${window.LmsCurrency.prefix}${Number(book.fine).toFixed(2)}`;
             const overdueDays = book.daysOverdue;
             const daysLabel = `${overdueDays} ${Number(overdueDays) === 1 ? 'day' : 'days'}`;
             const returned = Boolean(book.returnDateRaw);
@@ -5804,7 +5803,7 @@
             <td colspan="5">
                 <div class="empty-state">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <text x="12" y="16" text-anchor="middle" font-size="18" font-weight="700" fill="currentColor" stroke="none">₹</text>
+                        <ellipse cx="9" cy="6" rx="7" ry="3"/><path d="M2 6v6c0 1.66 3.13 3 7 3s7-1.34 7-3V6M2 9c0 1.66 3.13 3 7 3s7-1.34 7-3M9 15v3c0 1.66 3.13 3 7 3s7-1.34 7-3v-6c0-1.66-3.13-3-7-3M9 18c0 1.66 3.13 3 7 3s7-1.34 7-3"/>
                     </svg>
                     <h3>No Fines & Payments</h3>
                     <p>${currentFineSearchTerm || currentFineStatusFilter !== 'all'
@@ -5888,7 +5887,7 @@
             <td><strong>${fine.bookName}</strong></td>
             <td>${fine.daysOverdue}</td>
             <td style="color: ${normalizedPaymentStatus === 'pending' ? '#dc2626' : normalizedPaymentStatus === 'waived' ? '#ea580c' : '#16a34a'}; font-weight: 600;">
-                ₹${fine.fineAmount}
+                ${window.LmsCurrency.prefix}${fine.fineAmount}
             </td>
             <td>
                 <span class="payment-badge ${statusClass}"><i class="${statusIcon}" style="font-size: 10px; margin-right: 2px;"></i>${statusText}</span>
@@ -6203,7 +6202,7 @@
                 },
                 'fine-applied': {
                     label: 'Fine Applied',
-                    icon: 'fas fa-indian-rupee-sign'
+                    icon: 'fas fa-coins'
                 },
                 'fine-paid': {
                     label: 'Fine Paid',
@@ -6935,7 +6934,7 @@
                     total;
             }, 0);
 
-            pendingFineValue.textContent = `₹${pendingTotal.toFixed(2)}`;
+            pendingFineValue.textContent = `${window.LmsCurrency.prefix}${pendingTotal.toFixed(2)}`;
         }
 
         function syncStudentFines(nextFines = []) {
@@ -7127,7 +7126,7 @@
                 },
                 {
                     label: 'Fine Rate',
-                    value: `₹${normalizedDefaults.per_day_fine ?? 10} per day`
+                    value: `${window.LmsCurrency.prefix}${normalizedDefaults.per_day_fine ?? 10} per day`
                 },
                 {
                     label: 'Borrowing',
@@ -7157,7 +7156,7 @@
 
         function adjustFine(fineId, fine) {
             currentFineId = fineId;
-            document.getElementById('adjustCurrentAmount').textContent = '₹' + parseFloat(fine.fineAmount).toFixed(2);
+            document.getElementById('adjustCurrentAmount').textContent = window.LmsCurrency.prefix + parseFloat(fine.fineAmount).toFixed(2);
             document.getElementById('adjustNewAmount').value = '';
             document.getElementById('adjustFineSubmitBtn').disabled = false;
             document.getElementById('adjustFineSubmitBtn').textContent = 'Adjust Fine';
@@ -7166,7 +7165,7 @@
 
         function submitAdjustFine() {
             const newAmount = document.getElementById('adjustNewAmount').value;
-            const oldAmount = parseFloat(document.getElementById('adjustCurrentAmount').textContent.replace(/[₹,]/g, '')) ||
+            const oldAmount = parseFloat(document.getElementById('adjustCurrentAmount').textContent.replace(/[^0-9.\-]/g, '')) ||
                 0;
 
             if (!newAmount || isNaN(newAmount) || newAmount < 0) {
@@ -7197,10 +7196,10 @@
                 .then(data => {
                     if (data.success) {
                         closeFineModal('adjust');
-                        showToast(`Fine updated from ₹${oldAmount.toFixed(2)} to ₹${nextAmount.toFixed(2)}.`,
+                        showToast(`Fine updated from ${window.LmsCurrency.prefix}${oldAmount.toFixed(2)} to ${window.LmsCurrency.prefix}${nextAmount.toFixed(2)}.`,
                         'success', {
                             title: 'Fine adjusted',
-                            detail: `Change: ${delta >= 0 ? '+' : '-'}₹${Math.abs(delta).toFixed(2)}`,
+                            detail: `Change: ${delta >= 0 ? '+' : '-'}${window.LmsCurrency.prefix}${Math.abs(delta).toFixed(2)}`,
                         });
                         refreshStudentLiveSections({
                             refreshFines: true,
@@ -7233,7 +7232,7 @@
 
         function waiveFine(fineId, fine) {
             currentFineId = fineId;
-            document.getElementById('waiveAmount').textContent = '₹' + parseFloat(fine.fineAmount).toFixed(2);
+            document.getElementById('waiveAmount').textContent = window.LmsCurrency.prefix + parseFloat(fine.fineAmount).toFixed(2);
             document.getElementById('waiveReason').value = '';
             document.getElementById('waiveFineSubmitBtn').disabled = false;
             document.getElementById('waiveFineSubmitBtn').textContent = 'Waive Fine';
@@ -7242,7 +7241,7 @@
 
         function submitWaiveFine() {
             const reason = document.getElementById('waiveReason').value.trim();
-            const amount = parseFloat(document.getElementById('waiveAmount').textContent.replace(/[₹,]/g, '')) || 0;
+            const amount = parseFloat(document.getElementById('waiveAmount').textContent.replace(/[^0-9.\-]/g, '')) || 0;
 
             if (!reason) {
                 showToast('Please enter a reason for waiving this fine.', 'error');
@@ -7270,7 +7269,7 @@
                         closeFineModal('waive');
                         showToast('The fine was waived successfully.', 'warning', {
                             title: 'Fine waived',
-                            detail: `Amount: ₹${amount.toFixed(2)} | Reason: ${reason}`,
+                            detail: `Amount: ${window.LmsCurrency.prefix}${amount.toFixed(2)} | Reason: ${reason}`,
                         });
                         refreshStudentLiveSections({
                             refreshFines: true,
@@ -7317,7 +7316,7 @@
                     },
                     {
                         label: 'Amount',
-                        value: `₹${amount.toFixed(2)}`
+                        value: `${window.LmsCurrency.prefix}${amount.toFixed(2)}`
                     },
                     {
                         label: 'Impact',
@@ -7338,7 +7337,7 @@
                             if (data.success) {
                                 showToast('The payment was recorded successfully.', 'success', {
                                     title: 'Fine marked as paid',
-                                    detail: `Amount: ₹${amount.toFixed(2)}`,
+                                    detail: `Amount: ${window.LmsCurrency.prefix}${amount.toFixed(2)}`,
                                 });
                                 refreshStudentLiveSections({
                                     refreshFines: true,
@@ -7372,7 +7371,7 @@
 
         function formatCurrency(value) {
             const numericValue = Number(value);
-            return `₹${Number.isFinite(numericValue) ? numericValue.toFixed(2) : '0.00'}`;
+            return `${window.LmsCurrency.prefix}${Number.isFinite(numericValue) ? numericValue.toFixed(2) : '0.00'}`;
         }
 
         function formatSignedCurrency(value) {
@@ -7438,7 +7437,7 @@
 
             if (Number.isNaN(privilegeValues.per_day_fine) || privilegeValues.per_day_fine < 0 || privilegeValues
                 .per_day_fine > 100) {
-                showToast('Fine rate must be between ₹0 and ₹100 per day', 'error');
+                showToast('Fine rate must be between {{ \App\Support\Currency::PREFIX }}0 and {{ \App\Support\Currency::PREFIX }}100 per day', 'error');
                 return;
             }
 
@@ -7458,7 +7457,7 @@
                     },
                     {
                         label: 'Fine Rate',
-                        value: `₹${privilegeValues.per_day_fine} per day`
+                        value: `${window.LmsCurrency.prefix}${privilegeValues.per_day_fine} per day`
                     },
                     {
                         label: 'Borrowing',

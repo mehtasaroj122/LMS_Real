@@ -339,9 +339,9 @@
                 <div class="flex items-start justify-between mb-2">
                     <div>
                         <p class="text-xs font-medium text-muted">Pending Fines</p>
-                        <h3 class="text-2xl font-bold dashboard-pending-fine-accent">₹{{ number_format($pendingFines, 2) }}</h3>
+                        <h3 class="text-2xl font-bold dashboard-pending-fine-accent">{{ \App\Support\Currency::format($pendingFines, 2) }}</h3>
                     </div>
-                    <i data-lucide="indian-rupee" class="w-5 h-5 dashboard-pending-fine-accent"></i>
+                    <i data-lucide="coins" class="w-5 h-5 dashboard-pending-fine-accent"></i>
                 </div>
                 <p class="text-xs text-muted">Unpaid fines needing attention</p>
             </div>
@@ -350,9 +350,9 @@
                 <div class="flex items-start justify-between mb-2">
                     <div>
                         <p class="text-xs font-medium text-muted">Fines Collected</p>
-                        <h3 class="text-2xl font-bold text-green-500">₹{{ number_format($collectedFines, 2) }}</h3>
+                        <h3 class="text-2xl font-bold text-green-500">{{ \App\Support\Currency::format($collectedFines, 2) }}</h3>
                     </div>
-                    <i data-lucide="indian-rupee" class="w-5 h-5 text-green-500"></i>
+                    <i data-lucide="coins" class="w-5 h-5 text-green-500"></i>
                 </div>
                 <p class="text-xs text-muted">Total collected</p>
             </div>
@@ -423,7 +423,7 @@
                                     <span class="fine-legend-dot" style="background-color: {{ $item['color'] }}"></span>
                                     <span class="fine-legend-text">{{ $item['label'] }}</span>
                                 </span>
-                                <span class="fine-legend-value">₹{{ number_format($item['amount'], 2) }}</span>
+                                <span class="fine-legend-value">{{ \App\Support\Currency::format($item['amount'], 2) }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -460,7 +460,7 @@
                         </div>
 
                         <span class="inline-flex items-center justify-center flex-shrink-0 px-1.5 py-0.5 text-xs font-bold text-white bg-red-600 rounded-full whitespace-nowrap">
-                            ₹{{ number_format((float) $fine->amount, 2) }}
+                            {{ \App\Support\Currency::format((float) $fine->amount, 2) }}
                         </span>
                     </div>
                 @empty
@@ -485,7 +485,7 @@
                         <div class="pb-1 border-b last:border-b-0 last:pb-0">
                             <div class="flex items-start justify-between gap-1 mb-0.5">
                                 <p class="flex-1 text-xs font-semibold line-clamp-2">
-                                    {{ $activity->description ?? $activity->action }}
+                                    {{ $activity->readable_description ?? $activity->action }}
                                 </p>
 
                                 @if($activity->user)
@@ -572,10 +572,10 @@
         }
 
         function formatFineCurrency(value) {
-            return `₹${Number(value || 0).toLocaleString('en-IN', {
+            return window.LmsCurrency.format(Number(value || 0), {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
-            })}`;
+            }, 'en-IN');
         }
 
         function registerAdminDashboardChartExtensions() {
@@ -776,7 +776,7 @@
                             },
                         },
                         adminDoughnutCenterText: {
-                            value: `₹${total}`,
+                            value: `${window.LmsCurrency.prefix}${total}`,
                             label: caption,
                             valueColor: palette.textStrong,
                             labelColor: palette.textMuted,
@@ -930,7 +930,7 @@
                                 },
                                 maxTicksLimit: 6,
                                 callback(value) {
-                                    return `₹${Number(value || 0).toLocaleString('en-IN')}`;
+                                    return window.LmsCurrency.format(Number(value || 0), { minimumFractionDigits: 0, maximumFractionDigits: 3 }, 'en-IN');
                                 },
                             },
                             grid: {

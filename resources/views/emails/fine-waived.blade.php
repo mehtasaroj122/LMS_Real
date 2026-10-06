@@ -1,7 +1,7 @@
 @php
     $resolvedStudentName = $studentName ?? $student?->user?->name ?? $student?->name ?? 'Student';
     $resolvedFineAmount = isset($fineAmount) ? (float) $fineAmount : (float) ($fine?->amount ?? 0);
-    $resolvedReason = $reason ?? $fine?->remarks ?? 'Waived by library staff.';
+    $resolvedReason = \App\Support\Currency::normalizeText($reason ?? $fine?->remarks ?? 'Waived by library staff.');
 @endphp
 @extends('emails.layouts.base')
 
@@ -19,7 +19,7 @@
     <table role="presentation" class="panel" width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td class="label">Waived amount</td>
-            <td class="value">Rs. {{ number_format($resolvedFineAmount, 2) }}</td>
+            <td class="value">{{ \App\Support\Currency::format($resolvedFineAmount, 2) }}</td>
         </tr>
         <tr>
             <td class="label">Status</td>

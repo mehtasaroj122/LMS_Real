@@ -987,10 +987,10 @@
                 <div class="stat-header">
                     <h3 class="stat-title">Pending Fine</h3>
                     <div class="stat-icon">
-                        ₹
+                        <i data-lucide="coins" aria-hidden="true"></i>
                     </div>
                 </div>
-                <div class="stat-number" id="totalFine">₹{{ $totalFine }}</div>
+                <div class="stat-number" id="totalFine">{{ \App\Support\Currency::PREFIX }}{{ $totalFine }}</div>
                 <div class="stat-label">Amount to be paid</div>
             </div>
         </div>
@@ -1280,7 +1280,7 @@
 
         function formatCurrencyAmount(amount) {
             const normalizedAmount = Number(amount) || 0;
-            return `₹${normalizedAmount.toFixed(2).replace(/\.00$/, '')}`;
+            return `${window.LmsCurrency.prefix}${normalizedAmount.toFixed(2).replace(/\.00$/, '')}`;
         }
 
         function updateReportButtonState(totalRecords = filteredBooks.length) {

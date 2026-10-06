@@ -114,7 +114,7 @@ class StaffStudentController extends Controller
                         'amount' => (float) $fine->amount,
                         'days_late' => (int) $fine->days_late,
                         'status' => $fine->status,
-                        'remarks' => $fine->remarks,
+                        'remarks' => \App\Support\Currency::normalizeText($fine->remarks),
                     ])
                     ->values(),
             ],

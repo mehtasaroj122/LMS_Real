@@ -307,7 +307,7 @@ Response: {"success": true, "message": "Fine waived successfully"}
 ```
 POST /admin/fines/{fine}/adjust
 Body: {amount: 30, action: "adjust"}
-Response: {"success": true, "message": "Fine amount adjusted to ₹30"}
+Response: {"success": true, "message": "Fine amount adjusted to रु 30"}
 ```
 
 ### View History

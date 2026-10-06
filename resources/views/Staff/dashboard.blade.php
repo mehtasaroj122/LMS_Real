@@ -1563,7 +1563,7 @@
                     </div>
                 </div>
                 <div class="stat-card-body">
-                    <div class="stat-value">₹{{ number_format($pendingFinesAmount ?? 0) }}</div>
+                    <div class="stat-value">{{ \App\Support\Currency::format($pendingFinesAmount ?? 0) }}</div>
                     <div class="stat-helper">
                         {{ ($pendingFinesAmount ?? 0) > 0 ? 'Outstanding amount awaiting collection' : 'No unpaid fines at the moment' }}
                     </div>
@@ -1944,7 +1944,7 @@
                         <span class="quick-action-content">
                             <span class="quick-action-top">
                                 <span class="quick-action-title">Manage Fines</span>
-                                <span class="quick-action-badge">₹{{ number_format((float) ($pendingFinesAmount ?? 0)) }}</span>
+                                <span class="quick-action-badge">{{ \App\Support\Currency::format((float) ($pendingFinesAmount ?? 0)) }}</span>
                             </span>
                             <span class="quick-action-meta">Collect, waive, or review pending fine records.</span>
                         </span>

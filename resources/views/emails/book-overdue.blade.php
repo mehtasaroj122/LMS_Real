@@ -27,7 +27,7 @@
         @if ($fineAmount > 0)
             <tr>
                 <td class="label">Current fine</td>
-                <td class="value">Rs. {{ number_format($fineAmount, 2) }}</td>
+                <td class="value">{{ \App\Support\Currency::format($fineAmount, 2) }}</td>
             </tr>
         @endif
     </table>

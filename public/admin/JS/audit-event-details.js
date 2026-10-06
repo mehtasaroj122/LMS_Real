@@ -37,10 +37,10 @@
         if (typeof value === 'boolean') return value ? 'Yes' : 'No';
         if (Array.isArray(value)) return value.length ? value.map(text).join('; ') : 'None';
         if (typeof value === 'object') return Object.entries(value).map(([key, item]) => `${label(key)}: ${text(item)}`).join('\n') || 'None';
-        return String(value);
+        return window.LmsCurrency.normalizeText(value);
     }
     function numeric(value) { return present(value) && ['string', 'number'].includes(typeof value) && String(value).trim() !== '' && Number.isFinite(Number(value)); }
-    function money(value) { return numeric(value) ? `₹${Number(value).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : text(value); }
+    function money(value) { return numeric(value) ? window.LmsCurrency.format(value, {}, 'en-IN') : text(value); }
     function friendly(value) { return typeof value === 'string' && /^[a-z]+(?:[_-][a-z]+)*$/.test(value) ? label(value) : text(value); }
     const technicalKeys = new Set(['ip_address', 'ip', 'device_type', 'device', 'browser', 'session_id', 'user_agent', 'route', 'url', 'request_url', 'request_method', 'method']);
     const businessKeys = new Set(['days_late', 'fine_status', 'status', 'action', 'action_type', 'issued_book_id', 'fine_id', 'book_id', 'student_id', 'transaction_id', 'accession_number', 'accession_no', 'issue_date', 'due_date', 'return_date', 'condition', 'return_condition', 'fine_generated', 'fine_amount', 'issued_by', 'processed_by', 'payment_method', 'paid_date', 'waived_date', 'setting', 'privilege', 'renewal_count']);
@@ -71,7 +71,7 @@
         used.add('isbn'); used.add('book_isbn');
         const accession = take('accession_number', 'accession_no', 'book_accession_number') ?? log.accessionNumber;
         // Only replace the identifier in the modal; the recorded description stays intact.
-        const description = String(log.description || 'No description recorded.').replace(/\s*\(ISBN:\s*[^)]*\)/gi,
+        const description = window.LmsCurrency.normalizeText(log.description || 'No description recorded.').replace(/\s*\(ISBN:\s*[^)]*\)/gi,
             () => present(accession) ? ` (Accession Number: ${text(accession)})` : '');
         const remarks = take('remarks', 'reason', 'remark', 'notes');
         const changes = [];

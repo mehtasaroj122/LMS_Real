@@ -60,7 +60,7 @@ class MyBooksController extends Controller
                 'dueDate' => $issuedBook->due_date->format('M d, Y'),
                 'returnDate' => $issuedBook->return_date ? $issuedBook->return_date->format('M d, Y') : null,
                 'status' => $issuedBook->return_date ? 'returned' : ($issuedBook->due_date < now() ? ($this->fineIsSettled($issuedBook) ? 'issued' : 'overdue') : $this->calculateStatus($issuedBook)),
-                'fine' => $displayFine['amount'] > 0 ? '₹' . $displayFine['amount'] : 'No Fine',
+                'fine' => $displayFine['amount'] > 0 ? \App\Support\Currency::PREFIX . $displayFine['amount'] : 'No Fine',
                 'fineStatus' => $displayFine['status'],
             ];
         })->toArray());

@@ -1770,7 +1770,7 @@
                     </div>
                 </div>
                 <div class="profile-stat">
-                    <div class="profile-stat-value">₹{{ number_format((float) $pendingFines, 2) }}</div>
+                    <div class="profile-stat-value">{{ \App\Support\Currency::format((float) $pendingFines, 2) }}</div>
                     <div class="profile-stat-label">
                         <span class="profile-stat-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
@@ -2125,7 +2125,7 @@
                         </div>
                         <div class="privilege-content">
                             <span
-                                class="privilege-value">₹{{ number_format((float) $privilegeSettings['per_day_fine'], 2) }}</span>
+                                class="privilege-value">{{ \App\Support\Currency::format((float) $privilegeSettings['per_day_fine'], 2) }}</span>
                             <span class="privilege-label">Per Day Fine</span>
                         </div>
                     </div>
@@ -2466,7 +2466,7 @@
                                 Due: ${escapeHtml(item.due_date)}
                                 ${item.due_badge_text ? `<span class="alert-badge ${escapeHtml(item.due_badge_class)}">${escapeHtml(item.due_badge_text)}</span>` : ''}
                             </div>
-                            ${item.fine_amount ? `<div class="data-item-meta">Fine: ₹${escapeHtml(item.fine_amount)}</div>` : ''}
+                            ${item.fine_amount ? `<div class="data-item-meta">Fine: ${window.LmsCurrency.prefix}${escapeHtml(item.fine_amount)}</div>` : ''}
                         </div>
                     `;
                 },

@@ -8,6 +8,10 @@ import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 window.Alpine = Alpine;
 window.Cropper = Cropper;
 window.PDFLib = { PDFDocument, StandardFonts, rgb };
+window.loadReportPdfFonts = async (pdfDoc) => {
+    const { embedReportFonts } = await import('./report-pdf-fonts');
+    return embedReportFonts(pdfDoc);
+};
 
 Alpine.start();
 

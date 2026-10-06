@@ -838,7 +838,7 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-number" id="outstandingAmount">₹{{ $outstandingAmount }}</div>
+                <div class="stat-number" id="outstandingAmount">{{ \App\Support\Currency::PREFIX }}{{ $outstandingAmount }}</div>
                 <div class="stat-label" id="outstandingLabel">{{ $outstandingCount ?? 0 }} pending {{ ($outstandingCount ?? 0) === 1 ? 'fine' : 'fines' }}</div>
             </div>
 
@@ -846,10 +846,10 @@
                 <div class="stat-header">
                     <h3 class="stat-title">Paid</h3>
                     <div class="stat-icon">
-                        ₹
+                        <i data-lucide="coins" aria-hidden="true"></i>
                     </div>
                 </div>
-                <div class="stat-number" id="paidAmount">₹{{ $paidAmount }}</div>
+                <div class="stat-number" id="paidAmount">{{ \App\Support\Currency::PREFIX }}{{ $paidAmount }}</div>
                 <div class="stat-label" id="paidLabel">0 paid fines</div>
             </div>
 
@@ -865,7 +865,7 @@
                         </svg>
                     </div>
                 </div>
-                <div class="stat-number" id="waivedAmount">₹{{ $waivedAmount }}</div>
+                <div class="stat-number" id="waivedAmount">{{ \App\Support\Currency::PREFIX }}{{ $waivedAmount }}</div>
                 <div class="stat-label" id="waivedLabel">0 waived fines</div>
             </div>
 
@@ -1087,7 +1087,7 @@
 
         function formatCurrencyAmount(amount) {
             const normalizedAmount = Number(amount) || 0;
-            return `₹${normalizedAmount.toFixed(2).replace(/\.00$/, '')}`;
+            return `${window.LmsCurrency.prefix}${normalizedAmount.toFixed(2).replace(/\.00$/, '')}`;
         }
 
         function updateReportButtonState(totalRecords = filteredFines.length) {
@@ -1278,7 +1278,7 @@
                 reason: getReasonText(fine?.fineReason),
                 dueDate: fine?.dueDate || 'N/A',
                 daysOverdue: fine?.daysOverdue || '—',
-                fineAmount: fine?.fineAmount || '₹0',
+                fineAmount: fine?.fineAmount || '{{ \App\Support\Currency::PREFIX }}0',
                 status: formatFineStatusLabel(fine?.status),
             };
         }

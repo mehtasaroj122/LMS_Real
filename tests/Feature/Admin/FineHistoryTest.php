@@ -12,6 +12,7 @@ use App\Models\Student;
 use App\Models\User;
 
 test('fine history exposes existing identity and settlement data without changing amounts or audit records', function (string $status) {
+    Illuminate\Support\Facades\View::share('libraryBranding', App\Support\LibraryBranding::resolve());
     $admin = User::factory()->create(['role' => 'admin']);
     $staff = User::factory()->create(['role' => 'staff', 'name' => 'Reviewing Staff']);
     $borrower = User::factory()->create(['role' => 'student']);
@@ -89,6 +90,14 @@ test('fine history exposes existing identity and settlement data without changin
             ->assertJsonPath('paymentDetails.date', 'Oct 06, 2026 11:00 AM')
             ->assertJsonPath('paymentDetails.outstanding', 0)
             ->assertJsonPath('waiverDetails', null);
+        $this->get(route('admin.students.receipt', $student))->assertOk()
+            ->assertSee("<meta charset='utf-8'>", false)
+            ->assertSee('LmsCurrencyPrint')
+            ->assertSee('रु 35.00')
+            ->assertDontSee("\u{20B9}");
+        $this->get(route('admin.reports.index'))->assertOk();
+        $report = $this->getJson(route('admin.reports.data', ['report_type' => 'fines']))->assertOk();
+        expect($report->json('content'))->toContain('रु 35.00')->not->toContain("\u{20B9}");
     } elseif ($status === 'waived') {
         $response->assertJsonPath('waiverDetails.waivedBy', $admin->name)
             ->assertJsonPath('waiverDetails.date', 'Oct 06, 2026 11:00 AM')

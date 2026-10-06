@@ -135,7 +135,7 @@ $fine->update([
 ```php
 $fine->update([
     'amount' => $newAmount,
-    'remarks' => 'Previous: ₹X | Adjusted to ₹Y'
+    'remarks' => 'Previous: रु X | Adjusted to रु Y'
 ]);
 ```
 
@@ -210,7 +210,7 @@ Route::get('/students/{student}/receipt', [StudentController::class, 'generateRe
     "history": [
         {
             "date": "2024-01-27 10:30:00",
-            "action": "Fine created for ₹50",
+            "action": "Fine created for रु 50",
             "user": "System"
         },
         {

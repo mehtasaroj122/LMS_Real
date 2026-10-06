@@ -2728,8 +2728,8 @@ Mobile actions create notifications in the Laravel backend through the same `not
 | `POST /api/issues/return/{id}` | Staff/admin returns one issued book from shared return API | Student | `book.returned` or `fine.created` | `Book Returned Successfully` or `Book Returned with Fine` |
 | `POST /api/staff/issues/{issue}/return` | Staff/admin returns one issued book from staff API | Student | `book.returned` or `fine.created` | `Book Returned Successfully` or `Book Returned with Fine` |
 | `POST /api/staff/returns` | Staff/admin returns multiple issued books from staff API | Student | `book.returned` or `fine.created` | `Book Returned Successfully` or `Book Returned with Fine` |
-| `POST /api/staff/fines/{fine}/pay` | Staff/admin marks a fine paid | Student | `payment.confirmed` | `Fine Payment Received` / `Your fine payment of Rs. 100 has been received and marked as paid.` |
-| `POST /api/staff/fines/{fine}/waive` | Staff/admin waives a fine | Student | `fine.reminder` | `Fine Waived` / `Your fine of Rs. 100 has been waived. Reason: ...` |
+| `POST /api/staff/fines/{fine}/pay` | Staff/admin marks a fine paid | Student | `payment.confirmed` | `Fine Payment Received` / `Your fine payment of रु 100 has been received and marked as paid.` |
+| `POST /api/staff/fines/{fine}/waive` | Staff/admin waives a fine | Student | `fine.reminder` | `Fine Waived` / `Your fine of रु 100 has been waived. Reason: ...` |
 | `PUT /api/profile` | Student, staff, or admin updates editable profile fields | Authenticated user | `account.profile_updated` | `Profile Information Updated` / `Your profile information was updated: ...` |
 | `POST /api/profile/photo` | Student, staff, or admin uploads profile photo | Authenticated user | `account.profile_updated` | `Profile Photo Updated` / `Your profile photo was updated successfully.` |
 | `DELETE /api/profile/photo` | Student, staff, or admin removes profile photo | Authenticated user | `account.profile_updated` | `Profile Photo Removed` / `Your profile photo was removed successfully.` |

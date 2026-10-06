@@ -25,9 +25,9 @@ test('student privilege update email renders the current library settings', func
         [
             ['label' => 'Maximum books', 'value' => '7'],
             ['label' => 'Issue duration', 'value' => '21 days'],
-            ['label' => 'Per-day fine', 'value' => 'Rs. 15.00'],
+            ['label' => 'Per-day fine', 'value' => 'रु 15.00'],
             ['label' => 'Grace period', 'value' => '2 days'],
-            ['label' => 'Maximum fine', 'value' => 'Rs. 500.00'],
+            ['label' => 'Maximum fine', 'value' => 'रु 500.00'],
             ['label' => 'Borrowing access', 'value' => 'Restricted'],
         ],
         'Jane Admin',

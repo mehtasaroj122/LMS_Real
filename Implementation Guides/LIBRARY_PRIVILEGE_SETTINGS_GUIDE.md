@@ -210,7 +210,7 @@ Create/Update Fine record
 | student_id | BigInt | NO | Foreign key to students |
 | max_books | Integer | YES | Override max books (1-20) |
 | issue_duration_days | Integer | YES | Override duration in days (1-90) |
-| per_day_fine | Decimal(8,2) | YES | Override fine rate (₹0-₹100) |
+| per_day_fine | Decimal(8,2) | YES | Override fine rate (रु 0-रु 100) |
 | borrowing_allowed | Boolean | NO | Default: true |
 | created_at | Timestamp | NO | Record creation time |
 | updated_at | Timestamp | NO | Last update time |
@@ -585,7 +585,7 @@ $overdueFine = $fineCalculator->calculateFine($issuedBook);
      - Leave blank or set to global default (14)
      - Custom value = number of days student can keep each book
    
-   - **Fine Rate Per Day (₹)** (0-100)
+   - **Fine Rate Per Day (रु)** (0-100)
      - Leave blank or set to global default (10)
      - Custom value = rupees charged per day overdue
    
@@ -636,7 +636,7 @@ $overdueFine = $fineCalculator->calculateFine($issuedBook);
 **Result:**
 - Raj can borrow up to 10 books at once
 - Each book can be kept for 30 days
-- If overdue, charged ₹5/day (not ₹10)
+- If overdue, charged रु 5/day (not रु 10)
 - Activity logged: "Privilege updated: max_books=10, issue_duration_days=30, per_day_fine=5"
 
 ---

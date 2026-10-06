@@ -782,6 +782,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${this.escapeHtml(documentConfig.reportTitle)}</title>
     <style>
+        @include('shared.currency-print-font')
         @page {
             size: A4 portrait;
             margin: 10mm;
@@ -794,7 +795,7 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: Inter, Arial, sans-serif;
+            font-family: Inter, Arial, "LmsCurrencyPrint", sans-serif;
             color: #020617;
             background: #ffffff;
         }

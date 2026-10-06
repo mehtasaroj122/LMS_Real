@@ -2134,6 +2134,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Fine Report</title>
     <style>
+        @include('shared.currency-print-font')
         @page {
             size: A4 portrait;
             margin: 10mm;
@@ -2146,7 +2147,7 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: Inter, Arial, sans-serif;
+            font-family: Inter, Arial, "LmsCurrencyPrint", sans-serif;
             color: #020617;
             background: #ffffff;
         }
@@ -2497,7 +2498,7 @@
 
             formatCurrency(amount) {
                 const numericAmount = Number(amount || 0);
-                return `₹${numericAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                return window.LmsCurrency.format(numericAmount, { minimumFractionDigits: 2, maximumFractionDigits: 2 }, undefined);
             },
 
             formatDateTime(value) {

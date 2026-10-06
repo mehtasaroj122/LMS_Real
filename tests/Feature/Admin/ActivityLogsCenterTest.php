@@ -38,7 +38,7 @@ test('audit center preserves counts filtering pagination global analytics and re
     $category = Category::create(['name' => 'Science']);
     $book = Book::create(['category_id' => $category->id, 'title' => 'Spectroscopy', 'isbn' => 'AUDIT-BOOK', 'author' => 'Test Author', 'total_copies' => 1, 'available_copies' => 1]);
     $events = [
-        ['fine_applied', 'fine', $admin, 'Fine of ₹500 applied for “Spectroscopy” to Saif Khan (CHEM-2023-010)'],
+        ['fine_applied', 'fine', $admin, 'Fine of रु 500 applied for “Spectroscopy” to Saif Khan (CHEM-2023-010)'],
         ['login', 'auth', $student, 'Saif Khan logged in'],
         ['book_created', 'book', $staff, 'Book “Spectroscopy” created'],
         ['book_returned', 'book', $staff, 'Book “Spectroscopy” returned'],
@@ -46,7 +46,7 @@ test('audit center preserves counts filtering pagination global analytics and re
         ['user_created', 'user', $admin, 'Account created for Saif Khan'],
         ['library_settings_updated', 'system', $admin, 'Library settings changed'],
         ['book_deleted', 'book', $admin, 'Book removed'],
-        ['fine_paid', 'fine', $student, 'Fine of ₹500 paid for “Spectroscopy”'],
+        ['fine_paid', 'fine', $student, 'Fine of रु 500 paid for “Spectroscopy”'],
         ['book_request_submitted', 'book_request', $student, 'Book requested'],
         ['failed_login', 'auth', $student, 'Authentication failed'],
         ['custom_event', 'general', $admin, 'Custom recorded activity'],

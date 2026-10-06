@@ -132,11 +132,11 @@ class StudentProfileDataService
             'statusLabel' => ucfirst($status),
             'daysOverdue' => $daysOverdue,
             'fineAmount' => $fineAmount,
-            'fineLabel' => 'Rs. ' . number_format($fineAmount, 2),
+            'fineLabel' => \App\Support\Currency::format($fineAmount, 2),
             'fineStatus' => $fineStatus,
             'fineStatusLabel' => $fineStatus === 'none' ? 'No fine' : ucfirst($fineStatus),
             'issuedBy' => $issuedBook->issuer?->name ?? 'System',
-            'remarks' => $issuedBook->remarks ?? 'No remarks',
+            'remarks' => \App\Support\Currency::normalizeText($issuedBook->remarks ?? 'No remarks'),
         ];
     }
 
@@ -152,10 +152,10 @@ class StudentProfileDataService
             'dueDate' => $dueDate?->format('M d, Y') ?? 'N/A',
             'daysOverdue' => (int) ($fine->days_late ?? 0),
             'amount' => (float) ($fine->amount ?? 0),
-            'amountLabel' => 'Rs. ' . number_format((float) ($fine->amount ?? 0), 2),
+            'amountLabel' => \App\Support\Currency::format((float) ($fine->amount ?? 0), 2),
             'status' => $status,
             'statusLabel' => ucfirst($status),
-            'remarks' => $fine->remarks ?: 'No remarks',
+            'remarks' => \App\Support\Currency::normalizeText($fine->remarks ?: 'No remarks'),
             'createdAt' => $createdAt?->format('M d, Y h:i A') ?? 'N/A',
         ];
     }
@@ -184,9 +184,9 @@ class StudentProfileDataService
             'items' => [
                 $this->privilegeItem('Maximum Books', $privileges?->max_books, $defaults->max_books_per_student, ' books'),
                 $this->privilegeItem('Issue Duration', $privileges?->issue_duration_days, $defaults->issue_duration_days, ' days'),
-                $this->privilegeItem('Fine Rate', $privileges?->per_day_fine, $defaults->per_day_fine, prefix: 'Rs. '),
+                $this->privilegeItem('Fine Rate', $privileges?->per_day_fine, $defaults->per_day_fine, prefix: \App\Support\Currency::PREFIX),
                 $this->privilegeItem('Grace Period', $privileges?->grace_period_days, $defaults->grace_period_days, ' days'),
-                $this->privilegeItem('Maximum Fine', $privileges?->max_fine_amount, $defaults->max_fine_amount, prefix: 'Rs. '),
+                $this->privilegeItem('Maximum Fine', $privileges?->max_fine_amount, $defaults->max_fine_amount, prefix: \App\Support\Currency::PREFIX),
                 [
                     'label' => 'Borrowing Permission',
                     'value' => ($privileges?->borrowing_allowed ?? true) ? 'Allowed' : 'Restricted',
@@ -202,7 +202,7 @@ class StudentProfileDataService
         $value = $hasCustomValue ? $customValue : $defaultValue;
 
         if (is_numeric($value) && ($prefix !== '' || Str::contains($suffix, 'books') === false)) {
-            $formatted = $prefix . number_format((float) $value, Str::contains($prefix, 'Rs.') ? 2 : 0) . $suffix;
+            $formatted = $prefix . number_format((float) $value, $prefix === \App\Support\Currency::PREFIX ? 2 : 0) . $suffix;
         } else {
             $formatted = $prefix . $value . $suffix;
         }
