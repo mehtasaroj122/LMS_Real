@@ -5,6 +5,8 @@
 @push('styles')
     @include('shared.report-export.styles')
     @include('shared.action-feedback.styles')
+    <link rel="stylesheet" href="{{ asset('admin/CSS/issued-book-details.css') }}?v={{ filemtime(public_path('admin/CSS/issued-book-details.css')) }}">
+    <link rel="stylesheet" href="{{ asset('admin/CSS/fine-history.css') }}?v={{ filemtime(public_path('admin/CSS/fine-history.css')) }}">
     <style>
         /* Student Details Page */
         .student-details-page {
@@ -1675,108 +1677,9 @@
             cursor: not-allowed;
         }
 
-        /* Book Details Modal */
-        .book-details-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .book-details-overlay.show {
-            display: flex;
-        }
-
-        .book-details-modal {
-            background-color: white;
-            border-radius: 12px;
-            max-width: 860px;
-            width: 92%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            animation: slideUp 0.3s ease;
-        }
-
-        body.dark-theme .book-details-modal {
-            background-color: #1e293b;
-        }
-
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .book-details-header {
-            position: relative;
-            height: 250px;
-            overflow: hidden;
-            border-radius: 12px 12px 0 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .book-cover-container {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .book-cover-image {
-            width: auto;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-
-        .book-cover-avatar {
-            width: 120px;
-            height: 160px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            font-weight: 700;
-            color: white;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .book-details-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border: none;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s ease;
-            font-size: 20px;
-        }
-
-        .book-details-close:hover {
-            background-color: rgba(0, 0, 0, 0.7);
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Fine Action Modals */
@@ -2009,528 +1912,6 @@
             border-color: #cbd5e1;
             cursor: not-allowed;
             opacity: 0.6;
-        }
-
-        /* Fine History */
-        .fine-history-modal-body {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .fine-history-summary {
-            display: grid;
-            grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr);
-            gap: 16px;
-        }
-
-        .fine-history-hero,
-        .fine-summary-card,
-        .fine-history-section,
-        .fine-calculation-table {
-            border-radius: 14px;
-            border: 1px solid;
-        }
-
-        body.light-theme .fine-history-hero,
-        body.light-theme .fine-summary-card,
-        body.light-theme .fine-history-section,
-        body.light-theme .fine-calculation-table {
-            background-color: #f8fafc;
-            border-color: #e2e8f0;
-        }
-
-        body.light-theme .fine-history-hero {
-            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
-        }
-
-        body.dark-theme .fine-history-hero,
-        body.dark-theme .fine-summary-card,
-        body.dark-theme .fine-history-section,
-        body.dark-theme .fine-calculation-table {
-            background-color: #0f172a;
-            border-color: #334155;
-        }
-
-        body.dark-theme .fine-history-hero {
-            background: linear-gradient(135deg, #172554 0%, #0f172a 100%);
-        }
-
-        .fine-history-hero {
-            padding: 20px;
-        }
-
-        .fine-history-amount {
-            font-size: 34px;
-            font-weight: 800;
-            margin: 8px 0 12px;
-            line-height: 1.1;
-        }
-
-        .fine-history-book-title {
-            font-size: 15px;
-            font-weight: 700;
-            margin: 0 0 4px;
-        }
-
-        .fine-history-book-meta {
-            font-size: 13px;
-        }
-
-        body.light-theme .fine-history-book-meta {
-            color: #64748b;
-        }
-
-        body.dark-theme .fine-history-book-meta {
-            color: #94a3b8;
-        }
-
-        .fine-summary-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .fine-summary-card {
-            padding: 16px;
-        }
-
-        .fine-summary-label,
-        .fine-history-section-title {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        body.light-theme .fine-summary-label,
-        body.light-theme .fine-history-section-title {
-            color: #64748b;
-        }
-
-        body.dark-theme .fine-summary-label,
-        body.dark-theme .fine-history-section-title {
-            color: #94a3b8;
-        }
-
-        .fine-summary-value {
-            font-size: 18px;
-            font-weight: 700;
-            margin-top: 8px;
-            line-height: 1.35;
-        }
-
-        .history-status-badge,
-        .history-action-badge,
-        .fine-history-amount-change {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            border: 1px solid transparent;
-        }
-
-        .history-status-badge.status-pending {
-            background-color: #fef3c7;
-            color: #b45309;
-            border-color: #fde68a;
-        }
-
-        body.dark-theme .history-status-badge.status-pending {
-            background-color: #78350f;
-            color: #fcd34d;
-            border-color: #92400e;
-        }
-
-        .history-action-badge.adjusted,
-        .fine-history-amount-change {
-            background-color: #f3e8ff;
-            color: #7c3aed;
-            border-color: #ddd6fe;
-        }
-
-        body.dark-theme .history-action-badge.adjusted,
-        body.dark-theme .fine-history-amount-change {
-            background-color: #4c1d95;
-            color: #c4b5fd;
-            border-color: #6d28d9;
-        }
-
-        .history-status-badge.status-paid,
-        .history-action-badge.paid {
-            background-color: #dcfce7;
-            color: #166534;
-            border-color: #bbf7d0;
-        }
-
-        body.dark-theme .history-status-badge.status-paid,
-        body.dark-theme .history-action-badge.paid {
-            background-color: #14532d;
-            color: #86efac;
-            border-color: #166534;
-        }
-
-        .history-status-badge.status-waived,
-        .history-action-badge.waived {
-            background-color: #ffedd5;
-            color: #c2410c;
-            border-color: #fdba74;
-        }
-
-        body.dark-theme .history-status-badge.status-waived,
-        body.dark-theme .history-action-badge.waived {
-            background-color: #7c2d12;
-            color: #fdba74;
-            border-color: #9a3412;
-        }
-
-        .history-action-badge.created {
-            background-color: #dbeafe;
-            color: #1d4ed8;
-            border-color: #bfdbfe;
-        }
-
-        body.dark-theme .history-action-badge.created {
-            background-color: #1e3a8a;
-            color: #93c5fd;
-            border-color: #1d4ed8;
-        }
-
-        .fine-history-section {
-            padding: 18px;
-        }
-
-        .fine-history-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .fine-history-item {
-            position: relative;
-            padding-left: 42px;
-        }
-
-        .fine-history-item::before {
-            content: '';
-            position: absolute;
-            left: 11px;
-            top: 28px;
-            bottom: -16px;
-            width: 2px;
-        }
-
-        body.light-theme .fine-history-item::before {
-            background-color: #e2e8f0;
-        }
-
-        body.dark-theme .fine-history-item::before {
-            background-color: #334155;
-        }
-
-        .fine-history-item:last-child::before {
-            display: none;
-        }
-
-        .fine-history-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            position: absolute;
-            left: 0;
-            top: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        body.light-theme .fine-history-dot {
-            box-shadow: 0 0 0 4px #ffffff;
-        }
-
-        body.dark-theme .fine-history-dot {
-            box-shadow: 0 0 0 4px #1e293b;
-        }
-
-        .fine-history-dot.created {
-            background-color: #3b82f6;
-        }
-
-        .fine-history-dot.adjusted {
-            background-color: #8b5cf6;
-        }
-
-        .fine-history-dot.paid {
-            background-color: #10b981;
-        }
-
-        .fine-history-dot.waived {
-            background-color: #f97316;
-        }
-
-        .fine-history-entry {
-            border-radius: 12px;
-            padding: 16px;
-            border: 1px solid;
-        }
-
-        body.light-theme .fine-history-entry {
-            background-color: #ffffff;
-            border-color: #e2e8f0;
-        }
-
-        body.dark-theme .fine-history-entry {
-            background-color: #111827;
-            border-color: #334155;
-        }
-
-        .fine-history-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-
-        .fine-history-date {
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        body.light-theme .fine-history-date {
-            color: #64748b;
-        }
-
-        body.dark-theme .fine-history-date {
-            color: #94a3b8;
-        }
-
-        .fine-history-action {
-            margin: 0 0 8px;
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .fine-history-description {
-            margin: 0;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        body.light-theme .fine-history-description {
-            color: #334155;
-        }
-
-        body.dark-theme .fine-history-description {
-            color: #cbd5e1;
-        }
-
-        .fine-history-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px 14px;
-            margin-top: 12px;
-        }
-
-        .fine-history-meta-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-        }
-
-        .fine-history-actor {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .fine-history-actor-name {
-            font-weight: 600;
-        }
-
-        .fine-history-role-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            border: 1px solid transparent;
-            line-height: 1;
-        }
-
-        .fine-history-role-badge.role-admin {
-            background-color: #fee2e2;
-            color: #b91c1c;
-            border-color: #fecaca;
-        }
-
-        body.dark-theme .fine-history-role-badge.role-admin {
-            background-color: #7f1d1d;
-            color: #fca5a5;
-            border-color: #b91c1c;
-        }
-
-        .fine-history-role-badge.role-staff {
-            background-color: #dbeafe;
-            color: #1d4ed8;
-            border-color: #bfdbfe;
-        }
-
-        body.dark-theme .fine-history-role-badge.role-staff {
-            background-color: #1e3a8a;
-            color: #93c5fd;
-            border-color: #1d4ed8;
-        }
-
-        .fine-history-role-badge.role-student {
-            background-color: #dcfce7;
-            color: #166534;
-            border-color: #bbf7d0;
-        }
-
-        body.dark-theme .fine-history-role-badge.role-student {
-            background-color: #14532d;
-            color: #86efac;
-            border-color: #166534;
-        }
-
-        .fine-history-role-badge.role-system,
-        .fine-history-role-badge.role-user {
-            background-color: #e2e8f0;
-            color: #475569;
-            border-color: #cbd5e1;
-        }
-
-        body.dark-theme .fine-history-role-badge.role-system,
-        body.dark-theme .fine-history-role-badge.role-user {
-            background-color: #334155;
-            color: #cbd5e1;
-            border-color: #475569;
-        }
-
-        body.light-theme .fine-history-meta-item {
-            color: #475569;
-        }
-
-        body.dark-theme .fine-history-meta-item {
-            color: #cbd5e1;
-        }
-
-        .fine-history-amount-change {
-            margin-top: 12px;
-        }
-
-        .fine-history-remarks {
-            margin-top: 12px;
-            padding: 12px 14px;
-            border-radius: 10px;
-            border-left: 3px solid;
-            font-size: 13px;
-            line-height: 1.6;
-            font-style: italic;
-        }
-
-        body.light-theme .fine-history-remarks {
-            background-color: #f8fafc;
-            border-left-color: #cbd5e1;
-            color: #475569;
-        }
-
-        body.dark-theme .fine-history-remarks {
-            background-color: #1e293b;
-            border-left-color: #475569;
-            color: #cbd5e1;
-        }
-
-        .fine-calculation-table {
-            padding: 4px 16px;
-        }
-
-        .fine-calculation-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 12px;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid;
-        }
-
-        body.light-theme .fine-calculation-row {
-            border-color: #e2e8f0;
-        }
-
-        body.dark-theme .fine-calculation-row {
-            border-color: #334155;
-        }
-
-        .fine-calculation-row:last-child {
-            border-bottom: none;
-        }
-
-        .fine-calculation-row.total {
-            font-size: 16px;
-            font-weight: 800;
-        }
-
-        .fine-history-empty {
-            text-align: center;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px dashed;
-            font-size: 14px;
-        }
-
-        body.light-theme .fine-history-empty {
-            border-color: #cbd5e1;
-            color: #64748b;
-            background-color: #f8fafc;
-        }
-
-        body.dark-theme .fine-history-empty {
-            border-color: #475569;
-            color: #94a3b8;
-            background-color: #0f172a;
-        }
-
-        @media (max-width: 768px) {
-            .fine-modal.wide {
-                width: calc(100% - 24px);
-                max-height: calc(100vh - 24px);
-            }
-
-            .fine-history-summary,
-            .fine-summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .fine-history-top {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .fine-history-amount {
-                font-size: 28px;
-            }
-
-            .fine-history-item {
-                padding-left: 34px;
-            }
         }
 
         /* Fine Action Success Popup Styles */
@@ -2799,320 +2180,6 @@
             margin-top: 16px;
             font-size: 13px;
             color: #94a3b8;
-        }
-
-        .book-details-body {
-            padding: 24px;
-        }
-
-        .book-title-row {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .book-heading {
-            min-width: 0;
-            flex: 1;
-        }
-
-        .book-title-wrap {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .book-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 0;
-            line-height: 1.25;
-        }
-
-        .book-author {
-            font-size: 16px;
-            font-weight: 500;
-            margin: 8px 0 0 0;
-        }
-
-        body.light-theme .book-author {
-            color: #666;
-        }
-
-        body.dark-theme .book-author {
-            color: #94a3b8;
-        }
-
-        .book-category-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            border: 1px solid transparent;
-        }
-
-        body.light-theme .book-category-badge {
-            background-color: #ede9fe;
-            color: #6d28d9;
-            border-color: #ddd6fe;
-        }
-
-        body.dark-theme .book-category-badge {
-            background-color: #312e81;
-            color: #c4b5fd;
-            border-color: #4338ca;
-        }
-
-        .book-details-columns {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 18px;
-            margin-bottom: 18px;
-        }
-
-        .book-details-column,
-        .book-status-section,
-        .book-description {
-            border-radius: 12px;
-            padding: 16px;
-            border: 1px solid;
-        }
-
-        body.light-theme .book-details-column,
-        body.light-theme .book-status-section,
-        body.light-theme .book-description {
-            background-color: #f8fafc;
-            border-color: #e2e8f0;
-        }
-
-        body.dark-theme .book-details-column,
-        body.dark-theme .book-status-section,
-        body.dark-theme .book-description {
-            background-color: #0f172a;
-            border-color: #334155;
-        }
-
-        .column-title,
-        .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 14px;
-        }
-
-        body.light-theme .column-title,
-        body.light-theme .section-title {
-            color: #64748b;
-        }
-
-        body.dark-theme .column-title,
-        body.dark-theme .section-title {
-            color: #94a3b8;
-        }
-
-        .book-details-grid {
-            display: grid;
-            gap: 12px;
-        }
-
-        .book-status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-        .book-detail-item {
-            border-radius: 10px;
-            padding: 12px;
-            min-height: 76px;
-            border: 1px solid;
-        }
-
-        body.light-theme .book-detail-item {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
-        }
-
-        body.dark-theme .book-detail-item {
-            background-color: #111827;
-            border: 1px solid #334155;
-        }
-
-        .book-detail-label {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        body.light-theme .book-detail-label {
-            color: #64748b;
-        }
-
-        body.dark-theme .book-detail-label {
-            color: #94a3b8;
-        }
-
-        .book-detail-value {
-            font-size: 15px;
-            font-weight: 600;
-            margin-top: 6px;
-            line-height: 1.4;
-            word-break: break-word;
-        }
-
-        .book-detail-badge,
-        .fine-status-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            border: 1px solid transparent;
-        }
-
-        .book-detail-badge.status-issued {
-            background-color: #dcfce7;
-            color: #166534;
-            border-color: #bbf7d0;
-        }
-
-        body.dark-theme .book-detail-badge.status-issued {
-            background-color: #14532d;
-            color: #4ade80;
-            border-color: #166534;
-        }
-
-        .book-detail-badge.status-overdue {
-            background-color: #fee2e2;
-            color: #dc2626;
-            border-color: #fecaca;
-        }
-
-        body.dark-theme .book-detail-badge.status-overdue {
-            background-color: #7f1d1d;
-            color: #fca5a5;
-            border-color: #b91c1c;
-        }
-
-        .book-detail-badge.status-returned {
-            background-color: #dbeafe;
-            color: #2563eb;
-            border-color: #bfdbfe;
-        }
-
-        body.dark-theme .book-detail-badge.status-returned {
-            background-color: #1e3a8a;
-            color: #60a5fa;
-            border-color: #1d4ed8;
-        }
-
-        .fine-status-badge.fine-status-pending {
-            background-color: #fef3c7;
-            color: #b45309;
-            border-color: #fde68a;
-        }
-
-        body.dark-theme .fine-status-badge.fine-status-pending {
-            background-color: #78350f;
-            color: #fcd34d;
-            border-color: #92400e;
-        }
-
-        .fine-status-badge.fine-status-paid {
-            background-color: #dcfce7;
-            color: #166534;
-            border-color: #bbf7d0;
-        }
-
-        body.dark-theme .fine-status-badge.fine-status-paid {
-            background-color: #14532d;
-            color: #4ade80;
-            border-color: #166534;
-        }
-
-        .fine-status-badge.fine-status-waived {
-            background-color: #ffedd5;
-            color: #c2410c;
-            border-color: #fdba74;
-        }
-
-        body.dark-theme .fine-status-badge.fine-status-waived {
-            background-color: #7c2d12;
-            color: #fdba74;
-            border-color: #9a3412;
-        }
-
-        .fine-status-badge.fine-status-na {
-            background-color: #e2e8f0;
-            color: #475569;
-            border-color: #cbd5e1;
-        }
-
-        body.dark-theme .fine-status-badge.fine-status-na {
-            background-color: #334155;
-            color: #cbd5e1;
-            border-color: #475569;
-        }
-
-        .book-description-text {
-            font-size: 14px;
-            line-height: 1.5;
-            white-space: pre-line;
-        }
-
-        .book-detail-item[hidden] {
-            display: none !important;
-        }
-
-        @media (max-width: 768px) {
-            .book-details-modal {
-                width: calc(100% - 24px);
-                max-height: calc(100vh - 24px);
-            }
-
-            .book-details-header {
-                height: 220px;
-            }
-
-            .book-details-body {
-                padding: 18px;
-            }
-
-            .book-title-row,
-            .book-title-wrap {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .book-details-columns,
-            .book-status-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .book-details-header {
-                height: 200px;
-            }
-
-            .book-cover-avatar {
-                width: 100px;
-                height: 140px;
-                font-size: 30px;
-            }
         }
 
         .btn-delete {
@@ -5048,7 +4115,7 @@
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
                             <input type="text" class="search-input" id="bookSearch"
-                                placeholder="Search by title, author, or ISBN...">
+                                placeholder="Search by title, author, or accession number...">
                         </div>
 
                         <div class="filters-container">
@@ -5085,7 +4152,7 @@
                             <thead>
                                 <tr>
                                     <th>Book Title</th>
-                                    <th>ISBN</th>
+                                    <th>Accession Number</th>
                                     <th>Issue Date</th>
                                     <th>Due Date</th>
                                     <th>Return Date</th>
@@ -5527,177 +4594,9 @@
         </div>
     </div>
 
-    <!-- Fine History Modal -->
-    <div class="fine-modal-overlay" id="historyOverlay">
-        <div class="fine-modal wide">
-            <div class="fine-modal-header">
-                <h2>Fine Payment History</h2>
-                <button class="fine-modal-close" onclick="closeFineModal('history')">&times;</button>
-            </div>
-            <div class="fine-modal-body fine-history-modal-body">
-                <div class="fine-history-summary">
-                    <div class="fine-history-hero">
-                        <div class="fine-summary-label">Current Fine Amount</div>
-                        <div class="fine-history-amount" id="historyAmount">₹0.00</div>
-                        <p class="fine-history-book-title" id="historyBookTitle">Loading book details...</p>
-                        <div class="fine-history-book-meta" id="historyBookIsbn">ISBN: N/A</div>
-                    </div>
+    @include('partials.admin-fine-history-modal')
 
-                    <div class="fine-summary-grid">
-                        <div class="fine-summary-card">
-                            <div class="fine-summary-label">Original Amount</div>
-                            <div class="fine-summary-value" id="historyOriginalAmount">₹0.00</div>
-                        </div>
-                        <div class="fine-summary-card">
-                            <div class="fine-summary-label">Status</div>
-                            <div class="fine-summary-value" id="historyStatus">Pending</div>
-                        </div>
-                        <div class="fine-summary-card">
-                            <div class="fine-summary-label">Days Late</div>
-                            <div class="fine-summary-value" id="historyDaysLate">0 days</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="fine-history-section">
-                    <div class="fine-history-section-title">Enhanced Timeline</div>
-                    <ul class="fine-history-list" id="fineHistoryList">
-                        <li class="fine-history-empty">Loading history...</li>
-                    </ul>
-                </div>
-
-                <div class="fine-history-section" id="historyCalculationSection" hidden>
-                    <div class="fine-history-section-title">Calculation Breakdown</div>
-                    <div class="fine-calculation-table">
-                        <div class="fine-calculation-row">
-                            <span>Per day rate</span>
-                            <strong id="historyCalcBaseRate">₹0.00</strong>
-                        </div>
-                        <div class="fine-calculation-row">
-                            <span>Days late</span>
-                            <strong id="historyCalcDaysLate">0</strong>
-                        </div>
-                        <div class="fine-calculation-row">
-                            <span>Subtotal</span>
-                            <strong id="historyCalcSubtotal">₹0.00</strong>
-                        </div>
-                        <div class="fine-calculation-row" id="historyCalcAdjustmentsRow" hidden>
-                            <span>Adjustments</span>
-                            <strong id="historyCalcAdjustments">₹0.00</strong>
-                        </div>
-                        <div class="fine-calculation-row total">
-                            <span>Final Amount</span>
-                            <strong id="historyCalcFinalAmount">₹0.00</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Book Details Modal -->
-    <div class="book-details-overlay" id="bookDetailsOverlay">
-        <div class="book-details-modal">
-            <div class="book-details-header">
-                <div class="book-cover-container">
-                    <div id="bookCoverContent"></div>
-                </div>
-                <button class="book-details-close" id="closeBookDetailsBtn">&times;</button>
-            </div>
-            <div class="book-details-body">
-                <div class="book-title-row">
-                    <div class="book-heading">
-                        <div class="book-title-wrap">
-                            <h2 class="book-title" id="bookDetailsTitle"></h2>
-                            <span class="book-category-badge" id="bookDetailsCategory"></span>
-                        </div>
-                        <p class="book-author" id="bookDetailsAuthor"></p>
-                    </div>
-                </div>
-
-                <div class="book-details-columns">
-                    <div class="book-details-column">
-                        <div class="column-title">Book Information</div>
-                        <div class="book-details-grid">
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">ISBN</div>
-                                <div class="book-detail-value" id="bookDetailsISBN"></div>
-                            </div>
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">Publisher</div>
-                                <div class="book-detail-value" id="bookDetailsPublisher"></div>
-                            </div>
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">Condition</div>
-                                <div class="book-detail-value" id="bookDetailsCondition"></div>
-                            </div>
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">Category</div>
-                                <div class="book-detail-value" id="bookDetailsCategoryValue"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="book-details-column">
-                        <div class="column-title">Transaction Details</div>
-                        <div class="book-details-grid">
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">Transaction ID</div>
-                                <div class="book-detail-value" id="bookDetailsTransactionId"></div>
-                            </div>
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">Issue Date</div>
-                                <div class="book-detail-value" id="bookDetailsIssueDate"></div>
-                            </div>
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">Due Date</div>
-                                <div class="book-detail-value" id="bookDetailsDueDate"></div>
-                            </div>
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">Return Date</div>
-                                <div class="book-detail-value" id="bookDetailsReturnDate"></div>
-                            </div>
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">Issued By</div>
-                                <div class="book-detail-value" id="bookDetailsIssuedBy"></div>
-                            </div>
-                            <div class="book-detail-item">
-                                <div class="book-detail-label">Renewal Count</div>
-                                <div class="book-detail-value" id="bookDetailsRenewalCount"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="book-status-section">
-                    <div class="section-title">Status &amp; Fines</div>
-                    <div class="book-status-grid">
-                        <div class="book-detail-item">
-                            <div class="book-detail-label">Status</div>
-                            <div class="book-detail-value" id="bookDetailsStatus"></div>
-                        </div>
-                        <div class="book-detail-item" id="overdueInfo" hidden>
-                            <div class="book-detail-label">Days Overdue</div>
-                            <div class="book-detail-value" id="bookDetailsDaysOverdue"></div>
-                        </div>
-                        <div class="book-detail-item">
-                            <div class="book-detail-label">Fine Amount</div>
-                            <div class="book-detail-value" id="bookDetailsFine"></div>
-                        </div>
-                        <div class="book-detail-item" id="fineStatusInfo" hidden>
-                            <div class="book-detail-label">Fine Status</div>
-                            <div class="book-detail-value" id="bookDetailsFineStatus"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="book-description">
-                    <div class="section-title">Description</div>
-                    <div class="book-description-text" id="bookDetailsDescription"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('partials.admin-issued-book-details-modal')
 
     @php
         $issuedBooksReportStudent = [
@@ -5740,7 +4639,7 @@
             ],
             'columns' => [
                 ['key' => 'title', 'label' => 'Book Title', 'width' => '28%', 'emphasis' => true],
-                ['key' => 'isbn', 'label' => 'ISBN', 'width' => '14%', 'nowrap' => true],
+                ['key' => 'accessionNumber', 'label' => 'Accession Number', 'width' => '14%', 'nowrap' => true],
                 ['key' => 'issueDate', 'label' => 'Issue Date', 'width' => '12%', 'nowrap' => true],
                 ['key' => 'dueDate', 'label' => 'Due Date', 'width' => '12%', 'nowrap' => true],
                 ['key' => 'returnDate', 'label' => 'Return Date', 'width' => '12%', 'nowrap' => true],
@@ -5841,6 +4740,7 @@
 @push('scripts')
     @include('shared.report-export.scripts')
     @include('shared.action-feedback.scripts')
+    <script src="{{ asset('admin/JS/fine-history.js') }}?v={{ filemtime(public_path('admin/JS/fine-history.js')) }}"></script>
     <script>
         // Data provided by server (transformed in controller)
         const booksData = (@json($booksData ?? []) || []).map(normalizeStudentBookRecord);
@@ -6139,7 +5039,7 @@
                 const matchesSearch = !currentSearchTerm ||
                     book.title.toLowerCase().includes(currentSearchTerm) ||
                     (book.author || '').toLowerCase().includes(currentSearchTerm) ||
-                    book.isbn.toLowerCase().includes(currentSearchTerm);
+                    String(book.accessionNumber || '').toLowerCase().includes(currentSearchTerm);
 
                 // Apply status filter
                 const matchesStatus = currentStatusFilter === 'all' ||
@@ -6266,7 +5166,7 @@
             <td>
                 <strong>${book.title}</strong>
             </td>
-            <td>${book.isbn}</td>
+            <td>${escapeHtml(book.accessionNumber || 'N/A')}</td>
             <td>${book.issueDate}</td>
             <td>${book.dueDate}</td>
             <td>${book.returnDate}</td>
@@ -6279,7 +5179,7 @@
                 </span>
             </td>
             <td>
-                <button class="view-btn" onclick="viewBookDetails(${book.id})" title="View Details">
+                <button class="view-btn" onclick="viewBookDetails(${book.id}, this)" title="View Details">
                     <i class="fas fa-eye"></i> View
                 </button>
             </td>
@@ -6344,8 +5244,8 @@
                         emphasis: true
                     },
                     {
-                        key: 'isbn',
-                        label: 'ISBN',
+                        key: 'accessionNumber',
+                        label: 'Accession Number',
                         width: '14%',
                         nowrap: true
                     },
@@ -6643,7 +5543,7 @@
         function mapIssuedBookToExportRow(book) {
             return {
                 title: book?.title || 'N/A',
-                isbn: book?.isbn || 'N/A',
+                accessionNumber: book?.accessionNumber || 'N/A',
                 issueDate: book?.issueDate || 'N/A',
                 dueDate: book?.dueDate || 'N/A',
                 returnDate: book?.returnDate || '-',
@@ -6939,90 +5839,119 @@
             };
         }
 
-        function viewBookDetails(bookId) {
-            const rawBook = booksData.find(b => b.id === bookId);
-            if (!rawBook) {
+        let issuedBookDetailsTrigger = null;
+
+        function viewBookDetails(bookId, trigger = document.activeElement) {
+            const book = booksData.find(b => b.id === Number(bookId));
+            if (!book) {
                 showToast('Book details not found.', 'error');
                 return;
             }
-            const book = normalizeStudentBookRecord(rawBook);
-
-            // Populate book cover using DOM to avoid inline onerror quoting issues
+            issuedBookDetailsTrigger = trigger;
+            const setText = (id, value, fallback = 'N/A') => {
+                document.getElementById(id).textContent = value === null || value === undefined || value === '' ? fallback : String(value);
+            };
+            const money = `₹${Number(book.fine).toFixed(2)}`;
+            const overdueDays = book.daysOverdue;
+            const daysLabel = `${overdueDays} ${Number(overdueDays) === 1 ? 'day' : 'days'}`;
+            const returned = Boolean(book.returnDateRaw);
+            const returnLabel = returned ? book.returnDate : 'Not returned';
             const coverContainer = document.getElementById('bookCoverContent');
-            coverContainer.innerHTML = '';
+            coverContainer.replaceChildren();
+            const showCoverFallback = () => {
+                const fallback = document.createElement('div');
+                fallback.className = 'book-cover-avatar';
+                fallback.textContent = (book.title || 'B').charAt(0).toUpperCase();
+                fallback.setAttribute('aria-hidden', 'true');
+                coverContainer.replaceChildren(fallback);
+            };
             if (book.coverImage) {
                 const img = document.createElement('img');
-                const normalizedCoverPath = String(book.coverImage).replace(/^storage\//, '');
-                img.src = /^https?:\/\//i.test(book.coverImage) ?
-                    book.coverImage :
+                const normalizedCoverPath = String(book.coverImage).replace(/^\/?storage\//, '');
+                img.src = /^https?:\/\//i.test(book.coverImage) ? book.coverImage :
                     '{{ asset('storage') }}/' + normalizedCoverPath;
-                img.alt = book.title || '';
+                img.alt = `Cover of ${book.title}`;
                 img.className = 'book-cover-image';
-                img.style.maxHeight = '240px';
-                img.style.maxWidth = '160px';
-                img.addEventListener('error', function() {
-                    coverContainer.innerHTML =
-                        `<div class="book-cover-avatar">${(book.title || '').charAt(0).toUpperCase()}</div>`;
-                });
+                img.addEventListener('error', () => {
+                    // Ignore a failed image from a previously opened transaction.
+                    if (img.parentElement === coverContainer) showCoverFallback();
+                }, { once: true });
                 coverContainer.appendChild(img);
             } else {
-                coverContainer.innerHTML =
-                    `<div class="book-cover-avatar">${(book.title || '').charAt(0).toUpperCase()}</div>`;
+                showCoverFallback();
             }
 
-            // Populate book details
-            document.getElementById('bookDetailsTitle').textContent = book.title;
-            document.getElementById('bookDetailsAuthor').textContent = `by ${book.author || 'Unknown Author'}`;
-            document.getElementById('bookDetailsISBN').textContent = book.isbn;
-            document.getElementById('bookDetailsPublisher').textContent = book.publisher;
-            document.getElementById('bookDetailsCondition').textContent = formatDisplayLabel(book.condition, 'Good');
-            document.getElementById('bookDetailsCategory').textContent = book.category || 'Uncategorized';
-            document.getElementById('bookDetailsCategoryValue').textContent = book.category || 'Uncategorized';
-            document.getElementById('bookDetailsTransactionId').textContent = book.transactionId || 'N/A';
-            document.getElementById('bookDetailsIssueDate').textContent = book.issueDate || 'N/A';
-            document.getElementById('bookDetailsDueDate').textContent = book.dueDate;
-            document.getElementById('bookDetailsReturnDate').textContent = book.returnDate;
-            document.getElementById('bookDetailsIssuedBy').textContent = book.issuedBy || 'System';
-            document.getElementById('bookDetailsRenewalCount').textContent = String(book.renewalCount ?? 0);
-            document.getElementById('bookDetailsFine').textContent = `₹${parseFloat(book.fine).toFixed(2)}`;
-            document.getElementById('bookDetailsDescription').textContent = book.description || 'No description available';
+            setText('bookDetailsTitle', book.title, 'Unknown');
+            setText('bookDetailsAuthor', `by ${book.author || 'Unknown Author'}`);
+            setText('bookDetailsCategory', book.category, 'Uncategorized');
+            setText('bookDetailsISBN', book.isbn);
+            setText('bookDetailsAccession', book.accessionNumber);
+            setText('bookDetailsPublisher', book.publisher);
+            setText('bookDetailsCondition', formatDisplayLabel(book.condition, 'N/A'));
+            setText('bookDetailsCopyCondition', formatDisplayLabel(book.copyCondition, 'N/A'));
+            setText('bookDetailsCopyStatus', formatDisplayLabel(book.copyStatus, 'N/A'));
+            setText('bookDetailsCopyShelf', book.copyShelf);
+            setText('bookDetailsTransactionId', book.transactionId);
+            setText('bookDetailsIssueDate', book.issueDate);
+            setText('bookDetailsDueDate', book.dueDate);
+            setText('bookDetailsDueSummary', book.dueDate);
+            setText('bookDetailsReturnDate', returnLabel);
+            setText('bookDetailsIssuedBy', book.issuedBy, 'System');
+            setText('bookDetailsRenewalCount', book.renewalCount ?? 0);
+            setText('bookDetailsFine', money);
+            setText('bookDetailsDaysOverdue', daysLabel);
+            setText('bookDetailsDescription', book.description, 'No description available.');
+            setText('bookDetailsTimelineIssued', book.issueDate);
+            setText('bookDetailsTimelineDue', book.dueDate);
+            setText('bookDetailsTimelineReturned', returnLabel);
+            document.getElementById('bookDetailsTimelineReturnStep').classList.toggle('is-pending', !returned);
 
-            // Status badge
-            const statusBadge = document.getElementById('bookDetailsStatus');
-            let statusText = formatDisplayLabel(book.status, 'Issued');
-            statusBadge.innerHTML = `<span class="book-detail-badge status-${book.status}">${statusText}</span>`;
+            const showBadge = (id, label, tone) => {
+                const badge = document.createElement('span');
+                badge.className = `admin-ui-badge admin-ui-badge-${tone}`;
+                badge.textContent = label;
+                document.getElementById(id).replaceChildren(badge);
+            };
+            const statusTone = { overdue: 'danger', returned: 'success', issued: 'info' };
+            showBadge('bookDetailsStatus', formatDisplayLabel(book.status, 'N/A'), statusTone[book.status] || 'neutral');
+            document.getElementById('overdueInfo').hidden = book.status !== 'overdue';
+            setText('bookDetailsOverdueMessage', `This book is overdue by ${daysLabel}.`);
+            setText('bookDetailsOverdueContext', `Due Date: ${book.dueDate || 'N/A'} · Current Fine: ${money}`);
 
-            // Show/hide overdue info
-            const overdueInfo = document.getElementById('overdueInfo');
-            if (book.status === 'overdue') {
-                overdueInfo.hidden = false;
-                document.getElementById('bookDetailsDaysOverdue').textContent = `${book.daysOverdue} days`;
-            } else {
-                overdueInfo.hidden = true;
-                document.getElementById('bookDetailsDaysOverdue').textContent = '';
-            }
+            const fineMeta = getFineStatusMeta(book.fineStatus);
+            const fineTone = { pending: 'warning', paid: 'success', waived: 'success' };
+            showBadge('bookDetailsFineStatus', book.hasFine ? fineMeta.label : 'No fine', fineTone[fineMeta.key] || 'neutral');
+            document.getElementById('bookDetailsFineSection').hidden = !book.hasFine;
+            document.getElementById('bookDetailsNoFine').hidden = Boolean(book.hasFine);
+            setText('bookDetailsFineAmount', money);
+            setText('bookDetailsFineDetailStatus', fineMeta.label);
+            const optionalFineFields = [
+                ['bookDetailsFineDaysRow', 'bookDetailsFineDays', book.fineDaysLate == null ? null : `${book.fineDaysLate} days`],
+                ['bookDetailsPaymentMethodRow', 'bookDetailsPaymentMethod', book.finePaymentMethod],
+                ['bookDetailsPaidDateRow', 'bookDetailsPaidDate', book.finePaidDate],
+                ['bookDetailsWaivedDateRow', 'bookDetailsWaivedDate', book.fineWaivedDate],
+            ];
+            optionalFineFields.forEach(([row, id, value]) => {
+                document.getElementById(row).hidden = value === null || value === undefined || value === '';
+                setText(id, value);
+            });
 
-            // Fine status is only visible when a fine record exists
-            const fineStatusInfo = document.getElementById('fineStatusInfo');
-            const fineStatusBadge = document.getElementById('bookDetailsFineStatus');
-            if (book.hasFine) {
-                const fineStatus = getFineStatusMeta(book.fineStatus);
-                fineStatusInfo.hidden = false;
-                fineStatusBadge.innerHTML =
-                    `<span class="fine-status-badge fine-status-${fineStatus.key}">${fineStatus.label}</span>`;
-            } else {
-                fineStatusInfo.hidden = true;
-                fineStatusBadge.innerHTML = '';
-            }
-
-            // Show modal
             const overlay = document.getElementById('bookDetailsOverlay');
+            overlay.setAttribute('aria-hidden', 'false');
             overlay.classList.add('show');
+            document.body.classList.add('issued-book-details-open');
+            overlay.querySelector('.book-details-body').scrollTop = 0;
+            // The shared admin-ui module provides focus containment and Tab cycling.
+            document.getElementById('closeBookDetailsBtn').focus({ preventScroll: true });
         }
 
         function closeBookDetailsModal() {
             const overlay = document.getElementById('bookDetailsOverlay');
             overlay.classList.remove('show');
+            overlay.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('issued-book-details-open');
+            if (issuedBookDetailsTrigger?.isConnected) issuedBookDetailsTrigger.focus({ preventScroll: true });
+            issuedBookDetailsTrigger = null;
         }
 
         function closeActivityDetails() {
@@ -7145,6 +6074,7 @@
 
             // Book Details Modal
             document.getElementById('closeBookDetailsBtn')?.addEventListener('click', closeBookDetailsModal);
+            document.getElementById('closeBookDetailsFooterBtn')?.addEventListener('click', closeBookDetailsModal);
             document.getElementById('bookDetailsOverlay')?.addEventListener('click', function(e) {
                 if (e.target === this) {
                     closeBookDetailsModal();
@@ -7299,7 +6229,7 @@
                     }
 
                     actionButtons += `
-                <button class="action-btn-small ${buttonClass}" onclick="handleFineAction('${action}', ${fine.id})" title="${buttonText}">
+                <button class="action-btn-small ${buttonClass}" onclick="handleFineAction('${action}', ${fine.id}, this)" title="${buttonText}">
                     <i class="${iconClass}"></i> ${buttonText}
                 </button>
             `;
@@ -8313,7 +7243,7 @@
             fineReceiptExportWorkflow.open();
         }
 
-        function handleFineAction(action, fineId) {
+        function handleFineAction(action, fineId, trigger = document.activeElement) {
             const fine = finesData.find(f => f.id === fineId);
             if (!fine) {
                 showToast('Fine data not found.', 'error');
@@ -8331,7 +7261,7 @@
                     markFineAsPaid(fineId, fine);
                     break;
                 case 'view-history':
-                    viewFineHistory(fineId, fine);
+                    viewFineHistory(fineId, fine, trigger);
                     break;
             }
         }
@@ -8871,87 +7801,6 @@
 
 
 
-        function viewFineHistory(fineId, fine) {
-            currentFineId = fineId;
-            document.getElementById('historyAmount').textContent = formatCurrency(fine.fineAmount);
-            document.getElementById('historyOriginalAmount').textContent = 'Loading...';
-            document.getElementById('historyStatus').innerHTML = renderHistoryStatusBadge(fine.paymentStatus || 'pending');
-            document.getElementById('historyDaysLate').textContent = fine.daysOverdue || '0 days';
-            document.getElementById('historyBookTitle').textContent = fine.bookName || 'Loading book details...';
-            document.getElementById('historyBookIsbn').textContent = 'ISBN: Loading...';
-            document.getElementById('historyCalculationSection').hidden = true;
-            document.getElementById('fineHistoryList').innerHTML = '<li class="fine-history-empty">Loading history...</li>';
-            document.getElementById('historyOverlay').classList.add('show');
-
-            fetch(`/admin/fines/${fineId}/history`, {
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to load fine history');
-                    }
-
-                    return response.json();
-                })
-                .then(data => {
-                    const historyList = document.getElementById('fineHistoryList');
-                    if (!data.success) {
-                        throw new Error(data.message || 'Failed to load fine history');
-                    }
-
-                    const fineDetails = data.fineDetails || {};
-                    const calculation = data.calculation || null;
-                    const history = Array.isArray(data.history) ? data.history : [];
-
-                    document.getElementById('historyAmount').textContent = formatCurrency(fineDetails.currentAmount ??
-                        fine.fineAmount);
-                    document.getElementById('historyOriginalAmount').textContent = formatCurrency(fineDetails
-                        .originalAmount ?? fine.fineAmount);
-                    document.getElementById('historyStatus').innerHTML = renderHistoryStatusBadge(fineDetails.status ||
-                        fine.paymentStatus || 'pending');
-                    document.getElementById('historyDaysLate').textContent =
-                        `${fineDetails.daysLate ?? 0} day${Number(fineDetails.daysLate ?? 0) === 1 ? '' : 's'}`;
-                    document.getElementById('historyBookTitle').textContent = fineDetails.bookTitle || fine.bookName ||
-                        'Unknown Book';
-                    document.getElementById('historyBookIsbn').textContent = `ISBN: ${fineDetails.isbn || 'N/A'}`;
-
-                    const calculationSection = document.getElementById('historyCalculationSection');
-                    const adjustmentsRow = document.getElementById('historyCalcAdjustmentsRow');
-                    if (calculation) {
-                        calculationSection.hidden = false;
-                        document.getElementById('historyCalcBaseRate').textContent = formatCurrency(calculation
-                            .baseRate);
-                        document.getElementById('historyCalcDaysLate').textContent = `${calculation.daysLate ?? 0}`;
-                        document.getElementById('historyCalcSubtotal').textContent = formatCurrency(calculation
-                            .subtotal);
-
-                        const adjustmentValue = Number(calculation.adjustments ?? 0);
-                        adjustmentsRow.hidden = adjustmentValue === 0;
-                        document.getElementById('historyCalcAdjustments').textContent = formatSignedCurrency(
-                            adjustmentValue);
-                        document.getElementById('historyCalcFinalAmount').textContent = formatCurrency(calculation
-                            .finalAmount);
-                    } else {
-                        calculationSection.hidden = true;
-                    }
-
-                    if (history.length > 0) {
-                        historyList.innerHTML = history.map(renderFineHistoryItem).join('');
-                    } else {
-                        historyList.innerHTML =
-                            '<li class="fine-history-empty">No history available for this fine yet.</li>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('fineHistoryList').innerHTML =
-                        '<li class="fine-history-empty">Unable to load history. Please try again.</li>';
-                });
-        }
-
         function formatCurrency(value) {
             const numericValue = Number(value);
             return `₹${Number.isFinite(numericValue) ? numericValue.toFixed(2) : '0.00'}`;
@@ -8980,140 +7829,10 @@
             return `<span class="history-status-badge status-${escapeHtml(normalizedStatus)}">${escapeHtml(formatDisplayLabel(normalizedStatus, 'Pending'))}</span>`;
         }
 
-        function getFineHistoryActionConfig(actionType) {
-            const normalizedType = String(actionType || 'created').toLowerCase();
-            const actionMap = {
-                created: {
-                    label: 'Created',
-                    icon: 'fa-plus'
-                },
-                adjusted: {
-                    label: 'Adjusted',
-                    icon: 'fa-sliders-h'
-                },
-                paid: {
-                    label: 'Paid',
-                    icon: 'fa-check'
-                },
-                waived: {
-                    label: 'Waived',
-                    icon: 'fa-ban'
-                },
-            };
-
-            return {
-                type: actionMap[normalizedType] ? normalizedType : 'created',
-                ...(actionMap[normalizedType] || actionMap.created),
-            };
-        }
-
-        function getPaymentMethodMeta(paymentMethod) {
-            const normalizedMethod = String(paymentMethod || '').toLowerCase();
-            const methodMap = {
-                cash: {
-                    icon: 'fa-indian-rupee-sign',
-                    label: 'Cash'
-                },
-                card: {
-                    icon: 'fa-credit-card',
-                    label: 'Card'
-                },
-                online: {
-                    icon: 'fa-globe',
-                    label: 'Online'
-                },
-            };
-
-            return methodMap[normalizedMethod] || null;
-        }
-
-        function getRoleMeta(userRole) {
-            const normalizedRole = String(userRole || 'system').toLowerCase();
-            const roleMap = {
-                admin: {
-                    icon: 'fa-user-shield',
-                    label: 'Admin'
-                },
-                staff: {
-                    icon: 'fa-user-tie',
-                    label: 'Staff'
-                },
-                student: {
-                    icon: 'fa-user-graduate',
-                    label: 'Student'
-                },
-                system: {
-                    icon: 'fa-microchip',
-                    label: 'System'
-                },
-                user: {
-                    icon: 'fa-user',
-                    label: 'User'
-                },
-            };
-
-            return {
-                roleClass: roleMap[normalizedRole] ? normalizedRole : 'user',
-                ...(roleMap[normalizedRole] || roleMap.user),
-            };
-        }
-
-        function renderFineHistoryItem(item) {
-            const actionConfig = getFineHistoryActionConfig(item.actionType);
-            const roleMeta = getRoleMeta(item.userRole);
-            const amountDelta = item.amountChange !== null ?
-                `<span>${escapeHtml(formatSignedCurrency(item.amountChange))}</span>` :
-                '';
-            const amountChangeMarkup = item.actionType === 'adjusted' && item.oldAmount !== null && item.newAmount !==
-                null ?
-                `<div class="fine-history-amount-change">${formatCurrency(item.oldAmount)} &rarr; ${formatCurrency(item.newAmount)} ${amountDelta}</div>` :
-                '';
-            const paymentMethod = getPaymentMethodMeta(item.paymentMethod);
-            const paymentMethodMarkup = paymentMethod ?
-                `<span class="fine-history-meta-item"><i class="fas ${paymentMethod.icon}"></i>${escapeHtml(paymentMethod.label)}</span>` :
-                '';
-            const remarksMarkup = item.remarks ?
-                `<div class="fine-history-remarks">"${escapeHtml(item.remarks)}"</div>` :
-                '';
-
-            return `
-                <li class="fine-history-item">
-                    <div class="fine-history-dot ${actionConfig.type}">
-                        <i class="fas ${actionConfig.icon}"></i>
-                    </div>
-                    <div class="fine-history-entry">
-                        <div class="fine-history-top">
-                            <span class="history-action-badge ${actionConfig.type}">
-                                <i class="fas ${actionConfig.icon}"></i>
-                                ${escapeHtml(item.action || actionConfig.label)}
-                            </span>
-                            <span class="fine-history-date">${escapeHtml(item.date || 'N/A')}</span>
-                        </div>
-                        <p class="fine-history-action">${escapeHtml(item.action || actionConfig.label)}</p>
-                        <p class="fine-history-description">${escapeHtml(item.description || item.action || actionConfig.label)}</p>
-                        ${amountChangeMarkup}
-                        <div class="fine-history-meta">
-                            <span class="fine-history-meta-item">
-                                <span class="fine-history-actor">
-                                    <span class="fine-history-actor-name">${escapeHtml(item.user || 'System')}</span>
-                                    <span class="fine-history-role-badge role-${escapeHtml(roleMeta.roleClass)}">
-                                        <i class="fas ${roleMeta.icon}"></i>
-                                        ${escapeHtml(roleMeta.label)}
-                                    </span>
-                                </span>
-                            </span>
-                            ${paymentMethodMarkup}
-                        </div>
-                        ${remarksMarkup}
-                    </div>
-                </li>
-            `;
-        }
-
         function closeFineModal(type) {
             if (type === 'adjust') document.getElementById('adjustFineOverlay').classList.remove('show');
             if (type === 'waive') document.getElementById('waiveFineOverlay').classList.remove('show');
-            if (type === 'history') document.getElementById('historyOverlay').classList.remove('show');
+            if (type === 'history') closeFineHistoryPanel();
             currentFineId = null;
         }
 
@@ -9121,8 +7840,12 @@
         ['adjustFineOverlay', 'waiveFineOverlay', 'historyOverlay'].forEach(id => {
             document.getElementById(id)?.addEventListener('click', function(e) {
                 if (e.target === this) {
-                    this.classList.remove('show');
-                    currentFineId = null;
+                    if (id === 'historyOverlay') {
+                        closeFineModal('history');
+                    } else {
+                        this.classList.remove('show');
+                        currentFineId = null;
+                    }
                 }
             });
         });

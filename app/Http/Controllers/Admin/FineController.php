@@ -397,7 +397,7 @@ class FineController extends Controller
         try {
             Gate::authorize('access-admin');
 
-            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book'])->findOrFail($id);
+            $fine = Fine::with(['student.user', 'student.privileges', 'issuedBook.book', 'issuedBook.bookCopy', 'paidBy', 'waivedBy'])->findOrFail($id);
             $currentAmount = (float) $fine->amount;
             $perDayRate = $this->resolveFinePerDayRate($fine);
 
@@ -441,6 +441,11 @@ class FineController extends Controller
             return response()->json([
                 'success' => true,
                 'fineDetails' => [
+                    'id' => $fine->id,
+                    'accessionNumber' => $fine->issuedBook?->bookCopy?->accession_number,
+                    'transactionId' => $fine->issued_book_id
+                        ? 'TXN-' . str_pad((string) $fine->issued_book_id, 6, '0', STR_PAD_LEFT)
+                        : null,
                     'currentAmount' => $currentAmount,
                     'originalAmount' => $originalAmount,
                     'status' => strtolower((string) $fine->status),
@@ -450,6 +455,20 @@ class FineController extends Controller
                     'perDayRate' => $perDayRate,
                 ],
                 'calculation' => $calculation,
+                // Presentation data from the existing full-payment / full-waiver record.
+                'paymentDetails' => $fine->status === 'paid' ? [
+                    'amount' => $currentAmount,
+                    'outstanding' => 0,
+                    'date' => $fine->paid_at?->format('M d, Y h:i A') ?? $fine->paid_on?->format('M d, Y'),
+                    'method' => $fine->payment_method,
+                    'recordedBy' => $fine->paidBy?->name,
+                ] : null,
+                'waiverDetails' => $fine->status === 'waived' ? [
+                    'amount' => $currentAmount,
+                    'date' => $fine->waived_at?->format('M d, Y h:i A'),
+                    'waivedBy' => $fine->waivedBy?->name,
+                    'reason' => $fine->waive_reason ?? $fine->remarks,
+                ] : null,
                 'history' => $history->values()->all(),
             ]);
         } catch (Throwable $e) {

@@ -1,0 +1,82 @@
+/* Scoped to the Student Details transaction popup; shared admin tokens/buttons apply. */
+.admin-portal #bookDetailsOverlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; overflow: hidden; }
+.admin-portal #bookDetailsOverlay.show { display: flex; }
+.admin-portal #bookDetailsOverlay .book-details-modal {
+    --ui-modal-width: 860px;
+    width: min(860px, 94vw) !important;
+    max-width: 94vw;
+    max-height: 89vh !important;
+    max-height: 89dvh !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+#bookDetailsOverlay [hidden] { display: none !important; }
+#bookDetailsOverlay .book-details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex: 0 0 auto;
+    padding: 16px 20px;
+    background: var(--ui-blue-soft);
+    border-bottom: 1px solid var(--ui-info-bg);
+}
+#bookDetailsOverlay .book-details-header h2 { margin: 0; color: var(--ui-heading); font-size: 18px; font-weight: 600; line-height: 1.4; }
+#bookDetailsOverlay .book-details-header p { margin: 3px 0 0; color: var(--ui-secondary); font-size: 12px; line-height: 1.5; }
+#bookDetailsOverlay .book-details-close { display: flex; flex-shrink: 0; font-size: 24px; line-height: 1; cursor: pointer; }
+#bookDetailsOverlay .book-details-body { min-height: 0; padding: 18px 20px; overflow-y: auto; overscroll-behavior: contain; }
+#bookDetailsOverlay .issued-book-overview { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 18px; align-items: center; }
+#bookDetailsOverlay .issued-book-cover { width: 104px; aspect-ratio: 3 / 4; border: 1px solid var(--ui-border); border-radius: 8px; background: var(--ui-page); overflow: hidden; }
+#bookDetailsOverlay .book-cover-image { width: 100%; height: 100%; object-fit: contain; display: block; }
+#bookDetailsOverlay .book-cover-avatar { height: 100%; display: flex; align-items: center; justify-content: center; color: var(--ui-primary); font-size: 36px; font-weight: 600; }
+#bookDetailsOverlay .issued-book-identity { min-width: 0; overflow-wrap: anywhere; }
+#bookDetailsOverlay .issued-book-identity h3 { margin: 0; font-size: 22px; line-height: 1.3; font-weight: 700; color: var(--ui-heading); }
+#bookDetailsOverlay .issued-book-identity p { margin: 5px 0 8px; color: var(--ui-text); font-size: 13px; }
+#bookDetailsOverlay .issued-book-category { display: inline-block; max-width: 100%; padding: 3px 8px; border-radius: 6px; background: var(--ui-info-bg); color: var(--ui-info-text); font-size: 11px; line-height: 1.5; font-weight: 600; }
+#bookDetailsOverlay :is(dl, dd) { margin: 0; }
+#bookDetailsOverlay dt { color: var(--ui-secondary); font-size: 11px; line-height: 1.5; font-weight: 500; }
+#bookDetailsOverlay dd { color: var(--ui-heading); font-size: 13px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+#bookDetailsOverlay .issued-book-identifiers { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 10px; }
+#bookDetailsOverlay .issued-book-identifiers > div { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+#bookDetailsOverlay .issued-book-status-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding: 12px 14px; margin-top: 16px; background: var(--ui-page); border: 1px solid var(--ui-border); border-radius: 8px; }
+#bookDetailsOverlay .issued-book-status-strip dd { margin-top: 4px; }
+#bookDetailsOverlay .issued-book-status-strip .admin-ui-badge { text-transform: uppercase; }
+#bookDetailsOverlay .issued-book-overdue-alert { display: flex; flex-wrap: wrap; gap: 3px 16px; margin-top: 10px; padding: 9px 12px; border: 1px solid #fecaca; border-radius: 6px; background: #fef2f2; color: #991b1b; font-size: 12px; line-height: 1.5; }
+#bookDetailsOverlay .issued-book-section { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--ui-border); }
+#bookDetailsOverlay .issued-book-section h3 { margin: 0 0 10px; color: var(--ui-heading); font-size: 13px; line-height: 1.5; font-weight: 600; }
+#bookDetailsOverlay .issued-book-information { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; }
+#bookDetailsOverlay .issued-book-information > div { display: grid; grid-template-columns: minmax(100px, 42%) minmax(0, 1fr); align-items: baseline; gap: 10px; }
+#bookDetailsOverlay .issued-book-information dt small { font-size: inherit; }
+#bookDetailsOverlay .issued-book-timeline { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0; margin: 0; }
+#bookDetailsOverlay .issued-book-timeline li { position: relative; padding: 0 12px 0 20px; font-size: 12px; line-height: 1.5; }
+#bookDetailsOverlay .issued-book-timeline li::before { content: ''; position: absolute; left: 0; top: 4px; width: 9px; height: 9px; border: 2px solid var(--ui-primary); border-radius: 50%; background: var(--ui-primary); z-index: 1; }
+#bookDetailsOverlay .issued-book-timeline li:not(:last-child)::after { content: ''; position: absolute; top: 9px; left: 12px; right: 8px; height: 1px; background: var(--ui-border); }
+#bookDetailsOverlay .issued-book-timeline strong { position: relative; display: inline-block; padding-right: 8px; background: var(--ui-surface); color: var(--ui-heading); z-index: 1; }
+#bookDetailsOverlay .issued-book-timeline span { display: block; margin-top: 2px; color: var(--ui-secondary); }
+#bookDetailsOverlay .issued-book-timeline .is-pending::before { background: var(--ui-surface); border-color: var(--ui-secondary); }
+#bookDetailsOverlay :is(.issued-book-description p, .issued-book-no-fine) { margin: 0; color: var(--ui-text); font-size: 12px; line-height: 1.65; white-space: pre-line; overflow-wrap: anywhere; }
+#bookDetailsOverlay .issued-book-no-fine { margin-top: 14px; color: var(--ui-secondary); }
+#bookDetailsOverlay .issued-book-footer { display: flex; justify-content: flex-end; flex: 0 0 auto; }
+body.admin-portal.issued-book-details-open .pwa-shell-content { overflow: hidden !important; }
+body.admin-portal.issued-book-details-open { overflow: hidden; }
+@media (max-width: 700px) {
+    #bookDetailsOverlay .issued-book-status-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    #bookDetailsOverlay .issued-book-information { column-gap: 16px; }
+    #bookDetailsOverlay .issued-book-information > div { grid-template-columns: minmax(0, 1fr); gap: 1px; }
+}
+@media (max-width: 480px) {
+    #bookDetailsOverlay :is(.book-details-header, .book-details-body) { padding: 14px; }
+    #bookDetailsOverlay .issued-book-overview { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    #bookDetailsOverlay .issued-book-cover { justify-self: center; width: 100px; }
+    #bookDetailsOverlay .issued-book-identity h3 { font-size: 20px; }
+    #bookDetailsOverlay .issued-book-status-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    #bookDetailsOverlay .issued-book-information { grid-template-columns: minmax(0, 1fr); }
+    #bookDetailsOverlay .issued-book-information > div { grid-template-columns: minmax(100px, 42%) minmax(0, 1fr); gap: 8px; }
+    #bookDetailsOverlay .issued-book-timeline { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    #bookDetailsOverlay .issued-book-timeline li:not(:last-child)::after { left: 5px; top: 14px; bottom: -16px; width: 1px; height: auto; right: auto; }
+    #bookDetailsOverlay .issued-book-footer .btn { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #bookDetailsOverlay *, #bookDetailsOverlay *::before, #bookDetailsOverlay *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
