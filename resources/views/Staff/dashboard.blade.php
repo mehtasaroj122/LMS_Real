@@ -1552,14 +1552,7 @@
                 <div class="stat-card-header">
                     <div class="stat-label">Pending Fines</div>
                     <div class="stat-icon status-purple">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M6 4h12" />
-                            <path d="M6 8h12" />
-                            <path d="M9 12h3a4 4 0 0 0 0-8" />
-                            <path d="m8 12 7 8" />
-                        </svg>
+                        <i data-lucide="coins" style="width: 20px; height: 20px;" aria-hidden="true"></i>
                     </div>
                 </div>
                 <div class="stat-card-body">

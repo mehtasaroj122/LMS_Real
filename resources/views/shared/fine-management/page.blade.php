@@ -69,13 +69,7 @@
                     <div class="stat-header">
                         <h3 class="stat-title">{{ $config['labels']['stats']['totalTitle'] ?? 'Total Fines' }}</h3>
                         <div class="stat-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M6 3h12" />
-                                <path d="M6 8h12" />
-                                <path d="m6 13 8.5 8" />
-                                <path d="M6 13h3" />
-                                <path d="M9 13c6.667 0 6.667-10 0-10" />
-                            </svg>
+                            <i data-lucide="coins" style="width: 16px; height: 16px;" aria-hidden="true"></i>
                         </div>
                     </div>
                     <div class="stat-number loading-line" id="totalFines">{{ \App\Support\Currency::PREFIX }}0.00</div>
