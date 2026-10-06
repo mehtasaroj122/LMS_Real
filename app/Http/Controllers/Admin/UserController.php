@@ -332,6 +332,7 @@ class UserController extends Controller
             'role',
             'phone',
             'gender',
+            'date_of_birth',
             'address',
             'department_id',
             'staff_id',
@@ -369,6 +370,9 @@ class UserController extends Controller
             [$field => $rules[$field]],
             AdminUserRequest::validationMessages()
         );
+        if ($field === 'date_of_birth') {
+            AdminUserRequest::validateDateOfBirth($validator, $data);
+        }
 
         if ($validator->fails()) {
             return response()->json([
@@ -403,6 +407,7 @@ class UserController extends Controller
                     'status' => $this->resolveManagedStatus($data['role'], $data['status'] ?? 'inactive'),
                     'phone' => $data['phone'] ?? null,
                     'gender' => $data['gender'] ?? null,
+                    'date_of_birth' => $data['date_of_birth'] ?? null,
                     'address' => $data['address'] ?? null,
                 ]);
 

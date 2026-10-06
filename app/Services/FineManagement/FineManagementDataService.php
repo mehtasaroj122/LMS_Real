@@ -89,7 +89,7 @@ class FineManagementDataService
     protected function baseQuery(): Builder
     {
         return Fine::query()
-            ->with(['student.user', 'issuedBook.book'])
+            ->with(['student.user', 'issuedBook.book', 'issuedBook.bookCopy'])
             ->whereHas('student.user', function (Builder $query) {
                 $query->where('role', 'student');
             });
@@ -273,6 +273,7 @@ class FineManagementDataService
             'studentName' => $fine->student?->user?->name ?? 'Unknown',
             'studentAvatar' => $studentAvatar,
             'bookTitle' => $issuedBook?->book?->title ?? 'Unknown',
+            'accessionNumber' => $issuedBook?->bookCopy?->accession_number,
             'dueDate' => $dueDate?->format('M d, Y') ?? 'N/A',
             'dueDateRaw' => $dueDate?->format('Y-m-d'),
             'daysOverdue' => (int) ($fine->days_late ?? 0),

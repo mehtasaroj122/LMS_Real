@@ -162,12 +162,13 @@ class BookCopyController extends Controller
         if (request()->expectsJson() && ! request()->boolean('ajax_copies')) {
             $book->load([
                 'category',
-                'copies' => fn ($query) => $query
-                    ->with(['issuedBooks' => fn ($issueQuery) => $issueQuery
+                'copies' => function ($query): void {
+                    $query->with(['issuedBooks' => fn ($issueQuery) => $issueQuery
                         ->whereNull('return_date')
                         ->latest('issue_date')
-                        ->with('student.user')])
-                    ->orderBy('accession_number'),
+                        ->with('student.user')]);
+                    $this->applyCopyListingOrder($query);
+                },
             ]);
 
             return response()->json([
@@ -217,12 +218,13 @@ class BookCopyController extends Controller
             });
         }
 
-        $copies = $copiesQuery->orderBy('accession_number')->paginate($perPage);
+        $this->applyCopyListingOrder($copiesQuery);
+        $copies = $copiesQuery->paginate($perPage);
         if ($copies->total() > 0 && $copies->currentPage() > $copies->lastPage()) {
             if (! $request->boolean('ajax_copies')) {
                 return redirect()->to($request->fullUrlWithQuery(['page' => $copies->lastPage()]));
             }
-            $copies = $copiesQuery->orderBy('accession_number')->paginate($perPage, ['*'], 'page', $copies->lastPage());
+            $copies = $copiesQuery->paginate($perPage, ['*'], 'page', $copies->lastPage());
         }
         $copies->appends($request->except('ajax_copies'));
 
@@ -391,6 +393,15 @@ class BookCopyController extends Controller
             'lost' => (int) ($counts['lost'] ?? 0),
             'damaged' => (int) ($counts['damaged'] ?? 0),
         ];
+    }
+
+    private function applyCopyListingOrder($query): void
+    {
+        if (auth()->user()?->role === 'admin') {
+            $query->orderByDesc('created_at')->orderByDesc('id');
+        } else {
+            $query->orderBy('accession_number');
+        }
     }
 
     private function viewPrefix(): string

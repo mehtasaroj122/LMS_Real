@@ -653,6 +653,19 @@
         max-width: 18%;
     }
 
+    .fine-page .fine-book-title,
+    .fine-page .fine-book-accession {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .fine-page .fine-book-accession {
+        margin-top: 2px;
+        font-size: 12px;
+        color: var(--fine-text-secondary);
+    }
+
     .fine-page .fine-select-cell {
         text-align: center;
         vertical-align: middle;

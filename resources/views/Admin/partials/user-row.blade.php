@@ -57,20 +57,17 @@
     </td>
     <td>
         @if ($user->role === 'admin')
-            <span
-                style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; background-color: #dbeafe; color: #1e40af; font-size: 12px; font-weight: 600;">
+            <span class="user-role-badge role-admin">
                 <i class="fas fa-shield-alt"></i>
                 Admin
             </span>
         @elseif($user->role === 'staff')
-            <span
-                style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; background-color: #f3e8ff; color: #7c3aed; font-size: 12px; font-weight: 600;">
+            <span class="user-role-badge role-staff">
                 <i class="fas fa-user-tie"></i>
                 Staff
             </span>
         @else
-            <span
-                style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; background-color: #dcfce7; color: #166534; font-size: 12px; font-weight: 600;">
+            <span class="user-role-badge role-student">
                 <i class="fas fa-graduation-cap"></i>
                 Student
             </span>

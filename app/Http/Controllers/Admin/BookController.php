@@ -342,7 +342,58 @@ class BookController extends Controller
      */
     public function show(string $id)
     {
-        //
+        Gate::authorize('access-admin');
+        $book = Book::with('category')->findOrFail($id);
+
+        // Aggregate only the selected book's physical copies, never every table row.
+        $groups = $book->copies()
+            ->select('status', 'book_type')
+            ->selectRaw('COUNT(*) as total')
+            ->groupBy('status', 'book_type')
+            ->get();
+        $statuses = $groups->groupBy('status')->map(fn ($rows) => (int) $rows->sum('total'));
+        $types = $groups->groupBy('book_type')->map(fn ($rows) => (int) $rows->sum('total'));
+        $locations = $book->copies()
+            ->whereNotNull('shelf_location')
+            ->where('shelf_location', '!=', '')
+            ->distinct()
+            ->orderBy('shelf_location')
+            ->limit(6)
+            ->pluck('shelf_location');
+        $cover = $book->cover_image;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'book' => [
+                    'id' => $book->id,
+                    'title' => $book->title,
+                    'author' => $book->author,
+                    'publisher' => $book->publisher,
+                    'category' => $book->category?->name,
+                    'isbn' => $book->isbn,
+                    'condition' => $book->condition,
+                    'shelf_no' => $book->shelf_no,
+                    'description' => $book->description,
+                    'cover_url' => $cover
+                        ? (preg_match('/^https?:\/\//i', $cover) ? $cover : asset('storage/' . $cover))
+                        : null,
+                    'created_at' => $book->created_at?->toIso8601String(),
+                    'updated_at' => $book->updated_at?->toIso8601String(),
+                ],
+                'inventory' => [
+                    'total' => (int) $statuses->sum(),
+                    'available' => (int) $statuses->get('available', 0),
+                    'issued' => (int) $statuses->get('issued', 0),
+                    'unavailable' => (int) $statuses->except(['available', 'issued'])->sum(),
+                    'statuses' => $statuses,
+                    'types' => $types,
+                    'shelf_locations' => $locations->take(5)->values(),
+                    'has_more_shelf_locations' => $locations->count() > 5,
+                ],
+                'manage_copies_url' => route('admin.books.copies.index', $book),
+            ],
+        ]);
     }
 
     /**
@@ -621,7 +672,7 @@ class BookController extends Controller
 
         switch ($sort) {
             case 'recently-added':
-                $query->orderBy('created_at', 'desc');
+                $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
                 break;
             case 'title-asc':
                 $query->orderBy('title', 'asc');
@@ -639,7 +690,7 @@ class BookController extends Controller
                 $query->orderBy('total_copies', 'desc');
                 break;
             default:
-                $query->orderBy('created_at', 'desc');
+                $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }
     }
 

@@ -520,10 +520,10 @@ class StudentController extends Controller
                 $user = User::create([
                     'name' => $validated['name'],
                     'email' => $validated['email'],
-                    'phone' => $validated['phone'],
+                    'phone' => $validated['phone'] ?? null,
                     'gender' => $validated['gender'] ?? null,
                     'date_of_birth' => $validated['date_of_birth'],
-                    'address' => $validated['address'],
+                    'address' => $validated['address'] ?? null,
                     'role' => 'student',
                     'status' => 'inactive',
                     'password' => null,
@@ -537,7 +537,7 @@ class StudentController extends Controller
                     'department_id' => $validated['department_id'],
                     'batch' => $validated['batch'],
                     'semester' => $validated['semester'],
-                    'address' => $validated['address'],
+                    'address' => $validated['address'] ?? null,
                 ]);
 
                 $student->load('user', 'department');

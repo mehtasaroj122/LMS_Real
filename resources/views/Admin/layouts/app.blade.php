@@ -197,9 +197,10 @@
 
     @stack('styles')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('admin/CSS/admin-design-system.css') }}?v={{ filemtime(public_path('admin/CSS/admin-design-system.css')) }}">
 </head>
 
-<body class="light-theme">
+<body class="light-theme admin-portal">
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div class="flex h-screen min-h-0 overflow-hidden">
     <aside class="flex flex-col w-64 min-h-0 border-r sidebar admin-sidebar navy-sidebar shrink-0" id="sidebar">
@@ -383,7 +384,7 @@
                 </div>
                 <div class="notification-detail-footer">
                     <button type="button" class="notification-detail-btn" data-notification-clear-close>Cancel</button>
-                    <button type="button" class="notification-detail-btn primary" id="notificationClearConfirmOkBtn">Clear all</button>
+                    <button type="button" class="notification-detail-btn danger" id="notificationClearConfirmOkBtn">Clear all</button>
                 </div>
             </div>
         </div>
@@ -420,5 +421,6 @@
 
 
 @stack('scripts')
+<script src="{{ asset('admin/JS/admin-ui.js') }}?v={{ filemtime(public_path('admin/JS/admin-ui.js')) }}" defer></script>
 </body>
 </html>

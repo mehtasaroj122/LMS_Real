@@ -21,7 +21,12 @@
     </div>
 
     <form id="copyFilters" class="book-copies-toolbar" method="get" action="{{ route($role . '.books.copies.index', $book) }}">
-        <div class="book-copies-search"><input class="book-copies-control" id="copySearch" name="search" type="search" value="{{ $search }}" placeholder="Accession, student, ID..." aria-label="Search copies" maxlength="100"></div>
+        <div class="book-copies-search">
+            @if($role === 'admin')
+                <svg class="book-copies-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+            @endif
+            <input class="book-copies-control" id="copySearch" name="search" type="search" value="{{ $search }}" placeholder="Accession, student, ID..." aria-label="Search copies" maxlength="100">
+        </div>
         <select class="book-copies-control" id="copyStatusFilter" name="status" aria-label="Status"><option value="all">All statuses</option>@foreach(['available' => 'Available', 'issued' => 'Issued', 'lost' => 'Lost', 'damaged' => 'Damaged'] as $value => $label)<option value="{{ $value }}" @selected($status === $value)>{{ $label }}</option>@endforeach</select>
         <select class="book-copies-control" id="copyTypeFilter" name="book_type" aria-label="Book Type"><option value="all">All types</option><option value="borrowing" @selected($bookType === 'borrowing')>Borrowing</option><option value="reference" @selected($bookType === 'reference')>Reference</option></select>
         <button type="button" class="book-copies-button" id="resetCopyFilters"><i class="fas fa-rotate-left" aria-hidden="true"></i> Reset</button>

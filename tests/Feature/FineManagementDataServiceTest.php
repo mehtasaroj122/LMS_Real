@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Book;
+use App\Models\BookCopy;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\Fine;
@@ -152,8 +153,48 @@ test('staff fines data endpoint includes overdue books without existing fine rec
         ->assertJsonPath('success', true)
         ->assertJsonPath('pagination.total', 1)
         ->assertJsonPath('fines.0.bookTitle', 'Staff Visible Overdue Without Fine Row')
+        ->assertJsonPath('fines.0.accessionNumber', null)
         ->assertJsonPath('fines.0.fineAmount', 60);
 
     expect($createdFine)->not->toBeNull()
         ->and($createdFine->status)->toBe('pending');
 });
+
+test('fine listing returns the issued copy accession number for both portals', function (string $role) {
+    $operator = makeFineManagementStaffUser();
+    $operator->update(['role' => $role]);
+    $student = makeFineManagementStudent();
+    $issue = makeFineManagementIssue($student, 'Book With Multiple Copies', 2);
+
+    BookCopy::create([
+        'book_id' => $issue->book_id,
+        'accession_number' => 'ACC-000101',
+        'entry_date' => today(),
+        'book_type' => 'normal',
+        'status' => 'available',
+        'condition' => 'good',
+    ]);
+    $issuedCopy = BookCopy::create([
+        'book_id' => $issue->book_id,
+        'accession_number' => 'ACC-000102',
+        'entry_date' => today(),
+        'book_type' => 'normal',
+        'status' => 'issued',
+        'condition' => 'good',
+    ]);
+    $issue->update(['book_copy_id' => $issuedCopy->id]);
+
+    Fine::create([
+        'issued_book_id' => $issue->id,
+        'student_id' => $student->id,
+        'amount' => 50,
+        'days_late' => 2,
+        'status' => 'pending',
+    ]);
+
+    $this->actingAs($operator)
+        ->getJson(route("{$role}.fines.data"))
+        ->assertOk()
+        ->assertJsonPath('fines.0.bookTitle', 'Book With Multiple Copies')
+        ->assertJsonPath('fines.0.accessionNumber', 'ACC-000102');
+})->with(['admin', 'staff']);

@@ -592,143 +592,6 @@
             }
         }
 
-        /* Add Student Modal Theme Support */
-        #addStudentModal {
-            backdrop-filter: blur(4px);
-        }
-
-        #addStudentModal>div {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        body.light-theme #addStudentModal>div {
-            background-color: #ffffff;
-            color: #1f2937;
-        }
-
-        body.dark-theme #addStudentModal>div {
-            background-color: #1e293b;
-            color: #e5e7eb;
-        }
-
-        #addStudentModal h2 {
-            transition: color 0.3s ease;
-        }
-
-        body.light-theme #addStudentModal h2 {
-            color: #1f2937;
-        }
-
-        body.dark-theme #addStudentModal h2 {
-            color: #e5e7eb;
-        }
-
-        #addStudentModal label {
-            transition: color 0.3s ease;
-        }
-
-        body.light-theme #addStudentModal label {
-            color: #374151;
-        }
-
-        body.dark-theme #addStudentModal label {
-            color: #d1d5db;
-        }
-
-        #addStudentModal input,
-        #addStudentModal textarea,
-        #addStudentModal select {
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
-
-        body.light-theme #addStudentModal input,
-        body.light-theme #addStudentModal textarea,
-        body.light-theme #addStudentModal select {
-            background-color: #ffffff;
-            color: #1f2937;
-            border-color: #d1d5db;
-        }
-
-        body.dark-theme #addStudentModal input,
-        body.dark-theme #addStudentModal textarea,
-        body.dark-theme #addStudentModal select {
-            background-color: #0f172a;
-            color: #e5e7eb;
-            border-color: #334155;
-        }
-
-        body.light-theme #addStudentModal input:focus,
-        body.light-theme #addStudentModal textarea:focus,
-        body.light-theme #addStudentModal select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        body.dark-theme #addStudentModal input:focus,
-        body.dark-theme #addStudentModal textarea:focus,
-        body.dark-theme #addStudentModal select:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        #addStudentModal button[type="button"],
-        #addStudentModal button[type="submit"] {
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
-
-        body.light-theme #addStudentModal button[type="button"] {
-            background-color: white;
-            color: #374151;
-            border-color: #d1d5db;
-        }
-
-        body.light-theme #addStudentModal button[type="button"]:hover {
-            background-color: #f3f4f6;
-        }
-
-        body.dark-theme #addStudentModal button[type="button"] {
-            background-color: #374151;
-            color: #e5e7eb;
-            border-color: #4b5563;
-        }
-
-        body.dark-theme #addStudentModal button[type="button"]:hover {
-            background-color: #4b5563;
-        }
-
-        #addStudentModal button[onclick*="closeAddStudentModal"] {
-            transition: color 0.3s ease;
-        }
-
-        body.light-theme #addStudentModal button[onclick*="closeAddStudentModal"] {
-            color: #6b7280;
-        }
-
-        body.dark-theme #addStudentModal button[onclick*="closeAddStudentModal"] {
-            color: #9ca3af;
-        }
-
-        #addStudentModal .error-message {
-            transition: color 0.3s ease;
-            display: none;
-            color: #dc2626;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        body.light-theme #addStudentModal .error-message {
-            color: #dc2626;
-        }
-
-        body.dark-theme #addStudentModal .error-message {
-            color: #fca5a5;
-        }
-
-        #addStudentModal .required-asterisk {
-            color: #ef4444;
-            font-weight: 600;
-        }
-
         /* ===== Edit Student Modal Theme Support ===== */
         #editStudentModal {
             backdrop-filter: blur(4px);
@@ -1363,6 +1226,7 @@
             }
         }
     </style>
+    @include('shared.user-management.styles')
 @endpush
 
 @section('content')
@@ -1531,132 +1395,7 @@
         </div>
     </div>
 
-    <!-- Add Student Modal -->
-    <div id="addStudentModal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
-        <div
-            style="border-radius: 8px; padding: 16px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <h2 style="margin: 0; font-size: 18px; font-weight: 700;">Add New Student</h2>
-                <button onclick="closeAddStudentModal()"
-                    style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
-            </div>
-
-            <form action="{{ route('admin.students.store') }}" method="POST" id="addStudentForm" novalidate>
-                @csrf
-
-                <div id="addStudentValidationSummary" class="form-validation-summary" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
-
-                <div class="student-form-field" style="margin-bottom: 12px;">
-                    <label for="modal_name" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Full Name <span
-                            class="required-asterisk">*</span></label>
-                    <input type="text" id="modal_name" name="name" class="student-form-control" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="Enter student's full name">
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div class="student-form-field" style="margin-bottom: 12px;">
-                    <label for="modal_email" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Email <span
-                            class="required-asterisk">*</span></label>
-                    <input type="email" id="modal_email" name="email" class="student-form-control" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="student@example.com">
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div class="student-form-field" style="margin-bottom: 12px;">
-                    <label for="modal_phone" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Phone <span
-                            class="required-asterisk">*</span></label>
-                    <input type="tel" id="modal_phone" name="phone" class="student-form-control" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="+9779812345678">
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div class="student-form-field" style="margin-bottom: 12px;">
-                    <label for="modal_gender" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Gender</label>
-                    <select id="modal_gender" name="gender" class="student-form-control"
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
-                        <option value="">Select gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div class="student-form-field" style="margin-bottom: 12px;">
-                    <label for="modal_date_of_birth" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Date of Birth <span
-                            class="required-asterisk">*</span></label>
-                    <input type="date" id="modal_date_of_birth" name="date_of_birth" class="student-form-control" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div class="student-form-field" style="margin-bottom: 12px;">
-                    <label for="modal_roll_no" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Student ID
-                        <span class="required-asterisk">*</span></label>
-                    <input type="text" id="modal_roll_no" name="roll_no" class="student-form-control" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="Enter student ID">
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div class="student-form-field" style="margin-bottom: 12px;">
-                    <label for="modal_department_id"
-                        style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Department <span
-                            class="required-asterisk">*</span></label>
-                    <select id="modal_department_id" name="department_id" class="student-form-control" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
-                        <option value="">Select a department</option>
-                        @foreach ($departments as $dept)
-                            <option value="{{ $dept->id }}">{{ $dept->name }}</option>
-                        @endforeach
-                    </select>
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div class="student-form-field" style="margin-bottom: 12px;">
-                    <label for="modal_batch" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Batch <span
-                            class="required-asterisk">*</span></label>
-                    <input type="text" id="modal_batch" name="batch" class="student-form-control" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="e.g., 2024">
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div class="student-form-field" style="margin-bottom: 12px;">
-                    <label for="modal_semester" style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Semester
-                        <span class="required-asterisk">*</span></label>
-                    <input type="text" id="modal_semester" name="semester" class="student-form-control" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box;"
-                        placeholder="e.g., 1">
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div class="student-form-field" style="margin-bottom: 16px;">
-                    <label for="modal_address"
-                        style="display: block; margin-bottom: 4px; font-weight: 500; font-size: 13px;">Address <span class="required-asterisk">*</span></label>
-                    <textarea id="modal_address" name="address" class="student-form-control" required
-                        style="width: 100%; padding: 8px 10px; border: 1px solid; border-radius: 6px; font-size: 13px; box-sizing: border-box; min-height: 80px;"
-                        placeholder="Enter student's address"></textarea>
-                    <span class="error-message" style="font-size: 12px; display: none;"></span>
-                </div>
-
-                <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button type="button" onclick="closeAddStudentModal()"
-                        style="padding: 8px 16px; border: 1px solid; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 13px;">
-                        Cancel
-                    </button>
-                    <button type="submit" class="student-submit-btn"
-                        style="padding: 8px 16px; border: none; border-radius: 6px; background: #3b82f6; color: white; font-weight: 500; cursor: pointer; font-size: 13px;">
-                        Add Student
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+    @include('shared.user-management.create-modal', ['studentOnly' => true])
 
     <!-- Edit Student Modal -->
     <div id="editStudentModal"
@@ -1845,6 +1584,7 @@
 @endsection
 
 @push('scripts')
+    @include('shared.user-management.validation')
     @include('shared.action-feedback.scripts')
     <script>
         class StudentManager {
@@ -4093,126 +3833,6 @@
             return isValid;
         }
 
-        // Modal functions for Add Student
-        function openAddStudentModal() {
-            const modal = document.getElementById('addStudentModal');
-            if (modal) {
-                modal.style.display = 'flex';
-                // Clear any previous errors
-                document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
-            }
-        }
-
-        function closeAddStudentModal() {
-            const modal = document.getElementById('addStudentModal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-            // Reset form
-            const form = document.getElementById('addStudentForm');
-            if (form) {
-                form.reset();
-                // Clear error messages
-                document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
-            }
-        }
-
-        function validateAddStudentForm() {
-            let isValid = true;
-            const errors = {};
-
-            // Name validation
-            const name = document.getElementById('modal_name').value.trim();
-            if (!name) {
-                errors['name'] = 'Full name is required';
-                isValid = false;
-            }
-
-            // Email validation
-            if (isValid) {
-                const email = document.getElementById('modal_email').value.trim();
-                if (!email) {
-                    errors['email'] = 'Email is required';
-                    isValid = false;
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                    errors['email'] = 'Please enter a valid email address';
-                    isValid = false;
-                }
-            }
-
-            // Phone validation
-            if (isValid) {
-                const phone = document.getElementById('modal_phone').value.trim();
-                if (!phone) {
-                    errors['phone'] = 'Phone number is required';
-                    isValid = false;
-                } else if (!/^[\d]{7,15}$/.test(phone.replace(/[^\d]/g, ''))) {
-                    errors['phone'] = 'Phone number must be 7-15 digits';
-                    isValid = false;
-                }
-            }
-
-            // Roll Number validation
-            if (isValid) {
-                const rollNo = document.getElementById('modal_roll_no').value.trim();
-                if (!rollNo) {
-                    errors['roll_no'] = 'Roll number is required';
-                    isValid = false;
-                }
-            }
-
-            // Department validation
-            if (isValid) {
-                const departmentId = document.getElementById('modal_department_id').value;
-                if (!departmentId) {
-                    errors['department_id'] = 'Please select a department';
-                    isValid = false;
-                }
-            }
-
-            // Batch validation
-            if (isValid) {
-                const batch = document.getElementById('modal_batch').value.trim();
-                if (!batch) {
-                    errors['batch'] = 'Batch is required';
-                    isValid = false;
-                }
-            }
-
-            // Semester validation
-            if (isValid) {
-                const semester = document.getElementById('modal_semester').value.trim();
-                if (!semester) {
-                    errors['semester'] = 'Semester is required';
-                    isValid = false;
-                }
-            }
-
-            // Display ONLY THE FIRST error
-            document.querySelectorAll('#addStudentModal .error-message').forEach(el => {
-                el.textContent = '';
-                el.classList.remove('show');
-                el.style.cssText = 'display: none !important;';
-            });
-            
-            // Show only the first error that occurred
-            if (!isValid && Object.keys(errors).length > 0) {
-                const firstErrorField = Object.keys(errors)[0];
-                const input = document.getElementById('modal_' + firstErrorField);
-                if (input) {
-                    const errorEl = input.parentElement.querySelector('.error-message');
-                    if (errorEl) {
-                        errorEl.textContent = errors[firstErrorField];
-                        errorEl.classList.add('show');
-                        errorEl.style.cssText = 'display: block !important;';
-                        console.log(`❌ Validation error: ${firstErrorField} - ${errors[firstErrorField]}`);
-                    }
-                }
-            }
-
-            return isValid;
-        }
-
         const STUDENT_VALIDATION_MESSAGES = {
             name: {
                 required: 'Enter the student\'s full name.',
@@ -5049,6 +4669,47 @@
             }
         }
 
+        async function submitMirroredStudent(event) {
+            event.preventDefault();
+            if (addStudentValidator.isSubmitting) return;
+            const button = document.getElementById('submitAddStudent');
+            const originalLabel = button.innerHTML;
+            addStudentValidator.setSubmitting(true);
+            try {
+                if (!await addStudentValidator.validateAll({ showFirstErrorOnly: true })) return;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Adding...';
+                const url = manager ? manager.buildMutationUrl('{{ route('admin.students.store') }}') : '{{ route('admin.students.store') }}';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: addStudentValidator.toFormData(),
+                });
+                const data = await response.json();
+                if (response.status === 422) {
+                    addStudentValidator.applyServerErrors(data.errors || {}, { showFirstErrorOnly: true });
+                    return;
+                }
+                if (!response.ok || !data.success) throw new Error(data.message || 'Unable to create student.');
+                closeAddStudentModal();
+                if (manager) await manager.handleStudentMutation('create', data);
+                showStudentToast({
+                    title: 'Student Added',
+                    message: data.message,
+                    detail: data.student?.rollNo ? `Student ID ${data.student.rollNo}` : '',
+                    icon: 'fas fa-user-plus',
+                }, 'success');
+            } catch (error) {
+                showStudentToast(error.message || 'Unable to create student.', 'error');
+            } finally {
+                addStudentValidator.setSubmitting(false);
+                button.innerHTML = originalLabel;
+            }
+        }
+
         let addStudentValidator;
         let editStudentValidator;
 
@@ -5119,13 +4780,18 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            addStudentValidator = new LiveStudentFormValidator({
+            addStudentValidator = new LiveUserFormValidator({
                 formId: 'addStudentForm',
-                modalId: 'addStudentModal',
-                prefix: 'modal',
-                summaryId: 'addStudentValidationSummary',
-                submitUrl: '{{ route('admin.students.store') }}',
-                successMessage: 'Student added successfully!',
+                submitButtonId: 'submitAddStudent',
+                createMode: true,
+                fields: USER_CREATE_FIELDS,
+            });
+            document.getElementById('closeAddStudentModal').addEventListener('click', closeAddStudentModal);
+            document.getElementById('cancelAddStudent').addEventListener('click', closeAddStudentModal);
+            document.getElementById('addStudentForm').addEventListener('submit', submitMirroredStudent);
+            document.getElementById('addStatusActiveRadio').addEventListener('change', () => {
+                document.querySelector('#addStatusRadio input[value="inactive"]').checked = true;
+                showStudentToast('Invited students must complete registration before their account can be active.', 'info');
             });
 
             editStudentValidator = new LiveStudentFormValidator({

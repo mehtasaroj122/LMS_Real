@@ -162,7 +162,21 @@
     };
     const validateAllFields = () => ['physicalBookSearch', 'physicalTotalCopies', 'physicalBorrowingCopies', 'physicalReferenceCopies', 'physicalPrice', 'physicalEntryDate', 'physicalShelfLocation', 'physicalCondition', 'physicalRemarks'].map(validateField).every(Boolean);
     const applyServerErrors = (errors) => { const map = { book_id: 'physicalBookSearch', total_copies: 'physicalTotalCopies', borrowing_copies: 'physicalBorrowingCopies', reference_copies: 'physicalReferenceCopies', price: 'physicalPrice', entry_date: 'physicalEntryDate', shelf_location: 'physicalShelfLocation', condition: 'physicalCondition', remarks: 'physicalRemarks' }; const first = Object.entries(errors || {})[0]; if (!first) return false; const details = Array.isArray(first[1]) ? first[1][0] : first[1]; setFieldError(map[first[0]] || first[0], details || 'Please check this field.'); setMessage('Please correct the highlighted field.', 'error'); return true; };
-    const open = async () => { reset(); modal.classList.add('active'); modal.setAttribute('aria-hidden', 'false'); if (!fixedBook) { await searchBooks(); search.focus(); } };
+    const open = async (event) => {
+        reset();
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        if (!fixedBook) {
+            if (event?.detail?.book?.book_id) {
+                selectBook(event.detail.book);
+                field('physicalTotalCopies').focus();
+            } else {
+                await searchBooks();
+                search.focus();
+            }
+        }
+    };
+    modal.addEventListener('physical-book:open', open);
     const generatePreview = async () => { setMessage(''); if (!validateAllFields()) { setMessage('Please correct the highlighted fields.', 'error'); return; } generate.disabled = true; try { const params = new URLSearchParams({ book_id: bookId.value, total_copies: field('physicalTotalCopies').value, borrowing_copies: field('physicalBorrowingCopies').value, reference_copies: field('physicalReferenceCopies').value }); const response = await fetch(`${nextAccessionUrl}?${params.toString()}`, { headers: { 'Accept': 'application/json' } }); const data = await response.json().catch(() => ({})); if (!response.ok) { applyServerErrors(data.errors); throw new Error(data.message || 'Unable to generate accession numbers.'); } const preview = data.data; field('previewBookName').textContent = preview.book.title; field('previewTotalCopies').textContent = preview.total_copies; field('previewBorrowingCopies').textContent = preview.borrowing_copies; field('previewReferenceCopies').textContent = preview.reference_copies; field('previewAccessionFrom').textContent = preview.accession_from; field('previewAccessionTo').textContent = preview.accession_to; previewPanel.hidden = false; generate.hidden = true; confirm.hidden = false; setMessage('Accession numbers generated. Confirm to save the complete batch.', 'success'); } catch (error) { generate.disabled = false; if (!message.textContent) setMessage(error.message || 'Unable to generate accession numbers.', 'error'); } };
     const saveBatch = async () => { if (!validateAllFields()) { setMessage('Please correct the highlighted fields.', 'error'); return; } confirm.disabled = true; setMessage('Saving physical copies...', 'info'); try { const response = await fetch(storeUrl, { method: 'POST', credentials: 'same-origin', headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' }, body: new FormData(form) }); const data = await response.json().catch(() => ({})); if (!response.ok) { const hasFieldErrors = applyServerErrors(data.errors); throw new Error(data.message || (!hasFieldErrors ? Object.values(data.errors || {}).flat()[0] : '') || 'Unable to save physical copies.'); } const range = data.data?.accession_range || {}; const successText = `${data.message} Accession From: ${range.from}. Accession To: ${range.to}. All copies are Available.`; if (fixedBook && window.bookCopiesFeedback) { sessionStorage.setItem(`book-copies-toast:${window.location.pathname}`, JSON.stringify({ title: 'Copies added', message: successText })); window.location.reload(); } else { setMessage(successText, 'success'); window.setTimeout(() => window.location.reload(), 900); } } catch (error) { confirm.disabled = false; if (!message.classList.contains('error')) setMessage(error.message || 'Unable to save physical copies.', 'error'); } };
     const bindOpenButton = () => document.getElementById('addPhysicalBookBtn')?.addEventListener('click', open);

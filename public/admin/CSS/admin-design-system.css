@@ -1,0 +1,487 @@
+@layer admin-accessibility;
+/* Admin-only presentation layer. Existing component classes and behavior are retained.
+   Legacy pages include inline styles, so visual overrides use a scoped !important.
+   New controls can use admin-ui-button + a variant, or the existing .btn classes. */
+body.admin-portal {
+    --ui-modal-gutter: 20px;
+    --ui-modal-layer: 4000;
+    --ui-toast-layer: 5000;
+    --ui-tooltip-layer: 10050;
+    --ui-primary: #2563eb;
+    --ui-primary-hover: #1d4ed8;
+    --ui-primary-active: #1e40af;
+    --ui-heading: #0f172a;
+    --ui-text: #334155;
+    --ui-secondary: #64748b;
+    --ui-icon: #475569;
+    --ui-page: #f8fafc;
+    --ui-surface: #ffffff;
+    --ui-soft: #f1f5f9;
+    --ui-stripe: #fafcfe;
+    --ui-border: #e2e8f0;
+    --ui-strong-border: #cbd5e1;
+    --ui-row-border: #e8eef5;
+    --ui-blue-soft: #eff6ff;
+    --ui-blue-active: #dbeafe;
+    --ui-danger-soft: #fef2f2;
+    --ui-danger-hover: #fee2e2;
+    --ui-danger-active: #fecaca;
+    --ui-danger: #dc2626;
+    --ui-danger-text: #b91c1c;
+    --ui-success-bg: #dcfce7;
+    --ui-success-text: #166534;
+    --ui-warning-bg: #fef3c7;
+    --ui-warning-text: #92400e;
+    --ui-danger-bg: #fee2e2;
+    --ui-danger-badge-text: #991b1b;
+    --ui-info-bg: #dbeafe;
+    --ui-info-text: #1e40af;
+    /* Aliases used by existing settings, requests, fines and report components. */
+    --primary-color: var(--ui-primary);
+    --primary-hover: var(--ui-primary-hover);
+    --primary-shadow: rgba(37, 99, 235, 0.12);
+    --success-color: #16a34a;
+    --warning-color: #d97706;
+    --danger-color: var(--ui-danger);
+    --card-bg: var(--ui-surface);
+    --card-border: var(--ui-border);
+    --input-bg: var(--ui-surface);
+    --input-border: var(--ui-strong-border);
+    --input-text: var(--ui-heading);
+    --text-primary: var(--ui-heading);
+    --text-secondary: var(--ui-secondary);
+    --text-muted: var(--ui-secondary);
+    --toggle-bg: var(--ui-soft);
+    --toggle-hover: var(--ui-border);
+    --fine-text-primary: var(--ui-heading);
+    --fine-text-secondary: var(--ui-secondary);
+    --fine-bg-primary: var(--ui-page);
+    --fine-bg-secondary: var(--ui-surface);
+    --fine-border-color: var(--ui-border);
+    --fine-surface-muted: var(--ui-soft);
+    --fine-focus-color: var(--ui-primary);
+    --fine-danger: #dc2626;
+    --fine-success: #16a34a;
+    --fine-warning: #d97706;
+    --request-text-primary: var(--ui-heading);
+    --request-text-secondary: var(--ui-secondary);
+    --request-bg-primary: var(--ui-page);
+    --request-bg-secondary: var(--ui-surface);
+    --request-surface-muted: var(--ui-soft);
+    --request-border-color: var(--ui-border);
+    --request-focus-color: var(--ui-primary);
+    --request-danger: #dc2626;
+    --request-warning: #d97706;
+    background: var(--ui-page);
+    color: var(--ui-text);
+}
+
+/* Keep the existing theme switch functional with the same component geometry. */
+body.admin-portal.dark-theme {
+    --ui-heading: #f8fafc;
+    --ui-text: #e2e8f0;
+    --ui-secondary: #cbd5e1;
+    --ui-icon: #cbd5e1;
+    --ui-page: #0f172a;
+    --ui-surface: #111827;
+    --ui-soft: #1e293b;
+    --ui-stripe: #172033;
+    --ui-border: #334155;
+    --ui-strong-border: #64748b;
+    --ui-row-border: #334155;
+    --ui-blue-soft: #1e293b;
+    --ui-blue-active: #1e40af;
+    --ui-danger-soft: #450a0a;
+    --ui-danger-hover: #7f1d1d;
+    --ui-danger-active: #991b1b;
+    --ui-danger: #fca5a5;
+    --ui-danger-text: #fecaca;
+    --ui-success-bg: #14532d;
+    --ui-success-text: #dcfce7;
+    --ui-warning-bg: #78350f;
+    --ui-warning-text: #fef3c7;
+    --ui-danger-bg: #7f1d1d;
+    --ui-danger-badge-text: #fee2e2;
+    --ui-info-bg: #1e40af;
+    --ui-info-text: #dbeafe;
+}
+
+.admin-portal .pwa-shell-content { background: var(--ui-page) !important; }
+.admin-portal .header { background: var(--ui-surface) !important; border-color: var(--ui-border) !important; }
+.admin-portal main :is(h1, h2, h3, h4, .page-title, .section-title, .text-primary) { color: var(--ui-heading) !important; }
+.admin-portal main :is(.text-secondary, .text-muted, .text-gray-400, .text-gray-500, .text-gray-600, .text-slate-400, .text-slate-500, .section-subtitle, .page-description) { color: var(--ui-secondary) !important; }
+.admin-portal main :is(.text-success, .text-green-500, .text-green-600, .text-emerald-500, .text-emerald-600, .copy-available, .fine-amount.paid) { color: var(--ui-success-text) !important; }
+.admin-portal main :is(.text-danger, .text-red-500, .text-red-600, .fine-amount.pending) { color: var(--ui-danger-text) !important; }
+.admin-portal main :is(.text-warning, .text-amber-500, .text-amber-600) { color: var(--ui-warning-text) !important; }
+.admin-portal main :is(.card, .stat-card, .request-stat-card, .book-copies-stat, .settings-profile-card, .settings-main-card, .table-card, .chart-card, .filters-card, .lock-summary-card) {
+    background: var(--ui-surface) !important;
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+    transform: none !important;
+}
+.admin-portal :is(.stat-icon, .book-copies-stat-icon, .request-stat-icon) { background: var(--ui-info-bg) !important; color: var(--ui-info-text) !important; box-shadow: none !important; }
+.admin-portal :is(.stat-available .stat-icon, .stat-active .stat-icon, .book-copies-stat-icon.available, .request-stat-card.approved .request-stat-icon) { background: var(--ui-success-bg) !important; color: var(--ui-success-text) !important; }
+.admin-portal :is(.stat-borrowed .stat-icon, .book-copies-stat-icon.issued, .request-stat-card.pending .request-stat-icon) { background: var(--ui-warning-bg) !important; color: var(--ui-warning-text) !important; }
+.admin-portal :is(.stat-inactive .stat-icon, .book-copies-stat-icon.lost, .book-copies-stat-icon.damaged, .request-stat-card.rejected .request-stat-icon) { background: var(--ui-danger-bg) !important; color: var(--ui-danger-badge-text) !important; }
+.admin-portal main table [style*="linear-gradient"] { background: var(--ui-soft) !important; color: var(--ui-info-text) !important; }
+.admin-portal main table [style*="font-size: 10px"], .admin-portal main table [style*="font-size: 12px"]:not(.admin-ui-button) { color: var(--ui-secondary) !important; }
+
+/* Tables: styling cells as well as rows avoids inherited white cell backgrounds. */
+.admin-portal :is(.table-container, .admin-table-container, .fines-table-container, .request-table-shell, .request-table-container, .book-copies-table-wrap, .activity-table-wrapper, .student-books-table-panel, .student-fines-table-panel, .student-request-table-panel) {
+    background: var(--ui-surface) !important;
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+}
+.admin-portal :is(.table-container, .fines-table-container, .request-table-container) { overflow: hidden; }
+.admin-portal :is(.table-wrapper, .admin-table-wrapper, .fines-table-wrapper, .request-table-wrapper, .book-copies-table-wrap, .activity-table-wrapper, .table-scroll-area, .student-table-scroller) { overflow-x: auto; }
+.admin-portal main table { width: 100%; border-collapse: collapse; color: var(--ui-text); font-size: 13px; }
+.admin-portal main table :is(thead, thead tr, th) {
+    background: var(--ui-page) !important;
+    color: var(--ui-icon) !important;
+    border-color: var(--ui-border) !important;
+}
+.admin-portal main table thead th {
+    padding: 13px 14px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--ui-border) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.03em !important;
+    line-height: 1.4;
+    text-align: left;
+}
+.admin-portal main table tbody tr { background: var(--ui-surface) !important; transition: background-color 0.15s ease; }
+.admin-portal main table tbody tr:nth-child(even) { background: var(--ui-stripe) !important; }
+.admin-portal main table tbody[data-admin-ui-rows] tr { background: var(--ui-surface) !important; }
+.admin-portal main table tbody[data-admin-ui-rows] tr.admin-ui-row-even { background: var(--ui-stripe) !important; }
+.admin-portal main table tbody td {
+    background: transparent !important;
+    padding: 12px 14px;
+    border: 0 !important;
+    border-bottom: 1px solid var(--ui-row-border) !important;
+    vertical-align: middle;
+    color: var(--ui-text);
+}
+.admin-portal main table tbody tr:last-child td { border-bottom: 0 !important; }
+.admin-portal main table tbody tr:hover { background: var(--ui-soft) !important; }
+.admin-portal main table tbody tr.book-copies-edit-row { background: var(--ui-soft) !important; }
+.admin-portal main table :is(strong, .book-title, .student-name, .user-name, .accession) { color: var(--ui-heading) !important; font-weight: 500 !important; }
+.admin-portal main table :is(small, .book-author, .book-publisher, .book-copies-muted, .user-email, .student-email) { color: var(--ui-secondary) !important; font-size: 12px; }
+.admin-portal :is(.action-buttons, .admin-table-actions, .request-row-actions, .fine-row-actions) { gap: 6px !important; align-items: center; }
+
+/* Reusable buttons. JS only maps legacy class names to these presentation classes. */
+.admin-portal :is(.admin-ui-button, .btn) {
+    --button-bg: var(--ui-surface);
+    --button-color: var(--ui-icon);
+    --button-border: var(--ui-strong-border);
+    --button-hover: var(--ui-soft);
+    --button-active: var(--ui-border);
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 8px 14px;
+    border: 1px solid var(--button-border) !important;
+    border-radius: 7px !important;
+    background: var(--button-bg) !important;
+    color: var(--button-color) !important;
+    font-size: 13px;
+    font-weight: 500 !important;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: none !important;
+    transform: none !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease !important;
+}
+.admin-portal :is(.admin-ui-primary, .btn-primary, .btn-success, .btn-info) {
+    --button-bg: #2563eb;
+    --button-color: #ffffff;
+    --button-border: #2563eb;
+    --button-hover: #1d4ed8;
+    --button-active: #1e40af;
+    --button-hover-border: #1d4ed8;
+    --button-active-border: #1e40af;
+}
+.admin-portal :is(.admin-ui-secondary, .btn-outline) {
+    --button-color: var(--ui-primary);
+    --button-border: var(--ui-primary);
+    --button-hover: var(--ui-blue-soft);
+    --button-active: var(--ui-blue-active);
+}
+.admin-portal.dark-theme .admin-ui-secondary { --button-color: #dbeafe; }
+.admin-portal :is(.admin-ui-danger, .btn-danger, .btn-confirm-danger) {
+    --button-bg: #dc2626;
+    --button-color: #ffffff;
+    --button-border: #dc2626;
+    --button-hover: #b91c1c;
+    --button-active: #991b1b;
+    --button-hover-border: #b91c1c;
+    --button-active-border: #991b1b;
+}
+.admin-portal .admin-ui-neutral {
+    --button-bg: var(--ui-surface);
+    --button-color: var(--ui-icon);
+    --button-border: var(--ui-strong-border);
+    --button-hover: var(--ui-soft);
+    --button-active: var(--ui-border);
+    --button-hover-border: var(--ui-strong-border);
+    --button-active-border: var(--ui-strong-border);
+}
+.admin-portal .admin-ui-action {
+    --button-bg: var(--ui-soft);
+    --button-color: var(--ui-icon);
+    --button-border: transparent;
+    --button-hover: var(--ui-border);
+    --button-active: var(--ui-strong-border);
+    min-height: 32px;
+    padding: 5px 9px;
+    border-radius: 6px !important;
+}
+.admin-portal .admin-ui-action.admin-ui-danger {
+    --button-bg: var(--ui-danger-soft);
+    --button-color: var(--ui-danger);
+    --button-border: transparent;
+    --button-hover: var(--ui-danger-hover);
+    --button-active: var(--ui-danger-active);
+    --button-hover-border: transparent;
+    --button-active-border: transparent;
+}
+.admin-portal .admin-ui-action.admin-ui-danger:not(.admin-ui-icon-button) { --button-color: var(--ui-danger-text); }
+.admin-portal .admin-ui-action.admin-ui-primary {
+    --button-bg: #2563eb;
+    --button-color: #ffffff;
+    --button-border: #2563eb;
+    --button-hover: #1d4ed8;
+    --button-active: #1e40af;
+}
+.admin-portal .admin-ui-icon-button {
+    width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    min-width: 32px !important;
+    flex-shrink: 0;
+    padding: 0 !important;
+    border-radius: 6px !important;
+}
+.admin-portal :is(.admin-ui-button, .btn):hover:not(:disabled):not([aria-disabled="true"]):not(.is-disabled) {
+    background: var(--button-hover) !important;
+    border-color: var(--button-hover-border, var(--button-border)) !important;
+    color: var(--button-color) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+.admin-portal .admin-ui-action.admin-ui-danger:hover { color: var(--ui-danger-text) !important; }
+.admin-portal :is(.admin-ui-button, .btn):active:not(:disabled):not([aria-disabled="true"]):not(.is-disabled) {
+    background: var(--button-active) !important;
+    border-color: var(--button-active-border, var(--button-border)) !important;
+    transform: translateY(1px) !important;
+}
+.admin-portal :is(button, a, [tabindex], [role="button"], input, select, textarea):focus-visible {
+    outline: 2px solid #2563eb !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.20) !important;
+}
+.admin-portal :is(.admin-ui-button, .btn):is(:disabled, [aria-disabled="true"], .is-disabled) {
+    cursor: not-allowed !important;
+    opacity: 0.7;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.admin-portal .admin-ui-primary:disabled { background: #93c5fd !important; border-color: #93c5fd !important; color: #0f172a !important; }
+.admin-portal .admin-ui-button[aria-busy="true"] { cursor: wait !important; }
+.admin-portal .admin-ui-busy { display: inline-flex; white-space: nowrap; box-sizing: border-box; }
+/* When a short action cannot fit its existing busy label, retain its width and show
+   the spinner. The module's loading text remains in the accessibility tree. */
+.admin-portal .admin-ui-busy-compact, .admin-portal .admin-ui-busy-compact > :not(.fa-spinner):not(.fa-spin) { font-size: 0 !important; }
+.admin-portal .admin-ui-busy-compact > svg:not(.lucide-loader-2), .admin-portal .admin-ui-busy-compact > i:not(.fa-spinner):not(.fa-spin) { display: none; }
+.admin-portal .admin-ui-busy-compact :is(.fa-spinner, .fa-spin) { font-size: 13px !important; }
+.admin-portal .admin-ui-busy:not(:has(.fa-spinner, .fa-spin, .spinner, [data-lucide="loader-2"], .lucide-loader-2))::before {
+    content: "";
+    width: 13px;
+    height: 13px;
+    flex: 0 0 13px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: admin-ui-spin 0.7s linear infinite;
+}
+@keyframes admin-ui-spin { to { transform: rotate(360deg); } }
+
+/* Forms. Placeholder text uses Secondary Text to meet normal-text contrast. */
+.admin-portal main :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="submit"]):not([type="button"]), select, textarea, .request-selectbox-trigger) {
+    background-color: var(--ui-surface) !important;
+    border: 1px solid var(--ui-strong-border) !important;
+    border-radius: 7px !important;
+    color: var(--ui-heading) !important;
+    min-height: 38px;
+    font-size: 13px !important;
+    font-family: inherit;
+    line-height: 1.4;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease !important;
+}
+.admin-portal main :is(input, select, textarea):hover:not(:disabled):not([readonly]) { border-color: #94a3b8 !important; }
+.admin-portal main :is(input, select, textarea, .request-selectbox-trigger):focus {
+    border-color: #2563eb !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+}
+.admin-portal main :is(input, textarea)::placeholder { color: var(--ui-secondary) !important; opacity: 1; }
+.admin-portal main :is(input, select, textarea):is(:disabled, [readonly]) { background-color: var(--ui-soft) !important; color: var(--ui-secondary) !important; }
+.admin-portal main :is(input, select, textarea):disabled { cursor: not-allowed; }
+.admin-portal main :is(input[type="checkbox"], input[type="radio"], input[type="range"]) { accent-color: #2563eb; }
+.admin-portal main :is(.form-label, .form-group > label, .filter-field > label, .request-filter-field > label, .activity-filter-group > label, .book-copies-toolbar label, .book-copies-edit-form label) { color: var(--ui-text) !important; font-size: 13px !important; font-weight: 500 !important; }
+.admin-portal main :is(.required::after, .required-star) { color: var(--ui-danger) !important; }
+.admin-portal main :is(input, select, textarea):is(.error, .is-invalid, .physical-invalid, .input-error, [aria-invalid="true"]) { border-color: var(--ui-danger) !important; }
+.admin-portal main :is(input, select, textarea):is(.error, .is-invalid, .physical-invalid, .input-error, [aria-invalid="true"]):focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important; }
+.admin-portal :is(.field-error, .request-field-error, .student-field-error, .physical-field-error, .form-error, .invalid-feedback, .student-modal-error, .account-deletion-modal__field-error) { color: var(--ui-danger) !important; font-size: 12px !important; }
+.admin-portal :is(.form-group, .modal-body .input-group) { margin-bottom: 14px; }
+.admin-portal :is(.search-icon, .lock-input-shell i) { color: var(--ui-secondary) !important; }
+.admin-portal :is(.search-filter-container, .request-toolbar, .book-copies-toolbar, .lock-filter-bar, .activity-filter-panel, .issued-books-toolbar) { background: var(--ui-surface) !important; border: 1px solid var(--ui-border) !important; border-radius: 10px !important; padding: 14px !important; box-shadow: none !important; gap: 12px; }
+.admin-portal :is(.filters-container, .request-filters, .request-toolbar-actions, .lock-filter-actions) { gap: 10px !important; flex-wrap: wrap; align-items: center; }
+.admin-portal :is(.fine-bulk-bar, .request-bulk-bar) { background: var(--ui-page) !important; border-color: var(--ui-border) !important; box-shadow: none !important; }
+.admin-portal :is(.search-input, .filter-select, .request-search-input, .request-filter-select, .admin-table-entries-select, .book-copies-toolbar .book-copies-control, .activity-filter-grid input, .activity-filter-grid select) { height: 38px !important; }
+.admin-portal .book-copies-search { position: relative; width: min(280px, 100%); flex-basis: 280px; min-width: 0; }
+.admin-portal .book-copies-search #copySearch { padding-left: 36px !important; }
+.admin-portal .book-copies-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ui-secondary); pointer-events: none; }
+
+/* All existing modal families share surfaces, headers, footers and close controls. */
+.admin-portal :is(.modal-overlay, .modal-backdrop, .request-modal-backdrop, .fine-modal-overlay, .activity-modal-overlay, .book-details-overlay, .role-modal-overlay, .student-modal, .notification-detail-modal, .action-feedback-confirm-overlay, .transaction-confirm-overlay, .account-deletion-modal, .report-export-modal, .report-pdf-modal, .logo-cropper-backdrop, #addStudentModal) {
+    background: rgba(15, 23, 42, 0.45) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    backdrop-filter: blur(4px) !important;
+    padding: var(--ui-modal-gutter) !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    z-index: var(--ui-modal-layer) !important;
+}
+/* Toasts must remain in front of popup backdrops so feedback is never blurred. */
+.admin-portal :is(.action-feedback-toast-container, .student-toast-container, .transaction-toast-container, .privilege-toast-container, .reports-toast-container, .request-toast-container, .toast-container, .notification-container) {
+    z-index: var(--ui-toast-layer) !important;
+}
+.admin-portal .student-modal-backdrop { background: transparent !important; }
+.admin-portal :is(.modal, .modal-panel, .modal-container, .request-modal-panel, .fine-modal, .activity-modal, .book-details-modal, .role-modal, .student-modal-dialog, .student-confirm-modal, .notification-detail-panel, .action-feedback-confirm-card, .transaction-confirm-card, .role-confirm-card, .account-deletion-modal__panel, .report-export-panel, .report-pdf-panel, .logo-cropper-panel, #addStudentModal > div) {
+    background: var(--ui-surface) !important;
+    color: var(--ui-text) !important;
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.10), 0 8px 10px -6px rgba(15, 23, 42, 0.08) !important;
+    /* Cap the width itself so viewport limits cannot replace a module's compact
+       max-width. Keep existing smaller limits (for example, user forms) intact. */
+    width: min(var(--ui-modal-width, 600px), calc(100vw - var(--ui-modal-gutter) - var(--ui-modal-gutter))) !important;
+    min-width: 0 !important;
+    max-height: calc(100dvh - var(--ui-modal-gutter) - var(--ui-modal-gutter)) !important;
+    box-sizing: border-box;
+    overflow-y: auto;
+    animation: none !important;
+}
+.admin-portal :is(.action-feedback-confirm-card, .transaction-confirm-card, .role-confirm-card, .student-confirm-modal, .student-modal-dialog, .account-deletion-modal__panel, .delete-book-modal, .modal-sm) { --ui-modal-width: 480px; }
+.admin-portal .notification-detail-modal-danger .notification-detail-panel { --ui-modal-width: 480px; }
+/* Report previews and image cropping need more room, while remaining bounded. */
+.admin-portal :is(.report-export-panel, .report-pdf-panel, .logo-cropper-panel, .fine-modal.wide) { --ui-modal-width: 864px; }
+.admin-portal :is(.modal-header, .request-modal-header, .fine-modal-header, .activity-modal-header, .role-modal-header, .student-modal-header, .notification-detail-header, .action-feedback-confirm-header, .transaction-confirm-header, .role-confirm-header, .account-deletion-modal__header, .report-export-header, .report-pdf-header, .logo-cropper-header, .delete-modal-hero) {
+    background: var(--ui-surface) !important;
+    color: var(--ui-heading) !important;
+    border-bottom: 1px solid var(--ui-border) !important;
+    padding: 16px 20px !important;
+}
+.admin-portal :is(.modal-title, .modal-header h3, .request-modal-header h3, .fine-modal-header h3, .action-feedback-confirm-title, .transaction-confirm-title, .role-confirm-title) { color: var(--ui-heading) !important; font-size: 18px !important; font-weight: 600 !important; }
+.admin-portal :is(.modal-body, .request-modal-body, .fine-modal-body, .activity-modal-body, .notification-detail-body, .account-deletion-modal__body, .report-export-body) { padding: 20px !important; }
+.admin-portal :is(.modal-footer, .request-modal-footer, .fine-modal-actions, .activity-modal-actions, .role-modal-actions, .student-modal-actions, .notification-detail-footer, .action-feedback-confirm-actions, .transaction-confirm-actions, .role-confirm-actions, .account-deletion-modal__footer, .report-export-footer, .report-pdf-footer, .logo-cropper-footer) {
+    background: var(--ui-page) !important;
+    border-top: 1px solid var(--ui-border) !important;
+    padding: 14px 20px !important;
+    gap: 10px !important;
+    flex-wrap: wrap;
+}
+.admin-portal :is(.modal-close-btn, .modal-close, .request-modal-close, .fine-modal-close, .activity-modal-close, .book-details-close, .notification-detail-close-btn, .report-export-close-btn, .report-pdf-close, .account-deletion-modal__close) { flex-shrink: 0; }
+.admin-portal :is(.action-feedback-confirm-message, .transaction-confirm-message, .role-confirm-message, .modal-description, .student-modal-help) { color: var(--ui-secondary) !important; font-size: 13px; }
+.admin-portal :is(.action-feedback-confirm-icon, .transaction-confirm-icon, .role-confirm-icon, .student-modal-icon) { background: var(--ui-info-bg) !important; color: var(--ui-info-text) !important; }
+.admin-portal :is(.action-feedback-confirm-icon.danger, .transaction-confirm-icon.danger, .role-confirm-icon.danger, .delete-modal-state-icon, .notification-detail-modal-danger .notification-detail-hero-icon) { background: var(--ui-danger-bg) !important; color: var(--ui-danger-badge-text) !important; }
+.admin-portal #addStudentModal > div { padding: 0 !important; }
+.admin-portal #addStudentModal > div > div:first-child { padding: 16px 20px; border-bottom: 1px solid var(--ui-border); margin-bottom: 0 !important; }
+.admin-portal #studentCreateForm { padding: 20px; }
+.admin-portal #studentCreateForm > div:last-child { background: var(--ui-page); border-top: 1px solid var(--ui-border); margin: 20px -20px -20px; padding: 14px 20px; }
+
+/* Status classes are mapped to a semantic variant without changing their text. */
+.admin-portal .admin-ui-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px !important;
+    border: 0 !important;
+    border-radius: 5px !important;
+    background: var(--badge-bg, var(--ui-soft)) !important;
+    color: var(--badge-color, var(--ui-icon)) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1.4;
+    white-space: nowrap;
+    box-shadow: none !important;
+}
+.admin-portal .admin-ui-badge-success { --badge-bg: var(--ui-success-bg); --badge-color: var(--ui-success-text); }
+.admin-portal .admin-ui-badge-warning { --badge-bg: var(--ui-warning-bg); --badge-color: var(--ui-warning-text); }
+.admin-portal .admin-ui-badge-danger { --badge-bg: var(--ui-danger-bg); --badge-color: var(--ui-danger-badge-text); }
+.admin-portal .admin-ui-badge-info { --badge-bg: var(--ui-info-bg); --badge-color: var(--ui-info-text); }
+.admin-portal :is(.admin-ui-badge, .admin-ui-button) :is(svg, i) { color: inherit !important; }
+
+.admin-portal :is(.admin-table-pagination, .admin-pagination, #studentPaginationContainer) { background: var(--ui-surface) !important; border-color: var(--ui-border) !important; }
+.admin-portal :is(.admin-table-pagination-link, .admin-pagination-btn, .pagination-btn, .table-pagination-btn, .admin-ui-pagination) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 7px 10px;
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 6px !important;
+    background: var(--ui-surface) !important;
+    color: var(--ui-icon) !important;
+    box-shadow: none !important;
+    transform: none !important;
+    font-size: 12px;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.admin-portal :is(.admin-table-pagination-link, .admin-pagination-btn, .pagination-btn, .table-pagination-btn, .admin-ui-pagination):hover:not(:disabled):not(.is-disabled) { background: var(--ui-soft) !important; }
+.admin-portal :is(.admin-table-pagination-link, .admin-pagination-btn, .pagination-btn, .table-pagination-btn, .admin-ui-pagination):is(.active, .is-active, [aria-current="page"]) { background: #2563eb !important; color: #fff !important; border-color: #2563eb !important; opacity: 1; }
+.admin-portal :is(.admin-table-pagination-link, .admin-pagination-btn, .pagination-btn, .table-pagination-btn, .admin-ui-pagination):is(:disabled, .is-disabled, [aria-disabled="true"]):not(.active):not(.is-active):not([aria-current="page"]) { color: var(--ui-secondary) !important; background: var(--ui-page) !important; cursor: not-allowed; }
+.admin-portal :is(.empty-state, .request-empty-state, .student-empty-state, .admin-table-empty, .student-empty-card, .book-copies-empty) { color: var(--ui-secondary) !important; background: var(--ui-surface) !important; padding: 32px 20px !important; text-align: center; }
+.admin-portal :is(.empty-state-icon, .request-empty-icon, .admin-table-empty-icon) { color: var(--ui-secondary) !important; background: var(--ui-soft) !important; }
+.admin-portal :is(.table-skeleton-line, .table-skeleton-circle, .student-skeleton-line, .is-loading .loading-line, .is-loading .student-stat-loading-line) { background: var(--ui-border) !important; animation: none !important; }
+.admin-portal :is(.table-skeleton-line, .student-skeleton-line, .is-loading .loading-line, .is-loading .student-stat-loading-line)::after { animation: none !important; background: none !important; }
+.admin-portal .admin-ui-tooltip {
+    position: fixed;
+    z-index: var(--ui-tooltip-layer);
+    max-width: min(260px, calc(100vw - 16px));
+    padding: 6px 9px;
+    border-radius: 5px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1.4;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+}
+.admin-portal .admin-ui-tooltip[hidden] { display: none; }
+.admin-portal .admin-ui-icon-button :is(.admin-action-btn-tooltip, .action-tooltip) { display: none !important; }
+
+@media (max-width: 640px) {
+    body.admin-portal { --ui-modal-gutter: 12px; }
+    .admin-portal :is(.search-filter-container, .request-toolbar, .book-copies-toolbar, .lock-filter-bar) { flex-wrap: wrap; align-items: stretch; }
+    .admin-portal :is(.search-box, .request-search, .book-copies-search) { min-width: 0; width: 100%; }
+    .admin-portal .book-copies-search { flex-basis: 100%; }
+    .admin-portal :is(.filters-container, .request-toolbar-actions) { width: 100%; }
+}
+/* Important rules in a layer outrank the legacy unlayered component overrides. */
+@layer admin-accessibility {
+    @media (prefers-reduced-motion: reduce) {
+        .admin-portal *, .admin-portal *::before, .admin-portal *::after {
+            animation: none !important;
+            transition: none !important;
+            scroll-behavior: auto !important;
+        }
+    }
+}

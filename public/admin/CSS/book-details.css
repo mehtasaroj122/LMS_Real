@@ -1,0 +1,87 @@
+/* The existing Book Details modal, scoped to the Admin Book Management page. */
+.admin-portal #viewBookModal .book-details-panel {
+    --ui-modal-width: 860px;
+    display: flex;
+    flex-direction: column;
+    height: min(800px, 90dvh);
+    max-width: 95vw !important;
+    max-height: min(90dvh, calc(100dvh - var(--ui-modal-gutter) * 2)) !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+}
+.admin-portal #viewBookModal [hidden] { display: none !important; }
+.admin-portal #viewBookModal .book-details-header { flex: 0 0 auto; gap: 16px; padding: 20px 24px !important; }
+.admin-portal #bookDetailsSubtitle { margin: 4px 0 0; color: var(--ui-secondary); font-size: 13px; line-height: 1.5; }
+.admin-portal #viewBookModal .book-details-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 24px !important; }
+.admin-portal #viewBookModal .book-details-footer { flex: 0 0 auto; padding: 16px 24px !important; }
+.admin-portal #viewBookModal .book-details-footer .btn { min-height: 38px; }
+.admin-portal #viewBookModal a[aria-disabled="true"] { opacity: 0.55 !important; pointer-events: none; }
+.admin-portal #viewBookModal svg { flex-shrink: 0; }
+.admin-portal #viewBookModal .book-details-overview { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 24px; align-items: start; }
+.admin-portal #viewBookModal .book-details-cover {
+    position: relative;
+    width: 160px;
+    height: 210px;
+    overflow: hidden;
+    border: 1px solid var(--ui-border);
+    border-radius: 8px;
+    background: var(--ui-page);
+}
+.admin-portal #viewBookModal .book-details-cover img { width: 100%; height: 100%; object-fit: contain; }
+.admin-portal #viewBookModal .book-details-cover-placeholder { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--ui-primary); }
+.admin-portal #viewBookModal .book-details-cover-placeholder span { font-size: 38px; font-weight: 600; line-height: 1; }
+.admin-portal #viewBookModal .book-details-cover-placeholder small { color: var(--ui-secondary); font-size: 11px; }
+.admin-portal #viewBookModal .book-details-identity { min-width: 0; overflow-wrap: anywhere; }
+.admin-portal #bookDetailsBookTitle { margin: 0; color: var(--ui-heading); font-size: 24px; font-weight: 700; line-height: 1.3; }
+.admin-portal #viewBookModal .book-details-author { margin: 8px 0 18px; color: var(--ui-text); font-size: 14px; line-height: 1.5; }
+.admin-portal #viewBookModal :is(.book-details-identity-meta, .book-details-identifiers, .book-details-information) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; margin: 0; }
+.admin-portal #viewBookModal :is(.book-details-identity-meta, .book-details-identifiers, .book-details-information) dt { margin-bottom: 4px; color: var(--ui-secondary); font-size: 12px; line-height: 1.4; }
+.admin-portal #viewBookModal :is(.book-details-identity-meta, .book-details-identifiers, .book-details-information) dd { margin: 0; color: var(--ui-heading); font-size: 13px; font-weight: 500; line-height: 1.6; overflow-wrap: anywhere; }
+.admin-portal #viewBookModal .book-details-identifiers { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--ui-border); }
+.admin-portal #viewBookModal .book-details-section { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--ui-border); }
+.admin-portal #viewBookModal .book-details-section h3 { margin: 0; color: var(--ui-heading); font-size: 15px; font-weight: 600; line-height: 1.5; }
+.admin-portal #viewBookModal .book-details-section-note { margin: 4px 0 14px; color: var(--ui-secondary); font-size: 12px; line-height: 1.5; }
+.admin-portal #viewBookModal .book-details-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.admin-portal #viewBookModal .book-details-stat { min-width: 0; padding: 14px; border: 1px solid var(--ui-border); border-radius: 8px; background: var(--ui-page); }
+.admin-portal #viewBookModal .book-details-stat dt { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; color: var(--ui-text); font-size: 12px; line-height: 1.5; }
+.admin-portal #viewBookModal .book-details-stat svg { width: 18px; height: 18px; color: var(--ui-info-text); }
+.admin-portal #viewBookModal .book-details-stat dd { margin: 8px 0 0; color: var(--ui-heading); font-size: 26px; font-weight: 600; line-height: 1.2; }
+.admin-portal #viewBookModal [data-stat="available"] svg { color: var(--ui-success-text); }
+.admin-portal #viewBookModal [data-stat="issued"] svg { color: var(--ui-warning-text); }
+.admin-portal #viewBookModal [data-stat="unavailable"] svg { color: var(--ui-danger-badge-text); }
+.admin-portal #viewBookModal .book-details-copy-overview { margin-top: 14px; color: var(--ui-secondary); font-size: 12px; line-height: 1.6; }
+.admin-portal #viewBookModal .book-details-copy-overview h4 { margin: 0 0 4px; color: var(--ui-text); font-size: 12px; font-weight: 600; }
+.admin-portal #viewBookModal .book-details-copy-overview p { margin: 0; }
+.admin-portal #viewBookModal .book-details-copy-statuses { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.admin-portal #viewBookModal .book-details-copy-statuses:empty { display: none; }
+.admin-portal #viewBookModal .book-details-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.admin-portal #viewBookModal .book-details-edit { min-height: 32px !important; padding: 6px 10px !important; font-size: 12px !important; }
+.admin-portal #viewBookModal .book-details-capitalize { text-transform: capitalize; }
+.admin-portal #viewBookModal .book-details-description p { margin: 8px 0 0; color: var(--ui-text); font-size: 13px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+.admin-portal #viewBookModal .book-details-skeleton { min-height: 380px; }
+.admin-portal #viewBookModal :is(.book-details-skeleton-cover, .book-details-skeleton-copy span, .book-details-skeleton .book-details-stat-grid > span) { display: block; border-radius: 6px; background: var(--ui-border); }
+.admin-portal #viewBookModal .book-details-skeleton-cover { width: 160px; height: 210px; }
+.admin-portal #viewBookModal .book-details-skeleton-copy { display: grid; gap: 16px; }
+.admin-portal #viewBookModal .book-details-skeleton-copy span { height: 16px; }
+.admin-portal #viewBookModal .book-details-skeleton-copy span:nth-child(even) { width: 65%; }
+.admin-portal #viewBookModal .book-details-skeleton .book-details-stat-grid { margin: 24px 0; }
+.admin-portal #viewBookModal .book-details-skeleton .book-details-stat-grid > span { height: 84px; }
+.admin-portal #viewBookModal .book-details-loading-label { margin: 14px 0 0; color: var(--ui-secondary); font-size: 13px; }
+.admin-portal #viewBookModal .book-details-error { min-height: 360px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 18px; text-align: center; color: var(--ui-secondary); }
+.admin-portal #viewBookModal .book-details-error h3 { max-width: 320px; color: var(--ui-heading); font-size: 16px; font-weight: 500; line-height: 1.6; }
+.admin-portal .book-details-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+body.admin-portal.book-details-open { overflow: hidden; }
+body.admin-portal.book-details-open .pwa-shell-content { overflow: hidden !important; }
+@media (max-width: 640px) {
+    .admin-portal #viewBookModal :is(.book-details-header, .book-details-body) { padding: 18px !important; }
+    .admin-portal #viewBookModal .book-details-footer { padding: 12px 18px !important; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .admin-portal #viewBookModal .book-details-footer .btn { width: 100%; }
+    .admin-portal #bookDetailsAddCopies { grid-column: 1 / -1; }
+    .admin-portal #viewBookModal .book-details-overview { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .admin-portal #viewBookModal .book-details-cover { justify-self: center; width: 150px; height: 190px; }
+    .admin-portal #bookDetailsBookTitle { font-size: 21px; }
+    .admin-portal #viewBookModal .book-details-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .admin-portal #viewBookModal .book-details-information { grid-template-columns: minmax(0, 1fr); }
+    .admin-portal #viewBookModal .book-details-section { margin-top: 20px; padding-top: 18px; }
+    .admin-portal #viewBookModal .book-details-skeleton-cover { justify-self: center; width: 150px; height: 190px; }
+}

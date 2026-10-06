@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -48,6 +49,7 @@ class AdminUserRequest extends FormRequest
             'role' => $cleanText($input['role'] ?? null),
             'phone' => $normalizePhone($input['phone'] ?? null),
             'gender' => $cleanText($input['gender'] ?? null),
+            'date_of_birth' => $cleanText($input['date_of_birth'] ?? null),
             'address' => $cleanText($input['address'] ?? null),
             'department_id' => $cleanText($input['department_id'] ?? null),
             'staff_id' => ($staffId = $cleanText($input['staff_id'] ?? null)) !== null ? strtoupper($staffId) : null,
@@ -114,6 +116,7 @@ class AdminUserRequest extends FormRequest
         ];
 
         if ($isCreate) {
+            $rules['date_of_birth'] = ['bail', 'nullable', 'required_if:role,student', 'date_format:Y-m-d', 'before:today'];
             $rules['status'] = ['bail', 'required', Rule::in(['active', 'inactive'])];
         }
 
@@ -142,6 +145,10 @@ class AdminUserRequest extends FormRequest
             'phone.unique' => 'This phone number is already assigned to another user.',
 
             'gender.in' => 'Select a valid gender option.',
+
+            'date_of_birth.required_if' => 'Select the student\'s date of birth.',
+            'date_of_birth.date_format' => 'Enter a valid date of birth.',
+            'date_of_birth.before' => 'Date of birth must be earlier than today.',
 
             'address.min' => 'Address must be at least 10 characters long.',
             'address.max' => 'Address must be 255 characters or fewer.',
@@ -192,6 +199,27 @@ class AdminUserRequest extends FormRequest
     public function messages(): array
     {
         return self::validationMessages();
+    }
+
+    public static function validateDateOfBirth(Validator $validator, array $data): void
+    {
+        $validator->after(function (Validator $validator) use ($data) {
+            if (($data['role'] ?? null) !== 'student'
+                || blank($data['date_of_birth'] ?? null)
+                || $validator->errors()->has('date_of_birth')) {
+                return;
+            }
+
+            $age = Carbon::parse($data['date_of_birth'])->age;
+            if ($age < 14 || $age > 100) {
+                $validator->errors()->add('date_of_birth', 'Student age must be between 14 and 100 years.');
+            }
+        });
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        self::validateDateOfBirth($validator, $this->all());
     }
 
     protected function prepareForValidation(): void

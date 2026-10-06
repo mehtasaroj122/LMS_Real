@@ -69,6 +69,7 @@
         }
 
         .search-input {
+            display: block;
             width: 100%;
             padding: 8px 10px 8px 32px;
             border: 1px solid #e5e7eb;
@@ -100,12 +101,15 @@
             padding-right: 76px;
         }
 
-        .clear-btn {
+        /* Inset controls stay inside the field when the shared button styles are applied. */
+        .admin-portal .search-container .clear-btn {
             position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 4px 12px;
+            right: 6px;
+            top: 4px;
+            bottom: 4px;
+            min-height: 0;
+            transform: none;
+            padding: 0 10px;
             background: #f1f5f9;
             border: 1px solid #cbd5e1;
             border-radius: 4px;

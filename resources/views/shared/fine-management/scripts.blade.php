@@ -542,6 +542,7 @@
                 const studentName = this.escapeHtml(fine.studentName || 'Unknown');
                 const studentId = this.escapeHtml(fine.studentId || 'N/A');
                 const bookTitle = this.escapeHtml(fine.bookTitle || 'Unknown');
+                const accessionNumber = this.escapeHtml(fine.accessionNumber || 'N/A');
                 const dueDate = this.escapeHtml(fine.dueDate || 'N/A');
                 const statusLabel = this.escapeHtml(fine.statusLabel || this.capitalize(status));
 
@@ -559,7 +560,10 @@
                                 </div>
                             </div>
                         </td>
-                        <td title="${bookTitle}">${bookTitle}</td>
+                        <td title="${bookTitle}">
+                            <div class="fine-book-title">${bookTitle}</div>
+                            <div class="fine-book-accession text-muted">Accession: ${accessionNumber}</div>
+                        </td>
                         <td>
                             <div class="due-date-cell">
                                 <span class="text-muted">${dueDate}</span>

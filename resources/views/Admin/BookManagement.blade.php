@@ -4,6 +4,7 @@
 @section('title', 'Book Management')
 
 @push('styles')
+    <link rel="stylesheet" href="{{ asset('admin/CSS/book-details.css') }}?v={{ filemtime(public_path('admin/CSS/book-details.css')) }}">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -2274,27 +2275,7 @@
     </div>
 
     <!-- View Book Details Modal -->
-    <div id="viewBookModal" class="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">Book Details</h3>
-                <button class="modal-close-btn" id="closeViewBookModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="bookDetailsContent">
-                    <!-- Content will be populated by JavaScript -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" id="closeViewBookBtn">
-                    <i class="fas fa-times"></i>
-                    Close
-                </button>
-            </div>
-        </div>
-    </div>
+    @include('partials.admin-book-details-modal')
 
     <!-- Delete Book Modal -->
     <div id="deleteBookModal" class="modal-overlay">
@@ -2351,6 +2332,7 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ asset('admin/JS/book-details.js') }}?v={{ filemtime(public_path('admin/JS/book-details.js')) }}"></script>
     <script>
         class BookManager {
             constructor() {
@@ -2373,6 +2355,16 @@
                     addBookForm: { pending: new Set(), verified: {}, activeErrorField: null },
                     editBookForm: { pending: new Set(), verified: {}, activeErrorField: null },
                 };
+                this.bookDetails = new window.AdminBookDetails({
+                    onOpen: () => this.openModal('viewBookModal'),
+                    onClose: () => this.closeModal('viewBookModal'),
+                    onEdit: row => {
+                        this.closeModal('viewBookModal');
+                        this.currentBookId = row.dataset.bookId;
+                        this.currentBookTitle = row.cells[1].querySelector('strong')?.textContent || '';
+                        this.openEditModal(row);
+                    },
+                });
                 this.init();
             }
 
@@ -3815,6 +3807,9 @@
 
             closeModal(modalId) {
                 document.getElementById(modalId).classList.remove('active');
+                if (modalId === 'viewBookModal') {
+                    this.bookDetails.dismiss();
+                }
                 if (modalId === 'addBookModal') {
                     this.resetBookFormValidation(document.getElementById('addBookForm'));
                 }
@@ -3831,84 +3826,7 @@
             }
 
             openViewModal(row) {
-                const cells = row.cells;
-                const titleCell = cells[1];
-                // Prefer data attributes (added server-side) for more complete info
-                const dataset = row.dataset || {};
-                const cover = dataset.cover || '';
-                const description = dataset.description || '';
-                const publisher = dataset.publisher || (titleCell.querySelector('div') ? titleCell.querySelector('div').textContent : 'Unknown');
-                const isbn = dataset.isbn || cells[0].textContent || '';
-                const totalCopies = dataset.totalCopies || (cells[5] && cells[5].querySelector('.copy-total') ? cells[5].querySelector('.copy-total').textContent : '0');
-                const availableCopies = dataset.availableCopies || (cells[6] && cells[6].querySelector('.copy-available') ? cells[6].querySelector('.copy-available').textContent : '0');
-                const categoryName = dataset.categoryName || cells[3].textContent || '';
-                const author = cells[2].textContent || '';
-
-                const storageBase = '{{ asset('storage') }}';
-                const coverUrl = cover ? `${storageBase}/${cover}` : '';
-
-                const detailsContent = `
-                    <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: start;">
-                        <div>
-                            <div class="book-cover-slot" style="width:100%; height:240px; border-radius:8px; overflow:hidden;"></div>
-                        </div>
-                        <div>
-                            <h3 style="margin:0 0 8px 0;font-size:18px;font-weight:700;">${this.currentBookTitle}</h3>
-                            <p style="margin:0 0 8px 0;color:#6b7280;"><strong>Author:</strong> ${author}</p>
-                            <p style="margin:0 0 8px 0;color:#6b7280;"><strong>Category:</strong> ${categoryName}</p>
-                            <p style="margin:0 0 8px 0;color:#6b7280;"><strong>Publisher:</strong> ${publisher}</p>
-                            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px;">
-                                <div>
-                                    <p style="color:#6b7280;font-size:10px;margin:0 0 2px;">ISBN</p>
-                                    <p style="font-weight:600;margin:0;">${isbn}</p>
-                                </div>
-                                <div>
-                                    <p style="color:#6b7280;font-size:10px;margin:0 0 2px;">Book ID</p>
-                                    <p style="font-weight:600;margin:0;">${this.currentBookId}</p>
-                                </div>
-                            </div>
-
-                            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px;">
-                                <div>
-                                    <p style="color:#6b7280;font-size:10px;margin:0 0 2px;">Total Copies</p>
-                                    <p style="font-weight:600;margin:0;">${totalCopies}</p>
-                                </div>
-                                <div>
-                                    <p style="color:#6b7280;font-size:10px;margin:0 0 2px;">Available Copies</p>
-                                    <p style="font-weight:600;margin:0;">${availableCopies}</p>
-                                </div>
-                            </div>
-
-                            <div style="margin-top:12px;">
-                                <p style="color:#6b7280;font-size:12px;margin:0 0 4px;">Description</p>
-                                <p style="margin:0;color:#374151;line-height:1.5;font-size:14px;">${description ? description : '<em>No description available.</em>'}</p>
-                            </div>
-                            <a href="{{ url('admin/books') }}/${this.currentBookId}/copies" style="display:inline-block;margin-top:14px;padding:9px 12px;border-radius:7px;background:#2563eb;color:#fff;text-decoration:none;font-size:12px;font-weight:600;"><i class="fas fa-layer-group"></i> Add Physical Copies</a>
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById('bookDetailsContent').innerHTML = detailsContent;
-                // Populate cover image using DOM to avoid inline onerror quoting issues
-                const coverSlot = document.getElementById('bookDetailsContent').querySelector('.book-cover-slot');
-                if (coverSlot) {
-                    if (coverUrl) {
-                        const imgEl = document.createElement('img');
-                        imgEl.src = coverUrl;
-                        imgEl.alt = this.currentBookTitle || '';
-                        imgEl.style.width = '100%';
-                        imgEl.style.height = '240px';
-                        imgEl.style.objectFit = 'cover';
-                        imgEl.style.borderRadius = '8px';
-                        imgEl.addEventListener('error', function() {
-                            coverSlot.innerHTML = `<div style="width:100%;height:240px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:48px;font-weight:700;">${(this.currentBookTitle||'').charAt(0).toUpperCase()}</div>`;
-                        }.bind(this));
-                        coverSlot.appendChild(imgEl);
-                    } else {
-                        coverSlot.innerHTML = `<div style="width:100%;height:240px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;font-size:48px;font-weight:700;">${this.currentBookTitle.charAt(0).toUpperCase()}</div>`;
-                    }
-                }
-                this.openModal('viewBookModal');
+                this.bookDetails.open(row);
             }
 
             openEditModal(row) {
