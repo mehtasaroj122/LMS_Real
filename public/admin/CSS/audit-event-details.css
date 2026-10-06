@@ -3,9 +3,9 @@
 .admin-portal #activityDetailsOverlay.show { display: flex; }
 .admin-portal #activityDetailsOverlay .activity-modal { --ui-modal-width: 860px; width: min(860px, 94vw) !important; max-width: 94vw; max-height: 89vh !important; max-height: 89dvh !important; display: flex; flex-direction: column; overflow: hidden; }
 #activityDetailsOverlay [hidden] { display: none !important; }
-.admin-portal #activityDetailsOverlay .activity-modal-header { background: #eff6ff !important; border-bottom-color: #dbeafe !important; color: #0f172a !important; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex: 0 0 auto; }
+.admin-portal #activityDetailsOverlay .activity-modal-header { background: var(--popup-header-bg, var(--ui-blue-soft)) !important; border-bottom-color: var(--popup-header-border, var(--ui-info-bg)) !important; color: var(--ui-heading) !important; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex: 0 0 auto; }
 #activityDetailsOverlay .activity-modal-header h2 { margin: 0; font-size: 19px; font-weight: 600; line-height: 1.4; }
-#activityDetailsOverlay .activity-modal-header p { margin: 3px 0 0; font-size: 12px; color: #475569; line-height: 1.5; }
+#activityDetailsOverlay .activity-modal-header p { margin: 3px 0 0; font-size: 12px; color: var(--ui-secondary); line-height: 1.5; }
 #activityDetailsOverlay .activity-modal-close { font-size: 24px; line-height: 1; cursor: pointer; flex-shrink: 0; }
 #activityDetailsOverlay .activity-modal-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; color: var(--ui-text, #334155); font-size: 14px; line-height: 1.5; }
 #activityDetailsOverlay :is(p, dl, dd) { margin: 0; }

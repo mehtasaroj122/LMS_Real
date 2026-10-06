@@ -21,6 +21,7 @@
     @include('shared.student-portal-pagination.styles')
     @include('shared.action-feedback.styles')
     @stack('styles')
+    <link rel="stylesheet" href="{{ asset('shared/CSS/popup-headers.css') }}?v={{ filemtime(public_path('shared/CSS/popup-headers.css')) }}">
 </head>
 
 <body class="light-theme">

@@ -383,9 +383,9 @@ body.admin-portal.dark-theme {
 /* Report previews and image cropping need more room, while remaining bounded. */
 .admin-portal :is(.report-export-panel, .report-pdf-panel, .logo-cropper-panel, .fine-modal.wide) { --ui-modal-width: 864px; }
 .admin-portal :is(.modal-header, .request-modal-header, .fine-modal-header, .activity-modal-header, .role-modal-header, .student-modal-header, .notification-detail-header, .action-feedback-confirm-header, .transaction-confirm-header, .role-confirm-header, .account-deletion-modal__header, .report-export-header, .report-pdf-header, .logo-cropper-header, .delete-modal-hero) {
-    background: var(--ui-surface) !important;
+    background: var(--popup-header-bg, var(--ui-blue-soft)) !important;
     color: var(--ui-heading) !important;
-    border-bottom: 1px solid var(--ui-border) !important;
+    border-bottom: 1px solid var(--popup-header-border, var(--ui-info-bg)) !important;
     padding: 16px 20px !important;
 }
 .admin-portal :is(.modal-title, .modal-header h3, .request-modal-header h3, .fine-modal-header h3, .action-feedback-confirm-title, .transaction-confirm-title, .role-confirm-title) { color: var(--ui-heading) !important; font-size: 18px !important; font-weight: 600 !important; }
@@ -402,7 +402,7 @@ body.admin-portal.dark-theme {
 .admin-portal :is(.action-feedback-confirm-icon, .transaction-confirm-icon, .role-confirm-icon, .student-modal-icon) { background: var(--ui-info-bg) !important; color: var(--ui-info-text) !important; }
 .admin-portal :is(.action-feedback-confirm-icon.danger, .transaction-confirm-icon.danger, .role-confirm-icon.danger, .delete-modal-state-icon, .notification-detail-modal-danger .notification-detail-hero-icon) { background: var(--ui-danger-bg) !important; color: var(--ui-danger-badge-text) !important; }
 .admin-portal #addStudentModal > div { padding: 0 !important; }
-.admin-portal #addStudentModal > div > div:first-child { padding: 16px 20px; border-bottom: 1px solid var(--ui-border); margin-bottom: 0 !important; }
+.admin-portal #addStudentModal > div > div:first-child { padding: 16px 20px; border-bottom: 1px solid var(--popup-header-border, var(--ui-info-bg)); margin-bottom: 0 !important; }
 .admin-portal #studentCreateForm { padding: 20px; }
 .admin-portal #studentCreateForm > div:last-child { background: var(--ui-page); border-top: 1px solid var(--ui-border); margin: 20px -20px -20px; padding: 14px 20px; }
 

@@ -1,0 +1,70 @@
+/* Match the Issued Book Details header across all portal popup families. */
+body {
+    --popup-header-bg: var(--ui-blue-soft, #eff6ff);
+    --popup-header-border: var(--ui-info-bg, #dbeafe);
+    --popup-header-heading: var(--ui-heading, #0f172a);
+    --popup-header-muted: var(--ui-secondary, #64748b);
+}
+
+body.dark-theme {
+    --popup-header-bg: var(--ui-blue-soft, #1e293b);
+    --popup-header-border: var(--ui-info-bg, #1e40af);
+    --popup-header-heading: var(--ui-heading, #f8fafc);
+    --popup-header-muted: var(--ui-secondary, #cbd5e1);
+}
+
+/* Legacy pages use inline styles; keep these overrides limited to headers. */
+body :is(
+    .modal-header,
+    .request-modal-header,
+    .fine-modal-header,
+    .activity-modal-header,
+    .book-details-header,
+    .role-modal-header,
+    .student-modal-header,
+    .student-confirm-header,
+    .notification-detail-header,
+    .action-feedback-confirm-header,
+    .transaction-confirm-header,
+    .role-confirm-header,
+    .confirmation-modal-header,
+    .account-deletion-modal__header,
+    .report-export-header,
+    .report-pdf-header,
+    .logo-cropper-header,
+    .delete-modal-hero,
+    .popup-header
+) {
+    background: var(--popup-header-bg) !important;
+    color: var(--popup-header-heading) !important;
+    border-bottom: 1px solid var(--popup-header-border) !important;
+    padding: 16px 20px;
+}
+
+body :is(
+    .modal-header,
+    .request-modal-header,
+    .fine-modal-header,
+    .activity-modal-header,
+    .book-details-header,
+    .role-modal-header,
+    .student-modal-header,
+    .student-confirm-header,
+    .notification-detail-header,
+    .action-feedback-confirm-header,
+    .transaction-confirm-header,
+    .role-confirm-header,
+    .confirmation-modal-header,
+    .account-deletion-modal__header,
+    .report-export-header,
+    .report-pdf-header,
+    .logo-cropper-header,
+    .delete-modal-hero,
+    .popup-header
+) :is(h2, h3) {
+    color: var(--popup-header-heading) !important;
+}
+
+@media (max-width: 480px) {
+    body .popup-header { padding: 14px; }
+}

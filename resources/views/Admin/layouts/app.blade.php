@@ -198,6 +198,7 @@
     @stack('styles')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="{{ asset('admin/CSS/admin-design-system.css') }}?v={{ filemtime(public_path('admin/CSS/admin-design-system.css')) }}">
+    <link rel="stylesheet" href="{{ asset('shared/CSS/popup-headers.css') }}?v={{ filemtime(public_path('shared/CSS/popup-headers.css')) }}">
 </head>
 
 <body class="light-theme admin-portal">

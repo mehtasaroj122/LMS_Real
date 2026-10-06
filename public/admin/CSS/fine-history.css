@@ -24,8 +24,8 @@ body.fine-history-open { overflow: hidden; }
     flex-shrink: 0;
     gap: 16px;
     padding: 14px 22px !important;
-    background: #eff6ff !important;
-    border-bottom-color: #dbeafe !important;
+    background: var(--popup-header-bg, var(--ui-blue-soft, #eff6ff)) !important;
+    border-bottom-color: var(--popup-header-border, var(--ui-info-bg, #dbeafe)) !important;
     color: var(--history-heading) !important;
 }
 #historyOverlay .fine-modal-header h2 { font-size: 19px; font-weight: 600; line-height: 1.4; }
@@ -88,7 +88,6 @@ body.fine-history-open { overflow: hidden; }
 #historyOverlay .fine-history-details-grid dd { font-weight: 500; overflow-wrap: anywhere; }
 #historyOverlay .fine-history-footer { flex-shrink: 0; justify-content: flex-end; padding: 12px 22px !important; }
 #historyOverlay .fine-history-footer .fine-modal-btn { flex: 0 0 auto; }
-body.dark-theme #historyOverlay .fine-modal-header { background: #172554 !important; border-bottom-color: #1e3a8a !important; }
 body.dark-theme #historyOverlay .fine-modal-close { color: #cbd5e1; }
 body.dark-theme #historyOverlay .fine-history-dot { background: #1e3a8a; color: #bfdbfe; }
 body.dark-theme #historyOverlay .fine-history-dot.paid { background: #14532d; color: #bbf7d0; }

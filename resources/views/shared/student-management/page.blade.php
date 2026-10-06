@@ -187,7 +187,7 @@
     @if(($config['features']['create'] ?? false) === true)
         <div id="addStudentModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
             <div style="border-radius: 8px; padding: 16px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div class="popup-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                     <h2 style="margin: 0; font-size: 18px; font-weight: 700;">Add New Student</h2>
                     <button type="button" id="studentCreateCloseBtn" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
                 </div>
