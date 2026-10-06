@@ -4,6 +4,7 @@
 
 @push('styles')
     @include('shared.user-management.styles')
+    <link rel="stylesheet" href="{{ asset('admin/CSS/user-details.css') }}?v={{ filemtime(public_path('admin/CSS/user-details.css')) }}">
     <!-- Using FontAwesome for icons (alternative to Bootstrap) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -1301,219 +1302,6 @@
             transform: none;
         }
 
-        .view-user-modal {
-            max-width: 720px;
-        }
-
-        .user-profile-sheet {
-            display: grid;
-            gap: 22px;
-        }
-
-        .user-profile-hero {
-            display: flex;
-            gap: 18px;
-            align-items: center;
-            padding: 18px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
-            border: 1px solid #dbeafe;
-        }
-
-        body.dark-theme .user-profile-hero {
-            background: linear-gradient(135deg, #172554 0%, #111827 100%);
-            border-color: #1d4ed8;
-        }
-
-        .user-profile-avatar {
-            width: 84px;
-            height: 84px;
-            border-radius: 9999px;
-            overflow: hidden;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: #ffffff;
-            font-size: 30px;
-            font-weight: 700;
-            box-shadow: 0 18px 36px rgba(37, 99, 235, 0.22);
-        }
-
-        .user-profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .user-profile-avatar img[hidden] {
-            display: none !important;
-        }
-
-        .user-profile-avatar span {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-        }
-
-        .user-profile-avatar span[hidden] {
-            display: none !important;
-        }
-
-        .user-profile-meta {
-            min-width: 0;
-            flex: 1;
-        }
-
-        .user-profile-name-row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .user-profile-name {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 700;
-            line-height: 1.2;
-            color: #0f172a;
-        }
-
-        body.dark-theme .user-profile-name {
-            color: #f8fafc;
-        }
-
-        .user-profile-email {
-            margin-top: 4px;
-            font-size: 14px;
-            color: #475569;
-            word-break: break-word;
-        }
-
-        body.dark-theme .user-profile-email {
-            color: #cbd5e1;
-        }
-
-        .user-profile-chip-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .user-profile-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 12px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .user-profile-chip.role-admin {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .user-profile-chip.role-staff {
-            background: #f3e8ff;
-            color: #7c3aed;
-        }
-
-        .user-profile-chip.role-student {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .user-profile-chip.status-active {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .user-profile-chip.status-inactive {
-            background: #fee2e2;
-            color: #b91c1c;
-        }
-
-        body.dark-theme .user-profile-chip.role-admin {
-            background: #1e3a8a;
-            color: #bfdbfe;
-        }
-
-        body.dark-theme .user-profile-chip.role-staff {
-            background: #581c87;
-            color: #e9d5ff;
-        }
-
-        body.dark-theme .user-profile-chip.role-student {
-            background: #14532d;
-            color: #bbf7d0;
-        }
-
-        body.dark-theme .user-profile-chip.status-active {
-            background: #14532d;
-            color: #bbf7d0;
-        }
-
-        body.dark-theme .user-profile-chip.status-inactive {
-            background: #7f1d1d;
-            color: #fecaca;
-        }
-
-        .user-detail-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .user-detail-item {
-            padding: 14px 16px;
-            border-radius: 14px;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-        }
-
-        body.dark-theme .user-detail-item {
-            border-color: #334155;
-            background: #0f172a;
-        }
-
-        .user-detail-item.full {
-            grid-column: 1 / -1;
-        }
-
-        .user-detail-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #64748b;
-        }
-
-        body.dark-theme .user-detail-label {
-            color: #94a3b8;
-        }
-
-        .user-detail-value {
-            margin-top: 6px;
-            font-size: 14px;
-            line-height: 1.55;
-            color: #0f172a;
-            word-break: break-word;
-        }
-
-        body.dark-theme .user-detail-value {
-            color: #f8fafc;
-        }
-
         @keyframes studentToastIn {
             from {
                 opacity: 0;
@@ -1554,15 +1342,6 @@
                 right: 16px;
                 left: 16px;
                 width: auto;
-            }
-
-            .user-profile-hero {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .user-detail-grid {
-                grid-template-columns: 1fr;
             }
 
             .role-confirm-actions,
@@ -1874,101 +1653,7 @@
         </div>
     </div>
 
-    <!-- View User Modal -->
-    <div id="viewUserModal" class="modal-overlay">
-        <div class="modal view-user-modal">
-            <div class="modal-header">
-                <h3 class="modal-title">User Details</h3>
-                <button type="button" class="modal-close-btn" id="closeViewUserModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="user-profile-sheet">
-                    <div class="user-profile-hero">
-                        <div class="user-profile-avatar" id="viewUserAvatar">
-                            <img id="viewUserAvatarImage" src="" alt="User profile photo" hidden>
-                            <span id="viewUserAvatarFallback">U</span>
-                        </div>
-                        <div class="user-profile-meta">
-                            <div class="user-profile-name-row">
-                                <h4 class="user-profile-name" id="viewUserName">Loading...</h4>
-                                <span class="user-profile-chip role-admin" id="viewUserSelfChip" hidden>
-                                    <i class="fas fa-user"></i>
-                                    You
-                                </span>
-                            </div>
-                            <div class="user-profile-email" id="viewUserEmail">loading@example.com</div>
-                            <div class="user-profile-chip-row">
-                                <span class="user-profile-chip role-admin" id="viewUserRoleChip">
-                                    <i class="fas fa-shield-alt"></i>
-                                    Admin
-                                </span>
-                                <span class="user-profile-chip status-active" id="viewUserStatusChip">
-                                    <i class="fas fa-check-circle"></i>
-                                    Active
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="user-detail-grid">
-                        <div class="user-detail-item">
-                            <div class="user-detail-label">Phone</div>
-                            <div class="user-detail-value" id="viewUserPhone">Not provided</div>
-                        </div>
-                        <div class="user-detail-item">
-                            <div class="user-detail-label">Gender</div>
-                            <div class="user-detail-value" id="viewUserGender">Not provided</div>
-                        </div>
-                        <div class="user-detail-item">
-                            <div class="user-detail-label">Department</div>
-                            <div class="user-detail-value" id="viewUserDepartment">Not assigned</div>
-                        </div>
-                        <div class="user-detail-item" id="viewUserStaffIdItem" hidden>
-                            <div class="user-detail-label">Staff ID</div>
-                            <div class="user-detail-value" id="viewUserStaffId">-</div>
-                        </div>
-                        <div class="user-detail-item" id="viewUserDesignationItem" hidden>
-                            <div class="user-detail-label">Designation</div>
-                            <div class="user-detail-value" id="viewUserDesignation">-</div>
-                        </div>
-                        <div class="user-detail-item" id="viewUserJoinDateItem" hidden>
-                            <div class="user-detail-label">Join Date</div>
-                            <div class="user-detail-value" id="viewUserJoinDate">-</div>
-                        </div>
-                        <div class="user-detail-item" id="viewUserRollNoItem" hidden>
-                            <div class="user-detail-label">Student ID</div>
-                            <div class="user-detail-value" id="viewUserRollNo">-</div>
-                        </div>
-                        <div class="user-detail-item" id="viewUserBatchItem" hidden>
-                            <div class="user-detail-label">Batch</div>
-                            <div class="user-detail-value" id="viewUserBatch">-</div>
-                        </div>
-                        <div class="user-detail-item" id="viewUserSemesterItem" hidden>
-                            <div class="user-detail-label">Semester</div>
-                            <div class="user-detail-value" id="viewUserSemester">-</div>
-                        </div>
-                        <div class="user-detail-item">
-                            <div class="user-detail-label">Last Login</div>
-                            <div class="user-detail-value" id="viewUserLastLogin">Never</div>
-                        </div>
-                        <div class="user-detail-item">
-                            <div class="user-detail-label">Created</div>
-                            <div class="user-detail-value" id="viewUserCreatedAt">Unknown</div>
-                        </div>
-                        <div class="user-detail-item full">
-                            <div class="user-detail-label">Address</div>
-                            <div class="user-detail-value" id="viewUserAddress">Not provided</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline" id="closeViewUserFooter">Close</button>
-            </div>
-        </div>
-    </div>
+    @include('Admin.partials.user-details-modal')
 
     <!-- Reset Password Confirmation Modal -->
     <div id="resetPasswordModal" class="modal-overlay role-confirm-overlay" aria-hidden="true">
@@ -2112,6 +1797,8 @@
                 this.currentModal = null;
                 this.currentUserId = null;
                 this.currentUserRow = null;
+                this.viewDetailsRequest = 0;
+                this.viewUserRow = null;
                 this.loggedInUserId = Number(userManagementRoot?.dataset.authUserId || 0);
                 const searchParams = new URLSearchParams(window.location.search);
                 this.perPage = this.normalizePerPage(searchParams.get('per_page'));
@@ -2600,6 +2287,10 @@
                     });
                 }
 
+                document.getElementById('retryViewUser').addEventListener('click', () => {
+                    if (this.viewUserRow) this.openViewModal(this.viewUserRow);
+                });
+
                 // Delete User Modal
                 document.getElementById('confirmDeleteUser').addEventListener('click', () => {
                     console.log('Confirm delete clicked');
@@ -2764,6 +2455,9 @@
              */
             initKeyboardShortcuts() {
                 document.addEventListener('keydown', (e) => {
+                    // Keep page shortcuts from moving focus out of the details dialog.
+                    if (this.currentModal === 'viewUserModal' && e.key !== 'Escape') return;
+
                     // ESC key - Close current modal
                     if (e.key === 'Escape' && this.currentModal) {
                         e.preventDefault();
@@ -2821,6 +2515,9 @@
              */
             openModal(modalId) {
                 console.log('Opening modal:', modalId);
+                if (this.currentModal === 'viewUserModal' && modalId !== 'viewUserModal') {
+                    this.closeModal('viewUserModal');
+                }
                 this.currentModal = modalId;
                 const modal = document.getElementById(modalId);
 
@@ -2862,6 +2559,13 @@
                 }
 
                 this.currentModal = null;
+
+                if (modalId === 'viewUserModal') {
+                    // Ignore responses that arrive after Close or Escape.
+                    this.viewDetailsRequest++;
+                    this.resetViewModal();
+                    this.viewUserRow = null;
+                }
 
                 // Reset forms and clear errors
                 if (modalId === 'addUserModal') {
@@ -3167,103 +2871,125 @@
                 return `${numericSemester}${suffix} Semester`;
             }
 
-            setUserDetailItem(itemId, valueId, value, { placeholder = 'Not provided', hideWhenEmpty = false } = {}) {
-                const item = document.getElementById(itemId);
+            setUserDetailItem(itemId, valueId, value, { placeholder = 'Not provided', visible = true } = {}) {
+                const item = itemId ? document.getElementById(itemId) : null;
                 const valueElement = document.getElementById(valueId);
-
-                if (!valueElement) {
-                    return;
-                }
-
-                const hasValue = Boolean(value);
+                const hasValue = value !== null && value !== undefined && String(value).trim() !== '';
                 valueElement.textContent = hasValue ? value : placeholder;
+                valueElement.classList.toggle('is-missing', !hasValue);
+                if (item) item.hidden = !visible;
+            }
 
-                if (item) {
-                    item.hidden = hideWhenEmpty && !hasValue;
-                }
+            formatUserDetailsDate(label) {
+                // Preserve the server's date/time and timezone; only add a visual separator.
+                return label?.replace(/(\d{4}) (\d{1,2}:\d{2} [AP]M)$/, '$1 · $2') || null;
+            }
+
+            resetViewModal() {
+                document.getElementById('viewUserContent').hidden = true;
+                document.getElementById('viewUserContent').setAttribute('aria-busy', 'true');
+                document.getElementById('viewUserState').hidden = false;
+                document.getElementById('viewUserLoadingIcon').hidden = false;
+                document.getElementById('retryViewUser').hidden = true;
+                document.getElementById('viewUserFeedback').textContent = 'Loading user details…';
+                // Clear stale personal information before loading another account.
+                document.querySelectorAll('#viewUserContent dd, #viewUserName, #viewUserEmail, #viewUserRoleChip, #viewUserStatusChip')
+                    .forEach(element => { element.textContent = ''; });
+                document.getElementById('viewUserSelfChip').hidden = true;
+                const avatarImage = document.getElementById('viewUserAvatarImage');
+                avatarImage.onload = null;
+                avatarImage.onerror = null;
+                avatarImage.hidden = true;
+                avatarImage.removeAttribute('src');
+                document.getElementById('viewUserAvatarFallback').textContent = 'U';
+                document.getElementById('viewUserAvatarFallback').hidden = false;
             }
 
             populateViewModal(user) {
                 const roleMeta = this.getUserRoleMeta(user.role);
                 const statusMeta = this.getUserStatusMeta(user.status);
+                const isStaff = user.role === 'staff';
+                const isStudent = user.role === 'student';
+                const departmentName = user.department_name
+                    || (isStudent ? user.student?.department_name : isStaff ? user.staff?.department_name : '')
+                    || '';
                 const avatarImage = document.getElementById('viewUserAvatarImage');
                 const avatarFallback = document.getElementById('viewUserAvatarFallback');
-                const roleChip = document.getElementById('viewUserRoleChip');
-                const statusChip = document.getElementById('viewUserStatusChip');
-                const selfChip = document.getElementById('viewUserSelfChip');
-                const departmentName = user.department_name
-                    || user.student?.department_name
-                    || user.staff?.department_name
-                    || '';
-
                 document.getElementById('viewUserName').textContent = user.name || 'Unknown User';
                 document.getElementById('viewUserEmail').textContent = user.email || 'No email available';
-
-                if (avatarImage && avatarFallback) {
-                    const avatarLetter = (user.initial || user.name?.trim()?.charAt(0) || 'U').toUpperCase();
-                    avatarFallback.textContent = avatarLetter;
-                    avatarFallback.hidden = false;
-                    avatarImage.hidden = true;
-                    avatarImage.onload = null;
-                    avatarImage.onerror = null;
-                    avatarImage.removeAttribute('src');
-
-                    if (user.profile_photo_url) {
-                        avatarImage.onload = () => {
-                            avatarImage.hidden = false;
-                            avatarFallback.hidden = true;
-                        };
-                        avatarImage.onerror = () => {
-                            avatarImage.hidden = true;
-                            avatarImage.removeAttribute('src');
-                            avatarImage.onload = null;
-                            avatarImage.hidden = true;
-                            avatarFallback.hidden = false;
-                        };
-                        avatarImage.src = user.profile_photo_url;
-                    }
+                document.getElementById('viewUserAvatar').className = `user-profile-avatar ${roleMeta.className}`;
+                avatarFallback.textContent = (user.initial || user.name?.trim()?.charAt(0) || 'U').toUpperCase();
+                avatarFallback.hidden = false;
+                avatarImage.hidden = true;
+                avatarImage.onload = null;
+                avatarImage.onerror = null;
+                avatarImage.removeAttribute('src');
+                if (user.profile_photo_url) {
+                    avatarImage.onload = () => {
+                        avatarImage.hidden = false;
+                        avatarFallback.hidden = true;
+                    };
+                    avatarImage.onerror = () => {
+                        avatarImage.hidden = true;
+                        avatarImage.removeAttribute('src');
+                        avatarImage.onload = null;
+                        avatarImage.onerror = null;
+                        avatarFallback.hidden = false;
+                    };
+                    avatarImage.src = user.profile_photo_url;
                 }
 
-                if (selfChip) {
-                    selfChip.hidden = !user.is_current_user;
+                document.getElementById('viewUserSelfChip').hidden = !user.is_current_user;
+                for (const [id, meta] of [['viewUserRoleChip', roleMeta], ['viewUserStatusChip', statusMeta]]) {
+                    const chip = document.getElementById(id);
+                    chip.className = `user-profile-chip ${meta.className}`;
+                    chip.innerHTML = `<i class="${meta.icon}" aria-hidden="true"></i> ${meta.label}`;
                 }
+                document.getElementById('viewUserRoleHeadingText').textContent = isStaff
+                    ? 'Staff Information' : isStudent ? 'Student Information' : 'Administrative Information';
+                document.getElementById('viewUserRoleIcon').className = roleMeta.icon;
 
-                if (roleChip) {
-                    roleChip.className = `user-profile-chip ${roleMeta.className}`;
-                    roleChip.innerHTML = `<i class="${roleMeta.icon}"></i> ${roleMeta.label}`;
-                }
-
-                if (statusChip) {
-                    statusChip.className = `user-profile-chip ${statusMeta.className}`;
-                    statusChip.innerHTML = `<i class="${statusMeta.icon}"></i> ${statusMeta.label}`;
-                }
-
-                this.setUserDetailItem(null, 'viewUserPhone', user.phone, { placeholder: 'Not provided' });
-                this.setUserDetailItem(null, 'viewUserGender', user.gender ? `${user.gender.charAt(0).toUpperCase()}${user.gender.slice(1)}` : null, { placeholder: 'Not provided' });
+                this.setUserDetailItem(null, 'viewUserPhone', user.phone);
+                this.setUserDetailItem(null, 'viewUserGender', user.gender ? `${user.gender.charAt(0).toUpperCase()}${user.gender.slice(1)}` : null);
+                this.setUserDetailItem(null, 'viewUserAddress', user.address);
                 this.setUserDetailItem(null, 'viewUserDepartment', departmentName, { placeholder: 'Not assigned' });
-                this.setUserDetailItem('viewUserStaffIdItem', 'viewUserStaffId', user.staff?.staff_id, { hideWhenEmpty: true });
-                this.setUserDetailItem('viewUserDesignationItem', 'viewUserDesignation', user.staff?.designation, { hideWhenEmpty: true });
-                this.setUserDetailItem('viewUserJoinDateItem', 'viewUserJoinDate', user.staff?.join_date_label || user.staff?.join_date, { hideWhenEmpty: true });
-                this.setUserDetailItem('viewUserRollNoItem', 'viewUserRollNo', user.student?.student_id || user.student?.roll_no, { hideWhenEmpty: true });
-                this.setUserDetailItem('viewUserBatchItem', 'viewUserBatch', user.student?.batch, { hideWhenEmpty: true });
-                this.setUserDetailItem('viewUserSemesterItem', 'viewUserSemester', this.formatSemesterLabel(user.student?.semester), { hideWhenEmpty: true });
-                this.setUserDetailItem(null, 'viewUserLastLogin', user.last_login_label || 'Never', { placeholder: 'Never' });
-                this.setUserDetailItem(null, 'viewUserCreatedAt', user.created_at_label || 'Unknown', { placeholder: 'Unknown' });
-                this.setUserDetailItem(null, 'viewUserAddress', user.address, { placeholder: 'Not provided' });
+                this.setUserDetailItem('viewUserStaffIdItem', 'viewUserStaffId', user.staff?.staff_id, { visible: isStaff, placeholder: 'Not assigned' });
+                this.setUserDetailItem('viewUserDesignationItem', 'viewUserDesignation', user.staff?.designation, { visible: isStaff });
+                this.setUserDetailItem('viewUserJoinDateItem', 'viewUserJoinDate', user.staff?.join_date_label || user.staff?.join_date, { visible: isStaff });
+                this.setUserDetailItem('viewUserRollNoItem', 'viewUserRollNo', user.student?.student_id || user.student?.roll_no, { visible: isStudent, placeholder: 'Not assigned' });
+                this.setUserDetailItem('viewUserBatchItem', 'viewUserBatch', user.student?.batch, { visible: isStudent });
+                this.setUserDetailItem('viewUserSemesterItem', 'viewUserSemester', this.formatSemesterLabel(user.student?.semester), { visible: isStudent });
+                this.setUserDetailItem(null, 'viewUserLastLogin', user.last_login_at ? this.formatUserDetailsDate(user.last_login_label) : null, { placeholder: 'Never logged in' });
+                this.setUserDetailItem(null, 'viewUserCreatedAt', user.created_at ? this.formatUserDetailsDate(user.created_at_label) : null, { placeholder: 'Not available' });
             }
 
             openViewModal(row) {
                 const userId = row.dataset.userId;
                 this.currentUserId = userId;
+                this.viewUserRow = row;
+                const request = ++this.viewDetailsRequest;
+                const retrying = document.activeElement.id === 'retryViewUser';
+                this.resetViewModal();
+                this.openModal('viewUserModal');
+                if (retrying) {
+                    document.getElementById('closeViewUserModal').focus();
+                }
 
                 this.fetchUserDetails(userId)
                     .then(user => {
+                        if (request !== this.viewDetailsRequest || this.currentModal !== 'viewUserModal') return;
                         this.populateViewModal(user);
-                        this.openModal('viewUserModal');
+                        document.getElementById('viewUserContent').setAttribute('aria-busy', 'false');
+                        document.getElementById('viewUserContent').hidden = false;
+                        document.getElementById('viewUserFeedback').textContent = 'User details loaded.';
+                        document.getElementById('viewUserState').hidden = true;
                     })
-                    .catch(error => {
-                        console.error('Error fetching user details:', error);
-                        this.showNotification('Error loading user details: ' + error.message, 'error');
+                    .catch(() => {
+                        if (request !== this.viewDetailsRequest || this.currentModal !== 'viewUserModal') return;
+                        document.getElementById('viewUserContent').setAttribute('aria-busy', 'false');
+                        document.getElementById('viewUserLoadingIcon').hidden = true;
+                        document.getElementById('viewUserFeedback').textContent = 'Unable to load user details.\nPlease try again.';
+                        document.getElementById('retryViewUser').hidden = false;
                     });
             }
 
