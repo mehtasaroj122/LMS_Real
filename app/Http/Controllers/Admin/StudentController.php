@@ -721,6 +721,7 @@ class StudentController extends Controller
         $student->loadMissing([
             'user',
             'issuedBooks.book',
+            'issuedBooks.bookCopy',
             'fines.issuedBook.book',
         ]);
 
@@ -761,6 +762,11 @@ class StudentController extends Controller
                 $type = $this->resolveStudentActivityType($log, $metadata);
                 $status = $this->resolveStudentActivityStatus($log, $type, $metadata);
                 $resource = $this->resolveStudentActivityResource($log, $student, $metadata, $issuedBooksById, $finesById);
+                $issuedBook = match ($resource['resourceType']) {
+                    'Fine' => $issuedBooksById->get((string) $finesById->get((string) $resource['resourceId'])?->issued_book_id),
+                    'Issued Book' => $issuedBooksById->get((string) $resource['resourceId']),
+                    default => null,
+                };
                 $actor = $log->user;
                 $sessionId = data_get($metadata, 'session_id')
                     ?? data_get($metadata, 'session.id')
@@ -782,8 +788,10 @@ class StudentController extends Controller
                     'browser' => $log->browser ?: 'Unknown browser',
                     'sessionId' => $sessionId ?: 'Not captured',
                     'resourceUrl' => $resource['resourceUrl'],
+                    'resourceAvailable' => $resource['resourceAvailable'],
                     'resourceType' => $resource['resourceType'],
                     'resourceId' => $resource['resourceId'],
+                    'accessionNumber' => $issuedBook?->bookCopy?->accession_number,
                     'metadata' => $metadata,
                     'hasDetails' => !empty($metadata)
                         || !empty($log->ip_address)
@@ -932,6 +940,7 @@ class StudentController extends Controller
         $resourceId = $log->resource_id ?: $student->id;
         $actionType = $this->resolveStudentActivityType($log, $metadata);
         $resourceUrl = route('admin.activity-logs.index');
+        $resourceAvailable = false;
 
         if (!empty($metadata['fine_id']) || $resourceType === 'fine' || in_array($actionType, ['fine-applied', 'fine-paid', 'fine-waived'], true)) {
             $resourceType = 'fine';
@@ -940,6 +949,7 @@ class StudentController extends Controller
             $resourceUrl = route('admin.fines.index') . '?student=' . urlencode((string) $student->id);
 
             if ($fine) {
+                $resourceAvailable = true;
                 $resourceId = (string) $fine->id;
             }
         } elseif (!empty($metadata['issued_book_id']) || $resourceType === 'issued_book' || in_array($actionType, ['book-issued', 'book-returned'], true)) {
@@ -949,13 +959,16 @@ class StudentController extends Controller
             $resourceUrl = route('admin.transactions.index') . '?student=' . urlencode((string) $student->id);
 
             if ($issuedBook) {
+                $resourceAvailable = true;
                 $resourceId = (string) $issuedBook->id;
             }
         } elseif ($actionType === 'auth') {
+            $resourceAvailable = true;
             $resourceType = 'auth';
             $resourceId = (string) ($log->affected_user_id ?? $student->user_id ?? $student->id);
             $resourceUrl = route('admin.activity-logs.index') . '?search=' . urlencode($student->user->name ?? $student->roll_no ?? 'student');
         } elseif (in_array($actionType, ['account-status', 'profile-updated', 'privilege-change'], true)) {
+            $resourceAvailable = true;
             $resourceType = 'student';
             $resourceId = (string) $student->id;
             $resourceUrl = route('admin.students.show', $student->id);
@@ -965,6 +978,7 @@ class StudentController extends Controller
             'resourceType' => $this->formatActivityLabel($resourceType, 'Student'),
             'resourceId' => $resourceId ?: 'N/A',
             'resourceUrl' => $resourceUrl,
+            'resourceAvailable' => $resourceAvailable,
         ];
     }
 

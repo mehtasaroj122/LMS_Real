@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Support\AuditDetails;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Carbon\Carbon;
 
 class ActivityLogController extends Controller
 {
@@ -17,7 +18,7 @@ class ActivityLogController extends Controller
     {
         Gate::authorize('access-admin');
         $perPage = $this->normalizeAdminPerPage($request->input('per_page', 10));
-        
+
         $query = ActivityLog::with('user')->latest('created_at');
 
         // Filter by search term
@@ -25,9 +26,9 @@ class ActivityLogController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('user_name', 'like', "%{$search}%")
-                  ->orWhere('action', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('user_email', 'like', "%{$search}%");
+                    ->orWhere('action', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('user_email', 'like', "%{$search}%");
             });
         }
 
@@ -40,7 +41,7 @@ class ActivityLogController extends Controller
         if ($request->has('period') && $request->period) {
             $period = $request->period;
             $now = Carbon::now();
-            
+
             switch ($period) {
                 case 'today':
                     $query->whereDate('created_at', $now->toDateString());
@@ -48,13 +49,13 @@ class ActivityLogController extends Controller
                 case '7days':
                     $query->whereBetween('created_at', [
                         $now->copy()->subDays(7),
-                        $now
+                        $now,
                     ]);
                     break;
                 case '30days':
                     $query->whereBetween('created_at', [
                         $now->copy()->subDays(30),
-                        $now
+                        $now,
                     ]);
                     break;
                 case 'all':
@@ -68,6 +69,10 @@ class ActivityLogController extends Controller
             $query->where('action_category', $request->action_category);
         }
 
+        if ($request->filled('event_type')) {
+            $query->where('action', $request->input('event_type'));
+        }
+
         // Get statistics
         $allActivities = ActivityLog::count();
         $totalActivities = $query->count();
@@ -77,18 +82,26 @@ class ActivityLogController extends Controller
 
         // Paginate results
         $activities = $query->paginate($perPage)->appends($request->query());
+        $auditDetails = AuditDetails::forLogs($activities->getCollection());
 
         // Get action categories for filter dropdown
         $actionCategories = ActivityLog::select('action_category')
+            ->whereNotNull('action_category')
+            ->where('action_category', '!=', '')
             ->distinct()
+            ->orderBy('action_category')
             ->pluck('action_category');
+        $eventTypes = ActivityLog::query()->whereNotNull('action')->where('action', '!=', '')
+            ->distinct()->orderBy('action')->pluck('action');
 
         // Get action statistics for summary (counts ALL actions from all users)
         $actionStats = ActivityLog::query()
             ->select('action')
             ->selectRaw('count(*) as count')
+            ->selectRaw('MIN(action_category) as action_category')
             ->groupBy('action')
             ->orderByRaw('count DESC')
+            ->orderBy('action')
             ->limit(12)
             ->get();
 
@@ -100,7 +113,9 @@ class ActivityLogController extends Controller
             'studentActions',
             'allActivities',
             'actionCategories',
-            'actionStats'
+            'actionStats',
+            'eventTypes',
+            'auditDetails'
         ));
     }
 

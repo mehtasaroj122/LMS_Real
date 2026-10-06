@@ -190,8 +190,9 @@
         }
 
         .password-input-wrapper { position: relative; }
+        .password-input-wrapper .form-control { display: block; padding-right: 3.5rem; }
         .password-toggle {
-            position: absolute; top: 50%; right: 0.75rem; transform: translateY(-50%);
+            position: absolute; top: 0; bottom: 0; right: 0.75rem; margin: auto 0;
             display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
             border: none; border-radius: 999px; background: transparent; color: var(--text-muted); cursor: pointer;
         }

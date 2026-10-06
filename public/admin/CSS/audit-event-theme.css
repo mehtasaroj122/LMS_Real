@@ -1,0 +1,21 @@
+/* Central palette: every audit surface uses these tokens via AuditEventStyle. */
+.audit-tone-book { --audit-soft: #EFF6FF; --audit-badge: #DBEAFE; --audit-text: #1D4ED8; --audit-border: #BFDBFE; --audit-icon: #2563EB; }
+.audit-tone-fine { --audit-soft: #FFF7ED; --audit-badge: #FFEDD5; --audit-text: #C2410C; --audit-border: #FED7AA; --audit-icon: #EA580C; }
+.audit-tone-auth { --audit-soft: #F5F3FF; --audit-badge: #EDE9FE; --audit-text: #6D28D9; --audit-border: #DDD6FE; --audit-icon: #7C3AED; }
+.audit-tone-user { --audit-soft: #F0FDFA; --audit-badge: #CCFBF1; --audit-text: #0F766E; --audit-border: #99F6E4; --audit-icon: #0D9488; }
+.audit-tone-privilege { --audit-soft: #EEF2FF; --audit-badge: #E0E7FF; --audit-text: #4338CA; --audit-border: #C7D2FE; --audit-icon: #4F46E5; }
+.audit-tone-request { --audit-soft: #ECFEFF; --audit-badge: #CFFAFE; --audit-text: #0E7490; --audit-border: #A5F3FC; --audit-icon: #0891B2; }
+.audit-tone-system { --audit-soft: #F8FAFC; --audit-badge: #E2E8F0; --audit-text: #475569; --audit-border: #CBD5E1; --audit-icon: #64748B; }
+.audit-tone-success { --audit-soft: #F0FDF4; --audit-badge: #DCFCE7; --audit-text: #166534; --audit-border: #BBF7D0; --audit-icon: #16A34A; }
+.audit-tone-warning { --audit-soft: #FFFBEB; --audit-badge: #FEF3C7; --audit-text: #92400E; --audit-border: #FDE68A; --audit-icon: #D97706; }
+.audit-tone-danger { --audit-soft: #FEF2F2; --audit-badge: #FEE2E2; --audit-text: #991B1B; --audit-border: #FECACA; --audit-icon: #DC2626; }
+.audit-soft { background: var(--audit-soft); }
+.audit-badge { background: var(--audit-badge); color: var(--audit-text); }
+.audit-text { color: var(--audit-text); }
+.audit-icon { color: var(--audit-icon); }
+.audit-border { border-color: var(--audit-border); }
+.audit-role-admin { --audit-role-text: #1E40AF; background: #DBEAFE; color: var(--audit-role-text); }
+.audit-role-staff { --audit-role-text: #0F766E; background: #CCFBF1; color: var(--audit-role-text); }
+.audit-role-student { --audit-role-text: #92400E; background: #FEF3C7; color: var(--audit-role-text); }
+.audit-role-system { --audit-role-text: #475569; background: #E2E8F0; color: var(--audit-role-text); }
+/* Light semantic badges retain their AA contrast in either shell theme. */

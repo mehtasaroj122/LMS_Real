@@ -39,7 +39,7 @@
     <div class="admin-table-pagination">
         <div class="admin-table-pagination-meta">
             <div class="admin-table-pagination-summary">
-                Showing {{ $paginator->firstItem() ?? 0 }} to {{ $paginator->lastItem() ?? 0 }} of {{ $paginator->total() }} results
+                Showing {{ $paginator->firstItem() ?? 0 }} to {{ $paginator->lastItem() ?? 0 }} of {{ $paginator->total() }} {{ $resultLabel ?? 'results' }}
             </div>
             <div class="admin-table-pagination-page">
                 Page {{ $currentPage }} of {{ $lastPage }}

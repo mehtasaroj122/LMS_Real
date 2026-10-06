@@ -7,6 +7,7 @@
     @include('shared.action-feedback.styles')
     <link rel="stylesheet" href="{{ asset('admin/CSS/issued-book-details.css') }}?v={{ filemtime(public_path('admin/CSS/issued-book-details.css')) }}">
     <link rel="stylesheet" href="{{ asset('admin/CSS/fine-history.css') }}?v={{ filemtime(public_path('admin/CSS/fine-history.css')) }}">
+    <link rel="stylesheet" href="{{ asset('admin/CSS/audit-event-details.css') }}?v={{ filemtime(public_path('admin/CSS/audit-event-details.css')) }}">
     <style>
         /* Student Details Page */
         .student-details-page {
@@ -3373,277 +3374,6 @@
             background-color: rgba(37, 99, 235, 0.22);
         }
 
-        .activity-modal-overlay {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(15, 23, 42, 0.62);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1100;
-            padding: 20px;
-        }
-
-        .activity-modal-overlay.show {
-            display: flex;
-        }
-
-        .activity-modal {
-            width: min(860px, 100%);
-            max-height: min(88vh, 900px);
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid;
-            display: flex;
-            flex-direction: column;
-        }
-
-        body.light-theme .activity-modal {
-            background-color: #ffffff;
-            border-color: #e2e8f0;
-            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
-        }
-
-        body.dark-theme .activity-modal {
-            background-color: #0f172a;
-            border-color: #334155;
-            box-shadow: 0 28px 70px rgba(2, 6, 23, 0.48);
-        }
-
-        .activity-modal-header {
-            padding: 22px 24px;
-            background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
-            color: #ffffff;
-            display: flex;
-            justify-content: space-between;
-            gap: 16px;
-            align-items: flex-start;
-        }
-
-        .activity-modal-kicker {
-            margin: 0 0 6px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            opacity: 0.75;
-        }
-
-        .activity-modal-header h2 {
-            margin: 0;
-            font-size: 22px;
-            line-height: 1.3;
-        }
-
-        .activity-modal-header p {
-            margin: 8px 0 0;
-            font-size: 14px;
-            opacity: 0.92;
-        }
-
-        .activity-modal-close {
-            flex-shrink: 0;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            background: rgba(255, 255, 255, 0.14);
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s ease;
-        }
-
-        .activity-modal-close:hover {
-            background: rgba(255, 255, 255, 0.24);
-        }
-
-        .activity-modal-body {
-            padding: 22px 24px 18px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .activity-modal-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .activity-detail-card {
-            border-radius: 16px;
-            padding: 14px 16px;
-            border: 1px solid;
-        }
-
-        body.light-theme .activity-detail-card {
-            background-color: #f8fafc;
-            border-color: #e2e8f0;
-        }
-
-        body.dark-theme .activity-detail-card {
-            background-color: #111c30;
-            border-color: #334155;
-        }
-
-        .activity-detail-label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        body.light-theme .activity-detail-label {
-            color: #64748b;
-        }
-
-        body.dark-theme .activity-detail-label {
-            color: #94a3b8;
-        }
-
-        .activity-detail-value {
-            font-size: 14px;
-            font-weight: 700;
-            line-height: 1.5;
-            word-break: break-word;
-        }
-
-        body.light-theme .activity-detail-value {
-            color: #0f172a;
-        }
-
-        body.dark-theme .activity-detail-value {
-            color: #f8fafc;
-        }
-
-        .activity-modal-section {
-            border-radius: 18px;
-            padding: 18px;
-            border: 1px solid;
-        }
-
-        body.light-theme .activity-modal-section {
-            background-color: #ffffff;
-            border-color: #e2e8f0;
-        }
-
-        body.dark-theme .activity-modal-section {
-            background-color: #111827;
-            border-color: #334155;
-        }
-
-        .activity-modal-section h4 {
-            margin: 0 0 14px;
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .activity-modal-user {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .activity-modal-description {
-            margin: 0;
-            font-size: 14px;
-            line-height: 1.7;
-        }
-
-        body.light-theme .activity-modal-description {
-            color: #475569;
-        }
-
-        body.dark-theme .activity-modal-description {
-            color: #cbd5e1;
-        }
-
-        .activity-metadata-list {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .activity-metadata-item {
-            border-radius: 14px;
-            padding: 12px 14px;
-        }
-
-        body.light-theme .activity-metadata-item {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-        }
-
-        body.dark-theme .activity-metadata-item {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-        }
-
-        .activity-metadata-key {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        body.light-theme .activity-metadata-key {
-            color: #64748b;
-        }
-
-        body.dark-theme .activity-metadata-key {
-            color: #94a3b8;
-        }
-
-        .activity-metadata-value {
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 1.5;
-            word-break: break-word;
-            white-space: pre-wrap;
-        }
-
-        body.light-theme .activity-metadata-value {
-            color: #1e293b;
-        }
-
-        body.dark-theme .activity-metadata-value {
-            color: #e2e8f0;
-        }
-
-        .activity-modal-empty {
-            font-size: 13px;
-            padding: 14px;
-            border-radius: 14px;
-        }
-
-        body.light-theme .activity-modal-empty {
-            background-color: #f8fafc;
-            color: #64748b;
-            border: 1px dashed #cbd5e1;
-        }
-
-        body.dark-theme .activity-modal-empty {
-            background-color: rgba(15, 23, 42, 0.9);
-            color: #94a3b8;
-            border: 1px dashed rgba(100, 116, 139, 0.7);
-        }
-
-        .activity-modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            padding: 0 24px 24px;
-        }
-
         @media (max-width: 768px) {
             .activity-main {
                 grid-template-columns: 1fr;
@@ -4397,89 +4127,8 @@
             </div>
         </div>
 
-        <div class="activity-modal-overlay" id="activityDetailsOverlay">
-            <div class="activity-modal" role="dialog" aria-modal="true" aria-labelledby="activityDetailsTitle">
-                <div class="activity-modal-header">
-                    <div>
-                        <p class="activity-modal-kicker">Audit Event</p>
-                        <h2 id="activityDetailsTitle">Activity Details</h2>
-                        <p id="activityDetailsSubtitle">Review technical details and metadata for this activity.</p>
-                    </div>
-                    <button type="button" class="activity-modal-close" id="closeActivityDetailsBtn"
-                        aria-label="Close activity details">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="activity-modal-body">
-                    <div class="activity-modal-grid">
-                        <div class="activity-detail-card">
-                            <span class="activity-detail-label">Status</span>
-                            <div class="activity-detail-value" id="activityDetailsStatus"></div>
-                        </div>
-                        <div class="activity-detail-card">
-                            <span class="activity-detail-label">Resource</span>
-                            <div class="activity-detail-value" id="activityDetailsResource"></div>
-                        </div>
-                        <div class="activity-detail-card">
-                            <span class="activity-detail-label">Timestamp</span>
-                            <div class="activity-detail-value" id="activityDetailsTimestamp"></div>
-                        </div>
-                        <div class="activity-detail-card">
-                            <span class="activity-detail-label">Session</span>
-                            <div class="activity-detail-value" id="activityDetailsSession"></div>
-                        </div>
-                    </div>
+        @include('partials.admin-audit-event-details-modal')
 
-                    <div class="activity-modal-section">
-                        <h4>Performed By</h4>
-                        <div class="activity-modal-user" id="activityDetailsUser"></div>
-                    </div>
-
-                    <div class="activity-modal-section">
-                        <h4>Description</h4>
-                        <p class="activity-modal-description" id="activityDetailsDescription"></p>
-                    </div>
-
-                    <div class="activity-modal-section">
-                        <h4>Technical Details</h4>
-                        <div class="activity-technical-grid">
-                            <div class="activity-technical-item">
-                                <span class="activity-technical-label">IP Address</span>
-                                <span class="activity-technical-value" id="activityDetailsIp"></span>
-                            </div>
-                            <div class="activity-technical-item">
-                                <span class="activity-technical-label">Device Type</span>
-                                <span class="activity-technical-value" id="activityDetailsDevice"></span>
-                            </div>
-                            <div class="activity-technical-item">
-                                <span class="activity-technical-label">Browser</span>
-                                <span class="activity-technical-value" id="activityDetailsBrowser"></span>
-                            </div>
-                            <div class="activity-technical-item">
-                                <span class="activity-technical-label">Session ID</span>
-                                <span class="activity-technical-value" id="activityDetailsSessionPanel"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="activity-modal-section">
-                        <h4>Metadata</h4>
-                        <div class="activity-metadata-list" id="activityMetadataList"></div>
-                    </div>
-                </div>
-                <div class="activity-modal-actions">
-                    <a href="#" class="activity-action-btn view-resource" id="activityDetailsResourceLink"
-                        target="_blank" rel="noopener">
-                        <i class="fas fa-external-link-alt"></i>
-                        View Resource
-                    </a>
-                    <button type="button" class="activity-action-btn more-details" onclick="closeActivityDetails()">
-                        <i class="fas fa-times-circle"></i>
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Role Selection Modal -->
@@ -4741,6 +4390,7 @@
     @include('shared.report-export.scripts')
     @include('shared.action-feedback.scripts')
     <script src="{{ asset('admin/JS/fine-history.js') }}?v={{ filemtime(public_path('admin/JS/fine-history.js')) }}"></script>
+    <script src="{{ asset('admin/JS/audit-event-details.js') }}?v={{ filemtime(public_path('admin/JS/audit-event-details.js')) }}"></script>
     <script>
         // Data provided by server (transformed in controller)
         const booksData = (@json($booksData ?? []) || []).map(normalizeStudentBookRecord);
@@ -5955,8 +5605,7 @@
         }
 
         function closeActivityDetails() {
-            const overlay = document.getElementById('activityDetailsOverlay');
-            overlay?.classList.remove('show');
+            window.LMSAuditDetails.close();
         }
 
         // Back button functionality
@@ -6508,8 +6157,8 @@
 
             activityItem.querySelector('[data-action="toggle-details"]')?.addEventListener('click', () =>
                 toggleTechnicalDetails(log.id));
-            activityItem.querySelector('[data-action="show-details"]')?.addEventListener('click', () => showActivityDetails(
-                log.id));
+            activityItem.querySelector('[data-action="show-details"]')?.addEventListener('click', event => showActivityDetails(
+                log.id, event.currentTarget));
             container.appendChild(activityItem);
         }
 
@@ -6533,63 +6182,13 @@
             `;
         }
 
-        function showActivityDetails(logId) {
+        function showActivityDetails(logId, trigger) {
             const log = activityLogLookup.get(String(logId));
-            const overlay = document.getElementById('activityDetailsOverlay');
-            if (!log || !overlay) {
-                showToast('Activity details are unavailable right now.', 'warning');
+            if (!log) {
+                showToast('Unable to load audit event details. Please try again.', 'warning');
                 return;
             }
-
-            const typeConfig = getActivityTypeConfig(log.type);
-            const statusConfig = getActivityStatusConfig(log.status);
-            const roleMeta = getActivityRoleMeta(log.userRole);
-            const resourceLabel = getActivityResourceLabel(log);
-            const metadataList = document.getElementById('activityMetadataList');
-            const resourceLink = document.getElementById('activityDetailsResourceLink');
-
-            document.getElementById('activityDetailsTitle').textContent = log.title || typeConfig.label;
-            document.getElementById('activityDetailsSubtitle').textContent = typeConfig.label;
-            document.getElementById('activityDetailsStatus').innerHTML =
-                `<span class="activity-status-badge status-${escapeHtml(statusConfig.key)}">${escapeHtml(statusConfig.label)}</span>`;
-            document.getElementById('activityDetailsResource').textContent = resourceLabel;
-            document.getElementById('activityDetailsTimestamp').textContent = log.fullTimestamp || log.time || 'N/A';
-            document.getElementById('activityDetailsSession').textContent = log.sessionId || 'Not captured';
-            document.getElementById('activityDetailsUser').innerHTML = `
-                ${getActivityAvatarMarkup(log)}
-                <div class="activity-user-info">
-                    <div class="activity-user-name-row">
-                        <span class="activity-user-name">${escapeHtml(log.userName || 'System')}</span>
-                        <span class="activity-role-badge role-${escapeHtml(roleMeta.roleClass)}">${escapeHtml(roleMeta.label)}</span>
-                    </div>
-                    <span class="activity-user-resource">${escapeHtml(typeConfig.label)}</span>
-                </div>
-            `;
-            document.getElementById('activityDetailsDescription').textContent = log.description || 'Activity recorded';
-            document.getElementById('activityDetailsIp').textContent = log.ipAddress || 'Not captured';
-            document.getElementById('activityDetailsDevice').textContent = log.deviceType || 'Unknown device';
-            document.getElementById('activityDetailsBrowser').textContent = log.browser || 'Unknown browser';
-            document.getElementById('activityDetailsSessionPanel').textContent = log.sessionId || 'Not captured';
-
-            if (metadataList) {
-                const metadataMarkup = getActivityMetadataMarkup(log.metadata);
-                metadataList.innerHTML = metadataMarkup ||
-                    '<div class="activity-modal-empty">No additional metadata was captured for this activity.</div>';
-            }
-
-            if (resourceLink) {
-                if (log.resourceUrl) {
-                    resourceLink.href = log.resourceUrl;
-                    resourceLink.classList.remove('is-disabled');
-                    resourceLink.setAttribute('aria-disabled', 'false');
-                } else {
-                    resourceLink.href = '#';
-                    resourceLink.classList.add('is-disabled');
-                    resourceLink.setAttribute('aria-disabled', 'true');
-                }
-            }
-
-            overlay.classList.add('show');
+            window.LMSAuditDetails.open(log, trigger);
         }
 
         function getActivityTypeConfig(type) {
@@ -6685,36 +6284,6 @@
             }
 
             return parts.map(part => part.charAt(0).toUpperCase()).join('');
-        }
-
-        function getActivityMetadataMarkup(metadata) {
-            const filteredEntries = Object.entries(metadata || {}).filter(([key]) => !['session_id'].includes(String(key)));
-            if (filteredEntries.length === 0) {
-                return '';
-            }
-
-            return filteredEntries.map(([key, value]) => `
-                <div class="activity-metadata-item">
-                    <span class="activity-metadata-key">${escapeHtml(formatDisplayLabel(key))}</span>
-                    <div class="activity-metadata-value">${escapeHtml(formatActivityMetadataValue(value))}</div>
-                </div>
-            `).join('');
-        }
-
-        function formatActivityMetadataValue(value) {
-            if (value === null || value === undefined || value === '') {
-                return 'Not captured';
-            }
-
-            if (Array.isArray(value)) {
-                return value.map(item => formatActivityMetadataValue(item)).join(', ');
-            }
-
-            if (typeof value === 'object') {
-                return JSON.stringify(value, null, 2);
-            }
-
-            return String(value);
         }
 
         function getActivityResourceLabel(log) {
