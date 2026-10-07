@@ -44,7 +44,7 @@ The diagram is organized hierarchically, with parent use cases containing child 
 - Add, modify, and remove any entity (books, users, students)
 - Configure system settings and library policies
 - View comprehensive reports and audit logs
-- Manage user account lockouts and security
+- Manage user access and security
 - Override student borrowing rules through privilege settings
 - Process all types of requests and transactions
 
@@ -87,7 +87,6 @@ The diagram is organized hierarchically, with parent use cases containing child 
 **Key Operations:**
 - Calculate overdue fines automatically
 - Trigger and queue email notifications
-- Monitor account lockout status
 - Verify email addresses
 - Send reminder emails for pending payments
 
@@ -180,7 +179,7 @@ Display audit trail of all system actions with timestamp, user, IP address, and 
 **Included Use Cases:**
 - **Update Library Branding** - Configure library name, logo, and appearance
 - **Update Fine Settings** - Set per-day fine amount, max fine, grace period, penalties
-- **Update Security Settings** - Configure account lockout policies, password requirements, session timeouts
+- **Update Security Settings** - Configure password requirements and session timeouts
 
 ### 🔔 View Notifications
 Display notifications for events like new requests, returns, overdue books, system alerts.
@@ -333,15 +332,6 @@ Display notifications: request approvals/rejections, book issues, due date remin
 - Due date reminders
 - Overdue notifications
 - Fine notifications and payment reminders
-- Account security alerts
-
-### 🔒 Check Account Lockout
-**Trigger:** During login attempt, after X failed attempts  
-**Responsibility:** Monitor and enforce account lockout policy:
-- Track failed login attempts
-- Lock account after threshold
-- Queue security notification
-- Enable admin unlock
 
 ### ✉️ Verify Email Address
 **Trigger:** During user registration  
@@ -431,20 +421,7 @@ Book availability decreases in system
 When copies depleted: book requests queue automatically
 ```
 
-### 4. Account Lockout Workflow
-```
-Student fails login X times
-    ↓
-System locks account and queues security alert
-    ↓
-Admin receives notification of locked account
-    ↓
-Admin unlocks account manually
-    ↓
-Student can retry login
-```
-
-### 5. Student Privilege Override
+### 4. Student Privilege Override
 ```
 Admin sets custom privilege for student
     ↓
@@ -485,7 +462,6 @@ When book is issued to privileged student:
 7. **Student Autonomy** - Students can only cancel pending requests, not approved ones
 8. **Staff Limitation** - Staff cannot delete books; must request admin approval
 9. **Privilege Override** - Admin can customize borrowing terms per student
-10. **Account Security** - Failed logins trigger lockout; admin must manually unlock
 
 ---
 

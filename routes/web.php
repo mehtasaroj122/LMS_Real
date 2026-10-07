@@ -14,7 +14,6 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StudentController;
-use App\Http\Controllers\Admin\AccountLockController;
 use App\Http\Controllers\Admin\UiShowcaseController;
 use App\Http\Controllers\Admin\AccessionLabelController;
 use App\Http\Controllers\NotificationController;
@@ -85,9 +84,17 @@ Route::middleware(['auth', 'can:access-admin'])
 
         Route::get('/accession-labels', [AccessionLabelController::class, 'index'])
             ->name('accession-labels.index');
+        Route::get('/accession-labels/next', [AccessionLabelController::class, 'next'])
+            ->name('accession-labels.next');
         Route::post('/accession-labels/preview', [AccessionLabelController::class, 'preview'])
             ->name('accession-labels.preview');
-        Route::post('/accession-labels/print', [AccessionLabelController::class, 'print'])
+        Route::get('/accession-labels/search', [AccessionLabelController::class, 'searchBooks'])
+            ->name('accession-labels.search');
+        Route::get('/accession-labels/books/{book}/copies', [AccessionLabelController::class, 'bookCopies'])
+            ->name('accession-labels.book-copies');
+        Route::post('/accession-labels/existing-preview', [AccessionLabelController::class, 'previewExisting'])
+            ->name('accession-labels.existing-preview');
+        Route::post('/accession-labels/print', [AccessionLabelController::class, 'preparePrint'])
             ->name('accession-labels.print');
 
         Route::get('/users/data', [UserController::class, 'getUsersData'])->name('users.data');
@@ -181,14 +188,6 @@ Route::middleware(['auth', 'can:access-admin'])
         Route::put('/settings/password', [SettingController::class, 'updatePassword'])->name('settings.update-password');
         Route::put('/settings/library', [SettingController::class, 'updateLibrarySettings'])->name('settings.update-library');
         Route::post('/settings/remove-photo', [SettingController::class, 'removePhoto'])->name('settings.remove-photo');
-
-        // Account Lock Management Routes
-        Route::prefix('account-locks')->name('account-locks.')->group(function () {
-            Route::get('/', [AccountLockController::class, 'index'])->name('index');
-            Route::post('/unlock', [AccountLockController::class, 'unlock'])->name('unlock');
-            Route::post('/unlock-all', [AccountLockController::class, 'unlockAll'])->name('unlock-all');
-            Route::post('/settings', [AccountLockController::class, 'updateSettings'])->name('settings');
-        });
 
         // Notification Routes for Admin
         Route::prefix('notifications')->name('notifications.')->group(function () {

@@ -166,6 +166,96 @@ class AccessionNumberGenerator
             ->all();
     }
 
+    /**
+     * Build a quantity-based, non-reserving preview. When skipping is enabled,
+     * quantity means printable labels and scanning continues past duplicates.
+     */
+    public function availableFrom(
+        string $startAccession,
+        int $quantity,
+        bool $skipExisting = true,
+        ?int $maximumScan = null
+    ): array {
+        $start = $this->parse($startAccession);
+        $maximumScan ??= (int) config('accession-labels.max_scan', 2000);
+
+        if ($start === null || $quantity < 1 || $quantity > (int) config('accession-labels.max_per_batch', 500)) {
+            throw new \InvalidArgumentException('Invalid accession quantity request.');
+        }
+
+        $scanLimit = $skipExisting ? $maximumScan : $quantity;
+        $lastPossible = min(self::MAX_NUMBER, $start + $scanLimit - 1);
+        $first = $this->format($start);
+        $last = $this->format($lastPossible);
+        $existing = DB::table('book_copies')
+            ->whereBetween('accession_number', [$first, $last])
+            ->where('accession_number', 'like', self::PREFIX.'-%')
+            ->pluck('accession_number')
+            ->filter(fn (string $value) => $this->parse($value) !== null)
+            ->flip();
+
+        $labels = [];
+        $skipped = [];
+        $scanned = 0;
+        $lastScanned = $start;
+
+        for ($number = $start; $number <= $lastPossible; $number++) {
+            $accession = $this->format($number);
+            $lastScanned = $number;
+            $scanned++;
+
+            if ($existing->has($accession)) {
+                $skipped[] = $accession;
+            } else {
+                $labels[] = $accession;
+            }
+
+            if ($skipExisting && count($labels) === $quantity) {
+                break;
+            }
+
+            if (! $skipExisting && $scanned === $quantity) {
+                break;
+            }
+        }
+
+        return [
+            'start' => $first,
+            'last_scanned' => $this->format($lastScanned),
+            'requested_quantity' => $quantity,
+            'scanned_count' => $scanned,
+            'labels' => $labels,
+            'skipped' => $skipped,
+            'fulfilled' => count($labels) === $quantity,
+            'skip_existing' => $skipExisting,
+        ];
+    }
+
+    public function analyzeRange(string $from, string $to): array
+    {
+        $requested = $this->range($from, $to);
+        $existing = DB::table('book_copies')
+            ->whereIn('accession_number', $requested)
+            ->orderBy('accession_number')
+            ->pluck('accession_number')
+            ->all();
+        $lookup = array_fill_keys($existing, true);
+
+        return [
+            'start' => $requested[0],
+            'last_scanned' => $requested[count($requested) - 1],
+            'requested_quantity' => count($requested),
+            'scanned_count' => count($requested),
+            'labels' => array_values(array_filter(
+                $requested,
+                fn (string $accession) => ! isset($lookup[$accession])
+            )),
+            'skipped' => $existing,
+            'fulfilled' => count($existing) === 0,
+            'skip_existing' => false,
+        ];
+    }
+
     private function highestExistingNumber(): int
     {
         if (DB::connection()->getDriverName() === 'sqlite') {

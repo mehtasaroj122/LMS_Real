@@ -31,7 +31,7 @@
     const actionSelector = '.action-btn, .admin-action-btn, .book-copies-action, .request-action-btn, .student-fine-action-btn, .activity-action-btn, .action-btn-small';
     const primarySelector = '.btn-primary, .btn-success, .btn-info, .btn-accept, .modal-btn-approve, .save-changes-btn, .student-submit-btn, .generate-receipt-btn, .report-export-btn-primary, .report-export-btn-download, .report-pdf-btn-primary, .reports-error-retry, .export-btn, .btn-paid, .btn-activate, #modalConfirmBtn, #studentCreateSubmitBtn, #studentCreateBtn';
     const dangerSelector = '.btn-danger, .btn-confirm-danger, .btn-delete, .btn-deactivate, .account-deletion-zone__button, .delete-modal-primary, .remove-book';
-    const unstyledSelector = '.sidebar-item, .tab-btn, .chart-view-btn, .request-selectbox-option, .physical-book-result, .palette-btn, .fine-period-label, .activity-toggle-btn, .privilege-details-toggle, .student-modal-backdrop';
+    const unstyledSelector = '.sidebar-item, .tab-btn, .chart-view-btn, .request-selectbox-option, .physical-book-result, .palette-btn, .fine-period-label, .activity-toggle-btn, .privilege-details-toggle, .student-modal-backdrop, .accession-tabs button, .accession-button';
     const variants = ['primary', 'secondary', 'danger', 'neutral'];
     const busyStates = new WeakMap();
     let sequence = 0;

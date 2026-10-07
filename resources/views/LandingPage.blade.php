@@ -24,7 +24,7 @@
     ];
 
     $roles = [
-        ['icon' => 'admin', 'title' => 'Admin', 'summary' => 'Full system control and visibility.', 'points' => ['Manage users, students, reports, and settings.', 'Oversee account lockouts, policies, and audit activity.', 'Monitor fines, requests, and system-wide operational health.']],
+        ['icon' => 'admin', 'title' => 'Admin', 'summary' => 'Full system control and visibility.', 'points' => ['Manage users, students, reports, and settings.', 'Oversee access policies and audit activity.', 'Monitor fines, requests, and system-wide operational health.']],
         ['icon' => 'staff', 'title' => 'Staff', 'summary' => 'Faster day-to-day library operations.', 'points' => ['Process requests and fulfill approved circulation quickly.', 'Issue and return books with structured workflows.', 'Handle fines, reminders, and inventory updates efficiently.']],
         ['icon' => 'student', 'title' => 'Student', 'summary' => 'A clearer self-service library experience.', 'points' => ['Search books and place requests from the student portal.', 'Track due dates, active books, fines, and notifications.', 'Manage profile details and stay informed about library activity.']],
     ];
@@ -46,7 +46,7 @@
 
     $securityPoints = [
         ['icon' => 'security', 'title' => 'Email Verification & OTP Signup', 'description' => 'Student registration is backed by OTP verification and email confirmation for stronger account trust.'],
-        ['icon' => 'lock', 'title' => 'Rate Limiting & Account Lock Controls', 'description' => 'Login attempts are rate limited and admins get dedicated account lock management tools.'],
+        ['icon' => 'lock', 'title' => 'Password Security', 'description' => 'Secure password hashing and recovery workflows help protect access to every portal.'],
         ['icon' => 'portal', 'title' => 'Role-Based Access', 'description' => 'Admin, Staff, and Student portals keep the right actions in the right hands.'],
         ['icon' => 'audit', 'title' => 'Audit Trails & Scheduled Reminders', 'description' => 'Activity logs, overdue reminders, and fine reminder jobs support accountability over time.'],
     ];
@@ -55,7 +55,7 @@
         ['icon' => 'portal', 'title' => 'Dedicated Portals', 'description' => 'Give admins, staff, and students focused interfaces instead of one crowded dashboard.'],
         ['icon' => 'automation', 'title' => 'Fine Automation', 'description' => 'Apply overdue rules, caps, and penalties through configurable library settings.'],
         ['icon' => 'notifications', 'title' => 'Workflow-Aware Alerts', 'description' => 'Notify users when requests are processed, books are issued or returned, and fines need attention.'],
-        ['icon' => 'security', 'title' => 'Stronger Account Protection', 'description' => 'Combine OTP, verification, lockouts, password resets, and audit logging in one platform.'],
+        ['icon' => 'security', 'title' => 'Stronger Account Protection', 'description' => 'Combine OTP, verification, password resets, and audit logging in one platform.'],
     ];
 
     $useCases = [

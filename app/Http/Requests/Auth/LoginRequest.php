@@ -2,16 +2,16 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Support\AccountLockoutManager;
-use Illuminate\Auth\Events\Lockout;
+use App\Models\User;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
     public const FORM_ERROR_KEY = 'auth';
+
     public const ACCOUNT_INACTIVE_ERROR = 'account_inactive';
 
     /**
@@ -25,7 +25,7 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -38,15 +38,13 @@ class LoginRequest extends FormRequest
     /**
      * Attempt to authenticate the request's credentials.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function authenticate(): void
     {
-        $this->ensureIsNotRateLimited();
-
         // Check if user exists and get their status before authenticating
-        $user = \App\Models\User::where('email', $this->email)->first();
-        
+        $user = User::where('email', $this->email)->first();
+
         if ($user && $user->status === 'inactive') {
             throw ValidationException::withMessages([
                 self::FORM_ERROR_KEY => self::ACCOUNT_INACTIVE_ERROR,
@@ -54,51 +52,9 @@ class LoginRequest extends FormRequest
         }
 
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey(), AccountLockoutManager::decaySeconds());
-
             throw ValidationException::withMessages([
                 self::FORM_ERROR_KEY => trans('auth.failed'),
             ]);
         }
-
-        RateLimiter::clear($this->throttleKey());
-    }
-
-    /**
-     * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function ensureIsNotRateLimited(): void
-    {
-        // Check if rate limiting is enabled
-        if (!config('security.rate_limiting.enabled')) {
-            return;
-        }
-
-        $maxAttempts = config('security.rate_limiting.max_attempts', 5);
-
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), $maxAttempts)) {
-            return;
-        }
-
-        event(new Lockout($this));
-
-        $seconds = RateLimiter::availableIn($this->throttleKey());
-
-        throw ValidationException::withMessages([
-            self::FORM_ERROR_KEY => trans('auth.throttle', [
-                'seconds' => $seconds,
-                'minutes' => ceil($seconds / 60),
-            ]),
-        ]);
-    }
-
-    /**
-     * Get the rate limiting throttle key for the request.
-     */
-    public function throttleKey(): string
-    {
-        return AccountLockoutManager::throttleKey((string) $this->string('email'), (string) $this->ip());
     }
 }

@@ -19,7 +19,7 @@
         .accession-barcode-svg { display: block; width: 100%; height: 100%; max-height: {{ $settings['label_size'] === 'small' ? '12mm' : ($settings['label_size'] === 'medium' ? '17mm' : '25mm') }}; }
         .label-accession { margin-top: .8mm; color: #000; font-family: Arial, sans-serif; font-size: {{ $settings['label_size'] === 'small' ? '8pt' : ($settings['label_size'] === 'medium' ? '10pt' : '12pt') }}; font-weight: 700; letter-spacing: .4px; line-height: 1; }
         .label-book-title { max-width: 100%; margin-top: .6mm; overflow: hidden; font-size: 7pt; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
-        @page { size: {{ $settings['page_size'] }}; margin: 8mm; }
+        @page { size: {{ $settings['page_size'] }} {{ $settings['orientation'] }}; margin: 8mm; }
         @media print {
             html, body { margin: 0; background: #fff; }
             .print-toolbar { display: none !important; }
@@ -29,7 +29,7 @@
 </head>
 <body>
     <div class="print-toolbar">
-        <div><strong>Accession Barcode Print Preview</strong><span>{{ $labels->count() }} {{ Str::plural('label', $labels->count()) }} · {{ $settings['page_size'] }} · {{ $settings['columns'] }} columns</span></div>
+        <div><strong>Accession Barcode Print Preview</strong><span>{{ $summary['unique_count'] }} unique · {{ $summary['copies_per_label'] }} {{ Str::plural('copy', $summary['copies_per_label']) }} each · {{ $summary['total_labels'] }} total · {{ $settings['page_size'] }} {{ ucfirst($settings['orientation']) }} · {{ $settings['columns'] }} columns</span></div>
         <div><button class="secondary" type="button" onclick="window.close()">Close</button><button class="primary" type="button" onclick="window.print()">Print Labels</button></div>
     </div>
     <main class="label-sheet">

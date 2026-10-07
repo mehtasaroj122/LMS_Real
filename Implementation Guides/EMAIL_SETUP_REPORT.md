@@ -27,7 +27,6 @@ This pass audited the full Laravel application for email-related behavior, re-en
 - OTP and password reset email Blade files contained literal markdown code fences, which would render broken email HTML.
 - `OTPVerificationMail` pointed to a non-existent Blade view.
 - `PasswordResetLinkMail` pointed to a non-existent Blade view.
-- `AccountLockedNotification` used the wrong signed route name for the unlock link.
 - Fine reminder scheduling used the wrong lifecycle status (`unpaid` instead of the app’s actual `pending` status).
 - Student fine summary screens also queried `unpaid` instead of `pending`.
 - The app code and tests expected `email_verified_at`, but the users table did not actually have that column.
@@ -170,8 +169,6 @@ php artisan schedule:work
 - `app/Http/Controllers/Auth/OTPVerificationController.php`
 - `app/Http/Controllers/Auth/PasswordResetLinkController.php`
 - `app/Notifications/CustomResetPassword.php`
-- `app/Notifications/AccountLockedNotification.php`
-- `app/Notifications/AccountUnlockNotification.php`
 
 ### Admin, staff, and service layer
 
@@ -214,8 +211,6 @@ php artisan schedule:work
 - `resources/views/emails/password-reset-email.blade.php`
 - `resources/views/emails/password-reset.blade.php`
 - `resources/views/emails/welcome.blade.php`
-- `resources/views/emails/account-locked.blade.php`
-- `resources/views/emails/account-unlocked.blade.php`
 - `resources/views/emails/book-issued.blade.php`
 - `resources/views/emails/book-returned.blade.php`
 - `resources/views/emails/book-overdue.blade.php`
@@ -229,7 +224,6 @@ php artisan schedule:work
 
 - `tests/Feature/Auth/RegistrationTest.php`
 - `tests/Feature/Auth/PasswordResetTest.php`
-- `tests/Feature/Auth/AccountLockWorkflowTest.php`
 - `tests/Feature/Auth/AuthenticationTest.php`
 - `tests/Feature/FineBulkActionTest.php`
 - `tests/Feature/BookRequestBulkActionTest.php`
@@ -241,7 +235,6 @@ php artisan schedule:work
 - Replaced placeholder “would have been sent” logging with real queued email dispatch.
 - Fixed broken OTP and password reset templates.
 - Fixed incorrect/missing Blade view references.
-- Fixed invalid account unlock route generation inside security emails.
 - Fixed reminder status mismatch (`unpaid` vs `pending`) in scheduled reminders and student fine summaries.
 - Added the missing `email_verified_at` column expected by verification logic.
 - Aligned the test factory with the real user-role schema.
@@ -254,7 +247,6 @@ Focused feature tests executed successfully:
 ```bash
 php artisan test tests/Feature/Auth/RegistrationTest.php \
   tests/Feature/Auth/PasswordResetTest.php \
-  tests/Feature/Auth/AccountLockWorkflowTest.php \
   tests/Feature/FineBulkActionTest.php \
   tests/Feature/BookRequestBulkActionTest.php \
   tests/Feature/ReminderEmailCommandTest.php

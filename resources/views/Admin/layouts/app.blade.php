@@ -204,7 +204,7 @@
 
 <body class="light-theme admin-portal">
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
-<div class="flex h-screen min-h-0 overflow-hidden">
+<div class="admin-app-shell flex h-screen min-h-0 overflow-hidden">
     <aside class="flex flex-col w-64 min-h-0 border-r sidebar admin-sidebar navy-sidebar shrink-0" id="sidebar">
         <div class="flex items-center justify-between p-4 logo-section">
             <button class="close-sidebar-btn" id="closeSidebarBtn" aria-label="Close menu">
@@ -251,9 +251,6 @@
             <a href="{{ route('admin.activity-logs.index') }}" class="sidebar-item {{ request()->routeIs('admin.activity-logs.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="history" class="w-5 h-5"></i><span class="text-sm font-medium">Activity Logs</span>
             </a>
-            {{-- <a href="{{ route('admin.account-locks.index') }}" class="sidebar-item {{ request()->routeIs('admin.account-locks.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
-                <i data-lucide="shield-alert" class="w-5 h-5"></i><span class="text-sm font-medium">Account Locks</span>
-            </a> --}}
             <a href="{{ route('admin.settings.index') }}" class="sidebar-item {{ request()->routeIs('admin.settings.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="settings" class="w-5 h-5"></i><span class="text-sm font-medium">Settings</span>
             </a>

@@ -5,12 +5,11 @@ use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
 use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\OTPVerificationController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\AccountUnlockController;
-use App\Http\Controllers\Auth\OTPVerificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -52,10 +51,6 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
 
-    // Account unlock via email link (signed route)
-    Route::get('unlock-account', [AccountUnlockController::class, 'unlockFromEmail'])
-        ->middleware('signed')
-        ->name('unlock-from-email');
 });
 
 Route::middleware('auth')->group(function () {

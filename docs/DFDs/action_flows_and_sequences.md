@@ -33,18 +33,11 @@
    - "Remember Me" checkbox
    - "Forgot Password" link
 3. User enters email and password
-4. System validates rate limiting (5 attempts per minute per email/IP)
-5. System checks for account lockout:
-   - If locked: Display unlock page with email verification link
-   - If not locked: Proceed to authentication
-6. System authenticates credentials against users table
-7. If authentication fails:
-   - Increment failed attempt counter
-   - Log activity with IP, browser, device type
-   - If threshold reached (default: 5 attempts): Lock account
+4. System authenticates credentials against users table
+5. If authentication fails:
    - Display error message
    - Return to login page
-8. If authentication succeeds:
+6. If authentication succeeds:
    - Verify account status:
      - If inactive: Redirect to inactive account page
      - If active: Proceed
@@ -54,14 +47,14 @@
    - Verify email (if required):
      - If not verified: Send verification email, redirect to verify page
      - If verified: Proceed
-9. Create session:
+7. Create session:
    - Store user ID, role, permissions in session
    - Set session expiration based on config
-10. Redirect to role-based dashboard:
+8. Redirect to role-based dashboard:
     - Admin → `/admin/dashboard`
     - Staff → `/staff/dashboard`
     - Student → `/student/dashboard`
-11. Log successful login activity
+9. Log successful login activity
 
 **Response Data:**
 ```json
@@ -78,8 +71,6 @@
 **Validations:**
 - Email format validation
 - Password not empty
-- Rate limiting per IP and email
-- Account lockout status check
 - Account active/inactive status
 - Email verification status
 - Forced password change flag
@@ -183,53 +174,6 @@ Security Note: This link is secure and unique to your account.
 - At least 1 lowercase letter
 - At least 1 number
 - At least 1 special character (!@#$%^&*)
-
----
-
-### 🔓 Unlock Account
-
-**Trigger:** User clicks unlock link or Admin manually unlocks  
-**Actors:** User (self), Administrator
-
-**Route:** `/unlock-account?token={token}`
-
-**Steps (User Self-Unlock):**
-
-1. User receives unlock email after account lockout
-2. Email contains 24-hour signed unlock link
-3. User clicks link:
-   - System verifies token (signed, 24-hour expiry)
-   - System verifies token is for lockout unlock (not password reset)
-4. System unlocks account:
-   - Set locked_until = NULL
-   - Reset failed_login_attempts = 0
-5. Display success message
-6. Redirect to login page
-7. Log unlock action by user
-
-**Steps (Admin Unlock):**
-
-1. Admin navigates to `/admin/account-locks`
-2. System displays list of locked accounts with:
-   - User name/email
-   - Lock time
-   - Failed attempts
-   - Action buttons (Unlock, Unlock All)
-3. Admin clicks "Unlock" button for specific user
-4. System confirms action with modal
-5. Admin clicks confirm
-6. System unlocks account:
-   - Set locked_until = NULL
-   - Reset failed_login_attempts = 0
-7. System sends notification to user (optional)
-8. Display success message to admin
-9. Log unlock action performed by admin with admin ID
-10. Refresh locked accounts list
-
-**CLI Command (Alternative):**
-```bash
-php artisan auth:unlock-account {email}
-```
 
 ---
 
@@ -658,71 +602,6 @@ If you have any questions, contact the administrator.
 
 ---
 
-### 🔒 Unlock Account / Manage Lockouts
-
-**Trigger:** Admin navigates to Account Locks section  
-**Path:** `/admin/account-locks`
-
-**View Locked Accounts:**
-
-1. Admin clicks "Account Locks" in admin menu
-2. System queries all locked accounts:
-   - SQL: `SELECT * FROM users WHERE locked_until IS NOT NULL AND locked_until > NOW()`
-3. System displays table with:
-   - User name, email
-   - Lock time (when locked)
-   - Failed attempts count
-   - Unlock buttons
-   - Lock reason (if recorded)
-4. Pagination: Display 20 per page
-5. Search/Filter by:
-   - Email
-   - Lock date range
-   - Failed attempts range
-
-**Unlock Single Account:**
-
-1. Admin clicks "Unlock" button for specific user
-2. System displays confirmation modal
-3. Admin confirms
-4. System updates user:
-   - Set locked_until = NULL
-   - Set failed_login_attempts = 0
-5. System sends notification to user (optional):
-   ```
-   Subject: Your Account Has Been Unlocked
-   
-   Dear [User Name],
-   
-   Your account has been successfully unlocked.
-   You can now log in with your credentials.
-   ```
-6. Log unlock activity with admin ID
-7. Display success message
-8. Refresh locked accounts list
-
-**Unlock All Accounts:**
-
-1. Admin clicks "Unlock All" button
-2. System displays confirmation modal with count of locked accounts
-3. Admin confirms
-4. System iterates through all locked accounts:
-   - For each: Set locked_until = NULL, failed_login_attempts = 0
-   - Send notification emails (optional, batched)
-5. Log bulk unlock activity
-6. Display summary: "X accounts unlocked"
-7. Refresh locked accounts list
-
-**Account Lockout Settings:**
-
-Admin can configure:
-- Max failed attempts before lockout: default 5
-- Lockout duration: default 30 minutes
-- Email notification on lockout: yes/no
-- IP-based lockout: yes/no
-
----
-
 ### 📊 View Dashboard
 
 **Trigger:** Admin logs in, clicks Dashboard  
@@ -738,7 +617,6 @@ Admin can configure:
 - Pending Requests: `SELECT COUNT(*) FROM book_requests WHERE status = 'pending'`
 - Outstanding Fines: `SELECT COUNT(*) FROM fines WHERE status = 'pending'`
 - Total Fine Amount: `SELECT SUM(amount) FROM fines WHERE status = 'pending'`
-- Locked Accounts: `SELECT COUNT(*) FROM users WHERE locked_until > NOW()`
 
 **2. Charts (JavaScript driven):**
 - Fine Trend (7 days): Line chart of daily fines calculated
@@ -1770,50 +1648,8 @@ Admin can configure:
 - **FineCreated** - New fine created
 - **FineReminder** - Reminder to pay fine
 - **BookReturned** - Confirmation of return
-- **AccountLocked** - Notification of account lockout with unlock link
 - **PasswordReset** - Password reset link
 - **WelcomeNewUser** - Welcome email for new staff/student
-
----
-
-### 🔒 Check Account Lockout (On Login)
-
-**Trigger:** During login attempt  
-**Path:** Login authentication middleware
-
-**Steps:**
-
-1. User attempts login with email/password
-2. System loads user by email
-3. System checks lockout status:
-   - `SELECT locked_until FROM users WHERE email = ?`
-4. If locked_until is NULL:
-   - Account not locked, proceed to password check
-5. If locked_until is not NULL:
-   - Check if lockout has expired:
-     - Current time > locked_until?
-   - If lockout expired:
-     - Automatically unlock:
-       - Set locked_until = NULL
-       - Set failed_login_attempts = 0
-       - Proceed to password check
-   - If lockout still active:
-     - Display error: "Account locked. Try again at [time] or click here to unlock."
-     - Provide link to unlock page that sends unlock email
-     - Return to login page
-     - Log failed login attempt
-6. If password authentication fails:
-   - Check failed_login_attempts count
-   - Increment failed_login_attempts
-   - If failed_login_attempts ≥ threshold (default: 5):
-     - Lock account:
-       - Set locked_until = NOW() + lockout_duration (default: 30 minutes)
-       - Send suspicious activity notification to user
-     - Log suspicious activity
-     - Display message: "Account locked due to repeated failed attempts"
-   - If failed_login_attempts < threshold:
-     - Display error: "Invalid credentials. X attempts remaining"
-     - Log failed attempt with IP
 
 ---
 
@@ -1997,59 +1833,6 @@ FINE RESOLVED
 ├─ Receipt generated/sent
 ├─ Fine removed from pending list
 └─ Activity logged
-```
-
----
-
-### 🔐 Complete Account Lockout & Recovery
-
-```
-STUDENT FAILS LOGIN 5 TIMES
-├─ Attempt 1: "Invalid credentials"
-├─ Attempt 2: "Invalid credentials"
-├─ Attempt 3: "Invalid credentials"
-├─ Attempt 4: "Invalid credentials (1 attempt remaining)"
-└─ Attempt 5: LOCKED
-   │
-SYSTEM LOCKS ACCOUNT
-├─ Set locked_until = now + 30 minutes
-├─ Set failed_login_attempts = 5
-├─ Log suspicious activity with IP address
-└─ Queue security notification email
-   │
-STUDENT RECEIVES UNLOCK EMAIL
-├─ Email: "Suspicious activity detected"
-├─ Contains: 24-hour unlock link
-├─ Contains: Security tips
-└─ Message: "If not you, ignore this"
-   │
-STUDENT CLICKS UNLOCK LINK
-├─ System verifies token
-├─ System checks lockout status:
-│  ├─ If still locked: Unlock account
-│  │  ├─ Set locked_until = NULL
-│  │  ├─ Set failed_login_attempts = 0
-│  │  └─ Notify student: "Account unlocked"
-│  └─ If unlocked (30 min passed): Already available
-└─ Student can retry login
-   │
-STUDENT RETRIES LOGIN
-├─ System checks:
-│  └─ locked_until is NULL ✓
-├─ Authenticate password
-├─ On success: Normal login flow
-└─ Session created, dashboard shown
-   │
-ALTERNATIVE: ADMIN UNLOCK
-├─ Admin sees locked account in dashboard alert
-├─ Admin navigates to "Account Locks"
-├─ Admin selects student
-├─ Admin clicks "Unlock"
-├─ Confirmation modal shown
-├─ Admin confirms
-├─ System unlocks account
-├─ Optional: Send notification to student
-└─ Student can retry login
 ```
 
 ---

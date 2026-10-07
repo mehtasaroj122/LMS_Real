@@ -32,6 +32,24 @@ test('users can not authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
+test('repeated failed logins do not lock the account', function () {
+    $user = User::factory()->create();
+
+    foreach (range(1, 10) as $attempt) {
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ])->assertSessionHasErrors('auth');
+    }
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect(route('student.dashboard', absolute: false));
+
+    $this->assertAuthenticatedAs($user);
+});
+
 test('login validation errors stay attached to their fields', function () {
     $this->post('/login', [
         'email' => 'not-an-email',

@@ -4,6 +4,10 @@ body {
     height: 100%;
 }
 
+html {
+    overflow: hidden;
+}
+
 body {
     margin: 0;
     overflow: hidden;
@@ -11,6 +15,21 @@ body {
     transition:
         background-color 0.3s ease,
         color 0.3s ease;
+}
+
+/* Keep the application flush with Chrome's live viewport. The h-screen utility
+   uses legacy 100vh, which can retain space for browser UI after a resize. */
+body.admin-portal > .admin-app-shell {
+    width: 100%;
+    height: 100% !important;
+    min-height: 100% !important;
+}
+
+@supports (height: 100dvh) {
+    body.admin-portal > .admin-app-shell {
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+    }
 }
 body.light-theme {
     background-color: #f9fafb;

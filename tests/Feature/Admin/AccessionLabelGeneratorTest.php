@@ -12,7 +12,7 @@ function accessionLabelAdmin(): User
     return User::factory()->create(['role' => 'admin']);
 }
 
-function accessionLabelBook(): Book
+function accessionLabelBook(array $overrides = []): Book
 {
     $key = Str::lower(Str::random(8));
     $category = Category::create([
@@ -20,7 +20,7 @@ function accessionLabelBook(): Book
         'description' => 'Barcode label test category',
     ]);
 
-    return Book::create([
+    return Book::create(array_merge([
         'category_id' => $category->id,
         'title' => 'Label Test Book '.$key,
         'author' => 'Test Author',
@@ -32,141 +32,223 @@ function accessionLabelBook(): Book
         'description' => 'Book used to verify barcode labels.',
         'shelf_no' => 'L-01',
         'status' => 'available',
-    ]);
+    ], $overrides));
 }
 
-test('accession label generator is visible to admins and blocked for students', function () {
-    $admin = accessionLabelAdmin();
-
-    $this->actingAs($admin)
-        ->get(route('admin.accession-labels.index'))
-        ->assertOk()
-        ->assertSee('Accession Number Generator')
-        ->assertSee('ACC-000001')
-        ->assertSee('data-lucide="barcode"', false);
-
-    $student = User::factory()->create(['role' => 'student']);
-    $this->actingAs($student)
-        ->get(route('admin.accession-labels.index'))
-        ->assertForbidden();
-});
-
-test('range preview preserves format excludes existing copies and creates no copies', function () {
-    $admin = accessionLabelAdmin();
-    $book = accessionLabelBook();
-    BookCopy::create([
+function accessionLabelCopy(Book $book, string $accession, array $overrides = []): BookCopy
+{
+    return BookCopy::create(array_merge([
         'book_id' => $book->id,
-        'accession_number' => 'ACC-000003',
+        'accession_number' => $accession,
         'status' => 'available',
         'condition' => 'good',
         'book_type' => 'borrowing',
-    ]);
+    ], $overrides));
+}
+
+function accessionPrintSettings(array $overrides = []): array
+{
+    return array_merge([
+        'label_size' => 'medium',
+        'columns' => 3,
+        'page_size' => 'A4',
+        'orientation' => 'portrait',
+        'barcode_height' => 64,
+        'copies_per_label' => 1,
+        'show_accession' => true,
+        'show_library_name' => false,
+        'show_logo' => false,
+        'show_border' => true,
+    ], $overrides);
+}
+
+test('async accession workspace is visible to admins and blocked for students', function () {
+    $admin = accessionLabelAdmin();
 
     $this->actingAs($admin)
-        ->post(route('admin.accession-labels.preview'), [
-            'from' => 'acc-000001',
-            'to' => 'ACC-000005',
+        ->get(route('admin.accession-labels.index'))
+        ->assertOk()
+        ->assertSee('Start + Quantity')
+        ->assertSee('Reprint Existing')
+        ->assertSee('window.accessionLabelConfig', false)
+        ->assertSee('ACC-000001');
+
+    $student = User::factory()->create(['role' => 'student']);
+    $this->actingAs($student)->get(route('admin.accession-labels.index'))->assertForbidden();
+    $this->actingAs($student)->getJson(route('admin.accession-labels.search'))->assertForbidden();
+});
+
+test('quantity preview skips existing accessions and continues until printable quantity is fulfilled', function () {
+    $admin = accessionLabelAdmin();
+    $book = accessionLabelBook();
+    accessionLabelCopy($book, 'ACC-000003');
+    accessionLabelCopy($book, 'ACC-000005');
+
+    $this->actingAs($admin)
+        ->postJson(route('admin.accession-labels.preview'), [
+            'method' => 'quantity',
+            'start' => 'acc-000001',
+            'quantity' => 5,
+            'skip_existing' => true,
         ])
         ->assertOk()
-        ->assertSee('5')
-        ->assertSee('4 printable labels')
-        ->assertSee('ACC-000001')
-        ->assertSee('ACC-000005')
-        ->assertSee('ACC-000003')
-        ->assertSee('Already exists')
-        ->assertSee('Code 128 barcode for ACC-000001');
+        ->assertJsonPath('requested_quantity', 5)
+        ->assertJsonPath('generated_count', 5)
+        ->assertJsonPath('skipped_count', 2)
+        ->assertJsonPath('last_scanned', 'ACC-000007')
+        ->assertJsonPath('labels.0.accession', 'ACC-000001')
+        ->assertJsonPath('labels.4.accession', 'ACC-000007')
+        ->assertJsonPath('skipped.0', 'ACC-000003')
+        ->assertJsonPath('skipped.1', 'ACC-000005');
 
-    expect(BookCopy::query()->count())->toBe(1)
+    expect(BookCopy::query()->count())->toBe(2)
         ->and(ActivityLog::query()->where('action', 'accession_barcodes_generated')->exists())->toBeTrue();
 });
 
-test('range validation rejects malformed reversed and excessive ranges', function () {
-    $admin = accessionLabelAdmin();
-
-    $this->actingAs($admin)
-        ->post(route('admin.accession-labels.preview'), ['from' => 'BAD-1', 'to' => 'ACC-000002'])
-        ->assertSessionHasErrors('from');
-
-    $this->actingAs($admin)
-        ->post(route('admin.accession-labels.preview'), ['from' => 'ACC-000010', 'to' => 'ACC-000001'])
-        ->assertSessionHasErrors('to');
-
-    config()->set('accession-labels.max_per_batch', 3);
-    $this->actingAs($admin)
-        ->post(route('admin.accession-labels.preview'), ['from' => 'ACC-000001', 'to' => 'ACC-000004'])
-        ->assertSessionHasErrors('to');
-});
-
-test('print endpoint regenerates availability and only prints valid selected labels', function () {
+test('quantity preview can use raw range semantics and range mode remains supported', function () {
     $admin = accessionLabelAdmin();
     $book = accessionLabelBook();
-    BookCopy::create([
-        'book_id' => $book->id,
-        'accession_number' => 'ACC-000002',
-        'status' => 'available',
-        'condition' => 'good',
-        'book_type' => 'borrowing',
+    accessionLabelCopy($book, 'ACC-000002');
+
+    $this->actingAs($admin)
+        ->postJson(route('admin.accession-labels.preview'), [
+            'method' => 'quantity', 'start' => 'ACC-000001', 'quantity' => 3, 'skip_existing' => false,
+        ])
+        ->assertOk()
+        ->assertJsonPath('generated_count', 2)
+        ->assertJsonPath('last_scanned', 'ACC-000003');
+
+    $this->actingAs($admin)
+        ->postJson(route('admin.accession-labels.preview'), [
+            'method' => 'range', 'from' => 'ACC-000001', 'to' => 'ACC-000004',
+        ])
+        ->assertOk()
+        ->assertJsonPath('requested_quantity', 4)
+        ->assertJsonPath('generated_count', 3)
+        ->assertJsonPath('skipped.0', 'ACC-000002');
+});
+
+test('async generation validates quantities formats reversed ranges and configured limits', function () {
+    $admin = accessionLabelAdmin();
+
+    $this->actingAs($admin)->postJson(route('admin.accession-labels.preview'), [
+        'method' => 'quantity', 'start' => 'BAD-1', 'quantity' => 0, 'skip_existing' => true,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['start', 'quantity']);
+
+    $this->actingAs($admin)->postJson(route('admin.accession-labels.preview'), [
+        'method' => 'range', 'from' => 'ACC-000010', 'to' => 'ACC-000001',
+    ])->assertUnprocessable()->assertJsonValidationErrors('to');
+
+    config()->set('accession-labels.max_per_batch', 3);
+    $this->actingAs($admin)->postJson(route('admin.accession-labels.preview'), [
+        'method' => 'quantity', 'start' => 'ACC-000001', 'quantity' => 4, 'skip_existing' => true,
+    ])->assertUnprocessable()->assertJsonValidationErrors('quantity');
+});
+
+test('reprint search returns matching books first and then paginates their physical copies', function () {
+    $admin = accessionLabelAdmin();
+    $cleanCode = accessionLabelBook(['title' => 'Clean Code Reference']);
+    $other = accessionLabelBook(['title' => 'Other Book']);
+    accessionLabelCopy($cleanCode, 'ACC-000015', ['status' => 'issued', 'condition' => 'fair']);
+    accessionLabelCopy($cleanCode, 'ACC-000016', ['status' => 'available']);
+    accessionLabelCopy($other, 'ACC-000017');
+
+    $this->actingAs($admin)
+        ->getJson(route('admin.accession-labels.search', [
+            'q' => 'Clean Code', 'status' => 'issued', 'sort' => 'book_title', 'per_page' => 10,
+        ]))
+        ->assertOk()
+        ->assertJsonPath('meta.total', 1)
+        ->assertJsonPath('data.0.title', 'Clean Code Reference')
+        ->assertJsonPath('data.0.copies_count', 2)
+        ->assertJsonPath('data.0.available_copies_count', 1);
+
+    $this->actingAs($admin)
+        ->getJson(route('admin.accession-labels.search', ['q' => 'ACC-000015']))
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $cleanCode->id)
+        ->assertJsonPath('data.0.matched_accession', 'ACC-000015');
+
+    $this->actingAs($admin)
+        ->getJson(route('admin.accession-labels.book-copies', [
+            'book' => $cleanCode, 'condition' => 'fair', 'per_page' => 10,
+        ]))
+        ->assertOk()
+        ->assertJsonPath('book.title', 'Clean Code Reference')
+        ->assertJsonPath('meta.total', 1)
+        ->assertJsonPath('data.0.accession', 'ACC-000015')
+        ->assertJsonPath('data.0.condition', 'fair');
+
+    $this->actingAs($admin)
+        ->getJson(route('admin.accession-labels.book-copies', [
+            'book' => $cleanCode, 'highlight' => 'ACC-000016', 'per_page' => 10,
+        ]))
+        ->assertOk()
+        ->assertJsonPath('data.0.accession', 'ACC-000016');
+});
+
+test('bulk existing preview returns shared vector barcodes and reports missing ids', function () {
+    $admin = accessionLabelAdmin();
+    $book = accessionLabelBook();
+    $first = accessionLabelCopy($book, 'ACC-000015');
+    $second = accessionLabelCopy($book, 'ACC-000016');
+
+    $this->actingAs($admin)
+        ->postJson(route('admin.accession-labels.existing-preview'), ['copy_ids' => [$first->id, $second->id, 999999]])
+        ->assertOk()
+        ->assertJsonCount(2, 'labels')
+        ->assertJsonPath('labels.0.accession', 'ACC-000015')
+        ->assertJsonPath('missing_ids.0', 999999)
+        ->assertJsonFragment(['book_title' => $book->title]);
+});
+
+test('generated print preparation rechecks availability and returns an async print document', function () {
+    $admin = accessionLabelAdmin();
+    $book = accessionLabelBook();
+    accessionLabelCopy($book, 'ACC-000002');
+
+    $payload = accessionPrintSettings([
+        'source' => 'generated',
+        'method' => 'range',
+        'from' => 'ACC-000001',
+        'to' => 'ACC-000003',
+        'print_scope' => 'selected',
+        'accessions' => ['ACC-000001', 'ACC-000002', 'ACC-999999'],
     ]);
 
     $this->actingAs($admin)
-        ->post(route('admin.accession-labels.print'), [
-            'action_type' => 'range',
-            'from' => 'ACC-000001',
-            'to' => 'ACC-000003',
-            'print_scope' => 'selected',
-            'labels' => ['ACC-000001', 'ACC-000002', 'ACC-999999'],
-            'label_size' => 'medium',
-            'columns' => 3,
-            'page_size' => 'A4',
-            'show_accession' => 1,
-            'show_library_name' => 0,
-            'show_logo' => 0,
-            'show_border' => 1,
-        ])
+        ->postJson(route('admin.accession-labels.print'), $payload)
         ->assertOk()
-        ->assertSee('Accession Barcode Print Preview')
-        ->assertSee('ACC-000001')
-        ->assertDontSee('ACC-000002')
-        ->assertDontSee('ACC-999999')
-        ->assertDontSee('id="sidebar"', false);
+        ->assertJsonPath('summary.unique_count', 1)
+        ->assertJsonPath('summary.total_labels', 1)
+        ->assertJsonPath('accessions.0', 'ACC-000001')
+        ->assertJsonFragment(['skipped_now' => ['ACC-000002', 'ACC-999999']])
+        ->assertJson(fn ($json) => $json->whereType('html', 'string')->etc());
 
     expect(ActivityLog::query()->where('action', 'accession_barcodes_printed')->exists())->toBeTrue();
 });
 
-test('existing copies can be searched and reprinted without creating records', function () {
+test('bulk reprint preparation supports duplicate label copies without creating book records', function () {
     $admin = accessionLabelAdmin();
     $book = accessionLabelBook();
-    $copy = BookCopy::create([
-        'book_id' => $book->id,
-        'accession_number' => 'ACC-000042',
-        'status' => 'available',
-        'condition' => 'good',
-        'book_type' => 'borrowing',
+    $first = accessionLabelCopy($book, 'ACC-000041');
+    $second = accessionLabelCopy($book, 'ACC-000042');
+
+    $payload = accessionPrintSettings([
+        'source' => 'reprint',
+        'copy_ids' => [$first->id, $second->id],
+        'copies_per_label' => 2,
+        'orientation' => 'landscape',
     ]);
 
-    $this->actingAs($admin)
-        ->get(route('admin.accession-labels.index', ['mode' => 'reprint', 'q' => $book->title]))
-        ->assertOk()
-        ->assertSee($book->title)
-        ->assertSee('ACC-000042');
+    $response = $this->actingAs($admin)->postJson(route('admin.accession-labels.print'), $payload);
+    $response->assertOk()
+        ->assertJsonPath('summary.unique_count', 2)
+        ->assertJsonPath('summary.copies_per_label', 2)
+        ->assertJsonPath('summary.total_labels', 4)
+        ->assertJsonPath('summary.orientation', 'landscape');
 
-    $this->actingAs($admin)
-        ->post(route('admin.accession-labels.print'), [
-            'action_type' => 'reprint',
-            'copy_id' => $copy->id,
-            'label_size' => 'large',
-            'columns' => 5,
-            'page_size' => 'Letter',
-            'show_accession' => 1,
-            'show_library_name' => 1,
-            'show_logo' => 0,
-            'show_border' => 1,
-        ])
-        ->assertOk()
-        ->assertSee('ACC-000042')
-        ->assertSee($book->title)
-        ->assertSee('repeat(2, var(--label-width))', false);
-
-    expect(BookCopy::query()->count())->toBe(1)
-        ->and(ActivityLog::query()->where('action', 'accession_barcode_reprinted')->exists())->toBeTrue();
+    expect($response->json('html'))->toContain('A4 landscape')
+        ->and(BookCopy::query()->count())->toBe(2)
+        ->and(ActivityLog::query()->where('action', 'bulk_accession_barcodes_reprinted')->exists())->toBeTrue();
 });

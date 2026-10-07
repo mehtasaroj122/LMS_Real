@@ -19,7 +19,7 @@ The **Library Management System** is an enterprise-grade, role-based web applica
 ✅ Centralized book and inventory management  
 ✅ Automated workflow for book requests and circulation  
 ✅ Intelligent fine calculation with grace periods and penalties  
-✅ Comprehensive security with account lockout mechanisms  
+✅ Comprehensive security with role-based access controls
 ✅ Role-based access control for multi-user environments  
 ✅ Real-time notifications and status tracking  
 ✅ Complete audit trail of all system operations  
@@ -266,7 +266,7 @@ Invited → Pending Registration → Active → Inactive → Suspended
   - Fine rules (daily rate, max, grace period, penalties)
   - Borrowing rules (issue duration, max books, etc.)
   - Library branding (name, logo, colors)
-  - Security settings (lockout policy, email verification)
+  - Security settings and email verification
   - Email templates and notification preferences
   - Report scheduling and formats
 - **Reports & Analytics:**
@@ -278,16 +278,7 @@ Invited → Pending Registration → Active → Inactive → Suspended
   - Custom date ranges and exports
 - **Audit & Monitoring:**
   - Activity logs for all actions
-  - Failed login attempts tracking
-  - Account lockout management with unlock controls
   - System health monitoring
-  - Security incident tracking
-- **Account Lockout Management:**
-  - View all locked accounts
-  - Lock reason and timestamp
-  - Manual unlock capability
-  - Bulk unlock all locked
-  - Unlock email notifications
 
 #### Staff Capabilities
 - **Circulation Operations:**
@@ -412,7 +403,6 @@ Invited → Pending Registration → Active → Inactive → Suspended
 - **Email Verification:** Required for account activation
 - **Invitation System:** Role-based user onboarding
 - **Password Hashing:** bcrypt with default 10 rounds
-- **Account Lockout:** Configurable failed login threshold and duration
 
 #### Access Control
 - **Role-Based Access Control (RBAC):**
@@ -435,15 +425,7 @@ Invited → Pending Registration → Active → Inactive → Suspended
 #### Security Features
 - **Rate Limiting:**
   - Registration: 5 attempts per minute per email/IP
-  - Login: Configurable (default: 5 attempts before lockout)
   - API endpoints: Per-user rate limiting
-- **Account Lockout:**
-  - Failed login attempts tracked
-  - Automatic account lock after threshold
-  - 30-minute default lockout duration (configurable)
-  - Manual unlock by admin
-  - Unlock email with signed link
-  - CLI unlock command: `php artisan auth:unlock-account {email}`
 - **Activity Logging:**
   - All actions logged with metadata
   - IP address captured
@@ -517,8 +499,6 @@ CREATE TABLE users (
   postal_code VARCHAR(10),
   photo_path VARCHAR(255) NULL,
   force_password_change BOOLEAN DEFAULT FALSE,
-  locked_until TIMESTAMP NULL,
-  failed_login_attempts INT DEFAULT 0,
   last_login_at TIMESTAMP NULL,
   last_login_ip VARCHAR(45),
   created_at TIMESTAMP,
@@ -934,7 +914,7 @@ The application uses 14 core Eloquent models with relationships:
 | `ActivityLog` | Audit trail | belongsTo(User) |
 
 ### Service Layer (Business Logic)
-- **AuthService** - Authentication, password reset, lockout logic
+- **AuthService** - Authentication and password reset logic
 - **StudentService** - Student CRUD, privilege management
 - **CirculationService** - Request workflow, issue/return processing
 - **FineService** - Fine calculation, payment, waiver logic
@@ -997,9 +977,6 @@ The application uses 14 core Eloquent models with relationships:
 
 **Activity & Security:**
 - `GET /activity-logs` - View audit trail
-- `GET /account-locks` - View locked accounts
-- `POST /account-locks/unlock` - Unlock account
-- `POST /account-locks/unlock-all` - Bulk unlock
 
 **Settings:**
 - `GET /settings` - System config page
@@ -1184,8 +1161,6 @@ Located in: `app/Mail/` and `resources/views/emails/`
 8. **UserInvitation.php** - Onboarding invitation
 9. **PasswordReset.php** - Password reset link
 10. **WelcomeEmail.php** - Welcome email for new users
-11. **AccountUnlocked.php** - Account unlock notification
-12. **SuspiciousActivity.php** - Security alert for failed logins
 
 ### Notification Events
 Located in: `app/Events/`
@@ -1194,7 +1169,6 @@ Located in: `app/Events/`
 - `BookIssuedEvent` - Book issued
 - `BookOverdueEvent` - Book overdue
 - `FineCreatedEvent` - Fine created
-- `AccountLockedEvent` - Account locked
 - `UserRegisteredEvent` - New user
 
 ---
@@ -1207,7 +1181,7 @@ Located in: `app/Events/`
 - **Run Tests:** `php artisan test`
 
 ### Test Coverage Areas
-- Authentication (login, register, password reset, lockout)
+- Authentication (login, register, password reset)
 - Authorization (role-based access)
 - Book management (CRUD, search)
 - Student management (creation, privilege)
@@ -1346,14 +1320,6 @@ MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=library@university.edu
-```
-
-**Security:**
-```env
-SECURITY_MAX_LOGIN_ATTEMPTS=5
-SECURITY_LOCKOUT_DURATION=30
-SECURITY_RATE_LIMITING_ENABLED=true
-SECURITY_EMAIL_UNLOCK_ENABLED=true
 ```
 
 **Queue:**
@@ -2051,7 +2017,6 @@ LMS_Real/
 
 ### What Makes This System Stand Out
 ✨ **Enterprise-Grade Security**
-- Account lockout with automatic unlock links
 - Invitation-based onboarding eliminates public signup chaos
 - Complete audit trail for compliance
 - Rate limiting on all sensitive operations
@@ -2092,10 +2057,9 @@ LMS_Real/
 
 ## 📈 Production Readiness Checklist
 
-- ✅ Session-based authentication with rate limiting
+- ✅ Session-based authentication
 - ✅ Role-based access control with gates
 - ✅ Email verification and password reset
-- ✅ Account lockout mechanism
 - ✅ Complete audit logging
 - ✅ CSRF protection
 - ✅ SQL injection prevention (Eloquent ORM)

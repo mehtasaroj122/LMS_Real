@@ -95,8 +95,6 @@
             'request.rejected': 'x-circle',
             'request.pending': 'clock',
             'payment.confirmed': 'wallet',
-            'security.account_locked': 'shield-alert',
-            'security.account_unlock': 'shield-check',
         };
 
         if (icons[type]) {

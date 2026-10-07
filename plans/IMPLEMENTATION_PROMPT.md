@@ -17,7 +17,7 @@ Implement a UI component showcase page for the Library Management System that al
 
 ### Existing Files to Reference
 - Layout: `resources/views/Admin/layouts/app.blade.php`
-- Sample admin view: `resources/views/Admin/account-locks/index.blade.php`
+- Sample admin view: `resources/views/Admin/Settings.blade.php`
 - Admin CSS: `public/admin/CSS/admin-appLayout.css`
 - Pagination component: `resources/views/shared/admin-table-pagination.blade.php`
 - Routes: Look at existing admin routes in `routes/web.php`
