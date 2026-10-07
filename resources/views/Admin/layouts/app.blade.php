@@ -225,6 +225,9 @@
             <a href="{{ route('admin.books.index') }}" class="sidebar-item {{ request()->routeIs('admin.books.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="book" class="w-5 h-5"></i><span class="text-sm font-medium">Book Management</span>
             </a>
+            <a href="{{ route('admin.accession-labels.index') }}" class="sidebar-item {{ request()->routeIs('admin.accession-labels.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
+                <i data-lucide="barcode" class="w-5 h-5"></i><span class="text-sm font-medium">Accession Number Generator</span>
+            </a>
             <a href="{{ route('admin.users.index') }}" class="sidebar-item {{ request()->routeIs('admin.users.*') ? 'sidebar-item-active' : '' }} flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors">
                 <i data-lucide="users" class="w-5 h-5"></i><span class="text-sm font-medium">User Management</span>
             </a>

@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\AccountLockController;
 use App\Http\Controllers\Admin\UiShowcaseController;
+use App\Http\Controllers\Admin\AccessionLabelController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\BookCopyController;
 use App\Http\Controllers\Api\BookCopyController as ApiBookCopyController;
@@ -81,6 +82,13 @@ Route::middleware(['auth', 'can:access-admin'])
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])
             ->name('dashboard');
+
+        Route::get('/accession-labels', [AccessionLabelController::class, 'index'])
+            ->name('accession-labels.index');
+        Route::post('/accession-labels/preview', [AccessionLabelController::class, 'preview'])
+            ->name('accession-labels.preview');
+        Route::post('/accession-labels/print', [AccessionLabelController::class, 'print'])
+            ->name('accession-labels.print');
 
         Route::get('/users/data', [UserController::class, 'getUsersData'])->name('users.data');
         Route::get('/users/stats', [UserController::class, 'getStats'])->name('users.stats');
