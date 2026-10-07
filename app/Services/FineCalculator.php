@@ -17,7 +17,7 @@ class FineCalculator
     {
         $this->fineSetting = FineSetting::resolveActive();
 
-        if (!$this->fineSetting->exists) {
+        if (! $this->fineSetting->exists) {
             $this->fineSetting->save();
         }
     }
@@ -55,13 +55,13 @@ class FineCalculator
 
         // Days beyond grace period
         $chargeable_days = $daysLate - $gracePeriod;
-        
+
         // Get effective per-day fine for this student (respecting per-student overrides)
         $perDayFine = $this->getEffectivePerDayFine($issuedBook->student);
-        
+
         // Calculate fine amount
-        $amount = (int)($chargeable_days * $perDayFine);
-        
+        $amount = (int) ($chargeable_days * $perDayFine);
+
         // Cap at maximum fine amount
         $amount = min($amount, $this->fineSetting->max_fine_amount);
 
@@ -74,19 +74,83 @@ class FineCalculator
     }
 
     /**
+     * Calculate the complete server-side fine for a return condition.
+     */
+    public function calculateReturnFine(
+        IssuedBook $issuedBook,
+        string $condition,
+        ?Carbon $returnDate = null
+    ): array {
+        $returnedOn = ($returnDate ?? now())->copy()->startOfDay();
+        $dueDate = Carbon::parse($issuedBook->due_date)->startOfDay();
+        $overdueDays = $returnedOn->greaterThan($dueDate)
+            ? (int) $dueDate->diffInDays($returnedOn)
+            : 0;
+        $graceDays = (int) ($this->fineSetting->grace_period_days ?? 0);
+        $chargeableDays = max($overdueDays - $graceDays, 0);
+        $perDayFine = $this->getEffectivePerDayFine($issuedBook->student);
+        $overdueFine = (float) min(
+            $chargeableDays * $perDayFine,
+            (float) ($this->fineSetting->max_fine_amount ?? 0)
+        );
+        $conditionFine = match ($condition) {
+            'lost' => (float) ($this->fineSetting->lost_book_penalty ?? 0),
+            'damaged' => (float) ($this->fineSetting->damaged_book_penalty ?? 0),
+            'fair' => (float) ($this->fineSetting->fair_condition_penalty ?? 0),
+            default => 0.0,
+        };
+        $totalFine = $condition === 'lost'
+            ? $conditionFine
+            : $overdueFine + $conditionFine;
+
+        return [
+            'amount' => (float) $totalFine,
+            'total_fine' => (float) $totalFine,
+            'days_late' => $condition === 'lost' ? 0 : $overdueDays,
+            'overdue_days' => $overdueDays,
+            'grace_days' => $graceDays,
+            'chargeable_overdue_days' => $chargeableDays,
+            'overdue_fine' => $condition === 'lost' ? 0.0 : $overdueFine,
+            'condition_fine' => $conditionFine,
+            'condition' => $condition,
+            'remarks' => match ($condition) {
+                'lost' => 'Lost book penalty',
+                'damaged' => 'Damaged book penalty + overdue fine',
+                'fair' => 'Fair condition penalty + overdue fine',
+                default => 'Overdue fine',
+            },
+        ];
+    }
+
+    public function applyReturnFine(IssuedBook $issuedBook, array $calculation): ?Fine
+    {
+        if ((float) ($calculation['amount'] ?? 0) <= 0) {
+            return null;
+        }
+
+        return $this->saveFineForIssue($issuedBook, [
+            'amount' => (float) $calculation['amount'],
+            'days_late' => (int) ($calculation['days_late'] ?? 0),
+            'status' => 'pending',
+            'remarks' => $calculation['remarks'] ?? 'Return fine',
+        ]);
+    }
+
+    /**
      * Create or update fine for issued book
      */
     public function applyFine(IssuedBook $issuedBook): ?Fine
     {
         $fineCalculation = $this->calculateFine($issuedBook);
 
-        if (!$fineCalculation) {
+        if (! $fineCalculation) {
             return null;
         }
 
         // If within grace period and fine is 0, update IssuedBook but don't create fine record
         if ($fineCalculation['is_within_grace'] && $fineCalculation['amount'] == 0) {
             $issuedBook->update(['fine_amount' => 0]);
+
             return null;
         }
 
@@ -220,7 +284,7 @@ class FineCalculator
         } catch (QueryException $exception) {
             $fine = Fine::where('issued_book_id', $issuedBook->id)->first();
 
-            if (!$fine) {
+            if (! $fine) {
                 throw $exception;
             }
 

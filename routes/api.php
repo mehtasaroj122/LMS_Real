@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\AdminDashboardController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\BookCopyController;
 use App\Http\Controllers\Api\BookRequestController;
@@ -139,6 +139,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/students/{student}', [StaffStudentController::class, 'show'])->whereNumber('student');
             Route::get('/students/{student}/issue-privileges', [StaffIssueController::class, 'privileges'])->whereNumber('student');
 
+            Route::get('/issue-books', [StaffIssueController::class, 'issueBooks']);
             Route::get('/books/search', [StaffIssueController::class, 'searchBooks']);
             Route::post('/issues/preview', [StaffIssueController::class, 'preview']);
             Route::post('/issues', [StaffIssueController::class, 'store']);
@@ -154,6 +155,12 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/returns/students/{student}', [StaffReturnController::class, 'studentReturnData'])->whereNumber('student');
             Route::post('/returns/preview', [StaffReturnController::class, 'preview']);
             Route::post('/returns', [StaffReturnController::class, 'returnBooks']);
+
+            Route::get('/return-books/student/{student}', [StaffReturnController::class, 'studentReturnData'])->whereNumber('student');
+            Route::get('/return-books/accession/{accessionNumber}', [StaffReturnController::class, 'accession']);
+            Route::post('/return-books/calculate-fine', [StaffReturnController::class, 'calculateFine']);
+            Route::post('/return-books', [StaffReturnController::class, 'returnPhysicalBook']);
+            Route::post('/return-books/bulk', [StaffReturnController::class, 'returnBooks']);
 
             Route::get('/fines', [StaffFineController::class, 'index']);
             Route::get('/fines/summary', [StaffFineController::class, 'summary']);

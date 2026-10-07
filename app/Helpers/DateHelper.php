@@ -25,7 +25,7 @@ class DateHelper
         'Ashadh',
         'Shrawan',
         'Bhadra',
-        'Ashwin',
+        'Ashoj',
         'Kartik',
         'Mangsir',
         'Poush',
@@ -37,7 +37,7 @@ class DateHelper
     /**
      * Format a date as Bikram Sambat.
      *
-     * Converts AD date to BS and formats as "Weekday, Month Day, Year"
+     * Converts AD date to BS and formats as "Weekday, Day Month Year".
      * Falls back to Gregorian format if conversion fails.
      *
      * @param  \Carbon\Carbon|string|null  $date
@@ -60,7 +60,7 @@ class DateHelper
             $weekday = $date->format('l');
             $month = self::BS_MONTHS[$bsDate->month - 1] ?? 'Unknown';
 
-            return "{$weekday}, {$month} {$bsDate->day}, {$bsDate->year}";
+            return "{$weekday}, {$bsDate->day} {$month} {$bsDate->year}";
         } catch (\Exception $e) {
             // Fallback to Gregorian format if conversion fails
             return self::formatAsGregorian($date);

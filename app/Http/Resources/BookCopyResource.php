@@ -11,6 +11,7 @@ class BookCopyResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'book_copy_id' => $this->id,
             'book_id' => $this->book_id,
             'accession_number' => $this->accession_number,
             'entry_date' => optional($this->entry_date)->toDateString(),
