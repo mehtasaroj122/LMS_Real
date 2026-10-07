@@ -43,12 +43,13 @@
             'reportTitle' => 'My Fines Report',
         ],
         'columns' => [
-            ['key' => 'bookTitle', 'label' => 'Book Title', 'width' => '32%', 'emphasis' => true],
-            ['key' => 'reason', 'label' => 'Fine Reason', 'width' => '16%'],
-            ['key' => 'dueDate', 'label' => 'Due Date', 'width' => '14%', 'nowrap' => true],
-            ['key' => 'daysOverdue', 'label' => 'Days Overdue', 'width' => '12%', 'align' => 'center', 'nowrap' => true],
+            ['key' => 'bookTitle', 'label' => 'Book Title', 'width' => '24%', 'emphasis' => true],
+            ['key' => 'accessionNumber', 'label' => 'Accession Number', 'width' => '14%'],
+            ['key' => 'reason', 'label' => 'Fine Reason', 'width' => '14%'],
+            ['key' => 'dueDate', 'label' => 'Due Date', 'width' => '12%', 'nowrap' => true],
+            ['key' => 'daysOverdue', 'label' => 'Days Overdue', 'width' => '11%', 'align' => 'center', 'nowrap' => true],
             ['key' => 'fineAmount', 'label' => 'Fine Amount', 'width' => '13%', 'align' => 'right', 'nowrap' => true],
-            ['key' => 'status', 'label' => 'Status', 'width' => '13%', 'align' => 'center', 'nowrap' => true],
+            ['key' => 'status', 'label' => 'Status', 'width' => '12%', 'align' => 'center', 'nowrap' => true],
         ],
     ];
 @endphp
@@ -483,6 +484,12 @@
             font-size: 0.8rem;
         }
 
+        .book-author {
+            margin-top: 0.125rem;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
         /* Fine Reason with Soft Highlight */
         .fine-reason {
             display: flex;
@@ -898,7 +905,7 @@
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </div>
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search by book title...">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by title, author, or accession number...">
                 </div>
 
                 <div class="filters-container">
@@ -946,6 +953,7 @@
                 <thead>
                     <tr>
                         <th>Book Title</th>
+                        <th>Accession Number</th>
                         <th>Fine Reason</th>
                         <th>Due Date</th>
                         <th>Days Overdue</th>
@@ -1274,7 +1282,8 @@
 
         function mapFineToExportRow(fine) {
             return {
-                bookTitle: fine?.bookTitle || 'Unknown Book',
+                bookTitle: `${fine?.bookTitle || 'Unknown Book'} — ${fine?.author || 'Unknown Author'}`,
+                accessionNumber: fine?.accessionNumber || 'N/A',
                 reason: getReasonText(fine?.fineReason),
                 dueDate: fine?.dueDate || 'N/A',
                 daysOverdue: fine?.daysOverdue || '—',
@@ -1314,12 +1323,13 @@
                     fullLoadFailedMessage: 'Something went wrong while preparing your My Fines report.',
                 },
                 columns: [
-                    { key: 'bookTitle', label: 'Book Title', width: '32%', emphasis: true },
-                    { key: 'reason', label: 'Fine Reason', width: '16%' },
-                    { key: 'dueDate', label: 'Due Date', width: '14%', nowrap: true },
-                    { key: 'daysOverdue', label: 'Days Overdue', width: '12%', align: 'center', nowrap: true },
+                    { key: 'bookTitle', label: 'Book Title', width: '24%', emphasis: true },
+                    { key: 'accessionNumber', label: 'Accession Number', width: '14%' },
+                    { key: 'reason', label: 'Fine Reason', width: '14%' },
+                    { key: 'dueDate', label: 'Due Date', width: '12%', nowrap: true },
+                    { key: 'daysOverdue', label: 'Days Overdue', width: '11%', align: 'center', nowrap: true },
                     { key: 'fineAmount', label: 'Fine Amount', width: '13%', align: 'right', nowrap: true },
-                    { key: 'status', label: 'Status', width: '13%', align: 'center', nowrap: true },
+                    { key: 'status', label: 'Status', width: '12%', align: 'center', nowrap: true },
                 ],
                 openModal: (modalId, focusTarget) => openMyFinesExportModal(modalId, focusTarget),
                 closeModal: (modalId) => closeMyFinesExportModal(modalId),
@@ -1484,7 +1494,9 @@
             <tr>
                 <td>
                     <div class="book-title">${fine.bookTitle}</div>
+                    <div class="book-author">${fine.author || 'Unknown Author'}</div>
                 </td>
+                <td>${fine.accessionNumber || 'N/A'}</td>
                 <td>
                     <div class="fine-reason ${fine.fineReason}">
                         ${getReasonIcon(fine.fineReason)}
@@ -1560,7 +1572,9 @@
             let nextFilteredFines = finesData.filter(fine => {
                 // Search filter
                 const matchesSearch = searchTerm === '' ||
-                    fine.bookTitle.toLowerCase().includes(searchTerm);
+                    fine.bookTitle.toLowerCase().includes(searchTerm) ||
+                    (fine.author && fine.author.toLowerCase().includes(searchTerm)) ||
+                    (fine.accessionNumber && fine.accessionNumber.toLowerCase().includes(searchTerm));
 
                 // Status filter
                 const normalizedFineStatus = fine.status === 'pending' ? 'unpaid' : fine.status;

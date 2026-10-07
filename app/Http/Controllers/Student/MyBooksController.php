@@ -34,7 +34,7 @@ class MyBooksController extends Controller
         $allIssuedBooks = IssuedBook::where('student_id', $student->id)
             ->with(['book' => function($q) {
                 $q->with('category');
-            }, 'fine'])
+            }, 'bookCopy', 'fine'])
             ->get();
 
         // Calculate stats
@@ -55,6 +55,7 @@ class MyBooksController extends Controller
                 'title' => $issuedBook->book->title,
                 'isbn' => 'ISBN: ' . $issuedBook->book->isbn,
                 'author' => $issuedBook->book->author,
+                'accessionNumber' => $issuedBook->bookCopy?->accession_number ?? 'N/A',
                 'category' => $issuedBook->book->category ? $issuedBook->book->category->name : 'uncategorized',
                 'issueDate' => $issuedBook->issue_date->format('M d, Y'),
                 'dueDate' => $issuedBook->due_date->format('M d, Y'),

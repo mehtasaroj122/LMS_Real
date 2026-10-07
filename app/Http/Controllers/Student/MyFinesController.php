@@ -63,6 +63,8 @@ class MyFinesController extends Controller
             return [
                 'id' => $fine->id,
                 'bookTitle' => $book ? $book->title : 'Unknown Book',
+                'author' => $book?->author ?? 'Unknown Author',
+                'accessionNumber' => $issuedBook?->bookCopy?->accession_number ?? 'N/A',
                 'fineReason' => $fineReason,
                 'dueDate' => $dueDate,
                 'daysOverdue' => $daysOverdue,

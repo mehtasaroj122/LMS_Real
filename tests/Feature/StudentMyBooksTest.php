@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Book;
+use App\Models\BookCopy;
 use App\Models\Category;
 use App\Models\department as Department;
 use App\Models\Fine;
@@ -143,4 +144,47 @@ test('my books page still marks a book with an unpaid fine as overdue', function
         ->and($books)->toHaveCount(1)
         ->and($books[0]['status'])->toBe('overdue')
         ->and($books[0]['fineStatus'])->toBe('unpaid');
+});
+
+test('student book and fine pages expose the author and physical copy accession number', function () {
+    FineSetting::create([
+        'per_day_fine' => 10,
+        'grace_period_days' => 0,
+        'max_fine_amount' => 500,
+        'is_active' => true,
+    ]);
+
+    $student = makeMyBooksStudent();
+    $book = makeMyBooksBook('Accession Display Book');
+    $copy = BookCopy::create([
+        'book_id' => $book->id,
+        'accession_number' => 'ACC-STUDENT-001',
+        'book_type' => 'borrowing',
+        'status' => 'issued',
+        'condition' => 'good',
+    ]);
+    $issue = makeMyBooksIssue($student, $book, 3);
+    $issue->update(['book_copy_id' => $copy->id]);
+
+    Fine::create([
+        'issued_book_id' => $issue->id,
+        'student_id' => $student->id,
+        'amount' => 30,
+        'days_late' => 3,
+        'status' => 'pending',
+    ]);
+
+    $booksResponse = $this->actingAs($student->user)->get(route('student.my-books'));
+    $booksResponse->assertOk()->assertSee('Accession Number');
+    $books = json_decode($booksResponse->viewData('issuedBooksJson'), true);
+
+    expect($books[0]['author'])->toBe('Test Author')
+        ->and($books[0]['accessionNumber'])->toBe('ACC-STUDENT-001');
+
+    $finesResponse = $this->get(route('student.fines'));
+    $finesResponse->assertOk()->assertSee('Accession Number');
+    $fines = json_decode($finesResponse->viewData('finesJson'), true);
+
+    expect($fines[0]['author'])->toBe('Test Author')
+        ->and($fines[0]['accessionNumber'])->toBe('ACC-STUDENT-001');
 });

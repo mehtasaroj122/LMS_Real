@@ -43,7 +43,7 @@
         ],
         'columns' => [
             ['key' => 'bookTitle', 'label' => 'Book', 'width' => '22%', 'emphasis' => true],
-            ['key' => 'author', 'label' => 'Author', 'width' => '13%'],
+            ['key' => 'accessionNumber', 'label' => 'Accession Number', 'width' => '13%'],
             ['key' => 'issueDate', 'label' => 'Issue Date', 'width' => '11%', 'nowrap' => true],
             ['key' => 'dueDate', 'label' => 'Due Date', 'width' => '11%', 'nowrap' => true],
             ['key' => 'returnDate', 'label' => 'Return Date', 'width' => '11%', 'nowrap' => true],
@@ -707,7 +707,7 @@
             margin-bottom: 0.125rem;
         }
 
-        .book-isbn {
+        .book-author {
             font-size: 0.65rem;
             color: var(--text-muted);
         }
@@ -1007,7 +1007,7 @@
                     </svg>
                 </div>
                 <input type="text" class="search-input" id="searchInput"
-                    placeholder="Search by book title, author, or ISBN">
+                    placeholder="Search by title, author, ISBN, or accession number">
             </div>
 
             <div class="filters-container">
@@ -1058,7 +1058,7 @@
                 <thead>
                     <tr>
                         <th>Book Title</th>
-                        <th>Author</th>
+                        <th>Accession Number</th>
                         <th>Issue Date</th>
                         <th>Due Date</th>
                         <th>Return Date</th>
@@ -1200,9 +1200,9 @@
             <tr>
                 <td>
                     <div class="book-title">${book.title}</div>
-                    <div class="book-isbn">${book.isbn}</div>
+                    <div class="book-author">${book.author || 'Unknown Author'}</div>
                 </td>
-                <td>${book.author}</td>
+                <td>${book.accessionNumber || 'N/A'}</td>
                 <td>${book.issueDate}</td>
                 <td>${book.dueDate}</td>
                 <td>${book.returnDate ? book.returnDate : '-'}</td>
@@ -1337,12 +1337,6 @@
 
         function formatBookFineAmount(fineValue) {
             return fineValue && fineValue !== 'No Fine' ? fineValue : 'No Fine';
-        }
-
-        function normalizeReportIsbn(isbn) {
-            return String(isbn ?? '')
-                .replace(/^isbn:\s*/i, '')
-                .trim();
         }
 
         function buildBooksReportFilterParams() {
@@ -1491,13 +1485,9 @@
         }
 
         function mapBookToExportRow(book) {
-            const normalizedIsbn = normalizeReportIsbn(book?.isbn);
-
             return {
-                bookTitle: normalizedIsbn
-                    ? `${book?.title || 'N/A'} (${normalizedIsbn})`
-                    : (book?.title || 'N/A'),
-                author: book?.author || 'N/A',
+                bookTitle: `${book?.title || 'N/A'} — ${book?.author || 'Unknown Author'}`,
+                accessionNumber: book?.accessionNumber || 'N/A',
                 issueDate: book?.issueDate || 'N/A',
                 dueDate: book?.dueDate || 'N/A',
                 returnDate: book?.returnDate || '-',
@@ -1539,7 +1529,7 @@
                 },
                 columns: [
                     { key: 'bookTitle', label: 'Book', width: '22%', emphasis: true },
-                    { key: 'author', label: 'Author', width: '13%' },
+                    { key: 'accessionNumber', label: 'Accession Number', width: '13%' },
                     { key: 'issueDate', label: 'Issue Date', width: '11%', nowrap: true },
                     { key: 'dueDate', label: 'Due Date', width: '11%', nowrap: true },
                     { key: 'returnDate', label: 'Return Date', width: '11%', nowrap: true },
@@ -1673,7 +1663,8 @@
                 const matchesSearch = searchTerm === '' ||
                     (book.title && book.title.toLowerCase().includes(searchTerm)) ||
                     (book.author && book.author.toLowerCase().includes(searchTerm)) ||
-                    (book.isbn && book.isbn.toLowerCase().includes(searchTerm));
+                    (book.isbn && book.isbn.toLowerCase().includes(searchTerm)) ||
+                    (book.accessionNumber && book.accessionNumber.toLowerCase().includes(searchTerm));
 
                 // Status filter
                 const matchesStatus = statusFilter === 'all' || book.status === statusFilter;

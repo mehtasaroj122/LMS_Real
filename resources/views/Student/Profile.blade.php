@@ -103,58 +103,159 @@
             gap: 0.75rem;
         }
 
-        .stat-card {
-            padding: 1rem;
-            border-radius: 0.75rem;
-            transition: all 0.3s ease;
+        .account-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-auto-rows: 1fr;
+            gap: 0.75rem;
         }
 
-        .stat-card-blue {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        .account-stat-card {
+            --stat-accent: #2563eb;
+            --stat-accent-dark: #60a5fa;
+            --stat-soft: #eff6ff;
+            --stat-soft-dark: rgba(37, 99, 235, 0.16);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+            min-height: 6rem;
+            height: 100%;
+            padding: 0.875rem;
+            position: relative;
+            color: inherit;
+            text-decoration: none;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.875rem;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease,
+                background-color 180ms ease;
         }
 
-        .stat-card-orange {
-            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+        .account-stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--stat-accent);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+            background: #f8fafc;
         }
 
-        .stat-card-purple {
-            background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%);
+        .account-stat-card:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, 0.24);
+            outline-offset: 2px;
+            border-color: var(--stat-accent);
         }
 
-        .stat-card-red {
-            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+        .account-stat-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem;
+            height: 1.75rem;
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            color: var(--stat-accent);
+            background: var(--stat-soft);
+            border-radius: 0.625rem;
         }
 
-        .stat-card-green {
-            background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%);
+        .account-stat-icon svg {
+            width: 1rem;
+            height: 1rem;
         }
 
-        .stat-card-indigo {
-            background: linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%);
+        .account-stat-value {
+            overflow: hidden;
+            margin-top: 0.4rem;
+            color: #0f172a;
+            font-size: clamp(1.125rem, 1.8vw, 1.4rem);
+            font-weight: 750;
+            line-height: 1.15;
+            letter-spacing: -0.025em;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
         }
 
-        body.dark-theme .stat-card-blue {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%);
+        .account-stat-label {
+            padding-right: 2.5rem;
+            color: #334155;
+            font-size: 0.8rem;
+            font-weight: 650;
+            line-height: 1.3;
         }
 
-        body.dark-theme .stat-card-orange {
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(251, 146, 60, 0.2) 100%);
+        .account-stat-context {
+            margin-top: 0.25rem;
+            color: #64748b;
+            font-size: 0.7rem;
+            line-height: 1.3;
         }
 
-        body.dark-theme .stat-card-purple {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(192, 132, 252, 0.2) 100%);
+        .account-stat-card--amber {
+            --stat-accent: #b45309;
+            --stat-accent-dark: #fbbf24;
+            --stat-soft: #fff7ed;
+            --stat-soft-dark: rgba(245, 158, 11, 0.15);
         }
 
-        body.dark-theme .stat-card-red {
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(248, 113, 113, 0.2) 100%);
+        .account-stat-card--purple {
+            --stat-accent: #7c3aed;
+            --stat-accent-dark: #a78bfa;
+            --stat-soft: #f5f3ff;
+            --stat-soft-dark: rgba(124, 58, 237, 0.16);
         }
 
-        body.dark-theme .stat-card-green {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(74, 222, 128, 0.2) 100%);
+        .account-stat-card--red {
+            --stat-accent: #dc2626;
+            --stat-accent-dark: #f87171;
+            --stat-soft: #fef2f2;
+            --stat-soft-dark: rgba(220, 38, 38, 0.15);
         }
 
-        body.dark-theme .stat-card-indigo {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(129, 140, 248, 0.2) 100%);
+        .account-stat-card--green,
+        .account-stat-card--clear {
+            --stat-accent: #15803d;
+            --stat-accent-dark: #4ade80;
+            --stat-soft: #f0fdf4;
+            --stat-soft-dark: rgba(22, 163, 74, 0.15);
+        }
+
+        .account-stat-card--teal {
+            --stat-accent: #0f766e;
+            --stat-accent-dark: #2dd4bf;
+            --stat-soft: #f0fdfa;
+            --stat-soft-dark: rgba(13, 148, 136, 0.15);
+        }
+
+        body.dark-theme .account-stat-card {
+            background: #172033;
+            border-color: #334155;
+            box-shadow: none;
+        }
+
+        body.dark-theme .account-stat-card:hover {
+            background: #1e293b;
+            border-color: var(--stat-accent-dark);
+            box-shadow: 0 8px 20px rgba(2, 6, 23, 0.28);
+        }
+
+        body.dark-theme .account-stat-icon {
+            color: var(--stat-accent-dark);
+            background: var(--stat-soft-dark);
+        }
+
+        body.dark-theme .account-stat-value {
+            color: #f8fafc;
+        }
+
+        body.dark-theme .account-stat-label {
+            color: #e2e8f0;
+        }
+
+        body.dark-theme .account-stat-context {
+            color: #94a3b8;
         }
 
         .tab-button {
@@ -405,13 +506,13 @@
         }
 
         @media (max-width: 768px) {
-            .stats-grid {
+            .account-stats-grid {
                 grid-template-columns: 1fr 1fr;
             }
         }
 
         @media (max-width: 480px) {
-            .stats-grid {
+            .account-stats-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -445,10 +546,6 @@
         /* Compact-only overrides scoped to `.profile-page` (preserve colors & classes) */
         .profile-page .profile-card {
             padding: 0.75rem !important;
-        }
-
-        .profile-page .stat-card {
-            padding: 0.6rem !important;
         }
 
         .profile-page h1.text-3xl {
@@ -1262,6 +1359,7 @@
         @media (prefers-reduced-motion: reduce) {
             .profile-card,
             .profile-avatar-upload,
+            .account-stat-card,
             .student-settings-shell .tab-btn,
             .student-settings-shell .tab-content,
             .student-settings-shell .btn {
@@ -1440,46 +1538,99 @@
             <!-- Right Column -->
             <div class="profile-main-column">
                 <!-- Account Statistics -->
-                <div class="p-6 mb-6 profile-card">
-                    <h2 class="mb-4 text-xl font-bold text-primary">Account Statistics</h2>
-                    <div class="grid grid-cols-2 gap-4 stats-grid md:grid-cols-3">
+                <section class="p-6 mb-6 profile-card" aria-labelledby="account-statistics-heading">
+                    <h2 class="mb-4 text-xl font-bold text-primary" id="account-statistics-heading">Account Statistics</h2>
+                    <div class="account-stats-grid">
                         <!-- Books Issued -->
-                        <div class="stat-card stat-card-blue">
-                            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ $booksIssuedCount }}</p>
-                            <p class="mt-1 text-sm text-secondary">Books Issued</p>
-                        </div>
+                        <a class="account-stat-card" href="{{ route('student.my-books') }}">
+                            <span class="account-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+                                </svg>
+                            </span>
+                            <span class="account-stat-label">Books Issued</span>
+                            <span class="account-stat-value">{{ $booksIssuedCount }}</span>
+                            <span class="account-stat-context">Currently borrowed</span>
+                        </a>
 
                         <!-- Unpaid Fines -->
-                        <div class="stat-card stat-card-orange">
-                            <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ $unpaidFinesCount }}</p>
-                            <p class="mt-1 text-sm text-secondary">Unpaid Fines</p>
-                        </div>
+                        <a class="account-stat-card {{ $unpaidFinesCount > 0 ? 'account-stat-card--amber' : 'account-stat-card--clear' }}" href="{{ route('student.fines') }}">
+                            <span class="account-stat-icon" aria-hidden="true">
+                                @if ($unpaidFinesCount > 0)
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M10.3 2.86 1.82 17a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 2.86a2 2 0 0 0-3.4 0Z" />
+                                        <path d="M12 9v4" />
+                                        <path d="M12 17h.01" />
+                                    </svg>
+                                @else
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m9 11 3 3L22 4" />
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                    </svg>
+                                @endif
+                            </span>
+                            <span class="account-stat-label">Unpaid Fines</span>
+                            <span class="account-stat-value">{{ $unpaidFinesCount }}</span>
+                            <span class="account-stat-context">{{ $unpaidFinesCount > 0 ? 'Requires attention' : 'No fines due' }}</span>
+                        </a>
 
                         <!-- Pending Requests -->
-                        <div class="stat-card stat-card-purple">
-                            <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ $pendingRequestsCount }}</p>
-                            <p class="mt-1 text-sm text-secondary">Pending Requests</p>
-                        </div>
+                        <a class="account-stat-card {{ $pendingRequestsCount > 0 ? 'account-stat-card--purple' : 'account-stat-card--clear' }}" href="{{ route('student.requests') }}">
+                            <span class="account-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="9" />
+                                    <path d="M12 7v5l3 2" />
+                                </svg>
+                            </span>
+                            <span class="account-stat-label">Pending Requests</span>
+                            <span class="account-stat-value">{{ $pendingRequestsCount }}</span>
+                            <span class="account-stat-context">{{ $pendingRequestsCount > 0 ? 'Awaiting review' : 'Nothing pending' }}</span>
+                        </a>
 
                         <!-- Total Fines -->
-                        <div class="stat-card stat-card-red">
-                            <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ \App\Support\Currency::PREFIX }}{{ $totalFinesAmount }}</p>
-                            <p class="mt-1 text-sm text-secondary">Total Fines</p>
-                        </div>
+                        <a class="account-stat-card account-stat-card--red" href="{{ route('student.fines') }}">
+                            <span class="account-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z" />
+                                    <path d="M16 8h-6" />
+                                    <path d="M16 12h-6" />
+                                    <path d="M13 16h-3" />
+                                </svg>
+                            </span>
+                            <span class="account-stat-label">Total Fines</span>
+                            <span class="account-stat-value">{{ \App\Support\Currency::format($totalFinesAmount) }}</span>
+                            <span class="account-stat-context">Total assessed</span>
+                        </a>
 
                         <!-- Fines Paid -->
-                        <div class="stat-card stat-card-green">
-                            <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ \App\Support\Currency::PREFIX }}{{ $finesPaidAmount }}</p>
-                            <p class="mt-1 text-sm text-secondary">Fines Paid</p>
-                        </div>
+                        <a class="account-stat-card account-stat-card--green" href="{{ route('student.fines') }}">
+                            <span class="account-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                                    <path d="M2 10h20" />
+                                    <path d="m15 15 1.5 1.5L20 13" />
+                                </svg>
+                            </span>
+                            <span class="account-stat-label">Fines Paid</span>
+                            <span class="account-stat-value">{{ \App\Support\Currency::format($finesPaidAmount) }}</span>
+                            <span class="account-stat-context">Successfully paid</span>
+                        </a>
 
                         <!-- Approved Requests -->
-                        <div class="stat-card stat-card-indigo">
-                            <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ $approvedRequestsCount }}</p>
-                            <p class="mt-1 text-sm text-secondary">Approved Requests</p>
-                        </div>
+                        <a class="account-stat-card account-stat-card--teal" href="{{ route('student.requests') }}">
+                            <span class="account-stat-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="9" />
+                                    <path d="m8 12 2.5 2.5L16 9" />
+                                </svg>
+                            </span>
+                            <span class="account-stat-label">Approved Requests</span>
+                            <span class="account-stat-value">{{ $approvedRequestsCount }}</span>
+                            <span class="account-stat-context">Requests approved</span>
+                        </a>
                     </div>
-                </div>
+                </section>
 
                 <!-- Profile & Settings -->
                 <div class="p-6 profile-card student-settings-shell" id="profileSettings">

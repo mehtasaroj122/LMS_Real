@@ -38,7 +38,7 @@ class StudentFineSummaryService
     public function allFinesWithOpenOverdues(Student $student): Collection
     {
         $fines = $this->studentFineQuery($student)
-            ->with(['issuedBook.book'])
+            ->with(['issuedBook.book', 'issuedBook.bookCopy'])
             ->latest('created_at')
             ->get();
 
@@ -132,7 +132,7 @@ class StudentFineSummaryService
     private function virtualOverdueFines(Student $student): Collection
     {
         return IssuedBook::query()
-            ->with(['student.privileges', 'book', 'fine'])
+            ->with(['student.privileges', 'book', 'bookCopy', 'fine'])
             ->where('student_id', $student->id)
             ->whereNull('return_date')
             ->whereDate('due_date', '<', today())
