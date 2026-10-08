@@ -8,9 +8,12 @@ use App\Models\Department;
 use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\NotificationService;
 use App\Services\PhysicalBookCopyService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use Mockery\MockInterface;
 
 function accessionTestBook(array $overrides = []): Book
 {
@@ -272,3 +275,87 @@ test('admin transaction issue workflow also issues the selected physical copy', 
         ->assertJsonPath('issued_books.0.book_copy_id', $copies->first()->id)
         ->assertJsonPath('issued_books.0.accession_number', $copies->first()->accession_number);
 });
+
+test('web issue rejects multiple copies of the same book before any issue or notification', function (string $role) {
+    Queue::fake();
+    $this->mock(NotificationService::class, fn (MockInterface $mock) => $mock->shouldNotReceive('notifyBookIssued'));
+    $service = app(PhysicalBookCopyService::class);
+    $book = accessionTestBook();
+    $copies = $service->createCopies($book, 2);
+    $otherCopy = $service->createCopies(accessionTestBook(), 1)->first();
+    $student = accessionTestStudent();
+    $issuer = User::factory()->create(['role' => $role, 'status' => 'active', 'is_verified' => true]);
+
+    $this->actingAs($issuer)->postJson("/{$role}/transactions/issue", [
+        'student_id' => $student->id,
+        'book_copy_ids' => [$otherCopy->id, $copies[0]->id, $copies[1]->id],
+    ])->assertUnprocessable()
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('message', 'Only one copy of each book can be selected. Remove the extra copies and try again.');
+
+    $this->assertDatabaseCount('issued_books', 0);
+    expect($book->fresh()->available_copies)->toBe(2)
+        ->and($otherCopy->fresh()->status)->toBe('available');
+    foreach ($copies as $copy) {
+        expect($copy->fresh()->status)->toBe('available');
+    }
+    Queue::assertNothingPushed();
+})->with(['admin', 'staff']);
+
+test('web issue permits one copy of each distinct book even when titles match', function (string $role) {
+    Queue::fake();
+    $service = app(PhysicalBookCopyService::class);
+    $firstCopy = $service->createCopies(accessionTestBook(['title' => 'Same title']), 1)->first();
+    $secondCopy = $service->createCopies(accessionTestBook(['title' => 'Same title']), 1)->first();
+    $student = accessionTestStudent();
+    $issuer = User::factory()->create(['role' => $role, 'status' => 'active', 'is_verified' => true]);
+
+    $this->actingAs($issuer)->postJson("/{$role}/transactions/issue", [
+        'student_id' => $student->id,
+        'book_copy_ids' => [$firstCopy->id, $secondCopy->id],
+    ])->assertOk()->assertJsonPath('success', true)->assertJsonPath('issued_count', 2);
+
+    $this->assertDatabaseCount('issued_books', 2);
+    expect($firstCopy->fresh()->status)->toBe('issued')
+        ->and($secondCopy->fresh()->status)->toBe('issued');
+})->with(['admin', 'staff']);
+
+test('web issue searches show books already issued to the selected student until returned', function (string $role) {
+    Queue::fake();
+    $service = app(PhysicalBookCopyService::class);
+    $book = accessionTestBook();
+    $copies = $service->createCopies($book, 2);
+    $student = accessionTestStudent();
+    $otherStudent = accessionTestStudent();
+    $issuer = User::factory()->create(['role' => $role, 'status' => 'active', 'is_verified' => true]);
+    $service->issue($student, $copies[0]->accession_number, $issuer);
+    $this->actingAs($issuer);
+
+    $bookSearchUrl = $role === 'admin' ? '/admin/transactions/books/available' : '/staff/transactions/books';
+    $bookQuery = $bookSearchUrl.'?query='.urlencode($book->title).'&studentId=';
+    $copyQuery = "/{$role}/book-copies/search?query=".$copies[1]->accession_number.'&mode=issue&student_id=';
+
+    $this->getJson($bookQuery.$student->id)->assertOk()
+        ->assertJsonCount(1)
+        ->assertJsonPath('0.id', $book->id)
+        ->assertJsonPath('0.already_issued_to_student', true)
+        ->assertJsonPath('0.copies.0.already_issued_to_student', true)
+        ->assertJsonPath('0.copies.1.already_issued_to_student', true);
+    $this->getJson($copyQuery.$student->id)->assertOk()
+        ->assertJsonPath('data.0.copy.status', 'available')
+        ->assertJsonPath('data.0.copy.already_issued_to_student', true);
+
+    // Another borrower may still take the available physical copy.
+    $this->getJson($bookQuery.$otherStudent->id)->assertOk()
+        ->assertJsonPath('0.already_issued_to_student', false)
+        ->assertJsonPath('0.copies.1.already_issued_to_student', false);
+    $this->getJson($copyQuery.$otherStudent->id)->assertOk()
+        ->assertJsonPath('data.0.copy.already_issued_to_student', false);
+
+    $service->return($copies[0]->accession_number);
+    $this->getJson($bookQuery.$student->id)->assertOk()
+        ->assertJsonPath('0.already_issued_to_student', false)
+        ->assertJsonPath('0.copies.1.already_issued_to_student', false);
+    $this->getJson($copyQuery.$student->id)->assertOk()
+        ->assertJsonPath('data.0.copy.already_issued_to_student', false);
+})->with(['admin', 'staff']);

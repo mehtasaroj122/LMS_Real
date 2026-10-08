@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exceptions\PhysicalCopyException;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\BookCopy;
@@ -125,15 +126,15 @@ class TransactionController extends Controller
                 return response()->json([], 400);
             }
             
-            // Get already issued books to exclude
+            // Keep issued books visible so the search can explain why they cannot be selected.
             $issuedBookIds = IssuedBook::where('student_id', $studentId)
                 ->whereNull('return_date')
                 ->pluck('book_id')
-                ->toArray();
+                ->map(fn ($id) => (int) $id)
+                ->all();
             
             // Build query
-            $booksQuery = Book::with('category')
-                ->whereNotIn('id', $issuedBookIds);
+            $booksQuery = Book::with('category');
             
             // Add search filter if provided
             if ($query) {
@@ -148,9 +149,11 @@ class TransactionController extends Controller
                     $copyQuery->orderBy('accession_number');
                 }])->limit(15)
                 ->get()
-                ->map(function($book) {
+                ->map(function($book) use ($issuedBookIds) {
+                    $alreadyIssued = in_array((int) $book->id, $issuedBookIds, true);
                     return [
                         'id' => $book->id,
+                        'already_issued_to_student' => $alreadyIssued,
                         'title' => $book->title,
                         'isbn' => $book->isbn,
                         'author' => $book->author ?? 'Unknown',
@@ -165,6 +168,7 @@ class TransactionController extends Controller
                         'copies' => $book->copies->map(fn (BookCopy $copy) => [
                             'id' => $copy->id,
                             'book_id' => $copy->book_id,
+                            'already_issued_to_student' => $alreadyIssued,
                             'accession_number' => $copy->accession_number,
                             'book_type' => $copy->book_type,
                             'status' => $copy->status,
@@ -283,6 +287,14 @@ class TransactionController extends Controller
 
                     if ($copies->count() !== count($copyIds)) {
                         abort(response()->json(['success' => false, 'message' => 'One or more selected book copies were not found.'], 422));
+                    }
+
+                    if ($copies->pluck('book_id')->unique()->count() !== $copies->count()) {
+                        throw new PhysicalCopyException(
+                            'Only one copy of each book can be selected. Remove the extra copies and try again.',
+                            422,
+                            'duplicate_book_id'
+                        );
                     }
 
                     foreach ($copyIds as $copyId) {

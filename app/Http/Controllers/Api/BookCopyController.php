@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\BookCopyResource;
 use App\Http\Resources\IssueResource;
 use App\Models\BookCopy;
+use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Services\NotificationService;
 use App\Services\PhysicalBookCopyService;
@@ -36,10 +37,15 @@ class BookCopyController extends Controller
         $validated = $request->validate([
             'query' => ['required', 'string', 'min:3', 'max:32'],
             'mode' => ['nullable', 'in:issue,return'],
+            'student_id' => ['nullable', 'integer', 'exists:students,id'],
         ]);
 
         $term = strtoupper(trim($validated['query']));
         $mode = $validated['mode'] ?? 'issue';
+        $issuedBookIds = $mode === 'issue' && ! empty($validated['student_id'])
+            ? IssuedBook::query()->where('student_id', $validated['student_id'])
+                ->whereNull('return_date')->distinct()->pluck('book_id')->map(fn ($id) => (int) $id)->all()
+            : [];
 
         $copies = BookCopy::query()
             ->with(['book.category'])
@@ -75,12 +81,14 @@ class BookCopyController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $copies->map(function (BookCopy $copy): array {
+            'data' => $copies->map(function (BookCopy $copy) use ($issuedBookIds): array {
                 $issue = $copy->issuedBooks->first();
                 $student = $issue?->student;
 
                 return [
-                    'copy' => (new BookCopyResource($copy))->resolve(),
+                    'copy' => array_merge((new BookCopyResource($copy))->resolve(), [
+                        'already_issued_to_student' => in_array((int) $copy->book_id, $issuedBookIds, true),
+                    ]),
                     'issue' => $issue ? [
                         'id' => $issue->id,
                         'issue_date' => optional($issue->issue_date)->toDateString(),

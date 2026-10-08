@@ -125,6 +125,8 @@ body.admin-portal.dark-theme {
 .admin-portal :is(.stat-borrowed .stat-icon, .book-copies-stat-icon.issued, .request-stat-card.pending .request-stat-icon) { background: var(--ui-warning-bg) !important; color: var(--ui-warning-text) !important; }
 .admin-portal :is(.stat-inactive .stat-icon, .book-copies-stat-icon.lost, .book-copies-stat-icon.damaged, .request-stat-card.rejected .request-stat-icon) { background: var(--ui-danger-bg) !important; color: var(--ui-danger-badge-text) !important; }
 .admin-portal main table [style*="linear-gradient"] { background: var(--ui-soft) !important; color: var(--ui-info-text) !important; }
+.admin-portal main #booksTableBody [style*="linear-gradient"] { background: var(--ui-strong-border) !important; }
+.admin-portal.dark-theme main #booksTableBody [style*="linear-gradient"] { background: var(--ui-border) !important; }
 .admin-portal main table [style*="font-size: 10px"], .admin-portal main table [style*="font-size: 12px"]:not(.admin-ui-button) { color: var(--ui-secondary) !important; }
 
 /* Tables: styling cells as well as rows avoids inherited white cell backgrounds. */

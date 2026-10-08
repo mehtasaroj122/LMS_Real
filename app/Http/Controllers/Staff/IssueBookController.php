@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Staff;
 
+use App\Exceptions\PhysicalCopyException;
 use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\BookCopy;
@@ -103,9 +104,9 @@ class IssueBookController extends Controller
             $studentId = $request->input('studentId');
             if (!$studentId) return response()->json([], 400);
             
-            $issuedBookIds = IssuedBook::where('student_id', $studentId)->whereNull('return_date')->pluck('book_id')->toArray();
-            $booksQuery = Book::with('category')
-                ->whereNotIn('id', $issuedBookIds);
+            $issuedBookIds = IssuedBook::where('student_id', $studentId)->whereNull('return_date')
+                ->pluck('book_id')->map(fn ($id) => (int) $id)->all();
+            $booksQuery = Book::with('category');
             if ($query) {
                 $booksQuery->where(function($q) use ($query) {
                     $q->where('title', 'like', "%$query%")
@@ -115,9 +116,11 @@ class IssueBookController extends Controller
             }
             $books = $booksQuery->with(['copies' => function ($copyQuery) {
                 $copyQuery->orderBy('accession_number');
-            }])->limit(15)->get()->map(function($book) {
+            }])->limit(15)->get()->map(function($book) use ($issuedBookIds) {
+                $alreadyIssued = in_array((int) $book->id, $issuedBookIds, true);
                 return [
                     'id' => $book->id,
+                    'already_issued_to_student' => $alreadyIssued,
                     'title' => $book->title,
                     'isbn' => $book->isbn,
                     'author' => $book->author ?? 'Unknown',
@@ -132,6 +135,7 @@ class IssueBookController extends Controller
                     'copies' => $book->copies->map(fn (BookCopy $copy) => [
                         'id' => $copy->id,
                         'book_id' => $copy->book_id,
+                        'already_issued_to_student' => $alreadyIssued,
                         'accession_number' => $copy->accession_number,
                         'book_type' => $copy->book_type,
                         'status' => $copy->status,
@@ -304,6 +308,14 @@ class IssueBookController extends Controller
 
                     if ($copies->count() !== count($copyIds)) {
                         abort(response()->json(['success' => false, 'message' => 'One or more selected book copies were not found.'], 422));
+                    }
+
+                    if ($copies->pluck('book_id')->unique()->count() !== $copies->count()) {
+                        throw new PhysicalCopyException(
+                            'Only one copy of each book can be selected. Remove the extra copies and try again.',
+                            422,
+                            'duplicate_book_id'
+                        );
                     }
 
                     foreach ($copyIds as $copyId) {

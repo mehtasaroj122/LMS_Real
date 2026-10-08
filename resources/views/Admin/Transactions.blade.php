@@ -2890,6 +2890,7 @@
         let selectedBooks = [];
         let studentPrivileges = null; // Store student-specific privileges
         let issueSearchMode = 'accession';
+        let issueBookSearchRequest = 0;
         let accessionLookupTimer = null;
         let accessionLookupRequest = 0;
         const maxBooksPerStudent = 5;
@@ -3184,13 +3185,22 @@
                     .replace(/'/g, '&#039;');
             }
 
+            function isBookSelected(copy) {
+                const bookId = copy?.book_id ?? copy?.book?.id;
+                return bookId != null && selectedBooks.some(book => Number(book.book_id) === Number(bookId));
+            }
+
             function isCopySelectable(copy) {
                 return String(copy?.status || '').toLowerCase() === 'available'
                     && String(copy?.book_type || '').toLowerCase() !== 'reference'
-                    && String(copy?.condition || '').toLowerCase() !== 'damaged';
+                    && String(copy?.condition || '').toLowerCase() !== 'damaged'
+                    && !copy?.already_issued_to_student
+                    && !isBookSelected(copy);
             }
 
             function copyAvailabilityLabel(copy) {
+                if (copy?.already_issued_to_student) return 'Already issued to this student';
+                if (isBookSelected(copy)) return 'Book already selected — only one copy allowed';
                 if (String(copy?.book_type || '').toLowerCase() === 'reference') return 'Reference-only';
                 if (String(copy?.condition || '').toLowerCase() === 'damaged') return 'Damaged';
 
@@ -3301,6 +3311,9 @@
             }
 
             function clearTemporaryIssueSearch() {
+                issueBookSearchRequest++;
+                accessionLookupRequest++;
+                window.clearTimeout(accessionLookupTimer);
                 searchBookInput.value = '';
                 bookResults.innerHTML = '';
                 bookResults.style.display = 'none';
@@ -3787,7 +3800,13 @@
 
             // Search Books for Issue
             searchBookInput.addEventListener('input', function() {
+                const requestId = ++issueBookSearchRequest;
                 const query = this.value.trim();
+                const studentId = selectedStudent?.id;
+                const isCurrentSearch = () => requestId === issueBookSearchRequest
+                    && selectedStudent?.id === studentId
+                    && this.value.trim() === query
+                    && issueSearchMode === 'book';
                 bookResults.innerHTML = '';
 
                 if (query.length < 2) {
@@ -3811,7 +3830,7 @@
                     return;
                 }
 
-                const booksUrl = `{{ route('admin.transactions.books') }}?query=${encodeURIComponent(query)}&studentId=${selectedStudent.id}`;
+                const booksUrl = `{{ route('admin.transactions.books') }}?query=${encodeURIComponent(query)}&studentId=${studentId}`;
                 console.log('Fetching books from:', booksUrl);
 
                 // Fetch available books from API
@@ -3824,12 +3843,9 @@
                         return response.json();
                     })
                     .then(books => {
-                        const availableBooks = (books || []).map(book => ({
-                            ...book,
-                            copies: (book.copies || []).filter(copy =>
-                                !selectedBooks.some(selectedBook => Number(selectedBook.id) === Number(copy.id))
-                            ),
-                        }));
+                        if (!isCurrentSearch()) return;
+                        bookResults.innerHTML = '';
+                        const availableBooks = [...new Map((books || []).map(book => [String(book.id), book])).values()];
 
                         if (availableBooks.length === 0) {
                             bookResults.innerHTML =
@@ -3842,12 +3858,15 @@
                                 item.innerHTML = `
                                     <div class="result-title">${escapeHtml(book.title)}</div>
                                     <div class="result-subtitle">${escapeHtml(book.author)} • Publisher: ${escapeHtml(book.publisher || 'N/A')} • ${escapeHtml(book.category || 'N/A')}</div>
-                                    <div class="result-subtitle">Available: ${book.copies.filter(isCopySelectable).length} / ${book.copies.length} copies</div>
+                                    <div class="result-subtitle">${book.already_issued_to_student ? 'Already issued to this student' : `Available: ${book.copies.filter(isCopySelectable).length} / ${book.copies.length} copies`}</div>
                                     <div class="book-copy-options"></div>
                                 `;
 
                                 const copyOptions = item.querySelector('.book-copy-options');
-                                if (book.copies.length === 0) {
+                                if (book.already_issued_to_student) {
+                                    item.style.cursor = 'not-allowed';
+                                    item.style.opacity = '0.72';
+                                } else if (book.copies.length === 0) {
                                     copyOptions.innerHTML = '<span class="text-secondary">Currently unavailable</span>';
                                 } else {
                                     book.copies.forEach(copy => {
@@ -3885,6 +3904,7 @@
                         bookResults.style.display = 'block';
                     })
                     .catch(error => {
+                        if (!isCurrentSearch()) return;
                         console.error('Error fetching books:', error);
                         bookResults.innerHTML =
                             '<div class="result-item"><div class="result-title">Error: ' + error.message + '</div></div>';
@@ -3898,6 +3918,11 @@
                 window.clearTimeout(accessionLookupTimer);
                 const requestId = ++accessionLookupRequest;
                 const value = this.value.trim();
+                const studentId = selectedStudent?.id;
+                const isCurrentSearch = () => requestId === accessionLookupRequest
+                    && selectedStudent?.id === studentId
+                    && this.value.trim() === value
+                    && issueSearchMode === 'accession';
                 if (clearAccessionBtn) clearAccessionBtn.style.display = value ? 'block' : 'none';
 
                 accessionDetails.textContent = '';
@@ -3916,17 +3941,18 @@
                 }
 
                 accessionLookupTimer = window.setTimeout(async () => {
+                    if (!isCurrentSearch()) return;
                     accessionDetails.textContent = 'Searching physical copies...';
                     accessionResults.innerHTML = '<div class="result-item"><div class="result-title">Searching...</div></div>';
                     accessionResults.style.display = 'block';
 
                     try {
-                        const response = await fetch(`{{ route('admin.book-copies.search') }}?query=${encodeURIComponent(value)}&mode=issue`, {
+                        const response = await fetch(`{{ route('admin.book-copies.search') }}?query=${encodeURIComponent(value)}&mode=issue&student_id=${encodeURIComponent(studentId)}`, {
                             credentials: 'include',
                             headers: { 'Accept': 'application/json' },
                         });
                         const data = await response.json().catch(() => ({}));
-                        if (requestId !== accessionLookupRequest) return;
+                        if (!isCurrentSearch()) return;
                         if (!response.ok) throw new Error(data.message || 'Unable to search accession numbers.');
 
                         const matches = Array.isArray(data.data) ? data.data : [];
@@ -3964,7 +3990,7 @@
                         });
                         accessionDetails.textContent = 'Select a physical copy from the results.';
                     } catch (error) {
-                        if (requestId !== accessionLookupRequest) return;
+                        if (!isCurrentSearch()) return;
                         accessionResults.innerHTML = `<div class="result-item"><div class="result-title">${escapeHtml(error.message || 'Network/server error.')}</div></div>`;
                         accessionResults.style.display = 'block';
                         accessionDetails.textContent = error.message || 'Network/server error.';
@@ -4221,10 +4247,25 @@
                     book_type: copy?.book_type,
                     status: copy?.status,
                     condition: copy?.condition,
+                    already_issued_to_student: copy?.already_issued_to_student,
                 };
 
-                if (!normalizedBook.id || !normalizedBook.accession_number) {
+                if (!normalizedBook.id || !normalizedBook.book_id || !normalizedBook.accession_number) {
                     showCustomAlert('Copy Required', 'Select a physical book copy before adding it.', 'error');
+                    return false;
+                }
+
+                if (normalizedBook.already_issued_to_student) {
+                    showCustomAlert('Book Already Issued', 'This book is already issued to the selected student.', 'warning');
+                    return false;
+                }
+
+                if (isBookSelected(normalizedBook)) {
+                    showCustomAlert(
+                        'Book Already Selected',
+                        'Only one copy of each book can be selected. Remove the selected copy before choosing another.',
+                        'warning'
+                    );
                     return false;
                 }
 
@@ -4234,15 +4275,6 @@
                     showCustomAlert(
                         'Book Limit Reached',
                         `Student can only issue ${canIssueMore} more book(s). Privilege limit: ${rules.max_books} books maximum.`,
-                        'warning'
-                    );
-                    return false;
-                }
-
-                if (selectedBooks.some(b => Number(b.id) === Number(normalizedBook.id))) {
-                    showCustomAlert(
-                        'Copy Already Selected',
-                        'This book copy is already selected.',
                         'warning'
                     );
                     return false;
@@ -4282,6 +4314,10 @@
                 updateSelectedBooksList();
                 updateIssueButton();
                 updateAvailableBooksInfo();
+                const activeSearchInput = issueSearchMode === 'book' ? searchBookInput : accessionNumberInput;
+                if (activeSearchInput.value.trim()) {
+                    activeSearchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
             };
 
             window.updateSelectedBooksList = function() {
