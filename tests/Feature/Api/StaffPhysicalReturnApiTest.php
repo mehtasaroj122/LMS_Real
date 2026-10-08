@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ActivityLog;
 use App\Models\Book;
 use App\Models\BookCopy;
 use App\Models\Category;
@@ -7,6 +8,7 @@ use App\Models\Department;
 use App\Models\Fine;
 use App\Models\FineSetting;
 use App\Models\IssuedBook;
+use App\Models\Notification;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\PhysicalBookCopyService;
@@ -336,4 +338,184 @@ test('physical return APIs require a staff or admin Sanctum user', function () {
     $this->getJson('/api/staff/return-books/student/1')->assertForbidden();
     $this->postJson('/api/staff/return-books', [])->assertForbidden();
     $this->postJson('/api/staff/return-books/calculate-fine', [])->assertForbidden();
+    $this->postJson('/api/staff/return-books/bulk', [])->assertForbidden();
+});
+
+function borrowerReturnItem(BookCopy $copy, IssuedBook $issue, string $condition = 'good'): array
+{
+    return ['issue_id' => $issue->id, 'book_copy_id' => $copy->id,
+        'accession_number' => $copy->accession_number, 'return_condition' => $condition];
+}
+
+test('accession identifies a borrower whose return list includes all eligible books only', function () {
+    $staff = makePhysicalReturnApiUser();
+    $student = makePhysicalReturnApiStudent();
+    [, $firstCopy, $firstIssue] = makePhysicalReturnApiIssue($student, $staff);
+    [, , $secondIssue] = makePhysicalReturnApiIssue($student, $staff);
+    [, $lostCopy, $lostIssue] = makePhysicalReturnApiIssue($student, $staff);
+    $lostCopy->update(['status' => 'lost']);
+    IssuedBook::whereKey($lostIssue->id)->update(['status' => 'lost']);
+    [, , $otherIssue] = makePhysicalReturnApiIssue(makePhysicalReturnApiStudent(), $staff);
+    Sanctum::actingAs($staff);
+
+    $lookup = $this->getJson("/api/staff/return-books/accession/{$firstCopy->accession_number}")
+        ->assertOk()->assertJsonPath('data.borrower.active_issues_count', 2)
+        ->assertJsonPath('data.issue.can_return', true);
+    $borrowerId = $lookup->json('data.borrower.id');
+    $this->getJson("/api/staff/return-books/student/{$borrowerId}")
+        ->assertOk()->assertJsonCount(2, 'data.active_issues')
+        ->assertJsonFragment(['issue_id' => $firstIssue->id])
+        ->assertJsonFragment(['issue_id' => $secondIssue->id])
+        ->assertJsonMissing(['issue_id' => $lostIssue->id])
+        ->assertJsonMissing(['issue_id' => $otherIssue->id]);
+});
+
+test('borrower bulk returns keep separate fines conditions notifications and refreshed pending amount', function () {
+    $staff = makePhysicalReturnApiUser();
+    $student = makePhysicalReturnApiStudent();
+    [, $firstCopy, $firstIssue] = makePhysicalReturnApiIssue($student, $staff);
+    [, $secondCopy, $secondIssue] = makePhysicalReturnApiIssue($student, $staff, [], ['due_date' => today()->addDays(7)]);
+    Sanctum::actingAs($staff);
+    $payload = ['student_id' => $student->id, 'items' => [
+        borrowerReturnItem($firstCopy, $firstIssue, 'fair'), borrowerReturnItem($secondCopy, $secondIssue, 'damaged'),
+    ]];
+    $this->postJson('/api/staff/returns/preview', $payload)->assertOk()
+        ->assertJsonPath('data.total_fine', 315)
+        ->assertJsonPath('data.items.0.overdue_days', 5)
+        ->assertJsonPath('data.items.0.book_total', 65)
+        ->assertJsonPath('data.items.1.overdue_days', 0)
+        ->assertJsonPath('data.items.1.book_total', 250);
+    $this->postJson('/api/staff/return-books/bulk', $payload)->assertOk()
+        ->assertJsonPath('success', true)->assertJsonPath('data.returned_count', 2)
+        ->assertJsonPath('data.failed_count', 0)->assertJsonPath('data.total_fine', 315)
+        ->assertJsonPath('data.results.0.fine.total_fine', 65)
+        ->assertJsonPath('data.results.1.fine.total_fine', 250);
+    expect($firstCopy->fresh()->condition)->toBe('fair')->and($secondCopy->fresh()->status)->toBe('damaged');
+    $this->assertDatabaseHas('fines', ['issued_book_id' => $firstIssue->id, 'amount' => 65]);
+    $this->assertDatabaseHas('fines', ['issued_book_id' => $secondIssue->id, 'amount' => 250]);
+    expect(ActivityLog::where('action', 'book_returned')->count())->toBe(2);
+    expect(Notification::where('related_model', 'IssuedBook')->where('related_id', $firstIssue->id)->count())->toBe(1);
+    expect(Notification::where('related_model', 'IssuedBook')->where('related_id', $secondIssue->id)->count())->toBe(1);
+    $this->getJson("/api/staff/return-books/student/{$student->id}")->assertOk()
+        ->assertJsonCount(0, 'data.active_issues')->assertJsonPath('data.student.active_issues_count', 0)
+        ->assertJsonPath('data.student.pending_fine', 315);
+});
+
+test('a return between preview and submit fails only that item and creates no duplicate fine', function () {
+    $staff = makePhysicalReturnApiUser();
+    $student = makePhysicalReturnApiStudent();
+    [, $firstCopy, $firstIssue] = makePhysicalReturnApiIssue($student, $staff);
+    [, $staleCopy, $staleIssue] = makePhysicalReturnApiIssue($student, $staff);
+    Sanctum::actingAs($staff);
+    $payload = ['student_id' => $student->id, 'items' => [borrowerReturnItem($firstCopy, $firstIssue), borrowerReturnItem($staleCopy, $staleIssue)]];
+    $this->postJson('/api/staff/returns/preview', $payload)->assertOk()->assertJsonPath('data.selected_count', 2);
+    app(PhysicalBookCopyService::class)->returnIssueById($staleIssue->id, $staleCopy->id, 'good', now(), null, makePhysicalReturnApiUser());
+    $this->postJson('/api/staff/return-books/bulk', $payload)->assertOk()
+        ->assertJsonPath('success', false)->assertJsonPath('data.returned_count', 1)
+        ->assertJsonPath('data.failed_count', 1)->assertJsonPath('data.failed_items.0.issue_id', $staleIssue->id)
+        ->assertJsonPath('data.failed_items.0.code', 'issue_already_returned')
+        ->assertJsonPath('data.failed_items.0.can_return', false);
+    expect($firstIssue->fresh()->status)->toBe('returned')
+        ->and(Fine::where('issued_book_id', $staleIssue->id)->count())->toBe(1);
+    expect(ActivityLog::where('action', 'book_returned')->count())->toBe(2);
+});
+
+test('borrower bulk validates ownership accession and physical issue pairing per item', function (string $change, string $code) {
+    $staff = makePhysicalReturnApiUser();
+    $student = makePhysicalReturnApiStudent();
+    [, $firstCopy, $firstIssue] = makePhysicalReturnApiIssue($student, $staff);
+    [, $secondCopy, $secondIssue] = makePhysicalReturnApiIssue($student, $staff);
+    $invalid = borrowerReturnItem($secondCopy, $secondIssue);
+    if ($change === 'borrower') {
+        $secondIssue->update(['student_id' => makePhysicalReturnApiStudent()->id]);
+    } elseif ($change === 'accession') {
+        $invalid['accession_number'] = 'WRONG-ACCESSION';
+    } else {
+        $invalid['book_copy_id'] = app(PhysicalBookCopyService::class)->createCopies(makePhysicalReturnApiBook(), 1)->first()->id;
+    }
+    Sanctum::actingAs($staff);
+    $payload = ['student_id' => $student->id, 'items' => [borrowerReturnItem($firstCopy, $firstIssue), $invalid]];
+    $this->postJson('/api/staff/returns/preview', $payload)->assertOk()
+        ->assertJsonPath('data.selected_count', 1)->assertJsonPath('data.failed_items.0.code', $code);
+    $this->postJson('/api/staff/return-books/bulk', $payload)->assertOk()
+        ->assertJsonPath('data.returned_count', 1)->assertJsonPath('data.failed_items.0.code', $code);
+    expect($firstIssue->fresh()->status)->toBe('returned')->and($secondIssue->fresh()->return_date)->toBeNull();
+})->with([['borrower', 'borrower_mismatch'], ['accession', 'accession_mismatch'], ['copy', 'issue_copy_mismatch']]);
+
+test('inactive lost cancelled and unavailable records cannot be selected previewed or returned', function (string $status, string $copyStatus) {
+    $staff = makePhysicalReturnApiUser();
+    $student = makePhysicalReturnApiStudent();
+    [, $copy, $issue] = makePhysicalReturnApiIssue($student, $staff);
+    IssuedBook::whereKey($issue->id)->update(['status' => $status]);
+    $copy->update(['status' => $copyStatus]);
+    Sanctum::actingAs($staff);
+    $this->getJson("/api/staff/return-books/student/{$student->id}")->assertOk()->assertJsonCount(0, 'data.active_issues');
+    $this->getJson("/api/staff/return-books/accession/{$copy->accession_number}")->assertUnprocessable();
+    $payload = ['student_id' => $student->id, 'items' => [borrowerReturnItem($copy, $issue)]];
+    $this->postJson('/api/staff/returns/preview', $payload)->assertOk()->assertJsonPath('data.selected_count', 0);
+    $this->postJson('/api/staff/return-books/bulk', $payload)->assertOk()
+        ->assertJsonPath('data.returned_count', 0)->assertJsonPath('data.failed_count', 1);
+    expect($issue->fresh()->return_date)->toBeNull();
+})->with([['lost', 'lost'], ['cancelled', 'issued'], ['inactive', 'issued'], ['issued', 'available']]);
+
+test('missing item does not block a valid borrower return and repeated submit returns no duplicates', function () {
+    $staff = makePhysicalReturnApiUser();
+    $student = makePhysicalReturnApiStudent();
+    [, $copy, $issue] = makePhysicalReturnApiIssue($student, $staff);
+    Sanctum::actingAs($staff);
+    $payload = ['student_id' => $student->id, 'items' => [borrowerReturnItem($copy, $issue),
+        ['issue_id' => 999999, 'book_copy_id' => 999999, 'accession_number' => 'MISSING', 'return_condition' => 'good']]];
+    $this->postJson('/api/staff/return-books/bulk', $payload)->assertOk()
+        ->assertJsonPath('data.returned_count', 1)->assertJsonPath('data.failed_count', 1);
+    $this->postJson('/api/staff/return-books/bulk', $payload)->assertOk()
+        ->assertJsonPath('data.returned_count', 0)->assertJsonPath('data.failed_count', 2);
+    expect(Fine::where('issued_book_id', $issue->id)->count())->toBe(1);
+});
+
+test('ambiguous active issue and invalid dates are not returnable', function (string $invalid) {
+    $staff = makePhysicalReturnApiUser();
+    $student = makePhysicalReturnApiStudent();
+    [, $copy, $issue] = makePhysicalReturnApiIssue($student, $staff);
+    if ($invalid === 'duplicate') {
+        $duplicate = $issue->replicate();
+        $duplicate->save();
+    } elseif ($invalid === 'future') {
+        IssuedBook::whereKey($issue->id)->update(['issue_date' => today()->addDays(1)]);
+    } else {
+        IssuedBook::whereKey($issue->id)->update(['due_date' => today()->subDays(30)]);
+    }
+    Sanctum::actingAs($staff);
+    $this->getJson("/api/staff/return-books/student/{$student->id}")->assertOk()->assertJsonCount(0, 'data.active_issues');
+    $this->postJson('/api/staff/return-books/bulk', [
+        'student_id' => $student->id, 'items' => [borrowerReturnItem($copy, $issue)],
+    ])->assertOk()->assertJsonPath('data.returned_count', 0)->assertJsonPath('data.failed_count', 1);
+    expect($copy->fresh()->status)->toBe('issued')->and($issue->fresh()->return_date)->toBeNull();
+})->with(['duplicate', 'future', 'invalid_due']);
+
+test('partial return rejects duplicate selections and requires borrower accession and authorized staff', function () {
+    $staff = makePhysicalReturnApiUser();
+    $student = makePhysicalReturnApiStudent();
+    [, $copy, $issue] = makePhysicalReturnApiIssue($student, $staff);
+    $item = borrowerReturnItem($copy, $issue);
+    $this->postJson('/api/staff/return-books/bulk', ['student_id' => $student->id, 'items' => [$item]])->assertUnauthorized();
+    Sanctum::actingAs($staff);
+    $this->postJson('/api/staff/return-books/bulk', ['student_id' => $student->id, 'items' => [$item, $item]])->assertUnprocessable();
+    unset($item['accession_number']);
+    $this->postJson('/api/staff/return-books/bulk', ['student_id' => $student->id, 'items' => [$item]])->assertUnprocessable();
+    expect($issue->fresh()->return_date)->toBeNull();
+});
+
+test('cancelled historical issue never hides or replaces the current active issue of the physical copy', function () {
+    $staff = makePhysicalReturnApiUser();
+    $student = makePhysicalReturnApiStudent();
+    [, $copy, $issue] = makePhysicalReturnApiIssue($student, $staff);
+    $cancelled = $issue->replicate();
+    $cancelled->status = 'cancelled';
+    $cancelled->save();
+    Sanctum::actingAs($staff);
+    $this->getJson("/api/staff/return-books/accession/{$copy->accession_number}")->assertOk()->assertJsonPath('data.issue.issue_id', $issue->id);
+    $this->postJson('/api/staff/return-books/bulk', [
+        'student_id' => $student->id, 'items' => [borrowerReturnItem($copy, $issue)],
+    ])->assertOk()->assertJsonPath('data.returned_count', 1);
+    expect($cancelled->fresh()->return_date)->toBeNull();
 });

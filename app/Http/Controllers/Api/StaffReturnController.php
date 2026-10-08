@@ -12,6 +12,7 @@ use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Services\NotificationService;
 use App\Services\PhysicalBookCopyService;
+use App\Services\StudentFineSummaryService;
 use App\Support\Currency;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -37,8 +38,8 @@ class StaffReturnController extends Controller
 
         $students = Student::query()
             ->with(['user', 'department', 'privileges'])
-            ->withCount(['issuedBooks as active_issues_count' => fn ($builder) => $builder->whereNull('return_date')])
-            ->whereHas('issuedBooks', fn ($builder) => $builder->whereNull('return_date'))
+            ->withCount(['issuedBooks as active_issues_count' => fn ($builder) => $builder->returnable()])
+            ->whereHas('issuedBooks', fn ($builder) => $builder->returnable())
             ->when($query !== '', function ($builder) use ($query) {
                 $builder->where(function ($studentQuery) use ($query) {
                     $studentQuery
@@ -71,7 +72,7 @@ class StaffReturnController extends Controller
         $activeIssues = IssuedBook::query()
             ->with(['student.user', 'student.department', 'student.privileges', 'book.category', 'bookCopy', 'fine'])
             ->where('student_id', $studentModel->id)
-            ->whereNull('return_date')
+            ->returnable()
             ->orderBy('due_date')
             ->get()
             ->map(fn (IssuedBook $issue) => $this->issuePayload($issue, $fineSetting))
@@ -92,6 +93,10 @@ class StaffReturnController extends Controller
 
     public function preview(Request $request): JsonResponse
     {
+        if ($request->filled('items')) {
+            return $this->previewPhysicalItems($request);
+        }
+
         $validated = $request->validate([
             'issue_ids' => ['required', 'array', 'min:1'],
             'issue_ids.*' => ['integer', 'distinct'],
@@ -117,6 +122,20 @@ class StaffReturnController extends Controller
             ], 422);
         }
 
+        if ($issues->pluck('student_id')->unique()->count() !== 1
+            || $issues->contains(fn (IssuedBook $issue) => ! in_array($issue->status, IssuedBook::ACTIVE_RETURN_STATUSES, true))) {
+            return response()->json(['success' => false, 'message' => 'Select active issues belonging to one borrower.'], 422);
+        }
+        try {
+            foreach ($issues as $issue) {
+                if ($issue->book_copy_id) {
+                    $this->physicalIssueForReturn($issue->id, $issue->book_copy_id);
+                }
+            }
+        } catch (PhysicalCopyException $exception) {
+            return $this->physicalCopyError($exception);
+        }
+
         $condition = $validated['condition'];
         $returnDate = today();
         $items = $issues->map(fn (IssuedBook $issue) => $this->previewItemPayload($issue, $condition, $returnDate))->values();
@@ -139,6 +158,12 @@ class StaffReturnController extends Controller
 
     public function returnBooks(Request $request, NotificationService $notifications): JsonResponse
     {
+        // Borrower-scoped requests use independent transactions and report each result.
+        // Keep the existing atomic contract for older clients without student_id.
+        if ($request->has('student_id')) {
+            return $this->returnBorrowerBooks($request, $notifications);
+        }
+
         try {
             if ($request->filled('items')) {
                 $validated = $request->validate([
@@ -147,18 +172,23 @@ class StaffReturnController extends Controller
                     'items.*.book_copy_id' => ['required', 'integer', 'distinct', 'exists:book_copies,id'],
                     'items.*.return_condition' => ['required', 'in:good,fair,damaged,lost'],
                     'items.*.notes' => ['nullable', 'string', 'max:1000'],
+                    'items.*.accession_number' => ['nullable', 'string', 'max:100'],
                     'return_date' => ['nullable', 'date'],
                 ]);
 
                 $returnedIssues = DB::transaction(function () use ($validated, $request, $notifications) {
-                    return collect($validated['items'])->map(function (array $item) use ($validated, $request, $notifications) {
+                    $studentId = IssuedBook::findOrFail($validated['items'][0]['issue_id'])->student_id;
+
+                    return collect($validated['items'])->map(function (array $item) use ($validated, $request, $notifications, $studentId) {
                         $result = $this->copies->returnIssueById(
                             (int) $item['issue_id'],
                             (int) $item['book_copy_id'],
                             $item['return_condition'],
                             isset($validated['return_date']) ? Carbon::parse($validated['return_date']) : now(),
                             $item['notes'] ?? null,
-                            $request->user()
+                            $request->user(),
+                            (int) $studentId,
+                            $item['accession_number'] ?? null
                         );
                         $notifications->notifyBookReturned(
                             $result['issue'],
@@ -190,6 +220,8 @@ class StaffReturnController extends Controller
 
                     abort_if($issues->count() !== count($validated['issue_ids']), 404, 'One or more selected issue records were not found.');
                     abort_if($issues->contains(fn (IssuedBook $issue) => $issue->return_date !== null), 422, 'One or more selected books have already been returned.');
+                    abort_if($issues->pluck('student_id')->unique()->count() !== 1, 422, 'Select issues belonging to one borrower.');
+                    abort_if($issues->contains(fn (IssuedBook $issue) => ! in_array($issue->status, IssuedBook::ACTIVE_RETURN_STATUSES, true)), 422, 'One or more issue records are no longer active.');
 
                     return $issues->map(function (IssuedBook $issuedBook) use ($condition, $notes, $user, $notifications) {
                         if ($issuedBook->book_copy_id) {
@@ -374,7 +406,8 @@ class StaffReturnController extends Controller
             'profile_photo_url' => $photo ? asset('storage/'.ltrim($photo, '/')) : null,
             'active_issues_count' => $activeIssuesCount !== null
                 ? (int) $activeIssuesCount
-                : (int) $student->issuedBooks()->whereNull('return_date')->count(),
+                : (int) $student->issuedBooks()->returnable()->count(),
+            'pending_fine' => app(StudentFineSummaryService::class)->pendingAmount($student),
         ];
     }
 
@@ -448,6 +481,9 @@ class StaffReturnController extends Controller
         $user,
         NotificationService $notifications
     ): IssuedBook {
+        if ($issuedBook->return_date !== null || ! in_array($issuedBook->status, IssuedBook::ACTIVE_RETURN_STATUSES, true)) {
+            throw new PhysicalCopyException('This issue record is no longer actively issued.', 409, 'issue_not_active');
+        }
         $fineData = $this->copies->calculateReturnFine($issuedBook, $condition, $returnDate);
 
         if ($fineData['amount'] > 0) {
@@ -606,6 +642,8 @@ class StaffReturnController extends Controller
             'book_type' => $issue->bookCopy?->book_type,
             'copy_condition' => $issue->bookCopy?->condition,
             'shelf_location' => $issue->bookCopy?->shelf_location,
+            'copy_status' => $issue->bookCopy?->status,
+            'can_return' => IssuedBook::query()->returnable()->whereKey($issue->id)->exists(),
             'student_id' => $issue->student_id,
             'student_name' => $issue->student?->user?->name,
             'student_roll_no' => $issue->student?->roll_no,
@@ -655,22 +693,7 @@ class StaffReturnController extends Controller
             throw new PhysicalCopyException('Book copy not found.', 404, 'book_copy_not_found');
         }
 
-        if ($issue->bookCopy->status !== 'issued') {
-            throw new PhysicalCopyException('This book copy is not currently issued.', 409, 'copy_not_issued');
-        }
-
-        $activeIssueId = IssuedBook::query()
-            ->where('book_copy_id', $bookCopyId)
-            ->whereNull('return_date')
-            ->value('id');
-
-        if ((int) $activeIssueId !== $issue->id) {
-            throw new PhysicalCopyException(
-                'The active issue does not match this physical copy.',
-                409,
-                'active_issue_mismatch'
-            );
-        }
+        $this->copies->validateReturnIssue($issue, $issue->bookCopy);
 
         return $issue;
     }
@@ -693,7 +716,7 @@ class StaffReturnController extends Controller
                 'shelf_location' => $issue->bookCopy?->shelf_location,
                 'status' => $issue->bookCopy?->status,
             ],
-            'borrower' => $this->issueStudentPayload($issue->student),
+            'borrower' => $this->studentPayload($issue->student),
             'issue' => $this->issuePayload($issue, FineSetting::resolveActive()),
         ];
     }
@@ -730,6 +753,133 @@ class StaffReturnController extends Controller
             'display_value' => Currency::format($total),
             'condition' => $fine['condition'] ?? null,
         ];
+    }
+
+    private function validatedPhysicalItems(Request $request): array
+    {
+        return $request->validate([
+            'student_id' => ['required', 'integer', 'exists:students,id'],
+            'items' => ['required', 'array', 'min:1', 'max:100'],
+            'items.*.issue_id' => ['required', 'integer', 'min:1', 'distinct'],
+            'items.*.book_copy_id' => ['required', 'integer', 'min:1', 'distinct'],
+            'items.*.accession_number' => ['required', 'string', 'max:100', 'distinct'],
+            'items.*.return_condition' => ['required', 'in:good,fair,damaged,lost'],
+            'items.*.notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+    }
+
+    private function failedReturnItem(array $item, PhysicalCopyException $exception): array
+    {
+        return [
+            'issue_id' => (int) $item['issue_id'],
+            'book_copy_id' => (int) $item['book_copy_id'],
+            'accession_number' => $item['accession_number'],
+            'return_condition' => $item['return_condition'],
+            'return_status' => 'failed',
+            'code' => $exception->errorCode,
+            'message' => $exception->getMessage(),
+            'can_return' => false,
+        ];
+    }
+
+    private function previewPhysicalItems(Request $request): JsonResponse
+    {
+        $validated = $this->validatedPhysicalItems($request);
+        $items = collect();
+        $failures = collect();
+        foreach ($validated['items'] as $item) {
+            try {
+                $issue = $this->physicalIssueForReturn((int) $item['issue_id'], (int) $item['book_copy_id']);
+                $this->copies->validateReturnIssue($issue, $issue->bookCopy, (int) $validated['student_id'], $item['accession_number']);
+                $items->push([
+                    ...$this->previewItemPayload($issue, $item['return_condition'], today()),
+                    'accession_number' => $issue->bookCopy->accession_number,
+                    'return_condition' => $item['return_condition'],
+                ]);
+            } catch (PhysicalCopyException $exception) {
+                $failures->push($this->failedReturnItem($item, $exception));
+            }
+        }
+
+        $student = Student::with(['user', 'department', 'privileges'])->findOrFail($validated['student_id']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Selected return items validated.',
+            'data' => [
+                'selected_count' => $items->count(),
+                'total_fine' => (float) $items->sum('book_total'),
+                'items' => $items,
+                'failed_items' => $failures,
+                'rules' => $this->returnRulesPayload($student),
+            ],
+        ]);
+    }
+
+    private function returnBorrowerBooks(Request $request, NotificationService $notifications): JsonResponse
+    {
+        $validated = $this->validatedPhysicalItems($request);
+        $returned = collect();
+        $failures = collect();
+        $results = collect();
+        foreach ($validated['items'] as $item) {
+            try {
+                $result = DB::transaction(function () use ($item, $validated, $request, $notifications) {
+                    $result = $this->copies->returnIssueById(
+                        (int) $item['issue_id'],
+                        (int) $item['book_copy_id'],
+                        $item['return_condition'],
+                        now(),
+                        $item['notes'] ?? null,
+                        $request->user(),
+                        (int) $validated['student_id'],
+                        $item['accession_number']
+                    );
+                    $notifications->notifyBookReturned($result['issue'], $item['return_condition'], (float) $result['fine']['amount']);
+
+                    return $result;
+                }, 3);
+                $returned->push($result['issue']);
+                $results->push([
+                    'issue_id' => $result['issue']->id,
+                    'book_copy_id' => $result['issue']->book_copy_id,
+                    'accession_number' => $result['issue']->bookCopy->accession_number,
+                    'return_condition' => $item['return_condition'],
+                    'return_status' => 'returned',
+                    'fine' => [
+                        'issue_id' => $result['issue']->id,
+                        'book_copy_id' => $result['issue']->book_copy_id,
+                        ...$this->fineCalculationPayload($result['fine']),
+                    ],
+                ]);
+            } catch (PhysicalCopyException $exception) {
+                $failure = $this->failedReturnItem($item, $exception);
+                $failures->push($failure);
+                $results->push($failure);
+            } catch (\Throwable $exception) {
+                report($exception);
+                // An unexpected item failure also leaves the rest of the batch independent.
+                $failure = [
+                    ...$this->failedReturnItem($item, new PhysicalCopyException('Unable to return this copy. Refresh before trying again.', 500, 'return_failed')),
+                    'can_return' => true,
+                ];
+                $failures->push($failure);
+                $results->push($failure);
+            }
+        }
+
+        return response()->json([
+            'success' => $failures->isEmpty(),
+            'message' => "Returned: {$returned->count()}. Failed: {$failures->count()}.",
+            'data' => [
+                'returned_count' => $returned->count(),
+                'failed_count' => $failures->count(),
+                'total_fine' => (float) $returned->sum('fine_amount'),
+                'returned_books' => $returned->map(fn (IssuedBook $issue) => $this->issuePayload($issue, FineSetting::resolveActive()))->values(),
+                'failed_items' => $failures,
+                'results' => $results,
+            ],
+        ]);
     }
 
     private function physicalCopyError(PhysicalCopyException $exception): JsonResponse

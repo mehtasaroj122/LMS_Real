@@ -1,0 +1,243 @@
+/* Student compositions reuse the shared portal tokens, buttons, forms and badges.
+   Scoped overrides cover legacy inline styles without changing component behavior. */
+body.student-portal {
+    --border-color: var(--ui-border);
+    --body-bg: var(--ui-page);
+    --bg-input: var(--ui-surface);
+    --soft-bg: var(--ui-soft);
+    --secondary-color: var(--ui-secondary);
+    --info-color: var(--ui-primary);
+    --shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    --radius: 10px;
+    --radius-sm: 7px;
+}
+.student-portal .pwa-shell-content { padding: 20px !important; }
+.student-portal :is(.search-page, .main-content, .fines-container, .dashboard-page, .profile-page) { min-width: 0; }
+.student-portal :is(.page-header, .section-header) { gap: 12px; }
+.student-portal .page-header { margin-bottom: 20px !important; }
+.student-portal .page-header h1 { font-size: 24px !important; font-weight: 600 !important; letter-spacing: -0.025em; }
+.student-portal :is(.page-subtitle, .page-title p, .section-subtitle) { color: var(--ui-secondary) !important; font-size: 13px !important; }
+.student-portal :is(.book-card, .books-table-container, .requests-container, .request-mobile-card, .data-card, .quick-actions-section, .privileges-section, .privilege-card, .snapshot-card, .account-stat-card, .profile-card, .stat-card, .chart-card, .search-page .search-container) {
+    background: var(--ui-surface) !important;
+    color: var(--ui-text);
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 10px !important;
+    box-shadow: var(--shadow) !important;
+    transform: none !important;
+    transition: background-color .15s ease, border-color .15s ease !important;
+}
+.student-portal :is(.stat-card, .account-stat-card)::before,
+.student-portal :is(.stat-card, .account-stat-card)::after { display: none !important; }
+.student-portal :is(.stat-number, .account-stat-value, .privilege-value, .snapshot-value) { color: var(--ui-heading) !important; }
+.student-portal :is(.stat-label, .stat-title, .account-stat-label, .privilege-label) { color: var(--ui-secondary) !important; }
+.student-portal :is(.account-stat-icon, .privilege-icon, .chart-title-icon, .data-card-title-icon, .section-icon, .icon-tile, .btn-icon) {
+    background: var(--ui-info-bg) !important;
+    color: var(--ui-info-text) !important;
+    border-radius: 7px !important;
+    box-shadow: none !important;
+}
+.student-portal :is(.paid .stat-icon, .approved .stat-icon, .waived .stat-icon, .icon-tile.returned, .status-active .privilege-icon) { background: var(--ui-success-bg) !important; color: var(--ui-success-text) !important; }
+.student-portal :is(.pending .stat-icon, .issued .stat-icon, .borrowed .stat-icon, .icon-tile.requests, .icon-tile.due-soon) { background: var(--ui-warning-bg) !important; color: var(--ui-warning-text) !important; }
+.student-portal :is(.overdue .stat-icon, .outstanding .stat-icon, .rejected .stat-icon, .fine .stat-icon, .icon-tile.fines, .status-restricted .privilege-icon) { background: var(--ui-danger-bg) !important; color: var(--ui-danger-badge-text) !important; }
+
+/* Tables retain their existing scroll and mobile-card behavior. */
+.student-portal :is(.books-table-container, .fines-table-container, .requests-container) { overflow-x: auto !important; }
+.student-portal :is(.books-table, .fines-table) { min-width: 850px; }
+.student-portal main table tbody td { padding: 12px 14px !important; font-size: 13px; line-height: 1.5; }
+.student-portal main table tbody :is(small, .book-author, .text-muted, .text-secondary, .processed-na) { color: var(--ui-secondary) !important; font-size: 12px !important; }
+.student-portal :is(.book-title, .data-item-title) { color: var(--ui-heading) !important; font-weight: 500 !important; }
+.student-portal :is(.book-author, .book-description, .metadata-label, .data-item-meta, .mobile-label, .account-stat-context, .form-hint, .char-counter, .section-header p, .chart-description) { color: var(--ui-secondary) !important; }
+.student-portal :is(.metadata-value, .request-date, .processed-by):not(.admin-ui-badge) { color: var(--ui-heading) !important; }
+.student-portal .mobile-row { border-color: var(--ui-border) !important; }
+.student-portal .request-mobile-card { padding: 14px !important; }
+.student-portal .fine-amount { color: var(--ui-heading) !important; }
+.student-portal .fine-reason { background: var(--badge-bg, var(--ui-soft)) !important; color: var(--badge-color, var(--ui-icon)) !important; border-radius: 5px !important; }
+.student-portal .fine-reason :is(i, svg) { color: inherit !important; }
+
+/* One compact filter toolbar, with equal control heights and safe wrapping. */
+.student-portal :is(.search-filter-container, .search-filter-inner, .filters-container) { flex-wrap: wrap; min-width: 0; align-items: center; }
+.student-portal .search-filter-container { display: flex; gap: 12px !important; }
+.student-portal .search-filter-inner { display: flex; flex: 1 1 600px; gap: 12px !important; }
+.student-portal .search-box { flex: 1 1 260px; width: auto; min-width: min(260px, 100%); max-width: 100%; }
+.student-portal .search-box.student-search-compact { flex: 0 1 260px; width: 260px; min-width: 0; }
+.student-portal .filters-container { display: flex; gap: 10px !important; }
+.student-portal :is(.search-input, .filter-select, .reset-filter-btn, .reset-filters-btn) { height: 38px !important; box-sizing: border-box; }
+.student-portal .search-input { padding-left: 36px !important; }
+.student-portal .filter-select { padding-top: 7px !important; padding-bottom: 7px !important; }
+.student-portal .entries-control { flex-shrink: 0; gap: 8px; color: var(--ui-secondary) !important; }
+.student-portal .entries-select { min-width: 64px; }
+.student-portal .search-page .search-container { padding: 14px !important; }
+.student-portal .search-bar { width: 100%; grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(120px, 1fr)) auto; gap: 12px; }
+.student-portal .select-wrapper select { background-image: none !important; }
+.student-portal .select-arrow { color: var(--ui-icon) !important; }
+
+/* Catalog cards use a quiet cover fallback and semantic availability chips. */
+.student-portal .book-card { padding: 16px !important; }
+.student-portal .book-card:hover { border-color: var(--ui-strong-border) !important; }
+.student-portal .book-cover > div { background: var(--ui-soft) !important; color: var(--ui-info-text) !important; border-radius: 7px !important; }
+.student-portal .book-cover img { border-radius: 7px !important; }
+.student-portal .book-metadata { border-color: var(--ui-border) !important; }
+.student-portal .request-btn { margin-top: auto; }
+.student-portal .books-grid > p:only-child { grid-column: 1 / -1; padding: 32px 20px; background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: 10px; color: var(--ui-secondary); text-align: center; }
+.student-portal .admin-ui-button { box-sizing: border-box; }
+.student-portal .admin-ui-icon-button :is(i, svg) { pointer-events: none; }
+.student-portal .admin-ui-action:not(.admin-ui-icon-button) { min-height: 32px; }
+.student-portal .admin-ui-action.admin-ui-danger:active { color: var(--ui-danger-badge-text) !important; }
+.student-portal #removePhotoBtn:hover:not(:disabled) { background: #b91c1c !important; border-color: #b91c1c !important; box-shadow: none !important; transform: none !important; }
+.student-portal #removePhotoBtn:active:not(:disabled) { background: #991b1b !important; border-color: #991b1b !important; transform: translateY(1px) !important; }
+.student-portal .notification-header-link-danger { --button-color: var(--ui-danger-text); --button-bg: var(--ui-danger-soft); --button-border: transparent; --button-hover: var(--ui-danger-hover); --button-active: var(--ui-danger-active); }
+
+/* Dashboard shortcuts are full cards rather than compact table actions. */
+.student-portal .actions-grid-inner .action-btn {
+    background: var(--ui-surface) !important;
+    border: 1px solid var(--ui-border) !important;
+    color: var(--ui-heading) !important;
+    border-radius: 7px !important;
+    box-shadow: none !important;
+    transform: none !important;
+    transition: background-color .15s ease, border-color .15s ease !important;
+}
+.student-portal .actions-grid-inner .action-btn:hover { background: var(--ui-blue-soft) !important; border-color: var(--ui-primary) !important; }
+.student-portal .actions-grid-inner .action-btn:active { background: var(--ui-blue-active) !important; }
+.student-portal .actions-grid-inner .action-btn h3 { color: var(--ui-heading) !important; }
+.student-portal .actions-grid-inner .action-btn p { color: var(--ui-secondary) !important; }
+.student-portal :is(.chart-header, .data-card-header, .profile-detail-item, .usage-progress-container) { border-color: var(--ui-border) !important; }
+.student-portal :is(.chart-card, .chart-container, .data-card, .chart-heading) { min-width: 0; }
+.student-portal .chart-container canvas { max-width: 100%; }
+.student-portal .data-item { background: var(--ui-surface) !important; border-color: var(--ui-row-border) !important; transition: background-color .15s ease; }
+.student-portal .data-item:nth-child(even) { background: var(--ui-stripe) !important; }
+.student-portal .data-item:hover { background: var(--ui-soft) !important; transform: none !important; }
+.student-portal .data-item.overdue { border-left: 3px solid var(--ui-danger) !important; }
+.student-portal .privileges-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.student-portal :is(.privilege-card, .privilege-content) { min-width: 0; }
+.student-portal .privilege-label { white-space: normal; overflow-wrap: anywhere; }
+.student-portal .privilege-value { overflow-wrap: anywhere; }
+.student-portal .notification-card-unread { border-left: 3px solid var(--ui-primary) !important; }
+.student-portal :is(.usage-progress-container, .usage-progress-bar) { background: var(--ui-soft) !important; }
+.student-portal .progress-success { background: #16a34a !important; }
+.student-portal .progress-warning { background: #d97706 !important; }
+.student-portal .progress-danger { background: #dc2626 !important; }
+.student-portal .student-id-card { background: #111827 !important; border-color: #334155 !important; border-radius: 10px !important; box-shadow: none !important; }
+.student-portal .student-id-card::before { display: none; }
+.student-portal .student-id-card .id-card-name { color: #ffffff !important; }
+.student-portal .student-id-card :is(.id-card-header, .id-card-details, .id-card-footer) { border-color: #334155 !important; }
+.student-portal .student-id-card .id-card-photo { background: #1e293b; border-color: #64748b; }
+.student-portal .dashboard-identity-section { --dash-surface: var(--ui-surface); --dash-text: var(--ui-heading); --dash-muted: var(--ui-secondary); --dash-border: var(--ui-border); --dash-soft: var(--ui-soft); --dash-blue: var(--ui-primary); --dash-blue-soft: var(--ui-blue-soft); }
+.student-portal .snapshot-card:hover { background: var(--ui-blue-soft) !important; border-color: var(--ui-primary) !important; }
+.student-portal .snapshot-card:active { background: var(--ui-blue-active) !important; }
+.student-portal .quick-action-currency-mark { font-size: 15px; font-weight: 600; line-height: 1; }
+
+/* Profile settings retain existing tabs, validation and file-upload handlers. */
+.student-portal .profile-card { padding: 20px !important; }
+.student-portal .profile-avatar { background: var(--ui-info-bg) !important; color: var(--ui-info-text) !important; border-color: var(--ui-border) !important; box-shadow: none !important; overflow: visible !important; }
+.student-portal .profile-avatar img { border-radius: 50%; }
+.student-portal .profile-avatar-initial { color: var(--ui-info-text) !important; }
+.student-portal a.account-stat-card:hover { background: var(--ui-blue-soft) !important; border-color: var(--ui-primary) !important; }
+.student-portal a.account-stat-card:active { background: var(--ui-blue-active) !important; }
+.student-portal .settings-tabs { background: var(--ui-page) !important; border-color: var(--ui-border) !important; padding: 8px; gap: 4px; }
+.student-portal .student-settings-shell .tab-btn { color: var(--ui-secondary) !important; background: transparent !important; border-radius: 6px !important; transition: background-color .15s ease !important; }
+.student-portal .student-settings-shell .tab-btn:hover { color: var(--ui-heading) !important; background: var(--ui-soft) !important; }
+.student-portal .student-settings-shell .tab-btn.active { color: var(--ui-info-text) !important; background: var(--ui-info-bg) !important; }
+.student-portal .student-settings-shell .tab-btn:active { background: var(--ui-blue-active) !important; }
+.student-portal .student-settings-shell .form-group { margin-bottom: 16px !important; }
+.student-portal .student-settings-shell .form-input { border-radius: 7px !important; font-size: 13px !important; }
+.student-portal main :is(input, select, textarea):is(.valid, .is-valid):not([aria-invalid="true"]) { border-color: #16a34a !important; }
+.student-portal main :is(input, select, textarea):is(.is-invalid, [aria-invalid="true"]):focus { border-color: var(--ui-danger) !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, .12) !important; }
+body.student-portal .student-settings-shell .form-input:is(.is-invalid, .is-valid) { background-color: var(--ui-surface) !important; }
+.student-portal .admin-ui-busy:has([style*="animation:spin"])::before { content: none; }
+.student-portal .student-settings-shell .form-label { color: var(--ui-text) !important; font-size: 13px !important; }
+.student-portal .student-settings-shell .pwd-toggle { top: 4px; right: 6px; transform: none !important; }
+.student-portal .student-settings-shell :is(.password-input-wrapper, .input-with-icon) input { padding-right: 46px !important; }
+.student-portal :is(.password-intro-card, .upload-requirements, .password-requirements, .photo-preview) { background: var(--ui-soft) !important; border-color: var(--ui-border) !important; border-radius: 7px !important; color: var(--ui-text) !important; }
+.student-portal .file-input { display: block !important; position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.student-portal .file-input-label { background: var(--ui-surface) !important; color: var(--ui-primary) !important; border: 1px solid var(--ui-primary) !important; border-radius: 7px !important; }
+.student-portal .file-input-label:hover { background: var(--ui-blue-soft) !important; }
+.student-portal .file-input-wrapper:focus-within .file-input-label { outline: 2px solid var(--ui-primary); outline-offset: 2px; }
+.student-portal .account-deletion-zone { background: var(--ui-surface) !important; border-color: var(--ui-border) !important; border-radius: 10px !important; box-shadow: none !important; }
+
+/* Search uses .modal as the overlay; other portals use that class as a panel. */
+.student-portal .modal {
+    inset: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    max-height: none !important;
+    padding: var(--ui-modal-gutter) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: rgba(15, 23, 42, .45) !important;
+    -webkit-backdrop-filter: blur(var(--popup-backdrop-blur, 8px)) !important;
+    backdrop-filter: blur(var(--popup-backdrop-blur, 8px)) !important;
+    box-shadow: none !important;
+    overflow-y: auto;
+    z-index: var(--ui-modal-layer) !important;
+}
+.student-portal .modal.show { display: flex; align-items: center; justify-content: center; }
+.student-portal .modal-content {
+    margin: auto !important;
+    padding: 0 !important;
+    width: min(480px, 100%) !important;
+    max-height: calc(100dvh - var(--ui-modal-gutter) - var(--ui-modal-gutter));
+    overflow-y: auto;
+    background: var(--ui-surface) !important;
+    border: 1px solid var(--ui-border) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 20px 25px -5px rgba(15,23,42,.10), 0 8px 10px -6px rgba(15,23,42,.08) !important;
+    animation: none !important;
+}
+.student-portal :is(.modal-header, .modal-body) { margin-bottom: 0 !important; }
+.student-portal .modal-footer { justify-content: flex-end; }
+.student-portal .action-feedback-confirm-card { padding: 0 !important; }
+.student-portal .action-feedback-confirm-icon { border-radius: 7px; }
+.student-portal :is(.modal-title, .modal-book-title) { color: var(--ui-heading) !important; }
+.student-portal .modal-message { color: var(--ui-text) !important; font-size: 13px; }
+.student-portal .modal-icon { width: 40px; height: 40px; border-radius: 7px; }
+.student-portal .modal-icon-info { background: var(--ui-info-bg) !important; color: var(--ui-info-text) !important; }
+.student-portal .modal-icon-success { background: var(--ui-success-bg) !important; color: var(--ui-success-text) !important; }
+.student-portal .modal-icon-warning { background: var(--ui-warning-bg) !important; color: var(--ui-warning-text) !important; }
+.student-portal .modal-icon-danger { background: var(--ui-danger-bg) !important; color: var(--ui-danger-badge-text) !important; }
+.student-portal .action-feedback-confirm-card:has(.action-feedback-confirm-btn.danger) .action-feedback-confirm-icon { background: var(--ui-danger-bg) !important; color: var(--ui-danger-badge-text) !important; }
+.student-portal :is(.notification-popup, .notification-header) { background: var(--ui-surface) !important; border-color: var(--ui-border) !important; }
+.student-portal .notification-popup { border-radius: 10px; box-shadow: 0 8px 24px rgba(15, 23, 42, .10); }
+.student-portal .notification-item { border-color: var(--ui-row-border) !important; }
+.student-portal .notification-item:hover { background: var(--ui-soft) !important; }
+.student-portal .notification-item.unread { background: var(--ui-blue-soft) !important; }
+.student-portal :is(.notification-title, .notification-detail-hero-title, .notification-state-title) { color: var(--ui-heading) !important; }
+.student-portal :is(.notification-message, .notification-time, .notification-state-copy, .notification-detail-hero-copy p) { color: var(--ui-secondary) !important; }
+.student-portal :is(.notification-icon, .notification-detail-hero-icon) { background: var(--ui-info-bg) !important; color: var(--ui-info-text) !important; border-radius: 7px; box-shadow: none !important; }
+.student-portal .notification-icon.success { background: var(--ui-success-bg) !important; color: var(--ui-success-text) !important; }
+.student-portal .notification-icon.warning { background: var(--ui-warning-bg) !important; color: var(--ui-warning-text) !important; }
+.student-portal :is(.notification-icon.alert, .notification-detail-modal-danger .notification-detail-hero-icon) { background: var(--ui-danger-bg) !important; color: var(--ui-danger-badge-text) !important; }
+.student-portal .notification-detail-hero { background: var(--ui-soft) !important; border-color: var(--ui-border) !important; border-radius: 7px; }
+
+@media (max-width: 1199px) {
+    .student-portal .search-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .student-portal .search-bar > .filter-field:first-child { grid-column: span 2; }
+}
+@media (max-width: 767px) {
+    .student-portal .pwa-shell-content { padding: 14px !important; }
+    .student-portal .search-box,
+    .student-portal .search-box.student-search-compact { flex-basis: 100%; min-width: 0; width: 100%; }
+    .student-portal .filters-container { width: 100%; }
+    .student-portal .filters-container > .filter-select { flex: 1 1 140px; max-width: 100%; }
+    .student-portal .profile-card { padding: 16px !important; }
+    .student-portal .student-settings-shell .settings-tabs { overflow-x: auto; }
+    .student-portal .student-settings-shell .tab-btn { flex-shrink: 0; }
+    .student-portal .book-header { flex-wrap: wrap; }
+    .student-portal :is(.charts-row, .tables-row, .dashboard-bottom-row) { grid-template-columns: minmax(0, 1fr); }
+    .student-portal .chart-header { flex-wrap: wrap; gap: 10px; }
+}
+@media (max-width: 479px) {
+    .student-portal .search-bar { grid-template-columns: minmax(0, 1fr); }
+    .student-portal .search-bar > .filter-field:first-child { grid-column: auto; }
+    .student-portal .books-grid { grid-template-columns: minmax(0, 1fr); }
+    .student-portal .page-header h1 { font-size: 22px !important; }
+    .student-portal .privilege-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+@media (max-width: 374px) {
+    .student-portal .student-header-brand > div { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .student-portal .form-input.validating { background-image: none !important; }
+}

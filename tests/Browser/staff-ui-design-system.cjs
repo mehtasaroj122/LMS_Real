@@ -150,7 +150,7 @@ const installedChromium = () => {
         assert.equal(await page.locator('.modal-dialog').getAttribute('role'), 'dialog');
         assert.equal(await page.locator('.modal-dialog').getAttribute('aria-modal'), 'true');
         assert.ok((await page.locator('.modal-dialog').boundingBox()).width <= 480);
-        assert.equal(rgb(await page.locator('.modal-header').evaluate(el => getComputedStyle(el).backgroundColor)), 'rgb(255,255,255)');
+        assert.equal(rgb(await page.locator('.modal-header').evaluate(el => getComputedStyle(el).backgroundColor)), 'rgb(239,246,255)');
 
         await page.screenshot({ path: 'storage/framework/testing/staff-ui-design-system-desktop.png', fullPage: true });
         await page.keyboard.press('Escape');

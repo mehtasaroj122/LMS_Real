@@ -1,5 +1,6 @@
 /* Match the Issued Book Details header across all portal popup families. */
 body {
+    --popup-backdrop-blur: 8px;
     --popup-header-bg: var(--ui-blue-soft, #eff6ff);
     --popup-header-border: var(--ui-info-bg, #dbeafe);
     --popup-header-heading: var(--ui-heading, #0f172a);
@@ -32,6 +33,7 @@ body :is(
     .report-export-header,
     .report-pdf-header,
     .logo-cropper-header,
+    .accession-modal-header,
     .delete-modal-hero,
     .popup-header
 ) {
@@ -59,11 +61,48 @@ body :is(
     .report-export-header,
     .report-pdf-header,
     .logo-cropper-header,
+    .accession-modal-header,
     .delete-modal-hero,
     .popup-header
 ) :is(h2, h3) {
     color: var(--popup-header-heading) !important;
 }
+
+/* Include student pages that retain their original presentation and popup families
+   outside the design system. Blur only the backdrop, leaving the dialog sharp. */
+body :is(
+    .modal-overlay,
+    .modal-backdrop,
+    .request-modal-backdrop,
+    .fine-modal-overlay,
+    .activity-modal-overlay,
+    .book-details-overlay,
+    .role-modal-overlay,
+    .role-confirm-overlay,
+    .confirmation-modal-overlay,
+    .student-modal,
+    .notification-detail-modal,
+    .action-feedback-confirm-overlay,
+    .transaction-confirm-overlay,
+    .account-deletion-modal,
+    .report-export-modal,
+    .report-pdf-modal,
+    .logo-cropper-backdrop,
+    .accession-modal,
+    #addStudentModal,
+    .modal:has(> .modal-content)
+) {
+    -webkit-backdrop-filter: blur(var(--popup-backdrop-blur)) !important;
+    backdrop-filter: blur(var(--popup-backdrop-blur)) !important;
+}
+
+/* Search Books keeps its original controls, with a full-width popup header. */
+body .modal:has(> .modal-content) > .modal-content {
+    padding: 0;
+    overflow: hidden;
+}
+body .modal-content > .modal-header { margin-bottom: 0; }
+body .modal-content > :is(.modal-body, .modal-footer) { padding: 20px; }
 
 @media (max-width: 480px) {
     body .popup-header { padding: 14px; }

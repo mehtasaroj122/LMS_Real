@@ -1904,12 +1904,7 @@
                     <a href="{{ route('student.fines') }}" class="action-btn action-red">
                         <div class="btn-content">
                             <div class="btn-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                    </path>
-                                </svg>
+                                <span class="quick-action-currency-mark" aria-hidden="true">{{ \App\Support\Currency::SYMBOL }}</span>
                             </div>
                             <div>
                                 <h3>Pay Fines</h3>
@@ -2097,8 +2092,8 @@
             return {
                 textPrimary: styles.getPropertyValue('--text-primary').trim() || '#0f172a',
                 textSecondary: styles.getPropertyValue('--text-secondary').trim() || '#64748b',
-                gridColor: document.body.classList.contains('dark-theme') ? '#334155' : '#e5e7eb',
-                cardColor: document.body.classList.contains('dark-theme') ? '#1e293b' : '#ffffff',
+                gridColor: styles.getPropertyValue('--ui-border').trim() || '#e2e8f0',
+                cardColor: styles.getPropertyValue('--ui-surface').trim() || '#ffffff',
             };
         }
 
@@ -2131,7 +2126,10 @@
                 Number(value) > 0);
             const requestStatusLabels = @json($requestStatusChart['labels'] ?? []);
             const requestStatusData = @json($requestStatusChart['data'] ?? []);
-            const requestStatusColors = @json($requestStatusChart['colors'] ?? []);
+            const requestStatusColors = requestStatusLabels.map(label => ({
+                Pending: '#d97706', Approved: '#16a34a', Rejected: '#dc2626',
+                Issued: '#2563eb', Returned: '#16a34a', Cancelled: '#64748b',
+            }[label] || '#2563eb'));
             const hasRequestStatusData = requestStatusData.length > 0;
 
             const commonOptions = {
@@ -2166,8 +2164,8 @@
                     datasets: [{
                             label: 'Issued',
                             data: activityIssued,
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.14)',
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.10)',
                             fill: true,
                             tension: 0.3,
                             borderWidth: 3,
@@ -2177,15 +2175,15 @@
                             pointHoverRadius(context) {
                                 return hasActivityData && Number(context.raw) > 0 ? 6 : 0;
                             },
-                            pointBackgroundColor: '#3b82f6',
+                            pointBackgroundColor: '#2563eb',
                             pointBorderColor: '#ffffff',
                             pointBorderWidth: 2,
                         },
                         {
                             label: 'Returned',
                             data: activityReturned,
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.14)',
+                            borderColor: '#16a34a',
+                            backgroundColor: 'rgba(22, 163, 74, 0.10)',
                             fill: true,
                             tension: 0.3,
                             borderWidth: 3,
@@ -2195,7 +2193,7 @@
                             pointHoverRadius(context) {
                                 return hasActivityData && Number(context.raw) > 0 ? 6 : 0;
                             },
-                            pointBackgroundColor: '#10b981',
+                            pointBackgroundColor: '#16a34a',
                             pointBorderColor: '#ffffff',
                             pointBorderWidth: 2,
                         },

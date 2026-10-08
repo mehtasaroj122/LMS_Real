@@ -373,8 +373,8 @@ body.admin-portal.dark-theme {
 /* All existing modal families share surfaces, headers, footers and close controls. */
 .admin-portal :is(.modal-overlay, .modal-backdrop, .request-modal-backdrop, .fine-modal-overlay, .activity-modal-overlay, .book-details-overlay, .role-modal-overlay, .student-modal, .notification-detail-modal, .action-feedback-confirm-overlay, .transaction-confirm-overlay, .account-deletion-modal, .report-export-modal, .report-pdf-modal, .logo-cropper-backdrop, #addStudentModal) {
     background: rgba(15, 23, 42, 0.45) !important;
-    -webkit-backdrop-filter: blur(4px) !important;
-    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(var(--popup-backdrop-blur, 8px)) !important;
+    backdrop-filter: blur(var(--popup-backdrop-blur, 8px)) !important;
     padding: var(--ui-modal-gutter) !important;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -385,7 +385,7 @@ body.admin-portal.dark-theme {
     z-index: var(--ui-toast-layer) !important;
 }
 .admin-portal .student-modal-backdrop { background: transparent !important; }
-.admin-portal :is(.modal, .modal-dialog, .modal-panel, .modal-container, .request-modal-panel, .fine-modal, .activity-modal, .book-details-modal, .role-modal, .student-modal-dialog, .student-confirm-modal, .notification-detail-panel, .action-feedback-confirm-card, .transaction-confirm-card, .role-confirm-card, .account-deletion-modal__panel, .report-export-panel, .report-pdf-panel, .logo-cropper-panel, #addStudentModal > div) {
+.admin-portal :is(.modal:not(.student-portal .modal), .modal-dialog, .modal-panel, .modal-container, .request-modal-panel, .fine-modal, .activity-modal, .book-details-modal, .role-modal, .student-modal-dialog, .student-confirm-modal, .notification-detail-panel, .action-feedback-confirm-card, .transaction-confirm-card, .role-confirm-card, .account-deletion-modal__panel, .report-export-panel, .report-pdf-panel, .logo-cropper-panel, #addStudentModal > div) {
     background: var(--ui-surface) !important;
     color: var(--ui-text) !important;
     border: 1px solid var(--ui-border) !important;
@@ -552,11 +552,6 @@ body.admin-portal.dark-theme {
     line-height: 1;
     letter-spacing: -0.02em;
 }
-.staff-portal :is(.modal-header, .request-modal-header, .fine-modal-header, .activity-modal-header, .role-modal-header, .student-modal-header, .notification-detail-header, .action-feedback-confirm-header, .transaction-confirm-header, .role-confirm-header, .account-deletion-modal__header, .report-export-header, .report-pdf-header, .logo-cropper-header, .delete-modal-hero) {
-    background: var(--ui-surface) !important;
-    border-bottom-color: var(--ui-border) !important;
-}
-
 @media (max-width: 640px) {
     body.admin-portal { --ui-modal-gutter: 12px; }
     .admin-portal :is(.search-filter-container, .request-toolbar, .book-copies-toolbar, .lock-filter-bar) { flex-wrap: wrap; align-items: stretch; }

@@ -11,7 +11,6 @@
 <div class="dashboard-identity-section">
     <div class="dashboard-heading">
         <div>
-            <p class="dashboard-eyebrow">Student Portal / Overview</p>
             <h1>Dashboard</h1>
             <p class="dashboard-greeting"><span data-dashboard-greeting>Welcome</span>. Here is your library account at a glance.</p>
         </div>
@@ -89,29 +88,53 @@
             </div>
             <div class="snapshot-grid">
                 <a href="{{ route('student.my-books') }}" class="snapshot-card">
-                    <div class="snapshot-card-top"><span class="icon-tile"><i data-lucide="book-open" aria-hidden="true"></i></span><i data-lucide="arrow-up-right" class="snapshot-arrow" aria-hidden="true"></i></div>
+                    <div class="snapshot-card-top">
+                        <span class="snapshot-label">Currently Issued</span>
+                        <span class="icon-tile"><i data-lucide="book-open" aria-hidden="true"></i></span>
+                    </div>
                     <span class="snapshot-value">{{ number_format($booksIssuedCount) }}</span>
-                    <span class="snapshot-label">Currently Issued</span>
                     <span class="snapshot-caption">View your borrowed books</span>
                 </a>
                 <div class="snapshot-card">
-                    <div class="snapshot-card-top"><span class="icon-tile returned"><i data-lucide="book-check" aria-hidden="true"></i></span></div>
+                    <div class="snapshot-card-top">
+                        <span class="snapshot-label">Books Returned</span>
+                        <span class="icon-tile returned"><i data-lucide="book-check" aria-hidden="true"></i></span>
+                    </div>
                     <span class="snapshot-value">{{ number_format($booksReturnedCount) }}</span>
-                    <span class="snapshot-label">Books Returned</span>
                     <span class="snapshot-caption">All-time returns</span>
                 </div>
                 <a href="{{ route('student.fines') }}" class="snapshot-card">
-                    <div class="snapshot-card-top"><span class="icon-tile fines"><i data-lucide="coins" aria-hidden="true"></i></span><i data-lucide="arrow-up-right" class="snapshot-arrow" aria-hidden="true"></i></div>
+                    <div class="snapshot-card-top">
+                        <span class="snapshot-label">Pending Fines</span>
+                        <span class="icon-tile fines"><i data-lucide="coins" aria-hidden="true"></i></span>
+                    </div>
                     <span class="snapshot-value currency">{{ \App\Support\Currency::format($pendingFines, 2) }}</span>
-                    <span class="snapshot-label">Pending Fines</span>
                     <span class="snapshot-caption">View your fine details</span>
                 </a>
                 <a href="{{ route('student.requests') }}" class="snapshot-card">
-                    <div class="snapshot-card-top"><span class="icon-tile requests"><i data-lucide="clipboard-list" aria-hidden="true"></i></span><i data-lucide="arrow-up-right" class="snapshot-arrow" aria-hidden="true"></i></div>
+                    <div class="snapshot-card-top">
+                        <span class="snapshot-label">Active Requests</span>
+                        <span class="icon-tile requests"><i data-lucide="clipboard-list" aria-hidden="true"></i></span>
+                    </div>
                     <span class="snapshot-value">{{ number_format($activeRequestsCount) }}</span>
-                    <span class="snapshot-label">Active Requests</span>
                     <span class="snapshot-caption">Awaiting approval</span>
                 </a>
+                <a href="{{ route('student.my-books') }}" class="snapshot-card">
+                    <div class="snapshot-card-top">
+                        <span class="snapshot-label">Due Soon</span>
+                        <span class="icon-tile due-soon"><i data-lucide="clock" aria-hidden="true"></i></span>
+                    </div>
+                    <span class="snapshot-value">{{ number_format($dueSoon->count()) }}</span>
+                    <span class="snapshot-caption">Due within 3 days</span>
+                </a>
+                <div class="snapshot-card">
+                    <div class="snapshot-card-top">
+                        <span class="snapshot-label">Remaining Slots</span>
+                        <span class="icon-tile"><i data-lucide="book-plus" aria-hidden="true"></i></span>
+                    </div>
+                    <span class="snapshot-value">{{ number_format($privilegeSettings['remaining_slots']) }}</span>
+                    <span class="snapshot-caption">{{ $privilegeSettings['borrowing_allowed'] ? 'Books you can borrow' : 'Borrowing restricted' }}</span>
+                </div>
             </div>
         </section>
     </div>

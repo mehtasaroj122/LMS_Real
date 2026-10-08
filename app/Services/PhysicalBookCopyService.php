@@ -287,7 +287,7 @@ class PhysicalBookCopyService
         return IssuedBook::query()
             ->with(['student.user', 'student.department', 'student.privileges', 'book.category', 'bookCopy'])
             ->whereHas('bookCopy', fn ($query) => $query->where('accession_number', $this->normalizeAccession($accessionNumber)))
-            ->whereNull('return_date')
+            ->returnable()
             ->latest('issue_date')
             ->first();
     }
@@ -316,6 +316,7 @@ class PhysicalBookCopyService
             $issue = IssuedBook::query()
                 ->where('book_copy_id', $copy->id)
                 ->whereNull('return_date')
+                ->whereIn('status', IssuedBook::ACTIVE_RETURN_STATUSES)
                 ->with(['student.user', 'student.department', 'student.privileges', 'book.category', 'bookCopy'])
                 ->lockForUpdate()
                 ->latest('issue_date')
@@ -342,9 +343,11 @@ class PhysicalBookCopyService
         string $condition = 'good',
         ?Carbon $returnDate = null,
         ?string $remarks = null,
-        ?User $user = null
+        ?User $user = null,
+        ?int $studentId = null,
+        ?string $accessionNumber = null
     ): array {
-        return DB::transaction(function () use ($issueId, $bookCopyId, $condition, $returnDate, $remarks, $user): array {
+        return DB::transaction(function () use ($issueId, $bookCopyId, $condition, $returnDate, $remarks, $user, $studentId, $accessionNumber): array {
             $copy = BookCopy::query()->lockForUpdate()->find($bookCopyId);
 
             if (! $copy) {
@@ -360,35 +363,7 @@ class PhysicalBookCopyService
                 throw new PhysicalCopyException('Issue record not found.', 404, 'issue_not_found');
             }
 
-            if ($issue->return_date !== null || $issue->status === 'returned') {
-                throw new PhysicalCopyException('This book has already been returned.', 409, 'issue_already_returned');
-            }
-
-            if ((int) $issue->book_copy_id !== $copy->id) {
-                throw new PhysicalCopyException(
-                    'This physical copy does not belong to the selected issue.',
-                    422,
-                    'issue_copy_mismatch'
-                );
-            }
-
-            if ($copy->status !== 'issued') {
-                throw new PhysicalCopyException('This book copy is not currently issued.', 409, 'copy_not_issued');
-            }
-
-            $activeIssueId = IssuedBook::query()
-                ->where('book_copy_id', $copy->id)
-                ->whereNull('return_date')
-                ->lockForUpdate()
-                ->value('id');
-
-            if ((int) $activeIssueId !== $issue->id) {
-                throw new PhysicalCopyException(
-                    'The active issue does not match this physical copy.',
-                    409,
-                    'active_issue_mismatch'
-                );
-            }
+            $this->validateReturnIssue($issue, $copy, $studentId, $accessionNumber);
 
             return $this->completeLockedReturn(
                 $issue,
@@ -411,6 +386,46 @@ class PhysicalBookCopyService
         return $this->fineCalculator->calculateReturnFine($issue, $condition, $returnDate);
     }
 
+    /** The final return calls this with the issue and physical copy locked. */
+    public function validateReturnIssue(
+        IssuedBook $issue,
+        BookCopy $copy,
+        ?int $studentId = null,
+        ?string $accessionNumber = null
+    ): void {
+        if ($studentId !== null && (int) $issue->student_id !== $studentId) {
+            throw new PhysicalCopyException('This issue does not belong to the selected borrower.', 422, 'borrower_mismatch');
+        }
+
+        if ($issue->return_date !== null || $issue->status === 'returned') {
+            throw new PhysicalCopyException('This book has already been returned.', 409, 'issue_already_returned');
+        }
+
+        if (! in_array($issue->status, IssuedBook::ACTIVE_RETURN_STATUSES, true)
+            || ! $issue->issue_date || ! $issue->due_date || ! $issue->student || ! $issue->book
+            || $issue->issue_date->gt(today()) || $issue->due_date->lt($issue->issue_date)) {
+            throw new PhysicalCopyException('This issue record is no longer actively issued.', 409, 'issue_not_active');
+        }
+
+        if ((int) $issue->book_copy_id !== $copy->id || (int) $issue->book_id !== (int) $copy->book_id) {
+            throw new PhysicalCopyException('This physical copy does not belong to the selected issue.', 422, 'issue_copy_mismatch');
+        }
+
+        if ($accessionNumber !== null && $this->normalizeAccession($accessionNumber) !== $copy->accession_number) {
+            throw new PhysicalCopyException('The accession number does not match the issued physical copy.', 422, 'accession_mismatch');
+        }
+
+        if ($copy->status !== 'issued' || $copy->condition === 'lost') {
+            throw new PhysicalCopyException('This book copy is not currently issued.', 409, 'copy_not_issued');
+        }
+
+        $activeIds = IssuedBook::query()->where('book_copy_id', $copy->id)->whereNull('return_date')
+            ->whereIn('status', IssuedBook::ACTIVE_RETURN_STATUSES)->pluck('id');
+        if ($activeIds->count() !== 1 || (int) $activeIds->first() !== $issue->id) {
+            throw new PhysicalCopyException('The active issue does not match this physical copy.', 409, 'active_issue_mismatch');
+        }
+    }
+
     private function completeLockedReturn(
         IssuedBook $issue,
         BookCopy $copy,
@@ -419,6 +434,10 @@ class PhysicalBookCopyService
         ?string $remarks,
         ?User $user
     ): array {
+        $this->validateReturnIssue($issue, $copy);
+        if ($returnDate->copy()->startOfDay()->lt($issue->issue_date)) {
+            throw new PhysicalCopyException('Return date cannot be before the issue date.', 422, 'invalid_return_date');
+        }
         $book = Book::query()->lockForUpdate()->findOrFail($copy->book_id);
         $fine = $this->calculateReturnFine($issue, $condition, $returnDate);
 

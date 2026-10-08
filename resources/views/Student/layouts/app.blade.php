@@ -1,4 +1,7 @@
 {{-- resources/views/layouts/admin.blade.php --}}
+@php
+    $studentDesignSystemEnabled = ! request()->routeIs('student.search', 'student.profile', 'student.profile.edit');
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -21,11 +24,16 @@
     @include('shared.student-portal-pagination.styles')
     @include('shared.action-feedback.styles')
     @stack('styles')
+    @if ($studentDesignSystemEnabled)
+        <link rel="stylesheet" href="{{ asset('admin/CSS/admin-design-system.css') }}?v={{ filemtime(public_path('admin/CSS/admin-design-system.css')) }}">
+        <link rel="stylesheet" href="{{ asset('student/CSS/student-design-system.css') }}?v={{ filemtime(public_path('student/CSS/student-design-system.css')) }}">
+    @endif
     <link rel="stylesheet" href="{{ asset('shared/CSS/popup-headers.css') }}?v={{ filemtime(public_path('shared/CSS/popup-headers.css')) }}">
+    <link rel="stylesheet" href="{{ asset('shared/CSS/notification-controls.css') }}?v={{ filemtime(public_path('shared/CSS/notification-controls.css')) }}">
     @include('shared.currency')
 </head>
 
-<body class="light-theme">
+<body class="light-theme{{ $studentDesignSystemEnabled ? ' admin-portal student-portal' : '' }}">
     @include('shared.library-branding.bootstrap')
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <div class="flex h-screen overflow-hidden">
@@ -90,7 +98,7 @@
                     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
                         <i data-lucide="menu" class="w-5 h-5"></i>
                     </button>
-                    <div class="flex items-center space-x-2 md:hidden">
+                    <div class="student-header-brand flex items-center space-x-2 md:hidden">
                         <x-logo size="sm" :lazy="false" />
                         <div>
                             <h1 class="text-sm font-semibold leading-none text-primary">Library Management</h1>
@@ -113,7 +121,7 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('student.profile') }}" class="profile-link">
+                    <a href="{{ route('student.profile') }}" class="profile-link" aria-label="View my profile">
                         <div class="hidden text-right md:block">
                             <p class="text-sm font-semibold leading-tight text-primary">
                                 {{ Auth::user()->name ?? 'Student' }}</p>
@@ -275,6 +283,9 @@
 
     @include('shared.student-portal-pagination.scripts')
     @stack('scripts')
+    @if ($studentDesignSystemEnabled)
+        <script src="{{ asset('admin/JS/admin-ui.js') }}?v={{ filemtime(public_path('admin/JS/admin-ui.js')) }}" defer></script>
+    @endif
 </body>
 
 </html>

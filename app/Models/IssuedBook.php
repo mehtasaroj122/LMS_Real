@@ -29,6 +29,30 @@ class IssuedBook extends Model
         'return_date' => 'date',
     ];
 
+    public const ACTIVE_RETURN_STATUSES = ['issued', 'borrowed', 'overdue'];
+
+    public function scopeReturnable($query)
+    {
+        return $query->whereNull('return_date')
+            ->whereIn('issued_books.status', self::ACTIVE_RETURN_STATUSES)
+            ->whereNotNull('issue_date')
+            ->whereNotNull('due_date')
+            ->whereDate('issue_date', '<=', today())
+            ->whereColumn('due_date', '>=', 'issue_date')
+            ->whereHas('student')
+            ->whereHas('book')
+            ->whereHas('bookCopy', fn ($copy) => $copy->where('status', 'issued')
+                ->where('condition', '!=', 'lost')
+                ->whereColumn('book_copies.book_id', 'issued_books.book_id'))
+            ->whereNotExists(function ($other) {
+                $other->selectRaw('1')->from('issued_books as other_issues')
+                    ->whereColumn('other_issues.book_copy_id', 'issued_books.book_copy_id')
+                    ->whereColumn('other_issues.id', '!=', 'issued_books.id')
+                    ->whereNull('other_issues.return_date')
+                    ->whereIn('other_issues.status', self::ACTIVE_RETURN_STATUSES);
+            });
+    }
+
     public function book()
     {
         return $this->belongsTo(Book::class);

@@ -62,8 +62,12 @@ let finishDelete;
         await page.goto('http://localhost:8000/student/dashboard', { waitUntil: 'networkidle' });
         await page.waitForFunction(() => typeof Chart !== 'undefined' && Chart.getChart('activityChart') && document.querySelectorAll('#issuedBooksList .data-item').length === 7);
         assert.equal(await page.locator('#notificationsList .notification-card').count(), 6);
-        assert.equal(await page.locator('.snapshot-card').count(), 4);
-        assert.equal(await page.locator('a.snapshot-card').count(), 3);
+        assert.equal(await page.locator('.snapshot-card').count(), 6);
+        assert.equal(await page.locator('a.snapshot-card').count(), 4);
+        assert.equal(await page.locator('.snapshot-card').filter({ hasText: 'Due Soon' }).locator('.snapshot-value').innerText(), '2');
+        assert.equal(await page.locator('.snapshot-card').filter({ hasText: 'Remaining Slots' }).locator('.snapshot-value').innerText(), '6');
+        assert.equal(await page.getByText('Student Portal / Overview', { exact: true }).count(), 0);
+        assert.equal(await page.locator('.action-btn').filter({ hasText: 'Pay Fines' }).locator('.quick-action-currency-mark').innerText(), 'रु');
         assert.match(await page.locator('.student-id-card').innerText(), /CS-2023-001[\s\S]*Semester 2[\s\S]*Batch 2023/);
         assert.equal(await page.locator('.id-card-initials').innerText(), 'SM');
         assert.equal(await page.locator('.id-card-photo img').count(), 0);
@@ -76,7 +80,7 @@ let finishDelete;
         assert.equal(await page.evaluate(() => dashboardListStates.issuedBooks.batchSize), 10);
         assert.equal(await page.evaluate(() => Chart.getChart('requestStatusChart').options.cutout), '65%');
 
-        for (const width of [1920, 1440, 1280, 1024, 768, 390, 320]) {
+        for (const width of [1920, 1440, 1280, 1279, 1024, 1023, 960, 900, 899, 768, 640, 480, 479, 390, 320]) {
             await page.setViewportSize({ width, height: 1100 });
             await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
             const layout = await page.locator('.dashboard-identity-section').evaluate(root => {
@@ -93,8 +97,22 @@ let finishDelete;
             });
             assert.equal(layout.fullWidth, true, `Top section must use full available width at ${width}px`);
             assert.deepEqual(layout.overflow, [], `Identity section overflow at ${width}px`);
+            const snapshotLayout = await page.locator('.snapshot-card').evaluateAll(cards => cards.every(card => {
+                const labelNode = card.querySelector('.snapshot-label');
+                const label = labelNode.getBoundingClientRect();
+                const value = card.querySelector('.snapshot-value').getBoundingClientRect();
+                const caption = card.querySelector('.snapshot-caption').getBoundingClientRect();
+                const icon = card.querySelector('.icon-tile').getBoundingClientRect();
+                const bounds = card.getBoundingClientRect();
+                const style = getComputedStyle(card);
+                return labelNode.scrollWidth <= labelNode.clientWidth + 1
+                    && label.bottom <= value.top && value.bottom <= caption.top
+                    && Math.abs(icon.top - bounds.top - parseFloat(style.paddingTop) - 1) < 1
+                    && Math.abs(bounds.right - icon.right - parseFloat(style.paddingRight) - 1) < 1;
+            }));
+            assert.equal(snapshotLayout, true, `Snapshot labels precede live values and captions, with top-right icons at ${width}px`);
             if (width <= 390) assert.equal(await page.locator('.id-card-person').evaluate(el => getComputedStyle(el).flexDirection), 'column');
-            if ([1920, 1440, 390, 320].includes(width)) {
+            if ([1920, 1440, 1280, 960, 480, 390, 320].includes(width)) {
                 await page.locator('.pwa-shell-content').evaluate(el => { el.scrollTo({ top: 0, behavior: 'instant' }); });
                 await page.screenshot({ path: path.join(output, `dashboard-${width}.png`) });
             }
@@ -121,7 +139,7 @@ let finishDelete;
         assert.equal(Number(await page.locator('#notificationBadge').innerText()), badgeBefore - 1);
 
         await page.locator('#themeToggle').click();
-        await page.waitForFunction(() => document.body.classList.contains('dark-theme') && getComputedStyle(document.querySelector('.snapshot-card')).backgroundColor === 'rgb(30, 41, 59)');
+        await page.waitForFunction(() => document.body.classList.contains('dark-theme') && getComputedStyle(document.querySelector('.snapshot-card')).backgroundColor === 'rgb(17, 24, 39)');
         await page.locator('.pwa-shell-content').evaluate(el => { el.scrollTo({ top: 0, behavior: 'instant' }); });
         await page.screenshot({ path: path.join(output, 'dashboard-dark.png') });
 
@@ -132,12 +150,14 @@ let finishDelete;
         assert.match(await page.locator('#issuedBooksList').innerText(), /No books currently issued/);
         assert.match(await page.locator('#notificationsList').innerText(), /No notifications yet/);
         assert.equal(await page.locator('.snapshot-value').first().innerText(), '0');
+        assert.equal(await page.locator('.snapshot-card').filter({ hasText: 'Due Soon' }).locator('.snapshot-value').innerText(), '0');
 
         fixture = 'restricted';
         await page.goto('http://localhost:8000/student/dashboard', { waitUntil: 'networkidle' });
         assert.match(await page.locator('.id-card-details').innerText(), /Borrowing Permission\s+Restricted/);
+        assert.match(await page.locator('.snapshot-card').filter({ hasText: 'Remaining Slots' }).innerText(), /0\s+Borrowing restricted/);
         assert.deepEqual(errors, []);
-        console.log('PASS: retained student identity and snapshot use full width at seven viewport sizes (320–1920px), with keyboard focus and dark theme; original charts, list sizes, empty states and notification DELETE remain functional.');
+        console.log('PASS: six compact snapshot cards show live data and respect borrowing restrictions at fifteen viewport sizes (320–1920px), with top-right icons, keyboard focus and dark theme; original charts, list sizes, empty states and notification DELETE remain functional.');
     } catch (error) {
         console.error(error);
         throw error;
