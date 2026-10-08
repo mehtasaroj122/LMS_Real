@@ -1261,6 +1261,7 @@
                 const paginationContainer = document.getElementById('paginationContainer');
                 const params = new URLSearchParams({
                     search: this.currentSearch,
+                    availability: this.currentAvailabilityFilter,
                     condition: this.currentConditionFilter,
                     category: this.currentCategoryFilter,
                     sort: this.currentSortFilter,
@@ -1305,7 +1306,7 @@
                     .catch((error) => { console.error('Error fetching books:', error); this.showNotification('Error loading books', 'error'); });
             };
             p.refreshStats = function() {
-                const params = new URLSearchParams({ search: this.currentSearch, condition: this.currentConditionFilter, category: this.currentCategoryFilter });
+                const params = new URLSearchParams({ search: this.currentSearch, availability: this.currentAvailabilityFilter, condition: this.currentConditionFilter, category: this.currentCategoryFilter });
                 fetch(`{{ route('staff.books.stats') }}?${params.toString()}`, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } })
                     .then((response) => response.json())
                     .then((data) => this.updateStats(data))
@@ -1942,6 +1943,7 @@
             };
             p.syncCurrentFiltersFromDom = function() {
                 this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
+                this.currentAvailabilityFilter = document.getElementById('availabilityFilter')?.value || 'all';
                 this.currentConditionFilter = document.getElementById('conditionFilter')?.value || 'all';
                 this.currentCategoryFilter = document.getElementById('categoryFilter')?.value || 'all';
                 this.currentSortFilter = document.getElementById('sortFilter')?.value || 'recently-added';
@@ -1951,6 +1953,7 @@
                 const params = new URLSearchParams();
 
                 if (this.currentSearch) params.set('search', this.currentSearch);
+                if (this.currentAvailabilityFilter !== 'all') params.set('availability', this.currentAvailabilityFilter);
                 if (this.currentConditionFilter !== 'all') params.set('condition', this.currentConditionFilter);
                 if (this.currentCategoryFilter !== 'all') params.set('category', this.currentCategoryFilter);
                 if (this.currentSortFilter !== 'recently-added') params.set('sort', this.currentSortFilter);
@@ -1965,17 +1968,20 @@
             };
             p.resetFilters = function() {
                 this.currentSearch = '';
+                this.currentAvailabilityFilter = 'all';
                 this.currentConditionFilter = 'all';
                 this.currentCategoryFilter = 'all';
                 this.currentSortFilter = 'recently-added';
                 this.currentPage = 1;
 
                 const searchInput = document.getElementById('searchInput');
+                const availabilityFilter = document.getElementById('availabilityFilter');
                 const conditionFilter = document.getElementById('conditionFilter');
                 const categoryFilter = document.getElementById('categoryFilter');
                 const sortFilter = document.getElementById('sortFilter');
 
                 if (searchInput) searchInput.value = '';
+                if (availabilityFilter) availabilityFilter.value = 'all';
                 if (conditionFilter) conditionFilter.value = 'all';
                 if (categoryFilter) categoryFilter.value = 'all';
                 if (sortFilter) sortFilter.value = 'recently-added';
@@ -1992,7 +1998,7 @@
                 });
             };
             p.initFilters = function() {
-                [['conditionFilter', 'currentConditionFilter'], ['categoryFilter', 'currentCategoryFilter'], ['sortFilter', 'currentSortFilter']].forEach(([id, prop]) => {
+                [['availabilityFilter', 'currentAvailabilityFilter'], ['conditionFilter', 'currentConditionFilter'], ['categoryFilter', 'currentCategoryFilter'], ['sortFilter', 'currentSortFilter']].forEach(([id, prop]) => {
                     const el = document.getElementById(id);
                     if (!el) return;
                     el.addEventListener('change', (e) => {
@@ -2091,6 +2097,7 @@
             p.init = function() {
                 this.currentBookISBN = null;
                 this.currentSearch = '';
+                this.currentAvailabilityFilter = 'all';
                 this.currentCategoryFilter = 'all';
                 this.currentSortFilter = 'recently-added';
                 this.currentPage = Number(new URLSearchParams(window.location.search).get('page')) || 1;
@@ -2228,6 +2235,10 @@
             background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 0.5rem center;
             border: 1px solid #e5e7eb;
             color: #0f172a;
+        }
+
+        #availabilityFilter {
+            width: 164px;
         }
 
         #conditionFilter {
@@ -2837,6 +2848,12 @@
                 </div>
 
                 <div class="filters-container">
+                    <select class="filter-select" id="availabilityFilter" aria-label="Filter by availability">
+                        <option value="all" {{ ($availability ?? 'all') === 'all' ? 'selected' : '' }}>All Books</option>
+                        <option value="available" {{ ($availability ?? 'all') === 'available' ? 'selected' : '' }}>Available Only</option>
+                        <option value="unavailable" {{ ($availability ?? 'all') === 'unavailable' ? 'selected' : '' }}>Unavailable Only</option>
+                    </select>
+
                     <select class="filter-select" id="conditionFilter" aria-label="Filter by condition">
                         <option value="all" {{ ($condition ?? 'all') === 'all' ? 'selected' : '' }}>All Conditions</option>
                         <option value="new" {{ ($condition ?? 'all') === 'new' ? 'selected' : '' }}>New</option>

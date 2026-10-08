@@ -124,7 +124,11 @@ test('admin can bulk mark pending fines as paid while skipping already processed
         ->assertJsonPath('success', true)
         ->assertJsonPath('processedCount', 2)
         ->assertJsonPath('skippedCount', 1)
-        ->assertJsonPath('totalAmount', 205.5);
+        ->assertJsonPath('totalAmount', 205.5)
+        ->assertJsonPath('fines.0.id', $pendingOne->id)
+        ->assertJsonPath('fines.0.status', 'paid')
+        ->assertJsonPath('fines.1.id', $pendingTwo->id)
+        ->assertJsonPath('fines.1.status', 'paid');
 
     expect($pendingOne->fresh()->status)->toBe('paid');
     expect($pendingTwo->fresh()->status)->toBe('paid');
@@ -158,7 +162,10 @@ test('staff can bulk waive pending fines with a shared reason', function () {
         ->assertJsonPath('success', true)
         ->assertJsonPath('processedCount', 2)
         ->assertJsonPath('skippedCount', 1)
-        ->assertJsonPath('totalAmount', 135);
+        ->assertJsonPath('totalAmount', 135)
+        ->assertJsonPath('fines.0.status', 'waived')
+        ->assertJsonPath('fines.0.remarks', 'Approved as a staff courtesy')
+        ->assertJsonPath('fines.1.status', 'waived');
 
     expect($pendingOne->fresh()->status)->toBe('waived');
     expect($pendingTwo->fresh()->status)->toBe('waived');
@@ -275,3 +282,32 @@ test('staff bulk fine email validates that at least one fine is selected', funct
         ->assertStatus(422)
         ->assertJsonValidationErrors(['fine_ids']);
 });
+
+test('fine actions return saved row data for asynchronous updates in both portals', function (string $role, string $status) {
+    Queue::fake();
+    $operator = makeFineBulkTestUser($role);
+    $fine = makeFineBulkTestRecord('pending', ['amount' => 125.50]);
+    $routeName = $status === 'paid' ? 'mark-as-paid' : 'waive';
+    $payload = $status === 'waived' ? ['remarks' => 'Approved library waiver'] : [];
+
+    $this->actingAs($operator)
+        ->postJson(route("{$role}.fines.{$routeName}", $fine), $payload)
+        ->assertOk()
+        ->assertJsonPath('fine.id', $fine->id)
+        ->assertJsonPath('fine.fineAmount', 125.5)
+        ->assertJsonPath('fine.status', $status)
+        ->assertJsonPath('fine.statusLabel', ucfirst($status));
+
+    expect($fine->fresh()->status)->toBe($status);
+    if ($status === 'waived') {
+        expect($fine->fresh()->remarks)->toBe('Approved library waiver');
+    }
+
+    $this->postJson(route("{$role}.fines.{$routeName}", $fine), $payload)->assertUnprocessable();
+    Queue::assertPushed(SendFineEmail::class, 1);
+})->with([
+    'admin payment' => ['admin', 'paid'],
+    'admin waiver' => ['admin', 'waived'],
+    'staff payment' => ['staff', 'paid'],
+    'staff waiver' => ['staff', 'waived'],
+]);

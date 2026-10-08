@@ -348,7 +348,7 @@
                 this.state.inputDebounceTimer = window.setTimeout(() => this.loadFines(), 320);
             },
 
-            async loadFines({ silent = false } = {}) {
+            async loadFines({ silent = false, preserveRows = false } = {}) {
                 this.syncFiltersFromInputs();
 
                 if (!this.validateFilters({ showToast: !silent })) {
@@ -361,8 +361,10 @@
 
                 const controller = new AbortController();
                 this.state.fetchController = controller;
-                this.setStatsLoading(true);
-                this.renderTableLoading();
+                if (!preserveRows) {
+                    this.setStatsLoading(true);
+                    this.renderTableLoading();
+                }
                 this.elements.tableWrapper?.setAttribute('aria-busy', 'true');
 
                 const params = new URLSearchParams({
@@ -382,6 +384,8 @@
                         signal: controller.signal,
                     });
 
+                    if (controller.signal.aborted || this.state.fetchController !== controller) return;
+
                     this.state.fines = Array.isArray(data.fines) ? data.fines : [];
                     this.state.stats = data.stats || {};
                     this.state.pagination = data.pagination || {};
@@ -393,7 +397,7 @@
                     const lastPage = Math.max(1, Number(this.state.pagination.last_page || 1));
                     if (this.state.currentPage > lastPage) {
                         this.state.currentPage = lastPage;
-                        await this.loadFines({ silent: true });
+                        await this.loadFines({ silent: true, preserveRows });
                         return;
                     }
 
@@ -412,7 +416,7 @@
                     }
 
                     console.error('[Fines] Failed to load fines:', error);
-                    this.renderTableError();
+                    if (!preserveRows) this.renderTableError();
                     this.setStatsLoading(false);
                     this.showToast('error', 'Could not load fines', this.resolveErrorMessage(error, 'Something went wrong while loading fine records.'));
                 } finally {
@@ -420,7 +424,7 @@
                         this.state.fetchController = null;
                     }
 
-                    this.elements.tableWrapper?.setAttribute('aria-busy', 'false');
+                    if (!this.state.fetchController) this.elements.tableWrapper?.setAttribute('aria-busy', 'false');
                 }
             },
 
@@ -899,7 +903,7 @@
                         const maxLabel = this.state.maxAmount ? this.formatCurrency(this.state.maxAmount) : 'any';
                         segments.push(`Amount: ${minLabel} to ${maxLabel}`);
                     }
-                    const total = Number(this.state.pagination.total || this.state.stats.count || 0);
+                    const total = Number(this.state.pagination.total ?? this.state.stats.count ?? 0);
                     const summaryPrefix = segments.length > 0 ? segments.join(' • ') : 'Showing all fines';
                     this.elements.filterSummary.innerHTML = `${this.escapeHtml(summaryPrefix)} • <strong>${total}</strong> matching ${total === 1 ? 'record' : 'records'}`;
                 }
@@ -1214,7 +1218,7 @@
                         this.closeModal('waiveModal');
                         this.clearSelection();
                         this.notifyFineUpdate({ fineIds: waiveContext.fineIds, status: 'waived', bulk: true });
-                        await this.loadFines({ silent: true });
+                        this.applyFineUpdates(response.fines, { reconcile: Number(response.skippedCount || 0) > 0 });
                         this.showToast(
                             Number(response.skippedCount || 0) > 0 ? 'warning' : 'info',
                             Number(response.processedCount || 0) > 0 ? 'Fines waived' : 'No fines waived',
@@ -1222,14 +1226,14 @@
                         );
                         this.announce('Selected fines waived successfully.');
                     } else {
-                        await this.requestJson(this.buildFineRoute(this.config.routes.waive, fineId), {
+                        const response = await this.requestJson(this.buildFineRoute(this.config.routes.waive, fineId), {
                             method: 'POST',
                             body: JSON.stringify({ remarks: reason }),
                         });
 
                         this.closeModal('waiveModal');
                         this.notifyFineUpdate({ fineId, status: 'waived' });
-                        this.applyFineStatusChange(fineId, 'waived', { reason });
+                        this.applyFineUpdates([response.fine]);
                         this.showToast('warning', 'Fine waived', `${fine?.studentName || 'The student'}'s fine was waived successfully.`);
                         this.announce('Fine waived successfully.');
                     }
@@ -1346,19 +1350,18 @@
 
             async processMarkAsPaid(fineId, fine) {
                 try {
-                    await this.requestJson(this.buildFineRoute(this.config.routes.markPaid, fineId), {
+                    const response = await this.requestJson(this.buildFineRoute(this.config.routes.markPaid, fineId), {
                         method: 'POST',
                     });
 
                     this.closeModal('confirmActionModal');
                     this.notifyFineUpdate({ fineId, status: 'paid' });
-                    this.applyFineStatusChange(fineId, 'paid');
+                    this.applyFineUpdates([response.fine]);
                     this.showToast('success', 'Fine marked as paid', `${fine?.studentName || 'The student'}'s payment was recorded successfully.`);
                     this.announce('Fine marked as paid.');
                 } catch (error) {
                     const message = this.resolveErrorMessage(error, 'Unable to mark this fine as paid.');
                     this.showToast('error', 'Payment update failed', message);
-                    throw error;
                 }
             },
 
@@ -1375,7 +1378,7 @@
                     this.closeModal('confirmActionModal');
                     this.clearSelection();
                     this.notifyFineUpdate({ fineIds, status: 'paid', bulk: true });
-                    await this.loadFines({ silent: true });
+                    this.applyFineUpdates(response.fines, { reconcile: Number(response.skippedCount || 0) > 0 });
                     this.showToast(
                         Number(response.skippedCount || 0) > 0 ? 'warning' : 'success',
                         Number(response.processedCount || 0) > 0 ? 'Fines marked as paid' : 'No fines updated',
@@ -1385,7 +1388,6 @@
                 } catch (error) {
                     const message = this.resolveErrorMessage(error, 'Unable to mark the selected fines as paid.');
                     this.showToast('error', 'Bulk payment update failed', message);
-                    throw error;
                 }
             },
 
@@ -1434,56 +1436,70 @@
                 }
             },
 
-            applyFineStatusChange(fineId, nextStatus, extra = {}) {
-                const fine = this.getFineRecord(fineId);
-                if (!fine) return;
+            applyFineUpdates(updates, { reconcile = false } = {}) {
+                const previousPage = this.state.currentPage;
+                const hadFetch = Boolean(this.state.fetchController);
+                this.state.fetchController?.abort();
+                this.state.fetchController = null;
+                this.elements.tableWrapper?.setAttribute('aria-busy', 'false');
 
-                const previousStatus = (fine.status || '').toLowerCase();
-                const targetStatus = (nextStatus || '').toLowerCase();
-                if (!targetStatus || previousStatus === targetStatus) return;
+                (Array.isArray(updates) ? updates : []).filter(Boolean).forEach((update) => {
+                    const fine = this.getFineRecord(Number(update.id));
+                    if (!fine) return;
+                    const updatedFine = { ...fine, ...update };
+                    const matchesFilter = this.matchesFineStatusFilter(updatedFine);
+                    this.state.selectedFineIds.delete(Number(fine.id));
+                    this.updateStatsLocally(fine, updatedFine);
+                    const row = this.elements.tbody?.querySelector(`tr[data-fine-id="${Number(fine.id)}"]`);
 
-                this.state.selectedFineIds.delete(Number(fineId));
-
-                this.updateStatsLocally(fine, previousStatus, targetStatus);
-                fine.status = targetStatus;
-                fine.statusLabel = this.capitalize(targetStatus);
-                if (extra.reason) fine.remarks = extra.reason;
-
-                const matchesStatusFilter = this.state.filter === 'all'
-                    || this.state.filter === targetStatus
-                    || (this.state.filter === 'overdue' && Boolean(fine.isOverdue) && targetStatus === 'pending');
-
-                if (!matchesStatusFilter) {
-                    this.state.fines = this.state.fines.filter((item) => Number(item.id) !== Number(fineId));
-                    this.updatePaginationAfterRemoval();
-
-                    if (this.state.fines.length === 0 && Number(this.state.pagination.total || 0) > 0 && this.state.currentPage > 1) {
-                        this.state.currentPage -= 1;
-                        this.loadFines({ silent: true });
-                        return;
+                    if (matchesFilter) {
+                        Object.assign(fine, updatedFine);
+                        if (row) row.outerHTML = this.buildFineRow(fine);
+                    } else {
+                        this.state.fines = this.state.fines.filter((item) => Number(item.id) !== Number(fine.id));
+                        row?.remove();
+                        this.updatePaginationAfterRemoval();
                     }
-                }
+                });
 
-                this.renderAll();
+                this.state.lastUpdatedAt = new Date();
+                this.state.exportPreparedAt = new Date();
+                this.clearAllExportRowsCache();
+                if (!this.state.fines.length) this.renderTable();
+                this.renderStats();
+                this.renderPagination();
+                this.renderToolbarMeta();
+                this.updateBulkActionState();
+                this.updateExportState();
+                this.updateBrowserUrl();
+
+                const visibleEnd = (this.state.currentPage - 1) * this.state.perPage + this.state.fines.length;
+                const needsRefill = this.state.fines.length < this.state.perPage && Number(this.state.pagination.total || 0) > visibleEnd;
+                if (reconcile || hadFetch || this.state.search || needsRefill || previousPage !== this.state.currentPage) {
+                    void this.loadFines({ silent: true, preserveRows: true });
+                }
             },
 
-            updateStatsLocally(fine, fromStatus, toStatus) {
-                const amount = Number(fine.fineAmount || 0);
+            matchesFineStatusFilter(fine) {
+                return this.state.filter === 'all' || this.state.filter === fine.status
+                    || (this.state.filter === 'overdue' && Boolean(fine.isOverdue));
+            },
+
+            updateStatsLocally(fine, updatedFine) {
                 const stats = this.state.stats;
                 const bucketMap = { pending: 'pending', paid: 'collected', waived: 'waived' };
                 const countMap = { pending: 'unpaid_count', paid: 'paid_count', waived: 'waived_count' };
-                const fromBucket = bucketMap[fromStatus];
-                const toBucket = bucketMap[toStatus];
-                const fromCountKey = countMap[fromStatus];
-                const toCountKey = countMap[toStatus];
-
-                if (fromBucket) stats[fromBucket] = Math.max(0, Number(stats[fromBucket] || 0) - amount);
-                if (toBucket) stats[toBucket] = Number(stats[toBucket] || 0) + amount;
-                if (fromCountKey) stats[fromCountKey] = Math.max(0, Number(stats[fromCountKey] || 0) - 1);
-                if (toCountKey) stats[toCountKey] = Number(stats[toCountKey] || 0) + 1;
-                if (Boolean(fine.isOverdue) && fromStatus === 'pending' && toStatus !== 'pending') {
-                    stats.overdue_count = Math.max(0, Number(stats.overdue_count || 0) - 1);
-                }
+                [[fine, -1], [updatedFine, 1]].forEach(([record, delta]) => {
+                    if (!this.matchesFineStatusFilter(record)) return;
+                    const amount = Number(record.fineAmount || 0) * delta;
+                    const bucket = bucketMap[record.status];
+                    const count = countMap[record.status];
+                    if (bucket) stats[bucket] = Math.max(0, Number(stats[bucket] || 0) + amount);
+                    if (count) stats[count] = Math.max(0, Number(stats[count] || 0) + delta);
+                    stats.total = Math.max(0, Number(stats.total || 0) + amount);
+                    stats.count = Math.max(0, Number(stats.count || 0) + delta);
+                    if (record.isOverdue) stats.overdue_count = Math.max(0, Number(stats.overdue_count || 0) + delta);
+                });
             },
 
             updatePaginationAfterRemoval() {
@@ -1505,7 +1521,7 @@
 
             handleExternalFineUpdate(payload) {
                 if (!payload || payload.sourceId === this.state.instanceId) return;
-                this.loadFines({ silent: true });
+                this.loadFines({ silent: true, preserveRows: true });
             },
 
             openModal(modalId, focusTarget) {

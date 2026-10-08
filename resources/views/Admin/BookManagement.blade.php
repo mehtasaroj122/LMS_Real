@@ -248,6 +248,10 @@
             color: #0f172a;
         }
 
+        #availabilityFilter {
+            width: 164px;
+        }
+
         #conditionFilter {
             width: 144px;
         }
@@ -1879,6 +1883,12 @@
                 </div>
 
                 <div class="filters-container">
+                    <select class="filter-select" id="availabilityFilter" aria-label="Filter by availability">
+                        <option value="all" {{ ($availability ?? 'all') === 'all' ? 'selected' : '' }}>All Books</option>
+                        <option value="available" {{ ($availability ?? 'all') === 'available' ? 'selected' : '' }}>Available Only</option>
+                        <option value="unavailable" {{ ($availability ?? 'all') === 'unavailable' ? 'selected' : '' }}>Unavailable Only</option>
+                    </select>
+
                     <select class="filter-select" id="conditionFilter">
                         <option value="all" {{ ($condition ?? 'all') === 'all' ? 'selected' : '' }}>All Conditions</option>
                         <option value="new" {{ ($condition ?? 'all') === 'new' ? 'selected' : '' }}>New</option>
@@ -2342,6 +2352,7 @@
                 this.currentBookISBN = null;
                 this.currentDeleteBlockers = [];
                 this.currentSearch = '';
+                this.currentAvailabilityFilter = 'all';
                 this.currentConditionFilter = 'all';
                 this.currentCategoryFilter = 'all';
                 this.currentSortFilter = 'recently-added';
@@ -2370,6 +2381,7 @@
 
             syncCurrentFiltersFromDom() {
                 this.currentSearch = document.getElementById('searchInput')?.value.trim() || '';
+                this.currentAvailabilityFilter = document.getElementById('availabilityFilter')?.value || 'all';
                 this.currentConditionFilter = document.getElementById('conditionFilter')?.value || 'all';
                 this.currentCategoryFilter = document.getElementById('categoryFilter')?.value || 'all';
                 this.currentSortFilter = document.getElementById('sortFilter')?.value || 'recently-added';
@@ -3389,6 +3401,15 @@
             }
 
             initFilters() {
+                const availabilityFilter = document.getElementById('availabilityFilter');
+                if (availabilityFilter) {
+                    availabilityFilter.addEventListener('change', (e) => {
+                        this.currentAvailabilityFilter = e.target.value;
+                        this.currentPage = 1;
+                        this.fetchBooksData(1);
+                    });
+                }
+
                 // Condition filter
                 const conditionFilter = document.getElementById('conditionFilter');
                 if (conditionFilter) {
@@ -3462,6 +3483,7 @@
 
                 const params = new URLSearchParams({
                     search: this.currentSearch,
+                    availability: this.currentAvailabilityFilter,
                     condition: condition,
                     category: category,
                     sort: sort,
@@ -3557,6 +3579,7 @@
                 const params = new URLSearchParams();
 
                 if (this.currentSearch) params.set('search', this.currentSearch);
+                if (this.currentAvailabilityFilter !== 'all') params.set('availability', this.currentAvailabilityFilter);
                 if (this.currentConditionFilter !== 'all') params.set('condition', this.currentConditionFilter);
                 if (this.currentCategoryFilter !== 'all') params.set('category', this.currentCategoryFilter);
                 if (this.currentSortFilter !== 'recently-added') params.set('sort', this.currentSortFilter);
@@ -3572,17 +3595,20 @@
 
             resetFilters() {
                 this.currentSearch = '';
+                this.currentAvailabilityFilter = 'all';
                 this.currentConditionFilter = 'all';
                 this.currentCategoryFilter = 'all';
                 this.currentSortFilter = 'recently-added';
                 this.currentPage = 1;
 
                 const searchInput = document.getElementById('searchInput');
+                const availabilityFilter = document.getElementById('availabilityFilter');
                 const conditionFilter = document.getElementById('conditionFilter');
                 const categoryFilter = document.getElementById('categoryFilter');
                 const sortFilter = document.getElementById('sortFilter');
 
                 if (searchInput) searchInput.value = '';
+                if (availabilityFilter) availabilityFilter.value = 'all';
                 if (conditionFilter) conditionFilter.value = 'all';
                 if (categoryFilter) categoryFilter.value = 'all';
                 if (sortFilter) sortFilter.value = 'recently-added';
@@ -3725,6 +3751,7 @@
             refreshStats() {
                 const params = new URLSearchParams({
                     search: this.currentSearch,
+                    availability: this.currentAvailabilityFilter,
                     condition: this.currentConditionFilter,
                     category: this.currentCategoryFilter,
                 });

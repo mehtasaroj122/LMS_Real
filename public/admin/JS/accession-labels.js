@@ -444,12 +444,12 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.resultsEmpty.hidden = true;
         elements.bookResults.hidden = false;
         elements.bookResults.innerHTML = `<div class="accession-books-heading"><span class="accession-kicker">Matching books</span><strong>${meta.total} ${meta.total === 1 ? 'book' : 'books'} found</strong></div><div class="accession-book-results">${books.map((book) => `
-            <article class="accession-book-result">
-                <div class="accession-book-result-icon"><i data-lucide="book-open"></i></div>
-                <div class="accession-book-result-copy"><strong>${escapeHtml(book.title)}</strong><span>${escapeHtml(book.author || 'Unknown author')}</span><small>ISBN: ${escapeHtml(book.isbn || '—')}${book.matched_accession ? ` · Matched copy: <b>${escapeHtml(book.matched_accession)}</b>` : ''}</small></div>
-                <div class="accession-book-counts"><strong>${book.copies_count}</strong><span>copies</span><strong>${book.available_copies_count}</strong><span>available</span></div>
-                <button type="button" class="accession-button accession-button-secondary" data-select-book="${book.id}" data-matched-accession="${escapeHtml(book.matched_accession || '')}">${book.matched_accession ? 'View Copies' : 'Select Book'}</button>
-            </article>`).join('')}</div>`;
+            <button type="button" class="accession-book-result" data-select-book="${book.id}" data-matched-accession="${escapeHtml(book.matched_accession || '')}" aria-label="${book.matched_accession ? 'View copies of' : 'Select book'} ${escapeHtml(book.title)}">
+                <span class="accession-book-result-icon"><i data-lucide="book-open" aria-hidden="true"></i></span>
+                <span class="accession-book-result-copy"><strong>${escapeHtml(book.title)}</strong><span>${escapeHtml(book.author || 'Unknown author')}</span><small>ISBN: ${escapeHtml(book.isbn || '—')}${book.matched_accession ? ` · Matched copy: <b>${escapeHtml(book.matched_accession)}</b>` : ''}</small></span>
+                <span class="accession-book-counts"><strong>${book.copies_count}</strong><span>copies</span><strong>${book.available_copies_count}</strong><span>available</span></span>
+                <span class="accession-button accession-button-secondary" aria-hidden="true">${book.matched_accession ? 'View Copies' : 'Select Book'}</span>
+            </button>`).join('')}</div>`;
         elements.resultsAnnouncement.textContent = `Showing ${meta.from}–${meta.to} of ${meta.total} matching books.`;
         renderPagination(meta, 'books');
         refreshIcons();

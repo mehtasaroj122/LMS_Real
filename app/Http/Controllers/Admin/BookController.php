@@ -23,9 +23,9 @@ class BookController extends Controller
     {
         Gate::authorize('access-admin');
         $categories = Category::orderBy('name')->get();
-        ['search' => $search, 'condition' => $condition, 'category' => $selectedCategory, 'sort' => $sort, 'page' => $page, 'per_page' => $perPage] = $this->normalizeBookListFilters($request);
+        ['search' => $search, 'condition' => $condition, 'category' => $selectedCategory, 'availability' => $availability, 'sort' => $sort, 'page' => $page, 'per_page' => $perPage] = $this->normalizeBookListFilters($request);
 
-        $initialBooksQuery = $this->buildFilteredBooksQuery($search, $condition, $selectedCategory);
+        $initialBooksQuery = $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability);
         $this->applyBookSorting($initialBooksQuery, $sort);
         $this->applyBookListingRelationships($initialBooksQuery);
 
@@ -33,7 +33,7 @@ class BookController extends Controller
             ->paginate($perPage, ['*'], 'page', $page)
             ->appends($request->query());
         $initialStats = $this->calculateBookStats(
-            $this->buildFilteredBooksQuery($search, $condition, $selectedCategory)
+            $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability)
         );
 
         return view('Admin.BookManagement', compact(
@@ -43,6 +43,7 @@ class BookController extends Controller
             'search',
             'condition',
             'selectedCategory',
+            'availability',
             'sort',
             'perPage'
         ));
@@ -55,9 +56,9 @@ class BookController extends Controller
     {
         Gate::authorize('access-admin');
 
-        ['search' => $search, 'condition' => $condition, 'category' => $category, 'sort' => $sort, 'page' => $page, 'per_page' => $perPage] = $this->normalizeBookListFilters($request);
+        ['search' => $search, 'condition' => $condition, 'category' => $category, 'availability' => $availability, 'sort' => $sort, 'page' => $page, 'per_page' => $perPage] = $this->normalizeBookListFilters($request);
 
-        $query = $this->buildFilteredBooksQuery($search, $condition, $category);
+        $query = $this->buildFilteredBooksQuery($search, $condition, $category, $availability);
         $this->applyBookSorting($query, $sort);
         $this->applyBookListingRelationships($query);
 
@@ -144,7 +145,7 @@ class BookController extends Controller
         $paginationHtml = view('shared.admin-table-pagination', ['paginator' => $books])->render();
 
         $filteredStats = $this->calculateBookStats(
-            $this->buildFilteredBooksQuery($search, $condition, $category)
+            $this->buildFilteredBooksQuery($search, $condition, $category, $availability)
         );
 
         return response()->json([
@@ -165,13 +166,14 @@ class BookController extends Controller
     {
         Gate::authorize('access-admin');
 
-        ['search' => $search, 'condition' => $condition, 'category' => $category] = $this->normalizeBookListFilters($request);
+        ['search' => $search, 'condition' => $condition, 'category' => $category, 'availability' => $availability] = $this->normalizeBookListFilters($request);
 
         $stats = $this->calculateBookStats(
             $this->buildFilteredBooksQuery(
                 $search,
                 $condition,
-                $category
+                $category,
+                $availability
             )
         );
 
@@ -646,12 +648,14 @@ class BookController extends Controller
 
         $condition = (string) ($request?->input('condition') ?? 'all');
         $category = (string) ($request?->input('category') ?? 'all');
+        $availability = (string) ($request?->input('availability') ?? 'all');
         $sort = (string) ($request?->input('sort') ?? 'recently-added');
 
         return [
             'search' => trim((string) ($request?->input('search') ?? '')),
             'condition' => $condition !== '' ? $condition : 'all',
             'category' => $category !== '' ? $category : 'all',
+            'availability' => in_array($availability, ['available', 'unavailable'], true) ? $availability : 'all',
             'sort' => $sort !== '' ? $sort : 'recently-added',
             'page' => max(1, (int) ($request?->input('page') ?? 1)),
             'per_page' => $this->normalizeAdminPerPage($request?->input('per_page') ?? 10),
@@ -697,13 +701,20 @@ class BookController extends Controller
     private function buildFilteredBooksQuery(
         ?string $search = '',
         ?string $condition = 'all',
-        ?string $category = 'all'
+        ?string $category = 'all',
+        string $availability = 'all'
     ) {
         $search = trim((string) ($search ?? ''));
         $condition = (string) ($condition ?? 'all');
         $category = (string) ($category ?? 'all');
 
         $query = Book::query();
+
+        if ($availability === 'available') {
+            $query->where('available_copies', '>', 0);
+        } elseif ($availability === 'unavailable') {
+            $query->where('available_copies', '<=', 0);
+        }
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {

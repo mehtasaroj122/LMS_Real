@@ -54,8 +54,6 @@ class BookRequestManagementActionService
             'processed_date' => now(),
         ]);
 
-        $bookRequest->refresh()->loadMissing(['student.user', 'book']);
-
         $this->notifications->notifyBookRequestStatusChanged($bookRequest, $status);
 
         if ($notifyAdmin) {

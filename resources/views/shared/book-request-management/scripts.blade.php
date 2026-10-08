@@ -431,15 +431,17 @@
                 this.state.searchTimer = window.setTimeout(() => this.loadRequests(), 320);
             }
 
-            async loadRequests({ silent = false } = {}) {
+            async loadRequests({ silent = false, preserveRows = silent } = {}) {
                 if (this.state.fetchController) {
                     this.state.fetchController.abort();
                 }
 
                 const controller = new AbortController();
                 this.state.fetchController = controller;
-                this.setStatsLoading(true);
-                this.renderTableLoading();
+                if (!preserveRows) {
+                    this.setStatsLoading(true);
+                    this.renderTableLoading();
+                }
                 this.elements.tableWrapper?.setAttribute('aria-busy', 'true');
 
                 const params = new URLSearchParams({
@@ -456,6 +458,8 @@
                         signal: controller.signal,
                     });
 
+                    if (controller.signal.aborted || this.state.fetchController !== controller) return;
+
                     this.state.requests = Array.isArray(data.requests) ? data.requests : [];
                     this.state.stats = data.stats || {};
                     this.state.pagination = data.pagination || {};
@@ -465,7 +469,7 @@
                     const lastPage = Math.max(1, Number(this.state.pagination.last_page || 1));
                     if (this.state.currentPage > lastPage) {
                         this.state.currentPage = lastPage;
-                        await this.loadRequests({ silent: true });
+                        await this.loadRequests({ silent: true, preserveRows });
                         return;
                     }
 
@@ -484,7 +488,7 @@
                     }
 
                     console.error('[Book Requests] Failed to load requests:', error);
-                    this.renderTableError();
+                    if (!preserveRows) this.renderTableError();
                     this.setStatsLoading(false);
                     this.showToast('error', 'Could not load requests', this.resolveErrorMessage(error, 'Something went wrong while loading book requests.'));
                 } finally {
@@ -492,7 +496,7 @@
                         this.state.fetchController = null;
                     }
 
-                    this.elements.tableWrapper?.setAttribute('aria-busy', 'false');
+                    if (!this.state.fetchController) this.elements.tableWrapper?.setAttribute('aria-busy', 'false');
                 }
             }
 
@@ -798,7 +802,7 @@
                 }
 
                 segments.push(`Sort: ${this.getSortLabel(this.state.sort)}`);
-                const total = Number(this.state.pagination.total || this.state.stats.totalCount || 0);
+                const total = Number(this.state.pagination.total ?? this.state.stats.totalCount ?? 0);
                 const summary = segments.length > 0 ? segments.join(' • ') : 'Showing all requests';
 
                 if (this.elements.filterSummary) {
@@ -1017,7 +1021,7 @@
 
                     this.closeModal('createRequestModal');
                     this.state.currentPage = 1;
-                    await this.loadRequests({ silent: true });
+                    await this.loadRequests({ silent: true, preserveRows: true });
                     this.showToast('success', 'Request created', 'The book request was created successfully.');
                     this.announce('Book request created.');
                 } catch (error) {
@@ -1168,7 +1172,9 @@
                     if (isBulkAction) {
                         this.clearSelection();
                     }
-                    await this.loadRequests({ silent: true });
+                    this.applyRequestUpdates(isBulkAction ? response.requests : [response.request], {
+                        reconcile: Number(response.skippedCount || 0) > 0,
+                    });
 
                     if (isBulkAction) {
                         const processedCount = Number(response.processedCount || 0);
@@ -1207,6 +1213,65 @@
                             this.elements.actionSubmitButton?.dataset.defaultLabel || 'Confirm'
                         );
                     }
+                }
+            }
+
+            applyRequestUpdates(updates, { reconcile = false } = {}) {
+                const previousPage = this.state.currentPage;
+                const hadFetch = Boolean(this.state.fetchController);
+                this.state.fetchController?.abort();
+                this.state.fetchController = null;
+                this.elements.tableWrapper?.setAttribute('aria-busy', 'false');
+                const counts = { pending: 'pendingCount', approved: 'approvedCount', rejected: 'rejectedCount' };
+
+                (Array.isArray(updates) ? updates : []).filter(Boolean).forEach((update) => {
+                    const request = this.getRequestById(Number(update.id));
+                    if (!request) return;
+                    const updatedRequest = { ...request, ...update };
+                    const matchesFilter = this.state.status === 'all' || this.state.status === updatedRequest.status;
+                    this.state.selectedRequestIds.delete(Number(request.id));
+                    const oldCount = counts[request.status];
+                    const newCount = counts[updatedRequest.status];
+                    if (oldCount) this.state.stats[oldCount] = Math.max(0, Number(this.state.stats[oldCount] || 0) - 1);
+                    if (matchesFilter && newCount) this.state.stats[newCount] = Number(this.state.stats[newCount] || 0) + 1;
+                    const row = this.elements.tbody?.querySelector(`tr[data-request-id="${Number(request.id)}"]`);
+
+                    if (matchesFilter) {
+                        Object.assign(request, updatedRequest);
+                        if (row) row.outerHTML = this.buildRequestRow(request);
+                    } else {
+                        this.state.requests = this.state.requests.filter((item) => Number(item.id) !== Number(request.id));
+                        row?.remove();
+                        this.state.stats.totalCount = Math.max(0, Number(this.state.stats.totalCount || 0) - 1);
+                        this.state.pagination.total = Math.max(0, Number(this.state.pagination.total || 0) - 1);
+                    }
+                });
+
+                const pagination = this.state.pagination;
+                pagination.last_page = Math.max(1, Math.ceil(Number(pagination.total || 0) / this.state.perPage));
+                this.state.currentPage = Math.min(this.state.currentPage, pagination.last_page);
+                pagination.current_page = this.state.currentPage;
+                pagination.from = this.state.requests.length ? (this.state.currentPage - 1) * this.state.perPage + 1 : 0;
+                pagination.to = this.state.requests.length ? pagination.from + this.state.requests.length - 1 : 0;
+                ['pending', 'approved', 'rejected'].forEach((status) => {
+                    const count = Number(this.state.stats[counts[status]] || 0);
+                    this.state.stats[`${status}Meta`] = count > 0
+                        ? `${count} ${status} request${count === 1 ? '' : 's'} in this view`
+                        : `No ${status} requests in this view`;
+                });
+                this.state.lastUpdatedAt = new Date();
+                if (!this.state.requests.length) this.renderTable();
+                this.setRecordRange(pagination.from, pagination.to, pagination.total);
+                this.renderStats();
+                this.renderPagination();
+                this.renderToolbarMeta();
+                this.updateBulkActionState();
+                this.updateBrowserUrl();
+
+                const visibleEnd = (this.state.currentPage - 1) * this.state.perPage + this.state.requests.length;
+                const needsRefill = this.state.requests.length < this.state.perPage && Number(pagination.total || 0) > visibleEnd;
+                if (reconcile || hadFetch || needsRefill || previousPage !== this.state.currentPage) {
+                    void this.loadRequests({ silent: true, preserveRows: true });
                 }
             }
 

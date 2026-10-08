@@ -92,14 +92,15 @@ class FineController extends Controller
             Gate::authorize('access-admin');
 
             $fine = $this->loadFineRecord($id);
-            $actionService->markAsPaid($fine, [
+            $updatedFine = $actionService->markAsPaid($fine, [
                 'notify_student' => false,
                 'log_email' => true,
             ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Fine marked as paid'
+                'message' => 'Fine marked as paid',
+                'fine' => $this->serializeFineStatus($updatedFine),
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -156,6 +157,7 @@ class FineController extends Controller
                 'success' => true,
                 'message' => 'Fine waived successfully',
                 'data' => $updatedFine,
+                'fine' => $this->serializeFineStatus($updatedFine),
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -317,6 +319,9 @@ class FineController extends Controller
                 'processedCount' => (int) $results['updated_count'],
                 'skippedCount' => (int) $results['skipped_count'],
                 'totalAmount' => (float) $results['total_amount'],
+                'fines' => collect($results['updated'])
+                    ->map(fn (Fine $fine) => $this->serializeFineStatus($fine))
+                    ->values()->all(),
             ]);
         } catch (ValidationException $e) {
             return response()->json([

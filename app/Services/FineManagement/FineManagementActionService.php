@@ -116,7 +116,7 @@ class FineManagementActionService
             }
         }
 
-        return $fine->fresh(['student.user', 'student.privileges', 'issuedBook.book']);
+        return $fine;
     }
 
     public function waive(Fine $fine, string $reason, array $options = []): Fine
@@ -175,7 +175,7 @@ class FineManagementActionService
             }
         }
 
-        return $fine->fresh(['student.user', 'student.privileges', 'issuedBook.book']);
+        return $fine;
     }
 
     public function bulkUpdateStatus(

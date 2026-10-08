@@ -35,6 +35,19 @@ trait InteractsWithFineRecords
         }
     }
 
+    protected function serializeFineStatus(Fine $fine): array
+    {
+        $status = strtolower((string) $fine->status);
+
+        return [
+            'id' => (int) $fine->id,
+            'fineAmount' => (float) $fine->amount,
+            'status' => $status,
+            'statusLabel' => ucfirst($status),
+            'remarks' => \App\Support\Currency::normalizeText($fine->remarks ?? ''),
+        ];
+    }
+
     protected function buildFineHistoryMetadata(Fine $fine, array $overrides = []): array
     {
         $book = $fine->issuedBook?->book;

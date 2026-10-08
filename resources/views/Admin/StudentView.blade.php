@@ -619,11 +619,12 @@
             overflow-y: auto;
         }
 
-        .issued-books-section .paginated-table {
+        .student-details-page .issued-books-section .paginated-table {
             flex: 1 1 auto;
             min-height: 0;
-            max-height: none;
-            height: 100%;
+            max-height: 360px;
+            height: auto;
+            overflow: auto;
         }
 
         .fines-management-card .paginated-table {

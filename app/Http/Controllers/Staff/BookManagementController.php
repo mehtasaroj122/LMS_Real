@@ -25,12 +25,13 @@ class BookManagementController extends Controller
             'search' => $search,
             'condition' => $condition,
             'category' => $selectedCategory,
+            'availability' => $availability,
             'sort' => $sort,
             'page' => $page,
             'per_page' => $perPage,
         ] = $this->normalizeBookListFilters($request);
 
-        $initialBooksQuery = $this->buildFilteredBooksQuery($search, $condition, $selectedCategory);
+        $initialBooksQuery = $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability);
         $this->applyBookSorting($initialBooksQuery, $sort);
 
         $initialBooks = $initialBooksQuery
@@ -39,7 +40,7 @@ class BookManagementController extends Controller
             ->appends($request->query());
 
         $initialStats = $this->calculateBookStats(
-            $this->buildFilteredBooksQuery($search, $condition, $selectedCategory)
+            $this->buildFilteredBooksQuery($search, $condition, $selectedCategory, $availability)
         );
 
         return view('Staff.BookManagement', compact(
@@ -49,6 +50,7 @@ class BookManagementController extends Controller
             'search',
             'condition',
             'selectedCategory',
+            'availability',
             'sort',
             'perPage'
         ));
@@ -120,12 +122,13 @@ class BookManagementController extends Controller
             'search' => $search,
             'condition' => $condition,
             'category' => $category,
+            'availability' => $availability,
             'sort' => $sort,
             'page' => $page,
             'per_page' => $perPage,
         ] = $this->normalizeBookListFilters($request);
 
-        $query = $this->buildFilteredBooksQuery($search, $condition, $category);
+        $query = $this->buildFilteredBooksQuery($search, $condition, $category, $availability);
         $this->applyBookSorting($query, $sort);
 
         $books = $query
@@ -205,7 +208,7 @@ class BookManagementController extends Controller
         }
 
         $filteredStats = $this->calculateBookStats(
-            $this->buildFilteredBooksQuery($search, $condition, $category)
+            $this->buildFilteredBooksQuery($search, $condition, $category, $availability)
         );
 
         return response()->json([
@@ -228,10 +231,11 @@ class BookManagementController extends Controller
             'search' => $search,
             'condition' => $condition,
             'category' => $category,
+            'availability' => $availability,
         ] = $this->normalizeBookListFilters($request);
 
         $stats = $this->calculateBookStats(
-            $this->buildFilteredBooksQuery($search, $condition, $category)
+            $this->buildFilteredBooksQuery($search, $condition, $category, $availability)
         );
 
         if ($request && $request->expectsJson()) {
@@ -686,12 +690,14 @@ class BookManagementController extends Controller
 
         $condition = (string) ($request?->input('condition') ?? 'all');
         $category = (string) ($request?->input('category') ?? 'all');
+        $availability = (string) ($request?->input('availability') ?? 'all');
         $sort = (string) ($request?->input('sort') ?? 'recently-added');
 
         return [
             'search' => trim((string) ($request?->input('search') ?? '')),
             'condition' => $condition !== '' ? $condition : 'all',
             'category' => $category !== '' ? $category : 'all',
+            'availability' => in_array($availability, ['available', 'unavailable'], true) ? $availability : 'all',
             'sort' => $sort !== '' ? $sort : 'recently-added',
             'page' => max(1, (int) ($request?->input('page') ?? 1)),
             'per_page' => $this->normalizeStaffPerPage($request?->input('per_page') ?? 10),
@@ -737,13 +743,20 @@ class BookManagementController extends Controller
     private function buildFilteredBooksQuery(
         ?string $search = '',
         ?string $condition = 'all',
-        ?string $category = 'all'
+        ?string $category = 'all',
+        string $availability = 'all'
     ) {
         $search = trim((string) ($search ?? ''));
         $condition = (string) ($condition ?? 'all');
         $category = (string) ($category ?? 'all');
 
         $query = Book::query();
+
+        if ($availability === 'available') {
+            $query->where('available_copies', '>', 0);
+        } elseif ($availability === 'unavailable') {
+            $query->where('available_copies', '<=', 0);
+        }
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
