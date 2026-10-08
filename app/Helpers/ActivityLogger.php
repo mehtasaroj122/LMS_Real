@@ -353,29 +353,6 @@ class ActivityLogger
     }
 
     /**
-     * Enforce activity log retention limit (max 500 records)
-     * Delete oldest records if limit exceeded
-     */
-    private static function enforceRetentionLimit(): void
-    {
-        try {
-            $maxRecords = 500;
-            $currentCount = ActivityLog::count();
-            
-            if ($currentCount > $maxRecords) {
-                $recordsToDelete = $currentCount - $maxRecords;
-                
-                // Delete the oldest records
-                ActivityLog::orderBy('created_at', 'asc')
-                    ->limit($recordsToDelete)
-                    ->delete();
-            }
-        } catch (\Exception $e) {
-            \Log::error('Failed to enforce retention limit: ' . $e->getMessage());
-        }
-    }
-
-    /**
      * Log an activity for a student (Enhanced)
      * 
      * @param Student $student
@@ -411,9 +388,6 @@ class ActivityLogger
                 'affected_user_id' => $student->user_id ?? null,
             ]);
 
-            // Enforce retention limit (max 500 records)
-            self::enforceRetentionLimit();
-            
             return $activityLog;
         } catch (\Exception $e) {
             \Log::error('Failed to log activity: ' . $e->getMessage());
@@ -748,9 +722,6 @@ class ActivityLogger
                 'resource_id' => $resourceId,
             ]);
 
-            // Enforce retention limit (max 500 records)
-            self::enforceRetentionLimit();
-            
             return $activityLog;
         } catch (\Exception $e) {
             \Log::error('Failed to log activity: ' . $e->getMessage());
