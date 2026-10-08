@@ -43,6 +43,9 @@ class StudentIssuePrivilegeService
             'reason' => $reason,
             'max_books' => $maxBooks,
             'already_issued' => $alreadyIssued,
+            'active_book_ids' => IssuedBook::query()->where('student_id', $student->id)
+                ->whereNull('return_date')->distinct()->pluck('book_id')->map(fn ($id) => (int) $id)->all(),
+            'one_active_copy_per_book' => true,
             'can_issue' => $canIssue,
             'duration_days' => $durationDays,
             'fine_rate' => $fineRate,
@@ -71,7 +74,7 @@ class StudentIssuePrivilegeService
         if ($requestedCount > $privileges['can_issue']) {
             return [
                 'allowed' => false,
-                'message' => 'Student can only issue ' . $privileges['can_issue'] . ' more book' . ($privileges['can_issue'] === 1 ? '.' : 's.'),
+                'message' => 'Student can only issue '.$privileges['can_issue'].' more book'.($privileges['can_issue'] === 1 ? '.' : 's.'),
                 'privileges' => $privileges,
             ];
         }

@@ -1,0 +1,168 @@
+/* Scope the retained identity and snapshot styling to the top section only. */
+.dashboard-identity-section {
+    --dash-surface: #ffffff;
+    --dash-soft: #f8fafc;
+    --dash-text: #111827;
+    --dash-muted: #64748b;
+    --dash-border: #e2e8f0;
+    --dash-blue: #2563eb;
+    --dash-blue-soft: #eff6ff;
+    --dash-green: #15803d;
+    --dash-green-soft: #f0fdf4;
+    --dash-amber: #92400e;
+    --dash-amber-soft: #fffbeb;
+    --dash-red: #b91c1c;
+    --dash-red-soft: #fff7f7;
+    width: 100%;
+    max-width: none;
+    margin-inline: auto;
+    padding: 0;
+    margin-bottom: 1rem;
+    color: var(--dash-text);
+    font-size: 14px;
+    line-height: 1.5;
+}
+.dark-theme .dashboard-identity-section {
+    --dash-surface: #1e293b;
+    --dash-soft: #172235;
+    --dash-text: #f1f5f9;
+    --dash-muted: #a8b6ca;
+    --dash-border: #334155;
+    --dash-blue: #93c5fd;
+    --dash-blue-soft: #1c3558;
+    --dash-green: #86efac;
+    --dash-green-soft: #183c2e;
+    --dash-amber: #fcd34d;
+    --dash-amber-soft: #3b3020;
+    --dash-red: #fca5a5;
+    --dash-red-soft: #35252e;
+}
+.dashboard-identity-section *, .dashboard-identity-section *::before, .dashboard-identity-section *::after { box-sizing: border-box; }
+.dashboard-identity-section :is(h1, h2, h3, p, dl, dd) { margin: 0; }
+.dashboard-identity-section :is(h1, h2, h3) { color: inherit; }
+.dashboard-identity-section a { color: inherit; text-decoration: none; }
+.dashboard-identity-section :is(a, button) {
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.dashboard-identity-section :is(a, button):focus-visible {
+    outline: 3px solid var(--dash-blue);
+    outline-offset: 3px;
+}
+.dashboard-identity-section :is(a, button):active { transform: translateY(1px); }
+.dashboard-identity-section :is(button:disabled, [aria-disabled="true"]) { opacity: .55; cursor: not-allowed; transform: none; }
+.dashboard-identity-section svg { width: 20px; height: 20px; flex-shrink: 0; }
+.dashboard-identity-section > * + * { margin-top: 22px; }
+.dashboard-identity-section .dashboard-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.dashboard-identity-section .dashboard-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--dash-muted); }
+.dashboard-identity-section .dashboard-heading h1 { font-size: 25px; font-weight: 700; letter-spacing: -.035em; margin-top: 3px; }
+.dashboard-identity-section .dashboard-greeting { font-size: 13px; color: var(--dash-muted); margin-top: 3px; }
+.dashboard-identity-section .identity-snapshot-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 22px; align-items: stretch; }
+.dashboard-identity-section .student-id-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #263b59;
+    border-radius: 12px;
+    padding: 24px;
+    background: linear-gradient(115deg, #111827 10%, #142a47 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, .08);
+}
+.dashboard-identity-section .student-id-card::before {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -80px;
+    width: 320px;
+    height: 320px;
+    border: 1px solid rgba(147, 197, 253, .08);
+    border-radius: 50%;
+    pointer-events: none;
+}
+.dashboard-identity-section .id-card-header { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 19px; border-bottom: 1px solid #33445b; }
+.dashboard-identity-section .id-card-brand { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.dashboard-identity-section .id-card-brand-name { font-size: 12px; font-weight: 600; max-width: 220px; overflow-wrap: anywhere; }
+.dashboard-identity-section .id-card-brand-caption { color: #bac9dc; font-size: 10px; letter-spacing: .09em; text-transform: uppercase; margin-top: 2px; }
+.dashboard-identity-section .id-card-label { max-width: 125px; font-size: 10px; font-weight: 600; letter-spacing: .14em; line-height: 1.65; text-align: right; color: #bfdbfe; }
+.dashboard-identity-section .student-id-card .library-logo__badge { border-radius: 8px; box-shadow: none; }
+.dashboard-identity-section .student-id-card .library-logo:hover .library-logo__badge { transform: none; }
+.dashboard-identity-section .id-card-person { position: relative; display: flex; align-items: center; gap: 18px; padding-block: 23px; }
+.dashboard-identity-section .id-card-photo { width: 86px; height: 104px; flex-shrink: 0; position: relative; border-radius: 9px; background: #243a56; border: 1px solid #4a607d; overflow: hidden; display: grid; place-items: center; }
+.dashboard-identity-section .id-card-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dashboard-identity-section .id-card-initials { color: #dbeafe; font-size: 28px; font-weight: 600; letter-spacing: .05em; }
+.dashboard-identity-section .id-card-person-info { min-width: 0; }
+.dashboard-identity-section .id-card-name { font-size: clamp(20px, 1.7vw, 26px); font-weight: 600; line-height: 1.25; letter-spacing: -.03em; overflow-wrap: anywhere; }
+.dashboard-identity-section .id-card-number { color: #bfdbfe; font-size: 14px; font-weight: 500; letter-spacing: .05em; overflow-wrap: anywhere; margin-top: 5px; }
+.dashboard-identity-section .id-card-department { color: #e2e8f0; font-size: 13px; margin-top: 9px; overflow-wrap: anywhere; }
+.dashboard-identity-section .id-card-academic { display: flex; flex-wrap: wrap; gap: 4px 12px; color: #bac9dc; font-size: 12px; margin-top: 3px; }
+.dashboard-identity-section .id-card-details { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 20px; padding-top: 17px; border-top: 1px solid #33445b; }
+.dashboard-identity-section .id-card-details dt { color: #bac9dc; font-size: 11px; margin-bottom: 3px; }
+.dashboard-identity-section .id-card-details dd { color: #f8fafc; font-size: 12px; font-weight: 500; overflow-wrap: anywhere; }
+.dashboard-identity-section .id-card-details .id-card-email { grid-column: 1 / -1; }
+.dashboard-identity-section .id-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; border-top: 1px solid #33445b; margin-top: 18px; padding-top: 13px; }
+.dashboard-identity-section .id-card-footer > span { font-size: 10px; letter-spacing: .1em; color: #bac9dc; text-transform: uppercase; }
+.dashboard-identity-section .id-card-role { display: inline-flex; gap: 6px; align-items: center; border: 1px solid #4a607d; border-radius: 5px; padding: 4px 9px; color: #dbeafe; font-size: 11px; font-weight: 500; }
+.dashboard-identity-section .id-card-role svg { width: 14px; height: 14px; }
+.dashboard-identity-section .id-card-account { display: inline-flex; align-items: center; gap: 6px; }
+.dashboard-identity-section .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #cbd5e1; }
+.dashboard-identity-section .id-card-account.is-active .status-dot { background: #86efac; }
+.dashboard-identity-section .id-card-account.is-restricted .status-dot { background: #fca5a5; }
+.dashboard-identity-section .snapshot-section { display: flex; flex-direction: column; min-width: 0; }
+.dashboard-identity-section .snapshot-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.dashboard-identity-section .snapshot-heading h2 { font-size: 15px; font-weight: 600; }
+.dashboard-identity-section .snapshot-heading span { font-size: 11px; color: var(--dash-muted); }
+.dashboard-identity-section .snapshot-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; flex: 1; }
+.dashboard-identity-section .snapshot-card { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 0; padding: 18px; border: 1px solid var(--dash-border); border-radius: 12px; background: var(--dash-surface); box-shadow: 0 2px 5px rgba(15, 23, 42, .02); }
+.dashboard-identity-section a.snapshot-card:hover { border-color: var(--dash-blue); background: var(--dash-blue-soft); box-shadow: 0 4px 12px rgba(37, 99, 235, .05); transform: translateY(-1px); }
+.dashboard-identity-section a.snapshot-card:active { transform: translateY(0); box-shadow: inset 0 1px 3px rgba(37, 99, 235, .08); }
+.dashboard-identity-section .snapshot-card-top { display: flex; width: 100%; align-items: center; justify-content: space-between; }
+.dashboard-identity-section .icon-tile { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 9px; background: var(--dash-blue-soft); color: var(--dash-blue); flex-shrink: 0; }
+.dashboard-identity-section .icon-tile.returned { background: var(--dash-green-soft); color: var(--dash-green); }
+.dashboard-identity-section .icon-tile.fines { background: var(--dash-amber-soft); color: var(--dash-amber); }
+.dashboard-identity-section .icon-tile.requests { background: var(--dash-soft); color: var(--dash-muted); }
+.dashboard-identity-section .snapshot-arrow { color: var(--dash-muted); width: 15px; height: 15px; }
+.dashboard-identity-section .snapshot-value { font-size: clamp(23px, 2vw, 30px); font-weight: 600; line-height: 1.2; letter-spacing: -.035em; margin-top: 15px; overflow-wrap: anywhere; }
+.dashboard-identity-section .snapshot-value.currency { font-size: clamp(19px, 1.7vw, 26px); }
+.dashboard-identity-section .snapshot-label { font-size: 12px; font-weight: 500; margin-top: 5px; }
+.dashboard-identity-section .snapshot-caption { font-size: 11px; color: var(--dash-muted); margin-top: 2px; }
+
+.dashboard-identity-section .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+@media (max-width: 1199px) {
+    .dashboard-identity-section .identity-snapshot-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 16px; }
+    .dashboard-identity-section .student-id-card { padding: 20px; }
+    .dashboard-identity-section .snapshot-card { padding: 15px; }
+    .dashboard-identity-section .snapshot-grid { gap: 12px; }
+}
+@media (max-width: 1023px) {
+    .dashboard-identity-section .identity-snapshot-grid { grid-template-columns: minmax(0, 1fr); }
+    .dashboard-identity-section .snapshot-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .dashboard-identity-section .snapshot-value { font-size: 26px; }
+    .dashboard-identity-section .snapshot-value.currency { font-size: 21px; }
+}
+@media (max-width: 767px) {
+    .dashboard-identity-section > * + * { margin-top: 18px; }
+    .dashboard-identity-section .identity-snapshot-grid { gap: 18px; }
+    .dashboard-identity-section .dashboard-heading h1 { font-size: 23px; }
+    .dashboard-identity-section .snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dashboard-identity-section .snapshot-card { padding: 16px; }
+}
+@media (max-width: 479px) {
+    .dashboard-identity-section .dashboard-heading { flex-wrap: wrap; gap: 10px; }
+    .dashboard-identity-section .dashboard-heading .dashboard-date-pill { font-size: 11px; min-height: 32px; box-shadow: none; }
+    .dashboard-identity-section .student-id-card { padding: 20px; }
+    .dashboard-identity-section .id-card-header { gap: 10px; align-items: flex-start; }
+    .dashboard-identity-section .id-card-brand-name { font-size: 11px; }
+    .dashboard-identity-section .id-card-brand-caption { font-size: 9px; }
+    .dashboard-identity-section .id-card-label { font-size: 9px; max-width: 86px; }
+    .dashboard-identity-section .id-card-person { flex-direction: column; align-items: flex-start; gap: 14px; padding-block: 20px; }
+    .dashboard-identity-section .id-card-photo { width: 78px; height: 92px; }
+    .dashboard-identity-section .id-card-name { font-size: 23px; }
+    .dashboard-identity-section .id-card-details { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .dashboard-identity-section .id-card-details .id-card-email { grid-column: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-identity-section :is(a, button) { transition: none; }
+    .dashboard-identity-section :is(a, button):is(:hover, :active),
+    .dashboard-identity-section a.snapshot-card:is(:hover, :active) { transform: none; }
+}

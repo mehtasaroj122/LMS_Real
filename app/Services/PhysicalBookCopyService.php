@@ -19,7 +19,8 @@ class PhysicalBookCopyService
 {
     public function __construct(
         private readonly AccessionNumberGenerator $accessions,
-        private readonly FineCalculator $fineCalculator
+        private readonly FineCalculator $fineCalculator,
+        private readonly StudentIssuePrivilegeService $privileges
     ) {}
 
     public function findByAccession(string $accessionNumber, bool $withActiveIssue = false): ?BookCopy
@@ -140,6 +141,8 @@ class PhysicalBookCopyService
         array $values = []
     ): IssuedBook {
         return DB::transaction(function () use ($student, $accessionNumber, $issuer, $values): IssuedBook {
+            // Serialize circulation for this student even when called outside the mobile API.
+            $student = Student::query()->lockForUpdate()->findOrFail($student->id);
             $copy = BookCopy::query()
                 ->where('accession_number', $this->normalizeAccession($accessionNumber))
                 ->lockForUpdate()
@@ -161,6 +164,7 @@ class PhysicalBookCopyService
         ?int $expectedBookId = null
     ): IssuedBook {
         return DB::transaction(function () use ($student, $bookCopyId, $issuer, $values, $expectedBookId): IssuedBook {
+            $student = Student::query()->lockForUpdate()->findOrFail($student->id);
             $copy = BookCopy::query()
                 ->whereKey($bookCopyId)
                 ->lockForUpdate()
@@ -182,14 +186,9 @@ class PhysicalBookCopyService
         });
     }
 
-    private function issueLockedCopy(
-        Student $student,
-        BookCopy $copy,
-        ?User $issuer,
-        array $values
-    ): IssuedBook {
-        $book = Book::query()->lockForUpdate()->findOrFail($copy->book_id);
-
+    /** Shared by copy search, previews and the final locked circulation write. */
+    public function issueEligibility(BookCopy $copy, array $activeBookIds = []): ?PhysicalCopyException
+    {
         if ($copy->status !== 'available') {
             [$message, $status, $code] = match (strtolower((string) $copy->status)) {
                 'issued' => ['This book copy is already issued.', 409, 'copy_issued'],
@@ -200,40 +199,65 @@ class PhysicalBookCopyService
                 default => ['This book copy is unavailable.', 409, 'copy_unavailable'],
             };
 
-            throw new PhysicalCopyException($message, $status, $code);
+            return new PhysicalCopyException($message, $status, $code);
         }
 
         if (! $copy->isBorrowable()) {
-            throw new PhysicalCopyException('This book is reference-only and cannot be borrowed.', 422, 'reference_only');
+            return new PhysicalCopyException('This book is reference-only and cannot be borrowed.', 422, 'reference_only');
         }
 
         if (strtolower((string) $copy->condition) === 'damaged') {
-            throw new PhysicalCopyException('This book copy is marked as damaged and cannot be issued.', 409, 'copy_damaged');
+            return new PhysicalCopyException('This book copy is marked as damaged and cannot be issued.', 409, 'copy_damaged');
         }
 
+        if (strtolower((string) $copy->condition) === 'lost') {
+            return new PhysicalCopyException('This book copy is marked as lost and cannot be issued.', 409, 'copy_lost');
+        }
+
+        $book = $copy->book;
+        if (! $book) {
+            return new PhysicalCopyException('This book is no longer in the catalogue.', 409, 'book_not_borrowable');
+        }
         $rawBookStatus = strtolower((string) $book->getRawOriginal('status'));
         if (in_array($rawBookStatus, ['inactive', 'withdrawn'], true)) {
-            throw new PhysicalCopyException('This book is not available for borrowing.', 422, 'book_not_borrowable');
+            return new PhysicalCopyException('This book is not available for borrowing.', 422, 'book_not_borrowable');
         }
 
-        $alreadyIssued = IssuedBook::query()
+        $alreadyIssued = $copy->getAttribute('active_issues_count') ?? IssuedBook::query()
             ->where('book_copy_id', $copy->id)
             ->whereNull('return_date')
             ->lockForUpdate()
             ->exists();
 
         if ($alreadyIssued) {
-            throw new PhysicalCopyException('This book copy is already issued.', 409, 'copy_unavailable');
+            return new PhysicalCopyException('This book copy is already issued.', 409, 'copy_unavailable');
         }
 
-        $sameTitleIssued = IssuedBook::query()
-            ->where('student_id', $student->id)
-            ->where('book_id', $book->id)
-            ->whereNull('return_date')
-            ->exists();
+        if (in_array((int) $copy->book_id, $activeBookIds, true)) {
+            return new PhysicalCopyException('This student already has an active copy of this book.', 409, 'duplicate_student_issue');
+        }
 
-        if ($sameTitleIssued) {
-            throw new PhysicalCopyException('The student already has this book issued.', 409, 'duplicate_student_issue');
+        return null;
+    }
+
+    private function issueLockedCopy(
+        Student $student,
+        BookCopy $copy,
+        ?User $issuer,
+        array $values
+    ): IssuedBook {
+        $book = Book::query()->lockForUpdate()->findOrFail($copy->book_id);
+        $copy->setRelation('book', $book);
+        $activeBookIds = IssuedBook::query()->where('student_id', $student->id)
+            ->whereNull('return_date')->lockForUpdate()->pluck('book_id')->map(fn ($id) => (int) $id)->all();
+        if ($error = $this->issueEligibility($copy, $activeBookIds)) {
+            throw $error;
+        }
+
+        // Recheck after acquiring the student lock, including callers with an earlier preflight.
+        $issueCheck = $this->privileges->canIssue($student, 1);
+        if (! $issueCheck['allowed']) {
+            throw new PhysicalCopyException($issueCheck['message'], 422, 'student_not_eligible');
         }
 
         $issueDate = isset($values['issue_date']) ? Carbon::parse($values['issue_date']) : now();

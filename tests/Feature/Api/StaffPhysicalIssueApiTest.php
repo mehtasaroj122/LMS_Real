@@ -1,13 +1,16 @@
 <?php
 
+use App\Exceptions\PhysicalCopyException;
 use App\Models\Book;
 use App\Models\BookCopy;
 use App\Models\Category;
 use App\Models\Department;
 use App\Models\Student;
+use App\Models\StudentPrivilege;
 use App\Models\User;
 use App\Services\NotificationService;
 use App\Services\PhysicalBookCopyService;
+use App\Services\StudentIssuePrivilegeService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
@@ -294,3 +297,168 @@ test('staff issue endpoint does not accept a title id without a physical copy id
         'book_id' => $book->id,
     ]);
 });
+
+test('batch issue rejects different accessions for the same book before any write or notification', function () {
+    $student = makePhysicalIssueApiStudent();
+    $book = makePhysicalIssueApiBook();
+    $copies = app(PhysicalBookCopyService::class)->createCopies($book, 2);
+    $this->mock(NotificationService::class, fn (MockInterface $mock) => $mock->shouldNotReceive('notifyBookIssued'));
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+
+    $this->postJson('/api/staff/issues', [
+        'student_id' => $student->id,
+        'accession_numbers' => $copies->pluck('accession_number')->all(),
+    ])->assertStatus(409)->assertJsonPath('invalid_copies.0.code', 'duplicate_book_id');
+    $this->assertDatabaseCount('issued_books', 0);
+    expect($book->fresh()->available_copies)->toBe(2);
+});
+
+test('batch accessions are normalized before distinct validation instead of silently deduplicated', function () {
+    $student = makePhysicalIssueApiStudent();
+    $copy = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+    $this->postJson('/api/staff/issues', [
+        'student_id' => $student->id,
+        'accession_numbers' => [$copy->accession_number, ' '.strtolower($copy->accession_number).' '],
+    ])->assertUnprocessable()->assertJsonValidationErrors('accession_numbers.0');
+    $this->assertDatabaseCount('issued_books', 0);
+});
+
+test('different book ids with the same title are issued together and physical preview is compatible', function () {
+    $student = makePhysicalIssueApiStudent();
+    $first = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(['title' => 'Same title']), 1)->first();
+    $second = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(['title' => 'Same title']), 1)->first();
+    $body = ['student_id' => $student->id, 'accession_numbers' => [$first->accession_number, $second->accession_number]];
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+    $this->postJson('/api/staff/issues/preview', $body)->assertOk()
+        ->assertJsonPath('success', true)->assertJsonCount(2, 'data.selected_copies')
+        ->assertJsonPath('data.selected_copies.0.can_select', true);
+    $this->postJson('/api/staff/issues', $body)->assertCreated()->assertJsonPath('data.issued_count', 2);
+    $this->assertDatabaseCount('issued_books', 2);
+    expect($first->fresh()->status)->toBe('issued')->and($second->fresh()->status)->toBe('issued');
+    $this->postJson('/api/staff/issues/preview', ['student_id' => $student->id, 'book_ids' => [$first->book_id]])
+        ->assertUnprocessable(); // Legacy title preview remains supported.
+});
+
+test('another active copy of the same book is blocked in context search preview and final issue', function () {
+    $student = makePhysicalIssueApiStudent();
+    $copies = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 2);
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+    $this->postJson('/api/staff/issues', ['student_id' => $student->id, 'book_copy_id' => $copies[0]->id])->assertCreated();
+    $this->getJson('/api/staff/students/'.$student->id.'/issue-privileges')
+        ->assertOk()->assertJsonPath('data.privileges.active_book_ids.0', $copies[0]->book_id)
+        ->assertJsonPath('data.privileges.one_active_copy_per_book', true);
+    $this->getJson('/api/staff/issue-books?include_unavailable=1&student_id='.$student->id.'&search='.$copies[1]->accession_number)
+        ->assertOk()->assertJsonPath('data.0.can_select', false)
+        ->assertJsonPath('data.0.eligibility_code', 'duplicate_student_issue');
+    $body = ['student_id' => $student->id, 'accession_numbers' => [$copies[1]->accession_number]];
+    $this->postJson('/api/staff/issues/preview', $body)->assertUnprocessable()
+        ->assertJsonPath('data.invalid_copies.0.code', 'duplicate_student_issue');
+    $this->postJson('/api/staff/issues', $body)->assertStatus(409)
+        ->assertJsonPath('invalid_copies.0.code', 'duplicate_student_issue');
+    $this->assertDatabaseCount('issued_books', 1);
+});
+
+test('ineligible physical copies remain visible with an authoritative reason and cannot be issued', function (array $attributes, string $code) {
+    $student = makePhysicalIssueApiStudent();
+    $copy = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    $copy->update($attributes);
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+    $this->getJson('/api/staff/issue-books?include_unavailable=1&search='.$copy->accession_number)
+        ->assertOk()->assertJsonPath('data.0.can_select', false)->assertJsonPath('data.0.eligibility_code', $code);
+    $body = ['student_id' => $student->id, 'accession_numbers' => [$copy->accession_number]];
+    $this->postJson('/api/staff/issues/preview', $body)->assertUnprocessable()->assertJsonPath('data.invalid_copies.0.code', $code);
+    $this->postJson('/api/staff/issues', $body)->assertStatus(409)->assertJsonPath('invalid_copies.0.code', $code);
+    $this->assertDatabaseCount('issued_books', 0);
+})->with([
+    'issued' => [['status' => 'issued'], 'copy_issued'],
+    'lost' => [['status' => 'lost'], 'copy_lost'],
+    'damaged status' => [['status' => 'damaged'], 'copy_damaged'],
+    'damaged condition' => [['condition' => 'damaged'], 'copy_damaged'],
+    'lost condition' => [['condition' => 'lost'], 'copy_lost'],
+    'reference' => [['book_type' => 'reference'], 'reference_only'],
+    'maintenance' => [['status' => 'maintenance'], 'copy_maintenance'],
+    'withdrawn' => [['status' => 'withdrawn'], 'copy_withdrawn'],
+    'inactive' => [['status' => 'inactive'], 'copy_unavailable'],
+]);
+
+test('a copy becoming issued after preview rejects the entire final batch with accession errors', function () {
+    $student = makePhysicalIssueApiStudent();
+    $otherStudent = makePhysicalIssueApiStudent();
+    $first = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    $second = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+    $body = ['student_id' => $student->id, 'accession_numbers' => [$first->accession_number, $second->accession_number]];
+    $this->postJson('/api/staff/issues/preview', $body)->assertOk();
+    $this->postJson('/api/staff/issues', ['student_id' => $otherStudent->id, 'book_copy_id' => $second->id])->assertCreated();
+    $this->postJson('/api/staff/issues', $body)->assertStatus(409)
+        ->assertJsonPath('invalid_copies.0.accession_number', $second->accession_number)
+        ->assertJsonValidationErrors('accession_numbers.1');
+    $this->assertDatabaseMissing('issued_books', ['student_id' => $student->id]);
+    expect($first->fresh()->status)->toBe('available');
+});
+
+test('deleted and inconsistent available copies are rejected by current database state', function () {
+    $student = makePhysicalIssueApiStudent();
+    $copy = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+    $this->postJson('/api/staff/issues', ['student_id' => $student->id, 'book_copy_id' => $copy->id])->assertCreated();
+    $copy->refresh()->update(['status' => 'available']);
+    $this->getJson('/api/staff/issue-books?include_unavailable=1&search='.$copy->accession_number)
+        ->assertOk()->assertJsonPath('data.0.can_select', false)->assertJsonPath('data.0.eligibility_code', 'copy_unavailable');
+    $deleted = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    $accession = $deleted->accession_number;
+    $deleted->delete();
+    $this->postJson('/api/staff/issues', ['student_id' => $student->id, 'accession_numbers' => [$accession]])
+        ->assertStatus(409)->assertJsonPath('invalid_copies.0.code', 'accession_not_found');
+});
+
+test('final batch respects remaining capacity account status and suspended borrowing', function () {
+    $student = makePhysicalIssueApiStudent();
+    StudentPrivilege::create(['student_id' => $student->id, 'max_books' => 1, 'issue_duration_days' => 14, 'borrowing_allowed' => true]);
+    $first = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    $second = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+    $body = ['student_id' => $student->id, 'accession_numbers' => [$first->accession_number, $second->accession_number]];
+    $this->postJson('/api/staff/issues/preview', $body)->assertUnprocessable()->assertJsonPath('data.privileges.can_issue', 1);
+    $this->postJson('/api/staff/issues', $body)->assertUnprocessable()->assertJsonPath('code', 'student_not_eligible');
+    $student->privileges()->update(['borrowing_allowed' => false]);
+    $body['accession_numbers'] = [$first->accession_number];
+    $this->postJson('/api/staff/issues', $body)->assertUnprocessable()->assertJsonPath('code', 'student_not_eligible');
+    $student->privileges()->update(['borrowing_allowed' => true]);
+    $student->user->update(['status' => 'inactive']);
+    $this->postJson('/api/staff/issues', $body)->assertUnprocessable()->assertJsonPath('code', 'student_not_eligible');
+    $this->assertDatabaseCount('issued_books', 0);
+});
+
+test('mixed selectors cannot hide a manipulated accession batch', function () {
+    $student = makePhysicalIssueApiStudent();
+    $copy = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+    $this->postJson('/api/staff/issues', ['student_id' => $student->id, 'book_copy_id' => $copy->id,
+        'accession_numbers' => [$copy->accession_number, $copy->accession_number]])
+        ->assertUnprocessable()->assertJsonValidationErrors('book_copy_id');
+    $this->assertDatabaseCount('issued_books', 0);
+});
+
+test('shared circulation rechecks privileges after an earlier preflight', function (string $change) {
+    $student = makePhysicalIssueApiStudent();
+    StudentPrivilege::create(['student_id' => $student->id, 'max_books' => 1, 'issue_duration_days' => 14, 'borrowing_allowed' => true]);
+    $service = app(PhysicalBookCopyService::class);
+    $copy = $service->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    expect(app(StudentIssuePrivilegeService::class)->canIssue($student, 1)['allowed'])->toBeTrue();
+
+    if ($change === 'capacity') {
+        $otherCopy = $service->createCopies(makePhysicalIssueApiBook(), 1)->first();
+        $service->issue($student, $otherCopy->accession_number);
+    } elseif ($change === 'borrowing') {
+        $student->privileges()->update(['borrowing_allowed' => false]);
+    } else {
+        $student->user->update(['status' => 'inactive']);
+    }
+
+    expect(fn () => $service->issue($student, $copy->accession_number))
+        ->toThrow(PhysicalCopyException::class);
+    $this->assertDatabaseCount('issued_books', $change === 'capacity' ? 1 : 0);
+    expect($copy->fresh()->status)->toBe('available');
+})->with(['capacity', 'borrowing', 'account']);

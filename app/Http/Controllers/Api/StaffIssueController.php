@@ -39,7 +39,7 @@ class StaffIssueController extends Controller
         ]);
     }
 
-    public function issueBooks(Request $request): JsonResponse
+    public function issueBooks(Request $request, PhysicalBookCopyService $circulation): JsonResponse
     {
         $search = trim((string) ($request->query('search') ?? $request->query('query') ?? $request->query('q') ?? ''));
         $normalizedAccession = strtoupper($search);
@@ -47,13 +47,20 @@ class StaffIssueController extends Controller
             ->where('accession_number', $normalizedAccession)
             ->exists();
 
+        $activeBookIds = $request->integer('student_id')
+            ? IssuedBook::query()->where('student_id', $request->integer('student_id'))
+                ->whereNull('return_date')->pluck('book_id')->map(fn ($id) => (int) $id)->all()
+            : [];
         $copies = BookCopy::query()
             ->with(['book.category'])
-            ->where('status', 'available')
-            ->where('book_type', '!=', 'reference')
-            ->where('condition', '!=', 'damaged')
-            ->whereDoesntHave('issuedBooks', fn ($query) => $query->whereNull('return_date'))
-            ->whereHas('book', fn ($query) => $query->whereNotIn('status', ['inactive', 'withdrawn']))
+            ->withCount(['issuedBooks as active_issues_count' => fn ($query) => $query->whereNull('return_date')])
+            ->when(! $request->boolean('include_unavailable'), function ($query): void {
+                $query->where('status', 'available')
+                    ->where('book_type', '!=', 'reference')
+                    ->whereNotIn('condition', ['damaged', 'lost'])
+                    ->whereDoesntHave('issuedBooks', fn ($issued) => $issued->whereNull('return_date'))
+                    ->whereHas('book', fn ($book) => $book->whereNotIn('status', ['inactive', 'withdrawn']));
+            })
             ->when($search !== '', function ($query) use ($search, $normalizedAccession, $hasExactAccession): void {
                 if ($hasExactAccession) {
                     $query->where('accession_number', $normalizedAccession);
@@ -77,22 +84,8 @@ class StaffIssueController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Available book copies fetched successfully.',
-            'data' => $copies->getCollection()->map(fn (BookCopy $copy) => [
-                'book_id' => $copy->book_id,
-                'title' => $copy->book?->title,
-                'book_title' => $copy->book?->title,
-                'isbn' => $copy->book?->isbn,
-                'author' => $copy->book?->author,
-                'book_copy_id' => $copy->id,
-                'accession_number' => $copy->accession_number,
-                'copy_type' => $copy->book_type,
-                'book_type' => $copy->book_type,
-                'status' => $copy->status,
-                'shelf_location' => $copy->shelf_location,
-                'condition' => $copy->condition,
-                'category' => $copy->book?->category?->name,
-            ])->values(),
+            'message' => 'Physical book copies fetched successfully.',
+            'data' => $copies->getCollection()->map(fn (BookCopy $copy) => $this->physicalCopyPayload($copy, $circulation, $activeBookIds))->values(),
             'meta' => [
                 'current_page' => $copies->currentPage(),
                 'last_page' => $copies->lastPage(),
@@ -148,9 +141,30 @@ class StaffIssueController extends Controller
         ]);
     }
 
-    public function preview(StaffIssuePreviewRequest $request, StudentIssuePrivilegeService $privilegeService): JsonResponse
+    public function preview(StaffIssuePreviewRequest $request, StudentIssuePrivilegeService $privilegeService, PhysicalBookCopyService $circulation): JsonResponse
     {
         $student = Student::query()->with(['user', 'department', 'privileges'])->findOrFail($request->integer('student_id'));
+        if ($request->filled('accession_numbers')) {
+            $accessions = array_values($request->input('accession_numbers'));
+            $issueCheck = $privilegeService->canIssue($student, count($accessions));
+            $snapshot = $this->physicalSelection($accessions, $student, $circulation);
+            $errors = $snapshot['errors'];
+            if (! $issueCheck['allowed']) {
+                $errors['student_id'] = [$issueCheck['message']];
+            }
+
+            return response()->json([
+                'success' => $errors === [],
+                'message' => $errors === [] ? 'Selected copies are eligible for issue.' : 'Review the selected books before issuing.',
+                'data' => [
+                    'student' => $this->studentPayload($student),
+                    'privileges' => $issueCheck['privileges'],
+                    'selected_copies' => $snapshot['selected_copies'],
+                    'invalid_copies' => $snapshot['invalid_copies'],
+                    'errors' => (object) $errors,
+                ],
+            ], $errors === [] ? 200 : 422);
+        }
         $bookIds = $request->bookIds();
         $books = Book::query()->with('category')->whereIn('id', $bookIds)->get()->keyBy('id');
         $issueCheck = $privilegeService->canIssue($student, count($bookIds));
@@ -259,6 +273,7 @@ class StaffIssueController extends Controller
                     'success' => false,
                     'message' => $exception->getMessage(),
                     'code' => $exception->errorCode,
+                    ...$exception->details,
                 ], $exception->status);
             }
 
@@ -301,6 +316,16 @@ class StaffIssueController extends Controller
                         );
                     }
 
+                    $snapshot = $this->physicalSelection($accessionNumbers, $lockedStudent, $copies, lock: true);
+                    if ($snapshot['errors'] !== []) {
+                        throw new PhysicalCopyException(
+                            $snapshot['invalid_copies'][0]['message'],
+                            409,
+                            'invalid_issue_selection',
+                            ['errors' => $snapshot['errors'], 'invalid_copies' => $snapshot['invalid_copies']]
+                        );
+                    }
+
                     $created = [];
                     foreach ($accessionNumbers as $accessionNumber) {
                         $issue = $copies->issue($lockedStudent, $accessionNumber, $request->user(), [
@@ -330,6 +355,7 @@ class StaffIssueController extends Controller
                     'success' => false,
                     'message' => $exception->getMessage(),
                     'code' => $exception->errorCode,
+                    ...$exception->details,
                 ], $exception->status);
             }
 
@@ -352,6 +378,74 @@ class StaffIssueController extends Controller
                 ],
             ], 201);
         }
+    }
+
+    private function physicalCopyPayload(BookCopy $copy, PhysicalBookCopyService $circulation, array $activeBookIds = []): array
+    {
+        $error = $circulation->issueEligibility($copy, $activeBookIds);
+
+        return [
+            'book_id' => (int) $copy->book_id,
+            'title' => $copy->book?->title ?? 'Book unavailable',
+            'isbn' => $copy->book?->isbn,
+            'author' => $copy->book?->author,
+            'book_copy_id' => $copy->id,
+            'accession_number' => $copy->accession_number,
+            'copy_type' => $copy->book_type,
+            'book_type' => $copy->book_type,
+            'status' => $copy->status,
+            'shelf_location' => $copy->shelf_location,
+            'condition' => $copy->condition,
+            'category' => $copy->book?->category?->name,
+            'can_select' => $error === null,
+            'unavailable_reason' => $error?->getMessage(),
+            'eligibility_code' => $error?->errorCode,
+        ];
+    }
+
+    private function physicalSelection(array $accessions, Student $student, PhysicalBookCopyService $circulation, bool $lock = false): array
+    {
+        $query = BookCopy::query()->with('book.category')->whereIn('accession_number', $accessions)->orderBy('id');
+        if ($lock) {
+            $query->lockForUpdate();
+        }
+        $copies = $query->get();
+        if ($lock) {
+            // A consistent lock order prevents reversed batches from deadlocking each other.
+            $books = Book::query()->whereIn('id', $copies->pluck('book_id'))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
+            $copies->each(fn (BookCopy $copy) => $copy->setRelation('book', $books->get($copy->book_id)));
+        }
+        $activeBookIds = IssuedBook::query()->where('student_id', $student->id)
+            ->whereNull('return_date')->pluck('book_id')->map(fn ($id) => (int) $id)->all();
+        $byAccession = $copies->keyBy('accession_number');
+        $duplicateBookIds = $copies->groupBy('book_id')->filter(fn ($group) => $group->count() > 1)->keys()->all();
+        $selectedCopies = [];
+        $invalidCopies = [];
+        $errors = [];
+        foreach ($accessions as $index => $accession) {
+            $copy = $byAccession->get($accession);
+            $error = ! $copy
+                ? new PhysicalCopyException('This physical copy no longer exists. Refresh and select another copy.', 409, 'accession_not_found')
+                : (in_array($copy->book_id, $duplicateBookIds)
+                    ? new PhysicalCopyException('Only one physical copy of each Book ID can be issued in this transaction.', 422, 'duplicate_book_id')
+                    : $circulation->issueEligibility($copy, $activeBookIds));
+            if ($copy) {
+                $selectedCopies[] = $this->physicalCopyPayload($copy, $circulation, $activeBookIds);
+            }
+            if ($error) {
+                $message = $accession.': '.$error->getMessage().' Refresh and review your selection.';
+                $errors['accession_numbers.'.$index] = [$message];
+                $invalidCopies[] = [
+                    'book_id' => $copy?->book_id,
+                    'book_copy_id' => $copy?->id,
+                    'accession_number' => $accession,
+                    'message' => $message,
+                    'code' => $error->errorCode,
+                ];
+            }
+        }
+
+        return ['selected_copies' => $selectedCopies, 'invalid_copies' => $invalidCopies, 'errors' => $errors];
     }
 
     private function studentPayload(Student $student): array
