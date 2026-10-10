@@ -13,7 +13,7 @@ class BookController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
-        $books = $this->applyCatalogFilters(Book::query()->with('category'), $request)
+        $books = $this->applyCatalogFilters(Book::query()->with('category')->withCirculationAvailability(), $request)
             ->paginate($this->perPage($request))
             ->appends($request->query());
 
@@ -23,7 +23,9 @@ class BookController extends Controller
     public function show(int $id): BookResource
     {
         return new BookResource(
-            Book::query()->with(['category', 'copies'])->findOrFail($id)
+            Book::query()->with(['category', 'copies' => fn ($copies) => $copies
+                ->withCount(['issuedBooks as active_issues_count' => fn ($issued) => $issued->whereNull('return_date')])])
+                ->withCirculationAvailability()->findOrFail($id)
         );
     }
 
@@ -34,6 +36,7 @@ class BookController extends Controller
         $books = $this->applyCatalogFilters(
             Book::query()
                 ->with('category')
+                ->withCirculationAvailability()
                 ->where(function ($builder) use ($query) {
                     $builder
                         ->where('title', 'like', "%{$query}%")
@@ -54,6 +57,7 @@ class BookController extends Controller
     {
         $books = Book::query()
             ->with('category')
+            ->withCirculationAvailability()
             ->whereHas('category', function ($builder) use ($category) {
                 $builder->when(
                     is_numeric($category),
@@ -72,7 +76,8 @@ class BookController extends Controller
     {
         $books = Book::query()
             ->with('category')
-            ->where('available_copies', '>', 0)
+            ->withCirculationAvailability()
+            ->availableForBorrowing()
             ->orderBy('title')
             ->paginate($this->perPage($request))
             ->appends($request->query());
@@ -100,9 +105,9 @@ class BookController extends Controller
 
         $availability = strtolower(trim($request->string('availability')->toString()));
         if ($availability === 'available') {
-            $query->where('available_copies', '>', 0);
+            $query->availableForBorrowing();
         } elseif ($availability === 'unavailable') {
-            $query->where('available_copies', '<=', 0);
+            $query->whereNot(fn ($books) => $books->availableForBorrowing());
         }
 
         $condition = trim($request->string('condition')->toString());
@@ -113,7 +118,7 @@ class BookController extends Controller
         return match ($request->string('sort')->toString()) {
             'title_desc' => $query->orderByDesc('title'),
             'author_asc' => $query->orderBy('author')->orderBy('title'),
-            'available_desc' => $query->orderByDesc('available_copies')->orderBy('title'),
+            'available_desc' => $query->orderByCirculationAvailability()->orderBy('title'),
             'recently_added' => $query->orderByDesc('created_at')->orderByDesc('id'),
             default => $query->orderBy('title'),
         };

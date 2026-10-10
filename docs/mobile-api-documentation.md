@@ -779,7 +779,7 @@ Error Response:
 
 Controller: `BookController@available`
 
-Notes: Filters `available_copies > 0`.
+Notes: Uses physical-copy availability and unreturned loan records when physical inventory exists. Reference, damaged, lost, maintenance, and withdrawn copies are excluded. Inactive/withdrawn titles are unavailable. Titles without physical-copy records use legacy inventory counters. The catalog `availability` filter and `available_desc` sort follow the same rule.
 
 ### Books By Category
 
@@ -2156,7 +2156,7 @@ Request: query `query` or `q`; optional `student_id` or `studentId`.
 Success Response:
 
 ```json
-{"success":true,"message":"Books fetched successfully.","data":[{"id":3,"book_id":3,"copy_id":null,"title":"Clean Code","author":"Robert C. Martin","isbn":"0001000002","accession_no":"0001000002","category":"Software Engineering","total_copies":5,"available_copies":6,"is_available":true,"status":"available","reason":null}]}
+{"success":true,"message":"Books fetched successfully.","data":[{"id":3,"book_id":3,"copy_id":null,"title":"Clean Code","author":"Robert C. Martin","isbn":"0001000002","accession_no":"0001000002","category":"Software Engineering","total_copies":5,"available_copies":3,"is_available":true,"status":"available","reason":null}]}
 ```
 
 Error Response:
@@ -2167,7 +2167,7 @@ Error Response:
 
 Controller: `StaffIssueController@searchBooks`
 
-Notes: This project issues by `book_id`; no separate copy table exists.
+Notes: Title search returns catalogue IDs. `available_copies` uses eligible physical copies and active loans; stale title counters or copy flags do not override this calculation. Use `/api/staff/issue-books` to select physical copies by ID or accession.
 
 ### Staff Issue Preview
 
@@ -2218,7 +2218,7 @@ Purpose: Issue one or more books to a student.
 Request:
 
 ```json
-{"student_id":1,"book_ids":[3,5],"remarks":"Optional"}
+{"student_id":1,"accession_numbers":["ACC-000015","ACC-000232"],"remarks":"Optional"}
 ```
 
 Success Response:
@@ -2235,7 +2235,7 @@ Error Response:
 
 Controller: `StaffIssueController@store`
 
-Notes: Atomic DB transaction; validates active student, borrowing privilege, issue limit, availability, duplicate active issue, and decrements `available_copies`.
+Notes: Submit `book_copy_id`, `accession_number`, or `accession_numbers`. The transaction validates the student's privileges and each physical copy, rejects duplicate active loans, records the selected copy, and refreshes inventory counters. Physical preview accepts `accession_numbers`; legacy title preview with `book_ids` remains available.
 
 ### Search Active Issues
 

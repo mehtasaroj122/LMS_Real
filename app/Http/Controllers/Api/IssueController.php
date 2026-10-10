@@ -96,8 +96,8 @@ class IssueController extends Controller
 
                 $availableCopy = BookCopy::query()
                     ->where('book_id', $book->id)
-                    ->where('status', 'available')
-                    ->where('book_type', '!=', 'reference')
+                    ->availableForIssue()
+                    ->orderBy('id')
                     ->lockForUpdate()
                     ->first();
 
@@ -112,11 +112,15 @@ class IssueController extends Controller
                         abort(response()->json(['message' => "The student already has '{$book->title}' issued."], 409));
                     }
 
-                    $issue = $copies->issue($student, $availableCopy->accession_number, $request->user(), [
-                        'issue_date' => $issueDate,
-                        'due_date' => $dueDate,
-                        'remarks' => $request->input('remarks'),
-                    ]);
+                    try {
+                        $issue = $copies->issue($student, $availableCopy->accession_number, $request->user(), [
+                            'issue_date' => $issueDate,
+                            'due_date' => $dueDate,
+                            'remarks' => $request->input('remarks'),
+                        ]);
+                    } catch (PhysicalCopyException $exception) {
+                        abort(response()->json(['message' => $exception->getMessage(), 'code' => $exception->errorCode], $exception->status));
+                    }
 
                     BookRequest::query()
                         ->where('student_id', $student->id)
@@ -129,7 +133,8 @@ class IssueController extends Controller
                     continue;
                 }
 
-                if ((int) $book->available_copies <= 0) {
+                // A title with physical inventory must never bypass copy eligibility.
+                if ($book->copies()->exists() || $book->availableForBorrowingCount() <= 0) {
                     abort(response()->json([
                         'message' => "The book '{$book->title}' is not available.",
                     ], 409));

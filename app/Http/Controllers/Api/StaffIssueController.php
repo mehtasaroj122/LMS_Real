@@ -55,10 +55,7 @@ class StaffIssueController extends Controller
             ->with(['book.category'])
             ->withCount(['issuedBooks as active_issues_count' => fn ($query) => $query->whereNull('return_date')])
             ->when(! $request->boolean('include_unavailable'), function ($query): void {
-                $query->where('status', 'available')
-                    ->where('book_type', '!=', 'reference')
-                    ->whereNotIn('condition', ['damaged', 'lost'])
-                    ->whereDoesntHave('issuedBooks', fn ($issued) => $issued->whereNull('return_date'))
+                $query->availableForIssue()
                     ->whereHas('book', fn ($book) => $book->whereNotIn('status', ['inactive', 'withdrawn']));
             })
             ->when($search !== '', function ($query) use ($search, $normalizedAccession, $hasExactAccession): void {
@@ -106,11 +103,13 @@ class StaffIssueController extends Controller
                 ->where('student_id', $studentId)
                 ->whereNull('return_date')
                 ->pluck('book_id')
+                ->map(fn ($id) => (int) $id)
                 ->all();
         }
 
         $books = Book::query()
             ->with('category')
+            ->withCirculationAvailability()
             ->when($query !== '', function ($builder) use ($query) {
                 $builder->where(function ($bookQuery) use ($query) {
                     $bookQuery
@@ -122,7 +121,7 @@ class StaffIssueController extends Controller
                         ->orWhereHas('category', fn ($categoryQuery) => $categoryQuery->where('name', 'like', "%{$query}%"));
                 });
             })
-            ->orderByDesc('available_copies')
+            ->orderByCirculationAvailability()
             ->orderBy('title')
             ->paginate($this->perPage($request));
 
@@ -166,7 +165,7 @@ class StaffIssueController extends Controller
             ], $errors === [] ? 200 : 422);
         }
         $bookIds = $request->bookIds();
-        $books = Book::query()->with('category')->whereIn('id', $bookIds)->get()->keyBy('id');
+        $books = Book::query()->with('category')->withCirculationAvailability()->whereIn('id', $bookIds)->get()->keyBy('id');
         $issueCheck = $privilegeService->canIssue($student, count($bookIds));
         $warnings = [];
         $errors = [];
@@ -180,7 +179,7 @@ class StaffIssueController extends Controller
                 continue;
             }
 
-            if ((int) $book->available_copies <= 0) {
+            if ($book->availableForBorrowingCount() <= 0) {
                 $errors[] = "The book '{$book->title}' is not available.";
             }
 
@@ -393,7 +392,7 @@ class StaffIssueController extends Controller
             'accession_number' => $copy->accession_number,
             'copy_type' => $copy->book_type,
             'book_type' => $copy->book_type,
-            'status' => $copy->status,
+            'status' => $copy->circulationStatus(),
             'shelf_location' => $copy->shelf_location,
             'condition' => $copy->condition,
             'category' => $copy->book?->category?->name,
@@ -465,7 +464,8 @@ class StaffIssueController extends Controller
 
     private function bookPayload(Book $book, bool $alreadyIssuedByStudent = false): array
     {
-        $available = (int) $book->available_copies > 0 && ! $alreadyIssuedByStudent;
+        $availableCopies = $book->availableForBorrowingCount();
+        $available = $availableCopies > 0 && ! $alreadyIssuedByStudent;
 
         return [
             'id' => $book->id,
@@ -477,12 +477,12 @@ class StaffIssueController extends Controller
             'accession_no' => $book->isbn,
             'category' => $book->category?->name,
             'total_copies' => (int) $book->total_copies,
-            'available_copies' => (int) $book->available_copies,
+            'available_copies' => $availableCopies,
             'is_available' => $available,
             'status' => $available ? 'available' : 'unavailable',
             'reason' => $alreadyIssuedByStudent
                 ? 'Student already has this book issued.'
-                : (((int) $book->available_copies <= 0) ? 'No copies available.' : null),
+                : ($availableCopies <= 0 ? 'No copies available.' : null),
         ];
     }
 

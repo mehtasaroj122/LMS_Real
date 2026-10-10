@@ -16,7 +16,7 @@ class BookCopyResource extends JsonResource
             'accession_number' => $this->accession_number,
             'entry_date' => optional($this->entry_date)->toDateString(),
             'book_type' => $this->book_type,
-            'status' => $this->status,
+            'status' => $this->resource->circulationStatus(),
             'shelf_location' => $this->shelf_location,
             'condition' => $this->condition,
             'price' => $this->price,

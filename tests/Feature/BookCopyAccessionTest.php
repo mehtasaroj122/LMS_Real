@@ -302,6 +302,69 @@ test('web issue rejects multiple copies of the same book before any issue or not
     Queue::assertNothingPushed();
 })->with(['admin', 'staff']);
 
+test('web issue uses loan records when a copy has a stale issued flag', function (string $role, bool $hasHistory) {
+    Queue::fake();
+    $service = app(PhysicalBookCopyService::class);
+    $book = accessionTestBook();
+    $copy = $service->createCopies($book, 1)->first();
+    $student = accessionTestStudent();
+    $issuer = User::factory()->create(['role' => $role, 'status' => 'active', 'is_verified' => true]);
+
+    if ($hasHistory) {
+        $service->issue($student, $copy->accession_number, $issuer);
+        $service->return($copy->accession_number);
+    }
+    $copy->update(['status' => 'issued']);
+    $service->refreshBookCounters($book);
+    $this->actingAs($issuer);
+
+    $bookSearchUrl = $role === 'admin' ? '/admin/transactions/books/available' : '/staff/transactions/books';
+    $this->getJson($bookSearchUrl.'?query='.urlencode($book->title).'&studentId='.$student->id)
+        ->assertOk()
+        ->assertJsonPath('0.available_copies', 1)
+        ->assertJsonPath('0.already_issued_to_student', false)
+        ->assertJsonPath('0.copies.0.status', 'available');
+    $this->getJson("/{$role}/book-copies/search?query=".$copy->accession_number.'&mode=issue&student_id='.$student->id)
+        ->assertOk()
+        ->assertJsonPath('data.0.copy.status', 'available')
+        ->assertJsonPath('data.0.copy.already_issued_to_student', false);
+
+    $this->postJson("/{$role}/transactions/issue", [
+        'student_id' => $student->id,
+        'book_copy_ids' => [$copy->id],
+    ])->assertOk()->assertJsonPath('success', true);
+    expect($copy->fresh()->status)->toBe('issued')
+        ->and($book->fresh()->available_copies)->toBe(0);
+    expect(IssuedBook::where('book_copy_id', $copy->id)->whereNull('return_date')->count())->toBe(1);
+})->with(['admin', 'staff'])->with([false, true]);
+
+test('web issue blocks a copy loaned to another student even when its available flag is stale', function (string $role) {
+    Queue::fake();
+    $service = app(PhysicalBookCopyService::class);
+    $book = accessionTestBook();
+    $copy = $service->createCopies($book, 1)->first();
+    $student = accessionTestStudent();
+    $borrower = accessionTestStudent();
+    $issuer = User::factory()->create(['role' => $role, 'status' => 'active', 'is_verified' => true]);
+    $service->issue($borrower, $copy->accession_number, $issuer);
+    $copy->update(['status' => 'available']);
+    $this->actingAs($issuer);
+
+    $bookSearchUrl = $role === 'admin' ? '/admin/transactions/books/available' : '/staff/transactions/books';
+    $this->getJson($bookSearchUrl.'?query='.urlencode($book->title).'&studentId='.$student->id)
+        ->assertOk()
+        ->assertJsonPath('0.available_copies', 0)
+        ->assertJsonPath('0.already_issued_to_student', false)
+        ->assertJsonPath('0.copies.0.status', 'issued');
+    $this->getJson("/{$role}/book-copies/search?query=".$copy->accession_number.'&mode=issue&student_id='.$student->id)
+        ->assertOk()->assertJsonPath('data.0.copy.status', 'issued');
+    $this->postJson("/{$role}/transactions/issue", [
+        'student_id' => $student->id,
+        'book_copy_ids' => [$copy->id],
+    ])->assertUnprocessable();
+    expect(IssuedBook::where('book_copy_id', $copy->id)->whereNull('return_date')->count())->toBe(1);
+})->with(['admin', 'staff']);
+
 test('web issue permits one copy of each distinct book even when titles match', function (string $role) {
     Queue::fake();
     $service = app(PhysicalBookCopyService::class);
@@ -359,3 +422,35 @@ test('web issue searches show books already issued to the selected student until
     $this->getJson($copyQuery.$student->id)->assertOk()
         ->assertJsonPath('data.0.copy.already_issued_to_student', false);
 })->with(['admin', 'staff']);
+
+test('circulation repair fixes stale flags and counters without changing loans or restricted copies', function () {
+    $service = app(PhysicalBookCopyService::class);
+    $book = accessionTestBook();
+    $copies = $service->createCopies($book, 9);
+    $student = accessionTestStudent();
+    $service->issue($student, $copies[0]->accession_number);
+    $service->return($copies[0]->accession_number);
+    $copies[0]->update(['status' => 'issued']);
+    $copies[1]->update(['status' => 'issued']);
+    $copies[2]->update(['status' => 'issued', 'condition' => 'damaged']);
+    $copies[3]->update(['status' => 'issued', 'condition' => 'lost']);
+    $service->issue($student, $copies[4]->accession_number);
+    $copies[4]->update(['status' => 'available']);
+    $copies[5]->update(['status' => 'maintenance']);
+    $copies[6]->update(['status' => 'withdrawn']);
+    $copies[7]->update(['status' => 'damaged']);
+    $copies[8]->update(['status' => 'lost']);
+    $book->forceFill(['total_copies' => 99, 'available_copies' => 99, 'status' => 'inactive'])->saveQuietly();
+    $loansBefore = IssuedBook::orderBy('id')->get()->toArray();
+
+    $migration = require database_path('migrations/2026_10_10_000001_reconcile_copy_circulation_statuses.php');
+    $migration->up();
+    $migration->up(); // A repeated repair is safe.
+
+    expect($copies->map(fn (BookCopy $copy) => $copy->fresh()->status)->all())->toBe([
+        'available', 'available', 'damaged', 'lost', 'issued', 'maintenance', 'withdrawn', 'damaged', 'lost',
+    ])->and($book->fresh()->total_copies)->toBe(9)
+        ->and($book->fresh()->available_copies)->toBe(2)
+        ->and($book->fresh()->getRawOriginal('status'))->toBe('inactive')
+        ->and(IssuedBook::orderBy('id')->get()->toArray())->toBe($loansBefore);
+});

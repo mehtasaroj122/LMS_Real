@@ -74,7 +74,9 @@ class StaffDashboardController extends Controller
             ->whereNull('return_date')
             ->whereDate('due_date', '<', $today)
             ->count();
-        $availableBooks = (int) Book::query()->sum('available_copies');
+        $availableBooks = (int) Book::query()->select(['books.id', 'books.status', 'books.available_copies'])
+            ->withCirculationAvailability()->get()
+            ->sum(fn (Book $book) => $book->availableForBorrowingCount());
         $totalBooks = (int) Book::query()->sum('total_copies');
         $issuedThisWeek = (int) IssuedBook::query()
             ->whereBetween('issue_date', [$weekStart->toDateString(), $weekEnd->toDateString()])

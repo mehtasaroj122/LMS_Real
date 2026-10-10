@@ -2445,7 +2445,7 @@
     function isCopySelectable(copy) {
         return String(copy?.status || '').toLowerCase() === 'available'
             && String(copy?.book_type || '').toLowerCase() !== 'reference'
-            && String(copy?.condition || '').toLowerCase() !== 'damaged'
+            && !['damaged', 'lost'].includes(String(copy?.condition || '').toLowerCase())
             && !copy?.already_issued_to_student
             && !isBookSelected(copy);
     }
@@ -2455,6 +2455,7 @@
         if (isBookSelected(copy)) return 'Book already selected — only one copy allowed';
         if (String(copy?.book_type || '').toLowerCase() === 'reference') return 'Reference-only';
         if (String(copy?.condition || '').toLowerCase() === 'damaged') return 'Damaged';
+        if (String(copy?.condition || '').toLowerCase() === 'lost') return 'Lost';
 
         const status = String(copy?.status || '').toLowerCase();
         return ({

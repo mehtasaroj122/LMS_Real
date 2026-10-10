@@ -202,6 +202,36 @@ Book response fields:
 
 `accession_no` is mapped from the existing `books.isbn` column.
 
+### Physical-copy availability
+
+For titles with physical copies, `available_quantity` counts borrowable copies without an unreturned loan. Stale `available` or `issued` flags and stored title counters do not override loan records. Reference, damaged, lost, maintenance, and withdrawn copies cannot be issued. Inactive and withdrawn catalogue titles are unavailable. Titles without physical-copy records continue to use legacy inventory counters.
+
+Catalog availability filters and `sort=available_desc`, staff title search and preview, student requests, request approvals, and staff dashboard availability use this rule. Existing response field names remain unchanged.
+
+Staff/admin physical-copy endpoints:
+
+```text
+GET /api/book-copies?book_id=10&status=available
+GET /api/book-copies/ACC-000015
+GET /api/staff/issue-books?student_id=7&search=clean
+POST /api/staff/issues/preview
+POST /api/staff/issues
+POST /api/issues/by-accession
+```
+
+The `available` and `issued` copy-status filters use active loan records and match the returned copy status. Staff physical search includes `can_select`, `unavailable_reason`, and `eligibility_code` for each copy. Use `include_unavailable=1` to include blocked copies.
+
+For staff batch preview and issue, submit physical accessions:
+
+```json
+{
+  "student_id": 7,
+  "accession_numbers": ["ACC-000015", "ACC-000232"]
+}
+```
+
+The general `POST /api/issues` endpoint still accepts `book_id`/`book_ids`. When physical inventory exists, it selects an eligible physical copy and records its ID; unavailable inventory cannot fall back to a loan without a copy. Final issue operations recheck eligibility within the transaction.
+
 ## Students
 
 Endpoints:

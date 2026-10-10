@@ -43,9 +43,9 @@ class StudentBookRequestController extends Controller
             return $student;
         }
 
-        $book = Book::query()->with('category')->findOrFail($request->integer('book_id'));
+        $book = Book::query()->with('category')->withCirculationAvailability()->findOrFail($request->integer('book_id'));
 
-        if ((int) $book->available_copies <= 0) {
+        if ($book->availableForBorrowingCount() <= 0) {
             return $this->validationError('book_id', 'This book is currently unavailable.');
         }
 

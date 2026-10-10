@@ -115,7 +115,8 @@ class IssueBookController extends Controller
                 });
             }
             $books = $booksQuery->with(['copies' => function ($copyQuery) {
-                $copyQuery->orderBy('accession_number');
+                $copyQuery->withCount(['issuedBooks as active_issues_count' => fn ($issued) => $issued->whereNull('return_date')])
+                    ->orderBy('accession_number');
             }])->limit(15)->get()->map(function($book) use ($issuedBookIds) {
                 $alreadyIssued = in_array((int) $book->id, $issuedBookIds, true);
                 return [
@@ -128,9 +129,9 @@ class IssueBookController extends Controller
                     'category' => $book->category->name ?? 'N/A',
                     'total_copies' => (int) $book->total_copies,
                     'available_copies' => $book->copies->filter(fn (BookCopy $copy) =>
-                        $copy->status === 'available'
+                        $copy->circulationStatus() === 'available'
                         && $copy->book_type !== 'reference'
-                        && $copy->condition !== 'damaged'
+                        && ! in_array($copy->condition, ['damaged', 'lost'], true)
                     )->count(),
                     'copies' => $book->copies->map(fn (BookCopy $copy) => [
                         'id' => $copy->id,
@@ -138,7 +139,7 @@ class IssueBookController extends Controller
                         'already_issued_to_student' => $alreadyIssued,
                         'accession_number' => $copy->accession_number,
                         'book_type' => $copy->book_type,
-                        'status' => $copy->status,
+                        'status' => $copy->circulationStatus(),
                         'condition' => $copy->condition,
                         'shelf_location' => $copy->shelf_location,
                         'book' => [
@@ -331,7 +332,8 @@ class IssueBookController extends Controller
                         $book = Book::query()->lockForUpdate()->findOrFail($bookId);
                         $copy = BookCopy::query()
                             ->where('book_id', $book->id)
-                            ->where('status', 'available')
+                            ->whereIn('status', ['available', 'issued'])
+                            ->whereDoesntHave('issuedBooks', fn ($issued) => $issued->whereNull('return_date'))
                             ->where('book_type', '!=', 'reference')
                             ->orderBy('id')
                             ->lockForUpdate()

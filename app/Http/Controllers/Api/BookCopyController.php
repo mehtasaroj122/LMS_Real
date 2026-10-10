@@ -23,8 +23,9 @@ class BookCopyController extends Controller
     {
         $copies = BookCopy::query()
             ->with(['book.category'])
+            ->withCount(['issuedBooks as active_issues_count' => fn ($query) => $query->whereNull('return_date')])
             ->when($request->filled('book_id'), fn ($query) => $query->where('book_id', $request->integer('book_id')))
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->when($request->filled('status'), fn ($query) => $query->whereCirculationStatus($request->string('status')->toString()))
             ->when($request->filled('accession_number'), fn ($query) => $query->where('accession_number', 'like', strtoupper(trim($request->string('accession_number'))) . '%'))
             ->orderBy('accession_number')
             ->paginate($this->perPage($request));

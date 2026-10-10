@@ -3,8 +3,10 @@
 use App\Exceptions\PhysicalCopyException;
 use App\Models\Book;
 use App\Models\BookCopy;
+use App\Models\BookRequest;
 use App\Models\Category;
 use App\Models\Department;
+use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Models\StudentPrivilege;
 use App\Models\User;
@@ -12,6 +14,7 @@ use App\Services\NotificationService;
 use App\Services\PhysicalBookCopyService;
 use App\Services\StudentIssuePrivilegeService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use Mockery\MockInterface;
@@ -97,14 +100,15 @@ test('staff issue-book search returns only eligible physical copies and supports
         'shelf_location' => 'REF-01',
         'condition' => 'good',
     ]);
-    BookCopy::create([
+    $issuedCopy = BookCopy::create([
         'book_id' => $book->id,
         'accession_number' => 'ACC-000103',
         'book_type' => 'borrowing',
-        'status' => 'issued',
+        'status' => 'available',
         'shelf_location' => 'A-01',
         'condition' => 'good',
     ]);
+    app(PhysicalBookCopyService::class)->issue(makePhysicalIssueApiStudent(), $issuedCopy->accession_number, $staff);
     $incidentalBook = makePhysicalIssueApiBook([
         'title' => 'Unrelated title',
         'author' => 'Unrelated author',
@@ -363,19 +367,31 @@ test('ineligible physical copies remain visible with an authoritative reason and
     $student = makePhysicalIssueApiStudent();
     $copy = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(), 1)->first();
     $copy->update($attributes);
+    if ($code === 'copy_issued') {
+        IssuedBook::create([
+            'book_id' => $copy->book_id,
+            'book_copy_id' => $copy->id,
+            'student_id' => makePhysicalIssueApiStudent()->id,
+            'issue_date' => today(),
+            'due_date' => today()->addDays(14),
+            'status' => 'issued',
+        ]);
+    }
     Sanctum::actingAs(makePhysicalIssueApiUser());
     $this->getJson('/api/staff/issue-books?include_unavailable=1&search='.$copy->accession_number)
         ->assertOk()->assertJsonPath('data.0.can_select', false)->assertJsonPath('data.0.eligibility_code', $code);
     $body = ['student_id' => $student->id, 'accession_numbers' => [$copy->accession_number]];
     $this->postJson('/api/staff/issues/preview', $body)->assertUnprocessable()->assertJsonPath('data.invalid_copies.0.code', $code);
     $this->postJson('/api/staff/issues', $body)->assertStatus(409)->assertJsonPath('invalid_copies.0.code', $code);
-    $this->assertDatabaseCount('issued_books', 0);
+    $this->assertDatabaseCount('issued_books', $code === 'copy_issued' ? 1 : 0);
 })->with([
     'issued' => [['status' => 'issued'], 'copy_issued'],
     'lost' => [['status' => 'lost'], 'copy_lost'],
     'damaged status' => [['status' => 'damaged'], 'copy_damaged'],
     'damaged condition' => [['condition' => 'damaged'], 'copy_damaged'],
     'lost condition' => [['condition' => 'lost'], 'copy_lost'],
+    'stale issued damaged copy' => [['status' => 'issued', 'condition' => 'damaged'], 'copy_damaged'],
+    'stale issued lost copy' => [['status' => 'issued', 'condition' => 'lost'], 'copy_lost'],
     'reference' => [['book_type' => 'reference'], 'reference_only'],
     'maintenance' => [['status' => 'maintenance'], 'copy_maintenance'],
     'withdrawn' => [['status' => 'withdrawn'], 'copy_withdrawn'],
@@ -462,3 +478,185 @@ test('shared circulation rechecks privileges after an earlier preflight', functi
     $this->assertDatabaseCount('issued_books', $change === 'capacity' ? 1 : 0);
     expect($copy->fresh()->status)->toBe('available');
 })->with(['capacity', 'borrowing', 'account']);
+
+test('physical API search preview and final issue agree on a stale issued flag', function () {
+    $service = app(PhysicalBookCopyService::class);
+    $student = makePhysicalIssueApiStudent();
+    $copy = $service->createCopies(makePhysicalIssueApiBook(), 1)->first();
+    $service->issue($student, $copy->accession_number);
+    $service->return($copy->accession_number);
+    $copy->update(['status' => 'issued']);
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+
+    $this->getJson('/api/staff/issue-books?student_id='.$student->id.'&search='.$copy->accession_number)
+        ->assertOk()->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.status', 'available')
+        ->assertJsonPath('data.0.can_select', true);
+    $body = ['student_id' => $student->id, 'accession_numbers' => [$copy->accession_number]];
+    $this->postJson('/api/staff/issues/preview', $body)
+        ->assertOk()->assertJsonPath('data.selected_copies.0.can_select', true);
+    $this->postJson('/api/staff/issues', $body)->assertCreated();
+    expect(IssuedBook::where('book_copy_id', $copy->id)->whereNull('return_date')->count())->toBe(1);
+});
+
+test('catalog and title preview report physical availability despite stale flags and counters', function () {
+    $service = app(PhysicalBookCopyService::class);
+    $book = makePhysicalIssueApiBook();
+    $copies = $service->createCopies($book, 2);
+    $copies[0]->update(['status' => 'issued']);
+    $copies[1]->update(['condition' => 'damaged']);
+    $book->update(['available_copies' => 0]);
+    $student = makePhysicalIssueApiStudent();
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+
+    foreach ([
+        '/api/books', '/api/books?availability=available', '/api/books/available',
+        '/api/books/search?q='.urlencode($book->title).'&availability=available',
+        '/api/books/category/'.$book->category_id,
+    ] as $url) {
+        $this->getJson($url)->assertOk()->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $book->id)
+            ->assertJsonPath('data.0.available_quantity', 1)
+            ->assertJsonPath('data.0.status', 'available');
+    }
+    $this->getJson('/api/books/'.$book->id)->assertOk()
+        ->assertJsonPath('data.available_quantity', 1)
+        ->assertJsonPath('data.copies.0.status', 'available');
+    $this->getJson('/api/staff/books/search?student_id='.$student->id.'&query='.urlencode($book->title))
+        ->assertOk()->assertJsonPath('data.0.available_copies', 1)->assertJsonPath('data.0.is_available', true);
+    $this->postJson('/api/staff/issues/preview', ['student_id' => $student->id, 'book_ids' => [$book->id]])
+        ->assertOk()->assertJsonPath('data.selected_books.0.is_available', true);
+    $this->getJson('/api/staff/dashboard')->assertOk()->assertJsonPath('data.circulation.available_books', 1);
+});
+
+test('catalog availability filters and sorting combine physical inventory with legacy titles', function () {
+    $service = app(PhysicalBookCopyService::class);
+    $physical = makePhysicalIssueApiBook(['title' => 'A physical']);
+    $service->createCopies($physical, 3);
+    $physical->update(['available_copies' => 0]);
+    $legacy = makePhysicalIssueApiBook(['title' => 'Z legacy', 'available_copies' => 5]);
+    $unavailable = makePhysicalIssueApiBook(['title' => 'B unavailable']);
+    $service->createCopies($unavailable, 1, ['book_type' => 'reference']);
+    $unavailable->update(['available_copies' => 99]);
+    $withdrawn = makePhysicalIssueApiBook(['title' => 'C withdrawn', 'status' => 'withdrawn', 'available_copies' => 99]);
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+
+    $this->getJson('/api/books?sort=available_desc')->assertOk()
+        ->assertJsonPath('data.0.id', $legacy->id)->assertJsonPath('data.0.available_quantity', 5)
+        ->assertJsonPath('data.1.id', $physical->id)->assertJsonPath('data.1.available_quantity', 3)
+        ->assertJsonPath('data.2.id', $unavailable->id)->assertJsonPath('data.2.available_quantity', 0)
+        ->assertJsonPath('data.3.id', $withdrawn->id)->assertJsonPath('data.3.available_quantity', 0);
+    $this->getJson('/api/books?availability=unavailable')->assertOk()->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.0.id', $unavailable->id)->assertJsonPath('data.1.id', $withdrawn->id);
+    $this->getJson('/api/books/available')->assertOk()->assertJsonCount(2, 'data');
+});
+
+test('physical copy status filters agree with accession details when stored flags drift', function (string $prefix) {
+    $service = app(PhysicalBookCopyService::class);
+    $book = makePhysicalIssueApiBook();
+    $copies = $service->createCopies($book, 2);
+    $copies[0]->update(['status' => 'issued']);
+    $issue = $service->issue(makePhysicalIssueApiStudent(), $copies[1]->accession_number);
+    $copies[1]->update(['status' => 'available']);
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+
+    $this->getJson($prefix.'?book_id='.$book->id.'&status=available')->assertOk()
+        ->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $copies[0]->id)
+        ->assertJsonPath('data.0.status', 'available');
+    $this->getJson($prefix.'?book_id='.$book->id.'&status=issued')->assertOk()
+        ->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $copies[1]->id)
+        ->assertJsonPath('data.0.status', 'issued');
+    $this->getJson($prefix.'/'.$copies[0]->accession_number)->assertOk()
+        ->assertJsonPath('data.copy.status', 'available')->assertJsonPath('data.active_issue', null);
+    $this->getJson($prefix.'/'.$copies[1]->accession_number)->assertOk()
+        ->assertJsonPath('data.copy.status', 'issued')->assertJsonPath('data.active_issue.id', $issue->id);
+})->with(['/api/book-copies', '/api/staff/book-copies']);
+
+test('general title issue uses an eligible physical copy with a stale issued flag', function () {
+    Queue::fake();
+    $service = app(PhysicalBookCopyService::class);
+    $book = makePhysicalIssueApiBook();
+    $copy = $service->createCopies($book, 1)->first();
+    $copy->update(['status' => 'issued']);
+    $book->update(['available_copies' => 0]);
+    $student = makePhysicalIssueApiStudent();
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+
+    $this->postJson('/api/issues', ['student_id' => $student->id, 'book_id' => $book->id])
+        ->assertCreated()->assertJsonPath('data.0.book_copy.book_copy_id', $copy->id);
+    $this->assertDatabaseHas('issued_books', ['student_id' => $student->id, 'book_copy_id' => $copy->id]);
+    $this->postJson('/api/issues', ['student_id' => makePhysicalIssueApiStudent()->id, 'book_id' => $book->id])
+        ->assertStatus(409);
+    $this->assertDatabaseCount('issued_books', 1);
+});
+
+test('general title issue cannot bypass unavailable physical copies using stale book counters', function (array $attributes, bool $active) {
+    Queue::fake();
+    $service = app(PhysicalBookCopyService::class);
+    $book = makePhysicalIssueApiBook();
+    $copy = $service->createCopies($book, 1)->first();
+    if ($active) {
+        $service->issue(makePhysicalIssueApiStudent(), $copy->accession_number);
+    }
+    $copy->update($attributes);
+    $book->update(['available_copies' => 99]);
+    $student = makePhysicalIssueApiStudent();
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+
+    $this->postJson('/api/issues', ['student_id' => $student->id, 'book_id' => $book->id])->assertStatus(409);
+    $this->assertDatabaseMissing('issued_books', ['student_id' => $student->id]);
+    $this->assertDatabaseCount('issued_books', $active ? 1 : 0);
+    $this->getJson('/api/books/available')->assertOk()->assertJsonCount(0, 'data');
+    $this->getJson('/api/staff/books/search?student_id='.$student->id)->assertOk()
+        ->assertJsonPath('data.0.available_copies', 0)->assertJsonPath('data.0.is_available', false);
+    $this->postJson('/api/staff/issues/preview', ['student_id' => $student->id, 'book_ids' => [$book->id]])
+        ->assertUnprocessable()->assertJsonPath('data.selected_books.0.is_available', false);
+})->with([
+    'loaned with stale available flag' => [['status' => 'available'], true],
+    'damaged' => [['condition' => 'damaged'], false],
+    'lost' => [['condition' => 'lost'], false],
+    'reference' => [['book_type' => 'reference'], false],
+    'maintenance' => [['status' => 'maintenance'], false],
+]);
+
+test('general title issue returns a JSON eligibility error for a restricted catalogue book', function (string $status) {
+    $service = app(PhysicalBookCopyService::class);
+    $book = makePhysicalIssueApiBook();
+    $service->createCopies($book, 1);
+    $book->update(['status' => $status]);
+    $student = makePhysicalIssueApiStudent();
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+
+    $this->postJson('/api/issues', ['student_id' => $student->id, 'book_id' => $book->id])
+        ->assertUnprocessable()->assertJsonPath('code', 'book_not_borrowable');
+    $this->assertDatabaseCount('issued_books', 0);
+})->with(['inactive', 'withdrawn']);
+
+test('request creation and approval use physical availability despite stale inventory', function (string $prefix, bool $active) {
+    Queue::fake();
+    $service = app(PhysicalBookCopyService::class);
+    $book = makePhysicalIssueApiBook();
+    $copy = $service->createCopies($book, 1)->first();
+    if ($active) {
+        $service->issue(makePhysicalIssueApiStudent(), $copy->accession_number);
+    }
+    $copy->update(['status' => $active ? 'available' : 'issued']);
+    $book->update(['available_copies' => $active ? 99 : 0]);
+    $student = makePhysicalIssueApiStudent();
+    Sanctum::actingAs($student->user);
+
+    $response = $this->postJson('/api/student/requests', ['book_id' => $book->id]);
+    if ($active) {
+        $response->assertUnprocessable();
+        $this->assertDatabaseCount('book_requests', 0);
+        $bookRequest = BookRequest::create([
+            'student_id' => $student->id, 'book_id' => $book->id, 'request_date' => now(), 'status' => 'pending',
+        ]);
+    } else {
+        $response->assertCreated()->assertJsonPath('data.book.available_quantity', 1);
+        $bookRequest = BookRequest::firstOrFail();
+    }
+    Sanctum::actingAs(makePhysicalIssueApiUser());
+    $this->postJson($prefix.'/'.$bookRequest->id.'/approve')->assertStatus($active ? 409 : 200);
+    expect($bookRequest->fresh()->status)->toBe($active ? 'pending' : 'approved');
+})->with(['/api/book-requests', '/api/staff/book-requests'])->with([false, true]);

@@ -75,6 +75,10 @@ class BookRequestController extends Controller
             ->with(['student.user', 'student.department', 'book.category'])
             ->findOrFail($id);
 
+        if ($status === 'approved' && ($bookRequest->book?->availableForBorrowingCount() ?? 0) <= 0) {
+            return response()->json(['message' => 'Requested book is not available.'], 409);
+        }
+
         try {
             $bookRequest = $service->updateStatus(
                 $bookRequest,

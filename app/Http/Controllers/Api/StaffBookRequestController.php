@@ -73,7 +73,7 @@ class StaffBookRequestController extends Controller
             ->with(['student.user', 'student.department', 'book.category'])
             ->findOrFail($bookRequest);
 
-        if ((int) ($requestModel->book?->available_copies ?? 0) <= 0) {
+        if (($requestModel->book?->availableForBorrowingCount() ?? 0) <= 0) {
             return response()->json([
                 'success' => false,
                 'message' => 'Requested book is not available.',
@@ -215,7 +215,7 @@ class StaffBookRequestController extends Controller
                 'isbn' => $book?->isbn,
             ],
             'isbn' => $book?->isbn,
-            'available_copies' => (int) ($book?->available_copies ?? 0),
+            'available_copies' => $book?->availableForBorrowingCount() ?? 0,
             'status' => $bookRequest->status,
             'request_date' => optional($bookRequest->request_date)->toDateTimeString(),
             'processed_by' => $bookRequest->processed_by,

@@ -10,6 +10,7 @@ class BookResource extends JsonResource
     public function toArray(Request $request): array
     {
         $category = $this->relationLoaded('category') ? $this->category?->name : null;
+        $available = $this->resource->availableForBorrowingCount();
 
         return [
             'id' => $this->id,
@@ -21,8 +22,8 @@ class BookResource extends JsonResource
             'condition' => $this->condition,
             'location' => $this->shelf_no,
             'quantity' => (int) $this->total_copies,
-            'available_quantity' => (int) $this->available_copies,
-            'status' => $this->status,
+            'available_quantity' => $available,
+            'status' => $available > 0 ? 'available' : 'unavailable',
             'cover_image' => $this->cover_image,
             'cover_image_url' => $this->cover_image
                 ? (str_starts_with($this->cover_image, 'http')
