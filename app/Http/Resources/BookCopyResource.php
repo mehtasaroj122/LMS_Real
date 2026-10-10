@@ -2,11 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Resources\Concerns\IncludesBookCover;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class BookCopyResource extends JsonResource
 {
+    use IncludesBookCover;
+
     public function toArray(Request $request): array
     {
         return [
@@ -26,6 +29,7 @@ class BookCopyResource extends JsonResource
                 'id' => $this->book->id,
                 'title' => $this->book->title,
                 'author' => $this->book->author,
+                ...$this->bookCoverPayload($this->book),
                 'isbn' => $this->book->isbn,
                 'category' => $this->book->category?->name,
             ]),

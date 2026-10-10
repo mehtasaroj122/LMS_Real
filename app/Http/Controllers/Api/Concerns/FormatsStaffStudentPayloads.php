@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Api\Concerns;
 
 use App\Models\Student;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use App\Support\ImageUrl;
 
 trait FormatsStaffStudentPayloads
 {
@@ -30,22 +29,6 @@ trait FormatsStaffStudentPayloads
 
     protected function staffStudentProfilePhotoUrl(?string $photo): ?string
     {
-        $photo = trim((string) $photo);
-
-        if ($photo === '') {
-            return null;
-        }
-
-        if (Str::startsWith($photo, ['http://', 'https://'])) {
-            return $photo;
-        }
-
-        $path = ltrim($photo, '/');
-
-        if (Str::startsWith($path, 'storage/')) {
-            $path = substr($path, strlen('storage/'));
-        }
-
-        return url(Storage::url($path));
+        return ImageUrl::resolve($photo);
     }
 }

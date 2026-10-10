@@ -6,6 +6,14 @@ Base URL: `/api`
 
 Authentication: Protected routes use Sanctum bearer tokens. Send `Authorization: Bearer {token}` and `Accept: application/json`.
 
+## Image URLs
+
+Use `cover_image_url` for book images and `profile_photo_url` for user and borrower images. External HTTP/HTTPS URLs are returned directly. Uploaded paths are returned as absolute storage URLs without duplicate `/storage/` prefixes. Missing or blank images return null URLs. Clients should use the URL fields directly without prepending a host or storage path.
+
+Cover fields also appear in staff title/copy searches, issue preview and success responses, return lookups and lists, student loan/request/fine summaries, and staff request/fine responses. Nested copy and request books include the same fields. Staff requests retain the `photo_url` alias and add the standard `profile_photo_url` field to their student object.
+
+Image data must exist in the database used by the deployed API. Run `php artisan media:fill-missing-images` after deploying the image update to an existing installation. See [the mobile image field guide](mobile-api.md#book-covers-and-profile-photos) and [deployment instructions](catalogue-images.md).
+
 ## API Summary
 
 | Method | Endpoint | Auth | Roles | Purpose |
@@ -2077,7 +2085,7 @@ Error Response:
 
 Controller: `StaffStudentController@search`
 
-Notes: Returns at most 20 students. `profile_photo_url` is generated with `url(Storage::url($path))`; configure `APP_URL` for the Android device network.
+Notes: Returns at most 20 students. `profile_photo_url` preserves external HTTP/HTTPS URLs and normalizes uploaded storage paths; configure `APP_URL` for the Android device network.
 
 ### Staff Student Detail
 

@@ -93,6 +93,8 @@ The response includes:
 
 If `profile_photo_url` is `null`, Android should show an initials avatar.
 
+External profile photos, including sample stock portraits, are returned as full URLs in `profile_photo_url`. Use that URL directly without adding the API base URL or `/storage/`.
+
 ### POST /api/profile/photo
 
 Uploads the authenticated user's profile photo.
@@ -106,7 +108,7 @@ photo: image file
 ```
 
 Allowed formats: `jpg`, `jpeg`, `png`, `webp`. Maximum size: 2 MB.
-Profile photo URLs require the Laravel public storage link (`php artisan storage:link`).
+Uploaded profile photo URLs require the Laravel public storage link (`php artisan storage:link`). External photo URLs do not require a storage link.
 
 ```json
 {
@@ -196,11 +198,23 @@ Book response fields:
   "category": "Programming",
   "quantity": 5,
   "available_quantity": 3,
-  "status": "available"
+  "status": "available",
+  "cover_image": "https://covers.openlibrary.org/b/id/8065615-L.jpg",
+  "cover_image_url": "https://covers.openlibrary.org/b/id/8065615-L.jpg"
 }
 ```
 
 `accession_no` is mapped from the existing `books.isbn` column.
+
+### Book covers and profile photos
+
+Render `cover_image_url` for books and `profile_photo_url` for users and borrowers. HTTP/HTTPS image URLs are returned directly; uploaded paths become absolute storage URLs with exactly one `/storage/` prefix. Null and whitespace-only image fields return a null URL. The raw `cover_image` and `profile_photo` values remain available where those fields were already exposed.
+
+Cover fields are included in catalogue book objects, nested physical-copy books, staff title and copy searches, issue preview and success responses, return lookups and issue lists, staff student loan/request/fine summaries, and staff book-request and fine responses. Student loans, requests, fines, and dashboard books receive them through the shared book resource.
+
+Staff request responses retain `student.photo` and `student.photo_url` and also provide `student.profile_photo` and `student.profile_photo_url`. Existing response envelopes and circulation fields are unchanged.
+
+The API reads images saved in the current database. After deploying the image data update to hosting, run `php artisan media:fill-missing-images` and `php artisan optimize:clear` on that server. See [catalogue image deployment](catalogue-images.md) for the migration and source details. API reads do not fill missing database images or contact image providers.
 
 ### Physical-copy availability
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\Concerns\FormatsStaffStudentPayloads;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Concerns\IncludesBookCover;
 use App\Models\Fine;
 use App\Models\IssuedBook;
 use App\Models\Student;
@@ -15,6 +16,7 @@ use Illuminate\Http\Request;
 class StaffStudentController extends Controller
 {
     use FormatsStaffStudentPayloads;
+    use IncludesBookCover;
     use DeduplicatesFineRecords;
 
     public function index(Request $request, StudentIssuePrivilegeService $privilegeService): JsonResponse
@@ -102,6 +104,7 @@ class StaffStudentController extends Controller
                     'book_id' => $bookRequest->book_id,
                     'book_title' => $bookRequest->book?->title,
                     'author' => $bookRequest->book?->author,
+                    ...$this->bookCoverPayload($bookRequest->book),
                     'status' => $bookRequest->status,
                     'request_date' => optional($bookRequest->request_date)->toDateTimeString(),
                 ])->values(),
@@ -111,6 +114,7 @@ class StaffStudentController extends Controller
                         'id' => $fine->id,
                         'issue_id' => $fine->issued_book_id,
                         'book_title' => $fine->issuedBook?->book?->title,
+                        ...$this->bookCoverPayload($fine->issuedBook?->book),
                         'amount' => (float) $fine->amount,
                         'days_late' => (int) $fine->days_late,
                         'status' => $fine->status,
@@ -175,6 +179,7 @@ class StaffStudentController extends Controller
             'book_id' => $issue->book_id,
             'title' => $issue->book?->title,
             'author' => $issue->book?->author,
+            ...$this->bookCoverPayload($issue->book),
             'isbn' => $issue->book?->isbn,
             'issue_date' => optional($issue->issue_date)->toDateString(),
             'due_date' => optional($issue->due_date)->toDateString(),

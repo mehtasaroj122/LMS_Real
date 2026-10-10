@@ -166,7 +166,8 @@ test('staff can issue the selected physical copy by id inside the existing workf
     $staff = makePhysicalIssueApiUser();
     $otherStudent = makePhysicalIssueApiStudent();
     $student = makePhysicalIssueApiStudent();
-    $book = makePhysicalIssueApiBook();
+    $cover = 'https://covers.openlibrary.org/b/id/8065615-L.jpg';
+    $book = makePhysicalIssueApiBook(['cover_image' => $cover]);
     $copy = app(PhysicalBookCopyService::class)->createCopies($book, 1)->first();
 
     Sanctum::actingAs($staff);
@@ -182,6 +183,7 @@ test('staff can issue the selected physical copy by id inside the existing workf
         ->assertJsonPath('success', true)
         ->assertJsonPath('data.issue.book_id', $book->id)
         ->assertJsonPath('data.issue.book_copy_id', $copy->id)
+        ->assertJsonPath('data.issue.cover_image_url', $cover)
         ->assertJsonPath('data.issue.accession_number', $copy->accession_number)
         ->assertJsonPath('data.issue.issue_date', '2026-10-07')
         ->assertJsonPath('data.issue.due_date', '2026-10-21');
@@ -332,14 +334,18 @@ test('batch accessions are normalized before distinct validation instead of sile
 
 test('different book ids with the same title are issued together and physical preview is compatible', function () {
     $student = makePhysicalIssueApiStudent();
-    $first = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(['title' => 'Same title']), 1)->first();
-    $second = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(['title' => 'Same title']), 1)->first();
+    $cover = 'https://covers.openlibrary.org/b/id/8065615-L.jpg';
+    $first = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(['title' => 'Same title', 'cover_image' => $cover]), 1)->first();
+    $second = app(PhysicalBookCopyService::class)->createCopies(makePhysicalIssueApiBook(['title' => 'Same title', 'cover_image' => 'storage/books/covers/second.jpg']), 1)->first();
     $body = ['student_id' => $student->id, 'accession_numbers' => [$first->accession_number, $second->accession_number]];
     Sanctum::actingAs(makePhysicalIssueApiUser());
     $this->postJson('/api/staff/issues/preview', $body)->assertOk()
         ->assertJsonPath('success', true)->assertJsonCount(2, 'data.selected_copies')
-        ->assertJsonPath('data.selected_copies.0.can_select', true);
-    $this->postJson('/api/staff/issues', $body)->assertCreated()->assertJsonPath('data.issued_count', 2);
+        ->assertJsonPath('data.selected_copies.0.can_select', true)
+        ->assertJsonPath('data.selected_copies.0.cover_image_url', $cover);
+    $this->postJson('/api/staff/issues', $body)->assertCreated()->assertJsonPath('data.issued_count', 2)
+        ->assertJsonPath('data.issued_books.0.cover_image_url', $cover)
+        ->assertJsonPath('data.issued_books.1.cover_image_url', asset('storage/books/covers/second.jpg'));
     $this->assertDatabaseCount('issued_books', 2);
     expect($first->fresh()->status)->toBe('issued')->and($second->fresh()->status)->toBe('issued');
     $this->postJson('/api/staff/issues/preview', ['student_id' => $student->id, 'book_ids' => [$first->book_id]])

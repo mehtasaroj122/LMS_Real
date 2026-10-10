@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\PhysicalCopyException;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BookCopyResource;
+use App\Http\Resources\Concerns\IncludesBookCover;
+use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use App\Http\Resources\IssueResource;
 use App\Models\BookCopy;
 use App\Models\IssuedBook;
@@ -19,6 +21,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class BookCopyController extends Controller
 {
+    use IncludesBookCover;
+    use IncludesProfilePhoto;
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $copies = BookCopy::query()
@@ -97,6 +102,7 @@ class BookCopyController extends Controller
                             'id' => $copy->book->id,
                             'title' => $copy->book->title,
                             'author' => $copy->book->author,
+                            ...$this->bookCoverPayload($copy->book),
                         ],
                         'student' => [
                             'id' => $student?->id,
@@ -104,6 +110,7 @@ class BookCopyController extends Controller
                             'roll_no' => $student?->roll_no,
                             'email' => $student?->user?->email,
                             'department' => $student?->department?->name,
+                            ...$this->profilePhotoPayload($student?->user),
                         ],
                     ] : null,
                 ];

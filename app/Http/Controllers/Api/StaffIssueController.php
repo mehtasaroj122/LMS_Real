@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Concerns\FormatsStaffStudentPayloads;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StaffIssuePreviewRequest;
 use App\Http\Requests\Api\StaffIssueStoreRequest;
+use App\Http\Resources\Concerns\IncludesBookCover;
 use App\Models\Book;
 use App\Models\BookCopy;
 use App\Models\BookRequest;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 class StaffIssueController extends Controller
 {
     use FormatsStaffStudentPayloads;
+    use IncludesBookCover;
 
     public function privileges(int $student, StudentIssuePrivilegeService $privilegeService): JsonResponse
     {
@@ -289,6 +291,7 @@ class StaffIssueController extends Controller
                         'accession_number' => $issue->bookCopy?->accession_number,
                         'title' => $issue->book?->title,
                         'author' => $issue->book?->author,
+                        ...$this->bookCoverPayload($issue->book),
                         'issue_date' => optional($issue->issue_date)->toDateString(),
                         'due_date' => optional($issue->due_date)->toDateString(),
                         'status' => $issue->status,
@@ -372,6 +375,7 @@ class StaffIssueController extends Controller
                         'accession_number' => $issue->bookCopy?->accession_number,
                         'title' => $issue->book?->title,
                         'author' => $issue->book?->author,
+                        ...$this->bookCoverPayload($issue->book),
                         'due_date' => optional($issue->due_date)->toDateString(),
                         'status' => $issue->status,
                     ])->values(),
@@ -389,6 +393,7 @@ class StaffIssueController extends Controller
             'title' => $copy->book?->title ?? 'Book unavailable',
             'isbn' => $copy->book?->isbn,
             'author' => $copy->book?->author,
+            ...$this->bookCoverPayload($copy->book),
             'book_copy_id' => $copy->id,
             'accession_number' => $copy->accession_number,
             'copy_type' => $copy->book_type,
@@ -475,6 +480,7 @@ class StaffIssueController extends Controller
             'copy_id' => null,
             'title' => $book->title,
             'author' => $book->author,
+            ...$this->bookCoverPayload($book),
             'isbn' => $book->isbn,
             'accession_no' => $book->isbn,
             'category' => $book->category?->name,

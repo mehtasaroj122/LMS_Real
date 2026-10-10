@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\PhysicalCopyException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StaffReturnRequest;
+use App\Http\Resources\Concerns\IncludesBookCover;
 use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use App\Models\BookRequest;
 use App\Models\Fine;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 
 class StaffReturnController extends Controller
 {
+    use IncludesBookCover;
     use IncludesProfilePhoto;
 
     public function __construct(private readonly PhysicalBookCopyService $copies) {}
@@ -457,6 +459,7 @@ class StaffReturnController extends Controller
             'issue_id' => $issue->id,
             'book_title' => $issue->book?->title,
             'issued_date' => optional($issue->issue_date)->toDateString(),
+            ...$this->bookCoverPayload($issue->book),
             'due_date' => optional($issue->due_date)->toDateString(),
             'status' => $overdueDays > 0 ? 'overdue' : 'on_time',
             'overdue_days' => $overdueDays,
@@ -639,6 +642,7 @@ class StaffReturnController extends Controller
             'book_title' => $issue->book?->title,
             'title' => $issue->book?->title,
             'author' => $issue->book?->author,
+            ...$this->bookCoverPayload($issue->book),
             'isbn' => $issue->book?->isbn,
             'book_copy_id' => $issue->book_copy_id,
             'accession_number' => $issue->bookCopy?->accession_number,
@@ -709,6 +713,7 @@ class StaffReturnController extends Controller
                 'title' => $issue->book?->title,
                 'isbn' => $issue->book?->isbn,
                 'author' => $issue->book?->author,
+                ...$this->bookCoverPayload($issue->book),
             ],
             'physical_copy' => [
                 'book_copy_id' => $issue->book_copy_id,
@@ -737,6 +742,7 @@ class StaffReturnController extends Controller
             'name' => $student->user?->name,
             'email' => $student->user?->email,
             'department' => $student->department?->name,
+            ...$this->profilePhotoPayload($student->user),
         ];
     }
 

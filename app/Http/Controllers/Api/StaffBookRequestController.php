@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StaffBookRequestRejectRequest;
+use App\Http\Resources\Concerns\IncludesBookCover;
+use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use App\Models\BookRequest;
 use App\Services\BookRequestManagement\BookRequestManagementActionService;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +15,9 @@ use Illuminate\Validation\ValidationException;
 
 class StaffBookRequestController extends Controller
 {
+    use IncludesBookCover;
+    use IncludesProfilePhoto;
+
     public function summary(): JsonResponse
     {
         $counts = BookRequest::query()
@@ -199,19 +204,18 @@ class StaffBookRequestController extends Controller
                 'symbol_no' => $student?->roll_no,
                 'department' => $student?->department?->name,
                 'photo' => $student?->user?->profile_photo,
-                'photo_url' => $student?->user?->profile_photo
-                    ? (str_starts_with($student->user->profile_photo, 'http')
-                        ? $student->user->profile_photo
-                        : asset('storage/' . $student->user->profile_photo))
-                    : null,
+                'photo_url' => $this->profilePhotoUrl($student?->user?->profile_photo),
+                ...$this->profilePhotoPayload($student?->user),
             ],
             'book_id' => $bookRequest->book_id,
             'book_title' => $book?->title,
             'author' => $book?->author,
+            ...$this->bookCoverPayload($book),
             'book' => [
                 'id' => $book?->id,
                 'title' => $book?->title,
                 'author' => $book?->author,
+                ...$this->bookCoverPayload($book),
                 'isbn' => $book?->isbn,
             ],
             'isbn' => $book?->isbn,

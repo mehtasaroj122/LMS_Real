@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StaffFinePaymentRequest;
 use App\Http\Requests\Api\StaffFineWaiveRequest;
+use App\Http\Resources\Concerns\IncludesBookCover;
+use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use App\Models\Fine;
 use App\Models\IssuedBook;
 use App\Models\Student;
@@ -20,6 +22,8 @@ use Illuminate\Validation\ValidationException;
 class StaffFineController extends Controller
 {
     use DeduplicatesFineRecords;
+    use IncludesBookCover;
+    use IncludesProfilePhoto;
 
     public function summary(FineCalculator $fineCalculator): JsonResponse
     {
@@ -296,10 +300,6 @@ class StaffFineController extends Controller
         $issue = $fine->issuedBook;
         $book = $issue?->book;
         $student = $fine->student;
-        $cover = $book?->cover_image;
-        $coverUrl = $cover
-            ? (str_starts_with($cover, 'http') ? $cover : asset('storage/' . ltrim($cover, '/')))
-            : null;
 
         return [
             'id' => $fine->id,
@@ -313,8 +313,7 @@ class StaffFineController extends Controller
             'book_title' => $book?->title,
             'author' => $book?->author,
             'isbn' => $book?->isbn,
-            'cover_image' => $cover,
-            'cover_image_url' => $coverUrl,
+            ...$this->bookCoverPayload($book),
             'amount' => (float) $fine->amount,
             'status' => $this->mobileStatus($fine->status),
             'reason' => \App\Support\Currency::normalizeText($fine->remarks),
@@ -380,9 +379,7 @@ class StaffFineController extends Controller
     private function studentPayload(?Student $student): array
     {
         $photo = $student?->user?->profile_photo;
-        $photoUrl = $photo
-            ? (str_starts_with($photo, 'http') ? $photo : asset('storage/' . ltrim($photo, '/')))
-            : null;
+        $photoUrl = $this->profilePhotoUrl($photo);
 
         return [
             'student_id' => $student?->id,
