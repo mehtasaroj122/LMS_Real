@@ -28,9 +28,7 @@ class PhysicalBookCopyService
         $query = BookCopy::query()->with(['book.category']);
 
         if ($withActiveIssue) {
-            $query->with(['issuedBooks' => fn ($issued) => $issued
-                ->whereNull('return_date')
-                ->with(['student.user', 'student.department'])]);
+            $query->withActiveLoan();
         }
 
         return $query->where('accession_number', $this->normalizeAccession($accessionNumber))->first();

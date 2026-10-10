@@ -226,6 +226,7 @@ test('staff and admin issue searches show unavailable copies by accession and ti
 test('staff issue workflow issues the selected physical copy rather than an arbitrary title copy', function () {
     $book = accessionTestBook(['total_copies' => 2]);
     $copies = app(PhysicalBookCopyService::class)->createCopies($book, 2);
+    $otherStudent = accessionTestStudent();
     $student = accessionTestStudent();
     $staff = User::create([
         'role' => 'staff',
@@ -250,11 +251,14 @@ test('staff issue workflow issues the selected physical copy rather than an arbi
     expect($copies->first()->fresh()->status)->toBe('available')
         ->and($copies->last()->fresh()->status)->toBe('issued')
         ->and(IssuedBook::query()->where('book_copy_id', $copies->last()->id)->whereNull('return_date')->exists())->toBeTrue();
+    $this->assertDatabaseHas('issued_books', ['book_copy_id' => $copies->last()->id, 'student_id' => $student->id]);
+    $this->assertDatabaseMissing('issued_books', ['student_id' => $otherStudent->id]);
 });
 
 test('admin transaction issue workflow also issues the selected physical copy', function () {
     $book = accessionTestBook(['total_copies' => 2]);
     $copies = app(PhysicalBookCopyService::class)->createCopies($book, 2);
+    $otherStudent = accessionTestStudent();
     $student = accessionTestStudent();
     $admin = User::create([
         'role' => 'admin',
@@ -274,6 +278,8 @@ test('admin transaction issue workflow also issues the selected physical copy', 
         ->assertJsonPath('success', true)
         ->assertJsonPath('issued_books.0.book_copy_id', $copies->first()->id)
         ->assertJsonPath('issued_books.0.accession_number', $copies->first()->accession_number);
+    $this->assertDatabaseHas('issued_books', ['book_copy_id' => $copies->first()->id, 'student_id' => $student->id]);
+    $this->assertDatabaseMissing('issued_books', ['student_id' => $otherStudent->id]);
 });
 
 test('web issue rejects multiple copies of the same book before any issue or notification', function (string $role) {
@@ -323,10 +329,12 @@ test('web issue uses loan records when a copy has a stale issued flag', function
         ->assertOk()
         ->assertJsonPath('0.available_copies', 1)
         ->assertJsonPath('0.already_issued_to_student', false)
-        ->assertJsonPath('0.copies.0.status', 'available');
+        ->assertJsonPath('0.copies.0.status', 'available')
+        ->assertJsonPath('0.copies.0.active_issue', null);
     $this->getJson("/{$role}/book-copies/search?query=".$copy->accession_number.'&mode=issue&student_id='.$student->id)
         ->assertOk()
         ->assertJsonPath('data.0.copy.status', 'available')
+        ->assertJsonPath('data.0.copy.active_issue', null)
         ->assertJsonPath('data.0.copy.already_issued_to_student', false);
 
     $this->postJson("/{$role}/transactions/issue", [
@@ -346,7 +354,7 @@ test('web issue blocks a copy loaned to another student even when its available 
     $student = accessionTestStudent();
     $borrower = accessionTestStudent();
     $issuer = User::factory()->create(['role' => $role, 'status' => 'active', 'is_verified' => true]);
-    $service->issue($borrower, $copy->accession_number, $issuer);
+    $issue = $service->issue($borrower, $copy->accession_number, $issuer);
     $copy->update(['status' => 'available']);
     $this->actingAs($issuer);
 
@@ -355,14 +363,21 @@ test('web issue blocks a copy loaned to another student even when its available 
         ->assertOk()
         ->assertJsonPath('0.available_copies', 0)
         ->assertJsonPath('0.already_issued_to_student', false)
-        ->assertJsonPath('0.copies.0.status', 'issued');
+        ->assertJsonPath('0.copies.0.status', 'issued')
+        ->assertJsonPath('0.copies.0.active_issue.id', $issue->id)
+        ->assertJsonPath('0.copies.0.active_issue.student.id', $borrower->id)
+        ->assertJsonPath('0.copies.0.active_issue.student.name', $borrower->user->name)
+        ->assertJsonPath('0.copies.0.active_issue.student.roll_no', $borrower->roll_no);
     $this->getJson("/{$role}/book-copies/search?query=".$copy->accession_number.'&mode=issue&student_id='.$student->id)
-        ->assertOk()->assertJsonPath('data.0.copy.status', 'issued');
+        ->assertOk()->assertJsonPath('data.0.copy.status', 'issued')
+        ->assertJsonPath('data.0.copy.active_issue.id', $issue->id)
+        ->assertJsonPath('data.0.copy.active_issue.student.id', $borrower->id);
     $this->postJson("/{$role}/transactions/issue", [
         'student_id' => $student->id,
         'book_copy_ids' => [$copy->id],
     ])->assertUnprocessable();
     expect(IssuedBook::where('book_copy_id', $copy->id)->whereNull('return_date')->count())->toBe(1);
+    expect($issue->fresh()->student_id)->toBe($borrower->id);
 })->with(['admin', 'staff']);
 
 test('web issue permits one copy of each distinct book even when titles match', function (string $role) {
@@ -418,6 +433,7 @@ test('web issue searches show books already issued to the selected student until
     $service->return($copies[0]->accession_number);
     $this->getJson($bookQuery.$student->id)->assertOk()
         ->assertJsonPath('0.already_issued_to_student', false)
+        ->assertJsonPath('0.copies.0.active_issue', null)
         ->assertJsonPath('0.copies.1.already_issued_to_student', false);
     $this->getJson($copyQuery.$student->id)->assertOk()
         ->assertJsonPath('data.0.copy.already_issued_to_student', false);

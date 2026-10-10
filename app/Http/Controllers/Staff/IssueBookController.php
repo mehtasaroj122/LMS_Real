@@ -116,6 +116,7 @@ class IssueBookController extends Controller
             }
             $books = $booksQuery->with(['copies' => function ($copyQuery) {
                 $copyQuery->withCount(['issuedBooks as active_issues_count' => fn ($issued) => $issued->whereNull('return_date')])
+                    ->withActiveLoan()
                     ->orderBy('accession_number');
             }])->limit(15)->get()->map(function($book) use ($issuedBookIds) {
                 $alreadyIssued = in_array((int) $book->id, $issuedBookIds, true);
@@ -140,6 +141,7 @@ class IssueBookController extends Controller
                         'accession_number' => $copy->accession_number,
                         'book_type' => $copy->book_type,
                         'status' => $copy->circulationStatus(),
+                        'active_issue' => $copy->activeLoanDetails(),
                         'condition' => $copy->condition,
                         'shelf_location' => $copy->shelf_location,
                         'book' => [

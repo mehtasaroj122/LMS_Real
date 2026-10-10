@@ -72,6 +72,37 @@ class BookCopy extends Model
             ->whereNotIn('condition', ['damaged', 'lost']);
     }
 
+    public function scopeWithActiveLoan(Builder $query): Builder
+    {
+        return $query->with(['issuedBooks' => fn ($issued) => $issued
+            ->whereNull('return_date')
+            ->with(['student.user', 'student.department'])
+            ->latest('issue_date')->latest('id')]);
+    }
+
+    /** Borrower details are included only when a staff endpoint loads active loans. */
+    public function activeLoanDetails(): ?array
+    {
+        $issue = $this->relationLoaded('issuedBooks')
+            ? $this->issuedBooks->first(fn (IssuedBook $issue) => $issue->return_date === null)
+            : null;
+        if (! $issue) {
+            return null;
+        }
+
+        return [
+            'id' => $issue->id,
+            'status' => $issue->status,
+            'issue_date' => $issue->issue_date?->toDateString(),
+            'due_date' => $issue->due_date?->toDateString(),
+            'student' => [
+                'id' => $issue->student_id,
+                'name' => $issue->student?->user?->name,
+                'roll_no' => $issue->student?->roll_no,
+            ],
+        ];
+    }
+
     /** Circulation flags can drift after legacy imports; loan records determine possession. */
     public function circulationStatus(): string
     {

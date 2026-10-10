@@ -17,6 +17,7 @@ class BookCopyResource extends JsonResource
             'entry_date' => optional($this->entry_date)->toDateString(),
             'book_type' => $this->book_type,
             'status' => $this->resource->circulationStatus(),
+            'active_issue' => $this->whenLoaded('issuedBooks', fn () => $this->resource->activeLoanDetails()),
             'shelf_location' => $this->shelf_location,
             'condition' => $this->condition,
             'price' => $this->price,

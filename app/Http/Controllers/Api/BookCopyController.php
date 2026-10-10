@@ -23,6 +23,7 @@ class BookCopyController extends Controller
     {
         $copies = BookCopy::query()
             ->with(['book.category'])
+            ->withActiveLoan()
             ->withCount(['issuedBooks as active_issues_count' => fn ($query) => $query->whereNull('return_date')])
             ->when($request->filled('book_id'), fn ($query) => $query->where('book_id', $request->integer('book_id')))
             ->when($request->filled('status'), fn ($query) => $query->whereCirculationStatus($request->string('status')->toString()))
@@ -50,16 +51,13 @@ class BookCopyController extends Controller
 
         $copies = BookCopy::query()
             ->with(['book.category'])
+            ->withActiveLoan()
             ->when($mode === 'return', fn ($query) => $query
                 ->where('status', 'issued')
                 ->whereHas(
                     'issuedBooks',
                     fn ($issueQuery) => $issueQuery->whereNull('return_date')
                 ))
-            ->with(['issuedBooks' => fn ($query) => $query
-                ->whereNull('return_date')
-                ->with(['student.user', 'student.department'])
-                ->latest('issue_date')])
             ->where('accession_number', 'like', '%' . $term . '%')
             ->orderBy('accession_number')
             ->limit(15)

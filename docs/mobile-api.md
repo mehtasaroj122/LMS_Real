@@ -221,6 +221,8 @@ POST /api/issues/by-accession
 
 The `available` and `issued` copy-status filters use active loan records and match the returned copy status. Staff physical search includes `can_select`, `unavailable_reason`, and `eligibility_code` for each copy. Use `include_unavailable=1` to include blocked copies.
 
+Staff/admin copy lists, accession details, and physical issue search/preview include `active_issue`: the unreturned loan's `id`, `status`, `issue_date`, `due_date`, and `student` (`id`, `name`, `roll_no`), or `null` when no loan is active. Use this to explain which borrower currently holds a blocked copy. A copy loaned to another student is unavailable even when the selected student has no loans or fines. Returned loans are excluded, and the student catalogue does not expose borrower details.
+
 For staff batch preview and issue, submit physical accessions:
 
 ```json

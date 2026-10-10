@@ -164,6 +164,7 @@ test('staff student search returns issue eligibility without private profile fie
 
 test('staff can issue the selected physical copy by id inside the existing workflow', function () {
     $staff = makePhysicalIssueApiUser();
+    $otherStudent = makePhysicalIssueApiStudent();
     $student = makePhysicalIssueApiStudent();
     $book = makePhysicalIssueApiBook();
     $copy = app(PhysicalBookCopyService::class)->createCopies($book, 1)->first();
@@ -197,6 +198,7 @@ test('staff can issue the selected physical copy by id inside the existing workf
         'due_date' => '2026-10-21 00:00:00',
         'status' => 'issued',
     ]);
+    $this->assertDatabaseMissing('issued_books', ['student_id' => $otherStudent->id]);
 
     $this->postJson('/api/staff/issues', [
         'student_id' => $student->id,
@@ -556,21 +558,51 @@ test('physical copy status filters agree with accession details when stored flag
     $book = makePhysicalIssueApiBook();
     $copies = $service->createCopies($book, 2);
     $copies[0]->update(['status' => 'issued']);
-    $issue = $service->issue(makePhysicalIssueApiStudent(), $copies[1]->accession_number);
+    $borrower = makePhysicalIssueApiStudent();
+    $issue = $service->issue($borrower, $copies[1]->accession_number);
     $copies[1]->update(['status' => 'available']);
     Sanctum::actingAs(makePhysicalIssueApiUser());
 
     $this->getJson($prefix.'?book_id='.$book->id.'&status=available')->assertOk()
         ->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $copies[0]->id)
-        ->assertJsonPath('data.0.status', 'available');
+        ->assertJsonPath('data.0.status', 'available')->assertJsonPath('data.0.active_issue', null);
     $this->getJson($prefix.'?book_id='.$book->id.'&status=issued')->assertOk()
         ->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $copies[1]->id)
-        ->assertJsonPath('data.0.status', 'issued');
+        ->assertJsonPath('data.0.status', 'issued')
+        ->assertJsonPath('data.0.active_issue.id', $issue->id)
+        ->assertJsonPath('data.0.active_issue.student.id', $borrower->id)
+        ->assertJsonPath('data.0.active_issue.student.name', $borrower->user->name)
+        ->assertJsonPath('data.0.active_issue.student.roll_no', $borrower->roll_no);
     $this->getJson($prefix.'/'.$copies[0]->accession_number)->assertOk()
         ->assertJsonPath('data.copy.status', 'available')->assertJsonPath('data.active_issue', null);
     $this->getJson($prefix.'/'.$copies[1]->accession_number)->assertOk()
-        ->assertJsonPath('data.copy.status', 'issued')->assertJsonPath('data.active_issue.id', $issue->id);
+        ->assertJsonPath('data.copy.status', 'issued')->assertJsonPath('data.active_issue.id', $issue->id)
+        ->assertJsonPath('data.copy.active_issue.student.id', $borrower->id);
+
+    $this->getJson('/api/staff/issue-books?include_unavailable=1&search='.$copies[1]->accession_number)
+        ->assertOk()->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.can_select', false)
+        ->assertJsonPath('data.0.active_issue.id', $issue->id)
+        ->assertJsonPath('data.0.active_issue.student.id', $borrower->id);
+
+    $service->return($copies[1]->accession_number);
+    $this->getJson($prefix.'/'.$copies[1]->accession_number)->assertOk()
+        ->assertJsonPath('data.copy.status', 'available')->assertJsonPath('data.copy.active_issue', null);
 })->with(['/api/book-copies', '/api/staff/book-copies']);
+
+test('student catalogue copy details do not expose another borrowers active loan', function () {
+    $service = app(PhysicalBookCopyService::class);
+    $book = makePhysicalIssueApiBook();
+    $copy = $service->createCopies($book, 1)->first();
+    $borrower = makePhysicalIssueApiStudent();
+    $service->issue($borrower, $copy->accession_number);
+    Sanctum::actingAs(makePhysicalIssueApiStudent()->user);
+
+    $response = $this->getJson('/api/books/'.$book->id)->assertOk()
+        ->assertJsonPath('data.copies.0.status', 'issued');
+    expect($response->json('data.copies.0'))->not->toHaveKey('active_issue');
+    $this->getJson('/api/book-copies/'.$copy->accession_number)->assertForbidden();
+});
 
 test('general title issue uses an eligible physical copy with a stale issued flag', function () {
     Queue::fake();

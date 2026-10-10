@@ -53,6 +53,7 @@ class StaffIssueController extends Controller
             : [];
         $copies = BookCopy::query()
             ->with(['book.category'])
+            ->withActiveLoan()
             ->withCount(['issuedBooks as active_issues_count' => fn ($query) => $query->whereNull('return_date')])
             ->when(! $request->boolean('include_unavailable'), function ($query): void {
                 $query->availableForIssue()
@@ -393,6 +394,7 @@ class StaffIssueController extends Controller
             'copy_type' => $copy->book_type,
             'book_type' => $copy->book_type,
             'status' => $copy->circulationStatus(),
+            'active_issue' => $copy->activeLoanDetails(),
             'shelf_location' => $copy->shelf_location,
             'condition' => $copy->condition,
             'category' => $copy->book?->category?->name,
@@ -404,7 +406,7 @@ class StaffIssueController extends Controller
 
     private function physicalSelection(array $accessions, Student $student, PhysicalBookCopyService $circulation, bool $lock = false): array
     {
-        $query = BookCopy::query()->with('book.category')->whereIn('accession_number', $accessions)->orderBy('id');
+        $query = BookCopy::query()->with('book.category')->withActiveLoan()->whereIn('accession_number', $accessions)->orderBy('id');
         if ($lock) {
             $query->lockForUpdate();
         }

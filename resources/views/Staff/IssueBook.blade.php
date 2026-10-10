@@ -2451,16 +2451,24 @@
     }
 
     function copyAvailabilityLabel(copy) {
+        const status = String(copy?.status || '').toLowerCase();
+        const borrower = copy?.active_issue?.student;
+        if (status === 'issued') {
+            const issuedToSelectedStudent = borrower?.id != null
+                ? String(borrower.id) === String(selectedStudent?.id)
+                : Boolean(copy?.already_issued_to_student);
+            if (issuedToSelectedStudent) return 'Already issued to this student';
+            return 'Already issued to another student'
+                + (borrower?.name ? `: ${borrower.name}${borrower.roll_no ? ` (${borrower.roll_no})` : ''}` : '');
+        }
         if (copy?.already_issued_to_student) return 'Already issued to this student';
         if (isBookSelected(copy)) return 'Book already selected — only one copy allowed';
         if (String(copy?.book_type || '').toLowerCase() === 'reference') return 'Reference-only';
         if (String(copy?.condition || '').toLowerCase() === 'damaged') return 'Damaged';
         if (String(copy?.condition || '').toLowerCase() === 'lost') return 'Lost';
 
-        const status = String(copy?.status || '').toLowerCase();
         return ({
             available: 'Available',
-            issued: 'Already issued',
             lost: 'Lost',
             damaged: 'Damaged',
             maintenance: 'Under maintenance',
@@ -3382,7 +3390,7 @@
 
                 accessionResults.innerHTML = '';
                 matches.forEach(match => {
-                    const copy = match.copy;
+                    const copy = { ...match.copy, active_issue: match.copy.active_issue ?? match.issue };
                     const item = document.createElement('div');
                     item.className = 'result-item';
                     const selectable = isCopySelectable(copy);

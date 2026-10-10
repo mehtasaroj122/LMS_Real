@@ -83,7 +83,10 @@ async function checkPortal(browser, role, file) {
                     const copyPayload = copy => ({ ...copy,
                         already_issued_to_student: activeBookIds.includes(Number(copy.book_id)) });
                     if (String(url).startsWith('/copies')) {
-                        return { ok: true, json: async () => ({ data: copies.map(copy => ({ copy: copyPayload(copy) })) }) };
+                        return { ok: true, json: async () => ({ data: copies.map(copy => ({
+                            copy: { ...copyPayload(copy), active_issue: window.legacyCopyResponse ? undefined : copy.active_issue },
+                            issue: copy.active_issue,
+                        })) }) };
                     }
                     if (window.deferBookSearch) {
                         return new Promise(resolve => window.pendingBookSearches.push({ url, resolve }));
@@ -131,6 +134,67 @@ async function checkPortal(browser, role, file) {
         assert.equal(await page.locator('#bookResults .book-search-result').count(), 2,
             `${role}: each catalogue book ID must appear once`);
         await page.evaluate(() => { window.deferBookSearch = false; });
+
+        // A different student's active loan must identify the borrower and block selection.
+        await page.evaluate(() => {
+            copies[0].status = 'issued';
+            copies[0].active_issue = { id: 134, student: { id: 9, name: 'Other Borrower <b>Test</b>', roll_no: 'CS-2023-001' } };
+        });
+        await page.locator('#searchBook').fill('World');
+        await page.waitForFunction(() => document.querySelector('#bookResults [data-id="11"]')
+            ?.textContent.includes('Already issued to another student: Other Borrower <b>Test</b> (CS-2023-001)'));
+        assert.equal(await page.getByRole('button', { name: 'Add ACC-000101', exact: true }).count(), 0);
+        assert.equal(await page.getByRole('button', { name: 'Add ACC-000102', exact: true }).count(), 1);
+        assert.equal(await page.locator('#bookResults b').count(), 0, `${role}: borrower names must be escaped`);
+
+        await page.evaluate(() => { issueSearchMode = 'accession'; window.legacyCopyResponse = true; });
+        await page.locator('#accessionNumber').fill('ACC');
+        const otherBorrowersCopy = page.locator('#accessionResults .result-item').filter({ hasText: 'ACC-000101' });
+        await page.waitForFunction(() => [...document.querySelectorAll('#accessionResults .result-item')]
+            .some(element => element.textContent.includes('ACC-000101')
+                && element.textContent.includes('Already issued to another student: Other Borrower <b>Test</b> (CS-2023-001)')));
+        assert.equal(await otherBorrowersCopy.evaluate(element => element.style.cursor), 'not-allowed');
+        assert.equal(await page.locator('#accessionResults b').count(), 0);
+        await otherBorrowersCopy.click();
+        assert.equal(await page.locator('.selected-book-item').count(), 0);
+
+        // Switching to the actual borrower must change the label in both search modes.
+        await page.evaluate(() => {
+            selectedStudent.id = '9';
+            accessionNumberInput.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        await page.waitForFunction(() => [...document.querySelectorAll('#accessionResults .result-item')]
+            .some(element => element.textContent.includes('ACC-000101')
+                && element.textContent.includes('Already issued to this student')));
+        assert.doesNotMatch(await otherBorrowersCopy.innerText(), /another student/);
+        await page.evaluate(() => { issueSearchMode = 'book'; });
+        await page.locator('#searchBook').fill('World');
+        await page.waitForFunction(() => document.querySelector('#bookResults [data-id="11"]')
+            ?.textContent.includes('ACC-000101 — Already issued to this student'));
+
+        // Older responses without borrower details must still explain that another student has it.
+        await page.evaluate(() => {
+            selectedStudent.id = 1;
+            delete copies[0].active_issue;
+        });
+        await page.locator('#searchBook').fill('World');
+        await page.waitForFunction(() => document.querySelector('#bookResults [data-id="11"]')
+            ?.textContent.includes('ACC-000101 — Already issued to another student'));
+        await page.evaluate(() => {
+            issueSearchMode = 'accession';
+            accessionNumberInput.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        await page.waitForFunction(() => [...document.querySelectorAll('#accessionResults .result-item')]
+            .some(element => element.textContent.includes('ACC-000101')
+                && element.textContent.includes('Status: Already issued to another student')));
+        await page.evaluate(() => {
+            copies[0].status = 'available';
+            delete copies[0].active_issue;
+            window.legacyCopyResponse = false;
+            issueSearchMode = 'book';
+            accessionNumberInput.value = '';
+            accessionResults.innerHTML = '';
+        });
 
         // An available accession is still blocked when this borrower has another copy.
         await page.evaluate(() => { window.activeBooksByStudent[1] = [11]; });
@@ -211,7 +275,7 @@ async function checkPortal(browser, role, file) {
         assert.equal(await page.locator('.selected-book-item').count(), 2);
         assert.match(await page.locator('#issueButton').innerText(), /\(2\/6\)/);
         assert.deepEqual(errors, []);
-        console.log(`PASS ${role}: issued books visible and disabled for the selected borrower in both modes; other borrowers and returned books allowed; overlapping searches and duplicate selections blocked.`);
+        console.log(`PASS ${role}: current borrower identified in both search modes; active loans blocked, returned copies allowed; overlapping searches and duplicate selections blocked.`);
     } finally {
         await page.close();
     }
