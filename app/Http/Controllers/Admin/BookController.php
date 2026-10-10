@@ -68,16 +68,16 @@ class BookController extends Controller
         // Generate table rows HTML
         $tableRows = '';
         foreach ($books->items() as $book) {
-            $conditionClass = $book->condition === 'new' ? 'condition-new' : ($book->condition === 'damaged' ? 'condition-damaged' : 'condition-good');
-            $conditionIcon = $book->condition === 'new' ? 'fa-star' : ($book->condition === 'damaged' ? 'fa-exclamation-triangle' : 'fa-check-circle');
-            $conditionText = ucfirst($book->condition);
+            $conditionClass = 'condition-' . $book->display_condition;
+            $conditionIcon = match ($book->display_condition) { 'new' => 'fa-star', 'fair', 'damaged' => 'fa-exclamation-triangle', 'lost' => 'fa-ban', default => 'fa-check-circle' };
+            $conditionText = ucfirst($book->display_condition);
             $deletionGuard = $this->getBookDeletionGuardData($book);
             
             $tableRows .= '<tr'
                         . ' data-book-id="' . $book->id . '"'
                         . ' data-category-id="' . ($book->category->id ?? '') . '"'
                         . ' data-category-name="' . htmlspecialchars($book->category->name ?? 'N/A') . '"'
-                        . ' data-condition="' . $book->condition . '"'
+                        . ' data-condition="' . $book->display_condition . '"'
                         . ' data-cover="' . htmlspecialchars($book->cover_image ?? '') . '"'
                         . ' data-description="' . htmlspecialchars($book->description ?? '') . '"'
                         . ' data-publisher="' . htmlspecialchars($book->publisher ?? '') . '"'
@@ -345,7 +345,7 @@ class BookController extends Controller
     public function show(string $id)
     {
         Gate::authorize('access-admin');
-        $book = Book::with('category')->findOrFail($id);
+        $book = Book::with('category')->withPredominantCondition()->findOrFail($id);
 
         // Aggregate only the selected book's physical copies, never every table row.
         $groups = $book->copies()
@@ -374,7 +374,7 @@ class BookController extends Controller
                     'publisher' => $book->publisher,
                     'category' => $book->category?->name,
                     'isbn' => $book->isbn,
-                    'condition' => $book->condition,
+                    'condition' => $book->display_condition,
                     'shelf_no' => $book->shelf_no,
                     'description' => $book->description,
                     'cover_url' => $cover
@@ -708,7 +708,7 @@ class BookController extends Controller
         $condition = (string) ($condition ?? 'all');
         $category = (string) ($category ?? 'all');
 
-        $query = Book::query();
+        $query = Book::query()->withPredominantCondition();
 
         if ($availability === 'available') {
             $query->where('available_copies', '>', 0);
@@ -726,7 +726,7 @@ class BookController extends Controller
         }
 
         if ($condition !== 'all') {
-            $query->where('condition', $condition);
+            $query->wherePredominantCondition($condition);
         }
 
         if ($category !== 'all') {
@@ -765,8 +765,8 @@ class BookController extends Controller
             $totalCopies += $book->total_copies ?? 0;
             $availableCopies += $book->available_copies ?? 0;
 
-            if (!empty($book->condition)) {
-                $conditionBreakdown[$book->condition] = ($conditionBreakdown[$book->condition] ?? 0) + 1;
+            if (!empty($book->display_condition)) {
+                $conditionBreakdown[$book->display_condition] = ($conditionBreakdown[$book->display_condition] ?? 0) + 1;
             }
 
             if ($book->category) {

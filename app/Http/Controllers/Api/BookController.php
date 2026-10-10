@@ -13,7 +13,7 @@ class BookController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
-        $books = $this->applyCatalogFilters(Book::query()->with('category')->withCirculationAvailability(), $request)
+        $books = $this->applyCatalogFilters(Book::query()->with('category')->withCirculationAvailability()->withPredominantCondition(), $request)
             ->paginate($this->perPage($request))
             ->appends($request->query());
 
@@ -25,7 +25,7 @@ class BookController extends Controller
         return new BookResource(
             Book::query()->with(['category', 'copies' => fn ($copies) => $copies
                 ->withCount(['issuedBooks as active_issues_count' => fn ($issued) => $issued->whereNull('return_date')])])
-                ->withCirculationAvailability()->findOrFail($id)
+                ->withCirculationAvailability()->withPredominantCondition()->findOrFail($id)
         );
     }
 
@@ -37,6 +37,7 @@ class BookController extends Controller
             Book::query()
                 ->with('category')
                 ->withCirculationAvailability()
+                ->withPredominantCondition()
                 ->where(function ($builder) use ($query) {
                     $builder
                         ->where('title', 'like', "%{$query}%")
@@ -58,6 +59,7 @@ class BookController extends Controller
         $books = Book::query()
             ->with('category')
             ->withCirculationAvailability()
+            ->withPredominantCondition()
             ->whereHas('category', function ($builder) use ($category) {
                 $builder->when(
                     is_numeric($category),
@@ -77,6 +79,7 @@ class BookController extends Controller
         $books = Book::query()
             ->with('category')
             ->withCirculationAvailability()
+            ->withPredominantCondition()
             ->availableForBorrowing()
             ->orderBy('title')
             ->paginate($this->perPage($request))
@@ -112,7 +115,7 @@ class BookController extends Controller
 
         $condition = trim($request->string('condition')->toString());
         if ($condition !== '') {
-            $query->where('condition', $condition);
+            $query->wherePredominantCondition($condition);
         }
 
         return match ($request->string('sort')->toString()) {

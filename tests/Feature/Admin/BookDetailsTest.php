@@ -61,7 +61,8 @@ test('admin book details aggregate actual copy statuses without inferring issued
         ->assertJsonPath('data.inventory.has_more_shelf_locations', false)
         ->assertJsonPath('data.manage_copies_url', route('admin.books.copies.index', $book));
 
-    $copyQueries = collect(DB::getQueryLog())->filter(fn ($query) => str_contains($query['query'], 'from "book_copies"'));
+    $copyQueries = collect(DB::getQueryLog())->filter(fn ($query) => str_contains($query['query'], 'from "book_copies"')
+        && ! str_contains($query['query'], 'from "books"'));
     DB::disableQueryLog();
     expect($copyQueries)->toHaveCount(2);
     expect($response->json('data'))->not->toHaveKey('copies');

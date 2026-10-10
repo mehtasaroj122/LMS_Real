@@ -19,7 +19,7 @@ class BookResource extends JsonResource
             'author' => $this->author,
             'publisher' => $this->publisher,
             'category' => $category,
-            'condition' => $this->condition,
+            'condition' => $this->display_condition,
             'location' => $this->shelf_no,
             'quantity' => (int) $this->total_copies,
             'available_quantity' => $available,

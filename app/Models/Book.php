@@ -56,6 +56,46 @@ class Book extends Model
         return $this->copies();
     }
 
+    /** Load the most common physical-copy condition without loading every copy. */
+    public function scopeWithPredominantCondition(Builder $query): Builder
+    {
+        if ($query->getQuery()->columns === null) {
+            $query->select('books.*');
+        }
+
+        return $query->selectSub(static::predominantCopyConditionQuery(), 'predominant_copy_condition');
+    }
+
+    public function scopeWherePredominantCondition(Builder $query, string $condition): Builder
+    {
+        $summary = static::predominantCopyConditionQuery();
+
+        return $query->whereRaw(
+            'COALESCE(('.$summary->toSql()."), books.condition, 'good') = ?",
+            [...$summary->getBindings(), $condition]
+        );
+    }
+
+    public function getDisplayConditionAttribute(): string
+    {
+        return $this->attributes['predominant_copy_condition'] ?? $this->attributes['condition'] ?? 'good';
+    }
+
+    private static function predominantCopyConditionQuery(): Builder
+    {
+        return BookCopy::query()
+            ->select('book_copies.condition')
+            ->whereColumn('book_copies.book_id', 'books.id')
+            ->whereIn('book_copies.condition', ['new', 'good', 'fair', 'damaged', 'lost'])
+            ->groupBy('book_copies.condition')
+            ->orderByRaw('COUNT(*) DESC')
+            // Prefer the worse condition when equal counts would otherwise hide damage.
+            ->orderByRaw("CASE book_copies.condition
+                WHEN 'lost' THEN 5 WHEN 'damaged' THEN 4 WHEN 'fair' THEN 3
+                WHEN 'good' THEN 2 WHEN 'new' THEN 1 END DESC")
+            ->limit(1);
+    }
+
     public function scopeWithCirculationAvailability(Builder $query): Builder
     {
         return $query->withCount([

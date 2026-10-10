@@ -1,11 +1,11 @@
 <!-- Book Table Row Partial -->
 @php
-    $conditionClass = $book->condition === 'new' ? 'condition-new' : ($book->condition === 'damaged' ? 'condition-damaged' : 'condition-good');
-    $conditionIcon = $book->condition === 'new' ? 'fa-star' : ($book->condition === 'damaged' ? 'fa-exclamation-triangle' : 'fa-check-circle');
-    $conditionText = ucfirst($book->condition);
+    $conditionClass = 'condition-' . $book->display_condition;
+    $conditionIcon = match ($book->display_condition) { 'new' => 'fa-star', 'fair', 'damaged' => 'fa-exclamation-triangle', 'lost' => 'fa-ban', default => 'fa-check-circle' };
+    $conditionText = ucfirst($book->display_condition);
 @endphp
 
-<tr data-book-id="{{ $book->id }}" data-category="{{ $book->category_id ?? '' }}" data-condition="{{ $book->condition }}">
+<tr data-book-id="{{ $book->id }}" data-category="{{ $book->category_id ?? '' }}" data-condition="{{ $book->display_condition }}">
     <td>{{ $book->isbn }}</td>
     <td>
         <div style="display: flex; align-items: center; gap: 12px;">

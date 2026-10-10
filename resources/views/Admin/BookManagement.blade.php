@@ -529,6 +529,11 @@
             color: #f87171;
         }
 
+        .condition-fair { background: #fef3c7; color: #92400e; }
+        .condition-lost { background: #e5e7eb; color: #374151; }
+        body.dark-theme .condition-fair { background: #78350f; color: #fde68a; }
+        body.dark-theme .condition-lost { background: #374151; color: #e5e7eb; }
+
         /* Copy Count */
         .copy-count {
             display: flex;
@@ -1893,7 +1898,9 @@
                         <option value="all" {{ ($condition ?? 'all') === 'all' ? 'selected' : '' }}>All Conditions</option>
                         <option value="new" {{ ($condition ?? 'all') === 'new' ? 'selected' : '' }}>New</option>
                         <option value="good" {{ ($condition ?? 'all') === 'good' ? 'selected' : '' }}>Good</option>
+                        <option value="fair" {{ ($condition ?? 'all') === 'fair' ? 'selected' : '' }}>Fair</option>
                         <option value="damaged" {{ ($condition ?? 'all') === 'damaged' ? 'selected' : '' }}>Damaged</option>
+                        <option value="lost" {{ ($condition ?? 'all') === 'lost' ? 'selected' : '' }}>Lost</option>
                     </select>
 
                     <select class="filter-select" id="categoryFilter">
@@ -1962,8 +1969,8 @@
                         <tbody id="booksTableBody">
                         @forelse($initialBooks as $book)
                             @php
-                                $conditionClass = $book->condition === 'new' ? 'condition-new' : ($book->condition === 'damaged' ? 'condition-damaged' : 'condition-good');
-                                $conditionIcon = $book->condition === 'new' ? 'fa-star' : ($book->condition === 'damaged' ? 'fa-exclamation-triangle' : 'fa-check-circle');
+                                $conditionClass = 'condition-' . $book->display_condition;
+                                $conditionIcon = match ($book->display_condition) { 'new' => 'fa-star', 'fair', 'damaged' => 'fa-exclamation-triangle', 'lost' => 'fa-ban', default => 'fa-check-circle' };
                                 $activeIssuedCopiesCount = (int) ($book->active_issued_copies_count ?? 0);
                                 $unresolvedRequestsCount = (int) ($book->unresolved_requests_count ?? 0);
                                 $physicalCopiesCount = (int) ($book->copies_count ?? 0);
@@ -1996,7 +2003,7 @@
                                 data-book-id="{{ $book->id }}"
                                 data-category-id="{{ $book->category->id ?? '' }}"
                                 data-category-name="{{ $book->category->name ?? 'N/A' }}"
-                                data-condition="{{ $book->condition }}"
+                                data-condition="{{ $book->display_condition }}"
                                 data-cover="{{ $book->cover_image ?? '' }}"
                                 data-description="{{ $book->description ?? '' }}"
                                 data-publisher="{{ $book->publisher ?? '' }}"
@@ -2044,7 +2051,7 @@
                                 <td>
                                     <span class="condition-badge {{ $conditionClass }}">
                                         <i class="fas {{ $conditionIcon }}"></i>
-                                        {{ ucfirst($book->condition) }}
+                                        {{ ucfirst($book->display_condition) }}
                                     </span>
                                 </td>
                                 <td>

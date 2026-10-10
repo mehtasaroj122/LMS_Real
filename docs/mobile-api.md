@@ -204,6 +204,8 @@ Book response fields:
 
 ### Physical-copy availability
 
+Catalogue `condition` is the most common condition among a title's physical copies, including issued and reference copies. Equal counts prefer `lost`, then `damaged`, `fair`, `good`, and `new`. Titles without physical copies retain their saved condition. Catalogue condition filters and both Book Management portals use the same rule; copy additions, edits, returns, and deletions are reflected on the next read.
+
 For titles with physical copies, `available_quantity` counts borrowable copies without an unreturned loan. Stale `available` or `issued` flags and stored title counters do not override loan records. Reference, damaged, lost, maintenance, and withdrawn copies cannot be issued. Inactive and withdrawn catalogue titles are unavailable. Titles without physical-copy records continue to use legacy inventory counters.
 
 Catalog availability filters and `sort=available_desc`, staff title search and preview, student requests, request approvals, and staff dashboard availability use this rule. Existing response field names remain unchanged.
