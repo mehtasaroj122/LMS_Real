@@ -1,0 +1,1388 @@
+[
+  {
+    "title": "Introduction to Algorithms",
+    "author": "Cormen, Leiserson, Rivest, Stein",
+    "cover_image": "https://covers.openlibrary.org/b/id/2341462-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL4781294W"
+  },
+  {
+    "title": "Design Patterns",
+    "author": "Gang of Four",
+    "cover_image": "https://covers.openlibrary.org/b/id/6601119-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL6030812W"
+  },
+  {
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "cover_image": "https://covers.openlibrary.org/b/id/8065615-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL17618370W"
+  },
+  {
+    "title": "Learning Python",
+    "author": "Mark Lutz",
+    "cover_image": "https://covers.openlibrary.org/b/id/1312568-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL2784125W"
+  },
+  {
+    "title": "Effective Java",
+    "author": "Joshua Bloch",
+    "cover_image": "https://covers.openlibrary.org/b/id/1176573-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL6223299W"
+  },
+  {
+    "title": "Head First Design Patterns",
+    "author": "Freeman & Freeman",
+    "cover_image": "https://covers.openlibrary.org/b/id/388950-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL16942701W"
+  },
+  {
+    "title": "Refactoring",
+    "author": "Martin Fowler",
+    "cover_image": "https://covers.openlibrary.org/b/id/7087623-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL16551230W"
+  },
+  {
+    "title": "The Pragmatic Programmer",
+    "author": "Hunt & Thomas",
+    "cover_image": "https://covers.openlibrary.org/b/id/10143650-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL5748544W"
+  },
+  {
+    "title": "Code Complete",
+    "author": "Steve McConnell",
+    "cover_image": "https://covers.openlibrary.org/b/id/461500-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL2722063W"
+  },
+  {
+    "title": "The C Programming Language",
+    "author": "Kernighan & Ritchie",
+    "cover_image": "https://covers.openlibrary.org/b/id/6684943-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL4617640W"
+  },
+  {
+    "title": "Programming in Go",
+    "author": "John Donham",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "The Rust Programming Language",
+    "author": "Steve Klabnik",
+    "cover_image": "https://covers.openlibrary.org/b/id/8508621-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19080231W"
+  },
+  {
+    "title": "Clojure Programming",
+    "author": "Chas Emerick",
+    "cover_image": "https://covers.openlibrary.org/b/id/7440852-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL16690207W"
+  },
+  {
+    "title": "Scala in Depth",
+    "author": "Joshua D. Suereth",
+    "cover_image": "https://covers.openlibrary.org/b/id/8717087-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL16713187W"
+  },
+  {
+    "title": "Groovy in Action",
+    "author": "Dierk König",
+    "cover_image": "https://covers.openlibrary.org/b/id/8655588-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL12811343W"
+  },
+  {
+    "title": "Haskell Programming",
+    "author": "Christopher Allen",
+    "cover_image": "https://covers.openlibrary.org/b/id/10540517-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL24142823W"
+  },
+  {
+    "title": "Elixir in Action",
+    "author": "Saša Jurić",
+    "cover_image": "https://covers.openlibrary.org/b/id/14382780-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL20023423W"
+  },
+  {
+    "title": "Kotlin in Action",
+    "author": "Dmitry Jemerov",
+    "cover_image": "https://covers.openlibrary.org/b/id/8507716-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19541946W"
+  },
+  {
+    "title": "Go Design Patterns",
+    "author": "Mario Castro",
+    "cover_image": "https://covers.openlibrary.org/b/id/8512142-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19546019W"
+  },
+  {
+    "title": "Concurrent Programming in Java",
+    "author": "Doug Lea",
+    "cover_image": "https://covers.openlibrary.org/b/id/135745-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL519517W"
+  },
+  {
+    "title": "HTML5 & CSS3",
+    "author": "Jon Duckett",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "JavaScript: The Good Parts",
+    "author": "Douglas Crockford",
+    "cover_image": "https://covers.openlibrary.org/b/id/9245523-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL9486352W"
+  },
+  {
+    "title": "Eloquent JavaScript",
+    "author": "Marijn Haverbeke",
+    "cover_image": "https://covers.openlibrary.org/b/id/7082166-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL15444205W"
+  },
+  {
+    "title": "Learning React",
+    "author": "Alex Banks",
+    "cover_image": "https://covers.openlibrary.org/b/id/10282783-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL20915214W"
+  },
+  {
+    "title": "Node.js Design Patterns",
+    "author": "Mario Casciaro",
+    "cover_image": "https://covers.openlibrary.org/b/id/8512794-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19546739W"
+  },
+  {
+    "title": "RESTful Web Services",
+    "author": "Leonard Richardson",
+    "cover_image": "https://covers.openlibrary.org/b/id/6755055-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL15738536W"
+  },
+  {
+    "title": "Building Microservices",
+    "author": "Sam Newman",
+    "cover_image": "https://covers.openlibrary.org/b/id/8513315-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19547194W"
+  },
+  {
+    "title": "Vue.js in Action",
+    "author": "Erik Hanchuk",
+    "cover_image": "https://covers.openlibrary.org/b/id/8507951-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19542163W"
+  },
+  {
+    "title": "Angular: Up and Running",
+    "author": "Shyam Seshadri",
+    "cover_image": "https://covers.openlibrary.org/b/id/8508099-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19542252W"
+  },
+  {
+    "title": "The Django Book",
+    "author": "Adrian Holovaty",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Flask Web Development",
+    "author": "Miguel Grinberg",
+    "cover_image": "https://covers.openlibrary.org/b/id/7481281-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL17389190W"
+  },
+  {
+    "title": "Web Scraping with Python",
+    "author": "Ryan Mitchell",
+    "cover_image": "https://covers.openlibrary.org/b/id/7387255-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL17308344W"
+  },
+  {
+    "title": "High Performance Browser Networking",
+    "author": "Ilya Grigorik",
+    "cover_image": "https://covers.openlibrary.org/b/id/7863302-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL17581297W"
+  },
+  {
+    "title": "HTTP/2 in Action",
+    "author": "Barry Pollard",
+    "cover_image": "https://covers.openlibrary.org/b/id/8506345-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19540912W"
+  },
+  {
+    "title": "GraphQL in Action",
+    "author": "Samer Buna",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "TypeScript Handbook",
+    "author": "Microsoft",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Next.js by Example",
+    "author": "Wes Bos",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Gatsby Handbook",
+    "author": "Wes Bos",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Svelte 3 Up and Running",
+    "author": "Rich Harris",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "NestJS in Action",
+    "author": "Marc Crama",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Pattern Recognition and Machine Learning",
+    "author": "Christopher M. Bishop",
+    "cover_image": "https://covers.openlibrary.org/b/id/9413468-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL20728101W"
+  },
+  {
+    "title": "Introduction to Statistical Learning",
+    "author": "Gareth James",
+    "cover_image": "https://covers.openlibrary.org/b/id/12194788-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL25772533W"
+  },
+  {
+    "title": "Deep Learning",
+    "author": "Ian Goodfellow",
+    "cover_image": "https://covers.openlibrary.org/b/id/8086288-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL17801809W"
+  },
+  {
+    "title": "Hands-On Machine Learning",
+    "author": "Aurélien Géron",
+    "cover_image": "https://covers.openlibrary.org/b/id/15138297-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL44325799W"
+  },
+  {
+    "title": "Python Machine Learning",
+    "author": "Sebastian Raschka",
+    "cover_image": "https://covers.openlibrary.org/b/id/10144350-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19667740W"
+  },
+  {
+    "title": "Data Science from Scratch",
+    "author": "Joel Grus",
+    "cover_image": "https://covers.openlibrary.org/b/id/12672936-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL20006690W"
+  },
+  {
+    "title": "The Hundred-Page Machine Learning Book",
+    "author": "Andriy Burkov",
+    "cover_image": "https://covers.openlibrary.org/b/id/10390246-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL21654311W"
+  },
+  {
+    "title": "Probabilistic Graphical Models",
+    "author": "Daphne Koller",
+    "cover_image": "https://covers.openlibrary.org/b/id/8095287-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL17832702W"
+  },
+  {
+    "title": "Elements of Statistical Learning",
+    "author": "Trevor Hastie",
+    "cover_image": "https://covers.openlibrary.org/b/id/8643962-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL4147338W"
+  },
+  {
+    "title": "Reinforcement Learning: An Introduction",
+    "author": "Richard Sutton",
+    "cover_image": "https://covers.openlibrary.org/b/id/8714466-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19899345W"
+  },
+  {
+    "title": "Computer Vision",
+    "author": "Richard Szeliski",
+    "cover_image": "https://covers.openlibrary.org/b/id/9426793-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL20737086W"
+  },
+  {
+    "title": "Natural Language Processing with Python",
+    "author": "Steven Bird",
+    "cover_image": "https://covers.openlibrary.org/b/id/6296394-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL14940051W"
+  },
+  {
+    "title": "Speech and Language Processing",
+    "author": "Dan Jurafsky",
+    "cover_image": "https://covers.openlibrary.org/b/id/85431-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL76830W"
+  },
+  {
+    "title": "Time Series Analysis",
+    "author": "James Hamilton",
+    "cover_image": "https://covers.openlibrary.org/b/id/441241-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL3906201W"
+  },
+  {
+    "title": "Bayesian Data Analysis",
+    "author": "Gelman Andrew",
+    "cover_image": "https://covers.openlibrary.org/b/id/7249481-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL12630389W"
+  },
+  {
+    "title": "Statistical Rethinking",
+    "author": "Richard McElreath",
+    "cover_image": "https://covers.openlibrary.org/b/id/15127873-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL20743446W"
+  },
+  {
+    "title": "Information Theory",
+    "author": "David MacKay",
+    "cover_image": "https://covers.openlibrary.org/b/id/7353083-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL8325677W"
+  },
+  {
+    "title": "Optimization for Machine Learning",
+    "author": "Suvrit Sra",
+    "cover_image": "https://covers.openlibrary.org/b/id/9439634-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL16342005W"
+  },
+  {
+    "title": "Calculus",
+    "author": "James Stewart",
+    "cover_image": "https://covers.openlibrary.org/b/id/364094-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL100903W"
+  },
+  {
+    "title": "Linear Algebra Done Right",
+    "author": "Sheldon Axler",
+    "cover_image": "https://covers.openlibrary.org/b/id/246056-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL8059441W"
+  },
+  {
+    "title": "Discrete Mathematics and Its Applications",
+    "author": "Kenneth Rosen",
+    "cover_image": "https://covers.openlibrary.org/b/id/7083171-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL31821W"
+  },
+  {
+    "title": "The Art of Computer Programming Volume 1",
+    "author": "Donald Knuth",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "The Art of Computer Programming Volume 2",
+    "author": "Donald Knuth",
+    "cover_image": "https://covers.openlibrary.org/b/id/134028-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL14941573W"
+  },
+  {
+    "title": "The Art of Computer Programming Volume 3",
+    "author": "Donald Knuth",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Concrete Mathematics",
+    "author": "Graham, Knuth, Patashnik",
+    "cover_image": "https://covers.openlibrary.org/b/id/135182-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL3951639W"
+  },
+  {
+    "title": "Introduction to Probability Models",
+    "author": "Dimitri Bertsekas",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Real Analysis",
+    "author": "Walter Rudin",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Complex Analysis",
+    "author": "Lars Ahlfors",
+    "cover_image": "https://covers.openlibrary.org/b/id/53190-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL281679W"
+  },
+  {
+    "title": "Topology",
+    "author": "James Munkres",
+    "cover_image": "https://covers.openlibrary.org/b/id/88212-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL113948W"
+  },
+  {
+    "title": "Abstract Algebra",
+    "author": "David Dummit",
+    "cover_image": "https://covers.openlibrary.org/b/id/304744-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1968605W"
+  },
+  {
+    "title": "Functions of a Complex Variable",
+    "author": "Henry Edwards",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "A Course in the Theory of Groups",
+    "author": "Derek Robinson",
+    "cover_image": "https://covers.openlibrary.org/b/id/245394-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL3743611W"
+  },
+  {
+    "title": "Algebraic Topology",
+    "author": "Allen Hatcher",
+    "cover_image": "https://covers.openlibrary.org/b/id/5312603-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL6857978W"
+  },
+  {
+    "title": "Differential Geometry",
+    "author": "Michael Do Carmo",
+    "cover_image": "https://covers.openlibrary.org/b/id/89346-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL3488346W"
+  },
+  {
+    "title": "Functional Analysis",
+    "author": "Walter Rudin",
+    "cover_image": "https://covers.openlibrary.org/b/id/55298-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1295432W"
+  },
+  {
+    "title": "Partial Differential Equations",
+    "author": "Lawrence Evans",
+    "cover_image": "https://covers.openlibrary.org/b/id/621450-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1982861W"
+  },
+  {
+    "title": "Measure Theory and Probability",
+    "author": "Patrick Billingsley",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Game Theory",
+    "author": "Drew Fudenberg",
+    "cover_image": "https://covers.openlibrary.org/b/id/149772-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL2727409W"
+  },
+  {
+    "title": "Physics Volume 1: Mechanics",
+    "author": "David Halliday",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Physics Volume 2: Electricity and Magnetism",
+    "author": "David Halliday",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Physics Volume 3: Modern Physics",
+    "author": "David Halliday",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Classical Mechanics",
+    "author": "Herbert Goldstein",
+    "cover_image": "https://covers.openlibrary.org/b/id/134022-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL6211080W"
+  },
+  {
+    "title": "Introduction to Quantum Mechanics",
+    "author": "David Griffiths",
+    "cover_image": "https://covers.openlibrary.org/b/id/13246626-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL34317637W"
+  },
+  {
+    "title": "Quantum Mechanics: The Theoretical Minimum",
+    "author": "Leonard Susskind",
+    "cover_image": "https://covers.openlibrary.org/b/id/8444621-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19333423W"
+  },
+  {
+    "title": "Thermodynamics and Statistical Mechanics",
+    "author": "Mark Zemansky",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Quantum Field Theory",
+    "author": "Lewis Ryder",
+    "cover_image": "https://covers.openlibrary.org/b/id/341896-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL2944619W"
+  },
+  {
+    "title": "Relativity and Gravitation",
+    "author": "John Wheeler",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Introduction to Particle Physics",
+    "author": "David Griffiths",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Atomic and Molecular Physics",
+    "author": "Peter Atkins",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Quantum Mechanics Volume 1",
+    "author": "Claude Cohen-Tannoudji",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Quantum Mechanics Volume 2",
+    "author": "Claude Cohen-Tannoudji",
+    "cover_image": "https://covers.openlibrary.org/b/id/301463-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL28970071W"
+  },
+  {
+    "title": "Statistical Physics",
+    "author": "Landau and Lifshitz",
+    "cover_image": "https://covers.openlibrary.org/b/id/10236249-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL20899477W"
+  },
+  {
+    "title": "Mechanics Volume 1",
+    "author": "Landau and Lifshitz",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Electromagnetism",
+    "author": "Jackson John David",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Optics",
+    "author": "Eugene Hecht",
+    "cover_image": "https://covers.openlibrary.org/b/id/136453-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL29783W"
+  },
+  {
+    "title": "Waves and Oscillations",
+    "author": "David Morin",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Modern Physics",
+    "author": "Randy Harris",
+    "cover_image": "https://covers.openlibrary.org/b/id/2640565-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1826755W"
+  },
+  {
+    "title": "Essential Physics",
+    "author": "Frank Wolfs",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Chemistry: The Central Science",
+    "author": "Brown, LeMay, Bursten",
+    "cover_image": "https://covers.openlibrary.org/b/id/14450370-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL35304476W"
+  },
+  {
+    "title": "Organic Chemistry",
+    "author": "Paula Bruice",
+    "cover_image": "https://covers.openlibrary.org/b/id/4957732-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL2699148W"
+  },
+  {
+    "title": "Inorganic Chemistry",
+    "author": "Mark Weller",
+    "cover_image": "https://covers.openlibrary.org/b/id/8745521-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL20062207W"
+  },
+  {
+    "title": "Physical Chemistry",
+    "author": "Peter Atkins",
+    "cover_image": "https://covers.openlibrary.org/b/id/455659-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1907523W"
+  },
+  {
+    "title": "Biochemistry",
+    "author": "David Nelson",
+    "cover_image": "https://covers.openlibrary.org/b/id/8709407-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL14910187W"
+  },
+  {
+    "title": "Analytical Chemistry",
+    "author": "David Harvey",
+    "cover_image": "https://covers.openlibrary.org/b/id/62943-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL283195W"
+  },
+  {
+    "title": "Environmental Chemistry",
+    "author": "Colin Baird",
+    "cover_image": "https://covers.openlibrary.org/b/id/1354784-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1959967W"
+  },
+  {
+    "title": "Polymer Chemistry",
+    "author": "Paul Painter",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Quantum Chemistry",
+    "author": "Ira Levine",
+    "cover_image": "https://covers.openlibrary.org/b/id/3697823-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL451751W"
+  },
+  {
+    "title": "Chemical Kinetics and Reaction Dynamics",
+    "author": "Richard Zare",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Equilibrium and Non-Equilibrium Chemistry",
+    "author": "Peter Atkins",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Chemical Thermodynamics",
+    "author": "Peter Atkins",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Surface Chemistry and Catalysis",
+    "author": "Ertl Gerhard",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Electrochemistry",
+    "author": "Alan Bard",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Spectroscopy",
+    "author": "Barbara Smith",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "XRay Crystallography",
+    "author": "Gale Rhodes",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Medicinal Chemistry",
+    "author": "Patrick Brown",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Toxicology",
+    "author": "C. David Klaassen",
+    "cover_image": "https://covers.openlibrary.org/b/id/4935694-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL4451259W"
+  },
+  {
+    "title": "Radiochemistry",
+    "author": "Walter Seitz",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Green Chemistry",
+    "author": "Paul Anastas",
+    "cover_image": "https://covers.openlibrary.org/b/id/3736768-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1948113W"
+  },
+  {
+    "title": "Strength of Materials",
+    "author": "Russell Hibbeler",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Fluid Mechanics",
+    "author": "Frank White",
+    "cover_image": "https://covers.openlibrary.org/b/id/1083324-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1911850W"
+  },
+  {
+    "title": "Thermodynamics for Engineers",
+    "author": "Michael Moran",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Heat Transfer",
+    "author": "Frank Incropera",
+    "cover_image": "https://covers.openlibrary.org/b/id/4094264-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL2975220W"
+  },
+  {
+    "title": "Electrical Engineering Fundamentals",
+    "author": "Vincent Del Toro",
+    "cover_image": "https://covers.openlibrary.org/b/id/13172772-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL4103255W"
+  },
+  {
+    "title": "Circuit Analysis",
+    "author": "Robert Boylestad",
+    "cover_image": "https://covers.openlibrary.org/b/id/12765707-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL27961147W"
+  },
+  {
+    "title": "Digital Signal Processing",
+    "author": "John Proakis",
+    "cover_image": "https://covers.openlibrary.org/b/id/1113539-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL2706142W"
+  },
+  {
+    "title": "Control Systems Engineering",
+    "author": "Norman Nise",
+    "cover_image": "https://covers.openlibrary.org/b/id/304864-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL3505210W"
+  },
+  {
+    "title": "Foundation Engineering",
+    "author": "Braja Das",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Structural Analysis",
+    "author": "Russell Hibbeler",
+    "cover_image": "https://covers.openlibrary.org/b/id/8353683-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1865036W"
+  },
+  {
+    "title": "Transportation Engineering Planning",
+    "author": "C. Jotin Khisty",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Environmental Engineering Science",
+    "author": "James Mihelcic",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Water Resources Engineering",
+    "author": "David Maidment",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Hydraulic Engineering",
+    "author": "Don Coduto",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Mechanical Engineering Design",
+    "author": "Richard Budynas",
+    "cover_image": "https://covers.openlibrary.org/b/id/1087005-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1923658W"
+  },
+  {
+    "title": "VLSI Design",
+    "author": "Neil Weste",
+    "cover_image": "https://covers.openlibrary.org/b/id/8629266-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL4289403W"
+  },
+  {
+    "title": "Power Systems Analysis",
+    "author": "Overbye Thomas",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Robotics: Modelling, Planning and Control",
+    "author": "Bruno Siciliano",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Biomedical Engineering Design",
+    "author": "Joseph Enderle",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Renewable Energy Integration",
+    "author": "Lawrence L. Jones",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Microeconomics",
+    "author": "Paul Krugman",
+    "cover_image": "https://covers.openlibrary.org/b/id/1354818-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1648189W"
+  },
+  {
+    "title": "Macroeconomics",
+    "author": "N. Gregory Mankiw",
+    "cover_image": "https://covers.openlibrary.org/b/id/12584771-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL26727088W"
+  },
+  {
+    "title": "Intermediate Microeconomics",
+    "author": "Hal Varian",
+    "cover_image": "https://covers.openlibrary.org/b/id/253189-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL3257935W"
+  },
+  {
+    "title": "International Economics",
+    "author": "Paul Krugman",
+    "cover_image": "https://covers.openlibrary.org/b/id/191888-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL8813738W"
+  },
+  {
+    "title": "Public Economics",
+    "author": "Jonathan Gruber",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Financial Accounting",
+    "author": "David Marshall",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Managerial Accounting",
+    "author": "Ray Garrison",
+    "cover_image": "https://covers.openlibrary.org/b/id/3851505-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL3273363W"
+  },
+  {
+    "title": "International Accounting",
+    "author": "Timothy Doupnik",
+    "cover_image": "https://covers.openlibrary.org/b/id/10615714-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1001325W"
+  },
+  {
+    "title": "Corporate Finance",
+    "author": "Jonathan Berk",
+    "cover_image": "https://covers.openlibrary.org/b/id/2384059-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL5890331W"
+  },
+  {
+    "title": "Investments",
+    "author": "Bodie Zvi",
+    "cover_image": "https://covers.openlibrary.org/b/id/1082994-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1829823W"
+  },
+  {
+    "title": "Derivatives Markets",
+    "author": "Robert McDonald",
+    "cover_image": "https://covers.openlibrary.org/b/id/136056-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL8021835W"
+  },
+  {
+    "title": "Fixed Income Securities",
+    "author": "Bruce Tuckman",
+    "cover_image": "https://covers.openlibrary.org/b/id/1242596-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1676487W"
+  },
+  {
+    "title": "Options Trading",
+    "author": "George Fontanills",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Principles of Marketing",
+    "author": "Philip Kotler",
+    "cover_image": "https://covers.openlibrary.org/b/id/3812733-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1807517W"
+  },
+  {
+    "title": "Strategic Marketing",
+    "author": "Karen Whelan-Berry",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Human Resource Management",
+    "author": "Gary Dessler",
+    "cover_image": "https://covers.openlibrary.org/b/id/9334439-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL11789290W"
+  },
+  {
+    "title": "Organizational Behavior",
+    "author": "Stephen Robbins",
+    "cover_image": "https://covers.openlibrary.org/b/id/88925-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL510735W"
+  },
+  {
+    "title": "Operations Management",
+    "author": "Nigel Slack",
+    "cover_image": "https://covers.openlibrary.org/b/id/154360-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL6037534W"
+  },
+  {
+    "title": "Supply Chain Management",
+    "author": "Martin Christopher",
+    "cover_image": "https://covers.openlibrary.org/b/id/8689241-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL16162225W"
+  },
+  {
+    "title": "Entrepreneurship",
+    "author": "Donald Kuratko",
+    "cover_image": "https://covers.openlibrary.org/b/id/19416-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL2761720W"
+  },
+  {
+    "title": "The History of the Roman Empire",
+    "author": "Edward Gibbon",
+    "cover_image": "https://covers.openlibrary.org/b/id/8539265-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19627764W"
+  },
+  {
+    "title": "A Brief History of Time",
+    "author": "Stephen Hawking",
+    "cover_image": "https://covers.openlibrary.org/b/id/10432365-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1892617W"
+  },
+  {
+    "title": "The Silk Road: A New History",
+    "author": "Peter Frankopan",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Guns Germs and Steel",
+    "author": "Jared Diamond",
+    "cover_image": "https://covers.openlibrary.org/b/id/7884018-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL276558W"
+  },
+  {
+    "title": "The Rise and Fall of the Third Reich",
+    "author": "William Shirer",
+    "cover_image": "https://covers.openlibrary.org/b/id/6558536-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL47181W"
+  },
+  {
+    "title": "Sapiens: A Brief History of Humankind",
+    "author": "Yuval Harari",
+    "cover_image": "https://covers.openlibrary.org/b/id/8634250-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL17075811W"
+  },
+  {
+    "title": "Homo Deus: A Brief History of Tomorrow",
+    "author": "Yuval Harari",
+    "cover_image": "https://covers.openlibrary.org/b/id/15174691-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL37486679W"
+  },
+  {
+    "title": "The Age of Revolution",
+    "author": "Eric Hobsbawm",
+    "cover_image": "https://covers.openlibrary.org/b/id/4765129-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL495659W"
+  },
+  {
+    "title": "Civilization: A New History",
+    "author": "Roger Osborne",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "The Outline of History",
+    "author": "H.G. Wells",
+    "cover_image": "https://covers.openlibrary.org/b/id/6983070-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL52264W"
+  },
+  {
+    "title": "World History Standards Edition",
+    "author": "Philip Schaff",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "The Second World War",
+    "author": "Winston Churchill",
+    "cover_image": "https://covers.openlibrary.org/b/id/7347623-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL134333W"
+  },
+  {
+    "title": "The Cold War: A New History",
+    "author": "John Lewis Gaddis",
+    "cover_image": "https://covers.openlibrary.org/b/id/11303035-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL24626969W"
+  },
+  {
+    "title": "The Great War",
+    "author": "Peter Hart",
+    "cover_image": "https://covers.openlibrary.org/b/id/12736929-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL19964899W"
+  },
+  {
+    "title": "The Spanish Inquisition",
+    "author": "Henry Kamen",
+    "cover_image": "https://covers.openlibrary.org/b/id/160973-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL2707847W"
+  },
+  {
+    "title": "The Age of Enlightenment",
+    "author": "William Doyle",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "The Medieval World",
+    "author": "Chris Wickham",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "The Renaissance: A Captivating Guide",
+    "author": "Captivating History",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "The Industrial Revolution",
+    "author": "Chris Harman",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "Modern History 1450-Present",
+    "author": "Chris McNab",
+    "cover_image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80",
+    "type": "generic_book_photo",
+    "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=600&q=80"
+  },
+  {
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "cover_image": "https://covers.openlibrary.org/b/id/10590366-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL468431W"
+  },
+  {
+    "title": "Pride and Prejudice",
+    "author": "Jane Austen",
+    "cover_image": "https://covers.openlibrary.org/b/id/14348537-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL66554W"
+  },
+  {
+    "title": "1984",
+    "author": "George Orwell",
+    "cover_image": "https://covers.openlibrary.org/b/id/4735540-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/books/OL22111892M"
+  },
+  {
+    "title": "To Kill a Mockingbird",
+    "author": "Harper Lee",
+    "cover_image": "https://covers.openlibrary.org/b/id/14351077-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL3140822W"
+  },
+  {
+    "title": "The Catcher in the Rye",
+    "author": "J.D. Salinger",
+    "cover_image": "https://covers.openlibrary.org/b/id/9273490-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL3335245W"
+  },
+  {
+    "title": "Moby Dick",
+    "author": "Herman Melville",
+    "cover_image": "https://covers.openlibrary.org/b/id/10544254-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL102749W"
+  },
+  {
+    "title": "Jane Eyre",
+    "author": "Charlotte Brontë",
+    "cover_image": "https://covers.openlibrary.org/b/id/8235363-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL1095427W"
+  },
+  {
+    "title": "Wuthering Heights",
+    "author": "Emily Brontë",
+    "cover_image": "https://covers.openlibrary.org/b/id/12818862-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL21177W"
+  },
+  {
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "cover_image": "https://covers.openlibrary.org/b/id/14627509-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL27482W"
+  },
+  {
+    "title": "The Lord of the Rings",
+    "author": "J.R.R. Tolkien",
+    "cover_image": "https://covers.openlibrary.org/b/id/14625765-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL27448W"
+  },
+  {
+    "title": "War and Peace",
+    "author": "Leo Tolstoy",
+    "cover_image": "https://covers.openlibrary.org/b/id/15183543-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL45017724W"
+  },
+  {
+    "title": "Crime and Punishment",
+    "author": "Fyodor Dostoevsky",
+    "cover_image": "https://covers.openlibrary.org/b/id/15183762-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL45018229W"
+  },
+  {
+    "title": "The Brothers Karamazov",
+    "author": "Fyodor Dostoevsky",
+    "cover_image": "https://covers.openlibrary.org/b/id/14648728-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/books/OL28031201M"
+  },
+  {
+    "title": "Anna Karenina",
+    "author": "Leo Tolstoy",
+    "cover_image": "https://covers.openlibrary.org/b/id/2560652-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL267096W"
+  },
+  {
+    "title": "One Hundred Years of Solitude",
+    "author": "Gabriel García Márquez",
+    "cover_image": "https://covers.openlibrary.org/b/id/15185412-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL43108828W"
+  },
+  {
+    "title": "The Odyssey",
+    "author": "Homer",
+    "cover_image": "https://covers.openlibrary.org/b/id/15028634-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL32939015W"
+  },
+  {
+    "title": "The Iliad",
+    "author": "Homer",
+    "cover_image": "https://covers.openlibrary.org/b/id/14546467-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL36997893W"
+  },
+  {
+    "title": "Dante Alighieri Divine Comedy",
+    "author": "Dante Alighieri",
+    "cover_image": "https://covers.openlibrary.org/b/id/5044763-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL7881625W"
+  },
+  {
+    "title": "Don Quixote",
+    "author": "Miguel de Cervantes",
+    "cover_image": "https://covers.openlibrary.org/b/id/13846974-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL26799707W"
+  },
+  {
+    "title": "Ulysses",
+    "author": "James Joyce",
+    "cover_image": "https://covers.openlibrary.org/b/id/13136548-L.jpg",
+    "type": "book_cover",
+    "source": "https://openlibrary.org/works/OL86318W"
+  }
+]

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\PhysicalCopyException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StaffReturnRequest;
+use App\Http\Resources\Concerns\IncludesProfilePhoto;
 use App\Models\BookRequest;
 use App\Models\Fine;
 use App\Models\FineSetting;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\DB;
 
 class StaffReturnController extends Controller
 {
+    use IncludesProfilePhoto;
+
     public function __construct(private readonly PhysicalBookCopyService $copies) {}
 
     public function settings(): JsonResponse
@@ -403,7 +406,7 @@ class StaffReturnController extends Controller
             'department' => $student->department?->name,
             'status' => $student->user?->status,
             'profile_photo' => $photo,
-            'profile_photo_url' => $photo ? asset('storage/'.ltrim($photo, '/')) : null,
+            'profile_photo_url' => $this->profilePhotoUrl($photo),
             'active_issues_count' => $activeIssuesCount !== null
                 ? (int) $activeIssuesCount
                 : (int) $student->issuedBooks()->returnable()->count(),

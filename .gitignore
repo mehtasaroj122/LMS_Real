@@ -26,5 +26,11 @@ Thumbs.db
 *.sqlite
 *.db
 LibraryMS
+
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitignore
+
+error_log
+**/error_log
 # Large JSON seed data (use database seeders instead)
 # database/JSON/

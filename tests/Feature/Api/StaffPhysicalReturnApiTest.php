@@ -109,6 +109,8 @@ beforeEach(function () {
 test('staff can search borrowers and retrieve only their active physical issues', function () {
     $staff = makePhysicalReturnApiUser();
     $student = makePhysicalReturnApiStudent();
+    $portrait = 'https://randomuser.me/api/portraits/men/0.jpg';
+    $student->user->update(['profile_photo' => $portrait]);
     [, $activeCopy, $activeIssue] = makePhysicalReturnApiIssue($student, $staff);
     [, $returnedCopy, $returnedIssue] = makePhysicalReturnApiIssue($student, $staff);
     app(PhysicalBookCopyService::class)->return($returnedCopy->accession_number, 'good', now(), null, $staff);
@@ -118,11 +120,13 @@ test('staff can search borrowers and retrieve only their active physical issues'
     foreach ([$student->user->name, $student->student_id, $student->user->email] as $search) {
         $this->getJson('/api/staff/returns/students/search?query='.urlencode($search))
             ->assertOk()
-            ->assertJsonPath('data.0.id', $student->id);
+            ->assertJsonPath('data.0.id', $student->id)
+            ->assertJsonPath('data.0.profile_photo_url', $portrait);
     }
 
     $this->getJson("/api/staff/return-books/student/{$student->id}")
         ->assertOk()
+        ->assertJsonPath('data.student.profile_photo_url', $portrait)
         ->assertJsonCount(1, 'data.active_issues')
         ->assertJsonPath('data.active_issues.0.issue_id', $activeIssue->id)
         ->assertJsonPath('data.active_issues.0.book_copy_id', $activeCopy->id)
