@@ -82,9 +82,6 @@ class StaffDashboardController extends Controller
             'dueToday' => $dueToday,
             'overdue' => $overdueCount,
             'attentionNeeded' => $dueToday + $overdueCount,
-            'availabilityRate' => $circulationTotal > 0
-                ? (int) round(($availableBooks / $circulationTotal) * 100)
-                : 0,
         ];
 
         $days = [];

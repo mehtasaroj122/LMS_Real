@@ -603,7 +603,6 @@
 
         .circulation-insight-label,
         .activity-insight-label,
-        .circulation-insight-share,
         .activity-insight-badge,
         .circulation-insight-meta,
         .activity-insight-meta {
@@ -621,7 +620,6 @@
             color: #cbd5e1;
         }
 
-        .circulation-insight-share,
         .activity-insight-badge {
             font-weight: 700;
             color: var(--accent-color, #475569);
@@ -1572,7 +1570,7 @@
                         [
                             'label' => 'Available',
                             'value' => (int) ($circulationOverview['available'] ?? 0),
-                            'meta' => (($circulationOverview['availabilityRate'] ?? 0)) . '% of the current pool',
+                            'meta' => 'Copies ready to borrow',
                             'color' => '#10b981',
                         ],
                         [
@@ -1611,18 +1609,12 @@
                     </div>
                     <div class="circulation-insights">
                         @foreach($circulationInsights as $insight)
-                            @php
-                                $share = $circulationTotal > 0
-                                    ? (int) round(($insight['value'] / $circulationTotal) * 100)
-                                    : 0;
-                            @endphp
                             <div class="circulation-insight" style="--accent-color: {{ $insight['color'] }};">
                                 <div class="circulation-insight-top">
                                     <div class="circulation-insight-label-wrap">
                                         <span class="circulation-dot" aria-hidden="true"></span>
                                         <span class="circulation-insight-label">{{ $insight['label'] }}</span>
                                     </div>
-                                    <span class="circulation-insight-share">{{ $share }}%</span>
                                 </div>
                                 <div class="circulation-insight-value">{{ number_format($insight['value']) }}</div>
                                 <div class="circulation-insight-meta">{{ $insight['meta'] }}</div>
@@ -1640,14 +1632,12 @@
                     $activityInsights = [
                         [
                             'label' => 'Issued',
-                            'badge' => ($movementsTotal > 0 ? (int) round(($issuedTotal / $movementsTotal) * 100) : 0) . '%',
                             'value' => number_format($issuedTotal),
                             'meta' => 'Books issued during the last 7 days',
                             'color' => '#6366f1',
                         ],
                         [
                             'label' => 'Returned',
-                            'badge' => ($movementsTotal > 0 ? (int) round(($returnedTotal / $movementsTotal) * 100) : 0) . '%',
                             'value' => number_format($returnedTotal),
                             'meta' => 'Books returned during the last 7 days',
                             'color' => '#f97316',
@@ -1689,7 +1679,9 @@
                                         <span class="activity-dot" aria-hidden="true"></span>
                                         <span class="activity-insight-label">{{ $insight['label'] }}</span>
                                     </div>
-                                    <span class="activity-insight-badge">{{ $insight['badge'] }}</span>
+                                    @isset($insight['badge'])
+                                        <span class="activity-insight-badge">{{ $insight['badge'] }}</span>
+                                    @endisset
                                 </div>
                                 <div class="activity-insight-value">{{ $insight['value'] }}</div>
                                 <div class="activity-insight-meta">{{ $insight['meta'] }}</div>
@@ -2218,11 +2210,8 @@
                                 callbacks: {
                                     label(context) {
                                         const value = Number(context.raw || 0);
-                                        const series = Array.isArray(context.dataset.data) ? context.dataset.data : [];
-                                        const total = series.reduce((sum, item) => sum + Number(item || 0), 0);
-                                        const share = total > 0 ? Math.round((value / total) * 100) : 0;
 
-                                        return `${context.label}: ${value} (${share}%)`;
+                                        return `${context.label}: ${value}`;
                                     }
                                 }
                             },
