@@ -346,7 +346,7 @@ class IssueBookController extends Controller
                             continue;
                         }
 
-                        if (BookCopy::query()->where('book_id', $book->id)->exists()) {
+                        if (BookCopy::withTrashed()->where('book_id', $book->id)->exists()) {
                             abort(response()->json(['success' => false, 'message' => "The book '{$book->title}' is not available."], 409));
                         }
 

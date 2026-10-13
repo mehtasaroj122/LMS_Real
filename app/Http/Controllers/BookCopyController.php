@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\BookCopy;
+use App\Exceptions\PhysicalCopyException;
+use App\Services\PhysicalBookCopyArchiveService;
 use App\Services\PhysicalBookCopyDeletionService;
 use App\Services\PhysicalBookCopyService;
 use Illuminate\Http\JsonResponse;
@@ -184,6 +186,7 @@ class BookCopyController extends Controller
         }
 
         $request = request();
+        $inventory = $request->query('inventory') === 'archived' ? 'archived' : 'active';
         $search = mb_substr(trim((string) $request->query('search', '')), 0, 100);
         $status = in_array($request->query('status'), ['available', 'issued', 'lost', 'damaged'], true)
             ? $request->query('status') : 'all';
@@ -195,7 +198,11 @@ class BookCopyController extends Controller
         $copiesQuery = BookCopy::query()
             ->where('book_id', $book->id)
             ->withCount('issuedBooks')
-            ->with('activeIssue.student.user');
+            ->with(['activeIssue.student.user', 'archivedBy']);
+
+        if ($inventory === 'archived') {
+            $copiesQuery->onlyTrashed();
+        }
 
         if ($status !== 'all') {
             $copiesQuery->where('status', $status);
@@ -231,7 +238,7 @@ class BookCopyController extends Controller
         if ($request->boolean('ajax_copies')) {
             return response()->json([
                 'success' => true,
-                'tableRows' => view('shared.book-copies.rows', compact('copies', 'search', 'status', 'bookType'))->render(),
+                'tableRows' => view('shared.book-copies.rows', compact('copies', 'search', 'status', 'bookType', 'inventory'))->render(),
                 'pagination' => view('shared.admin-table-pagination', ['paginator' => $copies])->render(),
                 'current_page' => $copies->currentPage(),
                 'last_page' => $copies->lastPage(),
@@ -241,7 +248,7 @@ class BookCopyController extends Controller
             ]);
         }
 
-        return view($this->viewPrefix() . '.BookCopies', compact('book', 'summary', 'copies', 'search', 'status', 'bookType', 'perPage'));
+        return view($this->viewPrefix() . '.BookCopies', compact('book', 'summary', 'copies', 'search', 'status', 'bookType', 'perPage', 'inventory'));
     }
 
     public function preview(Request $request, Book $book, PhysicalBookCopyService $copies): JsonResponse
@@ -431,6 +438,75 @@ class BookCopyController extends Controller
         ]);
     }
 
+    public function archivePreview(Request $request, Book $book, PhysicalBookCopyArchiveService $archives): JsonResponse
+    {
+        $validated = $this->validateArchiveInput($request, true);
+
+        return response()->json(['success' => true, 'data' => $archives->preview($book, $validated['copy_ids'])]);
+    }
+
+    public function bulkArchive(Request $request, Book $book, PhysicalBookCopyArchiveService $archives): JsonResponse
+    {
+        $validated = $this->validateArchiveInput($request, true);
+        $result = $archives->archive($book, $validated['copy_ids'], $validated['reason'] ?? null);
+        $result['summary'] = $this->summary($book);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Archived {$result['archived_count']} and skipped {$result['skipped_count']} copy/copies. Borrowing history is preserved.",
+            'data' => $result,
+        ]);
+    }
+
+    public function archive(Request $request, BookCopy $bookCopy, PhysicalBookCopyArchiveService $archives): JsonResponse
+    {
+        $validated = $this->validateArchiveInput($request);
+        $result = $archives->archive($bookCopy->book, [$bookCopy->id], $validated['reason'] ?? null);
+        if ($result['archived_count'] === 0) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['skipped'][0]['reason'] ?? 'This copy is no longer in active inventory.',
+                'data' => $result,
+            ], 409);
+        }
+
+        $result['summary'] = $this->summary($bookCopy->book);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Copy archived. Its borrowing history is preserved.',
+            'data' => $result,
+        ]);
+    }
+
+    public function restore(BookCopy $bookCopy, PhysicalBookCopyArchiveService $archives): JsonResponse
+    {
+        try {
+            $copy = $archives->restore($bookCopy);
+        } catch (PhysicalCopyException $exception) {
+            return response()->json(['success' => false, 'message' => $exception->getMessage()], $exception->status);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Copy restored to active inventory with the same accession number.',
+            'data' => ['copy' => $copy, 'summary' => $this->summary($copy->book)],
+        ]);
+    }
+
+    private function validateArchiveInput(Request $request, bool $bulk = false): array
+    {
+        $rules = ['reason' => ['nullable', 'string', 'max:500']];
+        if ($bulk) {
+            $rules += [
+                'copy_ids' => ['required', 'array', 'min:1', 'max:500'],
+                'copy_ids.*' => ['required', 'integer', 'distinct', 'min:1'],
+            ];
+        }
+
+        return $request->validate($rules);
+    }
+
     private function validateBulkAction(Request $request, bool $includeReason = false): array
     {
         $rules = [
@@ -468,6 +544,7 @@ class BookCopyController extends Controller
             'issued' => (int) ($counts['issued'] ?? 0),
             'lost' => (int) ($counts['lost'] ?? 0),
             'damaged' => (int) ($counts['damaged'] ?? 0),
+            'archived' => $book->copies()->onlyTrashed()->count(),
         ];
     }
 

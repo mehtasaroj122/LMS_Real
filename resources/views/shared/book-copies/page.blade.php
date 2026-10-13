@@ -4,6 +4,8 @@
     data-base-url="{{ url('/' . $role . '/book-copies') }}"
     data-bulk-preview-url="{{ route($role . '.books.copies.bulk-preview', $book) }}"
     data-bulk-delete-url="{{ route($role . '.books.copies.bulk-delete', $book) }}"
+    data-archive-preview-url="{{ route($role . '.books.copies.archive-preview', $book) }}"
+    data-bulk-archive-url="{{ route($role . '.books.copies.bulk-archive', $book) }}"
     data-book-title="{{ $book->title }}"
     data-book-isbn="{{ $book->isbn }}"
 >
@@ -17,7 +19,7 @@
     </div>
 
     <div class="book-copies-summary">
-        @foreach(['total' => ['label' => 'Total Copies', 'icon' => 'fa-copy'], 'available' => ['label' => 'Available', 'icon' => 'fa-circle-check'], 'issued' => ['label' => 'Issued', 'icon' => 'fa-book-reader'], 'lost' => ['label' => 'Lost', 'icon' => 'fa-magnifying-glass'], 'damaged' => ['label' => 'Damaged', 'icon' => 'fa-triangle-exclamation']] as $key => $stat)
+        @foreach(['total' => ['label' => 'Active Copies', 'icon' => 'fa-copy'], 'available' => ['label' => 'Available', 'icon' => 'fa-circle-check'], 'issued' => ['label' => 'Issued', 'icon' => 'fa-book-reader'], 'lost' => ['label' => 'Lost', 'icon' => 'fa-magnifying-glass'], 'damaged' => ['label' => 'Damaged', 'icon' => 'fa-triangle-exclamation'], 'archived' => ['label' => 'Archived', 'icon' => 'fa-box-archive']] as $key => $stat)
             <div class="book-copies-stat">
                 <div class="book-copies-stat-top">
                     <div class="book-copies-stat-label">{{ $stat['label'] }}</div>
@@ -35,6 +37,7 @@
             @endif
             <input class="book-copies-control" id="copySearch" name="search" type="search" value="{{ $search }}" placeholder="Accession, student, ID..." aria-label="Search copies" maxlength="100">
         </div>
+        <select class="book-copies-control" id="copyInventoryFilter" name="inventory" aria-label="Inventory"><option value="active" @selected($inventory === 'active')>Active Copies</option><option value="archived" @selected($inventory === 'archived')>Archived Copies</option></select>
         <select class="book-copies-control" id="copyStatusFilter" name="status" aria-label="Status"><option value="all">All statuses</option>@foreach(['available' => 'Available', 'issued' => 'Issued', 'lost' => 'Lost', 'damaged' => 'Damaged'] as $value => $label)<option value="{{ $value }}" @selected($status === $value)>{{ $label }}</option>@endforeach</select>
         <select class="book-copies-control" id="copyTypeFilter" name="book_type" aria-label="Book Type"><option value="all">All types</option><option value="borrowing" @selected($bookType === 'borrowing')>Borrowing</option><option value="reference" @selected($bookType === 'reference')>Reference</option></select>
         <button type="button" class="book-copies-button" id="resetCopyFilters"><i class="fas fa-rotate-left" aria-hidden="true"></i> Reset</button>
@@ -42,12 +45,13 @@
         <button type="button" class="book-copies-button primary book-copies-add" id="addPhysicalBookBtn"><i class="fas fa-plus" aria-hidden="true"></i> Add Copies</button>
     </form>
 
-    <div class="book-copies-bulk-bar" id="copyBulkBar" aria-label="Bulk copy actions">
+    <div class="book-copies-bulk-bar" id="copyBulkBar" aria-label="Bulk copy actions" @if($inventory === 'archived') hidden @endif>
         <div class="book-copies-selection-count" aria-live="polite"><i class="fas fa-check-square" aria-hidden="true"></i> <span id="copySelectionCount">0 copies selected</span></div>
         <label class="book-copies-bulk-select" for="copyBulkAction">
             <span class="book-copies-sr-only">Bulk action</span>
             <select class="book-copies-control" id="copyBulkAction">
                 <option value="">Bulk Actions</option>
+                <option value="archive_selected">Archive Selected</option>
                 <option value="delete_selected">Delete Selected</option>
                 <option value="delete_available">Delete Available Copies</option>
                 <option value="delete_damaged">Delete Damaged Copies</option>
@@ -57,7 +61,7 @@
         </label>
         <button type="button" class="book-copies-button danger" id="applyCopyBulkAction" disabled>Apply</button>
         <button type="button" class="book-copies-button" id="clearCopySelection" disabled>Clear Selection</button>
-        <span class="book-copies-bulk-note">Borrowed and historically protected copies always remain.</span>
+        <span class="book-copies-bulk-note">Borrowed copies must be returned first. Archive copies to preserve their history.</span>
     </div>
 
     <template id="copyTableSkeleton"><x-table-skeleton :rows="5" :columns="11" label="Loading copies..." /></template>
@@ -74,3 +78,9 @@
 </div>
 @include('partials.physical-book-modal', ['physicalFixedBook' => $book, 'physicalModalTitle' => 'Add Copies', 'physicalModalDescription' => 'Generate and save borrowing and reference copies for this book.'])
 @include('shared.action-feedback.markup')
+<template id="copyArchiveReasonTemplate">
+    <label class="book-copies-archive-reason" id="copyArchiveReasonField" hidden>
+        Reason for archiving (optional)
+        <textarea id="copyArchiveReason" class="book-copies-control" rows="2" maxlength="500" placeholder="For example: removed from library"></textarea>
+    </label>
+</template>

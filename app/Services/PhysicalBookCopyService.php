@@ -190,6 +190,7 @@ class PhysicalBookCopyService
         $copyStatus = $copy->circulationStatus();
         if ($copyStatus !== 'available') {
             [$message, $status, $code] = match (strtolower($copyStatus)) {
+                'archived' => ['This copy is archived. Restore it before issuing.', 409, 'copy_archived'],
                 'issued' => ['This book copy is already issued.', 409, $copy->status === 'issued' ? 'copy_issued' : 'copy_unavailable'],
                 'lost' => ['This book copy is marked as lost and cannot be issued.', 409, 'copy_lost'],
                 'damaged' => ['This book copy is marked as damaged and cannot be issued.', 409, 'copy_damaged'],

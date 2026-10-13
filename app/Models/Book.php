@@ -99,7 +99,8 @@ class Book extends Model
     public function scopeWithCirculationAvailability(Builder $query): Builder
     {
         return $query->withCount([
-            'copies as circulation_total_copies',
+            // Archived registrations still rule out the legacy title-only fallback.
+            'copies as circulation_total_copies' => fn ($copies) => $copies->withTrashed(),
             'copies as circulation_available_copies' => fn ($copies) => $copies->availableForIssue(),
         ]);
     }
@@ -109,7 +110,7 @@ class Book extends Model
         return $query->whereNotIn('books.status', ['inactive', 'withdrawn'])
             ->where(fn ($books) => $books
                 ->whereHas('copies', fn ($copies) => $copies->availableForIssue())
-                ->orWhere(fn ($legacy) => $legacy->whereDoesntHave('copies')->where('books.available_copies', '>', 0)));
+                ->orWhere(fn ($legacy) => $legacy->whereDoesntHave('copies', fn ($copies) => $copies->withTrashed())->where('books.available_copies', '>', 0)));
     }
 
     /** Requires withCirculationAvailability so legacy titles sort by their stored inventory. */
@@ -128,7 +129,7 @@ class Book extends Model
 
         if ($this->getAttribute('circulation_total_copies') === null) {
             $this->loadCount([
-                'copies as circulation_total_copies',
+                'copies as circulation_total_copies' => fn ($copies) => $copies->withTrashed(),
                 'copies as circulation_available_copies' => fn ($copies) => $copies->availableForIssue(),
             ]);
         }

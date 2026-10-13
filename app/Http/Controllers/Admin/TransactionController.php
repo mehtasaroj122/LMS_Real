@@ -317,7 +317,7 @@ class TransactionController extends Controller
 
                         if ($copy) {
                             $targets[] = ['copy' => $copy, 'book' => null];
-                        } elseif (BookCopy::query()->where('book_id', $book->id)->exists()) {
+                        } elseif (BookCopy::withTrashed()->where('book_id', $book->id)->exists()) {
                             abort(response()->json(['success' => false, 'message' => "The book '{$book->title}' is not available."], 409));
                         } else {
                             $targets[] = ['copy' => null, 'book' => $book];

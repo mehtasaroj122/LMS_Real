@@ -134,7 +134,7 @@ class IssueController extends Controller
                 }
 
                 // A title with physical inventory must never bypass copy eligibility.
-                if ($book->copies()->exists() || $book->availableForBorrowingCount() <= 0) {
+                if ($book->copies()->withTrashed()->exists() || $book->availableForBorrowingCount() <= 0) {
                     abort(response()->json([
                         'message' => "The book '{$book->title}' is not available.",
                     ], 409));

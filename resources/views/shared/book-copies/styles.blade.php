@@ -5,7 +5,7 @@
     .book-copies-title { font-size: 20px; font-weight: 700; }
     .book-copies-subtitle { color: #64748b; font-size: 12px; margin-top: 4px; }
     .book-copies-back { color: #2563eb; font-size: 12px; white-space: nowrap; }
-    .book-copies-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; width: 100%; margin-bottom: 16px; }
+    .book-copies-summary { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; width: 100%; margin-bottom: 16px; }
     .book-copies-stat { padding: 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; }
     .book-copies-stat-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .book-copies-stat-label { font-size: 11px; color: #64748b; }
@@ -50,6 +50,12 @@
     .book-copies-muted { color: #64748b; }
     .book-copies-action { padding: 5px 7px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; font-size: 11px; cursor: pointer; }
     .book-copies-action.delete { border-color: #fecaca; color: #b91c1c; }
+    .book-copies-action.archive { color: #92400e; border-color: #fcd34d; }
+    .book-copies-action.restore { color: #047857; border-color: #6ee7b7; }
+    .book-copies-bulk-bar[hidden], .book-copies-archive-reason[hidden] { display: none; }
+    .book-copies-archive-reason { display: block; margin-top: 12px; color: #475569; font-size: 12px; }
+    .book-copies-archive-reason textarea { resize: vertical; }
+    .book-copies-archive-details { display: block; margin-top: 3px; max-width: 240px; white-space: normal; overflow-wrap: anywhere; color: #64748b; }
     .book-copies-edit-row { display: none; background: #f8fafc; }
     .book-copies-edit-form { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; align-items: end; }
     .book-copies-edit-form input, .book-copies-edit-form select, .book-copies-edit-form textarea { width: 100%; padding: 7px; border: 1px solid #cbd5e1; border-radius: 6px; }

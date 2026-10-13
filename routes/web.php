@@ -135,6 +135,10 @@ Route::middleware(['auth', 'can:access-admin'])
         Route::delete('/books/{book}/copies/bulk', [BookCopyController::class, 'bulkDelete'])->name('books.copies.bulk-delete');
         Route::match(['put', 'patch'], '/book-copies/{bookCopy}', [BookCopyController::class, 'update'])->name('book-copies.update');
         Route::delete('/book-copies/{bookCopy}', [BookCopyController::class, 'destroy'])->name('book-copies.destroy');
+        Route::post('/books/{book}/copies/archive-preview', [BookCopyController::class, 'archivePreview'])->name('books.copies.archive-preview');
+        Route::post('/books/{book}/copies/archive', [BookCopyController::class, 'bulkArchive'])->name('books.copies.bulk-archive');
+        Route::post('/book-copies/{bookCopy}/archive', [BookCopyController::class, 'archive'])->name('book-copies.archive');
+        Route::post('/book-copies/{bookCopy}/restore', [BookCopyController::class, 'restore'])->withTrashed()->name('book-copies.restore');
         Route::post('/users/validate-field', [UserController::class, 'validateField'])->name('users.validate-field');
         Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::get('/users/{user}/details', [UserController::class, 'getDetails'])->name('users.details');
@@ -234,6 +238,10 @@ Route::middleware(['auth', 'can:access-staff'])
         Route::delete('/books/{book}/copies/bulk', [BookCopyController::class, 'bulkDelete'])->name('books.copies.bulk-delete');
         Route::match(['put', 'patch'], '/book-copies/{bookCopy}', [BookCopyController::class, 'update'])->name('book-copies.update');
         Route::delete('/book-copies/{bookCopy}', [BookCopyController::class, 'destroy'])->name('book-copies.destroy');
+        Route::post('/books/{book}/copies/archive-preview', [BookCopyController::class, 'archivePreview'])->name('books.copies.archive-preview');
+        Route::post('/books/{book}/copies/archive', [BookCopyController::class, 'bulkArchive'])->name('books.copies.bulk-archive');
+        Route::post('/book-copies/{bookCopy}/archive', [BookCopyController::class, 'archive'])->name('book-copies.archive');
+        Route::post('/book-copies/{bookCopy}/restore', [BookCopyController::class, 'restore'])->withTrashed()->name('book-copies.restore');
         Route::post('/books/{book}/request-deletion', [BookDeletionRequestController::class, 'store'])->name('books.request-deletion');
         
         // Transaction routes for issue book feature

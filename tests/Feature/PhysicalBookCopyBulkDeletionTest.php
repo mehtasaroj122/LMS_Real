@@ -5,9 +5,11 @@ use App\Models\Book;
 use App\Models\BookCopy;
 use App\Models\Category;
 use App\Models\Department;
+use App\Models\IssuedBook;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\PhysicalBookCopyService;
+use App\Exceptions\PhysicalCopyException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -254,4 +256,154 @@ test('students cannot access admin or staff bulk deletion endpoints', function (
         ])->assertForbidden();
 
     expect($copy->fresh())->not->toBeNull();
+});
+
+test('both portals archive returned copies and restore the same accession without losing history', function (string $role) {
+    $actor = bulkCopyTestUser($role);
+    $book = bulkCopyTestBook();
+    $service = app(PhysicalBookCopyService::class);
+    $copies = $service->createCopies($book, 2);
+    $copy = $copies[0];
+    $student = bulkCopyTestStudent();
+    $issue = $service->issue($student, $copy->accession_number, $actor);
+    $service->return($copy->accession_number);
+
+    $this->actingAs($actor)->get(route("{$role}.books.copies.index", $book))
+        ->assertOk()->assertSee('Archive Selected')->assertSee('archive-copy-btn', false);
+
+    $this->postJson(route("{$role}.book-copies.archive", $copy), ['reason' => 'Removed from library'])
+        ->assertOk()->assertJsonPath('data.archived_count', 1)
+        ->assertJsonPath('data.summary.total', 1)
+        ->assertJsonPath('data.summary.available', 1)
+        ->assertJsonPath('data.summary.archived', 1);
+
+    $archived = BookCopy::onlyTrashed()->findOrFail($copy->id);
+    expect($archived->archived_by)->toBe($actor->id)
+        ->and($archived->archive_reason)->toBe('Removed from library')
+        ->and($book->fresh()->total_copies)->toBe(1)
+        ->and($book->fresh()->available_copies)->toBe(1)
+        ->and($issue->fresh()->book_copy_id)->toBe($copy->id)
+        ->and($issue->fresh()->bookCopy->accession_number)->toBe($copy->accession_number)
+        ->and($issue->fresh()->return_date)->not->toBeNull()
+        ->and($service->findByAccession($copy->accession_number))->toBeNull()
+        ->and($service->issueEligibility($archived)?->getMessage())->toContain('archived');
+
+    expect(fn () => $service->issue($student, $copy->accession_number, $actor))
+        ->toThrow(PhysicalCopyException::class, 'Accession number not found.');
+    expect(fn () => $service->issueById($student, $copy->id, $actor))
+        ->toThrow(PhysicalCopyException::class, 'Book copy not found.');
+
+    $this->get(route("{$role}.books.copies.index", $book))
+        ->assertOk()->assertDontSee($copy->accession_number)->assertSee($copies[1]->accession_number);
+    $this->get(route("{$role}.books.copies.index", [$book, 'inventory' => 'archived']))
+        ->assertOk()->assertSee($copy->accession_number)->assertSee('Removed from library')
+        ->assertSee('Restore')->assertDontSee('class="book-copies-action edit-copy-btn"', false);
+    $this->getJson(route("{$role}.books.copies.index", [$book, 'inventory' => 'archived', 'ajax_copies' => 1]))
+        ->assertOk()->assertJsonPath('total', 1)->assertJsonPath('summary.archived', 1);
+    $this->getJson(route("{$role}.books.copies.index", $book))
+        ->assertOk()->assertJsonCount(1, 'data.copies');
+    $this->putJson(route("{$role}.book-copies.update", $copy), ['remarks' => 'Should not change'])
+        ->assertNotFound();
+    $this->deleteJson(route("{$role}.book-copies.destroy", $copy))->assertNotFound();
+
+    $this->postJson(route("{$role}.book-copies.restore", $copy))
+        ->assertOk()->assertJsonPath('data.copy.id', $copy->id)
+        ->assertJsonPath('data.copy.accession_number', $copy->accession_number)
+        ->assertJsonPath('data.summary.total', 2)->assertJsonPath('data.summary.archived', 0);
+    expect($copy->fresh()->archived_at)->toBeNull()
+        ->and($copy->fresh()->archive_reason)->toBeNull()
+        ->and($copy->fresh()->issuedBooks()->count())->toBe(1)
+        ->and(IssuedBook::findOrFail($issue->id)->book_copy_id)->toBe($copy->id);
+    $this->postJson(route("{$role}.book-copies.restore", $copy))->assertStatus(409);
+    expect($book->fresh()->total_copies)->toBe(2);
+
+    $archiveLog = ActivityLog::query()->where('action', 'copies_archived')->latest('id')->firstOrFail();
+    $restoreLog = ActivityLog::query()->where('action', 'copy_restored')->latest('id')->firstOrFail();
+    expect($archiveLog->user_id)->toBe($actor->id)
+        ->and($archiveLog->metadata['reason'])->toBe('Removed from library')
+        ->and($restoreLog->user_id)->toBe($actor->id);
+})->with(['admin', 'staff']);
+
+test('both portals recheck borrowed copies after archive preview and isolate bulk changes to this book', function (string $role) {
+    $actor = bulkCopyTestUser($role);
+    $book = bulkCopyTestBook();
+    $otherBook = bulkCopyTestBook('Other');
+    $service = app(PhysicalBookCopyService::class);
+    $copies = $service->createCopies($book, 3);
+    $otherCopy = $service->createCopies($otherBook, 1)->first();
+    $student = bulkCopyTestStudent();
+    $service->issue($student, $copies[0]->accession_number, $actor);
+    $service->return($copies[0]->accession_number);
+    $ids = [...$copies->pluck('id')->all(), $otherCopy->id];
+
+    $this->actingAs($actor)->postJson(route("{$role}.books.copies.archive-preview", $book), ['copy_ids' => $ids])
+        ->assertOk()->assertJsonPath('data.eligible_count', 3)->assertJsonPath('data.invalid_count', 1);
+    $service->issue($student, $copies[1]->accession_number, $actor);
+    // A stale inventory flag must never override an actual active loan.
+    $copies[1]->update(['status' => 'available']);
+    $this->postJson(route("{$role}.book-copies.archive", $copies[1]))->assertStatus(409);
+
+    $this->postJson(route("{$role}.books.copies.bulk-archive", $book), ['copy_ids' => $ids])
+        ->assertOk()->assertJsonPath('data.archived_count', 2)
+        ->assertJsonPath('data.borrowed_count', 1)->assertJsonPath('data.invalid_count', 1)
+        ->assertJsonPath('data.skipped_count', 2)->assertJsonPath('data.summary.total', 1)
+        ->assertJsonPath('data.summary.archived', 2);
+
+    expect(BookCopy::onlyTrashed()->whereKey($copies[0]->id)->exists())->toBeTrue()
+        ->and(BookCopy::onlyTrashed()->whereKey($copies[2]->id)->exists())->toBeTrue()
+        ->and(BookCopy::query()->whereKey($copies[1]->id)->exists())->toBeTrue()
+        ->and(BookCopy::query()->whereKey($otherCopy->id)->exists())->toBeTrue()
+        ->and(IssuedBook::query()->where('book_copy_id', $copies[0]->id)->count())->toBe(1);
+})->with(['admin', 'staff']);
+
+test('restoring archived copies preserves lost damaged and reference restrictions', function (string $condition, string $bookType, string $status, bool $borrowable) {
+    $staff = bulkCopyTestUser('staff');
+    $book = bulkCopyTestBook();
+    $service = app(PhysicalBookCopyService::class);
+    $copy = $service->createCopies($book, 1, ['condition' => $condition, 'book_type' => $bookType])->first();
+    $copy->update(['status' => $status]);
+
+    $this->actingAs($staff)->postJson(route('staff.book-copies.archive', $copy))->assertOk();
+    expect($book->fresh()->total_copies)->toBe(0)->and($book->fresh()->available_copies)->toBe(0);
+    expect(Book::availableForBorrowing()->whereKey($book->id)->exists())->toBeFalse();
+    // Archived physical inventory must not become a legacy title when counters drift.
+    $book->forceFill(['total_copies' => 99, 'available_copies' => 99])->saveQuietly();
+    expect(Book::availableForBorrowing()->whereKey($book->id)->exists())->toBeFalse()
+        ->and($book->fresh()->availableForBorrowingCount())->toBe(0)
+        ->and(Book::withCirculationAvailability()->findOrFail($book->id)->availableForBorrowingCount())->toBe(0);
+    $this->postJson(route('staff.book-copies.restore', $copy))
+        ->assertOk()->assertJsonPath('data.copy.condition', $condition)->assertJsonPath('data.copy.status', $status);
+    expect(BookCopy::availableForIssue()->whereKey($copy->id)->exists())->toBe($borrowable);
+})->with([
+    ['good', 'borrowing', 'available', true],
+    ['damaged', 'borrowing', 'damaged', false],
+    ['lost', 'borrowing', 'lost', false],
+    ['good', 'reference', 'available', false],
+]);
+
+test('archive endpoints validate input and deny students in both portals', function (string $role) {
+    $actor = bulkCopyTestUser($role);
+    $book = bulkCopyTestBook();
+    $copy = app(PhysicalBookCopyService::class)->createCopies($book, 1)->first();
+    $this->actingAs($actor)
+        ->postJson(route("{$role}.books.copies.bulk-archive", $book), [])->assertUnprocessable();
+    $this->postJson(route("{$role}.books.copies.bulk-archive", $book), ['copy_ids' => [$copy->id, $copy->id]])
+        ->assertUnprocessable();
+    $this->postJson(route("{$role}.book-copies.archive", $copy), ['reason' => str_repeat('x', 501)])
+        ->assertUnprocessable();
+
+    $this->actingAs(bulkCopyTestUser('student'));
+    $this->postJson(route("{$role}.books.copies.archive-preview", $book), ['copy_ids' => [$copy->id]])->assertForbidden();
+    $this->postJson(route("{$role}.books.copies.bulk-archive", $book), ['copy_ids' => [$copy->id]])->assertForbidden();
+    $this->postJson(route("{$role}.book-copies.archive", $copy))->assertForbidden();
+    $this->postJson(route("{$role}.book-copies.restore", $copy))->assertForbidden();
+    expect(BookCopy::query()->whereKey($copy->id)->exists())->toBeTrue();
+})->with(['admin', 'staff']);
+
+test('deleting an unused copy remains permanent rather than archiving it', function () {
+    $admin = bulkCopyTestUser('admin');
+    $book = bulkCopyTestBook();
+    $copy = app(PhysicalBookCopyService::class)->createCopies($book, 1)->first();
+    $this->actingAs($admin)->deleteJson(route('admin.book-copies.destroy', $copy))->assertOk();
+    expect(BookCopy::withTrashed()->whereKey($copy->id)->exists())->toBeFalse();
 });

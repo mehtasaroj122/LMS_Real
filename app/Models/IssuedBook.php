@@ -60,7 +60,8 @@ class IssuedBook extends Model
 
     public function bookCopy()
     {
-        return $this->belongsTo(BookCopy::class);
+        // Completed transactions retain their accession reference after archiving.
+        return $this->belongsTo(BookCopy::class)->withTrashed();
     }
 
     public function student()

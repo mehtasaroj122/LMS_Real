@@ -37,6 +37,32 @@ class PhysicalBookCopyDeletionService
      */
     public function eligibility(BookCopy $copy): array
     {
+        $archiveEligibility = $this->archiveEligibility($copy);
+        if (! $archiveEligibility['eligible']) {
+            return $archiveEligibility;
+        }
+
+        $historyCount = array_key_exists('issued_books_count', $copy->getAttributes())
+            ? (int) $copy->issued_books_count
+            : $copy->issuedBooks()->count();
+
+        if ($historyCount > 0) {
+            return [
+                'eligible' => false,
+                'code' => 'borrowing_history',
+                'reason' => 'Borrowing history must be preserved. Archive this copy instead',
+            ];
+        }
+
+        return ['eligible' => true, 'code' => null, 'reason' => null];
+    }
+
+    public function archiveEligibility(BookCopy $copy): array
+    {
+        if ($copy->trashed()) {
+            return ['eligible' => false, 'code' => 'archived', 'reason' => 'This copy is already archived'];
+        }
+
         $activeIssue = $copy->relationLoaded('activeIssue')
             ? $copy->activeIssue
             : $copy->activeIssue()->with('student.user')->first();
@@ -51,18 +77,6 @@ class PhysicalBookCopyDeletionService
                 'reason' => $borrower
                     ? "Currently borrowed by {$borrower}"
                     : 'Currently borrowed',
-            ];
-        }
-
-        $historyCount = array_key_exists('issued_books_count', $copy->getAttributes())
-            ? (int) $copy->issued_books_count
-            : $copy->issuedBooks()->count();
-
-        if ($historyCount > 0) {
-            return [
-                'eligible' => false,
-                'code' => 'borrowing_history',
-                'reason' => 'Protected because borrowing history must be preserved',
             ];
         }
 
@@ -95,7 +109,7 @@ class PhysicalBookCopyDeletionService
                 BookCopy::query()
                     ->where('book_id', $lockedBook->id)
                     ->whereIn('id', $idChunk)
-                    ->delete();
+                    ->forceDelete();
             }
 
             $this->copies->refreshBookCounters($lockedBook);

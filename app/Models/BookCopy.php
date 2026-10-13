@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -12,6 +13,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class BookCopy extends Model
 {
     use HasFactory;
+    use SoftDeletes;
+
+    public const DELETED_AT = 'archived_at';
 
     protected $fillable = [
         'book_id',
@@ -33,6 +37,11 @@ class BookCopy extends Model
     public function book(): BelongsTo
     {
         return $this->belongsTo(Book::class);
+    }
+
+    public function archivedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'archived_by');
     }
 
     public function issuedBooks(): HasMany
@@ -106,6 +115,10 @@ class BookCopy extends Model
     /** Circulation flags can drift after legacy imports; loan records determine possession. */
     public function circulationStatus(): string
     {
+        if ($this->trashed()) {
+            return 'archived';
+        }
+
         if (! in_array($this->status, ['available', 'issued'], true)) {
             return $this->status;
         }
