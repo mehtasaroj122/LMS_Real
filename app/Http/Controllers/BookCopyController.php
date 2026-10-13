@@ -350,6 +350,12 @@ class BookCopyController extends Controller
         ]);
 
         unset($validated['status']);
+        if ($validated === []) {
+            throw ValidationException::withMessages([
+                'copy' => 'No editable copy fields were provided.',
+            ]);
+        }
+
         $bookCopy->update($validated);
         $copies->refreshBookCounters($bookCopy->book);
 

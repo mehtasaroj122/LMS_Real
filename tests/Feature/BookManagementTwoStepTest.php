@@ -244,8 +244,8 @@ test('manage copies multiple mode derives book types from borrowing and referenc
         ->and(BookCopy::query()->where('book_id', $book->id)->where('price', '125.50')->count())->toBe(5);
 });
 
-test('physical copy edit keeps the generated accession stable', function () {
-    $staff = twoStepStaff();
+test('physical copy edits persist all fields and keep the generated accession stable', function (string $role) {
+    $user = $role === 'admin' ? twoStepAdmin() : twoStepStaff();
     $category = Category::create(['name' => 'Edit Copy Category']);
     $book = Book::create(array_merge(twoStepBookPayload($category), [
         'total_copies' => 0,
@@ -253,22 +253,78 @@ test('physical copy edit keeps the generated accession stable', function () {
         'condition' => 'good',
         'status' => 'unavailable',
     ]));
-    $copy = app(\App\Services\PhysicalBookCopyService::class)->createCopies($book, 1)->first();
+    $copies = app(\App\Services\PhysicalBookCopyService::class)->createCopies($book, 2);
+    $copy = $copies->first();
+    $otherCopy = $copies->last()->getAttributes();
+    $fields = [
+        'entry_date' => today()->subDay()->toDateString(),
+        'book_type' => 'reference',
+        'shelf_location' => 'R-05',
+        'condition' => 'fair',
+        'price' => '125.50',
+        'remarks' => 'Updated copy metadata',
+    ];
 
-    $this->actingAs($staff)
-        ->putJson(route('staff.book-copies.update', $copy), [
-            'entry_date' => '2026-10-05',
-            'book_type' => 'reference',
-            'shelf_location' => 'R-05',
-            'condition' => 'fair',
-            'remarks' => 'Updated copy metadata',
-        ])
-        ->assertOk();
+    $this->actingAs($user)
+        ->putJson(route($role . '.book-copies.update', $copy), $fields)
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.copy.price', '125.50');
+
+    $persisted = $copy->fresh();
+    foreach ($fields as $name => $value) {
+        expect($name === 'entry_date' ? $persisted->entry_date->toDateString() : $persisted->{$name})->toBe($value);
+    }
+    expect($copies->last()->fresh()->getAttributes())->toEqual($otherCopy);
+
+    $rows = $this->getJson(route($role . '.books.copies.index', $book, false) . '?ajax_copies=1')
+        ->assertOk()->json('tableRows');
+    expect($rows)->toContain('R-05', '125.50', 'Updated copy metadata');
 
     expect($copy->fresh()->accession_number)->toBe('ACC-000001')
         ->and($copy->fresh()->book_type)->toBe('reference')
         ->and($copy->fresh()->shelf_location)->toBe('R-05');
-});
+
+    $this->putJson(route($role . '.book-copies.update', $copy), [
+        'shelf_location' => '',
+        'price' => '',
+        'remarks' => '',
+    ])->assertOk()->assertJsonPath('success', true);
+
+    expect($copy->fresh()->shelf_location)->toBeNull()
+        ->and($copy->fresh()->price)->toBeNull()
+        ->and($copy->fresh()->remarks)->toBeNull()
+        ->and($copy->fresh()->book_type)->toBe('reference');
+
+    $this->putJson(route($role . '.book-copies.update', $copy), [
+        'shelf_location' => 'Should not save',
+        'price' => '-1',
+    ])->assertUnprocessable()->assertJsonValidationErrors('price');
+    expect($copy->fresh()->shelf_location)->toBeNull();
+})->with(['admin', 'staff']);
+
+test('physical copy edits reject requests without editable fields', function (string $role, array $payload) {
+    $category = Category::create(['name' => 'Empty Edit Category']);
+    $book = Book::create(array_merge(twoStepBookPayload($category), [
+        'total_copies' => 0,
+        'available_copies' => 0,
+        'condition' => 'good',
+        'status' => 'unavailable',
+    ]));
+    $copy = app(\App\Services\PhysicalBookCopyService::class)->createCopies($book, 1)->first();
+    $original = $copy->getAttributes();
+
+    $this->actingAs($role === 'admin' ? twoStepAdmin() : twoStepStaff())
+        ->putJson(route($role . '.book-copies.update', $copy), $payload)
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors('copy');
+
+    expect($copy->fresh()->getAttributes())->toEqual($original);
+})->with(['admin', 'staff'])->with([
+    'empty body' => [[]],
+    'ignored fields' => [['accession_number' => 'ACC-999999']],
+    'status only' => [['status' => 'available']],
+]);
 
 test('the physical-book selector searches existing books and stores the selected book id', function () {
     $staff = twoStepStaff();

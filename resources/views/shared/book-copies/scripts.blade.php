@@ -142,7 +142,7 @@
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content;
     const readResponse = async (response) => {
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(Object.values(data.errors || {}).flat()[0] || data.message || 'The action could not be completed.');
+        if (!response.ok || data.success !== true) throw new Error(Object.values(data.errors || {}).flat()[0] || data.message || 'The action could not be completed.');
         return data;
     };
 
@@ -328,8 +328,8 @@
         try {
             const response = await fetch(`${root.dataset.baseUrl}/${form.dataset.copyId}`, {
                 method: 'PUT',
-                headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
-                body: new FormData(form),
+                headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.fromEntries(new FormData(form))),
             });
             await readResponse(response);
             await loadCopies(currentPage);
